@@ -18,12 +18,16 @@ import java.math.BigDecimal;
 /**
  *
  * @author kvds
+ *
+ * TODO -> WARNING: MAXIMUM LENGTH = 64 BITS
+ * TODO -> IF BITSTRING HAS MORE BITS, AN OVERFLOW WILL OCCUR (AS VALUE IS OF TYPE LONG)!
  */
 public class BitString extends AbstractDataType {
 
 	private long value;
-	int size;
-	private int offsetBegin, offsetEnd;
+    private int size;       // The number of bits in the BIT string (without any trailing bits).
+    private int nrOfBytes;  // The number of bytes needed to store the BIT string (BIT string bits + trailing bits)
+    private int offsetBegin, offsetEnd;
 
 	/** Creates a new instance of BitString */
 	public BitString(byte[] berEncodedData, int offset) throws IOException {
@@ -39,9 +43,9 @@ public class BitString extends AbstractDataType {
 
 		// calc nr of bytes
 		if ((size % 8) == 0) {
-			size = (size / 8);
+			nrOfBytes = (size / 8);
 		} else {
-			size = ((size / 8) + 1);
+			nrOfBytes = ((size / 8) + 1);
 		}
 
 /*
@@ -52,11 +56,11 @@ public class BitString extends AbstractDataType {
 */
 
 		value = 0;
-		for (int i = 0; i < size; i++) {
-			value += ((berEncodedData[offset + i] & 0xff) << (i * 8));
+		for (int i = 0; i < nrOfBytes; i++) {
+            value += ((long) ((berEncodedData[offset + i] & 0xff)) << ((nrOfBytes - i -1) * 8));
 		}
 
-		offset += size;
+		offset += nrOfBytes;
 
 		offsetEnd = offset;
 	}
