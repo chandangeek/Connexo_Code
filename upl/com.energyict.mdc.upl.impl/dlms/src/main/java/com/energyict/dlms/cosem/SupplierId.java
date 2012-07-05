@@ -5,9 +5,8 @@ import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.attributes.SupplierIdAttributes;
+import com.energyict.dlms.cosem.attributes.ActivePassiveAttributes;
 import com.energyict.dlms.cosem.methods.SupplierIdMethods;
-
 
 import java.io.IOException;
 
@@ -50,7 +49,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
     public Unsigned32 readValue() throws IOException {
-        this.value = new Unsigned32(getResponseData(SupplierIdAttributes.VALUE), 0);
+        this.value = new Unsigned32(getResponseData(ActivePassiveAttributes.VALUE), 0);
         return this.value;
     }
 
@@ -75,7 +74,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
     public void writeValue(final Unsigned32 value) throws IOException {
-        write(SupplierIdAttributes.VALUE, value.getBEREncodedByteArray());
+        write(ActivePassiveAttributes.VALUE, value.getBEREncodedByteArray());
         this.value = value;
     }
 
@@ -87,7 +86,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
     public ScalerUnit readScalerUnit() throws IOException {
-        this.scalerUnit = new ScalerUnit(getResponseData(SupplierIdAttributes.SCALER_UNIT), 0);
+        this.scalerUnit = new ScalerUnit(getResponseData(ActivePassiveAttributes.SCALER_UNIT), 0);
         return scalerUnit;
     }
 
@@ -112,7 +111,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
     public void writeScalerUnit(final ScalerUnit scalerUnit) throws IOException {
-        write(SupplierIdAttributes.SCALER_UNIT, scalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
+        write(ActivePassiveAttributes.SCALER_UNIT, scalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
         this.scalerUnit = scalerUnit;
     }
 
@@ -124,7 +123,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
     public Unsigned32 readPassiveValue() throws IOException {
-        this.passiveValue = new Unsigned32(getResponseData(SupplierIdAttributes.PASSIVE_VALUE), 0);
+        this.passiveValue = new Unsigned32(getResponseData(ActivePassiveAttributes.PASSIVE_VALUE), 0);
         return passiveValue;
     }
 
@@ -148,7 +147,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
     public void writePassiveValue(final Unsigned32 passiveValue) throws IOException {
-        write(SupplierIdAttributes.PASSIVE_VALUE, passiveValue.getBEREncodedByteArray());
+        write(ActivePassiveAttributes.PASSIVE_VALUE, passiveValue.getBEREncodedByteArray());
         this.passiveValue = passiveValue;
     }
 
@@ -159,7 +158,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
     public ScalerUnit readPassiveScalerUnit() throws IOException {
-        this.passiveScalerUnit = new ScalerUnit(getResponseData(SupplierIdAttributes.PASSIVE_SCALER_UNIT), 0);
+        this.passiveScalerUnit = new ScalerUnit(getResponseData(ActivePassiveAttributes.PASSIVE_SCALER_UNIT), 0);
         return this.passiveScalerUnit;
     }
 
@@ -183,7 +182,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
     public void writePassiveScalerUnit(final ScalerUnit passiveScalerUnit) throws IOException {
-        write(SupplierIdAttributes.PASSIVE_SCALER_UNIT, passiveScalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
+        write(ActivePassiveAttributes.PASSIVE_SCALER_UNIT, passiveScalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
         this.passiveScalerUnit = passiveScalerUnit;
     }
 
@@ -194,7 +193,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not read the attribute
      */
     public DateTime readActivationDate() throws IOException {
-        this.activationDate = new DateTime(getResponseData(SupplierIdAttributes.ACTIVATION_TIME));
+        this.activationDate = new DateTime(getResponseData(ActivePassiveAttributes.ACTIVATION_TIME));
         return this.activationDate;
     }
 
@@ -218,7 +217,7 @@ public class SupplierId extends AbstractCosemObject {
      * @throws java.io.IOException if for some reason you could not write the attribute
      */
     public void writeActivationDate(final DateTime activationDate) throws IOException {
-        write(SupplierIdAttributes.ACTIVATION_TIME, activationDate.getBEREncodedByteArray());
+        write(ActivePassiveAttributes.ACTIVATION_TIME, activationDate.getBEREncodedByteArray());
         this.activationDate = activationDate;
     }
 

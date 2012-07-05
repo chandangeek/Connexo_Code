@@ -9,7 +9,7 @@ import com.energyict.obis.ObisCode;
  * Date: 16-aug-2011
  * Time: 13:11:21
  */
-public enum SupplierNameAttributes implements DLMSClassAttributes {
+public enum ActivePassiveAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
     VALUE(2, 0x08),
@@ -27,7 +27,7 @@ public enum SupplierNameAttributes implements DLMSClassAttributes {
      */
     private final int shortName;
 
-    SupplierNameAttributes(final int attributeNumber, final int shortName) {
+    ActivePassiveAttributes(final int attributeNumber, final int shortName) {
         this.attributeNumber = attributeNumber;
         this.shortName = shortName;
     }
