@@ -1,7 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.events;
 
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
@@ -38,15 +37,17 @@ public class ZigbeeGasEventProfiles {
             from = ProtocolUtils.getClearLastMonthDate(this.zigbeeGas.getTimeZone());
         }
         Calendar fromCalendar = getFromCalendar(from);
-        meterEvents.addAll(getStandardEventLog(fromCalendar));
-        meterEvents.addAll(getDisconnectControlEventLog(fromCalendar));
-        meterEvents.addAll(getFraudDetectionEventLog(fromCalendar));
-        meterEvents.addAll(getFirmwareEventLog(fromCalendar));
-        meterEvents.addAll(getCommFailureEventLog(fromCalendar));
-        meterEvents.addAll(getPrepaymentEventLog(fromCalendar));
-        meterEvents.addAll(getNotificationEventLog(fromCalendar));
-        meterEvents.addAll(getTariffUpdatesEventLog(fromCalendar));
-        meterEvents.addAll(getMirrorUpdatesEventLog(fromCalendar));
+        int logbookSelectorBitMask = zigbeeGas.getProperties().getLogbookSelector();
+
+        meterEvents.addAll(((logbookSelectorBitMask &  0x01) == 0x01) ? getStandardEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x02) == 0x02) ? getDisconnectControlEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x04) == 0x04) ? getFraudDetectionEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x08) == 0x08) ? getFirmwareEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x10) == 0x10) ? getCommFailureEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x20) == 0x20) ? getPrepaymentEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x40) == 0x40) ? getNotificationEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x80) == 0x80) ? getTariffUpdatesEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x100) == 0x100) ? getMirrorUpdatesEventLog(fromCalendar) : new ArrayList<MeterEvent>());
         EventUtils.removeDuplicateEvents(meterEvents);
         EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());        
         return meterEvents;

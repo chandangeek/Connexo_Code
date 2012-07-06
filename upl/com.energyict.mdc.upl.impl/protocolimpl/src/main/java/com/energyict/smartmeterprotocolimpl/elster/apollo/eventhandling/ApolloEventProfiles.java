@@ -37,16 +37,18 @@ public class ApolloEventProfiles {
      */
     public List<MeterEvent> getEventLog(Calendar fromCalendar) throws IOException {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-        meterEvents.addAll(getStandardEvents(fromCalendar));
-        meterEvents.addAll(getFraudEvents(fromCalendar));
-        meterEvents.addAll(getDisconnectControlEvents(fromCalendar));
-        meterEvents.addAll(getFirmwareEvents(fromCalendar));
-        meterEvents.addAll(getPowerQualityEvents(fromCalendar));
-        meterEvents.addAll(getPowerFailureEvents(fromCalendar));
-        meterEvents.addAll(getCommunicationFailureEvents(fromCalendar));
-        meterEvents.addAll(getTariffUpdateEvents(fromCalendar));
-        meterEvents.addAll(getPrepaymentEvents(fromCalendar));
-        meterEvents.addAll(getClockSyncEvents(fromCalendar));
+
+        int logbookSelectorBitMask = meterProtocol.getProperties().getLogbookSelector();
+        meterEvents.addAll(((logbookSelectorBitMask & 0x01) == 0x01) ? getStandardEvents(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask & 0x02) == 0x02) ? getFraudEvents(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask & 0x04) == 0x04) ? getDisconnectControlEvents(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask & 0x08) == 0x08) ? getFirmwareEvents(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask & 0x10) == 0x10) ? getPowerQualityEvents(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask & 0x20) == 0x20) ? getPowerFailureEvents(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask & 0x40) == 0x40) ? getCommunicationFailureEvents(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask & 0x80) == 0x80) ? getTariffUpdateEvents(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask & 0x100) == 0x100) ? getClockSyncEvents(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask & 0x200) == 0x200) ? getPrepaymentEvents(fromCalendar) : new ArrayList<MeterEvent>());
         EventUtils.removeDuplicateEvents(meterEvents);
         EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());
         return meterEvents;

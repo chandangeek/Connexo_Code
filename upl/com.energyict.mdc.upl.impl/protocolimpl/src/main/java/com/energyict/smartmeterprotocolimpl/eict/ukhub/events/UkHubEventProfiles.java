@@ -3,8 +3,8 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.events;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.EventUtils;
 
@@ -34,11 +34,13 @@ public class UkHubEventProfiles {
             from = ProtocolUtils.getClearLastMonthDate(this.ukHub.getTimeZone());
         }
         Calendar fromCalendar = getFromCalendar(from);
-        meterEvents.addAll(getStandardEventLog(fromCalendar));
-        meterEvents.addAll(getFraudDetectionEventLog(fromCalendar));
-        meterEvents.addAll(getFirmwareEventLog(fromCalendar));
-        meterEvents.addAll(getHanManagementFailureEventLog(fromCalendar));
-        meterEvents.addAll(getCommunicationsFailureEventLog(fromCalendar));
+
+        int logbookSelectorBitMask = ukHub.getProperties().getLogbookSelector();
+        meterEvents.addAll(((logbookSelectorBitMask &  0x01) == 0x01) ? getStandardEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x02) == 0x02) ? getFraudDetectionEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x04) == 0x04) ? getFirmwareEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x08) == 0x08) ? getHanManagementFailureEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x10) == 0x10) ? getCommunicationsFailureEventLog(fromCalendar) : new ArrayList<MeterEvent>());
         EventUtils.removeDuplicateEvents(meterEvents);
         EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());        
         return meterEvents;

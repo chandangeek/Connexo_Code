@@ -62,7 +62,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
      * @return the requested Properties
      */
     @Override
-    protected ZigbeeGasProperties getProperties() {
+    public ZigbeeGasProperties getProperties() {
         if (this.properties == null) {
             this.properties = new ZigbeeGasProperties();
         }

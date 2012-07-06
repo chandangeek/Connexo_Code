@@ -33,7 +33,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     protected AS300Messaging messageProtocol;
 
     @Override
-    protected AS300Properties getProperties() {
+    public AS300Properties getProperties() {
         if (properties == null) {
             properties = new AS300Properties();
         }

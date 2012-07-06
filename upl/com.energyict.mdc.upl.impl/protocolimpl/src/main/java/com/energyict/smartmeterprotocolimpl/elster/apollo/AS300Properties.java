@@ -21,6 +21,9 @@ public class AS300Properties extends DlmsProtocolProperties {
     public static final String DEFAULT_AS300_CLIENT_MAC_ADDRESS = "64";
     public static final String DEFAULT_AS300_LOGICAL_DEVICE_ADDRESS = "45";
 
+    private static final String LOGBOOK_SELECTOR = "LogbookSelector";
+    private static final String DEFAULT_LOGBOOK_SELECTOR = "-1";
+
     private static final int FIRMWARE_CLIENT = 0x50;
     private static final String MaxReceivePduSize = "128";
 
@@ -41,6 +44,7 @@ public class AS300Properties extends DlmsProtocolProperties {
         optional.add(DlmsProtocolProperties.ROUND_TRIP_CORRECTION);
         optional.add(UkHubSecurityProvider.DATATRANSPORT_AUTHENTICATIONKEY);
         optional.add(UkHubSecurityProvider.DATATRANSPORT_ENCRYPTIONKEY);
+        optional.add(LOGBOOK_SELECTOR);
         return optional;
     }
 
@@ -96,5 +100,14 @@ public class AS300Properties extends DlmsProtocolProperties {
     @Override
     public int getMaxRecPDUSize() {
         return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize);
+    }
+
+    /**
+     * Getter for the LogBookSelector bitmask
+     *
+     * @return the bitmask, containing which event logbooks that should be read out.
+     */
+    public int getLogbookSelector() {
+        return getIntProperty(LOGBOOK_SELECTOR, DEFAULT_LOGBOOK_SELECTOR);
     }
 }

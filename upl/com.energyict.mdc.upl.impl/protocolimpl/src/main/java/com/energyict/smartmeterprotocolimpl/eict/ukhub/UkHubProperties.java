@@ -23,6 +23,9 @@ public class UkHubProperties extends DlmsProtocolProperties {
     private static final String MaxReceivePduSize = "4096";
     private static final String DefaultZ3BulkRequesSupport = "1";
 
+    private static final String LOGBOOK_SELECTOR = "LogbookSelector";
+    private static final String DEFAULT_LOGBOOK_SELECTOR = "-1";
+
     public static final int FIRMWARE_CLIENT = 0x50;
 
     private SecurityProvider securityProvider;
@@ -57,6 +60,7 @@ public class UkHubProperties extends DlmsProtocolProperties {
         optional.add(UkHubSecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
         optional.add(UkHubSecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
         optional.add(UkHubSecurityProvider.NEW_HLS_SECRET);
+        optional.add(LOGBOOK_SELECTOR);
         return optional;
     }
 
@@ -82,6 +86,14 @@ public class UkHubProperties extends DlmsProtocolProperties {
     @Override
     public int getMaxRecPDUSize() {
         return getIntProperty(MAX_REC_PDU_SIZE, MaxReceivePduSize);
+    }
+
+    /**
+     * Getter for the LogBookSelector bitmask
+     * @return the bitmask, containing which event logbooks that should be read out.
+     */
+    public int getLogbookSelector() {
+        return getIntProperty(LOGBOOK_SELECTOR, DEFAULT_LOGBOOK_SELECTOR);
     }
 
     @ProtocolProperty

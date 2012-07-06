@@ -21,6 +21,10 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
     public static final String DEFAULT_ZIGBEE_GAS_CLIENT_MAC_ADDRESS = "64";
     public static final int FIRMWARE_CLIENT = 0x50;
 
+    private static final String LOGBOOK_SELECTOR = "LogbookSelector";
+    private static final String DEFAULT_LOGBOOK_SELECTOR = "-1";
+
+
     /**
      * Default it starts at 30, but if more devices are supported then it can go from 30 to 45
      */
@@ -59,6 +63,7 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
         optional.add(UkHubSecurityProvider.NEW_DATATRANSPORT_ENCRYPTION_KEY);
         optional.add(UkHubSecurityProvider.NEW_DATATRANSPORT_AUTHENTICATION_KEY);
         optional.add(UkHubSecurityProvider.NEW_HLS_SECRET);
+        optional.add(LOGBOOK_SELECTOR);
         return optional;
     }
 
@@ -86,6 +91,15 @@ public class ZigbeeGasProperties extends DlmsProtocolProperties {
 
     public boolean isFirmwareUpdateSession() {
         return getClientMacAddress() == FIRMWARE_CLIENT;
+    }
+
+    /**
+     * Getter for the LogBookSelector bitmask
+     *
+     * @return the bitmask, containing which event logbooks that should be read out.
+     */
+    public int getLogbookSelector() {
+        return getIntProperty(LOGBOOK_SELECTOR, DEFAULT_LOGBOOK_SELECTOR);
     }
 
     @Override
