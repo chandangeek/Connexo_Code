@@ -41,6 +41,8 @@ public final class ObisCodeProvider {
     public static final ObisCode DeviceId51 = ObisCode.fromString("0.0.96.1.51.255");     //hours in fault
     public static final ObisCode DeviceId52 = ObisCode.fromString("0.0.96.1.52.255");     //remaining battery life
 
+    public static final ObisCode cotManagement = ObisCode.fromString("0.0.35.10.0.255");    // COT Management
+
     public static final ObisCode GENERAL_LOAD_PROFILE = ObisCode.fromString("0.0.96.10.1.255");
     public static final ObisCode GENERAL_LP_STATUS_OBISCODE = ObisCode.fromString("0.0.96.10.1.255");
 
@@ -85,10 +87,6 @@ public final class ObisCodeProvider {
     public static final ObisCode SPECIAL_DAY_TABLE = ObisCode.fromString("0.0.11.0.0.255");
 
     public static final ObisCode FIRMWARE_UPDATE = ObisCode.fromString("0.0.44.0.0.255");
-
-    public static final ObisCode STANDING_CHARGE = ObisCode.fromString("0.0.0.61.2.255");
-    public static final ObisCode CALORIFIC_VALUE = ObisCode.fromString("7.0.54.0.0.255");
-    public static final ObisCode CONVERSION_FACTOR = ObisCode.fromString("7.0.52.0.0.255");
 
     static {
         OBJECT_LIST = new UniversalObject[]{

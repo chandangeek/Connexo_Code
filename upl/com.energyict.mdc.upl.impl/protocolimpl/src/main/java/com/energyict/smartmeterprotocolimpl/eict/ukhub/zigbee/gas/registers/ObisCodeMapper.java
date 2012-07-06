@@ -3,20 +3,14 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -134,18 +128,6 @@ public class ObisCodeMapper {
             }
         }
         return dlmsAttributes;
-    }
-
-    public boolean isStandingChargeRegister(ObisCode obisCode) {
-        return obisCode.equals(ObisCodeProvider.STANDING_CHARGE);
-    }
-
-    public boolean isCalorificValueRegister(ObisCode obisCode) {
-        return obisCode.equals(ObisCodeProvider.CALORIFIC_VALUE);
-    }
-
-    public boolean isConversionFactorRegister(ObisCode obisCode) {
-        return obisCode.equals(ObisCodeProvider.CONVERSION_FACTOR);
     }
 
     public static void main(String[] args) throws IOException {

@@ -2,32 +2,20 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.BulkRegisterProtocol;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.Register;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -116,7 +104,7 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
                     DLMSAttribute registerUnitAttribute = composedRegister.getRegisterUnitAttribute();
                     ScalerUnit su = new ScalerUnit(registerComposedCosemObject.getAttribute(registerUnitAttribute));
                     if (su.getUnitCode() == 0) {
-                        throw new NoSuchRegisterException("Register with ObisCode: " + register.getObisCode() + " does not provide a proper Unit.");
+                        throw new IOException("Register with ObisCode: " + register.getObisCode() + " does not provide a proper Unit.");
                     }
                     rv = new RegisterValue(register, new Quantity(value, su.getEisUnit()));
                 } else if (this.registerMap.containsKey(register)) {
@@ -144,8 +132,7 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
      * @param supportsBulkRequest indicates whether a DLMS Bulk reques(getWithList) is desired
      * @return a ComposedCosemObject or null if the list was empty
      */
-    protected ComposedCosemObject constructComposedObjectFromRegisterList(List<Register> registers, boolean supportsBulkRequest) {
-
+    protected ComposedCosemObject constructComposedObjectFromRegisterList(List<Register> registers, boolean supportsBulkRequest) throws IOException {
         if (registers != null) {
             List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
             for (Register register : registers) {
@@ -160,23 +147,25 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
                         dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
                         this.composedRegisterMap.put(register, composedRegister);
+                    }
 
-                        // All Demand registers will be supported
-                    } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+                    // All Demand registers will be supported
+                    else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
                         ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber(), uo.getClassID()),
                                 new DLMSAttribute(rObisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID()));
                         dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
                         this.composedRegisterMap.put(register, composedRegister);
+                    }
 
-                        // A custom defined list of registers or objectAttributes
-                    } else {
-                        // We get the default 'Value' attribute (2)
+                    // The other DLMS classes need to be custom implemented, they are added to a general registerMap
+                    // Note: We get the default 'Value' attribute (2)
+                    else {
                         this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, uo.getClassID()));
                         dlmsAttributes.add(this.registerMap.get(register));
                     }
                 } else {
-                    this.meterProtocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
+                    this.meterProtocol.getLogger().log(Level.WARNING, rObisCode.toString() + " not found in meter's instantiated object list!");
                 }
             }
             return new ComposedCosemObject(this.meterProtocol.getDlmsSession(), supportsBulkRequest, dlmsAttributes);
@@ -184,26 +173,18 @@ public class UkHubRegisterFactory implements BulkRegisterProtocol {
         return null;
     }
 
-    private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws UnsupportedException {
-        ObisCode rObisCode = register.getObisCode();
+    private RegisterValue convertCustomAbstractObjectsToRegisterValues(Register register, AbstractDataType abstractDataType) throws IOException {
 
-        if (rObisCode.equals(OperationalFirmwareZCLVersion) || rObisCode.equals(OperationalFirmwareStackVersion)
-                || rObisCode.equals(OperationalFirmwareMonolitic) || rObisCode.equals(OperationalFirmwareMID)
-                || rObisCode.equals(OperationalFirmwareNonMIDApp) || rObisCode.equals(OperationalFirmwareBootloader)
-                || rObisCode.equals(OperationalFirmwareZigbeeChip) || rObisCode.equals(OperationalFirmwareHAN)
-                || rObisCode.equals(OperationalFirmwareWAN)
-
-                || rObisCode.equals(DeviceId1) || rObisCode.equals(DeviceId2) || rObisCode.equals(DeviceId3)
-                || rObisCode.equals(DeviceId4) || rObisCode.equals(DeviceId5) || rObisCode.equals(DeviceId6)
-                || rObisCode.equals(DeviceId7) || rObisCode.equals(DeviceId8) || rObisCode.equals(DeviceId10)
-                || rObisCode.equals(DeviceId50) || rObisCode.equals(DeviceId51) || rObisCode.equals(DeviceId52)
-                || rObisCode.equals(MeteringPointId)) {
-            return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(abstractDataType.getContentByteArray()));
-        } else if(rObisCode.equals(ERROR_REGISTER) || rObisCode.equals(ALARM_REGISTER)){
-            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()), null, null, null, new Date(), 0, String.valueOf(abstractDataType.longValue()));
-        } else {
-            throw new UnsupportedException("Register with obisCode " + rObisCode + " is not supported.");
+        // If the abstractDataType is of simple type (e.g.: Unsigned16 / OctetString), we can parse the content.
+        if (abstractDataType.isNumerical()) {
+            return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.getUndefined()));
+        } else if (abstractDataType.isOctetString()) {
+            return new RegisterValue(register, ((OctetString) abstractDataType).stringValue());
+        } else if (abstractDataType.isBooleanObject()) {
+            boolean state = ((BooleanObject) abstractDataType).getState();
+            return new RegisterValue(register, "" + state);
         }
+        throw new IOException("DLMS object with obiscode " + register.getObisCode() + " cannot be read out as a register.");
     }
 
 }

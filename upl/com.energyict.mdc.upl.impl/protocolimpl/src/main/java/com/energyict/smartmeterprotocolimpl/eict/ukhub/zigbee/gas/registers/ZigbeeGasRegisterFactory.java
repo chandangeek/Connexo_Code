@@ -1,18 +1,18 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers;
 
 import com.energyict.cbo.*;
-import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -44,6 +44,8 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
                 } else {
                     getZigbeeGas().getLogger().severe("Unable to read register [" + register.getObisCode() + "]: " + e.getMessage());
                 }
+            } catch (ApplicationException e) {
+                getZigbeeGas().getLogger().severe("Unable to read register [" + register.getObisCode() + "]: " + e.getMessage());
             }
         }
         return registerValues;
@@ -51,83 +53,57 @@ public class ZigbeeGasRegisterFactory implements BulkRegisterProtocol {
 
     private RegisterValue readSingleRegister(Register register) throws IOException {
         ObisCode obisCode = register.getObisCode();
-        if (getObisCodeMapper().isStandingChargeRegister(obisCode)) {
-            ActivePassive information = getCosemObjectFactory().getActivePassive(obisCode);
-            Unsigned32 value = information.getValue().getUnsigned32();
-            ScalerUnit scalerUnit = information.getScalerUnit();
-            if (scalerUnit.getUnitCode() == 10) {
-                scalerUnit = new ScalerUnit(scalerUnit.getScaler(), 255);
-            }
-            Quantity quantity;
-            try {
-                quantity = new Quantity(value.getValue(), scalerUnit.getEisUnit());
-            } catch (ApplicationException e) {  // The BasUnit code is not found (not yet present in our code base)
-                quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
-            }
+
+        final UniversalObject universalObject = zigbeeGas.getDlmsSession().getMeterConfig().findObject(obisCode);
+        if (universalObject.getClassID() == DLMSClassId.REGISTER.getClassId()) {
+            com.energyict.dlms.cosem.Register registerObject = getCosemObjectFactory().getRegister(obisCode);
+            Quantity quantity = registerObject.getQuantityValue();
             return new RegisterValue(register, quantity);
-        } else if (getObisCodeMapper().isCalorificValueRegister(obisCode)) {
-            ActivePassive information = getCosemObjectFactory().getActivePassive(obisCode);
-            Unsigned32 value = information.getValue().getUnsigned32();
-            ScalerUnit scalerUnit = information.getScalerUnit();
-            if (scalerUnit.getUnitCode() == 10) {
-                scalerUnit = new ScalerUnit(scalerUnit.getScaler(), 255);
-            }
-            Quantity quantity;
-            try {
-                quantity = new Quantity(value.getValue(), scalerUnit.getEisUnit());
-            } catch (ApplicationException e) {
-                quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
-            }
-            return new RegisterValue(register, quantity);
-        } else if (getObisCodeMapper().isConversionFactorRegister(obisCode)) {
-            ActivePassive information = getCosemObjectFactory().getActivePassive(obisCode);
-            Unsigned32 value = information.getValue().getUnsigned32();
-            ScalerUnit scalerUnit = information.getScalerUnit();
-            if (scalerUnit.getUnitCode() == 10) {
-                scalerUnit = new ScalerUnit(scalerUnit.getScaler(), 255);
-            }
-            Quantity quantity;
-            try {
-                quantity = new Quantity(value.getValue(), scalerUnit.getEisUnit());
-            } catch (ApplicationException e) {
-                quantity = new Quantity(value.getValue(), Unit.get(255, scalerUnit.getScaler()));
-            }
-            return new RegisterValue(register, quantity);
-        } else if (getObisCodeMapper().isAbstractRegister(obisCode)) {
-            DLMSAttribute attribute = getObisCodeMapper().getAbstractRegisterDLMSAttribute(obisCode);
-            if (attribute.getDLMSClassId().isRegister()) {
-                com.energyict.dlms.cosem.Register registerObject = getCosemObjectFactory().getRegister(obisCode);
-                Quantity quantity = registerObject.getQuantityValue();
-                return new RegisterValue(register, quantity);
-            } else if (attribute.getDLMSClassId().isDemandRegister()) {
-                DemandRegister demandRegister = getCosemObjectFactory().getDemandRegister(obisCode);
-                Quantity quantity = demandRegister.getQuantityValue();
-                Date captureTime = demandRegister.getCaptureTime();
-                Date billingDate = demandRegister.getBillingDate();
-                return new RegisterValue(register, quantity, captureTime, billingDate);
-            } else if (attribute.getDLMSClassId().isExtendedRegister()) {
-                ExtendedRegister extendedRegister = getCosemObjectFactory().getExtendedRegister(obisCode);
-                Quantity quantity = extendedRegister.getQuantityValue();
-                Date captureTime = extendedRegister.getCaptureTime();
-                Date billingDate = extendedRegister.getBillingDate();
-                return new RegisterValue(register, quantity, captureTime, billingDate);
-            } else if(attribute.getDLMSClassId().isData()){
-                Data data = getCosemObjectFactory().getData(obisCode);
-                Long value = data.getValue();
-                return new RegisterValue(register, new Quantity(new BigDecimal(value), Unit.get(BaseUnit.HOUR)), null, null, null, new Date(), 0, String.valueOf(value));
-            }
-        } else if (getObisCodeMapper().isAbstractTextRegister(obisCode)) {
-            DLMSAttribute attribute = getObisCodeMapper().getAbstractTextDLMSAttribute(obisCode);
+        } else if (universalObject.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
+            ExtendedRegister extendedRegister = getCosemObjectFactory().getExtendedRegister(obisCode);
+            Quantity quantity = extendedRegister.getQuantityValue();
+            Date captureTime = extendedRegister.getCaptureTime();
+            Date billingDate = extendedRegister.getBillingDate();
+            return new RegisterValue(register, quantity, captureTime, billingDate);
+        } else if (universalObject.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+            DemandRegister demandRegister = getCosemObjectFactory().getDemandRegister(obisCode);
+            Quantity quantity = demandRegister.getQuantityValue();
+            Date captureTime = demandRegister.getCaptureTime();
+            Date billingDate = demandRegister.getBillingDate();
+            return new RegisterValue(register, quantity, captureTime, billingDate);
+        } else if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
             Data data = getCosemObjectFactory().getData(obisCode);
-//            GenericRead genericRead = getCosemObjectFactory().getGenericRead(attribute);
-            return new RegisterValue(register, new String(data.getAttrbAbstractDataType(DataAttributes.VALUE.getAttributeNumber()).getContentByteArray()));
-        } else if (getObisCodeMapper().isAbstractValueRegister(obisCode)) {
-            DLMSAttribute attribute = getObisCodeMapper().getAbstractValueDLMSAttribute(obisCode);
-            GenericRead genericRead = getCosemObjectFactory().getGenericRead(attribute);
-            Quantity quantity = new Quantity(genericRead.getValue(), Unit.getUndefined());
-            return new RegisterValue(register, quantity);
+            if (data.getValueAttr().isNumerical()) {
+                return new RegisterValue(register, new Quantity(data.getValue(), Unit.getUndefined()));
+            } else if (data.getValueAttr().isOctetString()) {
+                return new RegisterValue(register, data.getString());
+            } else if (data.getValueAttr().isBooleanObject()) {
+                boolean state = ((BooleanObject) data.getValueAttr()).getState();
+                return new RegisterValue(register, "" + state);
+            } else {
+                throw new IOException("DLMS object with obiscode " + register.getObisCode() + " cannot be read out as a register.");
+            }
+        } else if (universalObject.getClassID() == DLMSClassId.ACTIVE_PASSIVE.getClassId()) {
+            ActivePassive activePassive = getCosemObjectFactory().getActivePassive(obisCode);
+            AbstractDataType dataType = activePassive.getValue();
+            if (dataType.isNumerical()) {
+                Unsigned32 value = dataType.getUnsigned32();
+                ScalerUnit scalerUnit = activePassive.getScalerUnit();
+                Quantity quantity = new Quantity(value.getValue(), scalerUnit.getEisUnit());
+                return new RegisterValue(register, quantity);
+            } else if (dataType.isOctetString()) {
+                if (obisCode.equals(ObisCodeProvider.cotManagement)) {
+                    DateTime dateTime = ((OctetString) dataType).getDateTime(getZigbeeGas().getTimeZone());
+                    if (dateTime != null) {
+                        return new RegisterValue(register, new Quantity(dateTime.getValue().getTimeInMillis(), Unit.getUndefined()), dateTime.getValue().getTime());
+                    }
+                }
+                return new RegisterValue(register, ((OctetString) dataType).stringValue());
+            } else {
+                throw new IOException("DLMS object with obiscode " + register.getObisCode() + " cannot be read out as a register.");
+            }
         }
-        throw new IOException("Register with obisCode [" + obisCode + "] not found in mapping.");
+        throw new IOException("DLMS object with obiscode " + register.getObisCode() + " has DLMS class " + universalObject.getClassID() + " - object cannot be readout as a register.");
     }
 
     private CosemObjectFactory getCosemObjectFactory() {
