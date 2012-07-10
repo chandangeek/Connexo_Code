@@ -737,7 +737,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
             } else if (securityLevel.length == 1) {
                 this.datatransportSecurityLevel = 0;
             } else {
-                throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
+                throw new IllegalArgumentException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "1"));
             }
             iiapInvokeId = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_INVOKE_ID, "0"));
             iiapPriority = Integer.parseInt(properties.getProperty(PROPNAME_IIAP_PRIORITY, "1"));

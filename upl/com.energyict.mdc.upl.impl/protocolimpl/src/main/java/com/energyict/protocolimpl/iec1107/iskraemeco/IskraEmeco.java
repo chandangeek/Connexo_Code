@@ -291,6 +291,7 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
         return result;
     }
 
+    /** Protocol Version **/
     public String getProtocolVersion() {
         return "$Date$";
     }

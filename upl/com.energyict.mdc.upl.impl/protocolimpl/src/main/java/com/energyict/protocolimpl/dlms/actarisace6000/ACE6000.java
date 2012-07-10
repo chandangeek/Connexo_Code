@@ -1325,6 +1325,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return serialnr;
     } // public String getSerialNumber() throws IOException
 
+    /** Protocol Version **/
     public String getProtocolVersion() {
         return "$Date$";
     }
