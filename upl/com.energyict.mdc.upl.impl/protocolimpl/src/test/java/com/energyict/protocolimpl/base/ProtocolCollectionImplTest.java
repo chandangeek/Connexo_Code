@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocolimpl.base.protocolcollections.ProtocolCollectionImpl;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.base.protocolcollections.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -100,6 +102,75 @@ public class ProtocolCollectionImplTest {
                 sb.append("\r\n").append("    *  ").append(className);
             }
             fail(sb.toString());
+        }
+
+    }
+
+    @Ignore
+    @Test
+    public void printMessages() {
+        ProtocolCollectionImpl collection = new ProtocolCollectionImpl();
+        List<String> classNames = collection.getProtocolClasses();
+        for (String className : classNames) {
+            try {
+                Object object = Class.forName(className).newInstance();
+                if (object instanceof Messaging) {
+                    Messaging messaging = (Messaging) object;
+                    for (Object messageCategorySpec : messaging.getMessageCategories()) {
+                        MessageCategorySpec mcs = (MessageCategorySpec) messageCategorySpec;
+                        for (Object messageSpec : mcs.getMessageSpecs()) {
+                            MessageSpec ms = (MessageSpec) messageSpec;
+                            System.out.println(ms.getName());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+
+        System.out.println("*************************************************************************");
+
+        GenericProtocolCollectionImpl gcollection = new GenericProtocolCollectionImpl();
+        classNames = gcollection.getProtocolClasses();
+        for (String className : classNames) {
+            try {
+                Object object = Class.forName(className).newInstance();
+                if (object instanceof Messaging) {
+                    Messaging messaging = (Messaging) object;
+                    for (Object messageCategorySpec : messaging.getMessageCategories()) {
+                        MessageCategorySpec mcs = (MessageCategorySpec) messageCategorySpec;
+                        for (Object messageSpec : mcs.getMessageSpecs()) {
+                            MessageSpec ms = (MessageSpec) messageSpec;
+                            System.out.println(ms.getName());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+        }
+
+        System.out.println("*************************************************************************");
+
+        SmartMeterProtocolCollectionImpl smcollection = new SmartMeterProtocolCollectionImpl();
+        classNames = smcollection.getProtocolClasses();
+        for (String className : classNames) {
+            try {
+                Object object = Class.forName(className).newInstance();
+                if (object instanceof Messaging) {
+                    Messaging messaging = (Messaging) object;
+                    for (Object messageCategorySpec : messaging.getMessageCategories()) {
+                        MessageCategorySpec mcs = (MessageCategorySpec) messageCategorySpec;
+                        for (Object messageSpec : mcs.getMessageSpecs()) {
+                            MessageSpec ms = (MessageSpec) messageSpec;
+                            System.out.println(ms.getName());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
 
     }
