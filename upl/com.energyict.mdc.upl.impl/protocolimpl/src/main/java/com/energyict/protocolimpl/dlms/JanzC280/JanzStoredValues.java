@@ -6,6 +6,7 @@ import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -24,6 +25,8 @@ public class JanzStoredValues implements com.energyict.dlms.cosem.StoredValues {
     public static final ObisCode OBISCODE_CLOSE_BILLING_HISTORICAL_MAXIMUM_DEMANDS = ObisCode.fromString("1.0.98.1.1.255");
     public static final ObisCode OBISCODE_CLOSE_BILLING_HISTORICAL_FIRST_TARIFF = ObisCode.fromString("1.0.98.1.2.255");
     public static final ObisCode OBISCODE_CLOSE_BILLING_HISTORICAL_SECOND_TARIFF = ObisCode.fromString("1.0.98.1.3.255");
+
+    private static long BASE_NUMBER_OF_SECONDS = (long) 946684800; // = number of seconds 1 Jan 1970 UTC - 1 Jan 2000 UTC
 
     private final CosemObjectFactory cosemObjectFactory;
     private ProfileGeneric profileGeneric = null;
@@ -101,10 +104,7 @@ public class JanzStoredValues implements com.energyict.dlms.cosem.StoredValues {
 
         DataStructure structure = getSelectiveBuffer(obisCode).getRoot().getStructure(0).getStructure(0);
         long timeStamp = getSelectiveBuffer(obisCode).getRoot().getStructure(0).getValue(1);
-
-        // The timestamp received from the meter is the number of seconds since 1 jan 2000.
-        Calendar billingCal = Calendar.getInstance(janzC280.getTimeZone());         // Received timestamp is in the device timezone, not GMT!
-        billingCal.setTimeInMillis((946684800 + timeStamp) * 1000);    // Number of seconds [1970 - 2000] + number of seconds [2000 - meter time]
+        Calendar billingCal = getCalendarFromHoraLegal(timeStamp);
 
         // This structure contains the info of historical of specific register and for the set billingPoint.
         DataStructure registerStructure = structure.getStructure(registerIndex);
@@ -116,9 +116,7 @@ public class JanzStoredValues implements com.energyict.dlms.cosem.StoredValues {
 
         Calendar billingCollectionTimeCal = billingCal;
         if (timeStamp != 0) {
-            // The timestamp received from the meter is the number of seconds since 1 jan 2000.
-            billingCollectionTimeCal = Calendar.getInstance(janzC280.getTimeZone());         // Received timestamp is in the device timezone, not GMT!
-            billingCollectionTimeCal.setTimeInMillis((946684800 + timeStamp) * 1000);    // Number of seconds [1970 - 2000] + number of seconds [2000 - meter time]
+            billingCollectionTimeCal = getCalendarFromHoraLegal(timeStamp);
         }
 
         HistoricalRegister cosemValue = new HistoricalRegister();
@@ -137,29 +135,14 @@ public class JanzStoredValues implements com.energyict.dlms.cosem.StoredValues {
 
         DataStructure structure = getSelectiveBuffer(obisCode).getRoot().getStructure(0).getStructure(registerIndex);
         long timeStamp = getSelectiveBuffer(obisCode).getRoot().getStructure(0).getValue(32);
-
-        // The timestamp received from the meter is the number of seconds since 1 jan 2000.
-        Calendar billingCal = Calendar.getInstance(janzC280.getTimeZone());         // Received timestamp is in the device timezone, not GMT!
-        billingCal.setTimeInMillis((946684800 + timeStamp) * 1000);    // Number of seconds [1970 - 2000] + number of seconds [2000 - meter time]
-
+        Calendar billingCal = getCalendarFromHoraLegal(timeStamp);
 
         float energy = structure.getFloat(0);
         Unit unit =  Unit.get((int) structure.getValue(2), (int) structure.getValue(1));
         int associatedEnergy = (int) structure.getValue(3);
         if (associatedEnergy == 0) {
-            throw new NoSuchRegisterException("Historic register "+ProtocolTools.setObisCodeField(obisCode, 6, (byte) 0xFF).toString() +" is not activated.");
+            throw new NoSuchRegisterException("Register "+ProtocolTools.setObisCodeField(obisCode, 5, (byte) 0xFF).toString() +" is not activated.");
         }
-
-//        int tariff = (int) structure.getValue(4);
-//        int type = (int) structure.getValue(5);
-
-//        timeStamp = structure.getValue(6);
-//        Calendar billingCollectionTimeCal = billingCal;
-//        if (timeStamp != 0) {
-//            // The timestamp received from the meter is the number of seconds since 1 jan 2000 (when 0, timestamp is the same as billingCal timestamp)
-//            billingCollectionTimeCal = Calendar.getInstance(janzC280.getTimeZone());         // Received timestamp is in the device timezone, not GMT!
-//            billingCollectionTimeCal.setTimeInMillis((946684800 + timeStamp) * 1000);    // Number of seconds [1970 - 2000] + number of seconds [2000 - meter time]
-//        }
 
         HistoricalRegister cosemValue = new HistoricalRegister();
         cosemValue.setQuantityValue(BigDecimal.valueOf(energy), unit);
@@ -226,6 +209,27 @@ public class JanzStoredValues implements com.energyict.dlms.cosem.StoredValues {
         }
 
         throw new NoSuchRegisterException("Obiscode " + obisCode.toString() + " is not a historical.");
+    }
+
+    /**
+     * Convert the Hora Legal timestamp to a Calendar
+     *
+     * @param horaLegal: Number of seconds [1 Jan 2000 - current UTC time] + time zone offset in seconds + daylight saving offset (0 if in winterTime | 3600 seconds if in summerTime).
+     * @return a Calendar containing the date/time.
+     */
+    private Calendar getCalendarFromHoraLegal(long horaLegal) {
+        Calendar gmtCal = ProtocolUtils.getCleanGMTCalendar();
+        gmtCal.setTimeInMillis((BASE_NUMBER_OF_SECONDS + horaLegal) * 1000);
+
+        Calendar localCal = Calendar.getInstance(janzC280.getTimeZone());
+        localCal.set(Calendar.YEAR, gmtCal.get(Calendar.YEAR));
+        localCal.set(Calendar.MONTH, gmtCal.get(Calendar.MONTH));
+        localCal.set(Calendar.DAY_OF_MONTH, gmtCal.get(Calendar.DAY_OF_MONTH));
+        localCal.set(Calendar.HOUR_OF_DAY, gmtCal.get(Calendar.HOUR_OF_DAY));
+        localCal.set(Calendar.MINUTE, gmtCal.get(Calendar.MINUTE));
+        localCal.set(Calendar.SECOND, gmtCal.get(Calendar.SECOND));
+        localCal.set(Calendar.MILLISECOND, gmtCal.get(Calendar.MILLISECOND));
+        return localCal;
     }
 
     public ProfileGeneric getProfileGeneric() {

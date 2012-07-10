@@ -24,6 +24,7 @@ public class ProfileDataReader {
 
     private static ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("1.0.99.98.0.255");
     private static ObisCode QUALITY_LOG = ObisCode.fromString("1.0.99.98.1.255");
+    private static long BASE_NUMBER_OF_SECONDS = (long) 946684800; // = number of seconds 1 Jan 1970 UTC - 1 Jan 2000 UTC
 
     public ProfileDataReader(JanzC280 janzC280) {
         this.janzC280 = janzC280;
@@ -48,8 +49,8 @@ public class ProfileDataReader {
             Calendar toCal = Calendar.getInstance(janzC280.getTimeZone());
             toCal.setTime(to);
 
-            long fromDateStamp = ((fromCal.getTime().getTime() / 1000) - 946684800);
-            long toDateStamp = ((toCal.getTime().getTime() / 1000) - 946684800);
+            long fromDateStamp = getHoraLegalFromCalendar(fromCal);
+            long toDateStamp = getHoraLegalFromCalendar(toCal);
 
             int length = janzC280.getLoadProfileObisCodes().length;
             ProfileGeneric[] profileGenerics = new ProfileGeneric[length];
@@ -64,12 +65,10 @@ public class ProfileDataReader {
 
                 for (int index = 0; index < loadProfileEntries.length; index++) {
                     DataStructure structure = buffer.getRoot().getStructure(index);
-
                     byte[] eventDef = new byte[]{(byte) structure.getInteger(0), (byte) structure.getInteger(1)};
-                    // The timestamp received from the meter is the number of seconds since 1 jan 2000.
-                    Calendar cal = Calendar.getInstance(janzC280.getTimeZone());         // Received timestamp is in the device timezone, not GMT!
-                    cal.setTimeInMillis((946684800 + structure.getValue(2)) * 1000);    // Number of seconds [1970 - 2000] + number of seconds [2000 - meter time]
 
+                    long horaLegal = structure.getValue(2);
+                    Calendar cal = getCalendarFromHoraLegal(horaLegal);
                     int protocolStatus = Integer.parseInt(String.valueOf(structure.getValue(0))
                             + (structure.getValue(1) < 10 ? "0" : "")
                             + String.valueOf(structure.getValue(1)));
@@ -109,6 +108,41 @@ public class ProfileDataReader {
         }
 
         return profileData;
+    }
+
+     /**
+     * Convert the Hora Legal timestamp to a Calendar
+     *
+     * @param horaLegal: Number of seconds [1 Jan 2000 - current UTC time] + time zone offset in seconds + daylight saving offset (0 if in winterTime | 3600 seconds if in summerTime).
+     * @return a Calendar containing the date/time.
+     */
+    private Calendar getCalendarFromHoraLegal(long horaLegal) {
+        Calendar gmtCal = ProtocolUtils.getCleanGMTCalendar();
+        gmtCal.setTimeInMillis((BASE_NUMBER_OF_SECONDS + horaLegal) * 1000);
+
+        Calendar localCal = Calendar.getInstance(janzC280.getTimeZone());
+        localCal.set(Calendar.YEAR, gmtCal.get(Calendar.YEAR));
+        localCal.set(Calendar.MONTH, gmtCal.get(Calendar.MONTH));
+        localCal.set(Calendar.DAY_OF_MONTH, gmtCal.get(Calendar.DAY_OF_MONTH));
+        localCal.set(Calendar.HOUR_OF_DAY, gmtCal.get(Calendar.HOUR_OF_DAY));
+        localCal.set(Calendar.MINUTE, gmtCal.get(Calendar.MINUTE));
+        localCal.set(Calendar.SECOND, gmtCal.get(Calendar.SECOND));
+        localCal.set(Calendar.MILLISECOND, gmtCal.get(Calendar.MILLISECOND));
+        return localCal;
+    }
+
+     /**
+     * Convert the Calendar to a Hora Legal timestamp
+      *
+      * @param cal
+     * @return hora legal timestamp
+     */
+    private long getHoraLegalFromCalendar(Calendar cal) {
+        long timestamp = cal.getTimeInMillis() / 1000;
+        timestamp -= BASE_NUMBER_OF_SECONDS;
+        timestamp += (janzC280.getTimeZone().getRawOffset() * 36000);
+        timestamp += (janzC280.getTimeZone().inDaylightTime(cal.getTime()) ? 3600 : 0);
+        return timestamp;
     }
 
     protected List<MeterEvent> getMeterEvents(long fromCal, long toCal) throws IOException {

@@ -135,7 +135,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     }
 
     /**
-     * Override this method to control the protocolversion This method is informational only.
+     * Override this method to control the protocolversion.
      *
      * @return String with protocol version
      */
