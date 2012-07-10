@@ -48,7 +48,6 @@ public class ApolloEventProfiles {
         meterEvents.addAll(((logbookSelectorBitMask & 0x40) == 0x40) ? getCommunicationFailureEvents(fromCalendar) : new ArrayList<MeterEvent>());
         meterEvents.addAll(((logbookSelectorBitMask & 0x80) == 0x80) ? getTariffUpdateEvents(fromCalendar) : new ArrayList<MeterEvent>());
         meterEvents.addAll(((logbookSelectorBitMask & 0x100) == 0x100) ? getClockSyncEvents(fromCalendar) : new ArrayList<MeterEvent>());
-        meterEvents.addAll(((logbookSelectorBitMask & 0x200) == 0x200) ? getPrepaymentEvents(fromCalendar) : new ArrayList<MeterEvent>());
         EventUtils.removeDuplicateEvents(meterEvents);
         EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());
         return meterEvents;

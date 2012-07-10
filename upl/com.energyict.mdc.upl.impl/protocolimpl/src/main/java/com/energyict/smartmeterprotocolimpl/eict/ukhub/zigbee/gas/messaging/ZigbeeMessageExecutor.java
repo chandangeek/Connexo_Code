@@ -25,6 +25,7 @@ import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
@@ -320,7 +321,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     }
 
     private int getFolderIdFromHub() throws IOException {
-        return getRtuFromDatabaseBySerialNumber().getFolderId();
+        return getRtuFromDatabaseBySerialNumberAndClientMac().getFolderId();
     }
 
     private void setCV(String content) throws IOException {
@@ -687,7 +688,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                                     case 3: { // MESSAGE
                                         RtuMessageShadow rms = new RtuMessageShadow();
                                         rms.setContents(csvParser.getTestObject(i).getData());
-                                        rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
+                                        rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
                                         RtuMessage rm = mw().getRtuMessageFactory().create(rms);
                                         doMessage(rm);
                                         if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
@@ -757,7 +758,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                     } else {
                         csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                     }
-                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
+                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getFolderIdFromHub()));
                 } else {
                     throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
                 }
@@ -786,14 +787,15 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private Rtu getRtuFromDatabaseBySerialNumber() throws IOException {
+    private Rtu getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
         String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        List<Rtu> rtus = mw().getRtuFactory().findBySerialNumber(serial);
-        if (rtus.size() != 0) {
-            return rtus.get(0);
-        } else {
-            throw new IOException("No meter found, serialNumber probably not correct.");
+        List<Rtu> rtusWithSameSerialNumber = mw().getRtuFactory().findBySerialNumber(serial);
+        for (Rtu each : rtusWithSameSerialNumber) {
+            if (((String) each.getProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
+                return each;
+            }
         }
+        throw new IOException("Could not find the EiServer rtu.");
     }
 
     public MeteringWarehouse mw() {

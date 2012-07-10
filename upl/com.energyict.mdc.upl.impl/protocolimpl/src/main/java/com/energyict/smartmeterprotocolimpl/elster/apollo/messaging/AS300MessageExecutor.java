@@ -22,6 +22,7 @@ import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
@@ -84,6 +85,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     public MessageResult executeMessageEntry(final MessageEntry messageEntry) {
         String content = messageEntry.getContent();
+        String logMessage = "";
         success = true;
 
         try {
@@ -124,13 +126,13 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 }
             }
         } catch (IOException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
+            logMessage = e.getMessage();
             success = false;
         } catch (BusinessException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
+            logMessage = e.getMessage();
             success = false;
         } catch (SQLException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
+            logMessage = e.getMessage();
             success = false;
         }
 
@@ -138,8 +140,8 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             log(Level.INFO, "Message has FINISHED.");
             return MessageResult.createSuccess(messageEntry);
         } else {
-            log(Level.INFO, "Message has FAILED.");
-            return MessageResult.createFailed(messageEntry);
+            log(Level.INFO, "Message has FAILED: " + logMessage);
+            return MessageResult.createFailed(messageEntry, logMessage);
         }
     }
 
@@ -259,13 +261,19 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private int getFolderIdFromHub() {
-        return getRtuFromDatabaseBySerialNumber().getFolderId();
+    private int getFolderIdFromHub() throws IOException {
+        return getRtuFromDatabaseBySerialNumberAndClientMac().getFolderId();
     }
 
-    private Rtu getRtuFromDatabaseBySerialNumber() {
+    private Rtu getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
         String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        return mw().getRtuFactory().findBySerialNumber(serial).get(0);
+        List<Rtu> rtusWithSameSerialNumber = mw().getRtuFactory().findBySerialNumber(serial);
+        for (Rtu each : rtusWithSameSerialNumber) {
+            if (((String) each.getProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
+                return each;
+            }
+        }
+        throw new IOException("Could not find the EiServer rtu.");
     }
 
     private void setStandingCharge(String content) throws IOException {

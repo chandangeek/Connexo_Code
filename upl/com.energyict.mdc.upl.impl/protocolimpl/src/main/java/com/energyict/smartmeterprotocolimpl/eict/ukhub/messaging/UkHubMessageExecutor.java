@@ -23,6 +23,7 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;
@@ -30,8 +31,7 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -498,13 +498,19 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private Rtu getRtuFromDatabaseBySerialNumber() {
+    private Rtu getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
         String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        return mw().getRtuFactory().findBySerialNumber(serial).get(0);
+        List<Rtu> rtusWithSameSerialNumber = mw().getRtuFactory().findBySerialNumber(serial);
+        for (Rtu each : rtusWithSameSerialNumber) {
+            if (((String) each.getProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
+                return each;
+            }
+        }
+        throw new IOException("Could not find the EiServer rtu.");
     }
 
-    private int getFolderIdFromHub() {
-        return getRtuFromDatabaseBySerialNumber().getFolderId();
+    private int getFolderIdFromHub() throws IOException {
+        return getRtuFromDatabaseBySerialNumberAndClientMac().getFolderId();
     }
 
     private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
@@ -555,7 +561,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                                     case 3: { // MESSAGE
                                         RtuMessageShadow rms = new RtuMessageShadow();
                                         rms.setContents(csvParser.getTestObject(i).getData());
-                                        rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
+                                        rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
                                         RtuMessage rm = mw().getRtuMessageFactory().create(rms);
                                         doMessage(rm);
                                         if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
@@ -625,7 +631,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                     } else {
                         csvParser.addLine("" + failures + " of the " + csvParser.getValidSize() + " tests " + ((failures == 1) ? "has" : "have") + " failed.");
                     }
-                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getRtuFromDatabaseBySerialNumber().getFolderId()));
+                    mw().getUserFileFactory().create(csvParser.convertResultToUserFile(uf, getFolderIdFromHub()));
                 } else {
                     throw new ApplicationException("Userfile with ID " + userFileId + " does not exist.");
                 }
