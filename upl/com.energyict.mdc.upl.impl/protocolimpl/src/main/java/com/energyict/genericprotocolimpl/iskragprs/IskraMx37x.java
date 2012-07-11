@@ -795,8 +795,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         getLogger().info("Difference between metertime and systemtime is " + this.timeDifference + " ms");
         long max = communicationProfile.getMaximumClockDifference();
 
-        if ((!collectOutsideBoundary) && (sAbsDiff > max)) {
-            String msg = "Time difference exceeds configured maximum: (" + Math.abs(sAbsDiff / 1000) + " s >" + Math.abs(max / 1000) + " s )";
+        if ((!collectOutsideBoundary) && (sAbsDiff > (max * 1000))) {
+            String msg = "Time difference exceeds configured maximum: (" + Math.abs(sAbsDiff / 1000) + " s > " + max + " s )";
             getLogger().log(Level.INFO, msg);
             throw new TimeDifferenceException(msg);
         }
