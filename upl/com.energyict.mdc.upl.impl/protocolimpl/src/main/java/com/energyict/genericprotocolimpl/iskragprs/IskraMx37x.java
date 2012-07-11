@@ -1026,8 +1026,8 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             iRequestTimeZone = Integer.parseInt(properties.getProperty("RequestTimeZone", "0").trim());
             iRoundtripCorrection = Integer.parseInt(properties.getProperty("RoundtripCorrection", "0").trim());
             iClientMacAddress = Integer.parseInt(properties.getProperty("ClientMacAddress", "100").trim());
-            iServerUpperMacAddress = Integer.parseInt(properties.getProperty("ServerUpperMacAddress", "1").trim());
-            iServerLowerMacAddress = Integer.parseInt(properties.getProperty("ServerLowerMacAddress", "17").trim());
+            iServerUpperMacAddress=Integer.parseInt(properties.getProperty("ServerUpperMacAddress","17").trim());
+            iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","1").trim());
             firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
             nodeId = rtu.getNodeAddress();
             serialNumber = rtu.getSerialNumber();
