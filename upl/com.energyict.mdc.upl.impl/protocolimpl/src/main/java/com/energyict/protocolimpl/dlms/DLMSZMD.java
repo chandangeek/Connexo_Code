@@ -345,7 +345,12 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
          * In order to facilitate access using SN referencing, this object has a reserved short name by DLMS/COSEM convention: 0xFD00.
          * See topic 'Reserved base_names for special COSEM objects' in the DLMS Blue Book.
          **/
-        return getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
+        String retrievedSerial = getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
+        if (retrievedSerial.startsWith("LGZ")) {
+            return retrievedSerial.substring(3);
+        } else {
+            return retrievedSerial;
+        }
     }
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
