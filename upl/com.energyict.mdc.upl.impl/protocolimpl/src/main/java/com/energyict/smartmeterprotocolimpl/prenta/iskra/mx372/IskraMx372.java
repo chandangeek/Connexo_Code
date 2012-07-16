@@ -48,7 +48,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      */
     @Override
     public DlmsProtocolProperties getProperties() {
-         if (this.properties == null) {
+        if (this.properties == null) {
             this.properties = new IskraMX372Properties();
         }
         return this.properties;
@@ -119,14 +119,14 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     }
 
      public String getSerialNumber() throws ConnectionException {
-         if (serialnr == null) {
-             try {
-                 UniversalObject uo = getMeterConfig().getSerialNumberObject();
-                 serialnr = getCosemObjectFactory().getGenericRead(uo).getString();
-             } catch (IOException e) {
-                 throw new ConnectionException(e.getMessage());
-             }
-         }
+        if (serialnr == null) {
+            try {
+            UniversalObject uo = getMeterConfig().getSerialNumberObject();
+            serialnr = getCosemObjectFactory().getGenericRead(uo).getString();
+            } catch (IOException e) {
+                throw new ConnectionException(e.getMessage());
+            }
+        }
          return serialnr;
      }
 
@@ -209,7 +209,11 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @throws java.io.IOException Thrown in case of an exception
      */
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
-        return getRegisterReader().read(registers);
+        if (!properties.madeCSDCall()) {
+            return getRegisterReader().read(registers);
+        } else {
+            throw new IOException("Reading of meter readings not allowed in the CSD schedule. Please correct this first.");
+        }
     }
 
      public RegisterReader getRegisterReader() {
@@ -236,9 +240,13 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @throws java.io.IOException when a logical error occurred
      */
     public List<MeterEvent> getMeterEvents(Date lastLogbookDate) throws IOException {
-        Calendar cal = Calendar.getInstance(getTimeZone());
-        cal.setTime(lastLogbookDate);
-        return getEventLog(cal);
+        if (!properties.madeCSDCall()) {
+            Calendar cal = Calendar.getInstance(getTimeZone());
+            cal.setTime(lastLogbookDate);
+            return getEventLog(cal);
+        } else {
+            throw new IOException("Reading of meter events not allowed in the CSD schedule. Please correct this first.");
+        }
     }
 
     /**
@@ -248,8 +256,6 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @return a list of MeterEvents
      */
     public List<MeterEvent> getEventLog(Calendar fromCalendar) throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
-
         Calendar toCalendar = ProtocolUtils.getCalendar(getTimeZone()); // Must be in the device time zone
         DataContainer dc = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCalendar, toCalendar);
         Logbook logbook = new Logbook(getTimeZone(), getLogger());
@@ -266,8 +272,12 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
-        List<LoadProfileConfiguration> loadProfileConfigurations = getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
-        return loadProfileConfigurations;
+        if (!properties.madeCSDCall()) {
+            List<LoadProfileConfiguration> loadProfileConfigurations = getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
+            return loadProfileConfigurations;
+        } else {
+            throw new IOException("Reading of demand values not allowed in the CSD schedule. Please correct this first.");
+        }
     }
 
     /**
@@ -287,7 +297,11 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @throws java.io.IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
+        if (!properties.madeCSDCall()) {
+            return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
+        } else {
+            throw new IOException("Reading of demand values not allowed in the CSD schedule. Please correct this first.");
+        }
     }
 
     private LoadProfileBuilder getLoadProfileBuilder() {
@@ -298,7 +312,7 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
     }
 
     /**
-     * Returns the implementation version
+     * Returns implementation version
      *
      * @return a version string
      */
@@ -421,7 +435,11 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
      * @throws java.io.IOException if a logical error occurs
      */
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
-        return getMessageProtocol().queryMessage(messageEntry);
+        if (!properties.madeCSDCall()) {
+            return getMessageProtocol().queryMessage(messageEntry);
+        } else {
+            throw new IOException("Execution of device messages not allowed in the CSD schedule. Please correct this first.");
+        }
     }
 
     public List getMessageCategories() {
