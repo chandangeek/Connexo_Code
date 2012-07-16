@@ -6,22 +6,10 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.AdaptorConnection;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ReceiveBuffer;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.attributes.DLMSClassAttributes;
 import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 import com.energyict.obis.ObisCode;
@@ -30,9 +18,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -1501,7 +1487,7 @@ public abstract class AbstractCosemObject {
 	 * @return
 	 */
 	private byte[] getBufferRangeDescriptor(Calendar fromCalendar, Calendar toCalendar) {
-		if ((toCalendar == null) && this.protocolLink.getMeterConfig().isSL7000()) {
+		if ((toCalendar == null) && this.protocolLink.getMeterConfig().isSLB()) {
 			return getBufferRangeDescriptorSL7000(fromCalendar);
 		} else if (this.protocolLink.getMeterConfig().isActarisPLCC()) {
 			return getBufferRangeDescriptorActarisPLCC(fromCalendar, toCalendar);
@@ -1515,7 +1501,7 @@ public abstract class AbstractCosemObject {
         return getBufferRangeDescriptorDefault(fromCalendar, toCalendar);
 	}
 	private byte[] getBufferRangeDescriptor(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) {
-		if ((toCalendar == null) && this.protocolLink.getMeterConfig().isSL7000()) {
+		if ((toCalendar == null) && this.protocolLink.getMeterConfig().isSLB()) {
 			return getBufferRangeDescriptorSL7000(fromCalendar);
 		} else if (this.protocolLink.getMeterConfig().isActarisPLCC()) {
 			return getBufferRangeDescriptorActarisPLCC(fromCalendar, toCalendar);
