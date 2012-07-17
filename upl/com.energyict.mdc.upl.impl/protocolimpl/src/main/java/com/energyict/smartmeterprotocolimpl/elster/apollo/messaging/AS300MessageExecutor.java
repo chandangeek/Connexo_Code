@@ -381,6 +381,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             String base64Encoded = getIncludedContent(content);
             byte[] imageData = new Base64EncoderDecoder().decode(base64Encoded);
             final ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+            it.setUsePollingVerifyAndActivate(true);
             it.upgrade(imageData, false);
             it.imageActivation();
         } catch (InterruptedException e) {

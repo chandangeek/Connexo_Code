@@ -25,12 +25,16 @@ import java.util.logging.Level;
 
 public class ImageTransfer extends AbstractCosemObject{
 
-	private static int delay = 3000;
+	private static final int DELAY = 3000;
+    private static final int POLL_RETRIES = 10;
+
     public static final int REPORT_STATUS_EVERY_X_BLOCKS = 1;
     public static final String DEFAULT_IMAGE_NAME = "NewImage";
     private int maxBlockRetryCount = 3;
 	private int maxTotalRetryCount = 500;
-	
+
+    private boolean usePollingVerifyAndActivate = false;
+
 	private ProtocolLink protocolLink;
     private ImageTransferCallBack callBack;
 
@@ -60,7 +64,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	private static final int IMAGE_BLOCK_TRANSFER_SN = 0x48;
 	private static final int IMAGE_VERIFICATION_SN = 0x50;
 	private static final int IMAGE_ACTIVATION_SN = 0x58;
-	
+
 	/* Image info */
 	private Unsigned32 size = null; 	// the size of the image
 	private byte[] data = null; // the complete image in byte
@@ -90,25 +94,25 @@ public class ImageTransfer extends AbstractCosemObject{
 	/**
 	 * Start the automatic upgrade procedure. If the last block is not a multiple of the blockSize, then additional zeros will be padded at the end.
 	 * If you don't want this behavior then use {{@link #upgrade(byte[], boolean)} instead.
-	 * 
-	 * @param data 
+	 *
+	 * @param data
 	 * 		- the image to transfer
-	 * 
+	 *
 	 * @throws IOException if something went wrong during the upgrade.
 	 * @throws InterruptedException when interrupted while sleeping
 	 */
 	public void upgrade(byte[] data) throws IOException, InterruptedException{
 	    this.upgrade(data, true);
 	}
-	
+
 	/**
 	 * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
-	 * 
-	 * @param data 
+	 *
+	 * @param data
 	 * 		- the image to transfer
 	 * @param additionalZeros
 	 * 		- indicate whether you need to add zeros to the last block to match the blockSize
-	 * 
+	 *
 	 * @throws IOException when something went wrong during the upgrade
 	 * @throws InterruptedException when interrupted while sleeping
 	 */
@@ -142,9 +146,13 @@ public class ImageTransfer extends AbstractCosemObject{
 
 			// Step1: Get the maximum image block size
 			// and calculate the amount of blocks in one step
-			this.blockCount = (int)(this.size.getValue()/readImageBlockSize().getValue()) + (((this.size.getValue()%readImageBlockSize().getValue())==0)?0:1);
+            final long blockSize = readImageBlockSize().getValue();
+            getLogger().info("ImageTransfer block size = [" + blockSize + "] bytes");
 
-			// Step2: Initiate the image transfer
+            this.blockCount = (int)(this.size.getValue()/ blockSize) + (((this.size.getValue()% blockSize)==0)?0:1);
+            getLogger().info("ImageTransfer block count = [" + blockCount + "] blocks");
+
+            // Step2: Initiate the image transfer
             updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size.intValue(), 0);
 			Structure imageInitiateStructure = new Structure();
 			imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
@@ -164,8 +172,13 @@ public class ImageTransfer extends AbstractCosemObject{
 
 			// Step5: Verify image
             updateState(ImageTransferCallBack.ImageTransferState.VERIFY_IMAGE, imageIdentifier, blockCount, data.length, 0);
-			verifyAndRetryImage();
-			this.protocolLink.getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date(System.currentTimeMillis()));
+            if (isUsePollingVerifyAndActivate()) {
+                this.protocolLink.getLogger().log(Level.INFO, "Verification of image using polling method ...");
+                verifyAndPollForSuccess();
+            } else {
+                verifyAndRetryImage();
+            }
+            this.protocolLink.getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date(System.currentTimeMillis()));
 
 			// Step6: Check image before activation
 			// Skip this step
@@ -210,17 +223,16 @@ public class ImageTransfer extends AbstractCosemObject{
 
     /**
 	 * Transfer all the image blocks to the meter.
-	 * 
-	 * @param additionalZeros 
+	 *
+	 * @param additionalZeros
 	 * 		- add additional zeros to match the last blocksize to a multiple of the fileSize
-	 *  
+	 *
 	 * @throws IOException if something went wrong during the upgrade
 	 */
 	public void transferImageBlocks(boolean additionalZeros) throws IOException {
-	    
-//	    File file = new File("C:\\testDebugFile.txt");
-//	    FileOutputStream fos = new FileOutputStream(file);
-	    
+
+        final long startTime = System.currentTimeMillis();
+
 		byte[] octetStringData = null;
 		OctetString os = null;
 		Structure imageBlockTransfer;
@@ -232,7 +244,7 @@ public class ImageTransfer extends AbstractCosemObject{
 			} else {
 			    /*
 			     * If it is the last block then it is dependent from vendor to vendor whether they want the size of the last block
-			     * to be the same as the others, or just the size of the remaining bytes. 
+			     * to be the same as the others, or just the size of the remaining bytes.
 			     */
 			    long blockSize = this.size.getValue() - (i*readImageBlockSize().getValue());
 			    if(additionalZeros){
@@ -244,49 +256,29 @@ public class ImageTransfer extends AbstractCosemObject{
 				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
 					(int)blockSize);
 			    }
-			    
+
 			}
 			os = OctetString.fromByteArray(octetStringData);
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32(i));
 			imageBlockTransfer.addDataType(os);
-			
-//			//***** Temporary implementation of retrying 'Temporary failures' *****//
-//			int tempRetry = 0;
-//			while(tempRetry < 5){
-//				try {
-//					imageBlockTransfer(imageBlockTransfer);
-//					tempRetry = 5;
-//				} catch (IOException e) {
-//					if(e.getMessage().indexOf("Cosem Data-Access-Result exception Temporary failure ") > -1){
-//						tempRetry++;
-//						if(tempRetry == 5){
-//							throw new IOException("Max. retries (5) exceeded. " + e.getMessage());
-//						}
-//						this.protocolLink.getLogger().log(Level.INFO, "Transfering image block resulted in temporary failure, retry " + tempRetry);
-//						try {
-//							Thread.sleep(2000);
-//						} catch (InterruptedException e1) {
-//							this.protocolLink.getLogger().log(Level.INFO, e1.getLocalizedMessage());
-//						}
-//					} else {
-//						throw e;
-//					}
-//				}
-//			}
-//			//******************************************************************//
-			
-			// without retries
+
             updateState(ImageTransferCallBack.ImageTransferState.TRANSFER_BLOCKS, "", blockCount, size.intValue(), i);
 			imageBlockTransfer(imageBlockTransfer);
 
 			if(i % REPORT_STATUS_EVERY_X_BLOCKS == 0){ // i is multiple of 50
-				this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + i + " of " + blockCount + " blocks are sent to the device");
-			}
+                final long elapsedTime = System.currentTimeMillis() - startTime;
+                final long timeLeft = ((elapsedTime) * (blockCount - (i+1))) / (i+1);
+                final long minutesLeft = timeLeft / 60000;
+                final long secondsLeft = (timeLeft / 1000) % 60;
+                String seconds = ((secondsLeft <= 9) ? "0" : "") + secondsLeft;
+
+                this.protocolLink.getLogger().log(Level.INFO, "ImageTransfer: " + (i + 1) + " of " + blockCount + " blocks are sent to the device. Estimated time left until finished: [" + minutesLeft + ":" + seconds + "]");
+            }
 		}
 //		fos.close();
 	}
-	
+
 	public void transferNextImageBlocks(int counter, boolean additionalZeros) throws IOException {
 
         int numberOfBlocksPerStep = blockCount / 20 + (((blockCount % 20) == 0) ? 0 : 1);
@@ -348,7 +340,7 @@ public class ImageTransfer extends AbstractCosemObject{
 		int retryBlock = 0;
 		int totalRetry = 0;
 		while(readFirstNotTransferedBlockNumber().getValue() < this.blockCount){
-			
+
 			if(previousMissingBlock == this.getImageFirstNotTransferedBlockNumber().getValue()){
 				if(retryBlock++ == this.maxBlockRetryCount){
 					throw new IOException("Exceeding the maximum retry for block " + this.getImageFirstNotTransferedBlockNumber().getValue() + ", Image transfer is canceled.");
@@ -359,24 +351,24 @@ public class ImageTransfer extends AbstractCosemObject{
 				previousMissingBlock = this.getImageFirstNotTransferedBlockNumber().getValue();
 				retryBlock = 0;
 			}
-			
+
 			if (this.getImageFirstNotTransferedBlockNumber().getValue() < this.blockCount -1) {
 				octetStringData = new byte[(int)readImageBlockSize().getValue()];
-				System.arraycopy(this.data, (int)(this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue()), octetStringData, 0, 
+				System.arraycopy(this.data, (int)(this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue()), octetStringData, 0,
 						(int)readImageBlockSize().getValue());
 			} else {
 				long blockSize = this.size.getValue() - (this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue());
 				octetStringData = new byte[(int)blockSize];
-				System.arraycopy(this.data, (int)(this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue()), octetStringData, 0, 
+				System.arraycopy(this.data, (int)(this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue()), octetStringData, 0,
 						(int)blockSize);
 			}
-			
+
 			os = OctetString.fromByteArray(octetStringData);
 			imageBlockTransfer = new Structure();
 			imageBlockTransfer.addDataType(new Unsigned32((int)this.getImageFirstNotTransferedBlockNumber().getValue()));
 			imageBlockTransfer.addDataType(os);
 			imageBlockTransfer(imageBlockTransfer);
-			
+
 		}
 	}
 
@@ -396,7 +388,7 @@ public class ImageTransfer extends AbstractCosemObject{
 					if((e.getDataAccessResult() == 2) && retry >= 1){ //"Temporary failure"
 						this.protocolLink.getLogger().log(Level.INFO, "Received a temporary failure during verification, will retry.");
 						retry--;
-                        DLMSUtils.delay(delay);
+                        DLMSUtils.delay(DELAY);
 					} else {
 						throw new IOException("Could not verify the image." + e.getMessage());
 					}
@@ -408,24 +400,110 @@ public class ImageTransfer extends AbstractCosemObject{
 		}
 	}
 
-	/**
-	 * Get the maximum block image size from the device
-	 * @return
-	 * @throws IOException
-	 */
-	public Unsigned32 readImageBlockSize() throws IOException{
-		try {
-			if(this.imageMaxBlockSize == null){
-				this.imageMaxBlockSize = new Unsigned32(getLNResponseData(ATTRB_IMAGE_BLOCK_SIZE),0);
-			}
-			return this.imageMaxBlockSize;
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not get the maximum block size." + e.getMessage());
-		}
-	}
+    /**
+     * Verify the image. If the result is a temporary failure, then wait a few seconds and check the.
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void verifyAndPollForSuccess() throws IOException, InterruptedException {
+        try {
+            imageVerification();
+        } catch (DataAccessResultException e) {
+            if ((e.getDataAccessResult() == 2)) { // Temporary failure
+                getLogger().info("Received [Temporary failure] while verifying image. Polling result ...");
+                pollForImageVerificationStatus();
+            } else {
+                throw e;
+            }
+        }
+    }
 
-	/**
+    /**
+     * Wait until the image verification was successfully by polling the meter
+     */
+    private final void pollForImageVerificationStatus() throws IOException {
+        int tries = POLL_RETRIES;
+        while (--tries > 0) {
+            try {
+                Thread.sleep(DELAY);
+                TypeEnum typeEnum = readImageTransferStatus();
+                switch (typeEnum.getValue()) {
+                    case 2:
+                        getLogger().info("Image validation state: [Image verification initiated].");
+                        break;
+                    case 3:
+                        getLogger().info("Image validation state: [Image verification successful].");
+                        return;
+                    case 4:
+                        throw new IOException("Image verification failed].");
+                    default:
+                        throw new IOException("Invalid state [" + typeEnum.getValue() + "] while polling for verification status.");
+                }
+            } catch (InterruptedException e) {
+                throw new IOException("Interrupted while polling the image verification. [" + e.getMessage() + "]");
+            }
+        }
+        throw new IOException("Image verification failed, even after a few polls!");
+    }
+
+    /**
+     * Wait until the image activation was successfully by polling the meter
+     */
+    private final void pollForImageActivationStatus() throws IOException {
+        int tries = POLL_RETRIES;
+        while (--tries > 0) {
+            try {
+                Thread.sleep(DELAY);
+                TypeEnum typeEnum = readImageTransferStatus();
+                switch (typeEnum.getValue()) {
+                    case 5:
+                        getLogger().info("Image activation state: [Image activation initiated].");
+                        break;
+                    case 6:
+                        getLogger().info("Image activation state: [Image activation successful].");
+                        return;
+                    case 7:
+                        throw new IOException("Image activation failed].");
+                    default:
+                        throw new IOException("Invalid state [" + typeEnum.getValue() + "] while polling for activation status.");
+                }
+            } catch (InterruptedException e) {
+                throw new IOException("Interrupted while polling the image activation. [" + e.getMessage() + "]");
+            }
+        }
+        throw new IOException("Image activation failed, even after a few polls!");
+    }
+
+    /**
+     * Get the maximum block image size from the device
+     *
+     * @return The block size that should be used during the image transfer
+     * @throws IOException
+     */
+    public Unsigned32 readImageBlockSize() throws IOException {
+        try {
+            if (this.imageMaxBlockSize == null) {
+                this.imageMaxBlockSize = new Unsigned32(getLNResponseData(ATTRB_IMAGE_BLOCK_SIZE), 0);
+            }
+            return this.imageMaxBlockSize;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new IOException("Could not get the maximum block size." + e.getMessage());
+        }
+    }
+
+    /**
+     * Write the block size of each block used to transfer the firmware image
+     * (Not every meter supports this, most of the meters will return R/W denied)
+     *
+     * @param blockSize The new block size
+     * @throws IOException If we could not write the new image block size
+     */
+    public void writeImageBlockSize(Unsigned32 blockSize) throws IOException {
+        write(ATTRB_IMAGE_BLOCK_SIZE, blockSize.getBEREncodedByteArray());
+    }
+
+    /**
 	 * Provides information about the transfer status of each ImageBlock.
 	 * Each bit in the bit-string provides information about one individual
 	 * ImageBlock:
@@ -619,16 +697,16 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws IOException
 	 */
 	public void imageVerification() throws IOException {
-	    if(getObjectReference().isLNReference()){
-		try{
-		    invoke(IMAGE_VERIFICATION, new Integer8(0).getBEREncodedByteArray());
-		} catch (IOException e) {
-		    throw new IOException("Could not verify the imageData" + e.getMessage());
-		}
-	    } else {
-		write(IMAGE_VERIFICATION_SN, new Integer8(0).getBEREncodedByteArray());
-	    }
-	}
+        if (getObjectReference().isLNReference()) {
+            try {
+                invoke(IMAGE_VERIFICATION, new Integer8(0).getBEREncodedByteArray());
+            } catch (IOException e) {
+                throw new IOException("Could not verify the imageData" + e.getMessage());
+            }
+        } else {
+            write(IMAGE_VERIFICATION_SN, new Integer8(0).getBEREncodedByteArray());
+        }
+    }
 
 	/**
 	 * Activates the Image(s).
@@ -644,12 +722,21 @@ public class ImageTransfer extends AbstractCosemObject{
 	public void imageActivation() throws IOException {
         updateState(ImageTransferCallBack.ImageTransferState.ACTIVATE, "", blockCount, size.intValue(), 0);
 		try{
-			if (getObjectReference().isLNReference()) {
-				invoke(IMAGE_ACTIVATION, new Integer8(0).getBEREncodedByteArray());
-			} else {
-				write(IMAGE_ACTIVATION_SN, new Integer8(0).getBEREncodedByteArray());
-			}
-		} catch (IOException e) {
+            try {
+                if (getObjectReference().isLNReference()) {
+                    invoke(IMAGE_ACTIVATION, new Integer8(0).getBEREncodedByteArray());
+                } else {
+                    write(IMAGE_ACTIVATION_SN, new Integer8(0).getBEREncodedByteArray());
+                }
+            } catch (DataAccessResultException e) {
+                if ((e.getDataAccessResult() == 2) && isUsePollingVerifyAndActivate()) { // Temporary failure
+                    getLogger().info("Received [Temporary failure] while activating image. Polling result ...");
+                    pollForImageActivationStatus();
+                } else {
+                    throw e;
+                }
+            }
+        } catch (IOException e) {
 		    throw new IOException("Could not activate the image." + e.getMessage());
 		}
 	}
@@ -691,6 +778,28 @@ public class ImageTransfer extends AbstractCosemObject{
         if (callBack != null) {
             callBack.updateState(state, imageName, blockCount, dataSize, currentBlock);
         }
+    }
+
+    /**
+     * Check if we're using the correct bluebook image verification method.
+     * The verify method can sometimes result in a temporary failure message from the meter, meaning that the image verification
+     * is still in progress. The blue book defines that we have to poll the image transfer status to see the result of the
+     * verification instead of retrying the verification itself.
+     *
+     * The old implementation just retried the actual activation, and some meters fail in this case.
+     *
+     * @return True if we use verify the image as described in the dlms bluebook
+     */
+    public boolean isUsePollingVerifyAndActivate() {
+        return this.usePollingVerifyAndActivate;
+    }
+
+    /**
+     *
+     * @param usePollingVerifyAndActivate
+     */
+    public void setUsePollingVerifyAndActivate(boolean usePollingVerifyAndActivate) {
+        this.usePollingVerifyAndActivate = usePollingVerifyAndActivate;
     }
 
     /**
