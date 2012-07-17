@@ -9,6 +9,7 @@
 KV|11042007|Initial version
 KV|23072007|Work around due to a bug in the meter to allow requesting more then 1 day of load profile for data compression meters
 GN|17122007|Taken over everything from the Iskra protocol
+SVA|16072012|Taken a local copy of all stuff reused from Iskra protocol - this is done to remove the dependency between both protocols.
  * @endchanges
  */
 package com.energyict.protocolimpl.dlms.flex;
@@ -25,7 +26,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.*;
-import com.energyict.protocolimpl.dlms.iskrame37x.ObisCodeMapper;
 
 import java.io.*;
 import java.util.*;

@@ -3,29 +3,20 @@
  */
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import java.io.IOException;
-import java.rmi.NoSuchObjectException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.ObjectReference;
+
+import java.io.IOException;
+import java.rmi.NoSuchObjectException;
+import java.util.*;
 
 /**
  * @author gna
- *
+ * SVA|29032012|Reworked reead out of billing registers (class StoredValuesImpl) - this class becomes obsolete
  */
-public class RegisterProfile extends IskraME37X{
+public class RegisterProfile {
 
 	/**
 	 * 
@@ -117,7 +108,7 @@ public class RegisterProfile extends IskraME37X{
 //		Date date = null;
 //		date = ds.getOctetString(0).toDate(protocolLink.getTimeZone());
 		
-		ScalerUnit sUnit = IskraME37X.getScalerUnit(obisCode);
+		ScalerUnit sUnit = new ScalerUnit(0, 30); //IskraME37X.getScalerUnit(obisCode);
 		BillingValue billingValue = new BillingValue(billingDate, (long)ds.getValue(item), sUnit, obisCode);
 			
 		return billingValue;

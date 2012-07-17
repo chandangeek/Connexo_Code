@@ -68,7 +68,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     private static byte[] connectMsg = new byte[]{0x11, 0x01};
     private static byte[] disconnectMsg = new byte[]{0x11, 0x00};
 
-    public static ScalerUnit[] demandScalerUnits = {new ScalerUnit(0, 30), new ScalerUnit(0, 0)};
     private DLMSMeterConfig meterConfig = DLMSMeterConfig.getInstance("ISK");
     private DLMSCache dlmsCache = new DLMSCache();
     private Logger logger = null;
@@ -187,7 +186,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     CapturedObjects capturedObjects = null;
     DLMSConnection dlmsConnection = null;
     CosemObjectFactory cosemObjectFactory = null;
-    StoredValuesImpl storedValuesImpl = null;
     ObisCodeMapper ocm = null;
 
     ObisCode loadProfileObisCode = null;
@@ -196,11 +194,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     ObisCode loadProfileObisCode97 = ObisCode.fromString("1.0.99.97.0.255");
     ObisCode breakerObisCode = ObisCode.fromString("0.0.128.30.21.255");
     ObisCode eventLogObisCode = ObisCode.fromString("1.0.99.98.0.255");
-
-    ObisCode dailyBillings = ObisCode.fromString("1.0.99.2.0.255");
-    ObisCode monthlyBillings = ObisCode.fromString("1.0.98.2.0.255");
-
-    ObisCode mbusScalerUnit = ObisCode.fromString("0.1.128.50.0.255");
 
     /**
      * Creates a new instance of IskraME37X, empty constructor
@@ -233,7 +226,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
         try {
             cosemObjectFactory = new CosemObjectFactory(this);
-            storedValuesImpl = new StoredValuesImpl(cosemObjectFactory);
             if (connectionMode == 0) {
                 dlmsConnection = new HDLCConnection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress, iServerUpperMacAddress, addressingMode);
             } else {
@@ -569,7 +561,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
      * @return Remote meter 'recorder interval' in min.
      * @throws IOException
      */
-    public int getProfileInterval() throws IOException, UnsupportedException {
+    public int getProfileInterval() throws IOException {
         if (iInterval == 0) {
             iInterval = getCosemObjectFactory().getProfileGeneric(loadProfileObisCode).getCapturePeriod();
         }
@@ -607,9 +599,9 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         for (int channelId = 0; channelId < bNROfChannels; channelId++) {
             if (!rtuType.equalsIgnoreCase("mbus")) {
                 RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
-                demandScalerUnits[0] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
+                ScalerUnit scalerUnit = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
                         scalerRegister.getQuantity().getUnit());
-                ChannelInfo ci = new ChannelInfo(channelId, "IskraME37x_channel_" + channelId, demandScalerUnits[0].getEisUnit());
+                ChannelInfo ci = new ChannelInfo(channelId, "IskraME37x_channel_" + channelId, scalerUnit.getEisUnit());
                 if (isObisCodeCumulative(capturedObjects.getProfileDataChannel(channelId))) {
                     ci.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
                 }
@@ -622,9 +614,9 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 includeEvents = false;
 
                 RegisterValue scalerRegister = readRegister(capturedObjects.getProfileDataChannel(channelId));
-                demandScalerUnits[1] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
+                ScalerUnit scalerUnit = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(),
                         scalerRegister.getQuantity().getUnit());
-                ChannelInfo ci2 = new ChannelInfo(channelId, "IskraME37x_channel_" + channelId, demandScalerUnits[1].getEisUnit());
+                ChannelInfo ci2 = new ChannelInfo(channelId, "IskraME37x_channel_" + channelId, scalerUnit.getEisUnit());
                 ci2.setCumulativeWrapValue(BigDecimal.valueOf(1).movePointRight(9));
                 profileData.addChannel(ci2);
             }
@@ -1008,7 +1000,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 try { // conf program change and object list stuff
                     int iConf;
 
-                    if (dlmsCache.getObjectList() != null) {
+                    if (dlmsCache != null && dlmsCache.getObjectList() != null) {
                         meterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
                         try {
 
@@ -1046,7 +1038,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                         requestObjectList();
                         try {
                             iConf = requestConfigurationProgramChanges();
-
+                            dlmsCache = new DLMSCache();
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                             dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                             if (DEBUG >= 1) {
@@ -1068,13 +1060,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
                     if (extendedLogging >= 1) {
                         logger.info(getRegistersInfo(extendedLogging));
-                    }
-
-                    if (metertype == MBUS) {
-                        if (demandScalerUnits[MBUS].getUnitCode() == 0) {
-                            RegisterValue scalerRegister = readRegister(mbusScalerUnit);
-                            demandScalerUnits[MBUS] = new ScalerUnit(scalerRegister.getQuantity().getUnit().getScale(), scalerRegister.getQuantity().getUnit());
-                        }
                     }
                 } catch (IOException e) {
                     throw new IOException("connect() error, " + e.getMessage());
@@ -1371,8 +1356,6 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         result.add("AddressingMode");
         result.add("Connection");
         result.add("RtuType");
-
-
         return result;
     }
 
@@ -1481,8 +1464,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     public StoredValues getStoredValues() {
-        storedValuesImpl.setDates(ocm.billingIndex);
-        return (StoredValues) storedValuesImpl;
+        return null;    // not used; custom implementation in ObisCodeMapper class
     }
 
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -1627,14 +1609,4 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         msgSpec.add(tagSpec);
         return msgSpec;
     }
-
-    public static ScalerUnit getScalerUnit(ObisCode obisCode) {
-
-        if (obisCode.toString().indexOf("1.0") == 0) {
-            return demandScalerUnits[ELECTRICITY];
-        } else {
-            return demandScalerUnits[MBUS];
-        }
-    }
-
-} 
+}
