@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -35,8 +37,8 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     public static final String SET_LOADLIMIT_DURATION = "SetLoadLimitDuration";
     public static final String LOADLIMIT_DURATION = "LoadLimitDuration";
     public static final String LOADLIMIT_THRESHOLD = "LoadLimitThreshold";
-
     public static final String WRITE_RAW_IEC1107_CLASS = "WriteRawIEC1107Class";
+    public static final String DECOMMISSION_ALL_MBUS_DEVICES_TAG = "DecommissionAll";
 
     /**
      * Message descriptions
@@ -49,6 +51,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
     public static final String LOAD_LIMIT_THRESHOLD_DISPLAY = "Set LoadLimit threshold";
     public static final String LOAD_LIMIT_DURATION_DISPLAY = "Set LoadLimit duration";
     public static final String WRITE_RAW_IEC1107_CLASS_DISPLAY = "Write raw IEC1107 class";
+    public static final String DECOMMISSION_ALL_MBUS_DEVICES = "Decommission all MBus clients";
 
     //private static final String	ARM_EMETER_DISPLAY				= "Arm E-Meter";
 
@@ -67,6 +70,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         addSupportedMessageTag(SET_LOADLIMIT_DURATION);
         addSupportedMessageTag(SET_LOADLIMIT_THRESHOLD);
         addSupportedMessageTag(WRITE_RAW_IEC1107_CLASS);
+        addSupportedMessageTag(DECOMMISSION_ALL_MBUS_DEVICES_TAG);
     }
 
     public AS220 getAs220() {
@@ -89,6 +93,7 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         eMeterCat.addMessageSpec(createValueMessage(LOAD_LIMIT_DURATION_DISPLAY, SET_LOADLIMIT_DURATION, false, LOADLIMIT_DURATION));
 
         otherMeterCat.addMessageSpec(createMessageSpec(FORCE_SET_CLOCK_DISPLAY, FORCE_SET_CLOCK, false));
+        otherMeterCat.addMessageSpec(createMessageSpec(DECOMMISSION_ALL_MBUS_DEVICES, DECOMMISSION_ALL_MBUS_DEVICES_TAG, false));
 
         categories.add(eMeterCat);
         categories.add(otherMeterCat);
@@ -148,6 +153,11 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
             } else if (isMessageTag(WRITE_RAW_IEC1107_CLASS, messageEntry)){
                 getAs220().getLogger().info("Write raw EIC1107 class received");
                 new AS220IEC1107AccessController(getAs220()).executeMessage(messageEntry);
+            } else if (isMessageTag(DECOMMISSION_ALL_MBUS_DEVICES_TAG, messageEntry)) {
+                getAs220().getLogger().info("Decommissioning all MBus clients.");
+                int clientsDecommissioned = decommissionAll();
+                getAs220().getLogger().info("Successful decommissioned " + clientsDecommissioned + " MBus client(s).");
+
             } else {
                 throw new IOException("Received unknown message: " + messageEntry);
             }
@@ -169,4 +179,26 @@ public class AS220Messaging extends AbstractSubMessageProtocol {
         return calendar;
     }
 
+    private int decommissionAll() {
+        int clientsDecommissioned = 0;
+        for (int i = 0; i < 4; i++) {
+            try {
+                getAs220().getLogger().info("Decommissioning MBus client " + (i + 1));
+                getMbusClient(i).deinstallSlave();
+                clientsDecommissioned ++;
+                getAs220().getLogger().info("Successful decommissioned MBus client " + (i + 1));
+            } catch (Exception e) {
+                getAs220().getLogger().info("Failed to decommission MBus client " + (i + 1) + " - probably no MBus client connected. (Error message: " + e.getMessage() + ")");
+            }
+        }
+        return clientsDecommissioned;
+    }
+
+    private MBusClient getMbusClient(int physicalAddress) throws IOException {
+        if (getAs220().getActiveFirmwareVersion().isHigherOrEqualsThen("2")) {
+            return getAs220().getCosemObjectFactory().getMbusClient(getAs220().getMeterConfig().getMbusClient(physicalAddress).getObisCode(), MbusClientAttributes.VERSION10);
+        } else {
+            return getAs220().getCosemObjectFactory().getMbusClient(getAs220().getMeterConfig().getMbusClient(physicalAddress).getObisCode(), MbusClientAttributes.VERSION9);
+        }
+    }
 }
