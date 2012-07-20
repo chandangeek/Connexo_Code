@@ -22,6 +22,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocolimpl.base.CachedMeterTime;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -440,6 +441,35 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         result.add(LocalSecurityProvider.NEW_HLS_SECRET);
         result.add(PROPERTY_RUNTESTMETHOD);
         return result;
+    }
+
+    public List<String> getOptionalKeys() {
+        List<String> optionalKeys = new ArrayList<String>();
+        optionalKeys.add(DlmsProtocolProperties.TIMEOUT);
+        optionalKeys.add("ForceDelay");
+        optionalKeys.add("Retries");
+        optionalKeys.add("Connection");
+        optionalKeys.add("SecurityLevel");
+        optionalKeys.add("ClientMacAddress");
+        optionalKeys.add("InformationFieldSize");
+        optionalKeys.add("LoadProfileId");
+        optionalKeys.add("AddressingMode");
+        optionalKeys.add("MaxMbusDevices");
+        optionalKeys.add("IIAPInvokeId");
+        optionalKeys.add("IIAPPriority");
+        optionalKeys.add("IIAPServiceClass");
+        optionalKeys.add("Manufacturer");
+        optionalKeys.add("RoundTripCorrection");
+        optionalKeys.add("IpPortNumber");
+        optionalKeys.add("WakeUp");
+        optionalKeys.add("CipheringType");
+        optionalKeys.add("BulkRequest");
+        optionalKeys.add("ServerMacAddress"); // this replaces the ServerUpperMacAddress and ServerLowerMacAddress
+        List<String> protocolKeys = doGetOptionalKeys();
+        if (protocolKeys != null) {
+            optionalKeys.addAll(protocolKeys);
+        }
+        return optionalKeys;
     }
 
     @Override
