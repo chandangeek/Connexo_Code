@@ -9,6 +9,10 @@ import com.energyict.cuo.core.DesktopDecorator;
 import com.energyict.dynamicattributes.AttributeType;
 import com.energyict.dynamicattributes.BusinessObjectType;
 import com.energyict.interval.DateTime;
+import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.shadow.tasks.ProtocolTypeUsageShadow;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.ProtocolTypeUsage;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.offline.OfflineRtu;
@@ -109,6 +113,11 @@ public class DummyRtu implements Rtu {
 
     public List<Channel> getNonAssignedChannels() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<ComTask> getComTasks() {
+        return new ArrayList<ComTask>(0);
     }
 
     public List<CommunicationScheduler> getCommunicationSchedulers() {
@@ -482,6 +491,16 @@ public class DummyRtu implements Rtu {
         return null;
     }
 
+    @Override
+    public ProtocolTypeUsage createProtocolTypeUsage(ProtocolTypeUsageShadow protocolTypeUsageShadow) throws BusinessException, SQLException {
+        return null;
+    }
+
+    @Override
+    public List<ProtocolTypeUsage> getProtocolTypeUsages() {
+        return new ArrayList<ProtocolTypeUsage>(0);
+    }
+
     public RelationTransaction getNewRelationTransaction() {
         return null;
     }
@@ -578,6 +597,11 @@ public class DummyRtu implements Rtu {
      */
     public void loadProfilesChanged() throws BusinessException, SQLException {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
+        return null;
     }
 
     public Folder getContainer() {
