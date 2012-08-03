@@ -1,26 +1,37 @@
 package com.energyict.genericprotocolimpl.elster.ctr.profile;
 
 import com.energyict.cbo.*;
-import com.energyict.cpo.*;
+import com.energyict.cpo.BusinessObject;
+import com.energyict.cpo.BusinessObjectFactory;
+import com.energyict.cpo.Dependent;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.cuo.core.DesktopDecorator;
 import com.energyict.dynamicattributes.AttributeType;
 import com.energyict.dynamicattributes.BusinessObjectType;
 import com.energyict.interval.DateTime;
-import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.offline.OfflineRtu;
-import com.energyict.mdw.relation.*;
+import com.energyict.mdw.relation.Relation;
+import com.energyict.mdw.relation.RelationAttributeType;
+import com.energyict.mdw.relation.RelationTransaction;
+import com.energyict.mdw.relation.RelationType;
 import com.energyict.mdw.sdp.ServiceDeliveryPoint;
 import com.energyict.mdw.shadow.*;
 import com.energyict.mdw.task.ChangeRtuTypeTransaction;
 import com.energyict.metadata.TypeId;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterData;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
 
-import javax.swing.Icon;
+import javax.swing.*;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -567,10 +578,6 @@ public class DummyRtu implements Rtu {
      */
     public void loadProfilesChanged() throws BusinessException, SQLException {
         //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     public Folder getContainer() {
