@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict;
 
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.HHUEnabler;
@@ -67,7 +69,16 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
         hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
         hhuSignOn.enableDataReadout(datareadout);
-        getDlmsSession().getDLMSConnection().setHHUSignOn(hhuSignOn, getProperties().getDeviceId());
+        getDlmsSession().getDLMSConnection().setHHUSignOn(hhuSignOn, getProperDeviceId());
+    }
+
+    private String getProperDeviceId() {
+        String deviceId = getProperties().getDeviceId();
+        if(deviceId != null && !deviceId.equalsIgnoreCase("")){
+            return deviceId;
+        } else {
+            return "!"; // the Kamstrup device requires a '!' sign in the IEC1107 signOn
+        }
     }
 
     /**
