@@ -1907,7 +1907,7 @@ public class MeterReadTransaction implements CacheMechanism {
         } catch (NumberFormatException e) {
             getLogger().log(Level.SEVERE, "IskraMx37x: could not retrieve configuration parameters, meter will NOT be handled");
             e.printStackTrace();
-            throw new BusinessException("No parameters could be retrieved.", e);
+            throw new ProcessingException("No parameters could be retrieved.", e);
         } catch (SQLException e) {
             getLogger().log(Level.SEVERE, "IskraMx37x: could not retrieve configuration parameters, meter will NOT be handled");
             e.printStackTrace();

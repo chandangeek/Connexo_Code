@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.*;
@@ -35,7 +36,7 @@ public abstract class AbstractChangeKeyMessage extends AbstractMTU155Message {
         try {
             writeKey(formattedKey);
         } catch (CTRException e) {
-            throw new BusinessException("Unable to write " + keyName + " key. " + e.getMessage(), e);
+            throw new ProcessingException("Unable to write " + keyName + " key. " + e.getMessage(), e);
         }
     }
 

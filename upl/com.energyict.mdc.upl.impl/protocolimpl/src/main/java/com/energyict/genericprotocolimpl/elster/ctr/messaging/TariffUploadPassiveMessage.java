@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
@@ -53,7 +54,7 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
             CodeObject codeObject = validateAndGetCodeObject(codeTableBase64Attr);
             writeCodeTable(codeObject, activationTime);
         } catch (IOException e) {
-            throw new BusinessException("Unable to write new tariff to device: " + e.getMessage(), e);
+            throw new ProcessingException("Unable to write new tariff to device: " + e.getMessage(), e);
         }
     }
 

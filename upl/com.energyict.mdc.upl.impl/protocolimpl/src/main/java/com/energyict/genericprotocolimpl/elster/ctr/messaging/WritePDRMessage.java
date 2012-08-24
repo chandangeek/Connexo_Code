@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
@@ -44,7 +45,7 @@ public class WritePDRMessage extends AbstractMTU155Message {
             writePdr(pdr);
             updatePdrInEiserver(pdr);
         } catch (CTRException e) {
-            throw new BusinessException("Unable to write PDR.", e);
+            throw new ProcessingException("Unable to write PDR.", e);
         }
     }
 

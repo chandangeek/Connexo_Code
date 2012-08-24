@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.genericprotocolimpl.elster.ctr.common.AttributeType;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Data;
@@ -137,7 +138,7 @@ public class WriteGasParametersMessage extends AbstractMTU155Message {
         try {
             value = new BigDecimal(densityString);
         } catch (Exception e) {
-            throw new BusinessException("Invalid density value [" + densityString + "].", e);
+            throw new ProcessingException("Invalid density value [" + densityString + "].", e);
         }
 
         return validateRangeAndPrecision(value).intValue();
@@ -175,7 +176,7 @@ public class WriteGasParametersMessage extends AbstractMTU155Message {
         try {
             value = new BigDecimal(percentageString);
         } catch (Exception e) {
-            throw new BusinessException("Invalid percentage value [" + percentageString + "].", e);
+            throw new ProcessingException("Invalid percentage value [" + percentageString + "].", e);
         }
 
         int percentage = validateRangeAndPrecision(value).intValue();
@@ -198,7 +199,7 @@ public class WriteGasParametersMessage extends AbstractMTU155Message {
         try {
             value = new BigDecimal(hcvString);
         } catch (Exception e) {
-            throw new BusinessException("Invalid HCV value [" + hcvString + "].", e);
+            throw new ProcessingException("Invalid HCV value [" + hcvString + "].", e);
         }
 
         return validateRangeAndPrecision(value).intValue();

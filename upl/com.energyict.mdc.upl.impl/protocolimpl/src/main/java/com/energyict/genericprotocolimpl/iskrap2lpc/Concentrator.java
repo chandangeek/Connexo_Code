@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.iskrap2lpc;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.*;
 import com.energyict.dialer.core.Link;
@@ -164,7 +165,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             severe(thrown, msg);
             thrown.printStackTrace();
 
-            throw new BusinessException(msg, thrown);
+            throw new ProcessingException(msg, thrown);
 
         } catch (XmlException thrown) {
 
@@ -173,7 +174,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             severe(thrown, msg);
             thrown.printStackTrace();
 
-            throw new BusinessException(msg, thrown);
+            throw new ProcessingException(msg, thrown);
 
         } catch (SQLException thrown) {
 
@@ -185,7 +186,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             severe(thrown, msg);
             thrown.printStackTrace();
 
-            throw new BusinessException(msg, thrown);
+            throw new ProcessingException(msg, thrown);
 
         } catch (ParseException thrown) {
 
@@ -194,7 +195,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             severe(thrown, msg);
             thrown.printStackTrace();
 
-            throw new BusinessException(msg, thrown);
+            throw new ProcessingException(msg, thrown);
         } catch (BusinessException thrown) {
 
             /* Single concentrator failed, log and on to next concentrator */
@@ -202,7 +203,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             severe(thrown, msg);
             thrown.printStackTrace();
 
-            throw new BusinessException(msg, thrown);
+            throw new ProcessingException(msg, thrown);
 
         } finally {
             /** clean up, must simply ALWAYS happen */

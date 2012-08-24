@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
@@ -43,7 +44,7 @@ public class ChangeDSTMessage extends AbstractMTU155Message {
         try {
             writeDST(dst);
         } catch (CTRException e) {
-            throw new BusinessException("Unable to " + (dst ? "enable" : "disable") + " DST.", e);
+            throw new ProcessingException("Unable to " + (dst ? "enable" : "disable") + " DST.", e);
         }
     }
 

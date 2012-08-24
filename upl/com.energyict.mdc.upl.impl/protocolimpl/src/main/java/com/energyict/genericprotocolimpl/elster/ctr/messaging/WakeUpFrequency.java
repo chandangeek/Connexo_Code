@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
@@ -43,7 +44,7 @@ public class WakeUpFrequency extends AbstractMTU155Message {
         try {
             writeWakeUp(periodInHours);
         } catch (CTRException e) {
-            throw new BusinessException("Unable to change the wake up period.", e);
+            throw new ProcessingException("Unable to change the wake up period.", e);
         }
     }
 
@@ -66,7 +67,7 @@ public class WakeUpFrequency extends AbstractMTU155Message {
         try {
             value = Integer.valueOf(periodInHoursAttr);
         } catch (NumberFormatException e) {
-            throw new BusinessException("Invalid period [" + periodInHoursAttr + "].", e);
+            throw new ProcessingException("Invalid period [" + periodInHoursAttr + "].", e);
         }
 
         int[] allowed = new int[]{1, 2, 4, 6, 8, 12};

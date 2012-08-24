@@ -25,6 +25,7 @@ import com.elster.protocolimpl.dlms.tariff.objects.CodeObject;
 import com.elster.protocolimpl.dlms.tariff.objects.SeasonObject;
 import com.elster.protocolimpl.dlms.tariff.objects.SeasonTransitionObject;
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.MessageAttributeSpec;
 import com.energyict.protocol.messaging.MessageSpec;
@@ -71,7 +72,7 @@ public class TariffUploadPassiveMessage extends AbstractDlmsMessage {
             int defaultTariff = validateDefaultTariffString(defaultTariffStr);
             writeCodeTable(codeObject, activationTime, defaultTariff);
         } catch (IOException e) {
-            throw new BusinessException("Unable to write new tariff to device: " + e.getMessage(), e);
+            throw new ProcessingException("Unable to write new tariff to device: " + e.getMessage(), e);
         }
     }
 

@@ -11,6 +11,7 @@
 package com.energyict.genericprotocolimpl.actarisplcc3g;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
@@ -47,7 +48,7 @@ public class HandleConcentratorTransaction implements Transaction {
             handleMessages();
         }
         catch(IOException e) {
-            throw new BusinessException("Error reading the concentrator\n"+com.energyict.cbo.Utils.stack2string(e),e);
+            throw new ProcessingException("Error reading the concentrator\n"+com.energyict.cbo.Utils.stack2string(e),e);
         }
         
         

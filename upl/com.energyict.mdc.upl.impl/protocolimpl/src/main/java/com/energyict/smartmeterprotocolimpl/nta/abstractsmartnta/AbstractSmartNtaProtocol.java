@@ -1,6 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
@@ -412,7 +413,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
                 } catch (SQLException e) {
                     logger.severe("WakeUp failed - " + e.getMessage());
                     Environment.getDefault().closeConnection();
-                    throw new BusinessException("Failed during the WakeUp",e);
+                    throw new ProcessingException("Failed during the WakeUp",e);
                 }
 
                 ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), "4059");

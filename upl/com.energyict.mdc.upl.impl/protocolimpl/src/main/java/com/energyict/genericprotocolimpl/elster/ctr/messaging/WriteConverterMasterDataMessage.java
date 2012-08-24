@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.info.ConverterType;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
@@ -56,7 +57,7 @@ public class WriteConverterMasterDataMessage extends AbstractMTU155Message {
             writeConverterMasterData(converterType, serial);
             updateConverterSerialInEIServer(serial);
         } catch (CTRException e) {
-            throw new BusinessException("Unable to write converter master data.", e);
+            throw new ProcessingException("Unable to write converter master data.", e);
         }
     }
 

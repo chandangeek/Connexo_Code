@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.RtuType;
@@ -316,7 +317,7 @@ public class RtuRegisterBuilder {
             rtuType.update(shadow);
             deviceType = null;
         } catch (SQLException e) {
-            throw new BusinessException("Unable to delete the RtuRegisterSpecs for deviceType [" + rtuType.getName() + "]", e);
+            throw new ProcessingException("Unable to delete the RtuRegisterSpecs for deviceType [" + rtuType.getName() + "]", e);
         }
     }
 
@@ -380,7 +381,7 @@ public class RtuRegisterBuilder {
             }
             deviceType.update(deviceTypeShadow);
         } catch (Exception e) {
-            throw new BusinessException("Unable to create RtuRegisterSpecs for device type [" + deviceType.getName() + "]:", e);
+            throw new ProcessingException("Unable to create RtuRegisterSpecs for device type [" + deviceType.getName() + "]:", e);
         }
     }
 

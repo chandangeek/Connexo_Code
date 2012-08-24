@@ -182,7 +182,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
             } catch (SQLException e) {
                 getLogger().severe("WakeUp failed - " + e.getMessage());
                 Environment.getDefault().closeConnection();
-                throw new BusinessException("Failed during the WakeUp", e);
+                throw new ProcessingException("Failed during the WakeUp", e);
             }
 
             ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), getPortNumber());

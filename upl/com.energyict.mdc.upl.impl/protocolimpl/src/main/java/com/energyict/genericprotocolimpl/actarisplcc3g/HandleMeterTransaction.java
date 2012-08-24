@@ -53,7 +53,7 @@ public class HandleMeterTransaction implements Transaction {
             }
         }
         catch(IOException e) {
-            throw new BusinessException("Error reading the meter with serial "+handleMeter.getMeterInfo().getSerialNumber()+"\n"+com.energyict.cbo.Utils.stack2string(e),e);
+            throw new ProcessingException("Error reading the meter with serial "+handleMeter.getMeterInfo().getSerialNumber()+"\n"+com.energyict.cbo.Utils.stack2string(e),e);
         }
         
         

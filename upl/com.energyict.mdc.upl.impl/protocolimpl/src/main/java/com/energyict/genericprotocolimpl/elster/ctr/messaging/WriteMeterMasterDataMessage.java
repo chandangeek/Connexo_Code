@@ -1,6 +1,7 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.ProcessingException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.info.MeterType;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
@@ -62,7 +63,7 @@ public class WriteMeterMasterDataMessage extends AbstractMTU155Message {
             writeMeterMasterData(meterType, caliber, serial);
             updateMeterSerialInEIServer(serial);
         } catch (CTRException e) {
-            throw new BusinessException("Unable to write meter master data.", e);
+            throw new ProcessingException("Unable to write meter master data.", e);
         }
     }
 
