@@ -277,6 +277,88 @@ public class JemStar extends Jem implements MessageProtocol  {
 
 	}
 
+    protected void processAlternateRegisters(InputStream byteStream, int obisCValue) throws IOException
+	{
+		int startOffset = 0;
+		int len = 2;
+		int pos = startOffset;
+        Date billingDate = null;
+        RegisterValue tempRegisterValue = null;
+
+		int channelCount = (int)convertHexToLongLE(byteStream, 1);
+		byteStream.skip(3);
+		pos += 4;//1 eaten during channel count
+
+		while(byteStream.available()>0)
+		{
+			for(int i=0; i<channelCount; i++)
+			{
+				long val = convertHexToLongLE(byteStream, 4);
+
+				float f = -1;
+				Date tstamp = null;
+				RegisterValue rv = null;
+
+				pos += 4;//eaten duting val
+
+				byteStream.skip(4);
+				pos += 4;
+
+				int registerNumber = (int)convertHexToLongLE(byteStream, len);
+
+				pos += 2;//eaten during registerNumber
+
+				byteStream.skip(3);
+				pos += 3;
+
+				int type = byteStream.read();
+
+				pos ++;//eaten during type
+
+				String s="";
+				for(int ii=0; ii<20; ii++)
+				{
+					int iii = byteStream.read();
+					if(iii>0)
+						s+=(char)((byte)iii);
+					//s+=(char) Byte.parseByte(byteList.get(pos).toString());
+
+					pos ++;
+				}
+
+				ObisCode ob = new ObisCode(1, registerNumber, obisCValue, 0, 0, 0);
+
+				switch(type)
+				{
+				case 0:
+					f = Float.intBitsToFloat((int)val);
+					rv = new RegisterValue(ob, new Quantity(new BigDecimal(f), Unit.getUndefined()), null, billingDate);
+                    tempRegisterValue = rv;
+					break;
+				case 1:
+				case 2:
+					tstamp = new Date(val * 1000);
+                    if (s.trim().equals("Last BPR Time")) {
+                        billingDate = tstamp;
+                    } else if (s.contains("TPkD,Time:")) {
+                        registerValues.remove(tempRegisterValue.getObisCode().toString());
+                        registerValues.put(tempRegisterValue.getObisCode().toString(), new RegisterValue(tempRegisterValue.getObisCode(), tempRegisterValue.getQuantity(), tstamp, billingDate));
+                    }
+                    break;
+				case 3:
+					rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()), null, billingDate);
+                    break;
+				case 4:
+					rv = new RegisterValue(ob, new Quantity(new BigDecimal(val), Unit.getUndefined()), null, billingDate);
+				}
+				if(rv!=null)
+					registerValues.put(ob.toString(), rv);
+			}
+
+		}
+
+	}
+
 	/*******************************************************************************************
      R e g i s t e r P r o t o c o l  i n t e r f a c e 
 	 *******************************************************************************************/
@@ -322,10 +404,7 @@ public class JemStar extends Jem implements MessageProtocol  {
 		outputStream.write(check);
 
 		dataInStream = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
-		processRegisters(dataInStream, ALTERNATE);
-		
-		
-
+		processAlternateRegisters(dataInStream, ALTERNATE);
 	}
 
 
