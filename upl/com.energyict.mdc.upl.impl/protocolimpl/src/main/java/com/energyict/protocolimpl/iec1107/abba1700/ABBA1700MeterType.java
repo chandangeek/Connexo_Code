@@ -96,11 +96,22 @@ public class ABBA1700MeterType {
         this.productRange = getProductRangeFromMeterType(meterType);
         hasExtendedCustomerRegisters = isExtendedCdrMeterType();
         if (isExtendedTouMeterType()) {
+            if (hasExtendedCustomerRegisters) { // METERTYPE_32_TOU_5_CDR
             nrOfTariffRegisters = 32;
             extraOffsetHistoricDisplayScaling = 124;
-        } else {
+                sizeOfScalingSet = 8 * 2;
+                sizeOfCDSource = 15;
+            } else {                            // METERTYPE_32_TOU
+                nrOfTariffRegisters = 32;
+                extraOffsetHistoricDisplayScaling = 124;
+                sizeOfScalingSet = 8 * 2;
+                sizeOfCDSource = 6;
+            }
+        } else {                                // METERTYPE_16_TOU
             nrOfTariffRegisters = 16;
             extraOffsetHistoricDisplayScaling = 0;
+            sizeOfScalingSet = 8*2;
+            sizeOfCDSource = 6;
         }
     }
 

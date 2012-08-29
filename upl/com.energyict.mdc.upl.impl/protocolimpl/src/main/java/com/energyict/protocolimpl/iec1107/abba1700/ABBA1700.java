@@ -227,7 +227,6 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
         return result;
     }
 
-    /** Protocol Version **/
     public String getProtocolVersion() {
         return "$Date$";
     }
