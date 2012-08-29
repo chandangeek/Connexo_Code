@@ -2,7 +2,6 @@ package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.ProcessingException;
-import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
@@ -26,7 +25,9 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -412,7 +413,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
                     smsWakeup.doWakeUp();
                 } catch (SQLException e) {
                     logger.severe("WakeUp failed - " + e.getMessage());
-                    Environment.getDefault().closeConnection();
+                    ProtocolTools.closeConnection();
                     throw new ProcessingException("Failed during the WakeUp",e);
                 }
 
