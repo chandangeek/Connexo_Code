@@ -31,7 +31,7 @@ public enum DaylightAlgorithm {
 
     @Override
     public String toString() {
-                switch (this.ordinal()) {
+        switch (this.ordinal()) {
             case 0:
                 return "repeated once exactly on day, month and year";
             case 1:

@@ -135,16 +135,16 @@ public class ObisCodeMapper {
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         if (obisCode.equals(OBISCODE_FIRMWARE)) {
             String firmwareVersion = poreg.getFirmwareVersion();
-            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, firmwareVersion);
+            return new RegisterValue(obisCode, firmwareVersion);
         } else if (obisCode.equals(OBISCODE_SERIAL_NUMBER)) {
             String id = poreg.getRegisterFactory().readSerialNumber();
-            return new RegisterValue(obisCode, new Quantity(Integer.parseInt(id), Unit.get("")), new Date(), new Date(), new Date(), new Date(), 0, id);
+            return new RegisterValue(obisCode, new Quantity(Integer.parseInt(id), Unit.get("")), new Date(), null, new Date(), new Date(), 0, id);
         } else if (obisCode.equals(OBISCODE_BILLING_COUNTER)) {
             int counter = poreg.getRegisterFactory().readBillingCounter();
             return new RegisterValue(obisCode, new Quantity(counter, Unit.get("")), new Date());
         } else if (obisCode.equals(OBISCODE_LAST_DEMAND_RESET_TIMESTAMP)) {
             Date timeStamp = poreg.getRegisterFactory().readBillingDataLastPeriodTimeStamp();
-            return new RegisterValue(obisCode, new Quantity(0, Unit.get("")), timeStamp, new Date(), new Date(), new Date(), 0, timeStamp.toString());
+            return new RegisterValue(obisCode, timeStamp.toString());
         } else if (isApparentEnergyBillingData(obisCode)) {
             long totalApparentEnergyLastBillingPeriod = poreg.getRegisterFactory().readBillingData(obisCode.getE(), 3, obisCode.getD());
             Date timeStamp = poreg.getRegisterFactory().readBillingDataLastPeriodTimeStamp();
