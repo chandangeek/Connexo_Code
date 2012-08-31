@@ -6,18 +6,16 @@
 
 package com.energyict.protocolimpl.siemens7ED62;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  *
@@ -85,7 +83,7 @@ public class SCTMDumpData {
             throw new IOException("SCTMDumpData, getRegisterDateTime, Invalid datetime signature ("+datetimeSignature+")");
         }
     }
-    
+
     /**
      * Search for and return the billingCounter. The BillingCounter is a field in the datadump.
      * As from 01/02/2010 we use the field in the datadump instead of looping over the billings
@@ -175,10 +173,15 @@ public class SCTMDumpData {
         Quantity quantity = parseQuantity(searchRegister(strRegister));
         String strBaseRegister = findBaseRegister(strRegister);
         if (strBaseRegister != null) {
-           Quantity quantityUnit = parseQuantity(searchRegister(strBaseRegister));
-           return new Quantity(quantity.getAmount(),quantityUnit.getUnit());
+            Quantity quantityUnit;
+            try {
+                quantityUnit = parseQuantity(searchRegister(strBaseRegister));
+                return new Quantity(quantity.getAmount(), quantityUnit.getUnit());
+            } catch (NoSuchRegisterException e) {   // The baseUnit register cannot be read (most likely the base unit register does not exists)
+                return quantity;
+            }
         } else {
-			return quantity;
+            return quantity;
         }
     }
     
