@@ -1198,7 +1198,9 @@ public final class ProtocolTools {
      * Close the databaseConnection when it is not needed so optimal database pooling can be used
      */
     public static void closeConnection() {
-        Environment.getDefault().closeConnection();
+        if(!Environment.getDefault().isInTransaction()){
+            Environment.getDefault().closeConnection();
+        }
     }
 
     public static boolean isCorrectIntervalBoundary(Calendar toDate, int intervalInSeconds) {
