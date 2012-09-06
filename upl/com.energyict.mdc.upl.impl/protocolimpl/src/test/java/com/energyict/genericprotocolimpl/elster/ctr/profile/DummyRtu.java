@@ -10,12 +10,8 @@ import com.energyict.dynamicattributes.AttributeType;
 import com.energyict.dynamicattributes.BusinessObjectType;
 import com.energyict.interval.DateTime;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
-import com.energyict.mdc.shadow.tasks.ComTaskShadow;
-import com.energyict.mdc.shadow.tasks.ProtocolTypeUsageShadow;
-import com.energyict.mdc.shadow.tasks.RecurringConnectionTaskShadow;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.ProtocolTypeUsage;
-import com.energyict.mdc.tasks.RecurringConnectionTask;
+import com.energyict.mdc.shadow.tasks.*;
+import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.offline.OfflineRtu;
@@ -119,22 +115,22 @@ public class DummyRtu implements Rtu {
     }
 
     @Override
-    public RecurringConnectionTask createRecurringConnectionTask(RecurringConnectionTaskShadow shadow) throws BusinessException, SQLException {
+    public OutboundConnectionTask createOutboundConnectionTask(OutboundConnectionTaskShadow shadow) throws BusinessException, SQLException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public RecurringConnectionTask getRecurringConnectionTask() {
+    public OutboundConnectionTask getOutboundConnectionTask() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public List<ComTask> getComTasks() {
-        return new ArrayList<ComTask>(0);
+    public List<ScheduledComTask> getScheduledComTasks() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public ComTask createComTask(ComTaskShadow shadow) throws BusinessException, SQLException {
+    public ScheduledComTask createScheduledComTask(ScheduledComTaskShadow shadow) throws BusinessException, SQLException {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
