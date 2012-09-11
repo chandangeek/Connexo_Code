@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * Date: 29-jun-2011
  * Time: 11:32:30
  */
-public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging, FirmwareUpdateMessaging, WakeUpProtocolSupport {
+public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging, WakeUpProtocolSupport {
 
     private AS300Properties properties;
     private AS300ObjectFactory objectFactory;
@@ -229,15 +229,6 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
     public TimeOfUseMessagingConfig getTimeOfUseMessagingConfig() {
         return getMessageProtocol().getTimeOfUseMessagingConfig();
     }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        return getMessageProtocol().getFirmwareUpdateMessagingConfig();
-    }
-
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return getMessageProtocol().getFirmwareUpdateMessageBuilder();
-    }
-
 
     /**
      * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId

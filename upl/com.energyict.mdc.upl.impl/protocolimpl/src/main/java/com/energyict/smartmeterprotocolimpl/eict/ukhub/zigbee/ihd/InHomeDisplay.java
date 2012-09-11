@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.*;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessaging;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class InHomeDisplay extends UkHub {
     @Override
     public MessageProtocol getMessageProtocol() {
         if (messageProtocol == null) {
-            messageProtocol = new InHomeDisplayMessaging(this);
+            messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this));
         }
         return messageProtocol;
     }

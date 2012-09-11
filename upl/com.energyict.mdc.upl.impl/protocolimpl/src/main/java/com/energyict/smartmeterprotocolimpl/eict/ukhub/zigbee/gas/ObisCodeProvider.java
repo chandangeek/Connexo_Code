@@ -87,6 +87,7 @@ public final class ObisCodeProvider {
     public static final ObisCode SPECIAL_DAY_TABLE = ObisCode.fromString("0.0.11.0.0.255");
 
     public static final ObisCode FIRMWARE_UPDATE = ObisCode.fromString("0.0.44.0.0.255");
+    public static final ObisCode IMAGE_ACTIVATION_SCHEDULER = ObisCode.fromString("0.0.15.0.2.255");
 
     static {
         OBJECT_LIST = new UniversalObject[]{

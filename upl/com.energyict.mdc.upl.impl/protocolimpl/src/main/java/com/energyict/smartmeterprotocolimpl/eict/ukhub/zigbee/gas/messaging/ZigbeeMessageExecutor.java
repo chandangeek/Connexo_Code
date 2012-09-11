@@ -1,7 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.*;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -115,8 +114,6 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                 doConnect(content);
             } else if (isDisconnectControlMessage(content)) {
                 doDisconnect(content);
-            } else if (isFirmwareUpgradeMessage(content)) {
-                doFirmwareUpgrade(content);
             } else {
 
                 MessageHandler messageHandler = new NTAMessageHandler();
@@ -128,6 +125,8 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                     changeOfSupplier(messageHandler);
                 } else if (isTestMessage(messageHandler)) {
                     testMessage(messageHandler);
+                } else if (isFirmwareUpgradeMessage(content)) {
+                    doFirmwareUpgrade(messageHandler, content);
                 } else {
                     log(Level.INFO, "Message not supported : " + content);
                     success = false;
@@ -140,6 +139,9 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         } catch (SQLException e) {
+            log(Level.SEVERE, "Message failed : " + e.getMessage());
+            success = false;
+        } catch (InterruptedException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         }
@@ -489,18 +491,46 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         connector.remoteDisconnect();
     }
 
-    private void doFirmwareUpgrade(final String content) throws IOException {
-        log(Level.INFO, "Executing firmware update message");
+    private void doFirmwareUpgrade(MessageHandler messageHandler, final String content) throws IOException, InterruptedException {
+        log(Level.INFO, "Handling message Firmware upgrade");
+
+        String userFileID = messageHandler.getUserFileId();
+        if (!com.energyict.genericprotocolimpl.common.ParseUtils.isInteger(userFileID)) {
+            String str = "Not a valid entry for the userFile.";
+            throw new IOException(str);
+        }
+        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+        if (!(uf instanceof UserFile)) {
+            String str = "Not a valid entry for the userfileID " + userFileID;
+            throw new IOException(str);
+        }
+
+        String[] parts = content.split("=");
+        Date date = null;
         try {
-            String base64Encoded = getIncludedContent(content);
-            byte[] imageData = new Base64EncoderDecoder().decode(base64Encoded);
-            ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
-            it.upgrade(imageData);
+            if (parts.length > 2) {
+                String dateString = parts[2].substring(1).split("\"")[0];
+
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                date = formatter.parse(dateString);
+            }
+        } catch (ParseException e) {
+            log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
+            throw new NestedIOException(e);
+        } catch (NumberFormatException e) {
+            log(Level.SEVERE, "Error while parsing the time duration: " + e.getMessage());
+            throw new NestedIOException(e);
+        }
+
+        byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
+        it.upgrade(imageData);
+        if (date != null) {
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(ObisCodeProvider.IMAGE_ACTIVATION_SCHEDULER);
+            Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
+            sas.writeExecutionTime(dateArray);
+        } else {
             it.imageActivation();
-        } catch (InterruptedException e) {
-            String msg = "Firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
-            log(Level.SEVERE, msg);
-            throw new IOException(msg);
         }
     }
 
@@ -616,7 +646,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     }
 
     private boolean isFirmwareUpgradeMessage(final String messageContent) {
-        return (messageContent != null) && messageContent.contains("FirmwareUpdate");
+        return (messageContent != null) &&  messageContent.contains(RtuMessageConstant.FIRMWARE_UPGRADE);
     }
 
     public ActivityCalendarController getActivityCalendarController() {

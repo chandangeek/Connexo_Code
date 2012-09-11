@@ -34,6 +34,8 @@ public class UkHubMessaging extends GenericMessaging implements MessageProtocol 
         categories.add(getWebserverCategory());
         categories.add(getRebootCategory());
         categories.add(ProtocolMessageCategories.getGPRSModemCategory());
+        categories.add(getFirmwareCategory());
+
         return categories;
     }
 

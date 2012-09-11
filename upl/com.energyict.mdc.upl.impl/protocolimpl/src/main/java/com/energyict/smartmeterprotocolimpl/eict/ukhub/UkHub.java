@@ -17,7 +17,8 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRela
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.events.UkHubEventProfiles;
-import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.*;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessageExecutor;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessaging;
 
 import java.io.IOException;
 import java.util.*;
@@ -27,7 +28,7 @@ import java.util.logging.Logger;
  * The UK hub has the same protocolBase as the WebRTUZ3. Additional functionality is added for SSE, more specifically Zigbee HAN functionality
  * and Prepayment
  */
-public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, FirmwareUpdateMessaging, SmartMeterToolProtocol, WakeUpProtocolSupport {
+public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, SmartMeterToolProtocol, WakeUpProtocolSupport {
 
     /**
      * The properties to use for this protocol
@@ -334,16 +335,6 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
             this.ukHubEventProfiles = new UkHubEventProfiles(this);
         }
         return ukHubEventProfiles;
-    }
-
-    public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
-        FirmwareUpdateMessagingConfig config = new FirmwareUpdateMessagingConfig();
-        config.setSupportsUserFiles(true);
-        return config;
-    }
-
-    public FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
-        return new UkHubFirmwareUpdateMessageBuilder();
     }
 
     public void disConnect() throws IOException {

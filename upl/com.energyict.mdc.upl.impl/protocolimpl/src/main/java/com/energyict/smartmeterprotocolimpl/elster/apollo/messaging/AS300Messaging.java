@@ -70,6 +70,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol,
         textMessagesCat.addMessageSpec(addMsgWithValuesAndOptionalValue("Send text message to E-meter display", TEXT_TO_EMETER_DISPLAY, false, ACTIVATION_DATE, MESSAGE, DURATION));
         textMessagesCat.addMessageSpec(addMsgWithValuesAndOptionalValue("Send text message to IHD display", TEXT_TO_IHD, false, ACTIVATION_DATE, MESSAGE, DURATION));
         categories.add(textMessagesCat);
+        categories.add(getFirmwareCategory());
         return categories;
     }
 

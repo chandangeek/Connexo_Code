@@ -1,7 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.*;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -89,9 +88,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         success = true;
 
         try {
-            if (isFirmwareUpdateMessage(content)) {
-                updateFirmware(content);
-            } else if (isTimeOfUseMessage(content)) {
+            if (isTimeOfUseMessage(content)) {
                 updateTimeOfUse(content);
             } else if (isUpdatePricingInformationMessage(content)) {
                 updatePricingInformation(content);
@@ -120,6 +117,8 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                     changeOfTenantMessage(messageHandler);
                 } else if (isChangeOfSupplierMessage(messageHandler)) {
                     changeOfSupplier(messageHandler);
+                } else if (isFirmwareUpdateMessage(content)) {
+                    updateFirmware(messageHandler, content);
                 } else {
                     log(Level.INFO, "Message not supported : " + content);
                     success = false;
@@ -133,6 +132,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             success = false;
         } catch (SQLException e) {
             logMessage = e.getMessage();
+            success = false;
+        } catch (InterruptedException e) {
+             logMessage = e.getMessage();
             success = false;
         }
 
@@ -375,25 +377,53 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void updateFirmware(String content) throws IOException {
-        getLogger().info("Executing firmware update message");
-        try {
-            String base64Encoded = getIncludedContent(content);
-            byte[] imageData = new Base64EncoderDecoder().decode(base64Encoded);
-            final ImageTransfer it = getCosemObjectFactory().getImageTransfer();
-            it.setUsePollingVerifyAndActivate(true);
-            it.upgrade(imageData, false);
-            it.imageActivation();
-        } catch (InterruptedException e) {
-            String msg = "Firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
-            getLogger().severe(msg);
-            throw new IOException(msg);
+    private void updateFirmware(MessageHandler messageHandler, String content) throws IOException, InterruptedException {
+        log(Level.INFO, "Handling message Firmware upgrade");
+
+        String userFileID = messageHandler.getUserFileId();
+
+        if (!com.energyict.genericprotocolimpl.common.ParseUtils.isInteger(userFileID)) {
+            String str = "Not a valid entry for the userFile.";
+            throw new IOException(str);
         }
-        getLogger().info("Received a firmware upgrade message.");
+        UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
+        if (!(uf instanceof UserFile)) {
+            String str = "Not a valid entry for the userfileID " + userFileID;
+            throw new IOException(str);
+        }
+
+        String[] parts = content.split("=");
+        Date date = null;
+        try {
+            if (parts.length > 2) {
+                String dateString = parts[2].substring(1).split("\"")[0];
+
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                date = formatter.parse(dateString);
+            }
+        } catch (ParseException e) {
+            log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
+            throw new NestedIOException(e);
+        } catch (NumberFormatException e) {
+            log(Level.SEVERE, "Error while parsing the time duration: " + e.getMessage());
+            throw new NestedIOException(e);
+        }
+
+        byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+        it.setUsePollingVerifyAndActivate(true);
+        it.upgrade(imageData, false);
+        if (date != null) {
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getCosemObjectFactory().getImageActivationScriptTable().getObisCode());
+            Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
+            sas.writeExecutionTime(dateArray);
+        } else {
+            it.imageActivation();
+        }
     }
 
     private boolean isFirmwareUpdateMessage(String messageContent) {
-        return (messageContent != null) && messageContent.contains(AS300FirmwareUpdateMessageBuilder.getMessageNodeTag());
+        return (messageContent != null) && messageContent.contains(RtuMessageConstant.FIRMWARE_UPGRADE);
     }
 
     private void changeOfSupplier(final MessageHandler messageHandler) throws IOException {

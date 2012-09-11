@@ -158,6 +158,7 @@ public class ProtocolMessageSpecifications {
         MessageSpec msgSpec = new MessageSpec(RtuMessageKeyIdConstants.ZIGBEE_NCP_FIRMWARE_UPGRADE);
         MessageTagSpec tagSpec = new MessageTagSpec(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE);
         tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_USERFILE_ID, true));
+        tagSpec.add(new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, false));
         msgSpec.add(tagSpec);
         return msgSpec;
     }

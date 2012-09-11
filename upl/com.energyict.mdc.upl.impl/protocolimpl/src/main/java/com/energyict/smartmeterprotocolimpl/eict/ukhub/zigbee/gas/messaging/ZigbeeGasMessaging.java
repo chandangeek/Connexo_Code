@@ -82,6 +82,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
         textMessagesCat.addMessageSpec(addMsgWithValuesAndOptionalValue("Send text message to display", TEXT_TO_DISPLAY, false, ACTIVATION_DATE, MESSAGE, DURATION));
         categories.add(textMessagesCat);
 
+        categories.add(getFirmwareCategory());
         categories.add(getTestCategory());
         return categories;
     }
