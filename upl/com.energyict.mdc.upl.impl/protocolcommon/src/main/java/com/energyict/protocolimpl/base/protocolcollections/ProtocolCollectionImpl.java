@@ -6,16 +6,10 @@
 
 package com.energyict.protocolimpl.base.protocolcollections;
 
-import com.energyict.protocol.ProtocolCollection;
-import com.energyict.protocol.ProtocolImplFactory;
-import com.energyict.protocol.ProtocolInstantiator;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Koen
@@ -179,6 +173,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         METER_PROTOCOLS.put("com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372", "SmartMeter IskraMx372");
         METER_PROTOCOLS.put("com.energyict.protocolimpl.EMCO.FP93", "FP93 Flow Processor");
         METER_PROTOCOLS.put("com.energyict.protocolimpl.dlms.elster.as300d.AS300D", "DLMS Elster AS300D");
+        METER_PROTOCOLS.put("com.energyict.protocolimpl.modbus.multilin.epm2200.EPM2200", "Multilin EPM2200 Modbus meter");
 
     }
 
