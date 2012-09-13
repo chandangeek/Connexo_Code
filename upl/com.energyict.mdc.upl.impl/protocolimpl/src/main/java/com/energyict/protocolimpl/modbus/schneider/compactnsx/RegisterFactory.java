@@ -3,19 +3,14 @@
  */
 package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Calendar;
-
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.modbus.core.AbstractRegister;
-import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
-import com.energyict.protocolimpl.modbus.core.HoldingRegister;
-import com.energyict.protocolimpl.modbus.core.Modbus;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
-import com.energyict.protocolimpl.modbus.core.Parser;
+import com.energyict.protocolimpl.modbus.core.*;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Calendar;
 
 /**
  * @author gna
@@ -50,7 +45,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1016,1,ObisCode.fromString("1.1.31.7.0.255"))); // RMS current on phase 1:L1
         getRegisters().add(new HoldingRegister(1017,1,ObisCode.fromString("1.1.51.7.0.255"))); // RMS current on phase 2:L2
         getRegisters().add(new HoldingRegister(1018,1,ObisCode.fromString("1.1.71.7.0.255"))); // RMS current on phase 3:L3
-        getRegisters().add(new HoldingRegister(1019,1,ObisCode.fromString("1.1.11.6.0.255"))); // Maximum I1, I2, I3
+        getRegisters().add(new HoldingRegister(1020,1,ObisCode.fromString("1.1.11.6.0.255"))); // Maximum I1, I2, I3
         getRegisters().add(new HoldingRegister(1026,1,ObisCode.fromString("1.1.11.3.0.255"))); // Minimum I1, I2, I3
         getRegisters().add(new HoldingRegister(1027,1,ObisCode.fromString("1.1.130.7.0.255"))); // Total average I1, I2, I3
         
