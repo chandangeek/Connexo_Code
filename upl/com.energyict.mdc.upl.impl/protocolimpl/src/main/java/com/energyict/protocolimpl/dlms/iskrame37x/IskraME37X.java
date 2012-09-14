@@ -28,13 +28,15 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol {
+public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
     private static final byte DL_COSEMPDU_DATA_OFFSET = 0x07;
@@ -1119,6 +1121,11 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         }
     } // public void disconnect() throws IOException
 
+    public void resetDemand() throws IOException {
+        ScriptTable demandResetScriptTable = getCosemObjectFactory().getScriptTable(ObisCode.fromString("0.0.10.0.1.255"));
+        demandResetScriptTable.execute(0);
+    }
+
     class InitiateResponse {
 
         protected byte bNegotiatedQualityOfService;
@@ -1507,34 +1514,55 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
+        try {
+            if (isItThisMessage(messageEntry, RtuMessageConstant.DEMAND_RESET)) {
+                getLogger().info("Sending message DemandReset.");
+                resetDemand();
+                getLogger().info("DemandReset message successful.");
+                return MessageResult.createSuccess(messageEntry);
+            } else {
+                cosemObjectFactory.writeObject(breakerObisCode, 1, 2, (byte[]) messages.get(0));
+                messages.remove(0);
 
-        cosemObjectFactory.writeObject(breakerObisCode, 1, 2, (byte[]) messages.get(0));
-        messages.remove(0);
+                BigDecimal breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
 
-        BigDecimal breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
+                switch (breakerState.intValue()) {
 
-        switch (breakerState.intValue()) {
+                    case 0: {
+                        if (((String) messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">"))).equals(DISCONNECT)) {
+                            return MessageResult.createSuccess(messageEntry);
+                        } else {
+                            return MessageResult.createFailed(messageEntry);
+                        }
+                    }
 
-            case 0: {
-                if (((String) messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">"))).equals(DISCONNECT)) {
-                    return MessageResult.createSuccess(messageEntry);
-                } else {
-                    return MessageResult.createFailed(messageEntry);
+                    case 1: {
+                        if (((String) messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">"))).equals(CONNECT)) {
+                            return MessageResult.createSuccess(messageEntry);
+                        } else {
+                            return MessageResult.createFailed(messageEntry);
+                        }
+                    }
+
+                    default:
+                        return MessageResult.createFailed(messageEntry);
                 }
             }
-
-            case 1: {
-                if (((String) messageEntry.getContent().substring(messageEntry.getContent().indexOf("<") + 1, messageEntry.getContent().indexOf(">"))).equals(CONNECT)) {
-                    return MessageResult.createSuccess(messageEntry);
-                } else {
-                    return MessageResult.createFailed(messageEntry);
-                }
-            }
-
-            default:
-                return MessageResult.createFailed(messageEntry);
+        } catch (IOException e) {
+            getLogger().info("Message failed : " + e.getMessage());
+            return MessageResult.createFailed(messageEntry);
         }
+    }
 
+    /**
+    * Checks if the given MessageEntry contains the corresponding MessageTag
+    *
+    * @param messageEntry the given messageEntry
+    * @param messageTag   the tag to check
+    * @return true if this is the message, false otherwise
+    */
+    protected boolean isItThisMessage(MessageEntry messageEntry, String messageTag) {
+        return messageEntry.getContent().indexOf(messageTag) >= 0;
     }
 
     public List getMessageCategories() {
@@ -1551,6 +1579,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 //        cat.addMessageSpec(msgSpec);
 
         theCategories.add(cat);
+        theCategories.add(ProtocolMessageCategories.getDemandResetCategory());
         return theCategories;
     }
 
