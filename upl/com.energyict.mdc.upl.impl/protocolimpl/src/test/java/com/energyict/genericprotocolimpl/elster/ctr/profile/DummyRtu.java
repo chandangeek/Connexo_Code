@@ -120,13 +120,8 @@ public class DummyRtu implements Rtu {
     }
 
     @Override
-    public OutboundConnectionTask getDefaultOutboundConnectionTask() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setDefaultConnectionTask(OutboundConnectionTask newDefaultConnectionTask) throws BusinessException, SQLException {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public OutboundConnectionTask getOutboundConnectionTask() {
+        return null;
     }
 
     @Override
