@@ -61,6 +61,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final ObisCode METER_MESSAGE_EMETER_CONTROL = ObisCode.fromString("1.0.35.3.8.255");
     private static final ObisCode METER_MESSAGE_IHD_CONTROL = ObisCode.fromString("1.0.35.3.7.255");
     private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
+    private static final ObisCode IMAGE_ACTIVATION_SCHEDULER_OBIS = ObisCode.fromString("0.0.15.0.2.255");
 
     protected final AbstractSmartDlmsProtocol protocol;
 
@@ -134,7 +135,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             logMessage = e.getMessage();
             success = false;
         } catch (InterruptedException e) {
-             logMessage = e.getMessage();
+            logMessage = e.getMessage();
             success = false;
         }
 
@@ -414,7 +415,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         it.setUsePollingVerifyAndActivate(true);
         it.upgrade(imageData, false);
         if (date != null) {
-            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getCosemObjectFactory().getImageActivationScriptTable().getObisCode());
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(IMAGE_ACTIVATION_SCHEDULER_OBIS);
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
             sas.writeExecutionTime(dateArray);
         } else {
