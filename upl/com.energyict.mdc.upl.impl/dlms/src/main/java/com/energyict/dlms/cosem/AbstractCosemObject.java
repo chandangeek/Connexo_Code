@@ -18,7 +18,9 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -27,6 +29,7 @@ import java.util.logging.Logger;
 public abstract class AbstractCosemObject {
 
 	private static final boolean	DEBUG								= false;
+	private boolean                 debug								= false;
     private static final boolean    WRITE_WITH_BLOCK_ENABLED            = false;
     private static final int        DEFAULT_MAX_REC_PDU_SERVER          = 1024;
 
@@ -142,9 +145,10 @@ public abstract class AbstractCosemObject {
 			if (this.objectReference.isLNReference()) {
 				byte[] request = buildSetRequest(getClassId(), this.objectReference.getLn(), (byte) attribute, data);
                 // Server max receive pdu size exceeded: we should use write request with block transfer
-                if (request.length >= getMaxRecPduServer()) {
-                    responseData = sendSetRequestWithBlockTransfer(attribute, data);
+                if ((request.length >= getMaxRecPduServer()) && (!this.protocolLink.getMeterConfig().isSL7000())) {
+                        responseData = sendSetRequestWithBlockTransfer(attribute, data);
                 } else {
+                    // The Actaris SL7000 meter never uses block transfer requests, but always uses the regular one.
                     responseData = this.protocolLink.getDLMSConnection().sendRequest(request);
                 }
 			} else if (this.objectReference.isSNReference()) {
@@ -399,7 +403,7 @@ public abstract class AbstractCosemObject {
 	}
 
 	/**
-	 * Attribute as defined in the object docs fopr short name reference
+	 * Attribute as defined in the object docs for short name reference
 	 * 0 = logical name attribute 1
 	 * 8,16,24,..n attribute 2..n
 	 *
@@ -427,6 +431,30 @@ public abstract class AbstractCosemObject {
 
 		}
 	}
+
+    /**
+     * DLMS LN and SN supported get of the given {@link com.energyict.dlms.cosem.attributes.DLMSClassAttributes}
+     *
+     * @param attribute     the attribute to read from the device
+     * @param expectedClass The expected data type class
+     * @param <T>           The class type of the expected data
+     * @return the value of the requested attribute
+     * @throws IOException if an exception occurs during the reading
+     */
+    protected <T extends AbstractDataType> T readDataType(DLMSClassAttributes attribute, Class<T> expectedClass) throws IOException {
+        byte[] rawData = getResponseData(attribute);
+        return AXDRDecoder.decode(rawData, expectedClass);
+    }
+
+    /**
+     *
+     * @param attribute
+     * @return
+     * @throws IOException
+     */
+    protected final AbstractDataType readDataType(DLMSClassAttributes attribute) throws IOException {
+        return readDataType(attribute, AbstractDataType.class);
+    }
 
     /**
      *
@@ -490,17 +518,28 @@ public abstract class AbstractCosemObject {
         }
     }
 
-	/**
-	 * Build up the request, send it to the device and return the checked
-	 * response data as byte[]
-	 *
-	 * @param attribute - the DLMS attribute id
-	 * @param from - the from date as {@link Calendar}
-	 * @param to - the to date as {@link Calendar}
-	 * @return the validate response as byte[]
-	 * @throws IOException
-	 */
-	protected byte[] getResponseData(int attribute, Calendar from, Calendar to) throws IOException {
+    /**
+     * DLMS LN and SN supported invocation of the methods based on the given {@link com.energyict.dlms.cosem.methods.DLMSClassMethods}
+     *
+     * @param method the method to invoke
+     * @return raw data returned from the method invocation
+     * @throws IOException if an exception occurs during the method call
+     */
+    protected byte[] methodInvoke(DLMSClassMethods method) throws IOException {
+        return methodInvoke(method, (byte[]) null);
+    }
+
+    /**
+     * Build up the request, send it to the device and return the checked
+     * response data as byte[]
+     *
+     * @param attribute - the DLMS attribute id
+     * @param from - the from date as {@link Calendar}
+     * @param to - the to date as {@link Calendar}
+     * @return the validate response as byte[]
+     * @throws IOException
+     */
+    protected byte[] getResponseData(int attribute, Calendar from, Calendar to) throws IOException {
 		try {
 			byte[] responseData = null;
 			byte[] request = null;
@@ -2107,9 +2146,16 @@ public abstract class AbstractCosemObject {
 		if (DEBUG) {
 			LogFactory.getLog(getClass()).debug(message);
 		}
+        if (debug) {
+            protocolLink.getLogger().finest(message);
+        }
 	}
 
-	/**
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+    /**
 	 * @param ln
 	 * @param sn
 	 * @return

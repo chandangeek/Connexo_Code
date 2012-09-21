@@ -6,8 +6,12 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.OctetString;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.VisibleString;
 
 import java.io.IOException;
 import java.util.Date;
@@ -112,6 +116,16 @@ public class ExtendedRegister extends Register implements CosemObject {
     public long getStatus() throws IOException{
     	return DLMSUtils.parseValue2long(getResponseData(EXTENDED_REGISTER_STATUS));
     }
+
+     /**  To be used when the status element has data-type 'Visible-string' or 'octet-string'
+     * @return the status of the register
+     * @throws IOException if resulted dataType is not supported or when read failed.
+     */
+    public String getStatusText() throws IOException{
+        VisibleString visibleString = new VisibleString(getResponseData(EXTENDED_REGISTER_STATUS), 0);
+        return visibleString.getStr();
+    }
+
     /**
      * @param status - The dataType is manufactures specific
      * @throws IOException when writing failed, possible dataType not supported

@@ -536,3 +536,5 @@
 -keepnames class com.energyict.protocolimpl.EMCO.FP93
 
 -keepnames class com.energyict.protocolimpl.modbus.multilin.epm2200.EPM2200
+
+-keepnames class com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000

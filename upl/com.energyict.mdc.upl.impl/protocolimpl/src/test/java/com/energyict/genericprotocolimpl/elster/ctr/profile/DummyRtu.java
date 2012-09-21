@@ -10,8 +10,12 @@ import com.energyict.dynamicattributes.AttributeType;
 import com.energyict.dynamicattributes.BusinessObjectType;
 import com.energyict.interval.DateTime;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
-import com.energyict.mdc.shadow.tasks.*;
-import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.shadow.tasks.OutboundConnectionTaskShadow;
+import com.energyict.mdc.shadow.tasks.ProtocolTypeUsageShadow;
+import com.energyict.mdc.shadow.tasks.ScheduledComTaskShadow;
+import com.energyict.mdc.tasks.OutboundConnectionTask;
+import com.energyict.mdc.tasks.ProtocolTypeUsage;
+import com.energyict.mdc.tasks.ScheduledComTask;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.offline.OfflineRtu;
@@ -120,13 +124,8 @@ public class DummyRtu implements Rtu {
     }
 
     @Override
-    public OutboundConnectionTask getDefaultOutboundConnectionTask() {
+    public OutboundConnectionTask getOutboundConnectionTask() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setDefaultConnectionTask(OutboundConnectionTask newDefaultConnectionTask) throws BusinessException, SQLException {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

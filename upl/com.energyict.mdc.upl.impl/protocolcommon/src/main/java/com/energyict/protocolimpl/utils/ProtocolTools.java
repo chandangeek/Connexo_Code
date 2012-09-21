@@ -1,7 +1,10 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.cpo.Environment;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -13,6 +16,8 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -29,6 +34,8 @@ public final class ProtocolTools {
     private static final int MILLIS = 1000;
     private static final int SECONDS = 60;
     private static final String CRLF = "\r\n";
+
+    private static Logger logger = Logger.getLogger(ProtocolTools.class.getName());
 
     private ProtocolTools() {
         // Hide constructor for Util class with static methods
@@ -63,6 +70,22 @@ public final class ProtocolTools {
     }
 
     /**
+     * Turn an long into a byte array, with a given length.
+     *
+     * @param value
+     * @param length
+     * @return
+     */
+    public static byte[] getBytesFromLong(long value, int length) {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < bytes.length; i++) {
+            int ptr = (bytes.length - (i + 1));
+            bytes[ptr] = (i < 5) ? (byte) ((value >> (i * 8))) : 0x00;
+        }
+        return bytes;
+    }
+
+    /**
      * Convert int value to a hexadecimal string with a given byte length.
      * The given 'prefix' separator is used between each byte.
      *
@@ -80,7 +103,7 @@ public final class ProtocolTools {
      * Convert int value to a hexadecimal string with a given byte length.
      * The default separator '$' is used between each byte.
      *
-     * @param value  The intValue to convert
+     * @param value The intValue to convert
      * @param length The amount of bytes that should be shown in the hex string
      * @return The hex string
      */
@@ -195,7 +218,6 @@ public final class ProtocolTools {
 
     /**
      * retrieve the subArray [from, to[  out of the given array
-     *
      * @param bytes
      * @param from  Inclusive from
      * @param to    Exclusive to
@@ -262,7 +284,7 @@ public final class ProtocolTools {
         }
 
         Long[] longs = new Long[firstArray.length + secondArray.length];
-        System.arraycopy(firstArray, 0, longs, 0, firstArray.length);
+              System.arraycopy(firstArray, 0, longs, 0, firstArray.length);
         System.arraycopy(secondArray, 0, longs, firstArray.length, secondArray.length);
         return longs;
     }
@@ -273,7 +295,7 @@ public final class ProtocolTools {
                 return new BigDecimal[0];
             } else {
                 return secondArray.clone();
-            }
+    }
         } else {
             if (secondArray == null) {
                 return firstArray.clone();
@@ -409,7 +431,6 @@ public final class ProtocolTools {
         }
         return buffer;
     }
-
     /**
      * @param fileName
      * @return
@@ -563,7 +584,7 @@ public final class ProtocolTools {
         Date newest = null;
 
         List intervals = profileData.getIntervalDatas();
-        for (Iterator iterator = intervals.iterator(); iterator.hasNext(); ) {
+        for (Iterator iterator = intervals.iterator(); iterator.hasNext();) {
             IntervalData intervalData = (IntervalData) iterator.next();
             if ((oldest == null) || (newest == null)) {
                 oldest = intervalData.getEndTime();
@@ -675,10 +696,10 @@ public final class ProtocolTools {
     }
 
     /**
-     * @param obis
-     * @param fieldNr
-     * @param value
-     * @return
+     * @param obis    The obiscode to change the given field value
+     * @param fieldNr The 0-based field number of the obisCode (0 = A, 1 = B, 2 = C, 3 = D, 4 = E, 5 = F)
+     * @param value   The new value of the given field
+     * @return The new obis code with the changed field
      */
     public static ObisCode setObisCodeField(ObisCode obis, int fieldNr, byte value) {
         if ((obis == null) || (fieldNr < 0) || (fieldNr >= obis.getLN().length)) {
@@ -747,6 +768,7 @@ public final class ProtocolTools {
     }
 
     /**
+     *
      * @param year
      * @param month
      * @param dayOfMonth
@@ -975,7 +997,7 @@ public final class ProtocolTools {
     public static byte[] getReverseByteArray(byte[] bytes) {
         byte[] reverseBytes = new byte[bytes != null ? bytes.length : 0];
         for (int i = 0; i < reverseBytes.length; i++) {
-            reverseBytes[i] = bytes[bytes.length - (i + 1)];
+            reverseBytes[i] = bytes[bytes.length - (i+1)];
         }
         return reverseBytes;
     }
@@ -1225,5 +1247,76 @@ public final class ProtocolTools {
     public static String getFormattedDate(String format) {
         return getFormattedDate(format, null);
     }
+
+    public static void closeQuietly(Closeable output) {
+        try {
+            if (output != null) {
+                output.close();
+            }
+        } catch (IOException ioe) {
+            // ignore
+        }
+    }
+
+    /**
+     * Deserialize a given base64 string to the original object
+     *
+     * @param base64 The BASE64 encoded string, containing the object to deserialize
+     * @param <T>    The expected class (should implement Serializable interface)
+     * @return The new deserialized object
+     * @throws IOException If there went something wrong while deserializing the base64 string
+     */
+    public static final <T extends Serializable> T deserializeFromBase64(final String base64) {
+
+        ByteArrayInputStream byteStream = null;
+        ObjectInputStream objectStream = null;
+        try {
+            final byte[] rawBytes = new Base64EncoderDecoder().decode(base64);
+            byteStream = new ByteArrayInputStream(rawBytes);
+            objectStream = new ObjectInputStream(byteStream);
+            return (T) objectStream.readObject();
+        } catch (ClassNotFoundException e) {
+            logger.log(Level.SEVERE, "Unable to deserialize from base64 string. Got ClassNotFoundException while deserializing: " + e.getMessage(), e);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Unable to deserialize from base64 string. Got IOException while deserializing: " + e.getMessage(), e);
+        } finally {
+            closeQuietly(byteStream);
+            closeQuietly(objectStream);
+        }
+
+        return null;
+    }
+
+    /**
+     * Serialize a given object top a BASE64 encoded string
+     *
+     * @param object The object that should be serialized
+     * @param <T>    The type of class that should be serialized (should implement Serializable interface)
+     * @return The base64 encoded serialized object as string
+     * @throws IOException If there went something wrong while serializing the object
+     */
+    public static final <T extends Serializable> String serializeToBase64(final T object) {
+        if (object == null) {
+            throw new IllegalArgumentException("Unable to serialize 'null' to base64!");
+        }
+
+        ByteArrayOutputStream byteStream = null;
+        ObjectOutputStream objectStream = null;
+        try {
+            byteStream = new ByteArrayOutputStream();
+            objectStream = new ObjectOutputStream(byteStream);
+            objectStream.writeObject(object);
+            objectStream.flush();
+            return new Base64EncoderDecoder().encode(byteStream.toByteArray());
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Unable to serialize to base64 string. Got ClassNotFoundException while serializing: " + e.getMessage(), e);
+        } finally {
+            closeQuietly(byteStream);
+            closeQuietly(objectStream);
+        }
+
+        return null;
+    }
+
 
 }
