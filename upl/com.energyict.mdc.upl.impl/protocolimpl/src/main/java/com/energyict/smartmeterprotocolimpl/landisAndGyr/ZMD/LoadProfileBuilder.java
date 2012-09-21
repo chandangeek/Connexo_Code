@@ -3,10 +3,11 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
@@ -64,7 +65,7 @@ public class LoadProfileBuilder {
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), lpr.getProfileObisCode());
                 ProfileGeneric pg = new ProfileGeneric(meterProtocol, new ObjectReference(uo.getBaseName()));
 
-                List<ChannelInfo> channelInfos = constructChannelInfos(pg);
+                List<ChannelInfo> channelInfos = constructChannelInfos(pg, lpr);
                 lpc.setChannelInfos(channelInfos);
                 lpc.setProfileInterval(pg.getCapturePeriod());
 
@@ -84,17 +85,15 @@ public class LoadProfileBuilder {
     /**
      * Construct a list of <CODE>ChannelInfos</CODE>.
      **/
-    private List<ChannelInfo> constructChannelInfos(ProfileGeneric profileGeneric) throws IOException {
+    private List<ChannelInfo> constructChannelInfos(ProfileGeneric profileGeneric, LoadProfileReader lpr) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
         List<Register> registerList = new ArrayList<Register>();
 
         for (CapturedObject capturedObject : captureObjects) {
-
-
             if (capturedObject.getLogicalName().toString().equals(CLOCK_OBISCODE.toString()) || capturedObject.getLogicalName().toString().equals(STATUS_OBISCODE.toString())) {
                 // DO nothing
-            } else {
+            } else if (loadProfileContains(lpr, capturedObject.getObisCode())){
                 String registerObisCodeString = capturedObject.getLogicalName().toString();
                 registerList.add(new Register(-1, ObisCode.fromString(registerObisCodeString), meterProtocol.getSerialNumber()));
             }
@@ -111,6 +110,15 @@ public class LoadProfileBuilder {
             }
         }
         return channelInfos;
+    }
+
+    private boolean loadProfileContains(LoadProfileReader lpr, ObisCode obisCode) throws IOException {
+        for (ChannelInfo channelInfo : lpr.getChannelInfos()) {
+            if (channelInfo.getChannelObisCode().equals(obisCode)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

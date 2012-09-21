@@ -1,10 +1,12 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -28,7 +30,7 @@ public class RegisterReader {
                 ObisCodeMapper ocm = new ObisCodeMapper(meterProtocol.getCosemObjectFactory(), meterProtocol.getMeterConfig(), meterProtocol);
                 registerValues.add(ocm.getRegisterValue(register));
             } catch (IOException e) {
-                throw new NoSuchRegisterException("Problems while reading register " + register.getObisCode().toString() + ": " + e.getMessage());
+                meterProtocol.getLogger().log(Level.SEVERE, "Problems while reading register " + register.getObisCode().toString() + ": " + e.getMessage());
             }
         }
         return registerValues;

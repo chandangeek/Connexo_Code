@@ -3,13 +3,17 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.cosem.CosemObject;
-import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.Register;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -81,6 +85,9 @@ public class ObisCodeMapper {
         } else if (obisCode.equals(ObisCode.fromString("0.0.96.6.0.255"))) {    // Battery usage counter
             com.energyict.dlms.cosem.Register cosemRegister = cof.getRegister(obisCode);
             return new RegisterValue(register, com.energyict.genericprotocolimpl.common.ParseUtils.registerToQuantity(cosemRegister));
+        } else if (obisCode.equals(ObisCode.fromString("0.0.96.6.3.255"))) {    // Battery voltage
+            com.energyict.dlms.cosem.Register cosemRegister = cof.getRegister(obisCode);
+            return new RegisterValue(register, com.energyict.genericprotocolimpl.common.ParseUtils.registerToQuantity(cosemRegister));
         } else if (obisCode.equals(ObisCode.fromString("0.0.13.0.0.255"))) {    // Activity Calendar Name
             return new RegisterValue(register, null, null, null, null, new Date(), 0,
                     new String(cof.getActivityCalendar(obisCode).readCalendarNameActive().getOctetStr()));
@@ -88,8 +95,52 @@ public class ObisCodeMapper {
             com.energyict.dlms.cosem.Register cosemRegister = cof.getRegister(obisCode);
             String errorRegister = ProtocolUtils.outputHexString(cosemRegister.getValueAttr().getOctetString().getOctetStr());
             return new RegisterValue(register, errorRegister);
+        } else if (obisCode.equals(ObisCode.fromString("0.0.96.2.1.255"))) {    // Date and time of last configuration
+            Data data = protocol.getCosemObjectFactory().getData(obisCode);
+            OctetString valueAttr = (OctetString) data.getValueAttr();
+            Date eventTime = getDateTime(valueAttr.getBEREncodedByteArray());
+            return new RegisterValue(register, eventTime);
+        } else if (obisCode.equals(ObisCode.fromString("0.0.131.0.4.255"))) {  // DST working mode
+            boolean dsEnabled = protocol.getCosemObjectFactory().getClock().isDsEnabled();
+            return new RegisterValue(register, dsEnabled ? "DST switching enabled." : "DST switching disabled.");
+        } else if (obisCode.equals(ObisCode.fromString("0.0.131.0.5.255"))) {    // DST flag
+            return new RegisterValue(register, Integer.toString(protocol.getDstFlag()));
+        } else if (obisCode.equals(ObisCode.fromString("0.0.131.0.6.255")) | obisCode.equals(ObisCode.fromString("0.0.131.0.7.255"))) {    // DST switching times
+            return getDSTSwitchingTime(register);
         }
+
         // *********************************************************************************
+        // All other registers
+        if (obisCode.getF() == 255) {
+            final UniversalObject uo = protocol.getMeterConfig().findObject(obisCode);
+            if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
+                com.energyict.dlms.cosem.Register cosemRegister = cof.getRegister(obisCode);
+                return new RegisterValue(register, cosemRegister.getQuantityValue());
+            } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+                final DemandRegister demandRegister = cof.getDemandRegister(obisCode);
+                return new RegisterValue(register, demandRegister.getQuantityValue());
+            } else if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
+                final ExtendedRegister extendedRegister = cof.getExtendedRegister(obisCode);
+                return new RegisterValue(register, extendedRegister.getQuantityValue());
+            } else if (uo.getClassID() == DLMSClassId.DATA.getClassId()) {
+                final Data data = cof.getData(obisCode);
+                VisibleString visibleString = data.getValueAttr().getVisibleString();
+                if (visibleString != null && visibleString.getStr() != null) {
+                    return new RegisterValue(register, visibleString.getStr());
+                }
+                OctetString octetString = data.getValueAttr().getOctetString();
+                if (octetString != null && octetString.stringValue() != null) {
+                    return new RegisterValue(register, octetString.stringValue());
+                }
+            } else if (uo.getClassID() == DLMSClassId.REGISTER_MONITOR.getClassId()) {
+                RegisterMonitor registerMonitor = cof.getRegisterMonitor(obisCode);
+                int value = registerMonitor.readThresholds().getDataType(0).intValue();
+                return new RegisterValue(register, new Quantity(value, Unit.getUndefined()));
+            }
+        }
+
+        // *********************************************************************************
+        // billing registers & all others not yet read out
         CosemObject cosemObject = cof.getCosemObject(obisCode);
 
         if (cosemObject == null) {
@@ -124,6 +175,91 @@ public class ObisCodeMapper {
         );
 
         return registerValue;
-
     } // private Object doGetRegister(ObisCode obisCode, boolean read) throws IOException
+
+    private RegisterValue getDSTSwitchingTime(Register register) throws IOException {
+        ObisCode baseObis = ObisCode.fromString("0.0.131.0.6.255");
+
+        Clock clock = protocol.getCosemObjectFactory().getClock();
+        byte[] dsDate;
+        if (register.getObisCode().equals(baseObis)) {
+            dsDate = clock.getDsBeginDate();
+        } else {
+            dsDate = clock.getDsEndDate();
+        }
+
+        int year = (((dsDate[0] & 0xFF) << 8) | (dsDate[1] & 0xFF));
+        String text = "";
+
+        text += (year == 0xFFFF || year == 0x090C) ? "Year: *" : "Year: " + year;
+        text += " - ";
+        text += (dsDate[2] == (byte) 0xFF) ? "month: *" : "month: " + dsDate[2];
+        text += " - ";
+
+        if (dsDate[3] == (byte) 0xFF) {
+            text += "day of month: *";
+        } else if (dsDate[3] == (byte) 0xFE) {
+            text += "day of month: last day of month";
+        } else if (dsDate[3] == (byte) 0xFD) {
+            text += "day of month: 2th last day of month";
+        } else {
+            text += "day of month: " + dsDate[3];
+        }
+        text += " - ";
+        text += (dsDate[4] == (byte) 0xFF) ? "day of week: *" : "day of week: " + dsDate[4];
+        text += " - ";
+        text += "hour: " + dsDate[5];
+        return new RegisterValue(register, text);
+    }
+
+    private Date getDateTime(byte[] responseData) throws IOException {
+        Calendar gcalendarMeter = null;
+        gcalendarMeter = buildCalendar(responseData);
+        return new Date(gcalendarMeter.getTime().getTime());
+    }
+
+    private Calendar buildCalendar(byte[] responseData) throws IOException {
+        Calendar gcalendarMeter = null;
+
+        int status = (int) responseData[13] & 0xFF;
+        if (status != 0xFF) {
+            gcalendarMeter = ProtocolUtils.initCalendar((responseData[13] & (byte) 0x80) == (byte) 0x80, protocol.getTimeZone());
+        } else {
+            gcalendarMeter = ProtocolUtils.getCleanCalendar(protocol.getTimeZone());
+        }
+
+        int year = (int) ProtocolUtils.getShort(responseData, 2) & 0x0000FFFF;
+        if (year != 0xFFFF) {
+            gcalendarMeter.set(Calendar.YEAR, year);
+        }
+
+        int month = (int) responseData[4] & 0xFF;
+        if (month != 0xFF) {
+            gcalendarMeter.set(Calendar.MONTH, month - 1);
+        }
+
+        int date = (int) responseData[5] & 0xFF;
+        if (date != 0xFF) {
+            gcalendarMeter.set(Calendar.DAY_OF_MONTH, date);
+        }
+
+        int hour = (int) responseData[7] & 0xFF;
+        if (hour != 0xFF) {
+            gcalendarMeter.set(Calendar.HOUR_OF_DAY, hour);
+        }
+
+        int minute = (int) responseData[8] & 0xFF;
+        if (minute != 0xFF) {
+            gcalendarMeter.set(Calendar.MINUTE, minute);
+        }
+
+        int seconds = (int) responseData[9] & 0xFF;
+        if (seconds != 0xFF) {
+            gcalendarMeter.set(Calendar.SECOND, seconds);
+        }
+
+        gcalendarMeter.set(Calendar.MILLISECOND, 0);
+
+        return gcalendarMeter;
+    }
 }

@@ -10,6 +10,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.DateTime;
+import com.energyict.dlms.cosem.attributes.ClockAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -42,8 +43,8 @@ public class Clock extends AbstractCosemObject {
     boolean dateTimeCached=false;
     int timeZone=-1;
     int status;
-    Date dsDateTimeBegin=null;
-    Date dsDateTimeEnd=null;
+    byte[] dsBeginDate;
+    byte[] dsEndDate;
     int dsDeviation=-1;
     int dsEnabled=-1;
     int dstFlag=-1;
@@ -103,6 +104,12 @@ public class Clock extends AbstractCosemObject {
 			}
             return getDateTime(responseData,protocolLink.getRoundTripCorrection());
         }
+    }
+
+    public AXDRDateTime getAXDRDateTime() throws IOException {
+        byte[] responseData = getResponseData(TIME_TIME);
+        AXDRDateTime axdrDateTime = new AXDRDateTime(responseData, 0, protocolLink.getTimeZone());
+        return axdrDateTime;
     }
 
     /**
@@ -198,7 +205,6 @@ public class Clock extends AbstractCosemObject {
         return timeZone;
     }
 
-
     /**
      * Getter for property status.
      * @return Value of property status.
@@ -208,30 +214,28 @@ public class Clock extends AbstractCosemObject {
         return status;
     }
 
-
     /**
-     * Getter for property dsDateTimeBegin.
-     * @return Value of property dsDateTimeBegin.
+     * Getter for property dsBeginDate.
+     *
+     * @return Value of property dsBeginDate.
      */
-    public Date getDsDateTimeBegin() throws IOException {
-        if (dsDateTimeBegin == null) {
-            byte[] responseData = getResponseData(TIME_DS_BEGIN);
-            dsDateTimeBegin = buildCalendar(responseData).getTime();
+    public byte[] getDsBeginDate() throws IOException {
+        if (dsBeginDate == null) {
+            dsBeginDate = ProtocolUtils.getSubArray(getResponseData(TIME_DS_BEGIN), 2);
         }
-        return dsDateTimeBegin;
+        return dsBeginDate;
     }
 
-
     /**
-     * Getter for property dsDateTimeEnd.
-     * @return Value of property dsDateTimeEnd.
+     * Getter for property dsEndDate.
+     *
+     * @return Value of property dsEndDate.
      */
-    public Date getDsDateTimeEnd() throws IOException {
-        if (dsDateTimeEnd == null) {
-            byte[] responseData = getResponseData(TIME_DS_END);
-            dsDateTimeEnd = buildCalendar(responseData).getTime();
+    public byte[] getDsEndDate() throws IOException {
+        if (dsEndDate == null) {
+            dsEndDate = ProtocolUtils.getSubArray(getResponseData(TIME_DS_END), 2);
         }
-        return dsDateTimeEnd;
+        return dsEndDate;
     }
 
     /**
@@ -246,14 +250,55 @@ public class Clock extends AbstractCosemObject {
     }
 
     /**
+     * Write the start of DST
+     *
+     * @param dateTime
+     * @throws IOException
+     */
+    public void setDSTBeginDate(byte[] dateTime) throws IOException {
+        write(TIME_DS_BEGIN, dateTime);
+        dsBeginDate = dateTime;
+    }
+
+    /**
+     * Write the end of DST
+     *
+     * @param dateTime
+     * @throws IOException
+     */
+    public void setDSTEndDate(byte[] dateTime) throws IOException {
+        write(TIME_DS_END, dateTime);
+        dsEndDate = dateTime;
+    }
+
+    public void setTimeZone(int offset) throws IOException {
+        write(ClockAttributes.TIMEZONE, new Integer16(offset).getBEREncodedByteArray());
+    }
+
+    /**
      * Getter for property dsEnabled.
      * @return Value of property dsEnabled.
      */
     public boolean isDsEnabled() throws IOException {
         if (dsEnabled == -1) {
-            dsEnabled = (int)getLongData(TIME_DAYLIGHT_SAVING);
+            dsEnabled = (int) getLongData(TIME_DAYLIGHT_SAVING);
         }
-        return dsEnabled==1;
+        return dsEnabled == 1;
+    }
+
+    /**
+     * Procedure to enable/disable daylight switching
+     * 1. execute this method to enable or disable the switching
+     * 2. Adapt the device time zone, so it reflects the new situation (ex.: change timezone 'GMT+1' to 'Europe/Brussels').
+     * 3. Issue a force sync clock - In some cases the device time is shifted 1 hour (occurs when summertime is active).
+     *
+     * @param enable
+     * @throws IOException
+     */
+    public void enableDisableDs(boolean enable) throws IOException {
+        BooleanObject booleanObject = new BooleanObject(enable);
+        write(TIME_DAYLIGHT_SAVING, booleanObject.getBEREncodedByteArray());
+        dsEnabled = booleanObject.intValue();
     }
 
     public int getDstFlag() throws IOException {
@@ -273,6 +318,14 @@ public class Clock extends AbstractCosemObject {
 
     public void setAXDRDateTimeAttr(AXDRDateTime dateTime) throws IOException{
     	write(2,dateTime.getBEREncodedByteArray());
+    }
+
+    public void setDateTime(Date dateTime) throws IOException {
+        setAXDRDateTimeAttr(new AXDRDateTime(dateTime));
+    }
+
+    public void setDateTime(Calendar dateTime) throws IOException {
+        setDateTime(dateTime.getTime());
     }
 
     public AbstractDataType getTimeAttr() throws IOException {

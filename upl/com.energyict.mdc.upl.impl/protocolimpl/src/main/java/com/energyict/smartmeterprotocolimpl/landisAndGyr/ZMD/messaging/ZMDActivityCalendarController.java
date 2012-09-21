@@ -11,7 +11,10 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.SpecialDaysTable;
-import com.energyict.dlms.cosem.attributeobjects.*;
+import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
+import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
+import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
+import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -20,11 +23,15 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
@@ -512,7 +519,12 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
 
                             } else if (schedule.getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffId)) {
                                 logger.debug("DayScheduleScriptSelector : " + schedule.getTextContent());
-                                dpa.setScriptSelector(new Unsigned16(Integer.valueOf(schedule.getTextContent())));
+                                int value = Integer.parseInt(schedule.getTextContent());
+                                if (value != 0) {
+                                    dpa.setScriptSelector(new Unsigned16(value));
+                                } else {
+                                    throw new IOException("ActivityCalendar parser -> Invalid " + CodeTableXml.dayTariffId + " encountered. O is not allowed as " + CodeTableXml.dayTariffId + ". Please correct this first.");
+                                }
                             }
                         }
                         dpa.setScriptLogicalName(OctetString.fromObisCode("0.0.10.0.100.255"));

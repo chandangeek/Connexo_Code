@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.dlms.ConnectionMode;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocol.InvalidPropertyException;
@@ -105,4 +106,13 @@ public class ZMDProperties extends DlmsProtocolProperties {
         return getStringValue(MANUFACTURER, "LGZ");
     }
 
+    @Override
+    public String getSystemIdentifier() {
+        return "";
+    }
+
+    @Override
+    public ConnectionMode getConnectionMode() {
+        return ConnectionMode.HDLC;
+    }
 }

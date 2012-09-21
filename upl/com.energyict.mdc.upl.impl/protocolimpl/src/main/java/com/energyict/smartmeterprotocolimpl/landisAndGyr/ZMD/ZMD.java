@@ -2,7 +2,9 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.cosem.*;
@@ -13,7 +15,9 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging.ZMDMessages;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -419,14 +423,14 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     /**
      * Returns the implementation version
      *
-     * @return a version string
+     * @return the version string
      */
     public String getVersion() {
         return "$Date$";
     }
 
     /**
-     * Execute a billing reset on the device. After receiving the 'Demand Reset'
+     * Execute a billing reset on the device. After receiving the �Demand Reset�
      * command the meter executes a demand reset by doing a snap shot of all
      * energy and demand registers.
      *
