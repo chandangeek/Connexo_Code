@@ -5,9 +5,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author jme
@@ -238,7 +236,8 @@ public class AXDRDecoderTest {
         switch (axdrType) {
 			case NULL:
 			case ARRAY:
-			case STRUCTURE:
+            case COMPACT_ARRAY:
+            case STRUCTURE:
             case INTEGER:
             case LONG:
             case DOUBLE_LONG:
