@@ -3,14 +3,6 @@
  */
 package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -20,6 +12,9 @@ import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * @author gna
@@ -57,7 +52,8 @@ public class CompactNSX extends Modbus {
 	public DiscoverResult discover(DiscoverTools discoverTools) {
 		return null;
 	}
-	
+
+    /** Protocol version **/
     public String getProtocolVersion() {
         return "$Date$";
     }

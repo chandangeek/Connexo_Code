@@ -48,7 +48,12 @@ public class RegisterFactory extends AbstractRegisterFactory {
         getRegisters().add(new HoldingRegister(1020,1,ObisCode.fromString("1.1.11.6.0.255"))); // Maximum I1, I2, I3
         getRegisters().add(new HoldingRegister(1026,1,ObisCode.fromString("1.1.11.3.0.255"))); // Minimum I1, I2, I3
         getRegisters().add(new HoldingRegister(1027,1,ObisCode.fromString("1.1.130.7.0.255"))); // Total average I1, I2, I3
-        
+
+        // Energy registers
+        getRegisters().add(new HoldingRegister(2000,2,ObisCode.fromString("1.1.1.8.0.255"),Unit.get("kWh")).setParser("DINT")); // Active energy
+        getRegisters().add(new HoldingRegister(2004,2,ObisCode.fromString("1.1.3.8.0.255"), Unit.get("kWh")).setParser("DINT")); // Reactive energy
+        getRegisters().add(new HoldingRegister(2024,2,ObisCode.fromString("1.1.9.8.0.255"), Unit.get("kWh")).setParser("DINT")); // Apparent energy
+
         // Active power
         getRegisters().add(new HoldingRegister(1034,1,ObisCode.fromString("1.1.21.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Phase1
         getRegisters().add(new HoldingRegister(1035,1,ObisCode.fromString("1.1.41.7.0.255"),Unit.get("kW")).setParser("PowerSign")); // Active power Phase2
@@ -63,7 +68,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
         
         // Apparent power
         getRegisters().add(new HoldingRegister(1045,1,ObisCode.fromString("1.1.9.7.0.255"),Unit.get("VA"))); // Apparent power Total
-        
+
         // Power Factors
         getRegisters().add(new HoldingRegister(1046,1,ObisCode.fromString("1.1.33.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase A
         getRegisters().add(new HoldingRegister(1047,1,ObisCode.fromString("1.1.53.7.0.255"),Unit.get("")).setParser("PowerFactorSign")); // powerfactor phase B
@@ -80,8 +85,8 @@ public class RegisterFactory extends AbstractRegisterFactory {
         // Buffer
         getRegisters().add(new HoldingRegister(8000,20, "Buffer"));
         getRegisters().add(new HoldingRegister(8021,1,"CommandStatus").setParser("IntegerParser"));
-        
-        
+
+
 	}
 	
     protected void initParsers() {
@@ -104,7 +109,23 @@ public class RegisterFactory extends AbstractRegisterFactory {
     			return values[0];
     		}
     	});
-    	
+
+        // 32-bit big-endian signed integer parser
+        getParserFactory().addParser("DINT", new Parser() {
+            public Object val(int[] values, AbstractRegister register) {
+                if (values.length == 2) {
+                    byte[] intBitsArray = new byte[]{(byte) (values[0] >> 8 & 0xFF), (byte) (values[0] & 0xFF),
+                            (byte) (values[1] >> 8 & 0xFF), (byte) (values[1] & 0xFF)};
+                    try {
+                        int val = ProtocolUtils.getInt(intBitsArray, 0, 4);
+                        return new BigDecimal(String.valueOf(val));
+                    } catch (IOException e) {
+                    }
+                }
+                return new BigDecimal(0);
+            }
+        });
+
         getParserFactory().addParser("PowerSign",new Parser() {
             public Object val(int[] values, AbstractRegister register) throws IOException {
             	long val = 0;
@@ -120,6 +141,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
             		}
                     return bd.movePointLeft(1);
             	} else {
+                    getModBus().getLogger().info("Register " + register.getObisCode() + " is not accessible when System Type is 30 or 31");
             		throw new ModbusException("Not supported when Systemtype is 30 or 31",(short) 0,0x83,0x02);
             	}
             }
@@ -140,6 +162,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
             		}
                     return bd.movePointLeft(2);
             	} else {
+                    getModBus().getLogger().info("Register " + register.getObisCode() + " is not accessible when System Type is 30 or 31");
             		throw new ModbusException("Not supported when Systemtype is 30 or 31",(short) 0,0x83,0x02);
             	}
             }
