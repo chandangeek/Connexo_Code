@@ -1,21 +1,32 @@
 package com.energyict.genericprotocolimpl.elster.ctr.profile;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.TimeZone;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
  * Date: 25-jan-2011
  * Time: 11:21:22
  */
+@RunWith(PowerMockRunner.class)
 public class ProfileChannelTest {
 
     private static final Calendar TO = ProtocolTools.createCalendar(2011, 1, 25, 15, 0, 0, 0);
@@ -25,16 +36,36 @@ public class ProfileChannelTest {
     public static final int DAILY_VM_INDEX = 5;
     public static final int HOURY_VM_INDEX = 4;
 
+    @Mock
+    private Rtu rtu;
+    @Mock
+    private Channel dailyChannel;
+    @Mock
+    private Channel hourlyChannel;
+
+    @Before
+    public void initializeMocksAndFactories() {
+        Calendar lastReading = ProtocolTools.createCalendar(2010, 12, 26, 6, 0, 0, 0);
+        when(dailyChannel.getLastReading()).thenReturn(lastReading.getTime());
+        when(dailyChannel.getRtu()).thenReturn(this.rtu);
+        when(dailyChannel.getInterval()).thenReturn(new TimeDuration(DAILY_INTERVAL));
+        when(dailyChannel.getIntervalInSeconds()).thenReturn(DAILY_INTERVAL);
+        when(dailyChannel.getLoadProfileIndex()).thenReturn(DAILY_VM_INDEX);
+
+        lastReading = ProtocolTools.createCalendar(2011, 1, 23, 6, 0, 0, 0);
+        when(hourlyChannel.getLastReading()).thenReturn(lastReading.getTime());
+        when(hourlyChannel.getRtu()).thenReturn(this.rtu);
+        when(hourlyChannel.getInterval()).thenReturn(new TimeDuration(HOURLY_INTERVAL));
+        when(hourlyChannel.getIntervalInSeconds()).thenReturn(HOURLY_INTERVAL);
+        when(hourlyChannel.getLoadProfileIndex()).thenReturn(HOURY_VM_INDEX);
+
+        when(rtu.getDeviceTimeZone()).thenReturn(TimeZone.getDefault());
+    }
+
     @Test
     public void testDailyValues() throws Exception {
-        Calendar lastReading = ProtocolTools.createCalendar(2010, 12, 26, 6, 0, 0, 0);
-
-        DummyRtu dummyRtu = new DummyRtu(TimeZone.getDefault());
-        DummyChannel dummyChannel = new DummyChannel(DAILY_VM_INDEX, DAILY_INTERVAL, lastReading, dummyRtu);
-        
-        ProfileChannel pc = new ProfileChannel(getGPRSRequestFactory(), dummyChannel, TO);
+        ProfileChannel pc = new ProfileChannel(getGPRSRequestFactory(), dailyChannel, TO);
         ProfileData pd = pc.getProfileData();
-
 
         assertNotNull(pd);
         pd.sort();
@@ -63,14 +94,8 @@ public class ProfileChannelTest {
 
     @Test
     public void testHourlyValues() throws Exception {
-        Calendar lastReading = ProtocolTools.createCalendar(2011, 1, 23, 6, 0, 0, 0);
-
-        DummyRtu dummyRtu = new DummyRtu(TimeZone.getDefault());
-        DummyChannel dummyChannel = new DummyChannel(HOURY_VM_INDEX, HOURLY_INTERVAL, lastReading, dummyRtu);
-
-        ProfileChannel pc = new ProfileChannel(getGPRSRequestFactory(), dummyChannel, TO);
+        ProfileChannel pc = new ProfileChannel(getGPRSRequestFactory(), hourlyChannel, TO);
         ProfileData pd = pc.getProfileData();
-
 
         assertNotNull(pd);
         pd.sort();

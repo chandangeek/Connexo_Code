@@ -2,27 +2,167 @@ package com.energyict.genericprotocolimpl.elster.ctr;
 
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
-import com.energyict.genericprotocolimpl.elster.ctr.profile.DummyChannel;
-import com.energyict.genericprotocolimpl.elster.ctr.profile.DummyRtu;
-import com.energyict.protocol.*;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.shadow.ChannelShadow;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.sql.SQLException;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
  * Date: 15/11/11
  * Time: 14:43
  */
+@RunWith(PowerMockRunner.class)
 public class CtrSmsStoreObjectTest {
 
     public static final int CHANNEL_BACK_LOG = 20;
-    public static final TimeZone TIME_ZONE = TimeZone.getTimeZone("CET");
     public static final int PROFILE_INTERVAL = 3600;
+
+    private Calendar lastReading;
+    private Calendar shadowLastReading;
+
+    @Mock
+    private Rtu rtu;
+
+    @Mock
+    Channel channel;
+
+    @Mock
+    ChannelShadow channelShadow;
+
+    @Before
+    public void initializeMocksAndFactories() throws BusinessException, SQLException {
+        when(rtu.getTimeZone()).thenReturn(TimeZone.getDefault());
+
+        Mockito.doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws BusinessException, SQLException {
+                Object[] args = invocation.getArguments();
+                Date lastIntervalTime = getLastIntervalTime((ProfileData) args[0]);
+                channel.updateLastReadingIfLater(lastIntervalTime);
+                return null;
+            }
+        }).when(rtu).store(Matchers.<ProfileData>any());
+
+        Mockito.doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws BusinessException, SQLException {
+                Object[] args = invocation.getArguments();
+                Date lastIntervalTime = getLastIntervalTime((ProfileData) args[0]);
+                if ((Boolean) args[1]) {
+                    channel.updateLastReadingIfLater(lastIntervalTime);
+                } else {
+                    channel.updateLastReading(lastIntervalTime);
+                }
+                return null;
+            }
+        }).when(rtu).store(Matchers.<ProfileData>any(), Matchers.anyBoolean());
+
+        when(channel.getIntervalInSeconds()).thenReturn(PROFILE_INTERVAL);
+        when(channel.getInterval()).thenReturn(new TimeDuration(PROFILE_INTERVAL));
+        when(channel.getRtu()).thenReturn(rtu);
+
+        Mockito.doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws BusinessException, SQLException {
+                return lastReading == null ? null : lastReading.getTime();
+            }
+        }).when(channel).getLastReading();
+
+        Mockito.doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws BusinessException, SQLException {
+                Object[] args = invocation.getArguments();
+                Date execDate = (Date) args[0];
+                if (execDate != null) {
+                    if (lastReading == null) {
+                        lastReading = Calendar.getInstance(rtu.getTimeZone());
+                    }
+                    lastReading.setTime(execDate);
+                }
+                return null;
+            }
+        }).when(channel).updateLastReading(Matchers.<Date>any());
+
+        Mockito.doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws BusinessException, SQLException {
+                Object[] args = invocation.getArguments();
+                Date execDate = (Date) args[0];
+                if (execDate != null) {
+                    if (lastReading == null) {
+                        lastReading = Calendar.getInstance(rtu.getTimeZone());
+                        lastReading.setTime(execDate);
+                    } else {
+                        if (execDate.after(lastReading.getTime())) {
+                            lastReading.setTime(execDate);
+                        }
+                    }
+                }
+                return null;
+            }
+        }).when(channel).updateLastReadingIfLater(Matchers.<Date>any());
+
+        when(channel.getShadow()).thenReturn(channelShadow);
+        Mockito.doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws BusinessException, SQLException {
+                Object[] args = invocation.getArguments();
+                Date realLastReading = (Date) args[0];
+                shadowLastReading = Calendar.getInstance(TimeZone.getDefault());
+                shadowLastReading.setTime(realLastReading);
+                return null;
+            }
+        }).when(channelShadow).setLastReading(Matchers.<Date>any());
+
+        Mockito.doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws BusinessException, SQLException {
+                return shadowLastReading == null ? null : shadowLastReading.getTime();
+            }
+        }).when(channelShadow).getLastReading();
+
+        Mockito.doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws BusinessException, SQLException {
+                Object[] args = invocation.getArguments();
+                ChannelShadow shadow = (ChannelShadow) args[0];
+                if (lastReading == null) {
+                    lastReading = Calendar.getInstance();
+                }
+                lastReading.setTime(shadow.getLastReading());
+
+                return null;
+            }
+        }).when(channel).update(Matchers.<ChannelShadow>any());
+    }
+
+     private Date getLastIntervalTime(ProfileData profileData) {
+         if (profileData != null) {
+             profileData.sort();
+             List<IntervalData> intervalDatas = profileData.getIntervalDatas();
+             if ((intervalDatas == null) || intervalDatas.isEmpty()) {
+                 return null;
+             } else {
+                 return intervalDatas.get(intervalDatas.size() - 1).getEndTime();
+             }
+         } else {
+             return null;
+         }
+    }
+
 
     @Test
     public void testNullLastReading() {
@@ -108,11 +248,9 @@ public class CtrSmsStoreObjectTest {
      * @return The last reading from the dummy channel after storing the data
      */
     private Date doDummyStoreAndGetLastReading(ProfileData profileData, Calendar lastReading) {
-        DummyChannel dummyChannel = new DummyChannel(0, PROFILE_INTERVAL, lastReading == null ? null : (Calendar) lastReading.clone());
-        dummyChannel.setRtu(new DummyRtu(TIME_ZONE, dummyChannel));
-
+        this.lastReading = lastReading;
         CtrSmsStoreObject storeObject = new CtrSmsStoreObject(CHANNEL_BACK_LOG);
-        storeObject.add(dummyChannel, profileData);
+        storeObject.add(channel, profileData);
         try {
             storeObject.doExecute();
         } catch (BusinessException e) {
@@ -120,7 +258,7 @@ public class CtrSmsStoreObjectTest {
         } catch (SQLException e) {
             fail(e.getMessage());
         }
-        return dummyChannel.getLastReading();
+        return channel.getLastReading();
     }
 
     /**
@@ -192,7 +330,7 @@ public class CtrSmsStoreObjectTest {
         }
 
         profileData.setChannelInfos(channelInfos);
-        profileData.setMeterEvents(Collections.<MeterEvent>emptyList());
+        profileData.setMeterEvents(new ArrayList<MeterEvent>());
         profileData.setIntervalDatas(intervalDatas);
         profileData.setLoadProfileId(0);
 
