@@ -110,6 +110,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      */
     protected void checkCacheObjects() throws IOException {
         int configNumber = -1;
+        boolean changed = false;
         try {
             if (this.dlmsCache != null && this.dlmsCache.getObjectList() != null) { // the dlmsCache exists
                 getDlmsSession().getMeterConfig().setInstantiatedObjectList(this.dlmsCache.getObjectList());
@@ -120,6 +121,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
                 if (this.dlmsCache.getConfProgChange() != configNumber) {
                     getLogger().info("Meter configuration has changed, configuration is forced to be read.");
                     requestConfiguration();
+                    changed = true;
                 }
 
             } else { // cache does not exist
@@ -127,10 +129,13 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
                 getLogger().info("Cache does not exist, configuration is forced to be read.");
                 requestConfiguration();
                 configNumber = requestConfigurationChanges();
+                changed = true;
             }
         } finally {
-            this.dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
-            this.dlmsCache.setConfProgChange(configNumber);
+            if (changed) {
+                this.dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+                this.dlmsCache.setConfProgChange(configNumber);
+            }
         }
     }
 
