@@ -17,8 +17,14 @@ import com.energyict.cbo.Unit;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.TimeZone;
 
 /**
  *
@@ -462,7 +468,11 @@ public class ABBA1700Profile {
                  calendar.setTime(lastEntry.getEndTime()); // restore calendar to last interval
                  IntervalData entry2add = getIntervalData(profileData,  profileEntryResult.getValues(index), profileEntryResult.getStatus(), calendar);
                  result = addIntervalData(lastEntry,entry2add);
-                 profileData.getIntervalDatas().remove(profileData.getIntervalDatas().size()-1);
+                 try {
+                     profileData.getIntervalDatas().remove(profileData.getIntervalDatas().size() - 1);
+                 } catch (IndexOutOfBoundsException e) {
+                     // Absorb exception
+                 }
              }
           }
           else {
@@ -478,18 +488,21 @@ public class ABBA1700Profile {
     }
 
     private IntervalData addIntervalData(IntervalData cumulatedIntervalData,IntervalData currentIntervalData) {
-        int currentCount = currentIntervalData.getValueCount();
-        IntervalData intervalData = new IntervalData(currentIntervalData.getEndTime());
-        long current;
-        int i;
-        for (i=0;i<currentCount;i++) {
-            current = ((Number)currentIntervalData.get(i)).longValue()+((Number)cumulatedIntervalData.get(i)).longValue();
-            intervalData.addValue(new Long(current));
+        IntervalData intervalData = null;
+        if (cumulatedIntervalData.getIntervalValues().size() == currentIntervalData.getIntervalValues().size()) {
+            intervalData = new IntervalData(currentIntervalData.getEndTime());
+            int currentCount = currentIntervalData.getValueCount();
+            for (int i = 0; i < currentCount; i++) {
+                intervalData.addValue(getValue(currentIntervalData, i) + getValue(cumulatedIntervalData, i));
+            }
         }
         return intervalData;
     }
-    
-    
+
+    long getValue(IntervalData data, int index) {
+        return data.get(index).longValue();
+    }
+
     // ***********************
     // standard COP5 build
     private static final int METER_TRANSIENT_RESET=0x01;
