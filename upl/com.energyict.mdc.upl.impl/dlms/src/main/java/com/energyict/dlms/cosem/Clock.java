@@ -43,8 +43,8 @@ public class Clock extends AbstractCosemObject {
     boolean dateTimeCached=false;
     int timeZone=-1;
     int status;
-    byte[] dsBeginDate;
-    byte[] dsEndDate;
+    byte[] dsDateTimeBegin;
+    byte[] dsDateTimeEnd;
     int dsDeviation=-1;
     int dsEnabled=-1;
     int dstFlag=-1;
@@ -98,7 +98,7 @@ public class Clock extends AbstractCosemObject {
 			return dateTime;
 		} else {
             byte[] responseData;
-            responseData = getResponseData(TIME_TIME);
+            responseData = getResponseData(ClockAttributes.TIME);
             if (DEBUG == 1) {
 				ProtocolUtils.printResponseData(responseData);
 			}
@@ -107,7 +107,7 @@ public class Clock extends AbstractCosemObject {
     }
 
     public AXDRDateTime getAXDRDateTime() throws IOException {
-        byte[] responseData = getResponseData(TIME_TIME);
+        byte[] responseData = getResponseData(ClockAttributes.TIME);
         AXDRDateTime axdrDateTime = new AXDRDateTime(responseData, 0, protocolLink.getTimeZone());
         return axdrDateTime;
     }
@@ -215,27 +215,29 @@ public class Clock extends AbstractCosemObject {
     }
 
     /**
-     * Getter for property dsBeginDate.
+     * Getter for property dsDateTimeBegin.
      *
-     * @return Value of property dsBeginDate.
+     * @return Value of property dsDateTimeBegin.
      */
-    public byte[] getDsBeginDate() throws IOException {
-        if (dsBeginDate == null) {
-            dsBeginDate = ProtocolUtils.getSubArray(getResponseData(TIME_DS_BEGIN), 2);
+    public byte[] getDsDateTimeBegin() throws IOException {
+        if (dsDateTimeBegin == null) {
+            AbstractDataType dataType = AXDRDecoder.decode(getResponseData(ClockAttributes.TIME_DS_BEGIN));
+            dsDateTimeBegin = dataType.getOctetString().getOctetStr();
         }
-        return dsBeginDate;
+        return dsDateTimeBegin;
     }
 
     /**
-     * Getter for property dsEndDate.
+     * Getter for property dsDateTimeEnd.
      *
-     * @return Value of property dsEndDate.
+     * @return Value of property dsDateTimeEnd.
      */
-    public byte[] getDsEndDate() throws IOException {
-        if (dsEndDate == null) {
-            dsEndDate = ProtocolUtils.getSubArray(getResponseData(TIME_DS_END), 2);
+    public byte[] getDsDateTimeEnd() throws IOException {
+        if (dsDateTimeEnd == null) {
+            AbstractDataType dataType = AXDRDecoder.decode(getResponseData(ClockAttributes.TIME_DS_END));
+            dsDateTimeEnd = dataType.getOctetString().getOctetStr();
         }
-        return dsEndDate;
+        return dsDateTimeEnd;
     }
 
     /**
@@ -252,23 +254,23 @@ public class Clock extends AbstractCosemObject {
     /**
      * Write the start of DST
      *
-     * @param dateTime
+     * @param dateTime  OctetString(size(12)) containing the AXDRDateTime
      * @throws IOException
      */
-    public void setDSTBeginDate(byte[] dateTime) throws IOException {
-        write(TIME_DS_BEGIN, dateTime);
-        dsBeginDate = dateTime;
+    public void setDsDateTimeBegin(byte[] dateTime) throws IOException {
+        write(ClockAttributes.TIME_DS_BEGIN, dateTime);
+        dsDateTimeBegin = dateTime;
     }
 
     /**
      * Write the end of DST
      *
-     * @param dateTime
+     * @param dateTime  OctetString(size(12)) containing the AXDRDateTime
      * @throws IOException
      */
-    public void setDSTEndDate(byte[] dateTime) throws IOException {
-        write(TIME_DS_END, dateTime);
-        dsEndDate = dateTime;
+    public void setDsDateTimeEnd(byte[] dateTime) throws IOException {
+        write(ClockAttributes.TIME_DS_END, dateTime);
+        dsDateTimeEnd = dateTime;
     }
 
     public void setTimeZone(int offset) throws IOException {
@@ -287,6 +289,7 @@ public class Clock extends AbstractCosemObject {
     }
 
     /**
+     * WARNING: Execution of this method can cause an immediate clock shift.
      * Procedure to enable/disable daylight switching
      * 1. execute this method to enable or disable the switching
      * 2. Adapt the device time zone, so it reflects the new situation (ex.: change timezone 'GMT+1' to 'Europe/Brussels').
@@ -297,7 +300,7 @@ public class Clock extends AbstractCosemObject {
      */
     public void enableDisableDs(boolean enable) throws IOException {
         BooleanObject booleanObject = new BooleanObject(enable);
-        write(TIME_DAYLIGHT_SAVING, booleanObject.getBEREncodedByteArray());
+        write(ClockAttributes.DS_ENABLED, booleanObject.getBEREncodedByteArray());
         dsEnabled = booleanObject.intValue();
     }
 
@@ -313,11 +316,11 @@ public class Clock extends AbstractCosemObject {
     }
 
     public void setTimeAttr(DateTime dateTime) throws IOException {
-        write(2, dateTime.getBEREncodedByteArray());
+        write(ClockAttributes.TIME, dateTime.getBEREncodedByteArray());
     }
 
     public void setAXDRDateTimeAttr(AXDRDateTime dateTime) throws IOException{
-    	write(2,dateTime.getBEREncodedByteArray());
+    	write(ClockAttributes.TIME, dateTime.getBEREncodedByteArray());
     }
 
     public void setDateTime(Date dateTime) throws IOException {
@@ -329,7 +332,7 @@ public class Clock extends AbstractCosemObject {
     }
 
     public AbstractDataType getTimeAttr() throws IOException {
-        return AXDRDecoder.decode(getLNResponseData(2));
+        return AXDRDecoder.decode(getResponseData(ClockAttributes.TIME));
     }
 
     /**

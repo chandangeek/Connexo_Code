@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eict;
 
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
@@ -12,6 +13,8 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExe
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -33,6 +36,16 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
     @Override
     public AXDRDateTimeDeviationType getDateTimeDeviationType() {
         return AXDRDateTimeDeviationType.Negative;
+    }
+
+    @Override
+    public void setTime(Date newMeterTime) throws IOException {
+         try {
+            this.dlmsSession.getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(newMeterTime, getTimeZone()));
+        } catch (IOException e) {
+            getLogger().log(Level.FINEST, e.getMessage());
+            throw new IOException("Could not set the Clock object." + e);
+        }
     }
 
     /**

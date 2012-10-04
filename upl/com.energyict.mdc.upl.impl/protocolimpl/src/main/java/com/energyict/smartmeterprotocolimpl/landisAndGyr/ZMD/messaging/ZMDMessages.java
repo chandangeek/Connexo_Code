@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -230,28 +230,26 @@ public class ZMDMessages extends ProtocolMessages implements TimeOfUseMessaging{
             throw new NestedIOException(e);
         }
 
-        byte[] BEREncodedByteArray = new byte[]{
-                AxdrType.OCTET_STRING.getTag(),
-                (byte) 0x0c,
+        byte[] dsDateTimeByteArray = new byte[]{
                 (byte) 0xFF,
                 (byte) 0xFF,
                 (byte) month,
                 (byte) dayOfMonth,
                 (byte) dayOfWeek,
                 (byte) hour,
-                (byte) 0xFF,
+                (byte) 0x00,
                 (byte) 0xFF,
                 (byte) 0xFF,
                 (byte) 0x80,
                 0,
-                (byte) (protocol.getDstFlag() == 1 ? 0x80 : 0x00)
+                (byte) 0xFF
         };
 
         Clock clock = protocol.getCosemObjectFactory().getClock();
         if (startOfDST) {
-            clock.setDSTBeginDate(BEREncodedByteArray);
+            clock.setDsDateTimeBegin(new OctetString(dsDateTimeByteArray).getBEREncodedByteArray());
         } else {
-            clock.setDSTEndDate(BEREncodedByteArray);
+            clock.setDsDateTimeEnd(new OctetString(dsDateTimeByteArray).getBEREncodedByteArray());
         }
     }
 

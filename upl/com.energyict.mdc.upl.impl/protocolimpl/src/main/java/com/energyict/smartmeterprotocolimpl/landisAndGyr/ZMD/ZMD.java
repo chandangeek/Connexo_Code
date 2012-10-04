@@ -5,8 +5,8 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.aso.AssociationControlServiceElement;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -194,71 +194,24 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
      * @throws java.io.IOException Thrown in case of an exception
      */
     public void setTime(Date newMeterTime) throws IOException {
-        Calendar calendar = null;
-        if (isRequestTimeZone()) {
-            if (dstFlag == 0) {
-                calendar = ProtocolUtils.getCalendar(false, requestTimeZone());
-            } else if (dstFlag == 1) {
-                calendar = ProtocolUtils.getCalendar(true, requestTimeZone());
-            } else {
-                throw new IOException("setTime(), dst flag is unknown! setTime() before getTime()!");
-            }
-        } else {
-            calendar = ProtocolUtils.initCalendar(false, getTimeZone());
-        }
-
-        calendar.add(Calendar.MILLISECOND, getProperties().getRoundTripCorrection());
-        doSetTime(calendar);
+        this.dlmsSession.getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(newMeterTime, getTimeZone()));
     }
 
-     protected int requestTimeZone() throws IOException {
+    @Override
+    public TimeZone getTimeZone() {
+        if (isRequestTimeZone()) {
+            Calendar calendar = ProtocolUtils.getCalendar(dstFlag == 1, 1);
+            return calendar.getTimeZone();
+        } else {
+            return super.getTimeZone();
+        }
+    }
+
+    protected int requestTimeZone() throws IOException {
         if (iMeterTimeZoneOffset == 255) {
             iMeterTimeZoneOffset = getCosemObjectFactory().getClock().getTimeZone();
         }
         return iMeterTimeZoneOffset;
-    }
-
-    private void doSetTime(Calendar calendar) throws IOException {
-        //byte[] responseData;
-        byte[] byteTimeBuffer = new byte[14];
-        int i;
-
-//      byteTimeBuffer[0]=1;  This caused an extra 0x01 in the requestBuffer
-//      DLMS code has changed (read -> corrected) which causes this to be obsolete
-
-        byteTimeBuffer[0] = AxdrType.OCTET_STRING.getTag();
-        byteTimeBuffer[1] = 12; // length
-        byteTimeBuffer[2] = (byte) (calendar.get(calendar.YEAR) >> 8);
-        byteTimeBuffer[3] = (byte) calendar.get(calendar.YEAR);
-        byteTimeBuffer[4] = (byte) (calendar.get(calendar.MONTH) + 1);
-        byteTimeBuffer[5] = (byte) calendar.get(calendar.DAY_OF_MONTH);
-        byte bDOW = (byte) calendar.get(calendar.DAY_OF_WEEK);
-        byteTimeBuffer[6] = bDOW-- == 1 ? (byte) 7 : bDOW;
-        byteTimeBuffer[7] = (byte) calendar.get(calendar.HOUR_OF_DAY);
-        byteTimeBuffer[8] = (byte) calendar.get(calendar.MINUTE);
-        byteTimeBuffer[9] = (byte) calendar.get(calendar.SECOND);
-        byteTimeBuffer[10] = (byte) 0xFF;
-        byteTimeBuffer[11] = (byte) 0x80;
-        byteTimeBuffer[12] = 0x00;
-
-        if (isRequestTimeZone()) {
-            if (dstFlag == 0) {
-                byteTimeBuffer[13] = 0x00;
-            } else if (dstFlag == 1) {
-                byteTimeBuffer[13] = (byte) 0x80;
-            } else {
-                throw new IOException("doSetTime(), dst flag is unknown! setTime() before getTime()!");
-            }
-        } else {
-            if (getTimeZone().inDaylightTime(calendar.getTime())) {
-                byteTimeBuffer[13] = (byte) 0x80;
-            } else {
-                byteTimeBuffer[13] = 0x00;
-            }
-        }
-
-        getCosemObjectFactory().getGenericWrite((short) getDlmsSession().getMeterConfig().getClockSN(), DLMSCOSEMGlobals.TIME_TIME).write(byteTimeBuffer);
-
     }
 
     /**
@@ -422,8 +375,6 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
 
     /**
      * Returns the implementation version
-     *
-     * @return the version string
      */
     public String getVersion() {
         return "$Date$";

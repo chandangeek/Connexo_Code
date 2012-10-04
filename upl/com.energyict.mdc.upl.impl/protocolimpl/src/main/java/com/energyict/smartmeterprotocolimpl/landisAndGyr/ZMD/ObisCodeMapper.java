@@ -183,9 +183,9 @@ public class ObisCodeMapper {
         Clock clock = protocol.getCosemObjectFactory().getClock();
         byte[] dsDate;
         if (register.getObisCode().equals(baseObis)) {
-            dsDate = clock.getDsBeginDate();
+            dsDate = clock.getDsDateTimeBegin();
         } else {
-            dsDate = clock.getDsEndDate();
+            dsDate = clock.getDsDateTimeEnd();
         }
 
         int year = (((dsDate[0] & 0xFF) << 8) | (dsDate[1] & 0xFF));

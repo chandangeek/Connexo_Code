@@ -98,6 +98,12 @@ public class AXDRDateTime extends AbstractDataType {
         dateTime.setTime(date);
     }
 
+    public AXDRDateTime(Date date, TimeZone timeZone) {
+        dateTime = Calendar.getInstance(timeZone);
+        dateTime.setTime(date);
+        status = (byte) (dateTime.getTimeZone().inDaylightTime(dateTime.getTime()) ? 0x80 : 0x00);
+    }
+
     /**
      * @deprecated use {@link #AXDRDateTime(OctetString, AXDRDateTimeDeviationType)} instead for correct deviation interpretation
      */
@@ -182,6 +188,33 @@ public class AXDRDateTime extends AbstractDataType {
 
     }
 
+    public AXDRDateTime(OctetString date, OctetString time, TimeZone timeZone) throws IOException {
+        byte[] dateBytes = date.getOctetStr();
+        byte[] timeBytes = time.getOctetStr();
+        dateTime = Calendar.getInstance(timeZone);
+
+        int year = ProtocolUtils.getShort(dateBytes, 0);
+        dateTime.set(Calendar.YEAR, year);
+
+        int month = ProtocolUtils.getByte2Int(dateBytes, 2);
+        dateTime.set(Calendar.MONTH, month - 1);
+
+        int dayOfMonth = ProtocolUtils.getByte2Int(dateBytes, 3);
+        dateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+        int hour = ProtocolUtils.getByte2Int(timeBytes, 0);
+        dateTime.set(Calendar.HOUR_OF_DAY, hour);
+
+        int minute = ProtocolUtils.getByte2Int(timeBytes, 1);
+        dateTime.set(Calendar.MINUTE, minute);
+
+        int second = ProtocolUtils.getByte2Int(timeBytes, 2);
+        dateTime.set(Calendar.SECOND, second);
+
+        int hundredths = ProtocolUtils.getByte2Int(timeBytes, 3);
+        dateTime.set(Calendar.MILLISECOND, hundredths * 10);
+    }
+
     /**
      * In case the deviation information is not present in the octet string, this method can be used.
      * @param berEncodedData the bytes of the octet string
@@ -190,14 +223,14 @@ public class AXDRDateTime extends AbstractDataType {
      * @throws IOException
      */
     public AXDRDateTime(byte[] berEncodedData, int offset, TimeZone tz) throws IOException {
-    	int ptr = offset;
+        int ptr = offset;
 
     	if (berEncodedData[ptr] != AxdrType.OCTET_STRING.getTag()){
             throw new IOException("AXDRDateTime, invalid identifier "+berEncodedData[ptr]);
     	}
     	ptr = ptr + 2;
 
-    	dateTime = Calendar.getInstance(tz);
+        dateTime = Calendar.getInstance(tz);
 
         int year = ProtocolUtils.getShort(berEncodedData, ptr );
         dateTime.set(Calendar.YEAR, year);
@@ -254,7 +287,7 @@ public class AXDRDateTime extends AbstractDataType {
         int second = v.get(Calendar.SECOND);
         int hs = v.get(Calendar.MILLISECOND) / MS_PER_HS;
 
-//        int deviation = (v.getTimeZone().getRawOffset()/60000) + (v.getTimeZone().inDaylightTime(v.getTime())?1:0);
+        int deviation = -((v.getTimeZone().getRawOffset() / 60000) + (v.getTimeZone().inDaylightTime(v.getTime()) ? 60 : 0));
 
         return
                 new byte[]{
@@ -269,10 +302,8 @@ public class AXDRDateTime extends AbstractDataType {
                         (byte) (minute),
                         (byte) (second),
                         (byte) (hs),
-//                (byte) ((deviation>>8)&0xFF),
-//                (byte) (deviation&0xFF),
-                        (byte) 0x00,
-                        (byte) 0x00,
+                        (byte) ((deviation>>8)&0xFF),
+                        (byte) (deviation&0xFF),
                         (byte) status
                 };
 

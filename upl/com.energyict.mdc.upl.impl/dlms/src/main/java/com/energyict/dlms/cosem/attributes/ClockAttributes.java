@@ -11,8 +11,13 @@ public enum ClockAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
     TIME(2, 0x08),
-    TIMEZONE(3, 0x10);
-    //TODO add the other attributes if needed
+    TIMEZONE(3, 0x10),
+    STATUS(4, 0x18),
+    TIME_DS_BEGIN(5, 0x20),
+	TIME_DS_END(6, 0x28),
+    DS_DEVIATION(7, 0x30),
+    DS_ENABLED(8, 0x38),
+    CLOCK_BASE(9, 0x40);
 
     private final int attributeNumber;
     private final int shortName;
