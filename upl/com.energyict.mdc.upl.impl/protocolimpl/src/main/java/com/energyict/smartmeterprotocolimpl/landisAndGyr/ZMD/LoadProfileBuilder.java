@@ -42,6 +42,8 @@ public class LoadProfileBuilder {
      */
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
 
+    private Map<LoadProfileReader, int[]> channelMaskMap = new HashMap<LoadProfileReader, int[]>();
+
     public LoadProfileBuilder(ZMD meterProtocol) {
         this.meterProtocol = meterProtocol;
     }
@@ -84,21 +86,37 @@ public class LoadProfileBuilder {
 
     /**
      * Construct a list of <CODE>ChannelInfos</CODE>.
-     **/
+     */
     private List<ChannelInfo> constructChannelInfos(ProfileGeneric profileGeneric, LoadProfileReader lpr) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         List<CapturedObject> captureObjects = profileGeneric.getCaptureObjects();
         List<Register> registerList = new ArrayList<Register>();
+        String channelMask = new String();
+        int clockMask = -1;
+        int statusMask = -1;
 
+        int i = 1;
         for (CapturedObject capturedObject : captureObjects) {
-            if (capturedObject.getLogicalName().toString().equals(CLOCK_OBISCODE.toString()) || capturedObject.getLogicalName().toString().equals(STATUS_OBISCODE.toString())) {
+            if (capturedObject.getLogicalName().toString().equals(CLOCK_OBISCODE.toString())) {
+                channelMask = "0" + channelMask;
+                clockMask = i;
                 // DO nothing
-            } else if (loadProfileContains(lpr, capturedObject.getObisCode())){
+            } else if (capturedObject.getLogicalName().toString().equals(STATUS_OBISCODE.toString())) {
+                channelMask = "0" + channelMask;
+                statusMask = i;
+                // DO nothing
+            } else if (loadProfileContains(lpr, capturedObject.getObisCode())) {
+                channelMask = "1" + channelMask;
                 String registerObisCodeString = capturedObject.getLogicalName().toString();
+                // Add register to the list
                 registerList.add(new Register(-1, ObisCode.fromString(registerObisCodeString), meterProtocol.getSerialNumber()));
+            } else {
+                channelMask = "0" + channelMask;
             }
+            i ++;
         }
 
+        channelMaskMap.put(lpr, new int[] {clockMask, statusMask, Integer.parseInt(channelMask, 2)});
         List<RegisterValue> registerValues = meterProtocol.readRegisters(registerList);
         for (RegisterValue channelInformation : registerValues) {
             if (channelInformation.getQuantity().getBaseUnit().getDlmsCode() != 0) {
@@ -154,7 +172,11 @@ public class LoadProfileBuilder {
                 Calendar toCalendar = Calendar.getInstance(meterProtocol.getTimeZone());
                 toCalendar.setTime(lpr.getEndReadingTime());
 
-                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), new ZMDProfileIntervalStatusBits());
+                int[] channelMask = channelMaskMap.get(lpr);
+                if (channelMask == null) {
+                    throw new IOException("Failed to build the load profile data: Invalid ChannelMask!");
+                }
+                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), channelMask[0], channelMask[1], channelMask[2], new ZMDProfileIntervalStatusBits());
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval(), meterProtocol.getTimeZone()));
                 profileDataList.add(profileData);
             }
