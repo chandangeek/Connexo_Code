@@ -1,5 +1,6 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
@@ -25,8 +26,9 @@ import java.util.logging.Level;
 
 public class ImageTransfer extends AbstractCosemObject{
 
-	private static final int DELAY = 3000;
-    private static final int POLL_RETRIES = 10;
+    private int pollingDelay = 10000;
+    private int pollingRetries = 20;      //Poll status for 5 minutes
+    private static final String TIMEOUT_MESSAGE = "timeout";
 
     public static final int REPORT_STATUS_EVERY_X_BLOCKS = 1;
     public static final String DEFAULT_IMAGE_NAME = "NewImage";
@@ -84,6 +86,14 @@ public class ImageTransfer extends AbstractCosemObject{
 		this.protocolLink = protocolLink;
 	}
 
+    public void setPollingDelay(int pollingDelay) {
+        this.pollingDelay = pollingDelay;       //Set the delay between the status polls during image verification / activation
+    }
+
+    public void setPollingRetries(int pollingRetries) {
+        this.pollingRetries = pollingRetries;   //Set the number of status polls during image verification / activation
+    }
+
 	/**
 	 * @return the classId of the ImageTransfer object, should always be 18
 	 */
@@ -117,7 +127,7 @@ public class ImageTransfer extends AbstractCosemObject{
 	 * @throws InterruptedException when interrupted while sleeping
 	 */
 	public void upgrade(byte[] data, boolean additionalZeros) throws IOException, InterruptedException{
-        upgrade(data, additionalZeros, "NewImage", false);
+        upgrade(data, additionalZeros, DEFAULT_IMAGE_NAME, false);
 	}
 
 	/**
@@ -385,20 +395,27 @@ public class ImageTransfer extends AbstractCosemObject{
 					imageVerification();
 					retry = -1;
 				} catch (DataAccessResultException e) {
-					if((e.getDataAccessResult() == 2) && retry >= 1){ //"Temporary failure"
+                    if (isTemporaryFailure(e) && retry >= 1) {
 						this.protocolLink.getLogger().log(Level.INFO, "Received a temporary failure during verification, will retry.");
 						retry--;
-                        DLMSUtils.delay(DELAY);
+                        DLMSUtils.delay(pollingDelay);
 					} else {
 						throw new IOException("Could not verify the image." + e.getMessage());
 					}
 				}
 			}
 		} catch (IOException e){
-			e.printStackTrace();
-			throw new IOException("Could not verify the image." + e.getMessage());
+            throw new NestedIOException(e, "Could not verify the image." + e.getMessage());
 		}
 	}
+
+    private boolean isTemporaryFailure(DataAccessResultException e) {
+        return (e.getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
+    }
+
+    private boolean isHardwareFailure(DataAccessResultException e) {
+        return (e.getDataAccessResult() == DataAccessResultCode.HARDWARE_FAULT.getResultCode());
+    }
 
     /**
      * Verify the image. If the result is a temporary failure, then wait a few seconds and check the.
@@ -409,8 +426,8 @@ public class ImageTransfer extends AbstractCosemObject{
         try {
             imageVerification();
         } catch (DataAccessResultException e) {
-            if ((e.getDataAccessResult() == 2)) { // Temporary failure
-                getLogger().info("Received [Temporary failure] while verifying image. Polling result ...");
+            if (isTemporaryFailure(e) || isHardwareFailure(e)) {
+                getLogger().info("Received [" + e.getCode().getDescription() + "] while verifying image. Polling result ...");
                 pollForImageVerificationStatus();
             } else {
                 throw e;
@@ -422,10 +439,10 @@ public class ImageTransfer extends AbstractCosemObject{
      * Wait until the image verification was successfully by polling the meter
      */
     private final void pollForImageVerificationStatus() throws IOException {
-        int tries = POLL_RETRIES;
+        int tries = pollingRetries;
         while (--tries > 0) {
             try {
-                Thread.sleep(DELAY);
+                Thread.sleep(pollingDelay);
                 TypeEnum typeEnum = readImageTransferStatus();
                 switch (typeEnum.getValue()) {
                     case 2:
@@ -450,10 +467,10 @@ public class ImageTransfer extends AbstractCosemObject{
      * Wait until the image activation was successfully by polling the meter
      */
     private final void pollForImageActivationStatus() throws IOException {
-        int tries = POLL_RETRIES;
+        int tries = pollingRetries;
         while (--tries > 0) {
             try {
-                Thread.sleep(DELAY);
+                Thread.sleep(pollingDelay);
                 TypeEnum typeEnum = readImageTransferStatus();
                 switch (typeEnum.getValue()) {
                     case 5:
@@ -487,8 +504,7 @@ public class ImageTransfer extends AbstractCosemObject{
             }
             return this.imageMaxBlockSize;
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new IOException("Could not get the maximum block size." + e.getMessage());
+            throw new NestedIOException(e, "Could not get the maximum block size." + e.getMessage());
         }
     }
 
@@ -517,8 +533,7 @@ public class ImageTransfer extends AbstractCosemObject{
 			this.imageTransferBlocksStatus = new BitString(getLNResponseData(ATTRB_IMAGE_TRANSFER_BLOCK_STATUS), 0);
 			return this.imageTransferBlocksStatus;
 		} catch (IOException e){
-			e.printStackTrace();
-			throw new IOException("Could not read the imagetransferblock status." + e.getMessage());
+            throw new NestedIOException(e, "Could not read the imagetransferblock status." + e.getMessage());
 		}
 	}
 
@@ -534,8 +549,7 @@ public class ImageTransfer extends AbstractCosemObject{
 			this.setImageFirstNotTransferedBlockNumber(new Unsigned32(getLNResponseData(ATTRB_IMAGE_FIRST_NOT_TRANSFERED_BLOCK), 0));
 			return this.getImageFirstNotTransferedBlockNumber();
 		} catch (IOException e){
-			e.printStackTrace();
-			throw new IOException("Could not retrieve the first not transfered block number." + e.getMessage());
+            throw new NestedIOException(e, "Could not retrieve the first not transfered block number." + e.getMessage());
 		}
 	}
 
@@ -552,8 +566,7 @@ public class ImageTransfer extends AbstractCosemObject{
 			this.imageTransferEnabled = new BooleanObject(getLNResponseData(ATTRB_IMAGE_TRANSFER_ENABLED),0);
 			return this.imageTransferEnabled;
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not retrieve the transfer enabled state." + e.getMessage());
+            throw new NestedIOException(e, "Could not retrieve the transfer enabled state." + e.getMessage());
 		}
 	}
 
@@ -566,8 +579,7 @@ public class ImageTransfer extends AbstractCosemObject{
 		try {
 			write(ATTRB_IMAGE_TRANSFER_ENABLED, new BooleanObject(state).getBEREncodedByteArray());
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not write the transfer enabled state." + e.getMessage());
+            throw new NestedIOException(e, "Could not write the transfer enabled state." + e.getMessage());
 		}
 	}
 
@@ -587,8 +599,7 @@ public class ImageTransfer extends AbstractCosemObject{
 				return this.imageTransferEnabled;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not retrieve the transfer enabled state." + e.getMessage());
+            throw new NestedIOException(e, "Could not retrieve the transfer enabled state." + e.getMessage());
 		}
 	}
 
@@ -612,8 +623,7 @@ public class ImageTransfer extends AbstractCosemObject{
 			this.imageTransferStatus = new TypeEnum(getLNResponseData(ATTRB_IMAGE_TRANSFER_STATUS), 0);
 			return this.imageTransferStatus;
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not read the transferStatus." + e.getMessage());
+            throw new NestedIOException(e, "Could not read the transferStatus." + e.getMessage());
 		}
 	}
 
@@ -629,10 +639,10 @@ public class ImageTransfer extends AbstractCosemObject{
 			this.imageToActivateInfo = new Array(getLNResponseData(ATTRB_IMAGE_TO_ACTIVATE_INFO), 0, 0);
 			return this.imageToActivateInfo;
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new IOException("Could not read the imageToActivateInfo." + e.getMessage());
+            throw new NestedIOException(e, "Could not read the imageToActivateInfo." + e.getMessage());
 		}
 	}
+
 	/**
 	 * <pre>
 	 * Initializes the Image transfer process.
@@ -657,7 +667,7 @@ public class ImageTransfer extends AbstractCosemObject{
 				write(IMAGE_TRANSFER_INITIATE_SN, imageInfo.getBEREncodedByteArray());
 			}
 		} catch (IOException e) {
-			throw new IOException("Could not initiate the imageTransfer: " + e.getMessage());
+            throw new NestedIOException(e, "Could not initiate the imageTransfer: " + e.getMessage());
 		}
 	}
 
@@ -683,7 +693,7 @@ public class ImageTransfer extends AbstractCosemObject{
 				write(IMAGE_BLOCK_TRANSFER_SN, imageData.getBEREncodedByteArray());
 			}
 		} catch (IOException e) {
-		    throw new IOException("Could not write the current imageData block" + e.getMessage());
+            throw new NestedIOException(e, "Could not write the current imageData block" + e.getMessage());
 		}
 	}
 
@@ -700,8 +710,10 @@ public class ImageTransfer extends AbstractCosemObject{
         if (getObjectReference().isLNReference()) {
             try {
                 invoke(IMAGE_VERIFICATION, new Integer8(0).getBEREncodedByteArray());
+            } catch (DataAccessResultException e) {
+                throw e;             //Keep the original stack trace and message
             } catch (IOException e) {
-                throw new IOException("Could not verify the imageData" + e.getMessage());
+                throw new NestedIOException(e, "Could not verify the imageData " + e.getMessage());
             }
         } else {
             write(IMAGE_VERIFICATION_SN, new Integer8(0).getBEREncodedByteArray());
@@ -729,17 +741,29 @@ public class ImageTransfer extends AbstractCosemObject{
                     write(IMAGE_ACTIVATION_SN, new Integer8(0).getBEREncodedByteArray());
                 }
             } catch (DataAccessResultException e) {
-                if ((e.getDataAccessResult() == 2) && isUsePollingVerifyAndActivate()) { // Temporary failure
-                    getLogger().info("Received [Temporary failure] while activating image. Polling result ...");
+                if ((isTemporaryFailure(e) || isHardwareFailure(e)) && isUsePollingVerifyAndActivate()) { // Temporary failure
+                    getLogger().info("Received [" + e.getCode().getDescription() + "] while activating image. Polling result ...");
+                    try {
                     pollForImageActivationStatus();
+                    } catch (IOException e1) {
+                        if (isTimeoutException(e)) {
+                            //Means activation was successful and the meter is rebooting
+                } else {
+                            throw e1;
+                        }
+                    }
                 } else {
                     throw e;
                 }
             }
         } catch (IOException e) {
-		    throw new IOException("Could not activate the image." + e.getMessage());
+            throw new NestedIOException(e, "Could not activate the image." + e.getMessage());
 		}
 	}
+
+    private boolean isTimeoutException(DataAccessResultException e) {
+        return e.getMessage().toLowerCase().contains(TIMEOUT_MESSAGE);
+    }
 
 	/**
 	 * @param imageFirstNotTransferedBlockNumber the imageFirstNotTransferedBlockNumber to set

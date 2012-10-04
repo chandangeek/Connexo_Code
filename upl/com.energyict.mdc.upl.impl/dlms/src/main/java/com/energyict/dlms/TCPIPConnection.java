@@ -1,7 +1,9 @@
 package com.energyict.dlms;
 
-import com.energyict.cpo.Environment;
-import com.energyict.dialer.connection.*;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
 
@@ -275,7 +277,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 			}
 			catch (ConnectionException e) {
 				if (retry++ >= this.maxRetries) {
-					throw new IOException("sendRequest, IOException, "+com.energyict.cbo.Utils.stack2string(e));
+					throw new NestedIOException(e, "sendRequest, IOException, "+com.energyict.cbo.Utils.stack2string(e));
 				}
 			}
 		}

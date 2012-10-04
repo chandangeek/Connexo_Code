@@ -2,49 +2,17 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer32;
-import com.energyict.dlms.axrdencoding.Integer64;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.NullData;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
-import com.energyict.dlms.cosem.AutoConnect;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.GenericRead;
-import com.energyict.dlms.cosem.GenericWrite;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StoreObject;
@@ -53,27 +21,10 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.LookupEntry;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterData;
-import com.energyict.protocol.MeterDataMessageResult;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
 import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -83,12 +34,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -110,7 +56,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         this.dlmsSession = this.protocol.getDlmsSession();
     }
 
-    public MessageResult executeMessageEntry(MessageEntry msgEntry) {
+    public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
 
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
             Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
@@ -235,6 +181,15 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     log(Level.SEVERE, "Message failed : " + msgResult.getInfo());
                 }
 
+            } catch (ConnectionException e) {
+                throw new ConnectionException(e.getMessage());
+            } catch (NestedIOException e) {
+                Throwable rootCause = getRootCause(e);
+                if (rootCause.getClass().equals(ConnectionException.class)) {
+                    throw new NestedIOException(rootCause);
+                }
+                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
+                log(Level.SEVERE, "Message failed : " + e.getMessage());
             } catch (BusinessException e) {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
@@ -1257,6 +1212,14 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         } catch (IOException e) {
             throw new IOException("Could not keep connection alive." + e.getMessage());
         }
+    }
+
+    private Throwable getRootCause(NestedIOException e) {
+        Throwable throwable = e.getCause();
+        while (throwable.getClass().equals(NestedIOException.class)) {
+            throwable = throwable.getCause();
+        }
+        return throwable;
     }
 
     /**
