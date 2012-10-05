@@ -21,20 +21,28 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
 import com.energyict.protocolimpl.dlms.siemenszmd.StoredValuesImpl;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -637,6 +645,9 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         for (int i = 0; i < bNROfChannels; i++) {
             scalerunit[i] = getMeterDemandRegisterScalerUnit(i);
             ChannelInfo channelInfo = new ChannelInfo(i, "dlms" + getDeviceID() + "_channel_" + i, scalerunit[i].getEisUnit());
+            if (scalerunit[i].getEisUnit().isUndefined()) {
+                channelInfo.setMultiplier(new BigDecimal(new BigInteger("1"), -scalerunit[i].getEisUnit().getScale()));
+            }
 
             if (DEBUG >= 1) {
                 System.out.println("KV_DEBUG> " + meterConfig.getChannelObject(i).toStringCo());

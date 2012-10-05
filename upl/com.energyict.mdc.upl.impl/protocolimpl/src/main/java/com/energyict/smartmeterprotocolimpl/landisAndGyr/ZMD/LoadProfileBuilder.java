@@ -11,6 +11,8 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -121,6 +123,9 @@ public class LoadProfileBuilder {
         for (RegisterValue channelInformation : registerValues) {
             if (channelInformation.getQuantity().getBaseUnit().getDlmsCode() != 0) {
                 ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), channelInformation.getObisCode().toString(), channelInformation.getQuantity().getUnit(), channelInformation.getSerialNumber(), true);
+                if (channelInformation.getQuantity().getUnit().isUndefined()) {
+                    channelInfo.setMultiplier(new BigDecimal(new BigInteger("1"), -channelInformation.getQuantity().getUnit().getScale()));
+                }
                 channelInfos.add(channelInfo);
             } else {
                 ChannelInfo channelInfo = new ChannelInfo(channelInfos.size(), channelInformation.getObisCode().toString(), Unit.getUndefined(), channelInformation.getSerialNumber(), true);
