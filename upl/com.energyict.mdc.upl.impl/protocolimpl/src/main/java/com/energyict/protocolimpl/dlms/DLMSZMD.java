@@ -28,11 +28,16 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.dlms.siemenszmd.*;
+import com.energyict.protocolimpl.dlms.siemenszmd.EventNumber;
+import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
+import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
+import com.energyict.protocolimpl.dlms.siemenszmd.ZmdMessages;
 
 import java.io.IOException;
 import java.util.*;
@@ -346,11 +351,26 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, DemandResetProt
          * See topic 'Reserved base_names for special COSEM objects' in the DLMS Blue Book.
          **/
         String retrievedSerial = getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
-        if (retrievedSerial.startsWith("LGZ")) {
+        if (retrievedSerial.toLowerCase().startsWith("lgz")) {
             return retrievedSerial.substring(3);
         } else {
             return retrievedSerial;
         }
+    }
+
+    @Override
+    protected void validateSerialNumber() throws IOException {
+        if ((getConfiguredSerialNumber() == null) || ("".compareTo(getConfiguredSerialNumber()) == 0)) {
+            return;
+        }
+
+        String configuredSerial = getConfiguredSerialNumber().toLowerCase().startsWith("lgz") ? getConfiguredSerialNumber().substring(3) : getConfiguredSerialNumber();
+        String meterSerial = getSerialNumber();
+
+        if ((meterSerial != null) && (meterSerial.compareTo(configuredSerial) == 0)) {
+            return;
+        }
+        throw new IOException("SerialNumber mismatch! meter sn=" + meterSerial + ", configured sn=" + configuredSerial);
     }
 
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {

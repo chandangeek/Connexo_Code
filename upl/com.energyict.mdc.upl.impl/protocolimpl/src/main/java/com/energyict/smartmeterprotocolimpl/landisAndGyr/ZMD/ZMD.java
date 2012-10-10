@@ -142,10 +142,12 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
             return;
         }
         String sn = getSerialNumber();
-        if ((sn != null) && (sn.compareTo(getProperties().getSerialNumber()) == 0)) {
+        String configuredSerial = getProperties().getSerialNumber();
+        configuredSerial = configuredSerial.toLowerCase().startsWith("lgz") ? configuredSerial.substring(3) : configuredSerial;
+        if ((sn != null) && (sn.compareTo(configuredSerial) == 0)) {
             return;
         }
-        throw new ConnectionException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + getProperties().getSerialNumber());
+        throw new ConnectionException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + configuredSerial);
     }
 
     public String getSerialNumber() throws ConnectionException {
@@ -155,7 +157,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         **/
         try {
             String retrievedSerial = getCosemObjectFactory().getGenericRead(0xFD00, DLMSUtils.attrLN2SN(2)).getString();
-            if (retrievedSerial.startsWith("LGZ")) {
+            if (retrievedSerial.toLowerCase().startsWith("lgz")) {
                 return retrievedSerial.substring(3);
             } else {
                 return retrievedSerial;
@@ -381,7 +383,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
     }
 
     /**
-     * Execute a billing reset on the device. After receiving the �Demand Reset�
+     * Execute a billing reset on the device. After receiving the 'Demand Reset'
      * command the meter executes a demand reset by doing a snap shot of all
      * energy and demand registers.
      *

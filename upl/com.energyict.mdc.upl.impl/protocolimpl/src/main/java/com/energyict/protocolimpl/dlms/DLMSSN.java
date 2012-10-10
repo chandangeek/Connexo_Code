@@ -111,7 +111,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
     protected int cipheringType;
     protected int maxPduSize;
     protected String nodeId;
-    private String serialNumber;
+    private String configuredSerialNumber;
     private int iInterval = -1;
     private int iNROfIntervals = -1;
     private int extendedLogging;
@@ -540,16 +540,19 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
     } // public void requestObjectList() throws IOException
 
 
-    private void validateSerialNumber() throws IOException {
-        boolean check = true;
-        if ((serialNumber == null) || ("".compareTo(serialNumber) == 0)) {
+    protected void validateSerialNumber() throws IOException {
+        if ((configuredSerialNumber == null) || ("".compareTo(configuredSerialNumber) == 0)) {
             return;
         }
         String sn = (String) getSerialNumber();
-        if ((sn != null) && (sn.compareTo(serialNumber) == 0)) {
+        if ((sn != null) && (sn.compareTo(configuredSerialNumber) == 0)) {
             return;
         }
-        throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + serialNumber);
+        throw new IOException("SerialNumber mismatch! meter sn=" + sn + ", configured sn=" + configuredSerialNumber);
+    }
+
+    public String getConfiguredSerialNumber() {
+        return configuredSerialNumber;
     }
 
     /**
@@ -732,7 +735,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         try {
             nodeId = properties.getProperty(MeterProtocol.NODEID, "");
             // KV 19012004 get the serialNumber
-            serialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
+            configuredSerialNumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "-1"));
             connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP, 2=cosemPDUconnection
@@ -975,7 +978,7 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
 
     public String getFileName() {
         Calendar calendar = Calendar.getInstance();
-        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + strID + "_" + strPassword + "_" + serialNumber + "_" + iServerUpperMacAddress + "_DLMSSN.cache";
+        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + strID + "_" + strPassword + "_" + configuredSerialNumber + "_" + iServerUpperMacAddress + "_DLMSSN.cache";
     }
 
     public void enableHHUSignOn(SerialCommunicationChannel commChannel) throws ConnectionException {
