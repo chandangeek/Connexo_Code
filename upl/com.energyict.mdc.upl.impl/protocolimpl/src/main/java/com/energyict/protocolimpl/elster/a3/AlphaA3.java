@@ -8,7 +8,7 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.elster.a3;   
+package com.energyict.protocolimpl.elster.a3;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.*;
@@ -20,13 +20,18 @@ import com.energyict.protocolimpl.ansi.c12.C1222Layer.SecurityModeEnum;
 import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileSet;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.elster.a3.procedures.ManufacturerProcedureFactory;
 import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.A3;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -76,8 +81,6 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     protected String securityMode;
     protected String calledAPTitle;
     protected String securityKey;
-
-    public boolean ignoreChecksumFaults;
 
     /** Creates a new instance of AlphaA3 */
     public AlphaA3() {
@@ -177,9 +180,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         calledAPTitle = properties.getProperty(CALLED_AP_TITLE, "");
     	securityKey = properties.getProperty(SECURITY_KEY, "");
     	securityMode = properties.getProperty(SECURITY_MODE, "");
-        ignoreChecksumFaults = Integer.parseInt(properties.getProperty("IgnoreChecksumFaults", "0").trim()) == 1 ? true : false;
 
-        if (getInfoTypePassword().length() > 20) {
+        if (getInfoTypePassword() != null && getInfoTypePassword().length() > 20) {
             throw new InvalidPropertyException("Length of password cannot be higher than 20. Please correct this first.");
         }
     }
@@ -191,7 +193,6 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         result.add("C12UserId");
         result.add("PasswordBinary"); 
         result.add("RetrieveExtraIntervals");
-        result.add("IgnoreChecksumFaults");
         result.add(CALLED_AP_TITLE);
         result.add(SECURITY_KEY);
         result.add(SECURITY_MODE);
@@ -585,10 +586,6 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
 
     public int getMeterConfig() throws IOException {
         return 0; //getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
-    }
-
-    public boolean ignoreChecksumFaults() {
-        return ignoreChecksumFaults;
     }
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {

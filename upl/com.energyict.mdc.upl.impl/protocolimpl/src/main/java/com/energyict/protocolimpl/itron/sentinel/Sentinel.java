@@ -15,17 +15,23 @@ import com.energyict.dialer.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.C12Layer2;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
+import com.energyict.protocolimpl.ansi.c12.PSEMServiceFactory;
 import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.itron.sentinel.logicalid.DataReadFactory;
 import com.energyict.protocolimpl.itron.sentinel.procedures.ManufacturerProcedureFactory;
 import com.energyict.protocolimpl.itron.sentinel.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.SentinelItron;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.logging.Logger;
 /**
@@ -528,16 +534,6 @@ if (skip<=29) { skip++;strBuff.append("-----------------------------------------
 
     public int getMeterConfig() throws IOException {
         return -1; //getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
-    }
-
-   /**
-     * Custom property to indicate if a non-matching checksum in an com.energyict.protocolimpl.ansi.c12.ReadResponse should be ignored.
-     * If false, the non-matching checksum will generate an IOException.
-     * If true, the non-matching checksum will be silently ignored.
-     * @return
-     */
-    public boolean ignoreChecksumFaults() {
-        return false;
     }
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {

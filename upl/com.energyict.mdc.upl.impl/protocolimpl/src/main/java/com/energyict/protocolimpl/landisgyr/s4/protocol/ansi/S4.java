@@ -19,13 +19,17 @@ import com.energyict.protocolimpl.ansi.c12.*;
 import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileSet;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.procedures.ManufacturerProcedureFactory;
 import com.energyict.protocolimpl.landisgyr.s4.protocol.ansi.tables.ManufacturerTableFactory;
 import com.energyict.protocolimpl.meteridentification.AbstractManufacturer;
 import com.energyict.protocolimpl.meteridentification.S4Fam;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.logging.Logger;
 /**
@@ -468,16 +472,6 @@ if (skip<=29) { skip+=2;strBuff.append("----------------------------------------
 
     public int getMeterConfig() throws IOException {
         return -1; //getManufacturerTableFactory().getGEDeviceTable().getMeterMode();
-    }
-
-    /**
-     * Custom property to indicate if a non-matching checksum in an com.energyict.protocolimpl.ansi.c12.ReadResponse should be ignored.
-     * If false, the non-matching checksum will generate an IOException.
-     * If true, the non-matching checksum will be silently ignored.
-     * @return
-     */
-    public boolean ignoreChecksumFaults() {
-        return false;
     }
 
     public ObisCodeInfoFactory getObisCodeInfoFactory() throws IOException {

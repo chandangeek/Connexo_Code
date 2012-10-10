@@ -105,16 +105,33 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
             }
         }
     }
-    
-    static protected final int STATE_WAIT_FOR_START_OF_PACKET=0;
-    static protected final int STATE_WAIT_FOR_IDENTITY=1;
-    static protected final int STATE_WAIT_FOR_CONTROL=2;
-    static protected final int STATE_WAIT_FOR_SEQUENCE_NUMBER=3;
-    static protected final int STATE_WAIT_FOR_LENGTH=4;
-    static protected final int STATE_WAIT_FOR_DATA=5;
-    static protected final int STATE_WAIT_FOR_CRC=6;
-    
-    protected ResponseData receiveResponseData() throws NestedIOException, IOException {
+
+    public ResponseData sendBytes(byte[] requestData) throws IOException {
+        int retry=0;
+
+        while(true) {
+            try {
+                sendOut(requestData);
+                return receiveResponseData();
+            }
+            catch(ConnectionException e) {
+                int mr=getMaxRetries();
+                if (retry++>=mr) {
+                    throw new ProtocolConnectionException("sendCommand() error maxRetries ("+mr+"), "+e.getMessage());
+                }
+            }
+        }
+    }
+
+    static private final int STATE_WAIT_FOR_START_OF_PACKET=0;
+    static private final int STATE_WAIT_FOR_IDENTITY=1;
+    static private final int STATE_WAIT_FOR_CONTROL=2;
+    static private final int STATE_WAIT_FOR_SEQUENCE_NUMBER=3;
+    static private final int STATE_WAIT_FOR_LENGTH=4;
+    static private final int STATE_WAIT_FOR_DATA=5;
+    static private final int STATE_WAIT_FOR_CRC=6;
+
+    private ResponseData receiveResponseData() throws NestedIOException, IOException {
         long protocolTimeout,interFrameTimeout;
         int kar;
         int state=STATE_WAIT_FOR_START_OF_PACKET;
@@ -227,6 +244,14 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
                         else {
                             receivedCrc |= (int)(kar);
                             if (receivedCrc == calculatedCrc) {
+                                // Bugfix CRM TKT-30314-S6563
+                                // In some cases, the device sends an invalid response missing the last (2th CRC) byte!
+                                // When in this case, the protocol will stay in the loop (readIn() == -1), cause it expects still 1 byte to be read.
+                                // -> No ACK is send -> the device will do a retransmit
+                                // First byte of retransmit = the missing byte (2th CRC byte).
+                                // All other bytes of retransmit (= duplicate copy of the response) can be discarded.
+                                flushInputStream();
+
                                 sendOut(ACK);
                                 if (((receivedControl&MULTIPLE_PACKET_TRANSMISSION) == MULTIPLE_PACKET_TRANSMISSION) &&
                                    (receivedSequence > 0)) {
@@ -320,9 +345,6 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     protected int getControl() {
         return control;
     }
-    
-    
-    
 
     protected void buildControl(boolean firstMultipleTransmissionPacket) {
        if (isMultiplePacket())

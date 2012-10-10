@@ -51,11 +51,4 @@ public interface C12ProtocolLink {
 	 */
 	int getMeterConfig() throws IOException; // meter specific
 
-    /**
-     * Custom property to indicate if a non-matching checksum in an com.energyict.protocolimpl.ansi.c12.ReadResponse should be ignored.
-     * If false, the non-matching checksum will generate an IOException.
-     * If true, the non-matching checksum will be silently ignored.
-     * @return
-     */
-    boolean ignoreChecksumFaults();
 }

@@ -46,12 +46,7 @@ public class ReadResponse extends AbstractResponse {
             // calculate checksum...
             int check = TableData.calcCheckSum(tableData);
             if (check != checkSum) {
-                if (psemServiceFactory.getC12ProtocolLink().ignoreChecksumFaults()) {
-                    psemServiceFactory.getC12ProtocolLink().getLogger().warning("ReadResponse, parse, checksum failure in table data - custom property 'IgnoreChecksumFaults' is set, so this will be ignored.");
-                } else {
-                    psemServiceFactory.getC12ProtocolLink().getLogger().warning("ReadResponse, parse, checksum failure in table data!");
                     throw new IOException("ReadResponse, parse, checksum failure in table data!");
-                }
             }
         }
         else throw new ResponseIOException("ReadResponse, parse, data length = 0!", AbstractResponse.SNAPSHOT_ERROR);
