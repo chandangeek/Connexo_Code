@@ -4,17 +4,14 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocolimpl.ansi.c12.EAXPrime.crypto.InvalidCipherTextException;
-import com.energyict.protocolimpl.ansi.c12.EAXPrime.crypto.engines.AESEngine;
-import com.energyict.protocolimpl.ansi.c12.EAXPrime.crypto.engines.AESFastEngine;
-import com.energyict.protocolimpl.ansi.c12.EAXPrime.crypto.modes.EAXBlockCipher;
-import com.energyict.protocolimpl.ansi.c12.EAXPrime.crypto.modes.EAXPBlockCipher;
-import com.energyict.protocolimpl.ansi.c12.EAXPrime.crypto.params.AEADParameters;
-import com.energyict.protocolimpl.ansi.c12.EAXPrime.crypto.params.KeyParameter;
-import com.energyict.protocolimpl.ansi.c12.EAXPrime.util.encoders.Hex;
+import com.energyict.protocolimpl.ansi.c12.EAXPrime.EAXPrimeEncoder;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Random;
@@ -24,6 +21,7 @@ public class C1222Layer extends C12Layer2 {
 
     private C1222Buffer c1222Buffer = null;
     private int c1222Position = -1;
+    private EAXPrimeEncoder eaxPrimeEncoder;
 
     public enum SecurityModeEnum {
         SecurityClearText,
@@ -86,9 +84,8 @@ public class C1222Layer extends C12Layer2 {
 
     protected ResponseData receiveResponseData() throws IOException {
         long protocolTimeout = System.currentTimeMillis() + TIMEOUT;
-        ;
         long interFrameTimeout = System.currentTimeMillis() + timeout;
-        ;
+
         ResponseData responseData = new ResponseData();
         int currentByte = 0;
         int previousByte = 0;
@@ -97,10 +94,13 @@ public class C1222Layer extends C12Layer2 {
         int fieldSize = -1;
         int fieldPosition = -1;
         ByteArrayOutputStream fieldValue = new ByteArrayOutputStream();
+        ByteArrayOutputStream completeResponse = new ByteArrayOutputStream();
 
         copyEchoBuffer();
+        C1222ResponseParms responseParms = c1222Buffer.getResponseParms();
         while (true) {
             if ((currentByte = readIn()) != -1) {
+                completeResponse.write(currentByte);
                 if (currentByte == 0x60 && c1222Size == -1)  // Read past first byte byte of message
                 {
                 } else if (previousByte == 0x60 && c1222Size == -1) // Store size of C1222 message. 2nd byte of message
@@ -124,7 +124,7 @@ public class C1222Layer extends C12Layer2 {
                         fieldPosition++;
                         if (fieldPosition == fieldSize) // If is last byte for field, close the field
                         {
-                            c1222Buffer.getResponseParms().assignFieldValue(fieldId, fieldValue);
+                            responseParms.assignFieldValue(fieldId, fieldValue);
                             fieldId = -1;
                             fieldSize = -1;
                             fieldPosition = -1;
@@ -137,18 +137,53 @@ public class C1222Layer extends C12Layer2 {
                         break;
                     }
                 }
-                if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
-                    throw new ProtocolConnectionException("receiveFrame() response timeout error", TIMEOUT_ERROR);
-                }
-                if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
-                    throw new ProtocolConnectionException("receiveFrame() interframe timeout error", TIMEOUT_ERROR);
-                }
 
                 previousByte = currentByte;
             }
+            if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
+                throw new ProtocolConnectionException("receiveFrame() response timeout error", TIMEOUT_ERROR);
+            }
+            if (((long) (System.currentTimeMillis() - interFrameTimeout)) > 0) {
+                throw new ProtocolConnectionException("receiveFrame() interframe timeout error", TIMEOUT_ERROR);
+            }
         }
-        c1222Buffer.setApInvocationId(c1222Buffer.getResponseParms().getCallingApInvocationId());
-        responseData.setData(c1222Buffer.getResponseParms().getUserInformation());
+        c1222Buffer.setApInvocationId(responseParms.getCallingApInvocationId());
+
+        int securityMode = responseParms.getSecurityMode();
+        if (securityMode == 0) {
+            // 1. Return the unencrypted response data
+             responseData.setData(responseParms.getUserInformation());
+        } else if (securityMode == 1) { // ToDO: SecurityMode 1 needs to be tested out!
+            byte[] receivedMac = responseParms.getMac();
+            byte[] receivedCipherText =null;
+            byte[] responseClearText = buildResponseCanonifiedCleartext(responseParms);
+
+            // 1. Verify the authentication fo the response is correct (verify MAC)
+            getEAXPrimeEncoder().decrypt(responseClearText, receivedCipherText, receivedMac);
+
+            // 2. Return the UserInformation data - only if MAC verification passes (else an error is thrown, so we do not come here)
+            responseData.setData(ProtocolTools.getSubArray(responseParms.getUserInformation(), 1, responseParms.getUserInformation().length));
+        } else if (securityMode == 2) {
+            byte[] receivedMac = responseParms.getMac();
+            byte[] receivedCipherText = responseParms.getUserInformation();
+            byte[] responseClearText = buildResponseCanonifiedCleartext(responseParms);
+
+            // 1. Verify the authentication fo the response is correct (verify MAC)
+            getEAXPrimeEncoder().decrypt(responseClearText, receivedCipherText, receivedMac);
+
+            // 2. Decrypt the encrypted response data and update the responseData with it
+            byte[] plainText = getEAXPrimeEncoder().getPlainText();
+
+            // PlainText starts with the encoded length - this should be stripped off.
+            if (plainText[0] == (byte) 0x82) {  // 3 byte-encoded length
+                responseData.setData(ProtocolTools.getSubArray(plainText, 3, plainText.length));
+            } else if (plainText[0] == (byte) 0x81) {   // 2 byte-encoded length
+                responseData.setData(ProtocolTools.getSubArray(plainText, 2, plainText.length));
+            } else {    // 1 byte-encoded length
+                responseData.setData(ProtocolTools.getSubArray(plainText, 1, plainText.length));
+            }
+        }
+
         c1222Buffer.reset();
 
         if (responseData.getData() == null) {
@@ -193,7 +228,7 @@ public class C1222Layer extends C12Layer2 {
         return result;
     }
 
-    private void buildC1222Wrapper(C1222Buffer c1222Buffer) throws IOException, ApplicationException, IllegalStateException, InvalidCipherTextException {
+    private void buildC1222Wrapper(C1222Buffer c1222Buffer) throws IOException, ApplicationException, IllegalStateException {
         buildHeader(c1222Buffer);
         buildUserInformation(c1222Buffer);
 
@@ -256,15 +291,37 @@ public class C1222Layer extends C12Layer2 {
         result.write(uiEncodedLength);
 
         if (c1222Buffer.getSecurityMode() == SecurityModeEnum.SecurityClearText) {
-            if (c1222Buffer.getRequestParms().getEdClass() != null && c1222Buffer.getRequestParms().getEdClass().length() > 4) {
+            if (c1222Buffer.getRequestParms().getEdClass() != null && c1222Buffer.getRequestParms().getEdClass().length() > 8) {    // Length = 4 bytes
                 throw new ApplicationException("ED Class Too Long");
             }
             if (c1222Buffer.getRequestParms().getEdClass() != null && c1222Buffer.getRequestParms().getEdClass().length() > 0) {
-                result.write(Hex.decode(padRight(c1222Buffer.getRequestParms().getEdClass(), 4)));
+                result.write(ProtocolTools.getBytesFromHexString(c1222Buffer.getRequestParms().getEdClass(), ""));
             }
         }
 
         c1222Buffer.getUserInformation().write(result.toByteArray());
+    }
+
+    private void buildResponseUserInformation(ByteArrayOutputStream byteArrayList, C1222ResponseParms responseParms) throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] uiEncodedLength;
+        byte[] uiExternalEncodedLength;
+        byte[] uiLength;
+
+        responseParms.setUiExtra((responseParms.getSecurityMode() == 0) ? 1 : 5);   // 1 byte Epsem control (+ 4 bytes MAC)
+        responseParms.setEpsemSize((responseParms.getUserInformation().length + responseParms.getUiExtra()));
+
+        uiEncodedLength = encodeInteger(responseParms.getEpsemSize());
+        uiExternalEncodedLength = encodeInteger(uiEncodedLength.length + responseParms.getEpsemSize() + 1);
+        uiLength = encodeInteger(uiExternalEncodedLength.length + uiEncodedLength.length + responseParms.getEpsemSize() + 2);
+
+        result.write((byte) 0xBE);
+        result.write(uiLength);
+        result.write((byte) 0x28);
+        result.write(uiExternalEncodedLength);
+        result.write((byte) 0x81);
+        result.write(uiEncodedLength);
+        byteArrayList.write(result.toByteArray());
     }
 
     private void buildCanonifiedCleartext(C1222Buffer c1222Buffer) throws IOException {
@@ -300,67 +357,64 @@ public class C1222Layer extends C12Layer2 {
         c1222Buffer.getCanonifiedCleartext().write(tempBytes[3]);
     }
 
-    private void buildEncryption(C1222Buffer c1222Buffer) throws ApplicationException {
-        int macSize = 4;
-        byte[] mac = null;
-        String nonce = "0";
-        byte[] unencryptedByteArray = c1222Buffer.getCanonifiedCleartext().toByteArray();
-        int length = 0;
+    private byte[] buildResponseCanonifiedCleartext(C1222ResponseParms responseParms) throws IOException {
+        ByteArrayOutputStream canonifiedCleartext = new ByteArrayOutputStream();
 
-        EAXBlockCipher eaxBlockCipher = new EAXBlockCipher(new AESEngine());
-        KeyParameter keyParameter = new KeyParameter(c1222Buffer.getSecurityKey().getBytes());
-        AEADParameters aeadParameters = new AEADParameters(keyParameter, macSize, nonce.getBytes(), unencryptedByteArray);
+        appendUid(canonifiedCleartext, 0xA1, responseParms.getApplicationContext());
+        appendUid(canonifiedCleartext, 0xA2, responseParms.getCalledApTitle());
+        if (responseParms.getCalledApInvocationId() != -1) {
+            appendInteger(canonifiedCleartext, 0xA4, (int) responseParms.getCalledApInvocationId());
+        }
+        if (responseParms.getCallingAeQualifier() != -1) {
+            appendInteger(canonifiedCleartext, 0xA7, (int) responseParms.getCallingAeQualifier());
+        }
+        appendInteger(canonifiedCleartext, 0xA8, (int) responseParms.getCallingApInvocationId());
 
-        eaxBlockCipher.init(false, aeadParameters);
-
-        byte[] encryptedByteArray = new byte[unencryptedByteArray.length];
-
-        length = eaxBlockCipher.processBytes("".getBytes(), 0, 0, encryptedByteArray, 0);
-        try {
-            length += eaxBlockCipher.doFinal(encryptedByteArray, length);
-        } catch (Exception e) {
-            throw new ApplicationException("Authentication failed");
+        if (!responseParms.isSecurityKeyIdAndInitializationVectorWereSent()) {
+            responseParms.setSecurityKeyIdAndInitializationVectorWereSent(true);
+            buildResponseCallingInvocation(canonifiedCleartext, responseParms);
         }
 
-        try {
-            c1222Buffer.getUserInformation().write(encryptedByteArray);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        buildResponseUserInformation(canonifiedCleartext, responseParms);
+        canonifiedCleartext.write(responseParms.getEpsemControl());
+
+        appendUid(canonifiedCleartext, 0xA6, responseParms.getCallingApTitle());
+
+        canonifiedCleartext.write((byte) responseParms.getSecurityKeyId());
+
+        byte[] tempBytes = longToByteArrayLittleEndian(responseParms.getInitializationVector());
+        canonifiedCleartext.write(tempBytes[0]);
+        canonifiedCleartext.write(tempBytes[1]);
+        canonifiedCleartext.write(tempBytes[2]);
+        canonifiedCleartext.write(tempBytes[3]);
+
+        return canonifiedCleartext.toByteArray();
     }
 
-    private void buildAuthentication(C1222Buffer c1222Buffer) throws ApplicationException, IOException {
-        EAXPBlockCipher eaxBlockCipher = null;
-        KeyParameter keyParameter = null;
-        AEADParameters aeadParameters = null;
-        byte[] mac = null;
-        byte[] result = null;
-        int macSize = 32;
-        int length = 0;
-        String nonce = "0";
 
-        c1222Buffer.getCanonifiedCleartext().write(c1222Buffer.getCommand().toByteArray());
-        c1222Buffer.getUserInformation().write(c1222Buffer.getCommand().toByteArray());
 
-        result = new byte[c1222Buffer.getCanonifiedCleartext().size()];
-        eaxBlockCipher = new EAXPBlockCipher(new AESFastEngine());
-        keyParameter = new KeyParameter(Hex.decode(c1222Buffer.getSecurityKey()));
-        aeadParameters = new AEADParameters(keyParameter, macSize, nonce.getBytes(), c1222Buffer.getCanonifiedCleartext().toByteArray());
+    private void buildEncryption(C1222Buffer c1222Buffer) throws ApplicationException, IOException {
+        byte[] clearText = c1222Buffer.getCanonifiedCleartext().toByteArray();
+        byte[] plainText = c1222Buffer.getCommand().toByteArray();
 
-        eaxBlockCipher.init(true, aeadParameters);
-        length = eaxBlockCipher.processBytes("".getBytes(), 0, 0, result, 0);
-        try {
-            length += eaxBlockCipher.doFinal(result, length);
-        } catch (Exception e) {
-            throw new ApplicationException("Authentication failed");
-        }
-
-        mac = eaxBlockCipher.getMac();
-        if (mac == null || mac.length == 0) {
-            throw new ApplicationException("authenticate returned empty MAC");
-        }
+        getEAXPrimeEncoder().encrypt(clearText, plainText);
+        byte[] cipherText = getEAXPrimeEncoder().getCipherText();
+        byte[] mac = getEAXPrimeEncoder().getMac();
 
         c1222Buffer.setMac(mac);
+        c1222Buffer.getUserInformation().write(cipherText);
+        c1222Buffer.getUserInformation().write(mac);
+    }
+
+    private void buildAuthentication(C1222Buffer c1222Buffer) throws ApplicationException, IOException {    // ToDO: SecurityMode 1 needs to be tested out!
+        byte[] clearText = c1222Buffer.getCanonifiedCleartext().toByteArray();
+        byte[] plainText = null;
+
+        getEAXPrimeEncoder().encrypt(clearText, plainText);
+        byte[] mac = getEAXPrimeEncoder().getMac();
+
+        c1222Buffer.setMac(mac);
+        c1222Buffer.getUserInformation().write(c1222Buffer.getCommand().toByteArray());
         c1222Buffer.getUserInformation().write(mac);
     }
 
@@ -383,6 +437,30 @@ public class C1222Layer extends C12Layer2 {
         result[8] = (byte) 0x80;
         result[9] = (byte) 0x01;
         result[10] = (byte) c1222Buffer.getSecurityKeyId();
+        result[11] = (byte) 0x81;
+        result[12] = (byte) 0x04;
+        result[13] = initializationVector[0];
+        result[14] = initializationVector[1];
+        result[15] = initializationVector[2];
+        result[16] = initializationVector[3];
+        byteArrayList.write(result);
+    }
+
+    private void buildResponseCallingInvocation(ByteArrayOutputStream byteArrayList, C1222ResponseParms responseParms) throws IOException {
+        byte[] initializationVector = longToByteArrayLittleEndian(responseParms.getInitializationVector());
+        byte[] result = new byte[17];
+
+        result[0] = (byte) 0xAC;
+        result[1] = (byte) 0x0F;
+        result[2] = (byte) 0xA2;
+        result[3] = (byte) 0x0D;
+        result[4] = (byte) 0xA0;
+        result[5] = (byte) 0x0B;
+        result[6] = (byte) 0xA1;
+        result[7] = (byte) 0x09;
+        result[8] = (byte) 0x80;
+        result[9] = (byte) 0x01;
+        result[10] = (byte) responseParms.getSecurityKeyId();
         result[11] = (byte) 0x81;
         result[12] = (byte) 0x04;
         result[13] = initializationVector[0];
@@ -439,7 +517,7 @@ public class C1222Layer extends C12Layer2 {
             byte[] encodedId = encodeUid(value);
             byteArrayList.write((byte) elementCode);
             byteArrayList.write(encodeInteger(encodedId.length + 2));
-            byteArrayList.write(value.startsWith(".") ? (byte) 0x80 : (byte) 0x06);
+            byteArrayList.write(value.startsWith(".") ? (byte) 0x80 : (byte) 0x06); // 0x80: Relative encoding <-> 0x06 Universal Absolute encoding
             byteArrayList.write(encodeInteger(encodedId.length));
             byteArrayList.write(encodedId);
         }
@@ -491,10 +569,6 @@ public class C1222Layer extends C12Layer2 {
         }
     }
 
-    private String padRight(String value, int size) {
-        return String.format("%1$-" + size + "s", value);
-    }
-
     private byte[] encodeUid(String valueToEncode) {
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         encodeAndAppendUid(result, valueToEncode);
@@ -533,5 +607,12 @@ public class C1222Layer extends C12Layer2 {
         } else {
             byteArrayList.write((byte) (value)); // no length is given, size is as it is, upper bit is clear
         }
+    }
+
+    public EAXPrimeEncoder getEAXPrimeEncoder() {
+        if (eaxPrimeEncoder == null) {
+            eaxPrimeEncoder = new EAXPrimeEncoder(ProtocolTools.getBytesFromHexString(c1222Buffer.getSecurityKey(), ""));
+        }
+        return eaxPrimeEncoder;
     }
 }

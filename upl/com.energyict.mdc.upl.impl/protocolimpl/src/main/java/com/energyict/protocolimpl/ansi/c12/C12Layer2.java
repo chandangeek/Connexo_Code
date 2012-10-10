@@ -131,7 +131,7 @@ public class C12Layer2 extends Connection  implements ProtocolConnection {
     static private final int STATE_WAIT_FOR_DATA=5;
     static private final int STATE_WAIT_FOR_CRC=6;
 
-    private ResponseData receiveResponseData() throws NestedIOException, IOException {
+    protected ResponseData receiveResponseData() throws NestedIOException, IOException {
         long protocolTimeout,interFrameTimeout;
         int kar;
         int state=STATE_WAIT_FOR_START_OF_PACKET;

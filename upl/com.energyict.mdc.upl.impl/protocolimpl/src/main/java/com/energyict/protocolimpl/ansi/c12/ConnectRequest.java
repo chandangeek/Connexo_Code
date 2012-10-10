@@ -30,8 +30,7 @@ public class ConnectRequest extends AbstractRequest {
 
         C1222Layer.encodeAndAppendInteger(login, userId);
         login.write(0x00);
-//		login.write((getPSEMServiceFactory().getC1222Buffer().getUser() + "          ").substring(0, 10).getBytes());   //getUser() is always an empty string!!
-        byte[] data = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};                                     // replaced with this byte array
+        byte[] data = {0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20};
         login.write(data);
 
         login.write(0x00);

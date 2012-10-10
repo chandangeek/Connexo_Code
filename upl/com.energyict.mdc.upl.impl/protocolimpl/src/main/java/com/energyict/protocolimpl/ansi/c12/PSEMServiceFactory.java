@@ -114,13 +114,23 @@ public class PSEMServiceFactory {
     
     public void terminate() throws IOException {
         this.setTableId(-1);
-        if ((state != STATE_SESSION) && (state != STATE_ID))
-            throw new IOException("PSEMServiceFactory, terminate, wrong state for terminate. Should be in SESSION STATE or ID STATE...");
-        TerminateRequest terminateRequest = new TerminateRequest(this);
-        terminateRequest.build();
-        state=STATE_BASE;
+        if ((state != STATE_SESSION) && (state != STATE_ID)) {
+            c12ProtocolLink.getLogger().info("PSEMServiceFactory, terminate - no terminate needed, because not in state SESSION STATE or ID STATE.");
+        } else {
+            /* When terminate is invoked due to an exception being thrown - it could be the case the c1222Buffer is not reset, but still is dirty (= contains info of last request/response).
+            *  E.g.: This is the case when EAXPrimeEncoder throws an IOException
+            *
+            *  So we should reset the c1222Buffer, to be sure the buffer is clean.
+             */
+            if (c1222) {
+                c1222Buffer.reset();
+            }
+            TerminateRequest terminateRequest = new TerminateRequest(this);
+            terminateRequest.build();
+            state = STATE_BASE;
+        }
     }
-    
+
     public void secure(byte[] password) throws IOException {
         this.setTableId(-1);
         if (state != STATE_SESSION)

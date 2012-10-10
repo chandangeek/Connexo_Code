@@ -10,15 +10,19 @@ public class C1222ResponseParms
 {
 	private String applicationContext = "";
 	private String calledApTitle;
-	private long calledApInvocationId;
+	private long calledApInvocationId = -1;
 	private String callingApTitle;
 	private long callingAeQualifier = -1;
 	private long callingApInvocationId;
 	private int securityKeyId = 0;
 	private long initializationVector = 0;
-	private long mac = 0;
+	private byte[] mac = new byte[4];
 	private byte[] userInformation;
 	private byte epsemControl;
+    private int securityMode = 0;
+    private int uiExtra = 0;
+    private int epsemSize = 0;
+    private boolean securityKeyIdAndInitializationVectorWereSent = false;
 
 	public static final int MAC_LENGTH = 4;
 
@@ -34,10 +38,10 @@ public class C1222ResponseParms
 	public void setUserInformation(byte[] userInformation) {
 		this.userInformation = userInformation;
 	}
-	public long getMac() {
+	public byte[] getMac() {
 		return mac;
 	}
-	public void setMac(long mac) {
+	public void setMac(byte[] mac) {
 		this.mac = mac;
 	}
 	public long getInitializationVector() {
@@ -88,6 +92,32 @@ public class C1222ResponseParms
 	public void setCallingApInvocationId(long callingApInvocationId) {
 		this.callingApInvocationId = callingApInvocationId;
 	}
+    public int getSecurityMode() {
+        return securityMode;
+    }
+    public void setSecurityMode(int securityMode) {
+        this.securityMode = securityMode;
+    }
+    public boolean isSecurityKeyIdAndInitializationVectorWereSent() {
+		return securityKeyIdAndInitializationVectorWereSent;
+	}
+    public void setSecurityKeyIdAndInitializationVectorWereSent(
+			boolean securityKeyIdAndInitializationVectorWereSent) {
+		this.securityKeyIdAndInitializationVectorWereSent = securityKeyIdAndInitializationVectorWereSent;
+	}
+    public int getUiExtra() {
+		return uiExtra;
+	}
+	public void setUiExtra(int uiExtra) {
+		this.uiExtra = uiExtra;
+	}
+	public int getEpsemSize() {
+		return epsemSize;
+	}
+	public void setEpsemSize(int epsemSize) {
+		this.epsemSize = epsemSize;
+	}
+
     public void assignFieldValue(int fieldId, ByteArrayOutputStream fieldValue) throws IOException
     {
 		switch (fieldId)
@@ -167,22 +197,34 @@ public class C1222ResponseParms
 		}
 
 		tempEpsem = byteArray[++pos];
+        if ((tempEpsem & 0x0C) == 0x00) {
+            securityMode = 0;   // Unsecured
+        } else if ((tempEpsem & 0x0C) == 0x04) {
+            securityMode = 1;   // Authenticated
+        } else if ((tempEpsem & 0x0C) == 0x08) {
+            securityMode = 2;   // Encrypted
+        }
 
-		tempLength = byteArray[++pos]; // read off length bytes
-		if ((tempLength & 0x80) != 0)
-		{
-			tempLength &= 0x7F;
-			pos = pos + tempLength;
-		}				
+        if (securityMode == 0) {
+            tempLength = byteArray[++pos]; // read off length bytes
+            if ((tempLength & 0x80) != 0) {
+                tempLength &= 0x7F;
+                pos = pos + tempLength;
+            }
+            pos++;
+        } else {
+            pos++;
+            tempLength = (byteArray.length - pos) - MAC_LENGTH;
+        }
 
-		pos++;
-		tempLength = (byteArray.length - pos) - MAC_LENGTH;
 		tempUserInformation = new byte[tempLength];
 		System.arraycopy(byteArray, pos, tempUserInformation, 0, tempLength);
-		System.arraycopy(byteArray, byteArray.length - MAC_LENGTH, tempMac, 0, MAC_LENGTH);		
+		if (securityMode != 0) {
+            System.arraycopy(byteArray, byteArray.length - MAC_LENGTH, tempMac, 0, MAC_LENGTH);
+        }
 		setEpsemControl(tempEpsem);
 		setUserInformation(tempUserInformation);
-		setMac(ProtocolUtils.getLongLE(tempMac, 0, MAC_LENGTH));
+		setMac(tempMac);
     }
     
     private long extractInteger(byte[] byteArray)
@@ -233,5 +275,23 @@ public class C1222ResponseParms
 		}
 		
     	return result.toString();    	
+    }
+
+    public void reset() {
+        applicationContext = new String();
+        calledApTitle = new String();
+        calledApInvocationId = -1;
+        callingApTitle = new String();
+        callingAeQualifier = -1;
+        callingApInvocationId = -1;
+        securityKeyId = 0;
+        mac = new byte[4];
+        userInformation = new byte[]{};
+        epsemControl = 0x00;
+        securityMode = 0;
+        uiExtra = 0;
+        epsemSize = 0;
+        // initializationVector not reset - consistent field during whole session
+        // securityKeyIdAndInitializationVectorWereSent not reset - consistent field during whole session
     }
 }

@@ -7,7 +7,7 @@ public class C1222RequestParms
 	private String standardApplicationContextOid = "2.16.124.113620.1.22";
 	private String standardNetworkContextOid = "2.16.124.113620.1.22.0";
 	private String elsterOid = "1.3.6.1.4.1.33507.1";
-	private String edClass = "";
+	private String edClass = "";    // Note: this should be a Hex-string (e.g. "A10F")
 	private int aeQualifier = -1;
 	private int sessionIdleTimeout = 60;
 

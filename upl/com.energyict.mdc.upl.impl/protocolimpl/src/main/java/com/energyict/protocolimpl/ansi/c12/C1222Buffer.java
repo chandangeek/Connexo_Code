@@ -1,6 +1,8 @@
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.protocolimpl.ansi.c12.C1222Layer.*;
+import com.energyict.protocolimpl.ansi.c12.C1222Layer.ResponseControlEnum;
+import com.energyict.protocolimpl.ansi.c12.C1222Layer.SecurityExtensionEnum;
+import com.energyict.protocolimpl.ansi.c12.C1222Layer.SecurityModeEnum;
 
 import java.io.ByteArrayOutputStream;
 
@@ -63,7 +65,7 @@ public class C1222Buffer
 		result.reset();
 		canonifiedCleartext.reset();
 		requestParms = new C1222RequestParms();
-		responseParms = new C1222ResponseParms();		
+		responseParms.reset();  // Do a reset - some settings need to be kept during the whole session.
 	}
 	
 	public long getApInvocationId() {

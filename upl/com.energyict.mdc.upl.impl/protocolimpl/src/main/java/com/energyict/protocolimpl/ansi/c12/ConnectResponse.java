@@ -25,15 +25,4 @@ public class ConnectResponse extends AbstractResponse {
     public void setLogon(boolean logon) {
         this.logon = logon;
     }
-
-    public void build(ResponseData responseData) throws IOException {
-        if (getPSEMServiceFactory().c1222) {
-            parseC1222();
-        } else {
-            super.build(responseData);
-        }
-    }
-
-    private void parseC1222() {
-    }
 }
