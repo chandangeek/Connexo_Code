@@ -29,6 +29,12 @@ public class NTAMessageHandler extends MessageHandler {
             setType(RtuMessageConstant.WEBSERVER_ENABLE);
         } else if (RtuMessageConstant.REBOOT.equals(qName)) {
             setType(RtuMessageConstant.REBOOT);
+        } else if (RtuMessageConstant.DEBUG_LOGBOOK.equalsIgnoreCase(qName)) {
+            setType(RtuMessageConstant.DEBUG_LOGBOOK);
+            handleLogbookParameters(attrbs);
+        } else if (RtuMessageConstant.ELSTER_SPECIFIC_LOGBOOK.equalsIgnoreCase(qName)) {
+            setType(RtuMessageConstant.ELSTER_SPECIFIC_LOGBOOK);
+            handleLogbookParameters(attrbs);
         } else {
             super.startElement(uri, lName, qName, attrbs);
         }

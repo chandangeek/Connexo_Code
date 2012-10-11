@@ -2,7 +2,9 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 
 import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -303,14 +305,14 @@ public class SswgEvents {
         EVENTS.add(new SswgEvent(0x01C9, MeterEvent.OTHER, "Manufacturer Specific 54"));
         EVENTS.add(new SswgEvent(0x01CA, MeterEvent.OTHER, "Manufacturer Specific 53"));
         EVENTS.add(new SswgEvent(0x01CB, MeterEvent.OTHER, "Manufacturer Specific 52"));
-        EVENTS.add(new SswgEvent(0x01CC, MeterEvent.OTHER, "Manufacturer Specific 51"));
-        EVENTS.add(new SswgEvent(0x01CD, MeterEvent.OTHER, "Manufacturer Specific 50"));
+        EVENTS.add(new SswgEvent(0x01CC, MeterEvent.OTHER, "Manufacturer Specific 51 - Comms hub Power down "));
+        EVENTS.add(new SswgEvent(0x01CD, MeterEvent.OTHER, "Manufacturer Specific 50 - Comms hub Power up"));
         EVENTS.add(new SswgEvent(0x01CE, MeterEvent.OTHER, "Manufacturer Specific 49"));
-        EVENTS.add(new SswgEvent(0x01CF, MeterEvent.OTHER, "Manufacturer Specific 48"));
-        EVENTS.add(new SswgEvent(0x01D0, MeterEvent.OTHER, "Manufacturer Specific 47"));
-        EVENTS.add(new SswgEvent(0x01D1, MeterEvent.OTHER, "Manufacturer Specific 46"));
-        EVENTS.add(new SswgEvent(0x01D2, MeterEvent.OTHER, "Manufacturer Specific 45"));
-        EVENTS.add(new SswgEvent(0x01D3, MeterEvent.OTHER, "Manufacturer Specific 44"));
+        EVENTS.add(new SswgEvent(0x01CF, MeterEvent.OTHER, "Manufacturer Specific 48 - Configuration change in comms hub"));
+        EVENTS.add(new SswgEvent(0x01D0, MeterEvent.OTHER, "Manufacturer Specific 47 - Comms Hub received NCP image"));
+        EVENTS.add(new SswgEvent(0x01D1, MeterEvent.OTHER, "Manufacturer Specific 46 - Comms Hub activated NCP image for sending to NCP"));
+        EVENTS.add(new SswgEvent(0x01D2, MeterEvent.OTHER, "Manufacturer Specific 45 - Comms Hub received IHD image"));
+        EVENTS.add(new SswgEvent(0x01D3, MeterEvent.OTHER, "Manufacturer Specific 44 - Comms Hub activated IHD image for sending over OTA"));
         EVENTS.add(new SswgEvent(0x01D4, MeterEvent.OTHER, "Manufacturer Specific 43"));
         EVENTS.add(new SswgEvent(0x01D5, MeterEvent.OTHER, "Manufacturer Specific 42"));
         EVENTS.add(new SswgEvent(0x01D6, MeterEvent.OTHER, "Manufacturer Specific 41"));

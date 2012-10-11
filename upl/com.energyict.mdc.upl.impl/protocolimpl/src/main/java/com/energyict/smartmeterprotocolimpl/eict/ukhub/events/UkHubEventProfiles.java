@@ -9,7 +9,10 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.BasicEventLog;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.EventUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +44,7 @@ public class UkHubEventProfiles {
         meterEvents.addAll(((logbookSelectorBitMask &  0x04) == 0x04) ? getFirmwareEventLog(fromCalendar) : new ArrayList<MeterEvent>());
         meterEvents.addAll(((logbookSelectorBitMask &  0x08) == 0x08) ? getHanManagementFailureEventLog(fromCalendar) : new ArrayList<MeterEvent>());
         meterEvents.addAll(((logbookSelectorBitMask &  0x10) == 0x10) ? getCommunicationsFailureEventLog(fromCalendar) : new ArrayList<MeterEvent>());
+        meterEvents.addAll(((logbookSelectorBitMask &  0x20) == 0x20) ? getManufacturerLogbook(fromCalendar) : new ArrayList<MeterEvent>());
         EventUtils.removeDuplicateEvents(meterEvents);
         EventUtils.removeStoredEvents(meterEvents, fromCalendar.getTime());        
         return meterEvents;
@@ -114,5 +118,13 @@ public class UkHubEventProfiles {
         return basicEventLog.getEvents(from);
     }
 
-
+    private List<MeterEvent> getManufacturerLogbook(Calendar from) throws IOException {
+        // TODO: Now we only use the device code & timestamp. We should use ALL info from the logbook later on
+        BasicEventLog basicEventLog = new BasicEventLog(
+                ObisCodeProvider.MANUFACTURER_SPECIFIC_EVENT_LOG,
+                getCosemObjectFactory(),
+                getLogger()
+        );
+        return basicEventLog.getEvents(from);
+    }
 }

@@ -1,9 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
+import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +40,26 @@ public class UkHubMessaging extends GenericMessaging implements MessageProtocol 
         categories.add(ProtocolMessageCategories.getGPRSModemCategory());
         categories.add(getFirmwareCategory());
 
+        MessageCategorySpec logbookCategory = new MessageCategorySpec(RtuMessageCategoryConstants.LOGBOOK);
+        logbookCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Read Debug Logbook", RtuMessageConstant.DEBUG_LOGBOOK, false, RtuMessageConstant.LOGBOOK_TO, RtuMessageConstant.LOGBOOK_FROM));
+        logbookCategory.addMessageSpec(addMsgWithValuesAndOptionalValue("Read Elster Specific Logbook", RtuMessageConstant.ELSTER_SPECIFIC_LOGBOOK, false, RtuMessageConstant.LOGBOOK_TO, RtuMessageConstant.LOGBOOK_FROM));
+        categories.add(logbookCategory);
+
         return categories;
+    }
+
+    protected MessageSpec addMsgWithValuesAndOptionalValue(final String description, final String tagName, final boolean advanced, String lastAttribute, String... attr) {
+        MessageSpec msgSpec = new MessageSpec(description, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        for (String attribute : attr) {
+            tagSpec.add(new MessageAttributeSpec(attribute, true));
+        }
+        tagSpec.add(new MessageAttributeSpec(lastAttribute, false));
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" "); //Disable this field
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
     }
 
     /**

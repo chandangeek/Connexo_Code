@@ -10,9 +10,13 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.smartmeterprotocolimpl.common.*;
+import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
+import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
+import com.energyict.smartmeterprotocolimpl.common.SmartMeterToolProtocol;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.composedobjects.ComposedMeterInfo;
@@ -251,8 +255,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
     /**
      * Returns the version
-     *
-     * @return a version string
+     * @return version string
      */
     public String getVersion() {
         return "$Date$";

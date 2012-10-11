@@ -36,6 +36,7 @@ public class RtuMessageCategoryConstants {
     public static final String RESET_PARAMETERS = "Reset";
     public static final String WEBSERVER = "Webserver";
     public static final String REBOOT = "Reboot";
+    public static final String LOGBOOK = "Logbooks";
 
     public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change administrative status";
 }

@@ -332,4 +332,9 @@ public class RtuMessageConstant {
 
     public static final String RESET_ALARM_REGISTER = "Reset_Alarm_Register";
     public static final String CHANGE_DEFAULT_RESET_WINDOW = "Default_Reset_Window";
+
+    public static final String DEBUG_LOGBOOK = "Debug_Logbook";
+    public static final String ELSTER_SPECIFIC_LOGBOOK = "Elster_Specific_Logbook";
+    public static final String LOGBOOK_FROM = "From_date";
+    public static final String LOGBOOK_TO = "To_date";
 }

@@ -1,6 +1,8 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.*;
@@ -32,7 +34,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,6 +97,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             boolean enableWebserver = messageHandler.getType().equals(RtuMessageConstant.WEBSERVER_ENABLE);
             boolean disableWebserver = messageHandler.getType().equals(RtuMessageConstant.WEBSERVER_DISABLE);
             boolean reboot = messageHandler.getType().endsWith(RtuMessageConstant.REBOOT);
+            boolean readDebugLogbook = messageHandler.getType().equals(RtuMessageConstant.DEBUG_LOGBOOK);
+            boolean readElsterLogbook = messageHandler.getType().equals(RtuMessageConstant.ELSTER_SPECIFIC_LOGBOOK);
 
             if (changeHanSAS) {
                 changeHanSAS(messageHandler);
@@ -129,6 +136,10 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 disableWebserver();
             } else if (reboot) {
                 reboot();
+            } else if (readDebugLogbook) {
+                readDebugLogbook(messageHandler);
+            } else if (readElsterLogbook) {
+                readElsterLogbook(messageHandler);
             } else {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
@@ -519,6 +530,176 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.removeHan();
     }
+
+    private void readDebugLogbook(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+        log(Level.INFO, "Sending message : Read Debug logbook");
+
+        Calendar from = extractDate(messageHandler.getLogbookFromTimeString());
+        Calendar to = extractDate(messageHandler.getLogbookToTimeString());
+
+        ProfileGeneric profileGeneric = getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(ObisCodeProvider.DEBUG_EVENT_LOG);
+
+        // Readout the Debug event logbook.
+        Array eventArray = getEventArray(profileGeneric, from, to);
+        List<AbstractDataType> allDataTypes = eventArray.getAllDataTypes();
+
+        // Write the eventArray to a UserFile.
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(" -- Debug Logbook [" + from.getTime() + " - " + to.getTime() + "] --");
+        buffer.append("\r\n");
+        buffer.append("\r\n");
+
+        for (int i = 0; i < allDataTypes.size(); i++) {
+            Date time = ((Structure) allDataTypes.get(i)).getDataType(0).getOctetString().getDateTime(getTimeZone()).getValue().getTime();
+            int index = ((Structure) allDataTypes.get(i)).getDataType(1).getUnsigned16().intValue();
+            String message = ((Structure) allDataTypes.get(i)).getDataType(2).getOctetString().stringValue().trim();
+
+            buffer.append(time);
+            buffer.append("  ");
+            buffer.append(String.format("%05d", index));
+            buffer.append("  ");
+            buffer.append(message);
+            buffer.append("\r\n");
+        }
+
+        StringBuffer fileName = new StringBuffer("DebugLogbook");
+        fileName.append("_");
+        fileName.append(protocol.getDlmsSession().getProperties().getSerialNumber());
+        fileName.append("_");
+        fileName.append("[");
+        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", from.getTime()));
+        fileName.append("-");
+        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", to.getTime()));
+        fileName.append("]");
+        fileName.append("_");
+        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
+
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), buffer.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
+        mw().getUserFileFactory().create(ufs);
+
+        log(Level.INFO, "Stored readout of debug logbook in userFile: " + fileName);
+    }
+
+    private void readElsterLogbook(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+        log(Level.INFO, "Sending message : Read Debug logbook");
+
+        Calendar from = extractDate(messageHandler.getLogbookFromTimeString());
+        Calendar to = extractDate(messageHandler.getLogbookToTimeString());
+
+        ProfileGeneric profileGeneric = getProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(ObisCodeProvider.ELSTER_SPECIFIC_EVENT_LOG);
+
+        // Readout the Debug event logbook.
+        Array eventArray = getEventArray(profileGeneric, from, to);
+        List<AbstractDataType> allDataTypes = eventArray.getAllDataTypes();
+
+        // Write the eventArray to a UserFile.
+        StringBuffer buffer = new StringBuffer();
+        buffer.append(" -- Elster Logbook [" + from.getTime() + " - " + to.getTime() + "] --");
+        buffer.append("\r\n");
+        buffer.append("\r\n");
+        buffer.append("<Date and time> <Firmware event ID> <Counter index>");
+        buffer.append("\r\n");
+        buffer.append("    Firmware version on all HAN devices:");
+        buffer.append("\r\n");
+        buffer.append("    <IEEE address> <application version> <hardware version> <stack version>");
+        buffer.append("\r\n");
+        buffer.append("\r\n");
+
+        for (int i = 0; i < allDataTypes.size(); i++) {
+            Date time = ((Structure) allDataTypes.get(i)).getDataType(0).getOctetString().getDateTime(getTimeZone()).getValue().getTime();
+
+            int eventID = ((Structure) allDataTypes.get(i)).getDataType(1).getUnsigned16().intValue();
+            int counterIndex = ((Structure) allDataTypes.get(i)).getDataType(2).getUnsigned16().intValue();
+            Array HANdeviceOTA = (Array) ((Structure) allDataTypes.get(i)).getDataType(3);
+
+            buffer.append(time);
+            buffer.append("  ");
+            buffer.append(String.format("%05d", eventID));
+            buffer.append("  ");
+            buffer.append(String.format("%05d", counterIndex));
+            buffer.append("\r\n");
+            buffer.append(getHANDeviceOTAStatus(HANdeviceOTA));
+            buffer.append("\r\n");
+        }
+
+        StringBuffer fileName = new StringBuffer("ElsterLogbook");
+        fileName.append("_");
+        fileName.append(protocol.getDlmsSession().getProperties().getSerialNumber());
+        fileName.append("_");
+        fileName.append("[");
+        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", from.getTime()));
+        fileName.append("-");
+        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss", to.getTime()));
+        fileName.append("]");
+        fileName.append("_");
+        fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
+
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), buffer.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
+        mw().getUserFileFactory().create(ufs);
+
+        log(Level.INFO, "Stored readout of debug logbook in userFile: " + fileName);
+    }
+
+    private Calendar extractDate(String timeString) throws IOException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = null;
+        try {
+            if (timeString != null && !timeString.equalsIgnoreCase("0") && !timeString.equals("")) {
+                date = formatter.parse(timeString);
+            }
+        } catch (ParseException e) {
+            protocol.getLogger().log(Level.SEVERE, "Error parsing the given date: " + e.getMessage());
+            throw new IOException(e.getMessage());
+        }
+        Calendar cal = Calendar.getInstance(getTimeZone());
+        if (date != null) {
+            cal.setTime(date);
+        }
+        return cal;
+    }
+
+    private Array getEventArray(ProfileGeneric profileGeneric, Calendar from, Calendar to) throws IOException {
+        byte[] rawData = profileGeneric.getBufferData(from, to);
+        AbstractDataType abstractData = AXDRDecoder.decode(rawData);
+        if (!abstractData.isArray()) {
+            throw new IOException("Expected Array of events, but received [" + abstractData.getClass().getName() + "]");
+        }
+        return abstractData.getArray();
+    }
+
+    private String getHANDeviceOTAStatus(Array array) {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < array.nrOfDataTypes(); i++) {
+            byte[] macAddressBytes = ((Structure) array.getDataType(i)).getDataType(0).getOctetString().getContentBytes();
+            int applicationFirmwareVersion = ((Structure) array.getDataType(i)).getDataType(1).getUnsigned8().intValue();
+            int hardwareFirmwareVersion = ((Structure) array.getDataType(i)).getDataType(2).getUnsigned8().intValue();
+            int stackFirmwareVersion = ((Structure) array.getDataType(i)).getDataType(3).getUnsigned8().intValue();
+
+            buffer.append("    ");
+            buffer.append(getMacAddress(macAddressBytes));
+            buffer.append("  ");
+            buffer.append(String.format("%03d", applicationFirmwareVersion));
+            buffer.append("  ");
+            buffer.append(String.format("%03d", hardwareFirmwareVersion));
+            buffer.append("  ");
+            buffer.append(String.format("%03d", stackFirmwareVersion));
+            buffer.append("\r\n");
+        }
+
+        return buffer.toString();
+    }
+
+    private String getMacAddress(byte[] macAddressBytes) {
+        StringBuffer mac = new StringBuffer();
+        for (byte each : macAddressBytes) {
+            String temp = Integer.toHexString((int) each & 0xFF).toUpperCase();
+            mac.append((temp.length() < 2) ? "0" + temp : temp);
+            mac.append("-");
+        }
+
+        return mac.substring(0, mac.length() -1);
+    }
+
 
     private void log(final Level level, final String msg) {
         getLogger().log(level, msg);

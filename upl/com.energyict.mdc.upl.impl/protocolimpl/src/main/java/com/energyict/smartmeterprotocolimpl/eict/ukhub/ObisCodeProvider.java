@@ -18,6 +18,9 @@ public class ObisCodeProvider {
     public static final ObisCode FIRMWARE_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");
     public static final ObisCode COMM_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.98.6.255");
     public static final ObisCode HAN_MANAGEMENT_FAILURE_EVENT_LOG = ObisCode.fromString("0.0.99.98.15.255");
+    public static final ObisCode MANUFACTURER_SPECIFIC_EVENT_LOG = ObisCode.fromString("0.0.99.98.31.255");
+    public static final ObisCode ELSTER_SPECIFIC_EVENT_LOG = ObisCode.fromString("0.0.99.98.20.255");
+    public static final ObisCode DEBUG_EVENT_LOG = ObisCode.fromString("0.0.96.128.0.255");
 
     public static final ObisCode REBOOT_OBISCODE = ObisCode.fromString("0.0.10.0.0.255");
 

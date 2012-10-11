@@ -58,6 +58,8 @@ public final class ObisCodeProvider {
     public static final ObisCode TARIFF_UPDATES_EVENT_LOG = ObisCode.fromString("0.0.99.98.9.255");
     public static final ObisCode MIRROR_UPDATES_EVENT_LOG = ObisCode.fromString("0.0.99.98.10.255");
 
+   public static final ObisCode MANUFACTURER_EVENT_LOG = ObisCode.fromString("0.0.99.98.31.255");
+
     public static final ObisCode TEXT_MSG_SEND_EVENT_LOG = ObisCode.fromString("0.0.99.98.20.255");
     public static final ObisCode TEXT_MSG_RESPONSE_EVENT_LOG = ObisCode.fromString("0.0.99.98.21.255");
 

@@ -766,6 +766,22 @@ public class MessageHandler extends DefaultHandler{
         return supplierActivationDate;
     }
 
+    private String logbookFromTimeString = "";
+    private String logbookToTimeString = "";
+
+    protected void handleLogbookParameters(final Attributes attrbs) {
+        logbookFromTimeString = attrbs.getValue(RtuMessageConstant.LOGBOOK_FROM);
+        logbookToTimeString = attrbs.getValue(RtuMessageConstant.LOGBOOK_TO);
+    }
+
+    public String getLogbookToTimeString() {
+        return logbookToTimeString;
+    }
+
+    public String getLogbookFromTimeString() {
+        return logbookFromTimeString;
+    }
+
     private int pingInterval = 0;
     private String pingIP = "";
 

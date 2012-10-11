@@ -19,7 +19,10 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.profile.Zigbee
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers.ZigbeeGasRegisterFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -202,7 +205,6 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
 
     /**
      * Returns the implementation version
-     *
      * @return a version string
      */
     public String getVersion() {
