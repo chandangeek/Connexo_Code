@@ -37,6 +37,8 @@
     native <methods>;
 }
 
+-keepnames class test.com.*
+
 -keepnames class com.energyict.protocolimpl.base.*
 
 -keepnames class com.energyict.protocolimpl.meteridentification.*
