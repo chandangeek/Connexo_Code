@@ -87,6 +87,7 @@
 
     <modules>
         <module>protocolimpl</module>
+        <module>protocolimpl-v2</module>
         <module>protocolcommon</module>
         <module>dlms</module>
         <module>protocolimpl-elster</module>
