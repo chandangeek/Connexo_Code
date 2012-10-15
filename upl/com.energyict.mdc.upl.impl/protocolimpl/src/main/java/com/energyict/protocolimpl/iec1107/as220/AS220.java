@@ -3,18 +3,28 @@ package com.energyict.protocolimpl.iec1107.as220;
 import com.energyict.cbo.*;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.ChannelMap;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.vdew.VDEWTimeStamp;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.*;
@@ -23,8 +33,9 @@ import java.util.logging.Logger;
 /**
  * @author jme
  * @since 19-aug-2009
- *        <p/>
+ *
  *        19-08-2009 jme > Copied ABBA1350 protocol as base for new AS220 protocol
+ *
  */
 public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
@@ -81,9 +92,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private DataDumpParser dataDumpParser;
 
-    /**
-     * Creates a new instance of AS220, empty constructor
-     */
+    /** Creates a new instance of AS220, empty constructor */
     public AS220() {
     }
 
@@ -115,9 +124,9 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         // Read the profile data, and take the limitMaxNrOfDays property in account.
         ProfileData profileData = getAS220Profile().getProfileData(from, to, includeEvents, this.loadProfileNumber);
 
-        // If there are no intervals in the profile, read the profile data again, but now with twice the limitMaxNrOfDays property
-        // This way we can prevent the profile to be stuck an a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
-        if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0)) {
+         // If there are no intervals in the profile, read the profile data again, but now with limitMaxNrOfDays increased with the value of Custom Property limitMaxNrOfDays property
+        // This way we can prevent the profile to be stuck at a certain date if there is a gap in the profile bigger than the limitMaxNrOfDays.
+        if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0) && (limiter.getOldToDate().getTime() != limiter.getToDate().getTime())) {
             profileData = getProfileWithLimiter(new ProfileLimiter(limiter.getOldFromDate(), limiter.getOldToDate(), limiter.getLimitMaxNrOfDays() + getLimitMaxNrOfDays()), includeEvents);
         }
         return profileData;
@@ -314,6 +323,7 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     /**
      * initializes the receiver
+	 *
      */
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) {
         this.timeZone = timeZone;
@@ -451,7 +461,6 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     static Map exceptionInfoMap = new HashMap();
-
     static {
         exceptionInfoMap.put("ERROR", "Request could not execute!");
         exceptionInfoMap.put("ERROR00", "AS220 ERROR 00, no valid command!");
@@ -602,6 +611,8 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             if (temp.indexOf('*') != -1) {
                 readUnit = Unit.get(temp.substring(temp.indexOf('*') + 1));
                 temp = temp.substring(0, temp.indexOf('*'));
+			} else {
+                readUnit = Unit.getUndefined();
             }
 
             if ((temp == null) || (temp.length() == 0)) {
@@ -631,25 +642,21 @@ public class AS220 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             }
 
             Quantity q = null;
-            if (obis.getUnitElectricity(this.scaler).isUndefined()) {
-                q = new Quantity(bd, obis.getUnitElectricity(0));
-            } else {
-                if (readUnit != null) {
-                    if (!readUnit.equals(obis.getUnitElectricity(this.scaler))) {
-                        String message = "Unit or scaler from obiscode is different from register Unit in meter!!! ";
+            Unit unitFromObis = obis.getUnitElectricity(0);
+
+            if (readUnit.getBaseUnit() != unitFromObis.getBaseUnit()) {
+                String message = "Unit from obiscode is different from register Unit in meter!!! ";
                         message += " (Unit from meter: " + readUnit;
-                        message += " -  Unit from obiscode: " + obis.getUnitElectricity(this.scaler) + ")\n";
-                        getLogger().info(message);
+                message += " -  Unit from obiscode: " + unitFromObis + ")\n";
+                getLogger().warning(message);
+
                         if (this.failOnUnitMismatch == 1) {
                             throw new InvalidPropertyException(message);
                         }
                     }
-                }
-                q = new Quantity(bd, obis.getUnitElectricity(this.scaler));
-            }
 
+            q = new Quantity(bd, readUnit);
             return new RegisterValue(obis, q, eventTime, toTime);
-
         } catch (InvalidPropertyException e) {
             String m = "getMeterReading() error, " + e.getMessage();
             throw new InvalidPropertyException(m);
