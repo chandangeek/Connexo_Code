@@ -23,6 +23,21 @@ import static org.junit.Assert.fail;
  */
 public class ProtocolCollectionCreationTest {
 
+    @Test
+    public void classNameTest() throws IOException {
+        ProtocolCollectionImpl pci = new ProtocolCollectionImpl();
+
+        for(int i = 0; i < pci.getProtocolClasses().size(); i++){
+            String[] str = pci.getProtocolClassName(i).split("\\.");
+            if(str.length >= 1){
+                String name = str[str.length - 1];
+                if(name.length() > 24){
+                    fail("Oeps, you defined a protocol with a name longer then 24 characters, this is not allowed in 9.1 : " + name);
+                }
+            }
+        }
+    }
+
     @Ignore
     @Test
     public void createCollection(){
