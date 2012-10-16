@@ -91,7 +91,7 @@
         <module>protocolcommon</module>
         <module>dlms</module>
         <module>protocolimpl-elster</module>
-        <module>protocolimplv2</module>
+        <module>protocolimpl-v2</module>
     </modules>
 
     <build>
