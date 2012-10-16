@@ -26,6 +26,7 @@
     <!-- We try to be in sync with the latest EIServer version ... -->
     <properties>
         <eiserver.version>9.0.0-SNAPSHOT</eiserver.version>
+        <comserver.version>9.0.0-SNAPSHOT</comserver.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -87,10 +88,10 @@
 
     <modules>
         <module>protocolimpl</module>
-        <module>protocolimpl-v2</module>
         <module>protocolcommon</module>
         <module>dlms</module>
         <module>protocolimpl-elster</module>
+        <module>protocolimplv2</module>
     </modules>
 
     <build>
