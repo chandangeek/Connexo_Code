@@ -1,8 +1,24 @@
 package test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception;
 
 /**
- * @author: sva
- * @since: 17/10/12 (16:12)
+ * Copyrights EnergyICT
+ * Date: 7-okt-2010
+ * Time: 16:50:52
  */
-public class CTRCipheringException {
+public class CTRCipheringException extends CTRException {
+
+    public CTRCipheringException(String s, Exception e) {
+        super(s, e);
+    }
+
+    public CTRCipheringException(String s) {
+        super(s);
+    }
+
+    public CTRCipheringException(Exception e) {
+        super(e);
+    }
+
+    public CTRCipheringException() {
+    }
 }
