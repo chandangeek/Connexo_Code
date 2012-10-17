@@ -2,7 +2,6 @@ package test.com.energyict.mdc.tasks;
 
 import com.energyict.cpo.*;
 import com.energyict.mdc.tasks.DeviceProtocolDialectImpl;
-import com.energyict.mdc.tasks.DeviceProtocolDialectNameEnum;
 import com.energyict.protocol.MeterProtocol;
 
 import java.util.Arrays;
