@@ -2,9 +2,9 @@ package test.com.energyict.protocolimplV2.elster.ctr.MTU155.util;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.encryption.CTREncryption;
+import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRCipheringException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRParsingException;
-import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CtrCipheringException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.frame.GPRSFrame;
 
 /**
@@ -57,7 +57,7 @@ public class DecryptSniffer {
         return sb.toString();
     }
 
-    private static String decrypt(String packet) throws CTRParsingException, CtrCipheringException {
+    private static String decrypt(String packet) throws CTRParsingException, CTRCipheringException {
         CTREncryption encryption = new CTREncryption("30303030303030303030303030303031", "30303030303030303030303030303031", "30303030303030303030303030303031", 1);
         GPRSFrame frame = new GPRSFrame().parse(ProtocolTools.getBytesFromHexString(packet, ""), 0);
         GPRSFrame decryptedFrame = (GPRSFrame) encryption.decryptFrame(frame);

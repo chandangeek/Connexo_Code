@@ -2,8 +2,8 @@ package test.com.energyict.protocolimplV2.elster.ctr.MTU155.encryption;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155Properties;
+import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRCipheringException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRParsingException;
-import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CtrCipheringException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.frame.Frame;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.frame.field.*;
 
@@ -96,18 +96,18 @@ public class CTREncryption {
      * Decrypts an entire Frame (SMS or GPRS)
      * @param frame: the frame that has to be decrypted
      * @return the decrypted frame
-     * @throws CtrCipheringException: when decryption fails
+     * @throws CTRCipheringException : when decryption fails
      */
 
-    public Frame decryptFrame(Frame frame) throws CtrCipheringException {
+    public Frame decryptFrame(Frame frame) throws CTRCipheringException {
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
         if (eStatus.isEncrypted()) {
             try {
                 frame = setData(frame, decryptStream(frame));
             } catch (GeneralSecurityException e) {
-                throw new CtrCipheringException(CTRENCRYPTIONERROR, e);
+                throw new CTRCipheringException(CTRENCRYPTIONERROR, e);
             } catch (CTRParsingException e) {
-                throw new CtrCipheringException(CTRENCRYPTIONERROR, e);
+                throw new CTRCipheringException(CTRENCRYPTIONERROR, e);
             }
 
             frame = setDecryptionStatus(frame);
@@ -147,9 +147,9 @@ public class CTREncryption {
      * Encrypts a given frame
      * @param frame: the frame (SMS or GPRS) that needs encryption
      * @return the encrypted frame
-     * @throws CtrCipheringException
+     * @throws CTRCipheringException
      */
-    public Frame encryptFrame(Frame frame) throws CtrCipheringException {
+    public Frame encryptFrame(Frame frame) throws CTRCipheringException {
 
         EncryptionStatus eStatus = frame.getFunctionCode().getEncryptionStatus();
 
@@ -174,9 +174,9 @@ public class CTREncryption {
             try {
                 frame = setData(frame, encryptStream(frame));
             } catch (GeneralSecurityException e) {
-                throw new CtrCipheringException(CTRENCRYPTIONERROR, e);
+                throw new CTRCipheringException(CTRENCRYPTIONERROR, e);
             } catch (CTRParsingException e) {
-                throw new CtrCipheringException(CTRENCRYPTIONERROR, e);
+                throw new CTRCipheringException(CTRENCRYPTIONERROR, e);
             }
         }
         return frame;
@@ -234,7 +234,7 @@ public class CTREncryption {
         return result;
     }
 
-    private Frame setEncryptionStatus(Frame frame) throws CtrCipheringException {
+    private Frame setEncryptionStatus(Frame frame) throws CTRCipheringException {
         frame.getFunctionCode().setEncryptionStatus(getEncryptionStatus());
         return frame;
     }
@@ -284,7 +284,7 @@ public class CTREncryption {
         return getAesCTRCipher().doFinal(input);
     }
 
-    private byte[] getEncryptionKey() throws CtrCipheringException {
+    private byte[] getEncryptionKey() throws CTRCipheringException {
         switch (securityLevel) {
             case 0:
                 return keyT;
@@ -293,11 +293,11 @@ public class CTREncryption {
             case 2:
                 return keyF;
             default:
-                throw new CtrCipheringException("Invalid security level. Should be [0 = KeyT, 1 = KeyC, 2 = KeyF]");
+                throw new CTRCipheringException("Invalid security level. Should be [0 = KeyT, 1 = KeyC, 2 = KeyF]");
         }
     }
 
-    private EncryptionStatus getEncryptionStatus() throws CtrCipheringException {
+    private EncryptionStatus getEncryptionStatus() throws CTRCipheringException {
         switch (securityLevel) {
             case 0:
                 return EncryptionStatus.KEYT_ENCRYPTION;
@@ -306,7 +306,7 @@ public class CTREncryption {
             case 2:
                 return EncryptionStatus.KEYF_ENCRYPTION;
             default:
-                throw new CtrCipheringException("Invalid security level. Should be [0 = KeyT, 1 = KeyC, 2 = KeyF]");
+                throw new CTRCipheringException("Invalid security level. Should be [0 = KeyT, 1 = KeyC, 2 = KeyF]");
         }
     }
 
