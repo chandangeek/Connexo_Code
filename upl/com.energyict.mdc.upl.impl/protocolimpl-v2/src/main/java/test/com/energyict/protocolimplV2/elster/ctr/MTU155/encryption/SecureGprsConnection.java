@@ -3,8 +3,8 @@ package test.com.energyict.protocolimplV2.elster.ctr.MTU155.encryption;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.GprsConnection;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155Properties;
+import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRCipheringException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRConnectionException;
-import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CtrCipheringException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.frame.Frame;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.frame.GPRSFrame;
 
@@ -66,7 +66,7 @@ public class SecureGprsConnection extends GprsConnection {
                 getLogger().finest("RX[" + System.currentTimeMillis() +  "] " + ProtocolTools.getHexStringFromBytes(unencryptedResponseFrame.getBytes()));
             }
             return unencryptedResponseFrame;
-        } catch (CtrCipheringException e) {
+        } catch (CTRCipheringException e) {
             throw new CTRConnectionException("An error occurred in the secure connection!", e);
         }
     }
