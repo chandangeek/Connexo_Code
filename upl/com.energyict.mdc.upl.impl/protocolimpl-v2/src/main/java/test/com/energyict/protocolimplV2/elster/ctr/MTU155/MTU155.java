@@ -64,20 +64,16 @@ public class MTU155 implements DeviceProtocol {
      * Legacy logger
      */
     private Logger protocolLogger;
+    private TypedProperties allProperties;
 
     @Override
     public void init(OfflineRtu offlineDevice, ComChannel comChannel) {
         this.offlineRtu = offlineDevice;
-        // this.meterProtocol.init();
         updateRequestFactory(comChannel);
-
-        // this.meterProtocol.connect();
-        // - not needed -
     }
 
     @Override
     public void terminate() {
-        // this.meterProtocol.release();
         // - not needed -
     }
 
@@ -115,8 +111,7 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public void logOn() {
-        // this.meterProtocol.connect();
-        // - not needed -
+        // not needed
     }
 
     @Override
@@ -127,7 +122,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public void logOff() {
         if (getProperties().isSendEndOfSession()) {
-            getRequestFactory().sendEndOfSession(); //ToDo: throw CommunicationException.protocolDisconnectFailed() when disconnect fails.
+            getRequestFactory().sendEndOfSession();
         }
     }
 
@@ -169,42 +164,41 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
     }
 
     @Override
     public Date getTime() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        try {
+            return getRequestFactory().getMeterInfo().getTime();
+        } catch (CTRException e) {
+            throw new LegacyProtocolException(e);
+        }
     }
 
     @Override
-    public long getTimeDifference() {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public List<CollectedLogBook> getMeterEvents(List<LogBook> logBooks) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public List<CollectedLogBook> getMeterEvents(List<LogBook> logBooks) {  //ToDo
+        return null;
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedStandardMessages() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
     }
 
     @Override
     public CollectedMessage executePendingMessages(List<DeviceMessageShadow> pendingMessages) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
     }
 
     @Override
     public CollectedData updateSentMessages(List<DeviceMessageShadow> sentMessages) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
     }
 
     @Override
@@ -216,27 +210,43 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if (this.allProperties != null) {
+            this.allProperties.setAllProperties(dialectProperties); // this will add the dialectProperties to the deviceProperties
+        } else {
+            this.allProperties = dialectProperties;
+        }
     }
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRtuRegister> rtuRegisters) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
     }
 
     @Override
     public String getVersion() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        // return this.meterProtocol.getVersion();
+        return "$Date$";
     }
 
     @Override
     public void addProperties(TypedProperties properties) {
-        this.properties = new MTU155Properties(properties);
+        if (this.allProperties != null) {
+            this.allProperties.setAllProperties(properties); // this will add the properties to the existing properties
+        } else {
+            this.allProperties = properties;
+        }
+    }
+
+    public MTU155Properties getMTU155Properties() {
+        if (this.properties == null) {
+            this.properties = new MTU155Properties(allProperties);
+        }
+        return this.properties;
     }
 
     public MTU155Properties getProperties() {
