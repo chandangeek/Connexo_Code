@@ -9,11 +9,15 @@ package com.energyict.protocolimpl.iec1107.abba1140;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,15 +39,15 @@ public class ObisCodeMapper {
         ObisCodeMapper ocm = new ObisCodeMapper(null);
         return (RegisterInfo)ocm.doGetRegister(obisCode,false);
     }
-    
+
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
         try {
-            return (RegisterValue)doGetRegister(obisCode,true);
-        } catch( IOException ioe ){
+            return (RegisterValue) doGetRegister(obisCode, true);
+        } catch (IOException ioe) {
             Logger logger = rFactory.getProtocolLink().getLogger();
-            String msg = "Problems retrieving " + obisCode.toString();
-            logger.log( Level.INFO, msg );
-            throw ioe;
+            String msg = "Problems retrieving " + obisCode.toString() + ": " + ioe.getMessage();
+            logger.log(Level.INFO, msg);
+            throw new NoSuchRegisterException();
         }
     }
     
