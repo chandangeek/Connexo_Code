@@ -179,7 +179,7 @@ public interface RequestFactory {
 
     public Logger getLogger();
 
-    public IdentificationResponseStructure getIdentificationStructure();
+    public IdentificationResponseStructure getIdentificationStructure() throws CTRException;
 
     public String getIPAddress();
 

@@ -1,6 +1,9 @@
 package test.com.energyict.mdc.tasks;
 
-import com.energyict.cpo.*;
+import com.energyict.cpo.BigDecimalPropertySpec;
+import com.energyict.cpo.BooleanPropertySpec;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.StringPropertySpec;
 import com.energyict.mdc.tasks.DeviceProtocolDialectImpl;
 import com.energyict.protocol.MeterProtocol;
 
@@ -67,7 +70,7 @@ public class CtrDeviceProtocolDialect extends DeviceProtocolDialectImpl {
     }
 
     private PropertySpec passwordPropertySpec() {
-        return new PasswordPropertySpec(PASSWORD_PROPERTY_NAME);
+        return new StringPropertySpec(PASSWORD_PROPERTY_NAME);
     }
 
     private PropertySpec addressPropertySpec() {

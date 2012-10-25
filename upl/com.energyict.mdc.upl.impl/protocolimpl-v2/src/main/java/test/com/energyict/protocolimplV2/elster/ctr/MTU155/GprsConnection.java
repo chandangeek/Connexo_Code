@@ -1,9 +1,9 @@
 package test.com.energyict.protocolimplV2.elster.ctr.MTU155;
 
+import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.encryption.CTREncryption;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRConnectionException;
-import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRNackException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRParsingException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRTimeoutException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.frame.GPRSFrame;
@@ -56,7 +56,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
      * @return
      * @throws CTRConnectionException
      */
-    public GPRSFrame sendFrameGetResponse(GPRSFrame frame) throws CTRConnectionException {
+    public GPRSFrame sendFrameGetResponse(GPRSFrame frame) {
         frame.setCrc();
 
         int attempts = 0;
@@ -69,13 +69,12 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                     //throw new CTRNackException((NackStructure) data);
                 }
                 return gprsFrame;
-            } catch (CTRNackException e) {
-                throw e;
             } catch (CTRConnectionException e) {
                 delayAndFlushConnection(-1);
                 attempts++;
                 if (attempts > retries) {
-                    throw new CTRConnectionException("Number of retries reached: [" + --attempts + "/" + retries + "].", e);
+                    // throw new CTRConnectionException("Number of retries reached: [" + --attempts + "/" + retries + "].", e);
+                    throw CommunicationException.numberOfRetriesReached(e, attempts);
                 }
             }
         } while (true);
@@ -259,4 +258,8 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
         return null;
     }
 
+
+    public boolean isDebug() {
+        return debug;
+    }
 }

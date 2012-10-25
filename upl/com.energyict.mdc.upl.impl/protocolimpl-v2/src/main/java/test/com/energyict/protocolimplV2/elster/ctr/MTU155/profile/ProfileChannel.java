@@ -1,12 +1,10 @@
 package test.com.energyict.protocolimplV2.elster.ctr.MTU155.profile;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155Properties;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.RequestFactory;
@@ -31,29 +29,27 @@ import java.util.logging.Logger;
 public class ProfileChannel {
 
     private final RequestFactory requestFactory;
-    private final Channel meterChannel;
 
     private TimeZone deviceTimeZone = null;
-    private Rtu rtu = null;
-    private String channelObjectId = null;
+    private CTRObjectID channelObjectId = null;
     private PeriodTrace_C period = null;
 
     private final Calendar toCalendar;
     private final Calendar fromCalendar;
+    private int channelId = 0;
 
-    public ProfileChannel(RequestFactory requestFactory, Channel meterChannel) {
-        this(requestFactory, meterChannel, null);
-    }
-
-    public ProfileChannel(RequestFactory requestFactory, Channel meterChannel, Calendar forcedToCalendar) {
-        this(requestFactory, meterChannel, null, forcedToCalendar);
-    }
-
-    public ProfileChannel(RequestFactory requestFactory, Channel meterChannel, Calendar forcedFromCalendar, Calendar forcedToCalendar) {
+    public ProfileChannel(RequestFactory requestFactory, CTRObjectID objectID, int profileInterval, Date startReadingTime, Date endReadingTime) {
         this.requestFactory = requestFactory;
-        this.meterChannel = meterChannel;
-        this.fromCalendar = forcedFromCalendar == null ? getLastChannelInterval() : (Calendar) forcedFromCalendar.clone();
-        this.toCalendar = TraceCProfileParser.getStartOfGasDay(forcedToCalendar == null ? Calendar.getInstance(getDeviceTimeZone()) : (Calendar) forcedToCalendar.clone());
+        this.channelObjectId = objectID;
+        this.fromCalendar = Calendar.getInstance(requestFactory.getTimeZone());
+        fromCalendar.setTime(startReadingTime);
+
+        Calendar endReadingCal = Calendar.getInstance(requestFactory.getTimeZone());
+        if (endReadingTime != null) {
+            endReadingCal.setTime(endReadingTime);
+        }
+        toCalendar = TraceCProfileParser.getStartOfGasDay(endReadingCal);
+        this.period = new PeriodTrace_C(new TimeDuration(profileInterval));
     }
 
     /**
@@ -63,36 +59,8 @@ public class ProfileChannel {
      * @return
      */
     private PeriodTrace_C getPeriod() {
-        if (period == null) {
-            period = new PeriodTrace_C(getMeterChannel().getInterval());
-        }
         return period;
     }
-
-    /**
-     * Checks if the hours / minutes have an overflow. This indicates that a time shift is in progress.
-     *
-     * @param date: the date that needs to be checked
-     * @return the real date without the overflow
-     */
-    private Date fixDate(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minutes = cal.get(Calendar.MINUTE);
-
-        if (hour > 23) {
-            hour -= 30;
-            cal.set(Calendar.HOUR_OF_DAY, hour);
-        }
-        if (minutes > 59) {
-            minutes -= 60;
-            cal.set(Calendar.MINUTE, minutes);
-        }
-
-        return cal.getTime();
-    }
-
 
     /**
      * Getter for the request factory
@@ -128,49 +96,17 @@ public class ProfileChannel {
      */
     private TimeZone getDeviceTimeZone() {
         if (deviceTimeZone == null) {
-            deviceTimeZone = getRtu().getDeviceTimeZone();
+            deviceTimeZone = getRequestFactory().getTimeZone();
         }
         return deviceTimeZone;
     }
 
-    /**
-     * Get the cached rtu
-     *
-     * @return
-     */
-    private Rtu getRtu() {
-        if (rtu == null) {
-            rtu = getMeterChannel().getRtu();
-        }
-        return rtu;
-    }
-
-    /**
-     * @return
-     */
-    public Channel getMeterChannel() {
-        return meterChannel;
-    }
-
-    /**
-     * @return
-     */
-    private String getChannelObjectIdAsString() {
-        if (channelObjectId == null) {
-            channelObjectId = getProperties().getChannelConfig().getChannelObjectId(getChannelIndex() - 1);
-        }
+    private CTRObjectID getChannelObjectId() {
         return channelObjectId;
     }
 
-    private CTRObjectID getChannelObjectId() {
-        return new CTRObjectID(getChannelObjectIdAsString());
-    }
-
-    /**
-     * @return
-     */
-    private int getChannelIndex() {
-        return getMeterChannel().getLoadProfileIndex();
+    private int getIntervalInSeconds() {
+        return period.getIntervalInSeconds();
     }
 
     /**
@@ -178,11 +114,6 @@ public class ProfileChannel {
      * @throws test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRException
      */
     public ProfileData getProfileData() throws CTRExceptionWithProfileData {
-        if (getChannelObjectIdAsString() == null) {
-            getLogger().warning("No channel config found for channel with loadProfileIndex [" + getChannelIndex() + "]");
-            return new ProfileData();
-        }
-
         ProfileData pd = new ProfileData();
         pd.setChannelInfos(getChannelInfos());
         try {
@@ -200,9 +131,9 @@ public class ProfileChannel {
      */
     private List<ChannelInfo> getChannelInfos() {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
-        String symbol = CTRObjectInfo.getSymbol(getChannelObjectIdAsString()) + " [" + getChannelObjectIdAsString() + "]";
-        Unit unit = CTRObjectInfo.getUnit(getChannelObjectIdAsString());
-        ChannelInfo info = new ChannelInfo(0, getChannelIndex() - 1, symbol, unit);
+        String symbol = CTRObjectInfo.getSymbol(getChannelObjectId().toString()) + " [" + getChannelObjectId().toString() + "]";
+        Unit unit = CTRObjectInfo.getUnit(getChannelObjectId().toString());
+        ChannelInfo info = new ChannelInfo(channelId++, symbol, unit);
         channelInfos.add(info);
         return channelInfos;
     }
@@ -241,14 +172,14 @@ public class ProfileChannel {
     private boolean isValidResponse(Trace_CQueryResponseStructure traceCStructure, ReferenceDate referenceDate) throws CTRConfigurationException {
         CTRObjectID id = traceCStructure.getId();
         ReferenceDate receivedReferenceDate = traceCStructure.getDate();
-        if ((id != null) && (id.is(getChannelObjectIdAsString()))) {
+        if ((id != null) && (id.is(getChannelObjectId().toString()))) {
             if ((receivedReferenceDate != null) && (Arrays.equals(referenceDate.getBytes(), receivedReferenceDate.getBytes()))) {
                 PeriodTrace_C responsePeriod = traceCStructure.getPeriod();
                 int meterInterval = responsePeriod.getIntervalInSeconds();
-                int eiserverInterval = getMeterChannel().getIntervalInSeconds();
+                int eiserverInterval = getIntervalInSeconds();
                 if (meterInterval != eiserverInterval) {
-                    throw new CTRConfigurationException("Channel interval is incorrect for channel [" + getMeterChannel() + "]. " +
-                            "Configuration in EIServer is [" + eiserverInterval + "s], " +
+                    throw new CTRConfigurationException("Channel interval is incorrect for channel [" + getChannelObjectId() + "]. " +
+                            "Configuration of LoadProfile is [" + eiserverInterval + "s], " +
                             "but meter returned [" + meterInterval + "s]."
                     );
                 }
@@ -257,22 +188,8 @@ public class ProfileChannel {
                 getLogger().warning("Received invalid response! Requested [" + referenceDate + "] but received [" + receivedReferenceDate + "]");
             }
         } else {
-            getLogger().warning("Received invalid response! Requested [" + getChannelObjectIdAsString() + "] but received [" + id + "]");
+            getLogger().warning("Received invalid response! Requested [" + getChannelObjectId() + "] but received [" + id + "]");
         }
         return false;
     }
-
-    /**
-     * @return
-     */
-    private Calendar getLastChannelInterval() {
-        Date lastReading = getMeterChannel().getLastReading();
-        if (lastReading == null) {
-            lastReading = ParseUtils.getClearLastDayDate(getDeviceTimeZone());
-        }
-        Calendar cal = ProtocolUtils.getCleanCalendar(getDeviceTimeZone());
-        cal.setTime(lastReading);
-        return cal;
-    }
-
 }

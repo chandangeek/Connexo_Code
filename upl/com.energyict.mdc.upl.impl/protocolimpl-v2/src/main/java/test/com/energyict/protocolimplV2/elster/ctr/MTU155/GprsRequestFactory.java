@@ -2,10 +2,10 @@ package test.com.energyict.protocolimplV2.elster.ctr.MTU155;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
+import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.common.AttributeType;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.encryption.SecureGprsConnection;
-import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRConnectionException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRNackException;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRParsingException;
@@ -32,6 +32,16 @@ import java.util.logging.Logger;
  * Date: 12-okt-2010
  * Time: 11:04:01
  */
+
+/**
+ * Remark on exception handling:
+ * GprsConnection & SecureGprsConnection do not throw blocking exceptions
+ * They throw CommunicationException.numberOfRetriesReached and CommunicationException.cipheringException instead.
+ * Be sure to check if these exceptions are handled in the desired way.
+ * If necessary add an extra catch clause for these.
+ */
+
+
 public class GprsRequestFactory implements RequestFactory {
 
     private MeterInfo meterInfo;
@@ -112,9 +122,6 @@ public class GprsRequestFactory implements RequestFactory {
      * @return
      */
     public Logger getLogger() {
-        if (this.logger == null) {
-            this.logger = Logger.getLogger(getClass().getName());
-        }
         return logger;
     }
 
@@ -200,7 +207,7 @@ public class GprsRequestFactory implements RequestFactory {
         GPRSFrame request = new GPRSFrame();
         request.setAddress(getAddress());
         request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
-        request.setChannel(new Channel(1));   //TODO
+        request.setChannel(new Channel(1));
         request.getFunctionCode().setFunction(Function.QUERY);
         request.getProfi().setLongFrame(false);
         request.getStructureCode().setStructureCode(StructureCode.REGISTER);
@@ -887,8 +894,9 @@ public class GprsRequestFactory implements RequestFactory {
             } else {
                 getLogger().warning("Unable to close connection. getConnection() returned null.");
             }
-        } catch (CTRConnectionException e) {
+        } catch (CommunicationException e) {
             getLogger().severe("Failed to close session! " + e.getMessage());
+            throw CommunicationException.protocolDisconnectFailed(e);
         }
     }
 
@@ -916,13 +924,9 @@ public class GprsRequestFactory implements RequestFactory {
      * @return
      * @throws CTRException
      */
-    public IdentificationResponseStructure getIdentificationStructure() {
+    public IdentificationResponseStructure getIdentificationStructure() throws CTRException {
         if (identificationStructure == null) {
-            try {
-                identificationStructure = readIdentificationStructure();
-            } catch (CTRException e) {
-                getLogger().severe("Unable to get the IdentificationResponseStructure: " + e.getMessage());
-            }
+            identificationStructure = readIdentificationStructure();
         }
         return identificationStructure;
     }
@@ -936,6 +940,7 @@ public class GprsRequestFactory implements RequestFactory {
      * @return
      */
     public String getIPAddress() {
+        //ToDo: getLink() will always return null! How should this be fixed?
         String ipAddress = null;
         if ((getLink() != null) && (getLink().getStreamConnection() != null) && (getLink().getStreamConnection().getSocket() != null)) {
             InetAddress address = getLink().getStreamConnection().getSocket().getInetAddress();

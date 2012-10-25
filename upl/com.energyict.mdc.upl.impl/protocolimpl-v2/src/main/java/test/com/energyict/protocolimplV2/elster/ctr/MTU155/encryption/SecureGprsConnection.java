@@ -1,5 +1,6 @@
 package test.com.energyict.protocolimplV2.elster.ctr.MTU155.encryption;
 
+import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.GprsConnection;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155Properties;
@@ -21,7 +22,6 @@ public class SecureGprsConnection extends GprsConnection {
 
     private Logger logger = null;
     private CTREncryption ctrEncryption;
-    private boolean debug;
 
     /**
      * 
@@ -33,7 +33,6 @@ public class SecureGprsConnection extends GprsConnection {
     public SecureGprsConnection(InputStream in, OutputStream out, MTU155Properties properties, Logger logger) {
         super(in, out, properties);
         this.ctrEncryption = new CTREncryption(properties);
-        this.debug = properties.isDebug();
         this.logger = logger;
     }
 
@@ -54,7 +53,7 @@ public class SecureGprsConnection extends GprsConnection {
      * @throws CTRConnectionException
      */
     @Override
-    public GPRSFrame sendFrameGetResponse(GPRSFrame requestFrame) throws CTRConnectionException {
+    public GPRSFrame sendFrameGetResponse(GPRSFrame requestFrame)  {
         try {
             if (isDebug()) {
                 getLogger().finest("TX[" + System.currentTimeMillis() +  "] " + ProtocolTools.getHexStringFromBytes(requestFrame.getBytes()));
@@ -67,16 +66,9 @@ public class SecureGprsConnection extends GprsConnection {
             }
             return unencryptedResponseFrame;
         } catch (CTRCipheringException e) {
-            throw new CTRConnectionException("An error occurred in the secure connection!", e);
+            // throw new CTRConnectionException("An error occurred in the secure connection!", e);
+            throw CommunicationException.cipheringException(e);
         }
-    }
-
-    public boolean isDebug() {
-        return debug;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
     }
 
     /**

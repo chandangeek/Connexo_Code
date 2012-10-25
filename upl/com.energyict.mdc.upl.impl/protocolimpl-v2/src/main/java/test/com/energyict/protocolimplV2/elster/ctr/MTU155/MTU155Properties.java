@@ -1,6 +1,5 @@
 package test.com.energyict.protocolimplV2.elster.ctr.MTU155;
 
-import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -32,29 +31,23 @@ public class MTU155Properties {
     public static final String EXTRACT_INSTALLATION_DATE_PROPERTY_NAME = "ExtractInstallationDate";
     public static final String REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME = "RemoveDayProfileOffset";
 
-    public static final String DEFAULT_TIMEOUT = "10000";
-    public static final String DEFAULT_RETRIES = "3";
-    public static final String DEFAULT_DELAY_AFTER_ERROR = "100";
-    public static final String DEFAULT_FORCED_DELAY = "0";
+    public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
+    public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
+    public static final BigDecimal DEFAULT_DELAY_AFTER_ERROR = new BigDecimal(100);
+    public static final BigDecimal DEFAULT_FORCED_DELAY = new BigDecimal(0);
     public static final String DEFAULT_KEYC = "1234567890123456";
     public static final String DEFAULT_KEYT = "1234567890123456";
     public static final String DEFAULT_KEYF = "1234567890123456";
     public static final String DEFAULT_PASSWORD = "000001";
-    public static final String DEFAULT_ADDRESS = "0";
+    public static final BigDecimal DEFAULT_ADDRESS = new BigDecimal(0);
     public static final String DEFAULT_CHANNEL_CONFIG = "1.0.2:1.2.2:4.0.2:7.0.2:1.1.3:1.3.3:1.F.2:2.0.3:2.1.3:2.3.3:1.A.3";
-    public static final String DEFAULT_SECURITY_LEVEL = "1"; // 0 == KeyT, 1 == KeyC, 2 == KeyF
-    public static final String DEFAULT_DEBUG = "0";
-    public static final String DEFAULT_FOLDER_EXTERNAL_NAME = null;
-    public static final String DEFAULT_RTU_TYPE = null;
-    public static final String DEFAULT_SMS_QUEUE = null;
-    public static final String DEFAULT_CHANNEL_BACKLOG = "85";
-    public static final String DEFAULT_FAST_DEPLOYMENT = "0";
-    public static final String DEFAULT_SEND_END_OF_SESSION = "1";
-    public static final String DEFAULT_GENERATE_RANDOM_MTU_SERIAL = "0";
-    public static final String DEFAULT_MAX_ALLOWED_INVALID_PROFILE_RESPONSES = "5";
-    public static final String DEFAULT_DISABLE_DST_FOR_KNOCKING_DEVICES = "0";
-    public static final String DEFAULT_EXTRACT_INSTALLATION_DATE = "1";
-    public static final String DEFAULT_REMOVE_DAY_PROFILE_OFFSET = "0";
+    public static final BigDecimal DEFAULT_SECURITY_LEVEL = new BigDecimal(1); // 0 == KeyT, 1 == KeyC, 2 == KeyF
+    public static final Boolean DEFAULT_DEBUG = false;
+    public static final BigDecimal DEFAULT_CHANNEL_BACKLOG = new BigDecimal(85);
+    public static final Boolean DEFAULT_SEND_END_OF_SESSION = true;
+    public static final BigDecimal DEFAULT_MAX_ALLOWED_INVALID_PROFILE_RESPONSES = new BigDecimal(5);
+    public static final Boolean DEFAULT_EXTRACT_INSTALLATION_DATE = true;
+    public static final Boolean DEFAULT_REMOVE_DAY_PROFILE_OFFSET = false;
 
     private TypedProperties typedProperties;
 
@@ -108,7 +101,7 @@ public class MTU155Properties {
     }
 
     public String getPassword() {
-        return ((Password) typedProperties.getProperty(PASSWORD_PROPERTY_NAME, DEFAULT_PASSWORD)).getValue();
+        return (String) typedProperties.getProperty(PASSWORD_PROPERTY_NAME, DEFAULT_PASSWORD);
     }
 
     public int getAddress() {
