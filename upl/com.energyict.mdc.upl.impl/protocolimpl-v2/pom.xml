@@ -19,6 +19,12 @@
             <version>${comserver.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-online</artifactId>
+            <version>${comserver.version}</version>
+        </dependency>
+
         <!-- EIServer dependencies -->
         <dependency>
             <groupId>com.energyict</groupId>
