@@ -1,10 +1,5 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -12,6 +7,11 @@ import com.energyict.protocol.MeterExceptionInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
 /** @author fbo */
 
@@ -100,6 +100,10 @@ public class ABBA1140RegisterFactory {
 	private ABBA1140Register meterErrorEventLog;
 	private ABBA1140Register internalBatteryEventLog;
     
+    public ABBA1140RegisterFactory() {
+        initRegisters();
+    }
+
     /**
      * Creates a new instance of ABBA1140RegisterFactory
      * @param protocolLink
@@ -456,8 +460,8 @@ public class ABBA1140RegisterFactory {
         tariffSources = cr("667", "TariffSources", ABBA1140RegisterData.ABBA_TARIFFSOURCES,0,8, null );
         
         cTPrimaryAndSecundary = cr("616", "CTPrimaryAndSecundary", ABBA1140RegisterData.ABBA_STRING,0,-1, null);
-        cTPrimary = cr("616", "CTPrimary", ABBA1140RegisterData.ABBA_BIGDECIMAL,0,4, Unit.get(BaseUnit.UNITLESS,-2));
-        cTSecundary = cr("616", "CTSecundary", ABBA1140RegisterData.ABBA_BIGDECIMAL,4,2, Unit.get(BaseUnit.UNITLESS,-2));
+        cTPrimary = cr("616", "CTPrimary", ABBA1140RegisterData.ABBA_HEX,0,4, Unit.get(BaseUnit.UNITLESS,-2));
+        cTSecundary = cr("616", "CTSecundary", ABBA1140RegisterData.ABBA_HEX,4,4, Unit.get(BaseUnit.UNITLESS,-2));
         
         loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA1140RegisterData.ABBA_LOAD_PROFILE_CONFIG,0,2, null);
         integrationPeriod = cr("878", "IntegrationPeriod", ABBA1140RegisterData.ABBA_INTEGRATION_PERIOD,0,1, null);
