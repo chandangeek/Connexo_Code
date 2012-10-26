@@ -176,7 +176,7 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
     }
 
     public CTRAbstractValue<String> getPdr() {
-        return pdr.getValue(0);
+        return pdr != null ? pdr.getValue(0) : null;
     }
 
     /**
