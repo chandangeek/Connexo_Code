@@ -39,5 +39,3 @@
 }
 
 -keepnames class test.com.*
-
--keepnames class com.energyict.Dummy
