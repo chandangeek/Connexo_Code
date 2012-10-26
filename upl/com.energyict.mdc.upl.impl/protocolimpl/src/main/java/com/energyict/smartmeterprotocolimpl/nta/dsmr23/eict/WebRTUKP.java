@@ -39,7 +39,6 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
 
     /**
      * Returns the implementation version
-     *
      * @return a version string
      */
     @Override

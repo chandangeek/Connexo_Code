@@ -1,9 +1,13 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.protocol.*;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.*;
@@ -58,6 +62,13 @@ public class EventProfile {
             dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress()-1).getObisCode()).getBuffer(fromCal, getToCalendar());
             mbusControlLog = new MbusControlLog(dcMbusControlLog, this.protocol.getDateTimeDeviationType());
             eventList.addAll(mbusControlLog.getMeterEvents());
+
+            UniversalObject mbusClient = getMeterConfig().getMbusClient(mbusDevices.getPhysicalAddress() - 1);
+            long mbusStatus = getCosemObjectFactory().getGenericRead(new DLMSAttribute(mbusClient.getObisCode(), MbusClientAttributes.STATUS)).getValue();
+            if ((mbusStatus & 0x10) == 0x10) {
+                int eventId = Integer.parseInt("1" + (mbusDevices.getPhysicalAddress() - 1) + "5");
+                eventList.add(mbusLogs.createNewMbusEventLogbookEvent(new Date(), eventId));
+            }
         }
         return eventList;
     }
