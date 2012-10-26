@@ -85,6 +85,7 @@ public class MeterTopology implements MasterMeter {
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.VERSION.getAttributeNumber(), uo.getClassID()),
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), uo.getClassID()));
                 dlmsAttributes.add(cMbusSerial.getManufacturerId());
+                dlmsAttributes.add(cMbusSerial.getIdentificationNumber());
                 dlmsAttributes.add(cMbusSerial.getVersion());
                 dlmsAttributes.add(cMbusSerial.getDeviceType());
                 cMbusSerialNumbers.add(cMbusSerial);
