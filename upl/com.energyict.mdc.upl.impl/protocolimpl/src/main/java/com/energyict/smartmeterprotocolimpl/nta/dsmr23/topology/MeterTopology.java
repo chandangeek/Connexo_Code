@@ -79,12 +79,12 @@ public class MeterTopology implements MasterMeter {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), serialObisCode);
             if (uo != null) {
-                ComposedMbusSerialNumber cMbusSerial = new ComposedMbusSerialNumber(new DLMSAttribute(serialObisCode, MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), uo.getClassID()),
+                ComposedMbusSerialNumber cMbusSerial = new ComposedMbusSerialNumber(
+                        new DLMSAttribute(serialObisCode, MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), uo.getClassID()),
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), uo.getClassID()),
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.VERSION.getAttributeNumber(), uo.getClassID()),
                         new DLMSAttribute(serialObisCode, MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), uo.getClassID()));
                 dlmsAttributes.add(cMbusSerial.getManufacturerId());
-                dlmsAttributes.add(cMbusSerial.getIdentificationNumber());
                 dlmsAttributes.add(cMbusSerial.getVersion());
                 dlmsAttributes.add(cMbusSerial.getDeviceType());
                 cMbusSerialNumbers.add(cMbusSerial);
@@ -131,15 +131,15 @@ public class MeterTopology implements MasterMeter {
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
                 try {
                     Unsigned16 manufacturer = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getManufacturerId()).getUnsigned16();
-                    Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getIdentificationNumber()).getUnsigned32();
                     Unsigned8 version = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getVersion()).getUnsigned8();
+                    Unsigned32 identification = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getIdentificationNumber()).getUnsigned32();
                     Unsigned8 deviceType = this.discoveryComposedCosemObject.getAttribute(this.cMbusSerialNumbers.get(i - 1).getDeviceType()).getUnsigned8();
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
                     if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
                     }
                 } catch (IOException e) {
-                    if (e.getMessage().indexOf("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error") > -1) {
+                    if (e.getMessage().contains("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error")) {
                         throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
                     } // else, then the attributes are not available
                 }
