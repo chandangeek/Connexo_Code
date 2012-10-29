@@ -152,7 +152,7 @@ public class CommissioningPacket extends PushPacket {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("\nCommissioningPacket [");
+		builder.append("CommissioningPacket = ");
 		builder.append(getClass().getName());
 		builder.append(super.toString());
 		builder.append("\n > deviceConfiguration = ");

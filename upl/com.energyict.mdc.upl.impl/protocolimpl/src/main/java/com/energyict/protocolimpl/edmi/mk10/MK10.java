@@ -2,15 +2,22 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.genericprotocolimpl.edmi.mk10.MK10Push;
+import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
+import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.edmi.mk10.command.CommandFactory;
 import com.energyict.protocolimpl.edmi.mk10.command.TimeInfo;
-import com.energyict.protocolimpl.edmi.mk10.registermapping.*;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.MK10Register;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeFactory;
+import com.energyict.protocolimpl.edmi.mk10.registermapping.ObisCodeMapper;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -36,7 +43,8 @@ import java.util.logging.Logger;
  * gna: 28/01/2010 -> Changed loadProfileReadout (Mantis 6113)
  * jme: 31/05/2010 -> COMMUNICATION-14 - EDMI MK10 & MK7 Registers Query (CRM 13712): Fixed register addresses from billing registers
  * jme: 09/07/2010 -> COMMUNICATION-59 - Fixed timeouts when udp packets were > 1024 bytes.
- */
+ * sva: 29/10/2012 -> EISERVERSG-1200 - The Generic MK10Push inbound protocol is deprecated, it should be replaced by the MK10InboundDeviceProtocol (doing the inbound discovery), combined with the regular MK10 protocol.
+ **/
 public class MK10 extends AbstractProtocol {
 
 	private static final int DEBUG				= 0;
@@ -49,8 +57,9 @@ public class MK10 extends AbstractProtocol {
 	private int loadSurveyNumber				= 0;
 	private boolean pushProtocol				= false;
 	private boolean logOffDisabled				= true;
+    private boolean fullDebugLogging            = false;
 
-	/** Creates a new instance of MK10 */
+    /** Creates a new instance of MK10 */
 	public MK10() {
 	}
 
@@ -92,6 +101,8 @@ public class MK10 extends AbstractProtocol {
 		setLoadSurveyNumber(Integer.parseInt(properties.getProperty("LoadSurveyNumber").trim())-1);
 		setForcedDelay(Integer.parseInt(properties.getProperty("ForcedDelay","0").trim()));
 		setLogOffDisabled(Integer.parseInt(properties.getProperty("DisableLogOff","0").trim()));
+        setPushProtocol(properties.getProperty("PushProtocol", "0").trim().equalsIgnoreCase("1"));
+        setFullDebugLogging(properties.getProperty("FullDebug", "0").equalsIgnoreCase("1"));
 	}
 
 	public int getProfileInterval() throws UnsupportedException, IOException {
@@ -109,12 +120,22 @@ public class MK10 extends AbstractProtocol {
 		List result = new ArrayList();
 		result.add("LoadSurveyNumber");
 		result.add("DisableLogOff");
+        result.add("PushProtocol");
+        result.add("FullDebug");
 		return result;
 	}
 
 	protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
 		sendDebug("doInit()");
-		mk10Connection = new MK10Connection(inputStream, outputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
+        InputStream mk10InputStream = isPushProtocol()
+                ? new MK10PushInputStream(inputStream, isFullDebugLogging() ? getLogger() : null)
+                : inputStream;
+
+        OutputStream mk10OutputStream = isPushProtocol()
+                ? new MK10PushOutputStream(outputStream, isFullDebugLogging() ? getLogger() : null)
+                : outputStream;
+
+        mk10Connection = new MK10Connection(mk10InputStream, mk10OutputStream, timeoutProperty, protocolRetriesProperty, forcedDelay, echoCancelling, halfDuplexController, getInfoTypeSerialNumber());
 		commandFactory = new CommandFactory(this);
 		mk10Profile = new MK10Profile(this);
 
@@ -228,8 +249,7 @@ public class MK10 extends AbstractProtocol {
 	}
 
 	/**
-	 * Setter for the pushProtocol field. This field is set to true if the
-	 * protocol is used by the {@link MK10Push} protocol.
+	 * Setter for the pushProtocol field. This field is set to true if the protocol is used with an inbound UDP connection
 	 * @param pushProtocol
 	 */
 	public void setPushProtocol(boolean pushProtocol) {
@@ -243,4 +263,12 @@ public class MK10 extends AbstractProtocol {
 	public void setLogOffDisabled(int logOffDisabled ) {
 		this.logOffDisabled = (logOffDisabled == 1);
 	}
+
+    public boolean isFullDebugLogging() {
+        return fullDebugLogging;
+    }
+
+    public void setFullDebugLogging(boolean fullDebugLogging) {
+        this.fullDebugLogging = fullDebugLogging;
+    }
 }

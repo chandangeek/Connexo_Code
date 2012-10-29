@@ -12,6 +12,14 @@
     </parent>
 
     <dependencies>
+        <!-- ComServer dependencies -->
+        <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-core-impl</artifactId>
+            <version>${comserver.version}</version>
+        </dependency>
+
+        <!-- EIServer dependencies -->
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdw</artifactId>

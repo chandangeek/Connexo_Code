@@ -7,7 +7,10 @@
 package com.energyict.genericprotocolimpl.edmi.mk10;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.*;
+import com.energyict.cpo.Environment;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.edmi.mk10.executer.MK10ProtocolExecuter;
@@ -15,11 +18,19 @@ import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolException;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +40,15 @@ import java.util.logging.Logger;
  *         JME|14102009|Quick fix for ImServ. They have a meter with a different discovery packet. (See MK10InputStreamParser.java)
  *         JME|09072010|COMMUNICATION-59 Fixed timeouts when udp packets were > 1024 bytes.
  *         JME|15072010|COMMUNICATION-59 Refactored MK10Push input stream
+ */
+
+/**
+ * @deprecated the Generic MK10Push inbound protocol is deprecated,
+ * it is replaced by MK10InboundDeviceProtocol (doing the inbound discovery), combined with the regular MK10 protocol.
+ * The MK10 protocol is slightly adapted for this.
+ *
+ * {@link com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol}
+ * {@link com.energyict.protocolimpl.edmi.mk10.MK10}
  */
 public class MK10Push implements GenericProtocol {
 
