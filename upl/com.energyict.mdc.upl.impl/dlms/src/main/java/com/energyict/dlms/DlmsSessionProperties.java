@@ -2,9 +2,7 @@ package com.energyict.dlms;
 
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.protocol.ProtocolException;
 
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -13,14 +11,6 @@ import java.util.Properties;
  * Time: 15:08
  */
 public interface DlmsSessionProperties {
-
-    List<String> getOptionalKeys();
-
-    List<String> getRequiredKeys();
-
-    void addProperties(Properties properties);
-
-    void validateProperties() throws ProtocolException;
 
     DLMSReference getReference();
 

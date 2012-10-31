@@ -9,6 +9,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling.ApolloEventProfiles;
@@ -256,7 +257,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
 
             pClientProps.setProperty(AS300Properties.CLIENT_MAC_ADDRESS, "16");
             pClientProps.setProperty(AS300Properties.SECURITY_LEVEL, "0:0");
-            getDlmsSession().getProperties().addProperties(pClientProps);
+            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(pClientProps);
 
             getDlmsSession().connect();
             long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(getObjectFactory().getObisCodeProvider().getFrameCounterObisCode(backupClientId)).getValue();
@@ -274,7 +275,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
             link.getStreamConnection().serverOpen();
             reInitDlmsSession(link);
 
-            getDlmsSession().getProperties().addProperties(restoredProperties);
+            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(restoredProperties);
             ((AS300Properties) getDlmsSession().getProperties()).setSecurityProvider(new UkHubSecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
 
             ((UkHubSecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);

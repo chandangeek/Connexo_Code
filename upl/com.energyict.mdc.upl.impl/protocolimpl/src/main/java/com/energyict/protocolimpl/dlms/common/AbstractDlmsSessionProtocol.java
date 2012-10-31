@@ -11,7 +11,9 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -52,7 +54,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        getProperties().addProperties(properties);
+        ((DlmsProtocolProperties) getProperties()).addProperties(properties);
     }
 
     protected DlmsSession getSession() {
@@ -79,11 +81,11 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     public List<String> getRequiredKeys() {
-        return getProperties().getRequiredKeys();
+        return ((DlmsProtocolProperties) getProperties()).getRequiredKeys();
     }
 
     public List<String> getOptionalKeys() {
-        return getProperties().getOptionalKeys();
+        return ((DlmsProtocolProperties) getProperties()).getOptionalKeys();
     }
 
     protected Logger getLogger() {

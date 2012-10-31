@@ -8,6 +8,7 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
@@ -326,7 +327,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
 
             pClientProps.setProperty(ZigbeeGasProperties.CLIENT_MAC_ADDRESS, "16");
             pClientProps.setProperty(ZigbeeGasProperties.SECURITY_LEVEL, "0:0");
-            getDlmsSession().getProperties().addProperties(pClientProps);
+            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(pClientProps);
 
             getDlmsSession().connect();
             long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(MultipleClientRelatedObisCodes.frameCounterForClient(backupClientId)).getValue();
@@ -344,7 +345,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
             link.getStreamConnection().serverOpen();
             reInitDlmsSession(link);
 
-            getDlmsSession().getProperties().addProperties(restoredProperties);
+            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(restoredProperties);
             ((ZigbeeGasProperties) getDlmsSession().getProperties()).setSecurityProvider(new UkHubSecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
 
             ((UkHubSecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);

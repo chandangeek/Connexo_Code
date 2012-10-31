@@ -14,6 +14,7 @@ import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.common.SmartMeterToolProtocol;
@@ -397,7 +398,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
             pClientProps.setProperty(UkHubProperties.CLIENT_MAC_ADDRESS, "16");
             pClientProps.setProperty(UkHubProperties.SECURITY_LEVEL, "0:0");
             pClientProps.setProperty(UkHubProperties.CIPHERING_TYPE, "0");
-            getDlmsSession().getProperties().addProperties(pClientProps);
+            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(pClientProps);
 
             getDlmsSession().connect();
             long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(MultipleClientRelatedObisCodes.frameCounterForClient(backupClientId)).getValue();
@@ -418,7 +419,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
             reInitDlmsSession(link);
 
-            getDlmsSession().getProperties().addProperties(restoredProperties);
+            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(restoredProperties);
             ((UkHubProperties) getDlmsSession().getProperties()).setSecurityProvider(new UkHubSecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
 
             ((UkHubSecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
