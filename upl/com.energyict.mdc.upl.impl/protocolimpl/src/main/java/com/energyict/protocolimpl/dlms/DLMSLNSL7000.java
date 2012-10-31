@@ -30,7 +30,9 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AxdrType;
@@ -38,9 +40,13 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.dlms.actarissl7000.*;
+import com.energyict.protocolimpl.dlms.actarissl7000.Logbook;
+import com.energyict.protocolimpl.dlms.actarissl7000.ObisCodeMapper;
+import com.energyict.protocolimpl.dlms.actarissl7000.StoredValuesImpl;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -1482,7 +1488,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.isChanged()) {
+            if (dc.contentChanged()) {
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
                 RtuDLMS rtu = new RtuDLMS(rtuid);
                 rtuCache.saveObjectList(dc.getObjectList());

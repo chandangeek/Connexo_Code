@@ -18,7 +18,9 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AxdrType;
@@ -27,11 +29,15 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.CapturedObjects;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.logging.Logger;
@@ -997,7 +1003,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
                 // requestSAP();  // KV 08102004 R/W denied to read SAP!!!!!
                 if (DEBUG == 1) {
-                    System.out.println("cache=" + dlmsCache.getObjectList() + ", confchange=" + dlmsCache.getConfProgChange() + ", ischanged=" + dlmsCache.isChanged());
+                    System.out.println("cache=" + dlmsCache.getObjectList() + ", confchange=" + dlmsCache.getConfProgChange() + ", ischanged=" + dlmsCache.contentChanged());
                 }
                 try { // conf program change and object list stuff
                     int iConf;
@@ -1399,7 +1405,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.isChanged()) {
+            if (dc.contentChanged()) {
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
                 RtuDLMS rtu = new RtuDLMS(rtuid);
                 rtuCache.saveObjectList(dc.getObjectList());

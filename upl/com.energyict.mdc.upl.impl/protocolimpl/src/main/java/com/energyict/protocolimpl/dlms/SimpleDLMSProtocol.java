@@ -1,9 +1,13 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NotFoundException;
+import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
@@ -14,7 +18,9 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -90,7 +96,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     private SecurityContext securityContext;
 
     /**
-     * The used {@link com.energyict.protocolimpl.dlms.DLMSCache}
+     * The used {@link com.energyict.dlms.DLMSCache}
      */
     private DLMSCache dlmsCache = new DLMSCache();
 
@@ -905,7 +911,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.isChanged()) {
+            if (dc.contentChanged()) {
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
                 RtuDLMS rtu = new RtuDLMS(rtuid);
                 rtuCache.saveObjectList(dc.getObjectList());

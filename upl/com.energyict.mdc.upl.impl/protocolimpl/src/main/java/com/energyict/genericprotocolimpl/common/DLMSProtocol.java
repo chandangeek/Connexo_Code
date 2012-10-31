@@ -2,7 +2,10 @@ package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.Transaction;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
@@ -14,11 +17,14 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
-import com.energyict.mdw.amr.*;
+import com.energyict.mdw.amr.GenericProtocol;
+import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.RtuRegisterGroup;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
@@ -959,7 +965,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
             Transaction tr = new Transaction() {
                 public Object doExecute() throws BusinessException, SQLException {
                     DLMSCache dc = (DLMSCache) cacheObject;
-                    if (dc.isChanged()) {
+                    if (dc.contentChanged()) {
                         new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
                     }
                     return null;

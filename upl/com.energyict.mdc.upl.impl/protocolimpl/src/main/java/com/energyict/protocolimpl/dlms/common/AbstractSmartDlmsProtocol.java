@@ -5,6 +5,7 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -12,7 +13,8 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimpl.base.ProtocolProperties;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.smartmeterprotocolimpl.common.AbstractSmartMeterProtocol;
 
 import java.io.IOException;
@@ -245,7 +247,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
             Transaction tr = new Transaction() {
                 public Object doExecute() throws BusinessException, SQLException {
                     DLMSCache dc = (DLMSCache) cacheObject;
-                    if (dc.isChanged()) {
+                    if (dc.contentChanged()) {
                         new RtuDLMS(rtuid).saveObjectList(dc.getConfProgChange(), dc.getObjectList());
                     }
                     return null;

@@ -1,18 +1,33 @@
 package com.energyict.genericprotocolimpl.nta.abstractnta;
 
-import com.energyict.cbo.*;
-import com.energyict.cpo.*;
-import com.energyict.dialer.connection.*;
-import com.energyict.dialer.core.*;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NotFoundException;
+import com.energyict.cbo.ProcessingException;
+import com.energyict.cbo.Utils;
+import com.energyict.cpo.Environment;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.core.DialerMarker;
+import com.energyict.dialer.core.Link;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.pooling.*;
+import com.energyict.genericprotocolimpl.common.pooling.AbstractGenericPoolingProtocol;
+import com.energyict.genericprotocolimpl.common.pooling.CommunicationSchedulerFullProtocolShadow;
+import com.energyict.genericprotocolimpl.common.pooling.CommunicationSchedulerFullProtocolShadowBuilder;
+import com.energyict.genericprotocolimpl.common.pooling.RtuRegisterFullProtocolShadow;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
-import com.energyict.genericprotocolimpl.nta.profiles.*;
+import com.energyict.genericprotocolimpl.nta.profiles.DailyMonthlyProfile;
+import com.energyict.genericprotocolimpl.nta.profiles.ElectricityProfile;
+import com.energyict.genericprotocolimpl.nta.profiles.EventProfile;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol;
@@ -21,7 +36,8 @@ import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.MagicNumberConstants;
-import com.energyict.protocolimpl.dlms.*;
+import com.energyict.protocolimpl.dlms.RtuDLMS;
+import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -1350,7 +1366,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
-            if (dc.isChanged()) {
+            if (dc.contentChanged()) {
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
                 RtuDLMS rtu = new RtuDLMS(rtuid);
                 rtuCache.saveObjectList(dc.getObjectList());

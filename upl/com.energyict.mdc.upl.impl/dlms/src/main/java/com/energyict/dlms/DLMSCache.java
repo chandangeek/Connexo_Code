@@ -4,16 +4,17 @@
  * Created on 22 augustus 2003, 14:21
  */
 
-package com.energyict.protocolimpl.dlms;
+package com.energyict.dlms;
+
+import com.energyict.mdc.protocol.DeviceProtocolCache;
 
 import java.io.Serializable;
-import com.energyict.dlms.UniversalObject;
 
 /**
  *
  * @author  Koen
  */
-public class DLMSCache implements Serializable {
+public class DLMSCache implements DeviceProtocolCache, Serializable {
     UniversalObject[] objectList;
     int confProgChange;
     boolean changed;
@@ -34,9 +35,6 @@ public class DLMSCache implements Serializable {
         this.confProgChange=confProgChange;
         setChanged(false);
     }
-    public boolean isChanged() {
-        return changed;   
-    }
     public void setChanged(boolean changed) {
         this.changed = changed;
     }
@@ -53,5 +51,9 @@ public class DLMSCache implements Serializable {
     }
     public int getConfProgChange() {
         return confProgChange;   
+    }
+    @Override
+    public boolean contentChanged() {
+        return changed;
     }
 }
