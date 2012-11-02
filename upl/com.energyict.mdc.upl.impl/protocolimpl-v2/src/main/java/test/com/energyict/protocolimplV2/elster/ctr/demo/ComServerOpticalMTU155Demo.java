@@ -455,7 +455,7 @@ public final class ComServerOpticalMTU155Demo {
         RtuTypeShadow shadow = new RtuTypeShadow();
         shadow.setName(name);
         shadow.setChannelCount(2);
-        shadow.setDeviceProtocolShadow(this.deviceProtocolPluggableClass.getShadow());
+        shadow.setDeviceProtocolId(this.deviceProtocolPluggableClass.getId());
         shadow.setRegisterSpecShadows(findOrCreateAllRegiserSpecShadows());
         return MeteringWarehouse.getCurrent().getRtuTypeFactory().create(shadow);
     }
