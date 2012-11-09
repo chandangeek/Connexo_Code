@@ -19,6 +19,7 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.energyict.cbo.BusinessException;
@@ -28,7 +29,9 @@ import com.energyict.protocolimpl.utils.Utilities;
 
 /**
  * @author gna
+ * Generic Protocol test can be ignored from version 9.1
  */
+@Ignore
 public class P2LPCTest {
 
     private static Logger logger;

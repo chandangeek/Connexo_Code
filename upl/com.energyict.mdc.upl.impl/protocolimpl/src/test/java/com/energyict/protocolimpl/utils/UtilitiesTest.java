@@ -18,6 +18,7 @@ import com.energyict.mdw.testutils.RtuTypeCRUD;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.sql.SQLException;
@@ -26,8 +27,12 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 /**
+ * This class just serves tests for functionality that will not be allowed in version 9.1
+ * Will ignore them as old code still exist in codebase.
+ *
  * @author gna
  */
+@Ignore
 public class UtilitiesTest {
 
     private String javaClassName = "com.energyict.protocolimpl.edf.trimaran2p.Trimaran2P";

@@ -449,7 +449,7 @@ public class MeterReadTransaction implements CacheMechanism {
                         }
                     }
                 } else {
-                    throw new IOException("Channel out of bound exception: no channel with profileIndex " + i + 1 + " is configured on the meter.");
+                    throw new IOException("Channel out of bound exception: no channel with profileIndex " + (i + 1) + " is configured on the meter.");
                 }
 
                 if (!xml.equalsIgnoreCase("")) {

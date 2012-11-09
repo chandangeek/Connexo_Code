@@ -24,8 +24,9 @@ import static org.junit.Assert.*;
 /**
  * 
  * @author gna
- * FIXME: Fix the ignored Tests
+ * Generic Protocol test can be ignored from version 9.1
  */
+@Ignore
 public class ConcentratorTest{
 
 	private static Logger logger;
