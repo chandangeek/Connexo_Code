@@ -26,11 +26,9 @@ import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.offline.OfflineRtu;
 import com.energyict.mdw.offline.OfflineRtuRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import test.com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
+import test.com.energyict.protocolimplV2.elster.ctr.MTU155.events.CTRMeterEvent;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRException;
 
 import java.util.ArrayList;
@@ -193,8 +191,28 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public List<CollectedLogBook> getMeterEvents(List<LogBook> logBooks) {  //ToDo
-        return null;
+    public List<CollectedLogBook> getMeterEvents(List<LogBook> logBooks) {
+        List<CollectedLogBook> collectedLogBooks = new ArrayList<CollectedLogBook>(1);
+        CollectedLogBook collectedLogBook;
+
+        LogBook logBook = logBooks.get(0);
+        try {
+            Date lastLogBookReading = logBook.getLastLogBookReading();
+            CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
+            List<MeterEvent> meterEvents = meterEvent.getMeterEvents(lastLogBookReading);
+
+            collectedLogBook = new DeviceLogBook(0, ResultType.Supported);  //ToDo: id?
+            ((DeviceLogBook) collectedLogBook).setMeterEvents(meterEvents);
+        } catch (CTRException e) {
+            collectedLogBook = new DeviceLogBook(0, ResultType.InCompatible);//ToDO: id?
+            collectedLogBook.setFailureInformation(ResultType.InCompatible, new Problem<LogBook>(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+        } catch (CommunicationException e) {                                                                                           //ToDO: add DB key to todo-resources.sql
+            collectedLogBook = new DeviceLogBook(0, ResultType.Other); //Todo: id?
+            collectedLogBook.setFailureInformation(ResultType.Other, new Problem<LogBook>(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+        }                                                                                                                               //ToDO: add DB key to todo-resources.sql
+
+        collectedLogBooks.add(collectedLogBook);
+        return collectedLogBooks;
     }
 
     @Override
