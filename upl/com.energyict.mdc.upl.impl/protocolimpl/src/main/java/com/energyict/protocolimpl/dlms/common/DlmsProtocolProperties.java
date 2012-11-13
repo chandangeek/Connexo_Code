@@ -1,7 +1,9 @@
 package com.energyict.protocolimpl.dlms.common;
 
 import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
@@ -41,6 +43,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String REQUEST_TIMEZONE = "RequestTimeZone";
     public static final String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
     public static final String ISKRA_WRAPPER = "IskraWrapper";
+    public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
 
     public static final String DEFAULT_CONNECTION = ConnectionMode.TCPIP.getModeAsString();
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
@@ -64,6 +67,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String DEFAULT_REQUEST_TIMEZONE = "0";
     public static final String DEFAULT_ROUND_TRIP_CORRECTION = "0";
     public static final String DEFAULT_ISKRA_WRAPPER = "1";
+    public static final String DEFAULT_DEVICE_BUFFER_SIZE = "-1";
 
     protected SecurityProvider securityProvider;
 
@@ -263,6 +267,11 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     @ProtocolProperty
     public int getIskraWrapper() {
         return getIntProperty(ISKRA_WRAPPER, DEFAULT_ISKRA_WRAPPER);
+    }
+
+    @ProtocolProperty
+    public int getDeviceBufferSize() {
+        return getIntProperty(DEVICE_BUFFER_SIZE, DEFAULT_DEVICE_BUFFER_SIZE);
     }
 
     public SecurityProvider getSecurityProvider() {

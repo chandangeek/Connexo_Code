@@ -13,7 +13,9 @@ package test.com.energyict.mdc.tasks;
  */
 public enum DeviceProtocolDialectNameEnum {
 
-    CTR_DEVICE_PROTOCOL_DIALECT_NAME("CtrDialect");
+    CTR_DEVICE_PROTOCOL_DIALECT_NAME("CtrDialect"),
+
+    DSMR23_DEVICE_PROTOCOL_DIALECT_NAME("Dsmr23Dialect");
 
     DeviceProtocolDialectNameEnum(String uniqueName) {
         this.uniqueName = uniqueName;

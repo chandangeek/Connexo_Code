@@ -12,11 +12,10 @@ import java.math.BigDecimal;
 import java.util.Properties;
 
 /**
- * Copyrights EnergyICT
- * Date: 11-feb-2011
- * Time: 13:27:58
+ * @author: sva
+ * @since: 29/10/12 (10:10)
  */
-public class DlmsProtocolProperties implements DlmsSessionProperties {
+public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
 
     public static final String TIMEOUT = "Timeout";
     public static final String RETRIES = "Retries";
@@ -44,6 +43,7 @@ public class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String REQUEST_TIMEZONE = "RequestTimeZone";
     public static final String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
     public static final String ISKRA_WRAPPER = "IskraWrapper";
+    public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
 
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
@@ -77,6 +77,7 @@ public class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final Boolean DEFAULT_REQUEST_TIMEZONE = false;
     public static final BigDecimal DEFAULT_ROUND_TRIP_CORRECTION = new BigDecimal(0);
     public static final BigDecimal DEFAULT_ISKRA_WRAPPER = new BigDecimal(1);
+    public static final BigDecimal DEFAULT_DEVICE_BUFFER_SIZE = new BigDecimal(-1);
 
     private TypedProperties typedProperties;
 
@@ -330,6 +331,11 @@ public class DlmsProtocolProperties implements DlmsSessionProperties {
     @ProtocolProperty
     public int getIskraWrapper() {
         return getIntProperty(ISKRA_WRAPPER, DEFAULT_ISKRA_WRAPPER);
+    }
+
+    @ProtocolProperty
+    public int getDeviceBufferSize() {
+        return getIntProperty(DEVICE_BUFFER_SIZE, DEFAULT_DEVICE_BUFFER_SIZE);
     }
 
     public SecurityProvider getSecurityProvider() {
