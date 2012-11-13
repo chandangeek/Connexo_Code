@@ -169,7 +169,7 @@ public class LoadProfileBuilder {
                             channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                             collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
                         } catch (IOException e) {
-                            Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), channel.getName(), e);
+                            Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), channel.getName(), e);
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             collectedIntervalData.clear();
                         } catch (CommunicationException e) {
@@ -189,6 +189,7 @@ public class LoadProfileBuilder {
                     CollectedLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
                     Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                     collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
+                    collectedLoadProfileList.add(collectedLoadProfile);
                 }
             } else {
                 LoadProfileIdentifier loadProfileIdentifier = new LoadProfileDataIdentifier(lpc.getObisCode(), new SerialNumberDeviceIdentifier(lpr.getMeterSerialNumber()));
@@ -196,6 +197,7 @@ public class LoadProfileBuilder {
                 CTRException cause = (CTRException) blockingIssue.getMessageArguments()[0];
                 Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
                 collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
+                collectedLoadProfileList.add(collectedLoadProfile);
             }
         }
         return collectedLoadProfileList;
