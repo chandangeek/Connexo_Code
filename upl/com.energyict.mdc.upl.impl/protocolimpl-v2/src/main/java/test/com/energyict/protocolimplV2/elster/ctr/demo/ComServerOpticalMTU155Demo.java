@@ -10,7 +10,7 @@ import com.energyict.comserver.tools.Strings;
 import com.energyict.cpo.*;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.serial.*;
-import com.energyict.mdc.channels.serial.serialio.SioSerialConnectionType;
+import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.*;
 import com.energyict.mdc.ports.ComPortType;
