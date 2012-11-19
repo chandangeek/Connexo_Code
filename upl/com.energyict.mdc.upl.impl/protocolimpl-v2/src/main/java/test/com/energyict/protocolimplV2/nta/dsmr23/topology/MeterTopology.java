@@ -133,8 +133,7 @@ public class MeterTopology implements MasterMeter {
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
                     if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
-                        //ToDo: implement the correct DeviceTopology behavior
-                        // deviceTopology.addSlaveDevice(new SerialNumberDeviceIdentifier(mbusSerial));
+                        deviceTopology.addSlaveDevice(new SerialNumberDeviceIdentifier(mbusSerial));
                     }
                 } catch (IOException e) {
                     if (e.getMessage().contains("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error")) {
