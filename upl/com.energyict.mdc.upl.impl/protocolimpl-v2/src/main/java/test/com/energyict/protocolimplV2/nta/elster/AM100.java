@@ -1,8 +1,9 @@
 package test.com.energyict.protocolimplV2.nta.elster;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.comserver.exceptions.LegacyProtocolException;
-import com.energyict.cpo.BooleanPropertySpec;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
@@ -17,6 +18,7 @@ import test.com.energyict.protocolimplV2.nta.dsmr23.Dsmr23RegisterFactory;
 import test.com.energyict.protocolimplV2.nta.dsmr23.profiles.LoadProfileBuilder;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -126,7 +128,7 @@ public class AM100 extends AbstractNtaProtocol {
     }
 
     private PropertySpec forcedToReadCachePropertySpec() {
-        return new BooleanPropertySpec(PROP_FORCEDTOREADCACHE);
+        return PropertySpecFactory.booleanPropertySpec(PROP_FORCEDTOREADCACHE);
     }
 
     private boolean isForcedToReadCache() {
@@ -138,5 +140,10 @@ public class AM100 extends AbstractNtaProtocol {
         ArrayList<DeviceProtocolDialect> protocolDialects = new ArrayList<DeviceProtocolDialect>();
         protocolDialects.add(new Dsmr23DeviceProtocolDialect());
         return protocolDialects;
+    }
+
+    @Override
+    public void upgradeMessagesAndCategories() throws BusinessException, SQLException {
+        //ToDo
     }
 }

@@ -1,12 +1,12 @@
 package test.com.energyict.protocolimplV2.elster.ctr.MTU155;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.comserver.adapters.common.ComChannelInputStreamAdapter;
 import com.energyict.comserver.adapters.common.ComChannelOutputStreamAdapter;
 import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.comserver.issues.Problem;
-import com.energyict.cpo.BigDecimalPropertySpec;
-import com.energyict.cpo.BooleanPropertySpec;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.LogBook;
 import com.energyict.mdc.messages.DeviceMessageSpec;
@@ -31,6 +31,7 @@ import test.com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.events.CTRMeterEvent;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRException;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -105,19 +106,19 @@ public class MTU155 implements DeviceProtocol {
     }
 
     private PropertySpec debugPropertySpec() {
-        return new BooleanPropertySpec(DEBUG_PROPERTY_NAME);
+        return PropertySpecFactory.booleanPropertySpec(DEBUG_PROPERTY_NAME);
     }
 
     private PropertySpec channelBacklogPropertySpec() {
-        return new BigDecimalPropertySpec(CHANNEL_BACKLOG_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(CHANNEL_BACKLOG_PROPERTY_NAME);
     }
 
     private PropertySpec extractInstallationDatePropertySpec() {
-        return new BigDecimalPropertySpec(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME);
     }
 
     private PropertySpec removeDayProfileOffsetPropertySpec() {
-        return new BigDecimalPropertySpec(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME);
     }
 
     @Override
@@ -217,17 +218,22 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedStandardMessages() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
+        return null;  //ToDo
     }
 
     @Override
     public CollectedMessage executePendingMessages(List<DeviceMessageShadow> pendingMessages) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
+        return null;  //ToDo
     }
 
     @Override
     public CollectedData updateSentMessages(List<DeviceMessageShadow> sentMessages) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates. //ToDo
+        return null;  //ToDo
+    }
+
+    @Override
+    public void upgradeMessagesAndCategories() throws BusinessException, SQLException {
+        //ToDo
     }
 
     @Override

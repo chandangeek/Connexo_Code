@@ -1,9 +1,7 @@
 package test.com.energyict.mdc.tasks;
 
-import com.energyict.cpo.BigDecimalPropertySpec;
-import com.energyict.cpo.BooleanPropertySpec;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.StringPropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.tasks.DeviceProtocolDialectImpl;
 import com.energyict.protocol.MeterProtocol;
 
@@ -42,51 +40,51 @@ public class CtrDeviceProtocolDialect extends DeviceProtocolDialectImpl {
     }
 
    private PropertySpec keyCPropertySpec() {
-       return new StringPropertySpec(ENCRYPTION_KEY_C_PROPERTY_NAME);
+       return PropertySpecFactory.stringPropertySpec(ENCRYPTION_KEY_C_PROPERTY_NAME);
    }
 
    private PropertySpec keyFPropertySpec() {
-       return new StringPropertySpec(ENCRYPTION_KEY_F_PROPERTY_NAME);
+       return PropertySpecFactory.stringPropertySpec(ENCRYPTION_KEY_F_PROPERTY_NAME);
    }
 
    private PropertySpec keyTPropertySpec() {
-       return new StringPropertySpec(ENCRYPTION_KEY_T_PROPERTY_NAME);
+       return PropertySpecFactory.stringPropertySpec(ENCRYPTION_KEY_T_PROPERTY_NAME);
    }
 
     private PropertySpec timeoutPropertySpec() {
-        return new BigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
     }
 
     private PropertySpec retriesPropertySpec() {
-        return new BigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES_PROPERTY_NAME);
     }
 
     private PropertySpec delayAfterErrorPropertySpec() {
-        return new BigDecimalPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(DELAY_AFTER_ERROR_PROPERTY_NAME);
     }
 
     private PropertySpec forcedDelayPropertySpec() {
-        return new BigDecimalPropertySpec(FORCED_DELAY_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(FORCED_DELAY_PROPERTY_NAME);
     }
 
     private PropertySpec passwordPropertySpec() {
-        return new StringPropertySpec(PASSWORD_PROPERTY_NAME);
+        return PropertySpecFactory.stringPropertySpec(PASSWORD_PROPERTY_NAME);
     }
 
     private PropertySpec addressPropertySpec() {
-        return new BigDecimalPropertySpec(ADDRESS_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(ADDRESS_PROPERTY_NAME);
     }
 
     private PropertySpec securityLevelPropertySpec() {
-        return new BigDecimalPropertySpec(SECURITY_LEVEL_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(SECURITY_LEVEL_PROPERTY_NAME);
     }
 
     private PropertySpec sendEndOfSessionPropertySpec() {
-        return new BooleanPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME);
+        return PropertySpecFactory.booleanPropertySpec(SEND_END_OF_SESSION_PROPERTY_NAME);
     }
 
     private PropertySpec maxAllowedInvalidProfileResponsesPropertySpec() {
-        return new BigDecimalPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME);
+        return PropertySpecFactory.bigDecimalPropertySpec(MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME);
     }
 
     @Override
