@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
-import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.inbound.AbstractDiscover;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.core.InboundConnection;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
@@ -16,20 +16,20 @@ import java.io.IOException;
  * We should take in the 'HEARTBEAT' packet and parse it to know which device is knocking. No response from comserver is required.
  * All requests are sent in the normal protocol session (e.g. fetch meter data).
  * <p/>
+ *
  * @author: sva
  * @since: 29/10/12 (10:34)
  */
 public class MK10InboundDeviceProtocol extends AbstractDiscover {
+
+    private static final int DEFAULT_DELAY_MILLIS = 10;
 
     SerialNumberDeviceIdentifier deviceIdentifier;
 
     @Override
     public DiscoverResultType doDiscovery() {
         try {
-            ComChannel comChannel = this.getComChannel();
-            this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty()));
-            byte[] packetBytes = getInboundConnection().readVariableFrameAsByteArray();
-            PushPacket packet = PushPacket.getPushPacket(packetBytes);
+            PushPacket packet = PushPacket.getPushPacket(readFrame());
             switch (packet.getPushPacketType()) {
                 case README:
                 case HEARTBEAT:
@@ -40,6 +40,56 @@ public class MK10InboundDeviceProtocol extends AbstractDiscover {
             }
         } catch (IOException e) {
             throw new CommunicationException(e);
+        }
+    }
+
+    /**
+     * Read in a frame,
+     * implemented by reading bytes until a timeout occurs.
+     *
+     * @return the partial frame
+     * @throws com.energyict.mdc.protocol.exceptions.InboundFrameException
+     *          in case of timeout after x retries
+     */
+    private byte[] readFrame() throws InboundFrameException {
+        getComChannel().startReading();
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        long timeoutMoment = System.currentTimeMillis() + getTimeOutProperty();
+        int retryCount = 0;
+
+        while (true) {    //Read until a timeout occurs
+            if (getComChannel().available() > 0) {
+                byteStream.write(readByte());
+            } else {
+                delay();
+            }
+
+            if (System.currentTimeMillis() > timeoutMoment) {
+                if (byteStream.size() != 0) {
+                    return byteStream.toByteArray();    //Stop listening, return the result
+                }
+                retryCount++;
+                timeoutMoment = System.currentTimeMillis() + getTimeOutProperty();
+                if (retryCount > getRetriesProperty()) {
+                    throw InboundFrameException.timeout("Timeout while waiting for inbound frame, after " + getTimeOutProperty() + " ms, using " + getRetriesProperty() + " retries.");
+                }
+            }
+        }
+    }
+
+    private byte readByte() {
+        return (byte) getComChannel().read();
+    }
+
+    private void delay() {
+        this.delay(DEFAULT_DELAY_MILLIS);
+    }
+
+    private void delay(int millis) throws InboundFrameException {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
