@@ -1,8 +1,11 @@
 package test.com.energyict.protocolimplV2.nta.elster;
 
+import com.energyict.cbo.BusinessException;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaMbusDevice;
 import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
+
+import java.sql.SQLException;
 
 /**
  * @author: sva
@@ -31,5 +34,10 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public String getVersion() {
         return "$Date$";
+    }
+
+    @Override
+    public void upgradeMessagesAndCategories() throws BusinessException, SQLException {
+        //ToDo
     }
 }
