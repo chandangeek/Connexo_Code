@@ -4,7 +4,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeConstants;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.comserver.core.ComServerDAO;
-import com.energyict.comserver.core.impl.ComServerDAOImpl;
+import com.energyict.comserver.core.impl.online.ComServerDAOImpl;
 import com.energyict.comserver.main.online.ComServerLauncher;
 import com.energyict.comserver.tools.Strings;
 import com.energyict.cpo.*;
