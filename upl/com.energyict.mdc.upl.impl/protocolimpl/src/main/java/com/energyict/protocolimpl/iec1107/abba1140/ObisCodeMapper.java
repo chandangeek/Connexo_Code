@@ -128,14 +128,14 @@ public class ObisCodeMapper {
         	}
         } else if ((obisCode.toString().indexOf("1.1.0.4.2.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.2.255") != -1)) { 
             if (read) {
-                BigDecimal bd = (BigDecimal)rFactory.getRegister("CTPrimary");
-                registerValue = new RegisterValue(obisCode,new Quantity(bd,Unit.get(255)));
+                long value = (Long) rFactory.getRegister("CTPrimary");
+                registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(value), Unit.get(255)));
                 return registerValue;
             } else return new RegisterInfo("CT numerator");
         } else if ((obisCode.toString().indexOf("1.1.0.4.5.255") != -1) || (obisCode.toString().indexOf("1.0.0.4.5.255") != -1)) { // CT denominator
             if (read) {
-                BigDecimal bd = (BigDecimal)rFactory.getRegister("CTSecundary");
-                registerValue = new RegisterValue(obisCode,new Quantity(bd,Unit.get(255)));
+                long value = (Long) rFactory.getRegister("CTSecundary");
+                registerValue = new RegisterValue(obisCode, new Quantity(new BigDecimal(value), Unit.get(255)));
                 return registerValue;
             } else return new RegisterInfo("CT denominator");
         } else if (obisCode.toString().indexOf("1.0.0.0.1.255") != -1) { // SchemeID

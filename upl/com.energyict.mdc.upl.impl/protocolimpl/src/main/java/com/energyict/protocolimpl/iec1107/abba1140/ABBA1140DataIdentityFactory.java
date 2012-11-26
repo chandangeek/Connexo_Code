@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 /** @author fbo */
 
@@ -110,7 +110,7 @@ public class ABBA1140DataIdentityFactory {
         add("509", 36,ABBA1140DataIdentity.NOT_STREAMEABLE);
         add("510", 144,ABBA1140DataIdentity.NOT_STREAMEABLE);
         // ct primary and secundary current
-        add("616", 6,ABBA1140DataIdentity.NOT_STREAMEABLE);
+        add("616", 8,ABBA1140DataIdentity.NOT_STREAMEABLE);
         // Load profile configuration
         add("777", 2,ABBA1140DataIdentity.NOT_STREAMEABLE);
         // demand, subinterval period

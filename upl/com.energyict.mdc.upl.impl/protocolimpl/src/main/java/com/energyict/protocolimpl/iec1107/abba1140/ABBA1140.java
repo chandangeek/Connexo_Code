@@ -426,6 +426,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     /* (non-Javadoc)
+	 * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
       *
       * @see com.energyict.protocol.MeterProtocol#getProtocolVersion()
       */
