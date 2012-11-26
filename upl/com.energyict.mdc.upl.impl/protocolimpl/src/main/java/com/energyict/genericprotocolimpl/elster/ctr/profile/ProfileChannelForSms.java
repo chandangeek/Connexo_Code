@@ -7,7 +7,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValu
 import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
 
@@ -114,7 +114,7 @@ public class ProfileChannelForSms {
     /**
      * @return
      */
-    private Rtu getRtu() {
+    private Device getRtu() {
         return getMeterChannel().getRtu();
     }
 

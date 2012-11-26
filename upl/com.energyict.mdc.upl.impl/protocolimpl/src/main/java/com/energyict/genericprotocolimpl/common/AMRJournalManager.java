@@ -28,11 +28,11 @@ public class AMRJournalManager {
     private String completionErrorString=NO_ERROR;
     private List journal = new ArrayList();
     CommunicationScheduler communicationScheduler;
-    Rtu device;
+    Device device;
     String errorMessage="";
     
     /** Creates a new instance of AMRJournalManager */
-    public AMRJournalManager(Rtu device,CommunicationScheduler communicationScheduler) {
+    public AMRJournalManager(Device device,CommunicationScheduler communicationScheduler) {
         this.communicationScheduler=communicationScheduler;
         this.device=device;
         
@@ -108,7 +108,7 @@ public class AMRJournalManager {
         return communicationScheduler;
     }
 
-    public Rtu getDevice() {
+    public Device getDevice() {
         return device;
     }
 }

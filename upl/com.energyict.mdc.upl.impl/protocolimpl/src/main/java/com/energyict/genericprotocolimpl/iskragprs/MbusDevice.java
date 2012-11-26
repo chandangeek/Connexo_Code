@@ -44,7 +44,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
     private String rtuType;
     private Unit mbusUnit;
 
-    public Rtu mbus;
+    public Device mbus;
     private Logger logger;
 
     private ObisCode valveState = ObisCode.fromString("0.0.128.30.31.255");
@@ -58,7 +58,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
     public MbusDevice() {
     }
 
-    public MbusDevice(int address, String customerID, Rtu rtu, Logger logger) throws InvalidPropertyException, MissingPropertyException {
+    public MbusDevice(int address, String customerID, Device rtu, Logger logger) throws InvalidPropertyException, MissingPropertyException {
         this.mbusAddress = address;
         this.customerID = customerID;
         this.mbus = rtu;
@@ -68,7 +68,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         }
     }
 
-    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) throws InvalidPropertyException, MissingPropertyException {
+    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Device rtu, Unit unit, Logger logger) throws InvalidPropertyException, MissingPropertyException {
         this.mbusAddress = mbusAddress;
         this.physicalAddress = phyAddress;
         this.customerID = serial;
@@ -122,7 +122,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
     }
 
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        rtuType = properties.getProperty("RtuType", "mbus");
+        rtuType = properties.getProperty("DeviceType", "mbus");
     }
 
     public List getOptionalKeys() {
@@ -135,7 +135,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
 
     @Override
     public void addProperties(TypedProperties properties) {
-        rtuType = (String) properties.getProperty("RtuType", "mbus");
+        rtuType = (String) properties.getProperty("DeviceType", "mbus");
     }
 
     @Override
@@ -232,7 +232,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         return msgSpec;
     }
 
-    public Rtu getMbus() {
+    public Device getMbus() {
         return mbus;
     }
 
@@ -321,7 +321,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
 
     protected void fail(Exception e, RtuMessage msg, String description) throws BusinessException, SQLException {
         msg.setFailed();
-        Rtu concentrator = getMbus().getGateway();
+        Device concentrator = getMbus().getGateway();
         if (concentrator != null) {
             List schedulers = concentrator.getCommunicationSchedulers();
             if (schedulers.size() > 0) {
@@ -402,7 +402,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         this.mbusUnit = mbusUnit;
     }
 
-    public void setMbus(Rtu mbus) {
+    public void setMbus(Device mbus) {
         this.mbus = mbus;
     }
 

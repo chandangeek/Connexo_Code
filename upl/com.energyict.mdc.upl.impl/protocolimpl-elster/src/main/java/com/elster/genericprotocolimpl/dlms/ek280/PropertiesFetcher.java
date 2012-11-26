@@ -20,7 +20,7 @@ public class PropertiesFetcher {
         this.logger = logger;
     }
 
-    public Properties getPropertiesForRtu(Rtu rtu) {
+    public Properties getPropertiesForRtu(Device rtu) {
         Properties properties = new Properties();
         properties.putAll(getPropertiesFromProtocolClass());
         if (rtu != null) {
@@ -29,7 +29,7 @@ public class PropertiesFetcher {
         return properties;
     }
 
-    private Properties getPropertiesFromRtu(Rtu rtu) {
+    private Properties getPropertiesFromRtu(Device rtu) {
         Properties properties = rtu.getProperties().toStringProperties();
 
         properties.setProperty(MeterProtocol.PROFILEINTERVAL, replaceNullValue("" + rtu.getIntervalInSeconds()));

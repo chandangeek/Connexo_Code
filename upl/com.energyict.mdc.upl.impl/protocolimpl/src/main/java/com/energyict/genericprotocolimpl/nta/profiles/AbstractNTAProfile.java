@@ -4,7 +4,6 @@ import com.energyict.cbo.*;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 

@@ -5,7 +5,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -42,7 +42,7 @@ public class CtrSmsStoreObjectTest {
     private Calendar shadowLastReading;
 
     @Mock
-    private Rtu rtu;
+    private Device rtu;
 
     @Mock
     Channel channel;

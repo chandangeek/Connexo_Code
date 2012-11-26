@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.nta.iskra;
 
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -54,7 +54,7 @@ public class Mx382 extends AbstractNTAProtocol {
      * @return a new Mbus class instance
      */
     @Override
-    protected AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    protected AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         return new MbusDevice(serial, physicalAddress, mbusRtu, logger);  //To change body of implemented methods use File | Settings | File Templates.
     }
 

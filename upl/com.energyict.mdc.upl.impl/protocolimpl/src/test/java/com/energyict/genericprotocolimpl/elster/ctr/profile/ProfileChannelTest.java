@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.profile;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.genericprotocolimpl.elster.ctr.GprsRequestFactory;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -37,7 +37,7 @@ public class ProfileChannelTest {
     public static final int HOURY_VM_INDEX = 4;
 
     @Mock
-    private Rtu rtu;
+    private Device rtu;
     @Mock
     private Channel dailyChannel;
     @Mock

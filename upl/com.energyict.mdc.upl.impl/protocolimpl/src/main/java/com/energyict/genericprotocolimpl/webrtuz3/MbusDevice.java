@@ -67,7 +67,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     private String customerID;
     private boolean valid;
 
-    public Rtu mbus;
+    public Device mbus;
     public CommunicationProfile commProfile;
     private WebRTUZ3 webRtu;
     private Logger logger;
@@ -87,15 +87,15 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         this.valid = false;
     }
 
-    public MbusDevice(String serial, Rtu mbusRtu, Logger logger) {
+    public MbusDevice(String serial, Device mbusRtu, Logger logger) {
         this(0, 0, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
     }
 
-    public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    public MbusDevice(String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         this(0, physicalAddress, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
     }
 
-    public MbusDevice(long mbusAddress, int phyaddress, String serial, int medium, Rtu mbusRtu, Unit mbusUnit, Logger logger) {
+    public MbusDevice(long mbusAddress, int phyaddress, String serial, int medium, Device mbusRtu, Unit mbusUnit, Logger logger) {
         this.mbusAddress = mbusAddress;
         this.physicalAddress = phyaddress;
         this.medium = medium;
@@ -296,7 +296,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         return ProtocolTools.setRegisterValueObisCode(registerValue, obisCode);
     }
 
-    public Rtu getMbus() {
+    public Device getMbus() {
         return this.mbus;
     }
 

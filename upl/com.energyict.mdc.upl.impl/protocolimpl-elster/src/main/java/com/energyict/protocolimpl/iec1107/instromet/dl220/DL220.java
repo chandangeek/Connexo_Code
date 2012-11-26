@@ -168,7 +168,7 @@ public class DL220 extends AbstractIEC1107Protocol {
 	 * Validate the serialNumber of the device.
 	 * 
 	 * @throws IOException
-	 *             if the serialNumber doesn't match the one from the Rtu
+	 *             if the serialNumber doesn't match the one from the Device
 	 */
 	protected void validateSerialNumber() throws IOException {
 		DLObject serialNubmer = DLObject.constructObject(this, DLObject.SA_SERIALNUMBER);

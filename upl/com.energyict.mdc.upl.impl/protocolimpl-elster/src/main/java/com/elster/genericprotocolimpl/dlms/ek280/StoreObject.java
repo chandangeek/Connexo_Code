@@ -42,16 +42,16 @@ public class StoreObject implements Transaction {
     public Object doExecute() throws BusinessException, SQLException {
         for (StoreObjectItem storeObjectItem : storeObjectItems) {
             Object key = storeObjectItem.getKey();
-            if (key instanceof Rtu) {
-                ((Rtu) key).store((ProfileData) storeObjectItem.getValue(), false);
+            if (key instanceof Device) {
+                ((Device) key).store((ProfileData) storeObjectItem.getValue(), false);
             } else if (key instanceof Channel) {
                 (((Channel) key).getRtu()).store((ProfileData) storeObjectItem.getValue(), false);
             } else if (key instanceof RtuRegister) {
                 ((RtuRegister) key).store((RegisterValue) storeObjectItem.getValue());
             } else if (key instanceof ProfileData) {
-                ((Rtu) storeObjectItem.getValue()).store((ProfileData) key, false);
+                ((Device) storeObjectItem.getValue()).store((ProfileData) key, false);
             } else if (key instanceof MeterReadingData) {
-                store(((Rtu) storeObjectItem.getValue()), (MeterReadingData) key);
+                store(((Device) storeObjectItem.getValue()), (MeterReadingData) key);
             } else {
                 getLogger().severe("StoreObject cannot store item! Key/Value combination incorrect: key=" + key.getClass().getName() + ", value=" + storeObjectItem.getValue().getClass().getName());
             }
@@ -59,11 +59,11 @@ public class StoreObject implements Transaction {
         return null;
     }
 
-    public void add(MeterReadingData meterReadingData, Rtu rtu) {
+    public void add(MeterReadingData meterReadingData, Device rtu) {
         storeObjectItems.add(new StoreObjectItem(meterReadingData, rtu));
     }
 
-    public void add(Rtu rtu, ProfileData pd) {
+    public void add(Device rtu, ProfileData pd) {
         storeObjectItems.add(new StoreObjectItem(rtu, pd));
     }
 
@@ -75,7 +75,7 @@ public class StoreObject implements Transaction {
         storeObjectItems.add(new StoreObjectItem(rtuRegister, registerValue));
     }
 
-    public void add(ProfileData pd, Rtu rtu) {
+    public void add(ProfileData pd, Device rtu) {
         storeObjectItems.add(new StoreObjectItem(pd, rtu));
     }
 
@@ -83,16 +83,16 @@ public class StoreObject implements Transaction {
         if (map != null) {
             for (Object key : map.keySet()) {
                 Object value = map.get(key);
-                if ((key instanceof Rtu) && (value instanceof ProfileData)) {
-                    add((Rtu) key, (ProfileData) value);
+                if ((key instanceof Device) && (value instanceof ProfileData)) {
+                    add((Device) key, (ProfileData) value);
                 } else if ((key instanceof Channel) && (value instanceof ProfileData)) {
                     add((Channel) key, (ProfileData) value);
                 } else if ((key instanceof RtuRegister) && (value instanceof RegisterValue)) {
                     add((RtuRegister) key, (RegisterValue) value);
-                } else if ((key instanceof ProfileData) && (value instanceof Rtu)) {
-                    add((ProfileData) key, (Rtu) value);
-                } else if ((key instanceof MeterReadingData) && (value instanceof Rtu)) {
-                    add((MeterReadingData) key, (Rtu) value);
+                } else if ((key instanceof ProfileData) && (value instanceof Device)) {
+                    add((ProfileData) key, (Device) value);
+                } else if ((key instanceof MeterReadingData) && (value instanceof Device)) {
+                    add((MeterReadingData) key, (Device) value);
                 } else {
                     getLogger().severe("StoreObject cannot store item! Key/Value combination incorrect: key=" + key.getClass().getName() + ", value=" + value.getClass().getName());
                 }
@@ -107,7 +107,7 @@ public class StoreObject implements Transaction {
         return logger;
     }
 
-    private void store(Rtu rtu, MeterReadingData meterReadingData) throws SQLException, BusinessException {
+    private void store(Device rtu, MeterReadingData meterReadingData) throws SQLException, BusinessException {
         Map<RtuRegister, Date> lastReadings = new HashMap<RtuRegister, Date>();
         Map<RtuRegister, Date> lastCheckeds = new HashMap<RtuRegister, Date>();
         RtuRegisterReadingStorer storer = new RtuRegisterReadingStorer();
@@ -155,7 +155,7 @@ public class StoreObject implements Transaction {
     }
 
 
-    private RtuRegister getRtuRegister(Rtu rtu, int id) throws SQLException, BusinessException {
+    private RtuRegister getRtuRegister(Device rtu, int id) throws SQLException, BusinessException {
         for (RtuRegister rtuRegister : rtu.getRegisters()) {
             if (rtuRegister.getId() == id) {
                 return rtuRegister;

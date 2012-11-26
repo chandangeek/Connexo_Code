@@ -10,9 +10,9 @@ import com.energyict.cpo.Transaction;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amrimpl.RtuRegisterImpl;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.coreimpl.ChannelImpl;
-import com.energyict.mdw.coreimpl.RtuImpl;
+import com.energyict.mdw.coreimpl.DeviceImpl;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 
@@ -30,8 +30,8 @@ public class StoreObject implements Transaction{
 		while(keyit.hasNext()){
 			Map.Entry entry = (Map.Entry)keyit.next();
 			Object key = entry.getKey();
-			if(key instanceof RtuImpl){
-				((Rtu) key).store((ProfileData) entry.getValue(), false);
+			if(key instanceof DeviceImpl){
+				((Device) key).store((ProfileData) entry.getValue(), false);
 			} else if(key instanceof ChannelImpl){
 				(((Channel)key).getRtu()).store((ProfileData) entry.getValue(), false);
 			} else if(key instanceof RtuRegisterImpl){

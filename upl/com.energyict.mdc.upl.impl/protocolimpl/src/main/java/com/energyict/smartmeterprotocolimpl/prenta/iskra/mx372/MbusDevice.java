@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372;
 
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.*;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
@@ -28,13 +28,13 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     private Unit mbusUnit;
 
     private IskraMx372 iskra;
-    public Rtu mbus;
+    public Device mbus;
     private Logger logger;
 
     public MbusDevice() {
     }
 
-    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
+    public MbusDevice(int mbusAddress, int phyAddress, String serial, int mbusMedium, Device rtu, Unit unit, IskraMx372 protocol) throws InvalidPropertyException, MissingPropertyException {
         this.mbusAddress = mbusAddress;
         this.physicalAddress = phyAddress;
         this.customerID = serial;
@@ -101,7 +101,7 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     }
 
     public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
-        rtuType = properties.getProperty("RtuType", "mbus");
+        rtuType = properties.getProperty("DeviceType", "mbus");
     }
 
     /**
@@ -151,7 +151,7 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
         return iskra;
     }
 
-    public Rtu getMbus() {
+    public Device getMbus() {
         return mbus;
     }
 

@@ -38,12 +38,12 @@ class ReadMeterTransaction implements Transaction {
 	private CommunicationProfile communicationProfile;
 
 	private List meterList;
-	private Rtu meter;
+	private Device meter;
 
 	private Date newLastReading = null;
 	private Date newLastLogbook = null;
 
-	ReadMeterTransaction(Concentrator protocol, Rtu concentrator, EeItem meter) 
+	ReadMeterTransaction(Concentrator protocol, Device concentrator, EeItem meter)
 	throws BusinessException {
 
 		this.concentrator = protocol;
@@ -56,7 +56,7 @@ class ReadMeterTransaction implements Transaction {
 	private List find(EeItem meter) throws BusinessException {
 
 		String serial = meter.getIdent();
-		RtuFactory rtuF = MeteringWarehouse.getCurrent().getRtuFactory();
+		DeviceFactory rtuF = MeteringWarehouse.getCurrent().getRtuFactory();
 
 		return rtuF.findBySerialNumber(serial);
 
@@ -68,7 +68,7 @@ class ReadMeterTransaction implements Transaction {
 
 		while( i.hasNext() ) {
 
-			this.meter = (Rtu)i.next();
+			this.meter = (Device)i.next();
 
 			debug( "ReadMeter: " + meter.getFullName() );
 
@@ -563,7 +563,7 @@ class ReadMeterTransaction implements Transaction {
 	}
 
 	/** EdfMq */
-	private boolean useDefaultValue( Rtu meter, int shortName ) {
+	private boolean useDefaultValue( Device meter, int shortName ) {
 
 		if( isPowerQualityConfig() ) {
 

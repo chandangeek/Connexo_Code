@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.iskragprs.csd;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.util.*;
 public class CSDCaller {
 
     private CommunicationScheduler csdCaller = null;
-    private Rtu rtu;
+    private Device rtu;
     private int timeOut;
     private int pollFreq;
     private int csdCallTimeout;
@@ -30,7 +30,7 @@ public class CSDCaller {
      *
      * @param rtu
      */
-    public CSDCaller(Rtu rtu) {
+    public CSDCaller(Device rtu) {
         this.rtu = rtu;
         this.timeOut = Integer.parseInt((String) this.rtu.getProperties().getProperty("PollTimeOut", "900000"));
         this.pollFreq = Integer.parseInt((String) this.rtu.getProperties().getProperty("CsdPollFrequency", "20000"));

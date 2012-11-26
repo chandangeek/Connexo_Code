@@ -55,7 +55,7 @@ import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.LookupEntry;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.RtuMessageShadow;
@@ -1131,7 +1131,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
         return this.protocol.getDlmsSession().getProperties().getConnectionMode().getMode();
     }
 
-    private Rtu getRtuFromDatabaseBySerialNumber() {
+    private Device getRtuFromDatabaseBySerialNumber() {
         String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
         return mw().getRtuFactory().findBySerialNumber(serial).get(0);
     }

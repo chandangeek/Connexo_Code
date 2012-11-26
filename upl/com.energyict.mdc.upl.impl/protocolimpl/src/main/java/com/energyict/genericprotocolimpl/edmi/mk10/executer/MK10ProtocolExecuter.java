@@ -31,7 +31,7 @@ public class MK10ProtocolExecuter {
     public static final byte STATUS_COMMERROR = 2;
     public static final String NO_ERROR = "no error";
 
-    private Rtu meter = null;
+    private Device meter = null;
     private MK10Push mk10Push = null;
     private MK10 mk10Protocol = new MK10();
     private Properties properties = new Properties();
@@ -212,7 +212,7 @@ public class MK10ProtocolExecuter {
         // Let the MK10 protocol know that it's been used as generic Push protocol
         getMk10Protocol().setPushProtocol(true);
 
-        // Read the properties from the Rtu and the Protocol in EIServer and apply them to the MK10Protocol.
+        // Read the properties from the Device and the Protocol in EIServer and apply them to the MK10Protocol.
         readMeterProperties();
         getMk10Protocol().setProperties(this.properties);
         if (DEBUG >= 2) {
@@ -301,7 +301,7 @@ public class MK10ProtocolExecuter {
     public CommunicationProfile getCommunicationProfile() throws BusinessException {
         CommunicationProfile cp = getInboundCommunicationScheduler().getCommunicationProfile();
         if (cp == null) {
-            throw new BusinessException("No CommunicationProfile found for Rtu.");
+            throw new BusinessException("No CommunicationProfile found for Device.");
         }
         return cp;
     }
@@ -310,8 +310,8 @@ public class MK10ProtocolExecuter {
         List<CommunicationScheduler> schedulerList = getInboundSchedulers(getMeter().getCommunicationSchedulers());
         if (schedulerList.size() != 1) {
             throw new BusinessException(
-                    "Rtu MUST have one and only one CommunicationScheduler with an INBOUND modem pool when using push protocol. " +
-                            "CommunicationSchedulers found for Rtu: " + schedulerList.size()
+                    "Device MUST have one and only one CommunicationScheduler with an INBOUND modem pool when using push protocol. " +
+                            "CommunicationSchedulers found for Device: " + schedulerList.size()
             );
         }
         return schedulerList.get(0);
@@ -328,11 +328,11 @@ public class MK10ProtocolExecuter {
         return inboundSchedulers;
     }
 
-    public Rtu getMeter() {
+    public Device getMeter() {
         return meter;
     }
 
-    public void setMeter(Rtu meter) {
+    public void setMeter(Device meter) {
         this.meter = meter;
     }
 

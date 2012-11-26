@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.*;
 
 /**
@@ -15,7 +15,7 @@ public class StoreObjectItem {
     private final Object key;
     private final Object value;
 
-    public StoreObjectItem(Rtu rtu, ProfileData profileData) {
+    public StoreObjectItem(Device rtu, ProfileData profileData) {
         this.key = rtu;
         this.value = profileData;
     }
@@ -30,17 +30,17 @@ public class StoreObjectItem {
         this.value = registerValue;
     }
 
-    public StoreObjectItem(ProfileData profileData, Rtu rtu) {
+    public StoreObjectItem(ProfileData profileData, Device rtu) {
         this.key = profileData;
         this.value = rtu;
     }
 
-    public StoreObjectItem(MeterReadingData meterReadingData, Rtu rtu) {
+    public StoreObjectItem(MeterReadingData meterReadingData, Device rtu) {
         this.key = meterReadingData;
         this.value = rtu;
     }
 
-    public StoreObjectItem(MeterData meterReadingData, Rtu rtu) {
+    public StoreObjectItem(MeterData meterReadingData, Device rtu) {
         this.key = meterReadingData;
         this.value = rtu;
     }

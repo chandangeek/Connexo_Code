@@ -24,7 +24,7 @@ public class ChannelDataExportProperties extends AbstractProtocolProperties {
 
     private static final String GROUP_EXT_NAME = "GroupExternalName";
     private Group group = null;
-    private List<Rtu> rtus;
+    private List<Device> rtus;
 
     public ChannelDataExportProperties(String propertiesFileName) {
         super(new Properties());
@@ -73,16 +73,16 @@ public class ChannelDataExportProperties extends AbstractProtocolProperties {
         return group;
     }
 
-    public List<Rtu> getRtus() {
+    public List<Device> getRtus() {
         if (rtus == null) {
-            rtus = new ArrayList<Rtu>();
+            rtus = new ArrayList<Device>();
             if (getGroup() != null) {
                 List groupMembers = getGroup().getMembers();
                 for (Object member : groupMembers) {
-                    if (member instanceof Rtu) {
-                        rtus.add((Rtu) member);
+                    if (member instanceof Device) {
+                        rtus.add((Device) member);
                     } else {
-                        getLogger().warning("[" + member.getClass().getSimpleName() + "] is not an Rtu. Ignoring.");
+                        getLogger().warning("[" + member.getClass().getSimpleName() + "] is not an Device. Ignoring.");
                     }
                 }
             } else {

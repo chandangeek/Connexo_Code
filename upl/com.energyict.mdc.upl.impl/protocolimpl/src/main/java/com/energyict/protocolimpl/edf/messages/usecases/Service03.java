@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.protocolimpl.edf.messages.*;
 import com.energyict.protocolimpl.edf.messages.objects.*;
 
@@ -21,7 +21,7 @@ public class Service03 extends AbstractFolderAction {
             
             while( i.hasNext() ) {
             
-                Rtu rtu = (Rtu)i.next();
+                Device rtu = (Device)i.next();
                 
                 /* 2 -> set time  (not the sync action, but the set) */
                 MessageContent mr = new MessageWriteRegister( "0.0.1.0.0.255", new Integer( 0 ) );

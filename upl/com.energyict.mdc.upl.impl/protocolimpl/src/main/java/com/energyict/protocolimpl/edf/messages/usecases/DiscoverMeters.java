@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocolimpl.edf.messages.MessageDiscoverMeters;
 
 import java.sql.SQLException;
@@ -18,7 +18,7 @@ public class DiscoverMeters extends AbstractFolderAction {
             Iterator i = folder.getRtus().iterator();
             while( i.hasNext() ) {
             
-                Rtu rtu = (Rtu)i.next();
+                Device rtu = (Device)i.next();
                 
                 MessageDiscoverMeters mr = new MessageDiscoverMeters();
                 mr.setOrdinal(0);

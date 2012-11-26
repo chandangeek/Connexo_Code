@@ -268,10 +268,10 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         return getRtuFromDatabaseBySerialNumberAndClientMac().getFolderId();
     }
 
-    private Rtu getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
+    private Device getRtuFromDatabaseBySerialNumberAndClientMac() throws IOException {
         String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        List<Rtu> rtusWithSameSerialNumber = mw().getRtuFactory().findBySerialNumber(serial);
-        for (Rtu each : rtusWithSameSerialNumber) {
+        List<Device> rtusWithSameSerialNumber = mw().getRtuFactory().findBySerialNumber(serial);
+        for (Device each : rtusWithSameSerialNumber) {
             if (((String) each.getProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
                 return each;
             }

@@ -211,9 +211,9 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     }
 
     /**
-     * Tests if the Rtu wants to use the bulkRequests
+     * Tests if the Device wants to use the bulkRequests
      *
-     * @return true if the Rtu wants to use BulkRequests, false otherwise
+     * @return true if the Device wants to use BulkRequests, false otherwise
      */
     public boolean supportsBulkRequests() {
         return getProtocolProperties().isBulkRequest();

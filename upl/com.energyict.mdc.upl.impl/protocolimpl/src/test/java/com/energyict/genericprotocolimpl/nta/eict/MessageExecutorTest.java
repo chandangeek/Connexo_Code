@@ -27,8 +27,8 @@ public class MessageExecutorTest {
 	private static int rtuMessageID = 369;
 	private static int rtuId = 963;
 	private static String trackingId = "testMessageTrackingId";
-	private static Rtu rtu;
-	private static RtuType rtuType;
+	private static Device rtu;
+	private static DeviceType rtuType;
 	private static String rtuName = "";
 	private static String rtuTypeName = "";
 

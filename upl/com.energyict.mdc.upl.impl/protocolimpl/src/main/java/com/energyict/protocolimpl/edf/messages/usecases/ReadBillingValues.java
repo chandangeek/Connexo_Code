@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 import com.energyict.protocolimpl.edf.messages.MessageReadBillingValues;
 
@@ -20,7 +20,7 @@ public class ReadBillingValues extends AbstractFolderAction {
             
             while( i.hasNext() ) {
             
-                Rtu rtu = (Rtu)i.next();
+                Device rtu = (Device)i.next();
                 
                 MessageContent mr = new MessageReadBillingValues( );
                 mr.setOrdinal(0);

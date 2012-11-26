@@ -250,7 +250,7 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     /**
      * Validate certain protocol specific properties
      *
-     * @param properties - The properties fetched from the Rtu
+     * @param properties - The properties fetched from the Device
      * @throws MissingPropertyException - in case of an error
      * @throws InvalidPropertyException - in case of an error
      */

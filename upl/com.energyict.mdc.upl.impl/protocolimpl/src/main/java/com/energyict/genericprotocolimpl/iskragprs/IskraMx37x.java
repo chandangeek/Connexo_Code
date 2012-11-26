@@ -73,7 +73,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
     private static final int MBUS = 0x01;
 
-    private final static String RTU_TYPE = "RtuType";
+    private final static String RTU_TYPE = "DeviceType";
 
     public static final int MBUS_MAX = 0x04;
 
@@ -91,7 +91,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private DLMSConnection dlmsConnection;
     private CosemObjectFactory cosemObjectFactory;
     private SecureConnection secureConnection;
-    private Rtu rtu;
+    private Device rtu;
     private Clock clock;
     private Cache dlmsCache;
     private DLMSMeterConfig meterConfig;
@@ -456,7 +456,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                     if (!mSerial.equals("")) {
                         Unit mUnit = getMbusUnit(mbusUnit[i]);
                         int mMedium = (int) getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
-                        Rtu mbusRtu = findOrCreateNewMbusDevice(mSerial);
+                        Device mbusRtu = findOrCreateNewMbusDevice(mSerial);
                         if (mbusRtu != null) {
                             mbusDevices[i] = new MbusDevice(mbusAddress, i, mSerial, mMedium, mbusRtu, mUnit, getLogger());
                         } else {
@@ -473,11 +473,11 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         updateMbusDevices(rtu.getDownstreamRtus());
     }
 
-    private void updateMbusDevices(List<Rtu> downstreamRtus) throws SQLException, BusinessException {
-        Iterator<Rtu> it = downstreamRtus.iterator();
+    private void updateMbusDevices(List<Device> downstreamRtus) throws SQLException, BusinessException {
+        Iterator<Device> it = downstreamRtus.iterator();
         boolean delete = true;
         while (it.hasNext()) {
-            Rtu mbus = it.next();
+            Device mbus = it.next();
             delete = true;
             for (int i = 0; i < mbusDevices.length; i++) {
                 if (mbusDevices[i] != null) {
@@ -505,10 +505,10 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private Rtu findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
+    private Device findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
         List mbusList = mw().getRtuFactory().findBySerialNumber(customerID);
         if (mbusList.size() == 1) {
-            Rtu mbusRtu = (Rtu) mbusList.get(0);
+            Device mbusRtu = (Device) mbusList.get(0);
             // Check if gateway has changed, and update if it has
             if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != rtu.getId())) {
                 mbusRtu.updateGateway(rtu);
@@ -519,7 +519,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             getLogger().severe(toDuplicateSerialsErrorMsg(customerID));
             return null;
         }
-        RtuType rtuType = getRtuType();
+        DeviceType rtuType = getRtuType();
         if (rtuType == null) {
             return null;
         } else {
@@ -527,7 +527,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private Rtu createMeter(Rtu rtu2, RtuType type, String customerID) throws SQLException, BusinessException {
+    private Device createMeter(Device rtu2, DeviceType type, String customerID) throws SQLException, BusinessException {
         RtuShadow shadow = type.newRtuShadow();
 
         Date lastreading = shadow.getLastReading();
@@ -560,13 +560,13 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return folderid;
     }
 
-    private RtuType getRtuType() throws IOException {
+    private DeviceType getRtuType() throws IOException {
         String type = getProperty(RTU_TYPE);
         if (Utils.isNull(type)) {
-            getLogger().warning("No automatic meter creation: no property RtuType defined.");
+            getLogger().warning("No automatic meter creation: no property DeviceType defined.");
             return null;
         } else {
-            RtuType rtuType = mw().getRtuTypeFactory().find(type);
+            DeviceType rtuType = mw().getRtuTypeFactory().find(type);
             if (rtuType == null) {
                 throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
             }
@@ -680,7 +680,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
     /**
-     * Checks if the Rtu with the serialnumber exists in database
+     * Checks if the Device with the serialnumber exists in database
      *
      * @param serial
      * @return true or false
@@ -1034,7 +1034,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
             connectionMode = Integer.parseInt(properties.getProperty("Connection", "1")); // 0=HDLC, 1= TCP/IP
-            rtuType = properties.getProperty("RtuType", "");
+            rtuType = properties.getProperty("DeviceType", "");
             TESTLOGGING = Integer.parseInt(properties.getProperty("TestLogging", "0"));
             csdCall = Integer.parseInt(properties.getProperty("CsdCall", "0"));
 
@@ -1068,7 +1068,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         result.add("LoadProfileId");
         result.add("AddressingMode");
         result.add("Connection");
-        result.add("RtuType");
+        result.add("DeviceType");
         result.add("TestLogging");
         result.add("FolderExtName");
         result.add("CsdCall");            // enable the csd call functionality
@@ -1383,7 +1383,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         List slaves = getMeter().getDownstreamRtus();
         Iterator it = slaves.iterator();
         while (it.hasNext()) {
-            Rtu slave = (Rtu) it.next();
+            Device slave = (Device) it.next();
 //			slave.updateGateway(null);
             RtuShadow shadow = slave.getShadow();
             shadow.setGatewayId(0);
@@ -1796,7 +1796,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
     }
 
-    protected void onDemand(Rtu rtu, RtuMessage msg) throws IOException, SQLException, BusinessException {
+    protected void onDemand(Device rtu, RtuMessage msg) throws IOException, SQLException, BusinessException {
         String description = "Getting ondemand registers for meter with serialnumber: " + rtu.getSerialNumber();
         try {
             getLogger().log(Level.INFO, description);
@@ -2206,7 +2206,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return msgSpec;
     }
 
-    public Rtu getMeter() {
+    public Device getMeter() {
         return this.rtu;
     }
 

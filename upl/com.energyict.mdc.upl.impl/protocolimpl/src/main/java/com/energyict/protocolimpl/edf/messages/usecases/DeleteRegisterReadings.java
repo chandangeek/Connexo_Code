@@ -49,7 +49,7 @@ public class DeleteRegisterReadings extends AbstractFolderAction implements Tran
         
         while( fi.hasNext() ) {
         
-            Rtu rtu = (Rtu)fi.next();
+            Device rtu = (Device)fi.next();
             
             
             rtu.updateLastReading( lastWeek() );

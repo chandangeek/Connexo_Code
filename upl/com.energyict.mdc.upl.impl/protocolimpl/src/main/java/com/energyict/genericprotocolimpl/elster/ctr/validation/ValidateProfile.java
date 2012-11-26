@@ -18,7 +18,7 @@ import java.util.logging.Level;
 public class ValidateProfile {
 
     private Folder parentFolder = null;
-    private List<Rtu> rtus;
+    private List<Device> rtus;
     private ValidationProperties properties;
 
     public ValidateProfile(ValidationProperties properties) {
@@ -42,7 +42,7 @@ public class ValidateProfile {
 
     public void doValidate() throws BusinessException {
         for (int i = 0; i < getAllRtus().size(); i++) {
-            Rtu rtu = getAllRtus().get(i);
+            Device rtu = getAllRtus().get(i);
             ValidationUtils.log(Level.SEVERE, "[" + (i + 1) + "/" + getAllRtus().size() + "] Validating rtu: " + rtu.getPath() + rtu.getNameSeparator() + rtu.getName());
             validateProfileForRtu(rtu);
         }
@@ -62,7 +62,7 @@ public class ValidateProfile {
 
     private void listDevicesCreatedBefore() throws BusinessException {
         for (int i = 0; i < getAllRtus().size(); i++) {
-            Rtu rtu = getAllRtus().get(i);
+            Device rtu = getAllRtus().get(i);
             Date installationDate = ValidationUtils.getInstallationDate(rtu, getProperties().getOnlyFrom());
             Date before = getProperties().getListDevicesInstalledBeforeDate();
             if (installationDate.before(before)) {
@@ -73,7 +73,7 @@ public class ValidateProfile {
 
     private void listDevicesCreatedAfter() throws BusinessException {
         for (int i = 0; i < getAllRtus().size(); i++) {
-            Rtu rtu = getAllRtus().get(i);
+            Device rtu = getAllRtus().get(i);
             Date installationDate = ValidationUtils.getInstallationDate(rtu, getProperties().getOnlyFrom());
             Date after = getProperties().getListDevicesInstalledAfterDate();
             if (installationDate.after(after)) {
@@ -84,7 +84,7 @@ public class ValidateProfile {
 
     private void listDevicesCreatedBetween() throws BusinessException {
         for (int i = 0; i < getAllRtus().size(); i++) {
-            Rtu rtu = getAllRtus().get(i);
+            Device rtu = getAllRtus().get(i);
             Date installationDate = ValidationUtils.getInstallationDate(rtu, getProperties().getOnlyFrom());
             Date before = getProperties().getListDevicesInstalledBeforeDate();
             Date after = getProperties().getListDevicesInstalledAfterDate();
@@ -94,7 +94,7 @@ public class ValidateProfile {
         }
     }
 
-    private void validateProfileForRtu(Rtu rtu) throws BusinessException {
+    private void validateProfileForRtu(Device rtu) throws BusinessException {
         List<Channel> channels = rtu.getChannels();
         for (Channel channel : channels) {
             if (getProperties().getChannelsToValidate().contains(channel.getLoadProfileIndex())) {
@@ -191,7 +191,7 @@ public class ValidateProfile {
         }
     }
 
-    public List<Rtu> getAllRtus() throws BusinessException {
+    public List<Device> getAllRtus() throws BusinessException {
         if (rtus == null) {
             String groupExternalName = getProperties().getGroupExternalName();
             Group group;
@@ -204,11 +204,11 @@ public class ValidateProfile {
                 Folder parentFolder = getParentFolder();
                 rtus = ValidationUtils.getMeteringWarehouse().getRtuFactory().findAllInTree(parentFolder);
             } else {
-                rtus = new ArrayList<Rtu>();
+                rtus = new ArrayList<Device>();
                 List groupMembers = group.getMembers();
                 for (Object groupMember : groupMembers) {
-                    if (groupMember instanceof Rtu) {
-                        rtus.add((Rtu) groupMember);
+                    if (groupMember instanceof Device) {
+                        rtus.add((Device) groupMember);
                     }
                 }
             }

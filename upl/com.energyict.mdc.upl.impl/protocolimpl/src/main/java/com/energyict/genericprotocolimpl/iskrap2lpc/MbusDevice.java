@@ -43,7 +43,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
     private ObisCode valveState = ObisCode.fromString("0.0.128.30.31.255");
     private ObisCode valveControl = ObisCode.fromString("0.0.128.30.30.255");
 
-    public Rtu mbus;
+    public Device mbus;
     private Logger logger;
     private ProtocolChannelMap channelMap = null;
     private Unit mbusUnit;
@@ -56,7 +56,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
     public MbusDevice() {
     }
 
-    public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Rtu rtu, Unit unit, Logger logger) {
+    public MbusDevice(long mbusAddress, int phyAddress, String serial, int mbusMedium, Device rtu, Unit unit, Logger logger) {
         this.mbusAddress = mbusAddress;
         this.physicalAddress = phyAddress;
         this.customerID = serial;
@@ -244,7 +244,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         }
     }
 
-    private void sendMeterMessages(Rtu eMeter) throws BusinessException, SQLException {
+    private void sendMeterMessages(Device eMeter) throws BusinessException, SQLException {
         Iterator messageIt = getRtu().getPendingMessages().iterator();
         if (messageIt.hasNext()) {
             getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + getCustomerID());
@@ -454,7 +454,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         return msgSpec;
     }
 
-    public Rtu getRtu() {
+    public Device getRtu() {
         return mbus;
     }
 

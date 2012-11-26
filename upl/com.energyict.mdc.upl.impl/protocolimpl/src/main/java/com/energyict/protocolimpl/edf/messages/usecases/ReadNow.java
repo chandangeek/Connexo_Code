@@ -17,7 +17,7 @@ public class ReadNow extends AbstractFolderAction {
             
             while( i.hasNext() ) {
             
-                Rtu rtu = (Rtu)i.next();
+                Device rtu = (Device)i.next();
                 
                 Iterator schi = rtu.getCommunicationSchedulers().iterator();
                 

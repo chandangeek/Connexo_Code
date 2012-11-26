@@ -1,12 +1,12 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 
 import java.util.*;
 
 /**
- * Provides functionality to create a fullShadow <CODE>Rtu</CODE> which will contain all necessary information for a protocol to execute his tasks
+ * Provides functionality to create a fullShadow <CODE>Device</CODE> which will contain all necessary information for a protocol to execute his tasks
  */
 public class RtuFullProtocolShadowBuilder {
 
@@ -17,12 +17,12 @@ public class RtuFullProtocolShadowBuilder {
     }
 
     /**
-     * Create an <CODE>RtuFullProtocolShadow</CODE> from the given <CODE>Rtu</CODE>
+     * Create an <CODE>RtuFullProtocolShadow</CODE> from the given <CODE>Device</CODE>
      *
-     * @param rtu the Rtu to convert
+     * @param rtu the Device to convert
      * @return the converted object
      */
-    public static RtuFullProtocolShadow createRtuFullProtocolShadow(Rtu rtu) {
+    public static RtuFullProtocolShadow createRtuFullProtocolShadow(Device rtu) {
         RtuFullProtocolShadow rfps = new RtuFullProtocolShadowImpl();
         rfps.setChannelFullProtocolShadow(createChannelFullProtocolShadows(rtu));
         rfps.setDeviceId(rtu.getDeviceId());
@@ -53,10 +53,10 @@ public class RtuFullProtocolShadowBuilder {
     /**
      * Create a <CODE>List</CODE> of <CODE>ChannelFullProtocolShadow</CODE> objects
      *
-     * @param rtu the <CODE>Rtu</CODE> containing the channels
+     * @param rtu the <CODE>Device</CODE> containing the channels
      * @return the newborn list
      */
-    private static List<ChannelFullProtocolShadow> createChannelFullProtocolShadows(final Rtu rtu) {
+    private static List<ChannelFullProtocolShadow> createChannelFullProtocolShadows(final Device rtu) {
         List<ChannelFullProtocolShadow> channelFullProtocolShadowList = new ArrayList<ChannelFullProtocolShadow>();
         for (Channel channel : rtu.getChannels()) {
             channelFullProtocolShadowList.add(ChannelFullProtocolShadowBuilder.createChannelFullProtocolShadow(channel));

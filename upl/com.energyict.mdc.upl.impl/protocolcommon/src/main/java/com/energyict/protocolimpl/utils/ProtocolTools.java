@@ -4,7 +4,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -982,7 +982,7 @@ public final class ProtocolTools {
      * @param rtu
      * @return
      */
-    public static Properties getRtuProperties(Rtu rtu) {
+    public static Properties getRtuProperties(Device rtu) {
         Properties properties = new Properties();
         if (rtu != null) {
             CommunicationProtocol protocol = rtu.getRtuType().getProtocol();

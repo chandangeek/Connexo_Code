@@ -6,7 +6,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.vodafone.gdsp.ws.*;
@@ -62,14 +62,14 @@ public class SmsWakeup {
     private String endpointAddress;
 
     private String soapAction;
-    private Rtu meter;
+    private Device meter;
     private CommunicationScheduler scheduler;
 
     private Logger logger;
     private static final String VF_ENDPOINT_ADDRESS_PROPERTY = "vfEndpointAddress";
     private static final String VF_SOAP_ACTION_PROPERTY = "vfSoapAction";
 
-    public SmsWakeup(Rtu meter) {
+    public SmsWakeup(Device meter) {
         this(meter, null);
     }
 
@@ -79,7 +79,7 @@ public class SmsWakeup {
      * @param meter  the rtu
      * @param logger the used <CODE>Logger</CODE>
      */
-    public SmsWakeup(Rtu meter, Logger logger) {
+    public SmsWakeup(Device meter, Logger logger) {
         this.logger = logger;
         this.meter = meter;
         updateProperties();
@@ -303,7 +303,7 @@ public class SmsWakeup {
      *
      * @return
      */
-    private Rtu getRefreshedMeter() {
+    private Device getRefreshedMeter() {
         return MeteringWarehouse.getCurrent().getRtuFactory().find(this.meter.getId());
     }
 
@@ -386,7 +386,7 @@ public class SmsWakeup {
 //		Utilities.createEnvironment();
 //		MeteringWarehouse.createBatchContext(false);
 //		MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-//		Rtu rtu = mw.getRtuFactory().find(18052);
+//		Device rtu = mw.getRtuFactory().find(18052);
 //		String str = (String)rtu.getDefaultRelation().get("Gov");
 //		System.out.println(str);
 

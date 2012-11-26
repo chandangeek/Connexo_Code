@@ -5,7 +5,6 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.genericprotocolimpl.nta.eventhandling.*;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
 

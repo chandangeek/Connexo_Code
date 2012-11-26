@@ -10,7 +10,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.field.PeriodTrace_
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.ReferenceDate;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -31,7 +31,7 @@ public class ProfileChannel {
     private final Channel meterChannel;
 
     private TimeZone deviceTimeZone = null;
-    private Rtu rtu = null;
+    private Device rtu = null;
     private String channelObjectId = null;
     private PeriodTrace_C period = null;
 
@@ -135,7 +135,7 @@ public class ProfileChannel {
      *
      * @return
      */
-    private Rtu getRtu() {
+    private Device getRtu() {
         if (rtu == null) {
             rtu = getMeterChannel().getRtu();
         }

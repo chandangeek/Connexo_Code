@@ -6,7 +6,7 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +91,7 @@ public class WebRTUKP extends AbstractNTAProtocol {
      * @return a new Mbus class instance
      */
     @Override
-    protected AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    protected AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         return new MbusDevice(serial, physicalAddress, mbusRtu, logger);  //To change body of implemented methods use File | Settings | File Templates.
     }
 
@@ -101,7 +101,7 @@ public class WebRTUKP extends AbstractNTAProtocol {
     }
 
 //    @Override
-    protected void setRtu(Rtu rtu) {
+    protected void setRtu(Device rtu) {
 //        super.setRtu(rtu);
     }
 

@@ -5,7 +5,7 @@ import com.energyict.cpo.Environment;
 import com.energyict.interval.RawIntervalRecord;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.coreimpl.CommunicationProtocolImpl;
-import com.energyict.mdw.coreimpl.RtuTypeImpl;
+import com.energyict.mdw.coreimpl.DeviceTypeImpl;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.Utilities;
 import org.junit.*;
@@ -53,9 +53,9 @@ public class ConcentratorTest{
 	private Concentrator iskraConcentrator;
 	private TConnection connection;
 	private MeterReadTransaction meterReadTransaction;
-	private Rtu meter;
-	private Rtu mbusRtu[] = {null, null, null, null, null};
-	private RtuType rtuTypeMeter = null;
+	private Device meter;
+	private Device mbusRtu[] = {null, null, null, null, null};
+	private DeviceType rtuTypeMeter = null;
 	
 	private List result = new ArrayList();
 
@@ -104,7 +104,7 @@ public class ConcentratorTest{
 		if(result.size() == 0) {
 			rtuTypeMeter = Utilities.createRtuType(commProtMeter, rtuTypeName, 4);
 		} else {
-			rtuTypeMeter = (RtuType)result.get(0);
+			rtuTypeMeter = (DeviceType)result.get(0);
 		}
 		
 	}
@@ -115,7 +115,7 @@ public class ConcentratorTest{
 		List result = Utilities.mw().getRtuFactory().findByName(rtuName);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++) {
-				((Rtu)result.get(i)).delete();
+				((Device)result.get(i)).delete();
 			}
 		}
 		
@@ -123,7 +123,7 @@ public class ConcentratorTest{
 		result = Utilities.mw().getRtuTypeFactory().findByName(rtuTypeName);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++){
-				((RtuTypeImpl)result.get(i)).delete();
+				((DeviceTypeImpl)result.get(i)).delete();
 			}
 		}
 		
@@ -160,7 +160,7 @@ public class ConcentratorTest{
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
-				meter = (Rtu)result.get(0);
+				meter = (Device)result.get(0);
 			}
 			
 			if(meter==null) {
@@ -215,7 +215,7 @@ public class ConcentratorTest{
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
-				meter = (Rtu)result.get(0);
+				meter = (Device)result.get(0);
 			}
 			meter = Utilities.addChannel(meter, TimeDuration.DAYS, 5);
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 6);
@@ -301,7 +301,7 @@ public class ConcentratorTest{
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
-				meter = (Rtu)result.get(0);
+				meter = (Device)result.get(0);
 			}
 			meter = Utilities.addChannel(meter, TimeDuration.DAYS, 5);
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 6);
@@ -377,7 +377,7 @@ public class ConcentratorTest{
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
-				meter = (Rtu)result.get(0);
+				meter = (Device)result.get(0);
 			}
 			meter = Utilities.addChannel(meter, TimeDuration.DAYS, 5);
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 6);
@@ -457,7 +457,7 @@ public class ConcentratorTest{
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
-				meter = (Rtu)result.get(0);
+				meter = (Device)result.get(0);
 			}
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
 			
@@ -507,7 +507,7 @@ public class ConcentratorTest{
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
-				meter = (Rtu)result.get(0);
+				meter = (Device)result.get(0);
 			}
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
 			
@@ -563,7 +563,7 @@ public class ConcentratorTest{
 		if(result.size() > 0){
 			if (result.size() > 0){
 				for(int j = 0; j < result.size(); j++) {
-					((Rtu)result.get(j)).delete();
+					((Device)result.get(j)).delete();
 				}
 			}
 		}
@@ -571,7 +571,7 @@ public class ConcentratorTest{
 		if(result.size() > 0){
 			if (result.size() > 0){
 				for(int j = 0; j < result.size(); j++) {
-					((Rtu)result.get(j)).delete();
+					((Device)result.get(j)).delete();
 				}
 			}
 		}
@@ -579,7 +579,7 @@ public class ConcentratorTest{
 		if(result.size() > 0){
 			if (result.size() > 0){
 				for(int j = 0; j < result.size(); j++) {
-					((Rtu)result.get(j)).delete();
+					((Device)result.get(j)).delete();
 				}
 			}
 		}
@@ -587,7 +587,7 @@ public class ConcentratorTest{
 		if(result.size() > 0){
 			if (result.size() > 0){
 				for(int j = 0; j < result.size(); j++) {
-					((Rtu)result.get(j)).delete();
+					((Device)result.get(j)).delete();
 				}
 			}
 		}
@@ -596,7 +596,7 @@ public class ConcentratorTest{
 		result = Utilities.mw().getRtuTypeFactory().findByName(mbusMeterType);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++) {
-				((RtuTypeImpl)result.get(i)).delete();
+				((DeviceTypeImpl)result.get(i)).delete();
 			}
 		}
 		
@@ -619,7 +619,7 @@ public class ConcentratorTest{
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
-				meter = (Rtu)result.get(0);
+				meter = (Device)result.get(0);
 			}
 			meter = Utilities.addChannel(meter, TimeDuration.MONTHS, 5);
 			
@@ -646,7 +646,7 @@ public class ConcentratorTest{
 			if(result.size() == 0) {
 				rtuTypeMeter = Utilities.createRtuType(commProtMeter, mbusMeterType, 4);
 			} else {
-				rtuTypeMeter = (RtuType)result.get(0);
+				rtuTypeMeter = (DeviceType)result.get(0);
 			}
 			
 			for(int i = 0; i < 4; i++){
@@ -654,7 +654,7 @@ public class ConcentratorTest{
 				if(result.size() == 0) {
 					mbusRtu[i] = Utilities.createRtu(rtuTypeMeter, ""+i+i+i+i, 3600);
 				} else {
-					mbusRtu[i] = (Rtu)result.get(0);
+					mbusRtu[i] = (Device)result.get(0);
 				}
 				mbusRtu[i] = Utilities.addChannel(mbusRtu[i], TimeDuration.DAYS, 5);
 				mbusRtu[i] = Utilities.addPropertyToRtu(mbusRtu[i], "ChannelMap", "1:1:1:1:0."+(i+1)+".128.50.0d");

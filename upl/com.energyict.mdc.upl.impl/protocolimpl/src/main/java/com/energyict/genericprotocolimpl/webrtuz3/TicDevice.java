@@ -7,7 +7,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.profiles.TicEventProfile;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.TicProfile;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 
@@ -19,14 +19,14 @@ import java.util.logging.Logger;
 
 public class TicDevice implements GenericProtocol {
 
-    private Rtu tic;
+    private Device tic;
     private Logger logger;
     private WebRTUZ3 webRtu;
 
     public TicDevice() {
     }
 
-    public TicDevice(Rtu tic) {
+    public TicDevice(Device tic) {
         this.tic = tic;
     }
 
@@ -97,7 +97,7 @@ public class TicDevice implements GenericProtocol {
         return this.webRtu;
     }
 
-    public Rtu getMeter() {
+    public Device getMeter() {
         return this.tic;
     }
 

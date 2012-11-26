@@ -9,7 +9,7 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.genericprotocolimpl.webrtuz3.MbusDevice;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -261,7 +261,7 @@ public class MbusDailyMonthly extends AbstractDLMSProfile {
         return baseObisCode;
     }
 
-    private Rtu getMeter(){
+    private Device getMeter(){
 		return this.mbusDevice.getMbus();
 	}
 	

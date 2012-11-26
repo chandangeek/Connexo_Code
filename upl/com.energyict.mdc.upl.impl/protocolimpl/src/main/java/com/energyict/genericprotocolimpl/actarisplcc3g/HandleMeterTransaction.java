@@ -21,7 +21,7 @@ import java.util.*;
 public class HandleMeterTransaction implements Transaction {
     
     private HandleMeter handleMeter;
-    Rtu device = null; 
+    Device device = null;
     List rtuRegisters=null;
     
     HandleMeterTransaction(HandleMeter handleMeter) {
@@ -202,7 +202,7 @@ public class HandleMeterTransaction implements Transaction {
         doLogMeterDataCollection(meterReadingData);
         return meterReadingData;
         
-    } // private MeterReadingData readRegisters(Rtu device) throws IOException
+    } // private MeterReadingData readRegisters(Device device) throws IOException
     
     private List getRtuRegisters() {
         // caching...
@@ -223,10 +223,10 @@ public class HandleMeterTransaction implements Transaction {
         return null;
     } 
     
-    private Rtu findOrCreateMeter(PLCCMeterListBlocData data) throws BusinessException {
+    private Device findOrCreateMeter(PLCCMeterListBlocData data) throws BusinessException {
         
         String sNr = data.getSerialNumber();
-        RtuFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();
+        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();
         
         List found = rtuFactory.findBySerialNumber(sNr);
         
@@ -240,7 +240,7 @@ public class HandleMeterTransaction implements Transaction {
             throw new BusinessException(msg);
         }
         
-        return (Rtu)found.get(0);
+        return (Device)found.get(0);
         
     }
     
@@ -289,7 +289,7 @@ public class HandleMeterTransaction implements Transaction {
         
         processMessagePairs(messagePairs);
         
-    } // private void handleMessages(Rtu device) throws BusinessException, SQLException
+    } // private void handleMessages(Device device) throws BusinessException, SQLException
 
 
     

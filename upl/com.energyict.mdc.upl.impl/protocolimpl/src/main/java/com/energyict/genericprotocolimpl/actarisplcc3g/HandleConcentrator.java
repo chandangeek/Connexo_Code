@@ -14,7 +14,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -30,7 +30,7 @@ public class HandleConcentrator {
     
     private AMRJournalManager aMRJournalManager=null;
     private Concentrator concentrator;
-    private Rtu concentratorDevice;
+    private Device concentratorDevice;
     private CommunicationScheduler concentratorScheduler;
     private Logger logger;
     private long connectTime=0;
@@ -40,7 +40,7 @@ public class HandleConcentrator {
     int state;
     
     /** Creates a new instance of HandleMeter */
-    public HandleConcentrator(Concentrator concentrator, Rtu concentratorDevice, CommunicationScheduler concentratorScheduler, Logger logger) {
+    public HandleConcentrator(Concentrator concentrator, Device concentratorDevice, CommunicationScheduler concentratorScheduler, Logger logger) {
         
         this.setConcentrator(concentrator);
         this.setConcentratorDevice(concentratorDevice);
@@ -152,11 +152,11 @@ public class HandleConcentrator {
         this.logger = logger;
     }
 
-    public Rtu getConcentratorDevice() {
+    public Device getConcentratorDevice() {
         return concentratorDevice;
     }
 
-    private void setConcentratorDevice(Rtu concentratorDevice) {
+    private void setConcentratorDevice(Device concentratorDevice) {
         this.concentratorDevice = concentratorDevice;
     }
     

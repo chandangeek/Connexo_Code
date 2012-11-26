@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.protocolimpl.edf.messages.*;
 import com.energyict.protocolimpl.edf.messages.objects.*;
 
@@ -22,7 +22,7 @@ public class Service08 extends AbstractFolderAction {
             
             while( i.hasNext() ) {
             
-                Rtu rtu = (Rtu)i.next();
+                Device rtu = (Device)i.next();
         
                 /* 2 - 8 -> read indexes */
                 MessageContent mr = new MessageReadIndexes( );

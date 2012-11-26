@@ -6,7 +6,7 @@ import com.energyict.mdw.shadow.RtuTypeShadow;
 import java.util.*;
 
 /**
- * Provides logical information about an {@link com.energyict.mdw.core.Rtu}
+ * Provides logical information about an {@link com.energyict.mdw.core.Device}
  */
 public interface RtuFullProtocolShadow {
 
@@ -44,7 +44,7 @@ public interface RtuFullProtocolShadow {
     void setRtuLastLogBook(Date lastLogBook);
 
     /**
-     * @return all the Custom properties defined on the {@link com.energyict.mdw.core.Rtu}, and those defined on the used {@link com.energyict.mdw.core.CommunicationProtocol}
+     * @return all the Custom properties defined on the {@link com.energyict.mdw.core.Device}, and those defined on the used {@link com.energyict.mdw.core.CommunicationProtocol}
      */
     Properties getRtuProperties();
 

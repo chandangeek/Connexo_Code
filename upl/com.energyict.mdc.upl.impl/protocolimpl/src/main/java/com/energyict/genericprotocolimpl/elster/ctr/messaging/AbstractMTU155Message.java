@@ -4,7 +4,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRFirmwareUpgradeTimeOutException;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.MessageEntry;
 
 import java.util.logging.Logger;
@@ -18,7 +18,7 @@ public abstract class AbstractMTU155Message {
 
     private final RequestFactory factory;
     private final Logger logger;
-    private final Rtu rtu;
+    private final Device rtu;
     private final StoreObject storeObject;
 
     public abstract boolean canExecuteThisMessage(MessageEntry messageEntry);
@@ -29,7 +29,7 @@ public abstract class AbstractMTU155Message {
         this(messageExecutor.getFactory(), messageExecutor.getLogger(), messageExecutor.getRtu(), messageExecutor.getStoreObject());
     }
 
-    public AbstractMTU155Message(RequestFactory factory, Logger logger, Rtu rtu, StoreObject storeObject) {
+    public AbstractMTU155Message(RequestFactory factory, Logger logger, Device rtu, StoreObject storeObject) {
         this.factory = factory;
         this.logger = logger == null ? Logger.getLogger(getClass().getName()) : logger;
         this.rtu = rtu;
@@ -48,7 +48,7 @@ public abstract class AbstractMTU155Message {
         return logger;
     }
 
-    public Rtu getRtu() {
+    public Device getRtu() {
         return rtu;
     }
 

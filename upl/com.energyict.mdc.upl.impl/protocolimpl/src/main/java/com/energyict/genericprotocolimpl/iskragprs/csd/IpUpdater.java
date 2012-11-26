@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
 
+import com.energyict.mdw.core.Device;
 import org.hibernate.ejb.Ejb3Configuration;
 import org.hibernate.ejb.EntityManagerImpl;
 
@@ -19,7 +20,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.SqlBuilder;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.mdw.core.Rtu;
 
 public class IpUpdater {
 
@@ -41,7 +41,7 @@ public class IpUpdater {
 	
 	private static String IPADDRESS = "FRAMED_IP_ADDRESS";
 
-	private Rtu rtu;
+	private Device rtu;
 	private int pollTimeout;
 	private int pollFreq;
 

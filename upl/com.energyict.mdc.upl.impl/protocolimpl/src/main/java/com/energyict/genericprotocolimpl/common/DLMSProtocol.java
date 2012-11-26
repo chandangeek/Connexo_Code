@@ -96,9 +96,9 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     private DLMSCache dlmsCache;
 
     /**
-     * The current {@link Rtu}
+     * The current {@link com.energyict.mdw.core.Device}
      */
-    private Rtu meter;
+    private Device meter;
 
     /**
      * The used {@link CommunicationScheduler}
@@ -484,7 +484,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      *
      * @throws IOException
      * @throws DLMSConnectionException if addressingMode is unknown
-     * @throws BusinessException       if multiple records were found for the current Rtu ID
+     * @throws BusinessException       if multiple records were found for the current Device ID
      * @throws SQLException            if a database access error occurs
      */
     protected void initializeGlobals() throws IOException, DLMSConnectionException, SQLException, BusinessException {
@@ -541,12 +541,12 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     }
 
     /**
-     * Retrieve the Rtu back from the database.
+     * Retrieve the Device back from the database.
      * If any updates have been done then you won't get them until you retrieve it again.
      *
-     * @return your Rtu
+     * @return your Device
      */
-    private Rtu getUpdatedMeter() {
+    private Device getUpdatedMeter() {
         return CommonUtils.mw().getRtuFactory().find(meter.getId());
     }
 
@@ -570,7 +570,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     /**
      * @return the current RTU
      */
-    public Rtu getMeter() {
+    public Device getMeter() {
         return this.meter;
     }
 

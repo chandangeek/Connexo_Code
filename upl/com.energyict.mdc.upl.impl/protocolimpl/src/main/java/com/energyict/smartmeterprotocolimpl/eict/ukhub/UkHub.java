@@ -371,7 +371,7 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
     /**
      * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Rtu is being waked up.
+     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
      *
      * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
      * @param link                     Link created by the comserver, can be null if a NullDialer is configured

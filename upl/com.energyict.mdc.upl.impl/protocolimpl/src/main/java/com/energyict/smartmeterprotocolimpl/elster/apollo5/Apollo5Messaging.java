@@ -87,7 +87,7 @@ public class Apollo5Messaging extends AS300Messaging {
                 if (group != null) {
                     int index = 1;
                     for (Object o : group.getMembers()) {
-                        Rtu device = (Rtu) o;
+                        Device device = (Device) o;
                         RtuRegister register = device.getRegister(PUBLIC_KEYS);
                         if (register != null) {
                             List<RtuRegisterReading> lastXReadings = register.getLastXReadings(1);
@@ -96,10 +96,10 @@ public class Apollo5Messaging extends AS300Messaging {
                                 addChildTag(builder, KEY_PAIR + String.valueOf(index), keyPair);
                                 index++;
                             } else {
-                                throw new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have a value for the public key register.");
+                                throw new ApplicationException("Device with serial number " + device.getSerialNumber() + " doesn't have a value for the public key register.");
                             }
                         } else {
-                            throw new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have the public key register defined.");
+                            throw new ApplicationException("Device with serial number " + device.getSerialNumber() + " doesn't have the public key register defined.");
                         }
                     }
                 } else {

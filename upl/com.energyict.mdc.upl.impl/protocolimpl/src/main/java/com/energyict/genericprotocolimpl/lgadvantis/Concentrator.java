@@ -33,7 +33,7 @@ public class Concentrator implements GenericProtocol, Messaging {
     private CommunicationScheduler scheduler;
     private Logger logger;
 
-    private Rtu concentrator;
+    private Device concentrator;
     private CosemFactory cosemFactory;
 
 

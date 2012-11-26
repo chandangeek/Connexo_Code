@@ -1228,9 +1228,9 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     /* These methods require database access ...
     /*****************************************************************************/
 
-    private Rtu getRtuFromDatabaseBySerialNumber() {
+    private Device getRtuFromDatabaseBySerialNumber() {
         String serial = this.protocol.getSerialNumber();
-        Rtu rtu = mw().getRtuFactory().findBySerialNumber(serial).get(0);
+        Device rtu = mw().getRtuFactory().findBySerialNumber(serial).get(0);
         ProtocolTools.closeConnection();
         return rtu;
     }

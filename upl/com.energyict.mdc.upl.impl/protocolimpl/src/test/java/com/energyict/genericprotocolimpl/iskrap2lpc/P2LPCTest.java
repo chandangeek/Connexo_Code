@@ -40,9 +40,9 @@ public class P2LPCTest {
     private MeterReadTransaction meterReadTransaction;
     private TConnection connection;
     private CommunicationScheduler commScheduler;
-    private Rtu meter;
-    private Rtu concentrator;
-    private RtuType rtuTypeMeter = null;
+    private Device meter;
+    private Device concentrator;
+    private DeviceType rtuTypeMeter = null;
     private String testMeter = "TestMeter";
     private String testConcentrator = "TestConcentrator";
     private String testname = "12345678";
@@ -89,7 +89,7 @@ public class P2LPCTest {
         if (result.size() == 0) {
             rtuTypeMeter = Utilities.createRtuType(commProtMeter, testMeter, 4);
         } else {
-            rtuTypeMeter = (RtuType) result.get(0);
+            rtuTypeMeter = (DeviceType) result.get(0);
         }
     }
 
@@ -139,7 +139,7 @@ public class P2LPCTest {
         if (result.size() == 0) {
             concentrator = Utilities.createRtu(rtuTypeMeter, testname, 900);
         } else {
-            concentrator = (Rtu) result.get(0);
+            concentrator = (Device) result.get(0);
         }
 
         if (concentrator == null) {
@@ -258,7 +258,7 @@ public class P2LPCTest {
             if (result.size() == 0) {
                 meter = Utilities.createRtu(rtuTypeMeter, testname, 900);
             } else {
-                meter = (Rtu) result.get(0);
+                meter = (Device) result.get(0);
             }
 
             if (meter == null) {
@@ -318,7 +318,7 @@ public class P2LPCTest {
             if (result.size() == 0) {
                 concentrator = Utilities.createRtu(rtuTypeMeter, testname, 900);
             } else {
-                concentrator = (Rtu) result.get(0);
+                concentrator = (Device) result.get(0);
             }
 
             if (concentrator == null) {
@@ -449,7 +449,7 @@ public class P2LPCTest {
         if (result.size() == 0) {
             rtuTypeMeter = Utilities.createRtuType(commProtMeter, testConcentrator, 0);
         } else {
-            rtuTypeMeter = (RtuType) result.get(0);
+            rtuTypeMeter = (DeviceType) result.get(0);
         }
     }
 

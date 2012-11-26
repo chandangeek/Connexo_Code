@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 import com.energyict.protocolimpl.edf.messages.MessageWriteRegister;
 import com.energyict.protocolimpl.edf.messages.objects.*;
@@ -22,7 +22,7 @@ public class SetTempoCalendar extends AbstractFolderAction {
             
             while( i.hasNext() ) {
             
-                Rtu rtu = (Rtu)i.next();
+                Device rtu = (Device)i.next();
                 
                     
                 ActivityCalendar ac = new ActivityCalendar( "0","0" );

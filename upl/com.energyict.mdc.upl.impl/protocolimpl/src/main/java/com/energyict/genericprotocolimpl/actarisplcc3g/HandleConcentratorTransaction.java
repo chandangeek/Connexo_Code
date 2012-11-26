@@ -77,7 +77,7 @@ public class HandleConcentratorTransaction implements Transaction {
         
         processMessagePairs(messagePairs);
         
-    } // private void handleMessages(Rtu device) throws BusinessException, SQLException
+    } // private void handleMessages(Device device) throws BusinessException, SQLException
 
 
     
@@ -200,7 +200,7 @@ public class HandleConcentratorTransaction implements Transaction {
         
         return meterReadingData;
         
-    } // private MeterReadingData readRegisters(Rtu device) throws IOException    
+    } // private MeterReadingData readRegisters(Device device) throws IOException
     
     private List getRtuRegisters() {
         // caching...
@@ -227,13 +227,13 @@ public class HandleConcentratorTransaction implements Transaction {
     private void findOrCreateMeter(PLCCMeterListBlocData data) throws BusinessException,SQLException {
         
         String sNr = data.getSerialNumber();
-        RtuFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();
+        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();
         
         List found = rtuFactory.findBySerialNumber(sNr);
         
         if( found.size() == 1 ) {
             // update reference
-            Rtu device = (Rtu)found.get(0);
+            Device device = (Device)found.get(0);
             if ((device.getGateway() == null) || (device.getGateway().getId() != handleConcentrator.getConcentratorDevice().getId()))
                 device.updateGateway(handleConcentrator.getConcentratorDevice());
         }

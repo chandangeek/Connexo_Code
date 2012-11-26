@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.util;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.amr.RtuRegisterMappingFactory;
-import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.shadow.RtuTypeShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
@@ -82,7 +82,7 @@ public class CtrMasterData {
 */
 
 
-        RtuType rtuType = CommonUtils.mw().getRtuTypeFactory().find("MTU155");
+        DeviceType rtuType = CommonUtils.mw().getRtuTypeFactory().find("MTU155");
         RtuTypeShadow rtuTypeShadow = rtuType.getShadow();
         List<RtuRegisterMapping> mappings = factory.findAll();
         for (RtuRegisterMapping mapping : mappings) {

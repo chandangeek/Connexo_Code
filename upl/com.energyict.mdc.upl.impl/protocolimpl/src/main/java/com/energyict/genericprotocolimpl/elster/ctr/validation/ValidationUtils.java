@@ -21,7 +21,7 @@ public class ValidationUtils {
     private static RelationAttributeType installationDateRelationType;
     private static Date now = null;
     private static Logger logger;
-    private static Map<Rtu, Date> installationDates = new HashMap<Rtu, Date>();
+    private static Map<Device, Date> installationDates = new HashMap<Device, Date>();
 
     public static final String DATE_FORMAT = "dd-MM-yyyy HH:mm";
 
@@ -30,7 +30,7 @@ public class ValidationUtils {
         return format.format(date);
     }
 
-    public static Date getInstallationDate(Rtu rtu, Date afterInstallationDate) throws BusinessException {
+    public static Date getInstallationDate(Device rtu, Date afterInstallationDate) throws BusinessException {
         if (!installationDates.containsKey(rtu)) {
             Folder folder = rtu.getFolder();
             Object relationObject = folder.get(getInstallationDateRelationType());

@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.cpo.AbstractBusinessEvent;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 
 /**
  * Copyrights EnergyICT
@@ -13,19 +13,19 @@ public class RtuDiscoveredEvent extends AbstractBusinessEvent {
     /**
      * Creates a new instance of a <code>RtuDiscoveredEvent</code>.
      *
-     * @param rtu the <code>Rtu</code> being discovered.
+     * @param rtu the <code>Device</code> being discovered.
      */
-    public RtuDiscoveredEvent(Rtu rtu) {
+    public RtuDiscoveredEvent(Device rtu) {
         super(rtu);
     }
 
     /**
-     * Get the new discovered Rtu that generated this event.
+     * Get the new discovered Device that generated this event.
      *
-     * @return The new discovered Rtu
+     * @return The new discovered Device
      */
-    public Rtu getSource() {
-        return (Rtu) super.getSource();
+    public Device getSource() {
+        return (Device) super.getSource();
     }
 
     @Override

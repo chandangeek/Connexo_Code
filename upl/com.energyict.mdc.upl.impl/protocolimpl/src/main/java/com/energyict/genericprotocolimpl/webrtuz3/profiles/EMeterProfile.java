@@ -7,7 +7,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -335,7 +335,7 @@ public class EMeterProfile extends AbstractDLMSProfile {
      * Get the webRTUZ3 from the eDevice
      * @return
      */
-    private Rtu getMeter(){
+    private Device getMeter(){
 		return this.eDevice.getMeter();
 	}
 

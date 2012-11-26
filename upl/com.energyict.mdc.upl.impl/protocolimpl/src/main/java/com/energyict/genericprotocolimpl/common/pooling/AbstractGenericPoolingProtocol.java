@@ -84,7 +84,7 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages imple
     /**
      * Get the local cache out of the database and give it to the protocol
      *
-     * @param rtuId the id of the <CODE>Rtu</CODE>
+     * @param rtuId the id of the <CODE>Device</CODE>
      */
     protected abstract void fetchAndSetLocalCache(int rtuId) throws BusinessException, SQLException;
 
@@ -163,7 +163,7 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages imple
     protected abstract void forceClock() throws IOException;
 
     /**
-     * @param rtuId     the ID of the <CODE>Rtu</CODE> to update the cache object from
+     * @param rtuId     the ID of the <CODE>Device</CODE> to update the cache object from
      * @param dlmsCache the object to write to the cache
      */
     protected abstract void updateCache(final int rtuId, final Object dlmsCache) throws SQLException, BusinessException;

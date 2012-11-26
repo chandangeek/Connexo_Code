@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 import com.energyict.protocolimpl.edf.messages.MessageWriteRegister;
 
@@ -19,7 +19,7 @@ public class RemoteConnect extends AbstractFolderAction {
             Iterator i = folder.getRtus().iterator();
             while( i.hasNext() ) {
             
-                Rtu rtu = (Rtu)i.next();
+                Device rtu = (Device)i.next();
                 
                 MessageContent mr = new MessageWriteRegister( "0.0.128.30.22.255", new Integer( 2 ) );
                 mr.setOrdinal(0);

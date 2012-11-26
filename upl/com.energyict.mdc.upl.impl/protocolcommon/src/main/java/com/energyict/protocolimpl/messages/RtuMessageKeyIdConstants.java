@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.messages;
 
 /**
- * Constants class for naming the Rtu message KEYIDs
+ * Constants class for naming the Device message KEYIDs
  * <p/>
  * <b>Note:</b> Do not change the already existing tags, just add new ones if necessary.
  */

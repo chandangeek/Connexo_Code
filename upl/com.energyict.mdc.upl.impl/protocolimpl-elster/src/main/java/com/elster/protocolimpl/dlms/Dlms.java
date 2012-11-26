@@ -238,7 +238,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     /**
      * Validate the serialNumber of the device.
      *
-     * @throws IOException if the serialNumber doesn't match the one from the Rtu
+     * @throws IOException if the serialNumber doesn't match the one from the Device
      */
     protected void validateSerialNumber() throws IOException {
         getLogger().info(
@@ -398,7 +398,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     /**
      * Validate certain protocol specific properties
      *
-     * @param properties - The properties fetched from the Rtu
+     * @param properties - The properties fetched from the Device
      * @throws MissingPropertyException - in case of a missing property
      * @throws InvalidPropertyException - in case of a invalid value in property
      */

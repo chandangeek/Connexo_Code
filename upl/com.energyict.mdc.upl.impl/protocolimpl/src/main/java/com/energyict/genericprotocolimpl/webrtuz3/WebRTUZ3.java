@@ -85,22 +85,22 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     public static final ObisCode LOGGER_PROFILE_BASE_OBISCODE = ObisCode.fromString("0.0.99.1.0.255");
 
     /**
-     * The serialNumber of the Rtu
+     * The serialNumber of the Device
      */
     private String serialNumber;
 
     /**
-     * The password of the Rtu
+     * The password of the Device
      */
     private String password;
 
     /**
-     * The prototype {@link RtuType} of the mbus devices
+     * The prototype {@link com.energyict.mdw.core.DeviceType} of the mbus devices
      */
     private String mbusRtuType;
 
     /**
-     * The prototype {@link RtuType} of the eMeter
+     * The prototype {@link com.energyict.mdw.core.DeviceType} of the eMeter
      */
     private String eMeterRtuType;
 
@@ -110,7 +110,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     private String folderExtName;
 
     /**
-     * Property to indicate to read the timeZone from the device or use the one configured on the Rtu
+     * Property to indicate to read the timeZone from the device or use the one configured on the Device
      */
     private int requestTimeZone;
 
@@ -653,13 +653,13 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     private void failGhostSlaveDevices(List<DeviceMapping> mbusMap) throws BusinessException, IOException, SQLException {
         for (DeviceMapping deviceMapping : mbusMap) {
             if (deviceMapping.isGhostDevice()) {
-                Rtu ghostDevice = CommonUtils.findDeviceBySerialNumber(deviceMapping.getSerialNumber());
+                Device ghostDevice = CommonUtils.findDeviceBySerialNumber(deviceMapping.getSerialNumber());
                 failAllPendingSchedules(ghostDevice);
             }
         }
     }
 
-    private void failAllPendingSchedules(Rtu device) {
+    private void failAllPendingSchedules(Device device) {
         if (device != null) {
             List<CommunicationScheduler> schedulers = device.getCommunicationSchedulers();
             if ((schedulers != null) && (!schedulers.isEmpty())) {
@@ -797,10 +797,10 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap) {
 
-        List<Rtu> slaves = getMeter().getDownstreamRtus();
-        Iterator<Rtu> it = slaves.iterator();
+        List<Device> slaves = getMeter().getDownstreamRtus();
+        Iterator<Device> it = slaves.iterator();
         while (it.hasNext()) {
-            Rtu mbus = it.next();
+            Device mbus = it.next();
             Class device = null;
             try {
                 CommunicationProtocolShadow protocolShadow = mbus.getRtuType().getShadow().getCommunicationProtocolShadow();
@@ -836,10 +836,10 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private void checkForDisappearedEMeters(List<DeviceMapping> eMeterMap) {
 
-        List<Rtu> slaves = getMeter().getDownstreamRtus();
-        Iterator<Rtu> it = slaves.iterator();
+        List<Device> slaves = getMeter().getDownstreamRtus();
+        Iterator<Device> it = slaves.iterator();
         while (it.hasNext()) {
-            Rtu eMeter = it.next();
+            Device eMeter = it.next();
             Class device = null;
             try {
                 CommunicationProtocolShadow protocolShadow = eMeter.getRtuType().getShadow().getCommunicationProtocolShadow();
@@ -882,7 +882,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         for (int i = 0; i < mbusMap.size(); i++) {
             DeviceMapping deviceMapping = mbusMap.get(i);
             if (!deviceMapping.isGhostDevice()) {
-                Rtu mbus = CommonUtils.findOrCreateDeviceBySerialNumber(deviceMapping.getSerialNumber(), mbusRtuType, folderExtName);
+                Device mbus = CommonUtils.findOrCreateDeviceBySerialNumber(deviceMapping.getSerialNumber(), mbusRtuType, folderExtName);
                 if (mbus != null) {
                     // Check if gateway has changed, and update if it has
                     if ((mbus.getGateway() == null) || (mbus.getGateway().getId() != getMeter().getId())) {
@@ -907,7 +907,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
         for (int i = 0; i < eMeterMap.size(); i++) {
             DeviceMapping deviceMapping = eMeterMap.get(i);
             if (!deviceMapping.isGhostDevice()) {
-                Rtu eMeter = CommonUtils.findOrCreateDeviceBySerialNumber(deviceMapping.getSerialNumber(), eMeterRtuType, folderExtName);
+                Device eMeter = CommonUtils.findOrCreateDeviceBySerialNumber(deviceMapping.getSerialNumber(), eMeterRtuType, folderExtName);
                 if (eMeter != null) {
                     // Check if gateway has changed, and update if it has
                     if ((eMeter.getGateway() == null) || (eMeter.getGateway().getId() != getMeter().getId())) {
@@ -1052,9 +1052,9 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      * @return true if there is a TicDevice configured as a slave of the WebRTU
      */
     private boolean hasTicDevices() {
-        Rtu tic;
-        List<Rtu> slaves = getMeter().getDownstreamRtus();
-        Iterator<Rtu> it = slaves.iterator();
+        Device tic;
+        List<Device> slaves = getMeter().getDownstreamRtus();
+        Iterator<Device> it = slaves.iterator();
         while (it.hasNext()) {
             tic = it.next();
             Class ticDevice = null;

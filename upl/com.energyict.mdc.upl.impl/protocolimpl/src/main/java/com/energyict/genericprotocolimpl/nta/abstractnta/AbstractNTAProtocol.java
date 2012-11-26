@@ -117,7 +117,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
      * @param logger          the logger that will be used
      * @return a new Mbus class instance
      */
-    protected abstract AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Rtu mbusRtu, Logger logger);
+    protected abstract AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Device mbusRtu, Logger logger);
 
     private static String ignoreIskraGostMbusDevice = "@@@0000000000000";
     protected boolean connected = false;
@@ -567,7 +567,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
      * @param mbus the mbus to find
      * @return the communicationSchedulerFullProtocolShadow for the given Mbus rtu
      */
-    private CommunicationSchedulerFullProtocolShadow findMbusFullShadow(final Rtu mbus) {
+    private CommunicationSchedulerFullProtocolShadow findMbusFullShadow(final Device mbus) {
         for (CommunicationSchedulerFullProtocolShadow csfps : getFullShadow().getSlaveCommunicationSchedulerFullProtocolShadowsList()) {
             if (csfps.getRtuShadow().getName().equalsIgnoreCase(mbus.getName())) {
                 return csfps;
@@ -900,10 +900,10 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
 
     private void checkForDisappearedMbusMeters(Map<String, Integer> mbusMap) {
 
-        List<Rtu> mbusSlaves = getCommunicationScheduler().getRtu().getDownstreamRtus();
-        Iterator<Rtu> it = mbusSlaves.iterator();
+        List<Device> mbusSlaves = getCommunicationScheduler().getRtu().getDownstreamRtus();
+        Iterator<Device> it = mbusSlaves.iterator();
         while (it.hasNext()) {
-            Rtu mbus = it.next();
+            Device mbus = it.next();
             Class device = null;
             try {
                 device = Class.forName(mbus.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
@@ -941,7 +941,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         while (mbusIt.hasNext()) {
             Map.Entry<String, Integer> entry = mbusIt.next();
             if (!ghostMbusDevices.containsKey(entry.getKey()) && !ignoreIskraGostMbusDevice.equals(entry.getKey())) { // ghostMeters don't need to be read because they are not on the meter anymore
-                Rtu mbus = findOrCreateMbusDevice(entry.getKey());
+                Device mbus = findOrCreateMbusDevice(entry.getKey());
                 if (mbus != null) {
 //					this.mbusDevices[count++] = new AbstractMbusDevice(entry.getKey(), entry.getValue(), mbus, getLogger());
                     addMbusDevice(count++, entry.getKey(), entry.getValue(), mbus, getLogger());
@@ -956,19 +956,19 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
      * @param index           - the index to put the mbus device
      * @param serial          - the serialnumber for the Mbus device
      * @param physicalAddress - the physicalAddress of the Mbus device
-     * @param mbusRtu         - the Rtu from the database created for the Mbus device
+     * @param mbusRtu         - the Device from the database created for the Mbus device
      * @param logger          - the logger that will be used
      */
-    protected void addMbusDevice(int index, String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    protected void addMbusDevice(int index, String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         this.mbusDevices[index] = getMbusInstance(serial, physicalAddress, mbusRtu, logger);
     }
 
     //TODO we should prevent using directly the rtu
 
-    private Rtu findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
-        List<Rtu> mbusList = mw().getRtuFactory().findBySerialNumber(key);
+    private Device findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
+        List<Device> mbusList = mw().getRtuFactory().findBySerialNumber(key);
         if (mbusList.size() == 1) {
-            Rtu mbusRtu = (Rtu) mbusList.get(0);
+            Device mbusRtu = (Device) mbusList.get(0);
             // Check if gateway has changed, and update if it has
             if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getCommunicationScheduler().getRtu().getId())) {
                 mbusRtu.updateGateway(getCommunicationScheduler().getRtu());
@@ -979,7 +979,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
             return null;
         }
 
-        RtuType rtuType = getRtuType();
+        DeviceType rtuType = getRtuType();
         if (rtuType == null) {
             return null;
         } else {
@@ -987,7 +987,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         }
     }
 
-    private Rtu createMeter(RtuType rtuType, String key) throws SQLException, BusinessException {
+    private Device createMeter(DeviceType rtuType, String key) throws SQLException, BusinessException {
         RtuShadow shadow = rtuType.newRtuShadow();
 
         shadow.setName(key);
@@ -1009,13 +1009,13 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         return mw().getRtuFactory().create(shadow);
     }
 
-    private RtuType getRtuType() {
-        String type = getProperty("RtuType");
+    private DeviceType getRtuType() {
+        String type = getProperty("DeviceType");
         if (Utils.isNull(type)) {
-            getLogger().warning("No automatic meter creation: no property RtuType defined.");
+            getLogger().warning("No automatic meter creation: no property DeviceType defined.");
             return null;
         } else {
-            RtuType rtuType = mw().getRtuTypeFactory().find(type);
+            DeviceType rtuType = mw().getRtuTypeFactory().find(type);
             if (rtuType == null) {
                 getLogger().log(Level.INFO, "No rtutype defined with name '" + type + "'");
                 return null;
@@ -1199,7 +1199,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         result.add("LoadProfileId");
         result.add("AddressingMode");
         result.add("Connection");
-        result.add("RtuType");
+        result.add("DeviceType");
         result.add("TestLogging");
         result.add("ForceDelay");
         result.add("Manufacturer");

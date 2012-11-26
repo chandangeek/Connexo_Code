@@ -14,7 +14,7 @@ public abstract class AbstractFolderAction implements FolderAction {
 
     public abstract void execute(Folder folder) throws SQLException, BusinessException;
 
-    void addMessage(Rtu rtu, String obis, int ordinal)
+    void addMessage(Device rtu, String obis, int ordinal)
             throws Exception {
 
         RtuMessageShadow shadow = new RtuMessageShadow(rtu.getId());
@@ -29,7 +29,7 @@ public abstract class AbstractFolderAction implements FolderAction {
 
     }
 
-    void createMessage(Rtu rtu, MessageContent content)
+    void createMessage(Device rtu, MessageContent content)
             throws Exception {
 
         RtuMessageShadow shadow = new RtuMessageShadow(rtu.getId());

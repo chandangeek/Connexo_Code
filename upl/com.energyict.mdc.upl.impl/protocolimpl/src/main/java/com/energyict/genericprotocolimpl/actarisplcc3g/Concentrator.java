@@ -47,8 +47,8 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
     private PLCCObjectFactory objectFactory;
     private CosemObjectFactory cosemObjectFactory;
 
-    private Rtu concentratorDevice;
-    private Rtu currentSelectedDevice;
+    private Device concentratorDevice;
+    private Device currentSelectedDevice;
 
     DLMSMeterConfig dLMSMeterConfig = DLMSMeterConfig.getInstance("ActarisPLCC");
     private int profileInterval;
@@ -282,10 +282,10 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
 //
 //
 //                    try {
-//                        RtuFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();    
+//                        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();
 //                        List found = rtuFactory.findBySerialNumber(o.getSerialNumber());
 //                        if (found.size()==1) {
-//                            concentrator.setCurrentSelectedDevice((Rtu)found.get(0));
+//                            concentrator.setCurrentSelectedDevice((Device)found.get(0));
 //                            System.out.println("Request LoadProfile");
 //                            System.out.println(concentrator.getConcentratorProfile().getProfileData(new Date(new Date().getTime()-(3600000*10)),true,false));
 //                        }
@@ -572,11 +572,11 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
         return objectFactory.getPLCCMeterList().getMeterList();
     }
 
-    private String concentratorToString(Rtu concentrator) {
+    private String concentratorToString(Device concentrator) {
         return "concentrator " + toString(concentrator);
     }
 
-    private String toString(Rtu rtu) {
+    private String toString(Device rtu) {
         return "[" + concentratorDevice.getId() +
                 " serial=" + concentratorDevice.getSerialNumber() +
                 " external name=" + concentratorDevice.getExternalName() +
@@ -607,11 +607,11 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
         return false;
     }
 
-    private void setConcentratorDevice(Rtu concentratorDevice) {
+    private void setConcentratorDevice(Device concentratorDevice) {
         this.concentratorDevice = concentratorDevice;
     }
 
-    private Rtu getConcentratorDevice() {
+    private Device getConcentratorDevice() {
         return concentratorDevice;
     }
 
@@ -649,11 +649,11 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
         return "Meter";
     }
 
-    public Rtu getCurrentSelectedDevice() {
+    public Device getCurrentSelectedDevice() {
         return currentSelectedDevice;
     }
 
-    public void setCurrentSelectedDevice(Rtu currentSelectedDevice) {
+    public void setCurrentSelectedDevice(Device currentSelectedDevice) {
         this.currentSelectedDevice = currentSelectedDevice;
     }
 

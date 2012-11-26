@@ -236,7 +236,7 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
     /**
      * Validate certain protocol specific properties
      *
-     * @param properties - The properties fetched from the Rtu
+     * @param properties - The properties fetched from the Device
      * @throws com.energyict.protocol.MissingPropertyException
      *          - if a required property is missed
      * @throws com.energyict.protocol.InvalidPropertyException

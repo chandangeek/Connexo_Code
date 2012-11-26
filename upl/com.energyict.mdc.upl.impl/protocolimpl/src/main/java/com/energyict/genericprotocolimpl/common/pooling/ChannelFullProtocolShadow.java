@@ -5,7 +5,7 @@ import com.energyict.cbo.TimeDuration;
 import java.util.Date;
 
 /**
- * Contains logical information from a {@link com.energyict.mdw.core.Channel} from an {@link com.energyict.mdw.core.Rtu}
+ * Contains logical information from a {@link com.energyict.mdw.core.Channel} from an {@link com.energyict.mdw.core.Device}
  */
 public interface ChannelFullProtocolShadow {
 

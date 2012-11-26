@@ -40,7 +40,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
      * See {@link #setProperties(Properties)} for the overview of the default properties set for an
      * AbstractIEC1107Protocol
      *
-     * @param properties - The properties fetched from the Rtu
+     * @param properties - The properties fetched from the Device
      * @throws MissingPropertyException If a property from the {@link #getRequiredKeys()} list was missing.
      * @throws InvalidPropertyException If a property has an invalid value/format
      */
@@ -48,7 +48,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
             InvalidPropertyException;
 
     /**
-     * Provide a List of Optional keys needed as Rtu Properties
+     * Provide a List of Optional keys needed as Device Properties
      *
      * @return a String List of properties
      */
@@ -464,7 +464,7 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
     /**
      * Validate certain protocol specific properties
      *
-     * @param properties - The properties fetched from the Rtu
+     * @param properties - The properties fetched from the Device
      * @throws MissingPropertyException If a property from the {@link #getRequiredKeys()} list was missing.
      * @throws InvalidPropertyException If a property has an invalid value/format
      */

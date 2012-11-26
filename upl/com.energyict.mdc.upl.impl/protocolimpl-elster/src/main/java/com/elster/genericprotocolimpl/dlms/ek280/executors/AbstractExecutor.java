@@ -4,7 +4,7 @@ import com.elster.genericprotocolimpl.dlms.ek280.EK280;
 import com.elster.genericprotocolimpl.dlms.ek280.StoreObject;
 import com.elster.genericprotocolimpl.dlms.ek280.journal.MeterAmrLogging;
 import com.elster.protocolimpl.dlms.Dlms;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -35,7 +35,7 @@ public abstract class AbstractExecutor<T> {
         return getEk280().getLogger();
     }
 
-    public Rtu getRtu() {
+    public Device getRtu() {
         return getEk280().getRtu();
     }
 

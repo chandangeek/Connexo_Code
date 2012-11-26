@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.lgadvantis;
 
 import com.energyict.cbo.TimePeriod;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
@@ -41,7 +41,7 @@ public class Task {
 
 	}
 
-	Task(Rtu meter) {
+	Task(Device meter) {
 		this( );
 		this.target = meter.getSerialNumber();
 

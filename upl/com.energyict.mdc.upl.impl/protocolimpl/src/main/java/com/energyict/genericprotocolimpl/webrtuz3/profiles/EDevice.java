@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.webrtuz3.profiles;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -26,7 +26,7 @@ public interface EDevice {
 	/**
 	 * @return the rtu
 	 */
-	Rtu getMeter();
+	Device getMeter();
 
 	/**
 	 * @return

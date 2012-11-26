@@ -40,7 +40,7 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
             if (DEBUG==1) {
 				System.out.println(date);
 			}
-            Rtu device = findDevice(getConcentratorSerialNumber(fileName));
+            Device device = findDevice(getConcentratorSerialNumber(fileName));
             AlarmFile alarmFile = new AlarmFile(data, device.getTimeZone());
             Iterator it = alarmFile.toAlarmEntries().iterator();
             while(it.hasNext()) {
@@ -77,7 +77,7 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
     } // protected void importStream() throws BusinessException, SQLException, IOException
     
     private void createEventForDevice(AlarmEntry alarmEntry) throws IOException,BusinessException,SQLException {
-        Rtu device = findDevice(alarmEntry.getSerialNumber());
+        Device device = findDevice(alarmEntry.getSerialNumber());
         RtuEventShadow rtuEventShadow = new RtuEventShadow();
         rtuEventShadow.setCode(mapMeterEvent(alarmEntry));
         rtuEventShadow.setDate(alarmEntry.getDatetime());
@@ -108,7 +108,7 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
     }
     
     private void sendDiscoverMessage(AlarmEntry alarmEntry) throws IOException,BusinessException,SQLException {
-        Rtu device = findDevice(alarmEntry.getSerialNumber());
+        Device device = findDevice(alarmEntry.getSerialNumber());
         MessageDiscoverMeters mr = new MessageDiscoverMeters();
         mr.setOrdinal(0);
         mr.setScriptId(MessageDiscoverMeters.READMETERLIST);
@@ -116,7 +116,7 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
         startReadingNow(device);
     }
     
-    private void startReadingNow(Rtu device) throws BusinessException,SQLException {
+    private void startReadingNow(Device device) throws BusinessException,SQLException {
         List schedulers = device.getCommunicationSchedulers();
         for (Iterator jt = schedulers.iterator(); jt.hasNext();){
             CommunicationScheduler scheduler = (CommunicationScheduler) jt.next();
@@ -126,7 +126,7 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
         }
     }
     
-    private void createMessage( Rtu concentrator, MessageContent content) throws BusinessException,SQLException {
+    private void createMessage( Device concentrator, MessageContent content) throws BusinessException,SQLException {
         RtuMessageShadow shadow = new RtuMessageShadow(concentrator.getId());
         shadow.setReleaseDate( new Date() );
         shadow.setContents( content.xmlEncode() );
@@ -156,11 +156,11 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
         return strs[1]; 
     }
     
-    private Rtu findDevice(String serialNumber) throws IOException {
-        RtuFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();    
+    private Device findDevice(String serialNumber) throws IOException {
+        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();
         List found = rtuFactory.findBySerialNumber(serialNumber);
         if (found.size()==1) {
-            return (Rtu)found.get(0);
+            return (Device)found.get(0);
         }
         else if (found.size()==0) {
             throw new IOException("No device found for serial number "+serialNumber); 

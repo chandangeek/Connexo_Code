@@ -48,7 +48,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
     private DLMSMeterConfig dlmsMeterConfig;
     private AARQ aarq;
     private Logger logger;
-    private Rtu rtu;
+    private Device rtu;
 
 
     public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
@@ -115,7 +115,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
         this.logger.log(level, tekst);
     }
 
-    public Rtu getMeter() {
+    public Device getMeter() {
         return this.rtu;
     }
 

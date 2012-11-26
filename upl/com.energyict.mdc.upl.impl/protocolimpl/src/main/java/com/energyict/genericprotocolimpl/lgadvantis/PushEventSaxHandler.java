@@ -9,7 +9,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 
 class PushEventSaxHandler extends DefaultHandler {
 
@@ -17,7 +17,7 @@ class PushEventSaxHandler extends DefaultHandler {
     
     private char [] buffer = new char[0];
     
-    private Rtu concentrator;
+    private Device concentrator;
     
     public void startElement(
         String uri, String localName, String name, Attributes attrib) 

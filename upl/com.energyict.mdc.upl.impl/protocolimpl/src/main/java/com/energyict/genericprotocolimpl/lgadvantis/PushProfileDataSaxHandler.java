@@ -4,14 +4,13 @@ import java.io.*;
 
 import javax.xml.parsers.*;
 
+import com.energyict.mdw.core.Device;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.protocol.ProfileData;
 
 class PushProfileDataSaxHandler extends DefaultHandler {
 
@@ -19,7 +18,7 @@ class PushProfileDataSaxHandler extends DefaultHandler {
     
     private char [] buffer = new char[0];
     
-    private Rtu meter;
+    private Device meter;
     
     
     public void startElement(

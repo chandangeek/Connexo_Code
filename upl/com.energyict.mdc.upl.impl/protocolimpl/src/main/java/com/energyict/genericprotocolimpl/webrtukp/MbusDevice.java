@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.webrtukp;
 
 import com.energyict.genericprotocolimpl.nta.abstractnta.*;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.InvalidPropertyException;
 
 import java.io.IOException;
@@ -31,10 +31,10 @@ public class MbusDevice extends AbstractMbusDevice {
      *
      * @param serial the serialNumber of the MBus device
      * @param physicalAddress the physicalAddress of the MBus device
-     * @param mbusRtu the {@link com.energyict.mdw.core.Rtu} in the database
+     * @param mbusRtu the {@link com.energyict.mdw.core.Device} in the database
      * @param logger the used logger
      */
-    public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    public MbusDevice(String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         super(serial, physicalAddress, mbusRtu, logger);    //To change body of overridden methods use File | Settings | File Templates.
     }
 

@@ -103,7 +103,7 @@ public class MK10Push implements GenericProtocol {
         return outputStream;
     }
 
-    private Rtu getMeter() {
+    private Device getMeter() {
         return getMK10Executor().getMeter();
     }
 
@@ -187,17 +187,17 @@ public class MK10Push implements GenericProtocol {
         }
     }
 
-    private Rtu findMatchingMeter(String serial) {
+    private Device findMatchingMeter(String serial) {
         if (serial == null) {
             return null;
         }
         List meterList = mw().getRtuFactory().findBySerialNumber(serial);
 
         for (int i = 0; i < meterList.size(); i++) {
-            Rtu tempMeter = (Rtu) meterList.get(i);
+            Device tempMeter = (Device) meterList.get(i);
             if (tempMeter.getDialHomeId() != null) {
                 if (tempMeter.getDialHomeId().trim().equalsIgnoreCase(serial.trim())) {
-                    return (Rtu) meterList.get(i);
+                    return (Device) meterList.get(i);
                 }
             }
         }
@@ -205,9 +205,9 @@ public class MK10Push implements GenericProtocol {
         return null;
     }
 
-    private Rtu waitForPushMeter() throws IOException, BusinessException {
+    private Device waitForPushMeter() throws IOException, BusinessException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        Rtu pushDevice = null;
+        Device pushDevice = null;
         while (inputStream.available() > 0) {
             buffer.write(inputStream.read() & BYTE_MASK);
         }
@@ -272,7 +272,7 @@ public class MK10Push implements GenericProtocol {
             sendDebug("** A new UDP session is started **", 0);
             sendDebug("** ConnectionTime: [" + getConnectTime() + "] **", 0);
 
-            Rtu pushDevice = waitForPushMeter();
+            Device pushDevice = waitForPushMeter();
             getMK10Executor().setMeter(pushDevice);
 
             startCommunication(getMK10Executor().getInboundCommunicationScheduler());

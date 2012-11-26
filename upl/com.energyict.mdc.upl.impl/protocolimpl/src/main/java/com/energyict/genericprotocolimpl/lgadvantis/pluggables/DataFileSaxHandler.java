@@ -8,9 +8,9 @@ import com.energyict.genericprotocolimpl.lgadvantis.parser.LogbookParser;
 import com.energyict.genericprotocolimpl.lgadvantis.parser.ProfileParser;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.IntervalDataStorer;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.shadow.RtuEventShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterReadingShadow;
 import com.energyict.obis.ObisCode;
@@ -190,10 +190,10 @@ public class DataFileSaxHandler extends DefaultHandler {
 		try {
 			byte[] binaryData = ProtocolUtils.convert2ascii(data.getBytes());
 
-			// Get the Rtu, and iterate over
+			// Get the Device, and iterate over
 			List rtus = (List) MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
 			for (Iterator it=rtus.iterator(); it.hasNext();){
-				Rtu rtu = (Rtu) it.next();
+				Device rtu = (Device) it.next();
 				// Decode the data into an abstractDataType
 				ProfileParser parser = new ProfileParser(rtu.getTimeZone());
 				List intervalData = null;
@@ -231,14 +231,14 @@ public class DataFileSaxHandler extends DefaultHandler {
 			byte[] binaryData = ProtocolUtils.convert2ascii(data.getBytes());
 			AbstractDataType abstractData = AXDRDecoder.decode(binaryData);
 
-			// Get the Rtu, and iterate over
+			// Get the Device, and iterate over
 			List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
 			for (Iterator it=rtus.iterator(); it.hasNext();){
-				Rtu rtu = (Rtu) it.next();
+				Device rtu = (Device) it.next();
 				// Decode the data into an abstractDataType
 				BillingParser parser = new BillingParser(rtu.getTimeZone());
 				List registers = parser.parse(abstractData);
-				// Store the registerValues in Rtu
+				// Store the registerValues in Device
 				MeterReadingData readings = new MeterReadingData();
 				for (Iterator jt = registers.iterator(); jt.hasNext();){
 					RegisterValue register = (RegisterValue) jt.next();
@@ -272,10 +272,10 @@ public class DataFileSaxHandler extends DefaultHandler {
 			byte[] binaryData = ProtocolUtils.convert2ascii(data.getBytes());
 			AbstractDataType abstractData = AXDRDecoder.decode(binaryData);
 
-			// Get the Rtu, and iterate over
+			// Get the Device, and iterate over
 			List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
 			for (Iterator it=rtus.iterator(); it.hasNext();){
-				Rtu rtu = (Rtu) it.next();
+				Device rtu = (Device) it.next();
 				// Decode the data into an abstractDataType
 				LogbookParser parser = new LogbookParser(rtu.getTimeZone());
 				List data = parser.parse(abstractData);
@@ -306,10 +306,10 @@ public class DataFileSaxHandler extends DefaultHandler {
 	
 	private void storeIndustrialMeterData(){
 		try {
-			// Get the Rtu, and iterate over
+			// Get the Device, and iterate over
 			List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
 			for (Iterator it=rtus.iterator(); it.hasNext();){
-				Rtu rtu = (Rtu) it.next();
+				Device rtu = (Device) it.next();
 				for(int i=0; i<6; i++){
 					RtuRegisterReadingShadow shadow = new RtuRegisterReadingShadow();
 					shadow.setReadTime(timestamp);

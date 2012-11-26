@@ -14,7 +14,7 @@ import com.energyict.mdw.core.*;
 public class DeviceDiscoverInfo {
 
     private final Parameters parameters;
-    private RtuType rtuType = null;
+    private DeviceType rtuType = null;
     private Folder folder = null;
 
     public DeviceDiscoverInfo(Parameters serialNumber) {
@@ -30,7 +30,7 @@ public class DeviceDiscoverInfo {
         return parameters != null ? parameters.getSerialId() : "";
     }
 
-    public void setRtuType(RtuType rtuType) {
+    public void setRtuType(DeviceType rtuType) {
         this.rtuType = rtuType;
     }
 
@@ -38,7 +38,7 @@ public class DeviceDiscoverInfo {
         return parameters;
     }
 
-    public RtuType getRtuType() {
+    public DeviceType getRtuType() {
         return rtuType;
     }
 

@@ -9,7 +9,7 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.webrtuz3.MbusDevice;
 import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -237,7 +237,7 @@ public class MbusProfile extends AbstractDLMSProfile {
         return ProtocolTools.setObisCodeField(baseObisCode, 1, (byte) this.mbusDevice.getPhysicalAddress());
     }
 
-    private Rtu getMeter(){
+    private Device getMeter(){
 		return this.mbusDevice.getMbus();
 	}
 

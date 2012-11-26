@@ -10,7 +10,7 @@ import com.energyict.genericprotocolimpl.nta.messagehandling.MbusMessageExecutor
 import com.energyict.genericprotocolimpl.nta.profiles.*;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.MbusObisCodeMapper;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -70,7 +70,7 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
     private String customerID;
     private boolean valid;
 
-    public Rtu mbus;
+    public Device mbus;
     private AbstractNTAProtocol webRtu;
     private Unit mbusUnit;
     private MbusObisCodeMapper mocm = null;
@@ -82,15 +82,15 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
         this.valid = false;
     }
 
-    public AbstractMbusDevice(String serial, Rtu mbusRtu, Logger logger) {
+    public AbstractMbusDevice(String serial, Device mbusRtu, Logger logger) {
         this(0, 0, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
     }
 
-    public AbstractMbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    public AbstractMbusDevice(String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         this(0, physicalAddress, serial, 15, mbusRtu, Unit.get(BaseUnit.UNITLESS), logger);
     }
 
-    public AbstractMbusDevice(long mbusAddress, int phyaddress, String serial, int medium, Rtu mbusRtu, Unit mbusUnit, Logger logger) {
+    public AbstractMbusDevice(long mbusAddress, int phyaddress, String serial, int medium, Device mbusRtu, Unit mbusUnit, Logger logger) {
         super.setLogger(logger);
         this.mbusAddress = mbusAddress;
         this.physicalAddress = phyaddress;
@@ -158,7 +158,7 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
     }
 
     @Override
-    public Rtu getMbusRtu() {
+    public Device getMbusRtu() {
         return this.mbus;
     }
 

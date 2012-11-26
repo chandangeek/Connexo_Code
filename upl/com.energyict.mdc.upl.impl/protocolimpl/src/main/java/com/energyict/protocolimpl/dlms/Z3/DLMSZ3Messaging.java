@@ -21,7 +21,7 @@ import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -62,7 +62,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private AARQ aarq;
     private Logger logger;
     private Clock clock;
-    private Rtu rtu;
+    private Device rtu;
     private TimeZone timeZone;
 
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
@@ -92,7 +92,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         this.logger.log(level, tekst);
     }
 
-    public Rtu getMeter() {
+    public Device getMeter() {
         return this.rtu;
     }
 

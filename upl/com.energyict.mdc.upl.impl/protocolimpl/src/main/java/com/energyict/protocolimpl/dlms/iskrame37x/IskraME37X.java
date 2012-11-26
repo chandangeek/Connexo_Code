@@ -1264,7 +1264,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
             connectionMode = Integer.parseInt(properties.getProperty("Connection", "0")); // 0=HDLC, 1= TCP/IP
 
-            rtuType = properties.getProperty("RtuType", "");
+            rtuType = properties.getProperty("DeviceType", "");
 
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException("IskraME37X, validateProperties, NumberFormatException, " + e.getMessage());
@@ -1368,7 +1368,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         result.add("LoadProfileId");
         result.add("AddressingMode");
         result.add("Connection");
-        result.add("RtuType");
+        result.add("DeviceType");
         return result;
     }
 

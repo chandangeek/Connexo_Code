@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocolimpl.edf.messages.*;
 
 import java.sql.SQLException;
@@ -19,7 +19,7 @@ public class Service02 extends AbstractFolderAction {
             
             while( i.hasNext() ) {
             
-                Rtu rtu = (Rtu)i.next();
+                Device rtu = (Device)i.next();
                 
                 /* 1 Read indexes */
                 MessageContent mr = new MessageReadIndexes( );

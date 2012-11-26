@@ -26,8 +26,8 @@ public class ACE4000 extends AbstractGenericProtocol {
     private static final int MAX_TIMEOUT = 40000;
     private InputStream inputStream;
     private OutputStream outputStream = null;
-    private Rtu masterMeter;
-    private HashMap<String, Rtu> mBusMeters = new HashMap<String, Rtu>();
+    private Device masterMeter;
+    private HashMap<String, Device> mBusMeters = new HashMap<String, Device>();
     private ACE4000Properties properties = new ACE4000Properties();
     private ObjectFactory objectFactory;
 
@@ -414,7 +414,7 @@ public class ACE4000 extends AbstractGenericProtocol {
         }
     }
 
-    private void storeSlaveRegisters(MeterReadingData mrd, Rtu slave) throws SQLException, BusinessException {
+    private void storeSlaveRegisters(MeterReadingData mrd, Device slave) throws SQLException, BusinessException {
         if (mrd.getRegisterValues().size() > 0) {
 
             //Don't store register values if the register is not defined on the RTU
@@ -536,7 +536,7 @@ public class ACE4000 extends AbstractGenericProtocol {
     /**
      * Important method to determine the meters topology
      * If we get a serialNumber from the UDPListener, fill in all the serialNumber we can find in the database and
-     * fill in the necessary Rtu's as well
+     * fill in the necessary Device's as well
      *
      * @param pushedSerialNumber the received serial number
      * @throws BusinessException when the database doesn't contain the serial number
@@ -573,7 +573,7 @@ public class ACE4000 extends AbstractGenericProtocol {
         List meterList = mw().getRtuFactory().findByDialHomeId("ACE4000" + serialNumber);
 
         if (meterList.size() == 1) {    // we found him, take him down boys ....
-            setMasterMeter((Rtu) meterList.get(0));
+            setMasterMeter((Device) meterList.get(0));
             setMasterSerialNumber(serialNumber);
             return true;
         } else if (meterList.size() > 1) {
@@ -597,7 +597,7 @@ public class ACE4000 extends AbstractGenericProtocol {
         List meterList = mw().getRtuFactory().findByDialHomeId("ACE4000MB" + serialNumber);
 
         if (meterList.size() == 1) {    // we found him, take him down boys ....
-            getMBusMetersMap().put(serialNumber, (Rtu) meterList.get(0));
+            getMBusMetersMap().put(serialNumber, (Device) meterList.get(0));
             return true;
         } else if (meterList.size() > 1) {
             getLogger().severe("Multiple meters where found with serial: " + serialNumber);
@@ -636,14 +636,14 @@ public class ACE4000 extends AbstractGenericProtocol {
     }
 
     /**
-     * Contains a map of the serial numbers with their Rtu's.
-     * No database overkill if we keep on asking the Rtu
+     * Contains a map of the serial numbers with their Device's.
+     * No database overkill if we keep on asking the Device
      *
      * @return the MBusMeters hashMap
      */
-    public HashMap<String, Rtu> getMBusMetersMap() {
+    public HashMap<String, Device> getMBusMetersMap() {
         if (mBusMeters == null) {
-            mBusMeters = new HashMap<String, Rtu>();
+            mBusMeters = new HashMap<String, Device>();
         }
         return mBusMeters;
     }
@@ -666,7 +666,7 @@ public class ACE4000 extends AbstractGenericProtocol {
         return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
     }
 
-    public Rtu getMasterMeter() {
+    public Device getMasterMeter() {
         return masterMeter;
     }
 
@@ -674,7 +674,7 @@ public class ACE4000 extends AbstractGenericProtocol {
         return schedulers;
     }
 
-    public void setMasterMeter(Rtu meter) {
+    public void setMasterMeter(Device meter) {
         this.masterMeter = meter;
         setCommunicationScheduler();
     }
@@ -691,7 +691,7 @@ public class ACE4000 extends AbstractGenericProtocol {
 
     private void findMasterMeter() {
         if (!getMBusMetersMap().isEmpty()) {
-            Rtu mbusSlave = getMBusMetersMap().get(getPushedSerialNumber());
+            Device mbusSlave = getMBusMetersMap().get(getPushedSerialNumber());
 
             if (mbusSlave.getGateway() != null) {
                 setMasterMeter(mbusSlave.getGateway());
@@ -706,9 +706,9 @@ public class ACE4000 extends AbstractGenericProtocol {
 
     private void findAllSlaveMeters() {
         if (masterMeter != null) {
-            List<Rtu> slaves = masterMeter.getDownstreamRtus();
+            List<Device> slaves = masterMeter.getDownstreamRtus();
             if (slaves.size() > 0) {
-                for (Rtu slave : slaves) {
+                for (Device slave : slaves) {
                     if (!getMBusMetersMap().containsKey(slave.getSerialNumber())) {
                         getMBusMetersMap().put(slave.getSerialNumber(), slave);
                     }

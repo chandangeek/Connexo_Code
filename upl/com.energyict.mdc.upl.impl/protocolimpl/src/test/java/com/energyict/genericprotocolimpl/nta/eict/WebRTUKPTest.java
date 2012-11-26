@@ -20,9 +20,7 @@ import org.junit.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
@@ -47,7 +45,7 @@ public class WebRTUKPTest {
 	private static ObisCode OC2 = ObisCode.fromString("1.0.0.2.0.255");
 	private final static Unit PHENOMENON_UNIT = Unit.get("kWh");
 	
-	private Rtu rtu;
+	private Device rtu;
 	private String rtuName = "";
 	private ModemPool mp;
 	private CommunicationProfile commProfile;
@@ -73,8 +71,8 @@ public class WebRTUKPTest {
 		modemPoolName = "ModemPoolName" + System.currentTimeMillis();
 		commProfileName = "CommProfileName" + System.currentTimeMillis();
 
-		/* Create the RtuType */
-		RtuType rtuType = RtuTypeCRUD.findOrCreateRtuType(rtuTypeName, 2);
+		/* Create the DeviceType */
+		DeviceType rtuType = RtuTypeCRUD.findOrCreateRtuType(rtuTypeName, 2);
 
 		/* Create timeOfUse */
 		TimeOfUse timeOfUse = TimeOfUseCRUD.createTimeOfUse(timeOfUseName, 0,

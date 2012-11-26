@@ -28,7 +28,7 @@ public class HandleMeter {
     
     private AMRJournalManager aMRJournalManager=null;
     private Concentrator concentrator;
-    private Rtu concentratorDevice;
+    private Device concentratorDevice;
     private PLCCMeterListBlocData meterInfo;
     private CommunicationScheduler concentratorScheduler;
     private Logger logger;
@@ -39,7 +39,7 @@ public class HandleMeter {
     int state;
     
     /** Creates a new instance of HandleMeter */
-    public HandleMeter(Concentrator concentrator, Rtu concentratorDevice, PLCCMeterListBlocData meterInfo, CommunicationScheduler concentratorScheduler, Logger logger) {
+    public HandleMeter(Concentrator concentrator, Device concentratorDevice, PLCCMeterListBlocData meterInfo, CommunicationScheduler concentratorScheduler, Logger logger) {
         
         this.setConcentrator(concentrator);
         this.setConcentratorDevice(concentratorDevice);
@@ -117,11 +117,11 @@ public class HandleMeter {
         this.concentrator = concentrator;
     }
 
-    public Rtu getConcentratorDevice() {
+    public Device getConcentratorDevice() {
         return concentratorDevice;
     }
 
-    private void setConcentratorDevice(Rtu concentratorDevice) {
+    private void setConcentratorDevice(Device concentratorDevice) {
         this.concentratorDevice = concentratorDevice;
     }
 

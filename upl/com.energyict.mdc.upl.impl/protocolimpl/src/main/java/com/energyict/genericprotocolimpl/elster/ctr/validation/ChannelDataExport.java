@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.elster.ctr.validation;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.*;
@@ -42,8 +42,8 @@ public class ChannelDataExport {
     }
 
     private void doExport() {
-        List<Rtu> rtus = getProperties().getRtus();
-        for (Rtu rtu : rtus) {
+        List<Device> rtus = getProperties().getRtus();
+        for (Device rtu : rtus) {
             String outputFileName = getProperties().getOutputFolder() + rtu.getDialHomeId() + "_" + rtu.getName() + "_" + getNow() + ".txt";
             List<Channel> channels = getChannelsToExport(rtu.getChannels());
             String data = getExportedChannelData(rtu, channels);
@@ -58,7 +58,7 @@ public class ChannelDataExport {
         return now;
     }
 
-    private String getExportedChannelData(Rtu rtu, List<Channel> channels) {
+    private String getExportedChannelData(Device rtu, List<Channel> channels) {
         StringBuffer sb = new StringBuffer();
         try {
             Date installationDate = ValidationUtils.getInstallationDate(rtu, null);

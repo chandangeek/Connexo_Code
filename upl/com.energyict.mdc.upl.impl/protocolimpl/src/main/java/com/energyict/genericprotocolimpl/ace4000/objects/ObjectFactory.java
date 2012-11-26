@@ -5,7 +5,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.ace4000.ACE4000;
 import com.energyict.genericprotocolimpl.ace4000.objects.xml.XMLTags;
 import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import org.w3c.dom.*;
@@ -1308,9 +1308,9 @@ public class ObjectFactory {
      * @return if the registers have been received or not
      * @throws IOException communication error
      */
-    public boolean requestAllSlaveRegisters(Date from, HashMap<String, Rtu> slaves) throws IOException {
+    public boolean requestAllSlaveRegisters(Date from, HashMap<String, Device> slaves) throws IOException {
         List<RtuRegister> allSlaveRegisters = new ArrayList<RtuRegister>();
-        for (Rtu slave : slaves.values()) {
+        for (Device slave : slaves.values()) {
             allSlaveRegisters.addAll(slave.getRegisters());
         }
 
@@ -1332,8 +1332,8 @@ public class ObjectFactory {
      * @param slaves list of slave RTU's
      * @return true or false
      */
-    private boolean shouldRequestMBusCurrentRegisters(HashMap<String, Rtu> slaves) {
-        for (Rtu slave : slaves.values()) {
+    private boolean shouldRequestMBusCurrentRegisters(HashMap<String, Device> slaves) {
+        for (Device slave : slaves.values()) {
             int numberOfBillingRegisters = 0;
             for (RtuRegister register : slave.getRegisters()) {
                 numberOfBillingRegisters += isBillingRegister(register) ? 1 : 0;

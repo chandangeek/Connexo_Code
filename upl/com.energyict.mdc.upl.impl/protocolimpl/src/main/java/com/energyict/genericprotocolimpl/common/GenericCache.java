@@ -15,8 +15,8 @@ import com.energyict.cbo.DatabaseException;
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.SqlBuilder;
 import com.energyict.cpo.Transaction;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
 
 /**
  * 
@@ -25,7 +25,7 @@ import com.energyict.mdw.core.Rtu;
  */
 public class GenericCache {
 	
-	public static Object startCacheMechanism(Rtu meter) throws FileNotFoundException, IOException {
+	public static Object startCacheMechanism(Device meter) throws FileNotFoundException, IOException {
 		Object cacheObject = null;
 		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? ");
         builder.bindInt(meter.getId());
@@ -63,7 +63,7 @@ public class GenericCache {
 		return cacheObject;
 	}
 	
-	public static void stopCacheMechanism(final Rtu meter, final Object cacheObject) throws BusinessException, SQLException {
+	public static void stopCacheMechanism(final Device meter, final Object cacheObject) throws BusinessException, SQLException {
 		Transaction tr = new Transaction() {
 			public Object doExecute() throws SQLException, BusinessException {
 				createOrUpdateDeviceCache();

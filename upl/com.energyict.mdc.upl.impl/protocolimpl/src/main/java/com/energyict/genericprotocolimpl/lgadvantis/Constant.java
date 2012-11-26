@@ -7,7 +7,7 @@ import java.util.*;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.ChannelInfo;
 
 public class Constant {
@@ -31,7 +31,7 @@ public class Constant {
     public final static String PK_LOAD_PROFILE_COMPRESSED = "LoadProfileCompress";
     
     /** I assume there is only ever going to be 1 channel ... :-S */
-    static List toChannelInfos( Rtu meter ) {
+    static List toChannelInfos( Device meter ) {
         
         List result = new ArrayList();
 
@@ -42,7 +42,7 @@ public class Constant {
 
     }
 
-    static ChannelInfo toChannelInfo(Rtu meter, int cCount, boolean cumul) {
+    static ChannelInfo toChannelInfo(Device meter, int cCount, boolean cumul) {
         
         String name = meter+" channel " + cCount;
         ChannelInfo ci = new ChannelInfo(cCount,cCount, name, Constant.CHANNEL_UNIT);

@@ -4,8 +4,8 @@ import com.energyict.cbo.Utils;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.RtuType;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
@@ -34,7 +34,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     public static final String NEW_LLS_SECRET = "NewLLSSecret";
     public static final String DEFAULT_MANUFACTURER = "ISK";
 
-    private RtuType rtuType;
+    private DeviceType rtuType;
     private boolean bCSDCall = false;
 
     public DLMSReference getReference() {
@@ -58,7 +58,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
         result.add("ExtendedLogging");
         result.add("AddressingMode");
         result.add("Connection");
-        result.add("RtuType");
+        result.add("DeviceType");
         result.add("TestLogging");
         result.add("FolderExtName");
         result.add("CsdCall");          // enable the csd call functionality
@@ -158,12 +158,12 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     }
 
     @ProtocolProperty
-    public RtuType getRtuType() throws IOException {
+    public DeviceType getRtuType() throws IOException {
         if (rtuType == null) {
-            String type = getStringValue("RtuType", "");
+            String type = getStringValue("DeviceType", "");
 
             if (Utils.isNull(type)) {
-                // No automatic meter creation: no property RtuType defined.
+                // No automatic meter creation: no property DeviceType defined.
                 rtuType = null;
             } else {
                 rtuType = mw().getRtuTypeFactory().find(type);

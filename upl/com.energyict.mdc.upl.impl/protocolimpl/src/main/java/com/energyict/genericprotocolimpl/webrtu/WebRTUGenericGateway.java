@@ -56,10 +56,10 @@ public class WebRTUGenericGateway implements GenericProtocol {
     }
 
     public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        Rtu rtu = scheduler.getRtu();
-        List<Rtu> slaves = rtu.getDownstreamRtus(); //Should be a collection of WaveFlow, WaveTherm, RTM, ... devices
+        Device rtu = scheduler.getRtu();
+        List<Device> slaves = rtu.getDownstreamRtus(); //Should be a collection of WaveFlow, WaveTherm, RTM, ... devices
         setLogger(logger);
-        for (Rtu slave : slaves) {
+        for (Device slave : slaves) {
             List<CommunicationScheduler> inboundSlaveSchedules = getInboundSlaveSchedules(slave);
             try {
                 meterReadingData = null;
@@ -295,7 +295,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
         timeDiff = 0;
     }
 
-    private List<RtuMessage> getPendingMessages(Rtu slave) {
+    private List<RtuMessage> getPendingMessages(Device slave) {
         List<RtuMessage> newMessages = new ArrayList<RtuMessage>();
         for (RtuMessage rtuMessage : slave.getMessages()) {
             if (rtuMessage.isPending()) {
@@ -337,7 +337,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
         }
     }
 
-    private void storeData(Rtu slave) throws SQLException, BusinessException {
+    private void storeData(Device slave) throws SQLException, BusinessException {
         if (meterReadingData != null) {
             slave.store(meterReadingData);
         }
@@ -407,7 +407,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
         }
     }
 
-    private void initAndConnect(Link link, Logger logger, Rtu slave) throws IOException {
+    private void initAndConnect(Link link, Logger logger, Device slave) throws IOException {
         storeStartTime();
         meterProtocol.setProperties(getProperties(slave));
 
@@ -597,7 +597,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
         }
     }
 
-    private TimeZone getTimeZone(Rtu slave) {
+    private TimeZone getTimeZone(Device slave) {
         TimeZone timeZone = slave.getTimeZone();
         if (timeZone == null) {
             getLogger().warning("Using system timezone, device timezone is null!");
@@ -606,7 +606,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
         return timeZone;
     }
 
-    private Properties getProperties(Rtu slave) {
+    private Properties getProperties(Device slave) {
         properties = slave.getProperties().toStringProperties();
         Properties protocolProperties = slave.getProtocol().getProperties().toStringProperties();
 
@@ -647,7 +647,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
      * @param commSchedules all (inbound) schedules of a slave
      * @param slave         the slave RTU...
      */
-    private void logSuccess(List<CommunicationScheduler> commSchedules, Rtu slave) {
+    private void logSuccess(List<CommunicationScheduler> commSchedules, Device slave) {
         for (CommunicationScheduler commSchedule : commSchedules) {
             if (successfulSchedulesIds.contains(commSchedule.getId()) && !failedSchedulesIds.contains(commSchedule.getId())) {
                 logSuccess(commSchedule, slave);
@@ -655,7 +655,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
         }
     }
 
-    private void logSuccess(CommunicationScheduler commSchedule, Rtu slave) {
+    private void logSuccess(CommunicationScheduler commSchedule, Device slave) {
         List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
         journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
         journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + slave.getSerialNumber() + "]"));
@@ -749,7 +749,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
         return connectTimeStr;
     }
 
-    private List<CommunicationScheduler> getInboundSlaveSchedules(Rtu slave) {
+    private List<CommunicationScheduler> getInboundSlaveSchedules(Device slave) {
         List<CommunicationScheduler> inboundSchedules = new ArrayList<CommunicationScheduler>();
         for (CommunicationScheduler slaveSchedule : slave.getCommunicationSchedulers()) {
             if (slaveSchedule.getModemPool().getInbound()) {

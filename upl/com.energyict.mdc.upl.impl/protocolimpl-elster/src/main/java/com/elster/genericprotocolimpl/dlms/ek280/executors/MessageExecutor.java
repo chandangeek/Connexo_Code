@@ -1,7 +1,7 @@
 package com.elster.genericprotocolimpl.dlms.ek280.executors;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 9/06/11
  * Time: 8:53
  */
-public class MessageExecutor extends AbstractExecutor<Rtu> {
+public class MessageExecutor extends AbstractExecutor<Device> {
 
     /**
      * This class is used to execute all messages that are pending for an rtu
@@ -34,7 +34,7 @@ public class MessageExecutor extends AbstractExecutor<Rtu> {
      *
      * @param rtu The rtu with the pending messages
      */
-    public void execute(Rtu rtu) {
+    public void execute(Device rtu) {
         List<RtuMessage> messagesToQuery = new ArrayList<RtuMessage>();
         messagesToQuery.addAll(rtu.getPendingMessages());
         messagesToQuery.addAll(rtu.getSentMessages());

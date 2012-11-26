@@ -1,22 +1,13 @@
 package com.energyict.genericprotocolimpl.nta.elster;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.Link;
-import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.genericprotocolimpl.nta.elster.messagehandling.AM100MessageExecutor;
-import com.energyict.genericprotocolimpl.nta.elster.profiles.DailyMonthlyProfile;
-import com.energyict.genericprotocolimpl.nta.elster.profiles.ElectricityProfile;
-import com.energyict.genericprotocolimpl.nta.elster.profiles.EventProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -166,11 +157,11 @@ public class AM100 extends AbstractNTAProtocol {
      * @param index           - the index to put the mbus device
      * @param serial          - the serialnumber for the Mbus device
      * @param physicalAddress - the physicalAddress of the Mbus device
-     * @param mbusRtu         - the Rtu from the database created for the Mbus device
+     * @param mbusRtu         - the Device from the database created for the Mbus device
      * @param logger          - the logger that will be used
      */
     @Override
-    protected void addMbusDevice(int index, String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    protected void addMbusDevice(int index, String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         this.mbusDevices[index] = new MbusDevice(serial, physicalAddress, mbusRtu, logger);
     }
 
@@ -206,7 +197,7 @@ public class AM100 extends AbstractNTAProtocol {
      * @return a new Mbus class instance
      */
     @Override
-    protected AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    protected AbstractMbusDevice getMbusInstance(String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         return new MbusDevice(serial, physicalAddress, mbusRtu, logger);  //To change body of implemented methods use File | Settings | File Templates.
     }
 

@@ -1,6 +1,6 @@
 package com.elster.genericprotocolimpl.dlms.ek280.executors;
 
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.*;
 
 import java.io.IOException;
@@ -11,14 +11,14 @@ import java.util.*;
  * Date: 15/06/11
  * Time: 11:53
  */
-public class EventTaskExecutor extends AbstractExecutor<Rtu> {
+public class EventTaskExecutor extends AbstractExecutor<Device> {
 
     public EventTaskExecutor(AbstractExecutor executor) {
         super(executor);
     }
 
     @Override
-    public void execute(Rtu rtu) throws IOException {
+    public void execute(Device rtu) throws IOException {
         if (rtu != null) {
             Date lastLogbook = rtu.getLastLogbook();
             if (lastLogbook == null) {
@@ -36,7 +36,7 @@ public class EventTaskExecutor extends AbstractExecutor<Rtu> {
                 severe("List of meter events was 'null'!");
             }
         } else {
-            throw new IOException("Unable to read device events. Rtu was 'null'!");
+            throw new IOException("Unable to read device events. Device was 'null'!");
         }
     }
 

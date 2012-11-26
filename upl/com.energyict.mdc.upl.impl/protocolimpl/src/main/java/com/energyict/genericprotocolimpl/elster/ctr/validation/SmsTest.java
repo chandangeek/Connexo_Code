@@ -6,8 +6,8 @@ import com.energyict.cpo.*;
 import com.energyict.genericprotocolimpl.elster.ctr.SmsHandler;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterReading;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.messaging.MessageService;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.obis.ObisCode;
@@ -90,8 +90,8 @@ public class SmsTest {
     }
 
     private static void updatePhoneNumbers(MeteringWarehouse mw) {
-        List<Rtu> all = mw.getRtuFactory().findAll();
-        for (Rtu rtu : all) {
+        List<Device> all = mw.getRtuFactory().findAll();
+        for (Device rtu : all) {
             String phoneNumber = rtu.getPhoneNumber();
             if (phoneNumber == null || phoneNumber.equalsIgnoreCase("")) {
                 RtuRegister register = rtu.getRegister(ObisCode.fromString("0.0.96.12.6.255"));

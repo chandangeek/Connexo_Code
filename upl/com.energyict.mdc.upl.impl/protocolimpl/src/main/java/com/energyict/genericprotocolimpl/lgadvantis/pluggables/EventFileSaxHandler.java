@@ -75,7 +75,7 @@ public class EventFileSaxHandler extends DefaultHandler {
 
 				//Create the deviceEvent
 				for (Iterator it=rtus.iterator(); it.hasNext();){
-					Rtu rtu = (Rtu) it.next();
+					Device rtu = (Device) it.next();
 						
 					RtuEventShadow shadow = new RtuEventShadow();
 					shadow.setCode(deviceCodeTranslation(alarmId.intValue()));
@@ -136,7 +136,7 @@ public class EventFileSaxHandler extends DefaultHandler {
 		List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
 		//Create the RtuMessage
 		for (Iterator it=rtus.iterator(); it.hasNext();){
-			Rtu rtu = (Rtu) it.next();
+			Device rtu = (Device) it.next();
 			
 			RtuMessageShadow shadow = new RtuMessageShadow();
 			shadow.setReleaseDate(Calendar.getInstance().getTime());

@@ -81,8 +81,8 @@ public class MeterReadTransaction implements CacheMechanism {
     private ProtocolChannelMap protocolChannelMap = null;
     private CommunicationProfile communicationProfile;
     private StoreObject storeObject;
-    public Rtu rtuConcentrator;
-    private Rtu meter;
+    public Device rtuConcentrator;
+    private Device meter;
     private String serial;
     private String mSerial;
     private Cache dlmsCache;
@@ -93,7 +93,7 @@ public class MeterReadTransaction implements CacheMechanism {
     protected MbusDevice[] mbusDevices = {null, null, null, null};
     private String[] requestedMbusSerials = {"", "", "", ""};
 
-    public MeterReadTransaction(Concentrator concentrator, Rtu rtuConcentrator, String serial, CommunicationProfile communicationProfile) {
+    public MeterReadTransaction(Concentrator concentrator, Device rtuConcentrator, String serial, CommunicationProfile communicationProfile) {
 
         this.concentrator = concentrator;
         this.rtuConcentrator = rtuConcentrator;
@@ -305,7 +305,7 @@ public class MeterReadTransaction implements CacheMechanism {
     /**
      * @return the E-meter rtu
      */
-    public Rtu getMeter() {
+    public Device getMeter() {
         return meter;
     }
 
@@ -314,7 +314,7 @@ public class MeterReadTransaction implements CacheMechanism {
      *
      * @param meter
      */
-    protected void setMeter(Rtu meter) {
+    protected void setMeter(Device meter) {
         this.meter = meter;
     }
 
@@ -331,7 +331,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws BusinessException
      * @throws SQLException
      */
-    protected void importProfile(Rtu meter, XmlHandler dataHandler, boolean bEvents) throws ServiceException, IOException, BusinessException, SQLException {
+    protected void importProfile(Device meter, XmlHandler dataHandler, boolean bEvents) throws ServiceException, IOException, BusinessException, SQLException {
 
         String xml = null;
         String profile = null;
@@ -411,7 +411,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws IOException
      * @throws SQLException
      */
-    protected void importDailyMonthly(Rtu meter, XmlHandler dataHandler, String serialNumber) throws BusinessException, ServiceException, IOException, SQLException {
+    protected void importDailyMonthly(Device meter, XmlHandler dataHandler, String serialNumber) throws BusinessException, ServiceException, IOException, SQLException {
         getLogger().log(Level.INFO, "Reading Daily/Monthly values from meter with serialnumber " + meter.getSerialNumber() + ".");
         String xml = "";
         String daily = getConcentrator().getLpDaily();
@@ -536,7 +536,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @param profileIndex
      * @return the channel of the meter with the given profileIndex
      */
-    public Channel getMeterChannelWithIndex(Rtu meter, int profileIndex) {
+    public Channel getMeterChannelWithIndex(Device meter, int profileIndex) {
         Iterator it = meter.getChannels().iterator();
         while (it.hasNext()) {
             Channel chn = (Channel) it.next();
@@ -556,7 +556,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws BusinessException
      * @throws SQLException
      */
-    protected void handleRegisters(XmlHandler dataHandler, Rtu meter) throws ServiceException, BusinessException, SQLException {
+    protected void handleRegisters(XmlHandler dataHandler, Device meter) throws ServiceException, BusinessException, SQLException {
 
         Iterator i = dataHandler.getMeterReadingData().getRegisterValues().iterator();
         while (i.hasNext()) {
@@ -636,7 +636,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @param rtu
      * @return a date
      */
-    protected Date getLastReading(Rtu rtu) {
+    protected Date getLastReading(Device rtu) {
         Date result = rtu.getLastReading();
         if (result == null) {
             result = getClearLastMonthDate(rtu);
@@ -650,7 +650,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @param rtu
      * @return a date
      */
-    protected Date getLastLogboog(Rtu rtu) {
+    protected Date getLastLogboog(Device rtu) {
         Date result = rtu.getLastLogbook();
         if (result == null) {
             result = getClearLastMonthDate(rtu);
@@ -664,7 +664,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @param rtu
      * @return the current date minus a year at midnight.
      */
-    private Date getClearLastMonthDate(Rtu rtu) {
+    private Date getClearLastMonthDate(Device rtu) {
         Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
         tempCalendar.add(Calendar.MONTH, -1);
         tempCalendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -790,7 +790,7 @@ public class MeterReadTransaction implements CacheMechanism {
     }
 
     /**
-     * Checks if the Rtu with the serialnumber exists in database
+     * Checks if the Device with the serialnumber exists in database
      *
      * @param serial
      * @return true or false
@@ -808,7 +808,7 @@ public class MeterReadTransaction implements CacheMechanism {
     }
 
     /**
-     * Check if the given serialnumber exist in the database, if not and there is an RtuType configured, then you can create it.
+     * Check if the given serialnumber exist in the database, if not and there is an DeviceType configured, then you can create it.
      *
      * @param concentrator
      * @param serial
@@ -817,12 +817,12 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws BusinessException
      * @throws IOException
      */
-    protected Rtu findOrCreate(Rtu concentrator, String serial) throws SQLException, BusinessException, IOException {
+    protected Device findOrCreate(Device concentrator, String serial) throws SQLException, BusinessException, IOException {
 
         List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
 
         if (meterList.size() == 1) {
-            Rtu rtu = (Rtu) meterList.get(0);
+            Device rtu = (Device) meterList.get(0);
             // Check if gateway has changed, and update if it has
             if ((rtu.getGateway() == null) || (rtu.getGateway().getId() != concentrator.getId())) {
                 rtu.updateGateway(concentrator);
@@ -842,7 +842,7 @@ public class MeterReadTransaction implements CacheMechanism {
     }
 
     /**
-     * Check if the given serialnumber exist in the database, if not and there is an RtuType configured with a lookuptable, then check if there is a prototype for the medium.
+     * Check if the given serialnumber exist in the database, if not and there is an DeviceType configured with a lookuptable, then check if there is a prototype for the medium.
      * If there is a prototype, then you can create the meter
      *
      * @param concentrator
@@ -853,12 +853,12 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws BusinessException
      * @throws IOException
      */
-    protected Rtu findOrCreate(Rtu concentrator, String serial, int medium) throws SQLException, BusinessException, IOException {
+    protected Device findOrCreate(Device concentrator, String serial, int medium) throws SQLException, BusinessException, IOException {
 
         List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
 
         if (meterList.size() == 1) {
-            Rtu rtu = (Rtu) meterList.get(0);
+            Device rtu = (Device) meterList.get(0);
             // Check if gateway has changed, and update if it has
             if ((rtu.getGateway() == null) || (rtu.getGateway().getId() != concentrator.getId())) {
                 rtu.updateGateway(concentrator);
@@ -877,7 +877,7 @@ public class MeterReadTransaction implements CacheMechanism {
         }
     }
 
-    private RtuType getMbusRtuType(int medium) throws IOException {
+    private DeviceType getMbusRtuType(int medium) throws IOException {
         String lookup = (String) meter.getProperties().getProperty(Constant.RTU_TYPE);
         String type = "";
         if (lookup != null) {
@@ -887,7 +887,7 @@ public class MeterReadTransaction implements CacheMechanism {
             } else {
                 type = lut.getValue(medium);
                 if ((type != null) && !type.equalsIgnoreCase("")) {
-                    RtuType rtuType = getConcentrator().mw().getRtuTypeFactory().find(type);
+                    DeviceType rtuType = getConcentrator().mw().getRtuTypeFactory().find(type);
                     if (rtuType == null) {
                         throw new IOException("Iskra Mx37x, There is no prototype defined for the MBus medium with code '" + type + "'");
                     }
@@ -896,11 +896,11 @@ public class MeterReadTransaction implements CacheMechanism {
                     }
                     return rtuType;
                 } else {
-                    throw new IOException("No RtuType defined in lookuptable '" + lookup + "' for the value '" + medium + "'");
+                    throw new IOException("No DeviceType defined in lookuptable '" + lookup + "' for the value '" + medium + "'");
                 }
             }
         } else {
-            getLogger().warning("No automatic MBusMeter creation: RtuType has no LookupTable defined.");
+            getLogger().warning("No automatic MBusMeter creation: DeviceType has no LookupTable defined.");
         }
         return null;
     }
@@ -909,19 +909,19 @@ public class MeterReadTransaction implements CacheMechanism {
      * @param concentrator
      * @return the folderID of the given rtu
      */
-    private String getFolderID(Rtu concentrator) {
+    private String getFolderID(Device concentrator) {
         String folderid = (String) concentrator.getProperties().getProperty(Constant.FOLDER_EXT_NAME);
         return folderid;
     }
 
     /**
-     * Create a meter for configured RtuType
+     * Create a meter for configured DeviceType
      *
      * @throws BusinessException
      * @throws SQLException
      */
 
-    private Rtu createMeter(Rtu concentrator, RtuType type, String serial) throws SQLException, BusinessException {
+    private Device createMeter(Device concentrator, DeviceType type, String serial) throws SQLException, BusinessException {
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, -10);
@@ -1044,7 +1044,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws NumberFormatException *****************************************************************************************
      */
 
-    protected void sendMeterMessages(Rtu rtu, XmlHandler dataHandler) throws BusinessException, SQLException, NumberFormatException, IOException {
+    protected void sendMeterMessages(Device rtu, XmlHandler dataHandler) throws BusinessException, SQLException, NumberFormatException, IOException {
         sendMeterMessages(rtu, null, dataHandler);
     }
 
@@ -1056,7 +1056,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws IOException
      * @throws NumberFormatException
      */
-    protected void sendMeterMessages(Rtu eRtu, Rtu mbusRtu, XmlHandler dataHandler) throws BusinessException, SQLException, NumberFormatException, IOException {
+    protected void sendMeterMessages(Device eRtu, Device mbusRtu, XmlHandler dataHandler) throws BusinessException, SQLException, NumberFormatException, IOException {
 
         /* short circuit */
         if (!communicationProfile.getSendRtuMessage()) {
@@ -1470,10 +1470,10 @@ public class MeterReadTransaction implements CacheMechanism {
     }
 
     private void doMbusParameterCheck() {
-        List<Rtu> slaveMeters = meter.getDownstreamRtus();
+        List<Device> slaveMeters = meter.getDownstreamRtus();
         if (slaveMeters.size() > 0) {
             for (int i = 0; i < slaveMeters.size(); i++) {
-                Rtu mbus = slaveMeters.get(i);
+                Device mbus = slaveMeters.get(i);
                 int nodeAddress = 0;
                 try {
                     nodeAddress = Integer.parseInt(mbus.getNodeAddress());
@@ -1602,7 +1602,7 @@ public class MeterReadTransaction implements CacheMechanism {
 //		while(it.hasNext()){
 //			mbusChannel = -1;
 //			try {
-//				mbus = (Rtu)it.next();
+//				mbus = (Device)it.next();
 //				serialMbus = mbus.getSerialNumber();
 //				mbusChannel = checkSerialForMbusChannel(serialMbus);
 ////				this.mbusDevices[count++] = new MbusDevice(serialMbus, mbus, getLogger());
@@ -1616,7 +1616,7 @@ public class MeterReadTransaction implements CacheMechanism {
         if (meter.getProperties().getProperty(Constant.RTU_TYPE) != null) {    // means we can create the mbusDevices
             for (int i = 0; i < MBUS_MAX; i++) {
                 if (!getResultsFile().getSerialNumbers(i).equalsIgnoreCase("")) {
-                    Rtu mbus = findOrCreate(getMeter(), getResultsFile().getSerialNumbers(i), 15);
+                    Device mbus = findOrCreate(getMeter(), getResultsFile().getSerialNumbers(i), 15);
                     if (mbus != null) {
                         this.mbusDevices[count++] = new MbusDevice(-1, i, getResultsFile().getSerialNumbers(i), 15,
                                 mbus, Unit.get(BaseUnit.UNITLESS), getLogger());
@@ -1625,7 +1625,7 @@ public class MeterReadTransaction implements CacheMechanism {
             }
         } else if (slaves.size() > 0) {    // we have downstreamRtu's
             for (int i = 0; i < slaves.size(); i++) {
-                Rtu slave = (Rtu) slaves.get(i);
+                Device slave = (Device) slaves.get(i);
                 int phyChannel = findPhysicalChannelBySerialNumber(slave.getSerialNumber());
                 if ((phyChannel >= 0) && (phyChannel < MBUS_MAX)) {
                     this.mbusDevices[count++] = new MbusDevice(-1, phyChannel, slave.getSerialNumber(), 15,
@@ -1658,9 +1658,9 @@ public class MeterReadTransaction implements CacheMechanism {
     }
 
     /**
-     * Checks if the given meterList(the downstream Rtu's) are still physically connected to the E-meter, if not delete the concentrator gateway
+     * Checks if the given meterList(the downstream Device's) are still physically connected to the E-meter, if not delete the concentrator gateway
      *
-     * @param downstreamRtus - the list of Rtu's
+     * @param downstreamRtus - the list of Device's
      * @throws SQLException
      * @throws BusinessException
      */
@@ -1668,7 +1668,7 @@ public class MeterReadTransaction implements CacheMechanism {
         Iterator it = downstreamRtus.iterator();
         int count = 0;
         while (it.hasNext()) {
-            Rtu mbus = ((Rtu) it.next());
+            Device mbus = ((Device) it.next());
             boolean delete = true;
             for (int i = 0; i < mbusDevices.length; i++) {
                 if (mbusDevices[i] != null) {
@@ -1953,7 +1953,7 @@ public class MeterReadTransaction implements CacheMechanism {
     /**
      * Fill in all the parameters from the cached object.
      * Tricky part for the MBus devices, if the meter does not exist in the database we have to check if the MBus meter is still installed on the E-meter.
-     * If so then we can create the meter in the database again(if RtuType is defined), if not we force to do a complete configuration read.
+     * If so then we can create the meter in the database again(if DeviceType is defined), if not we force to do a complete configuration read.
      *
      * @throws SQLException
      * @throws BusinessException

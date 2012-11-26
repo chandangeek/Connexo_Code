@@ -14,7 +14,7 @@ import com.energyict.cbo.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.Register;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.*;
 
 import java.io.IOException;
@@ -170,7 +170,7 @@ public class ParseUtils {
      * @param rtu
      * @return
      */
-	public static Date getClearLastMonthDate(Rtu rtu) {
+	public static Date getClearLastMonthDate(Device rtu) {
         return getClearLastMonthDate(rtu.getDeviceTimeZone());
 	}
 

@@ -6,7 +6,7 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.SmsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRFirmwareUpgradeTimeOutException;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.protocol.MessageEntry;
@@ -25,10 +25,10 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
 
     private Logger logger;
     private RequestFactory factory;
-    private Rtu rtu;
+    private Device rtu;
     private StoreObject storeObject;
 
-    public MTU155MessageExecutor(Logger logger, RequestFactory factory, Rtu rtu, StoreObject storeObject) {
+    public MTU155MessageExecutor(Logger logger, RequestFactory factory, Device rtu, StoreObject storeObject) {
         this.factory = factory;
         this.logger = logger;
         this.rtu = rtu;
@@ -137,7 +137,7 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
         return logger;
     }
 
-    public Rtu getRtu() {
+    public Device getRtu() {
         return rtu;
     }
 

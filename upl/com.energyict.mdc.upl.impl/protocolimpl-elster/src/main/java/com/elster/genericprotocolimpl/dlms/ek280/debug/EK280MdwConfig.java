@@ -190,7 +190,7 @@ public class EK280MdwConfig {
         }
     }
 
-    private RtuType getRtuType() {
+    private DeviceType getRtuType() {
         return mw().getRtuTypeFactory().find(DEVICE_TYPE_NAME);
     }
 

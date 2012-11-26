@@ -1,11 +1,9 @@
 package com.energyict.genericprotocolimpl.nta.elster;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.nta.abstractnta.*;
 import com.energyict.genericprotocolimpl.nta.elster.messagehandling.AM100MbusMessageExecutor;
 import com.energyict.genericprotocolimpl.nta.elster.profiles.MbusProfile;
-import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -52,7 +50,7 @@ public class MbusDevice extends AbstractMbusDevice {
         super();
     }
 
-    public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    public MbusDevice(String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         super(serial, physicalAddress, mbusRtu, logger);
     }
 

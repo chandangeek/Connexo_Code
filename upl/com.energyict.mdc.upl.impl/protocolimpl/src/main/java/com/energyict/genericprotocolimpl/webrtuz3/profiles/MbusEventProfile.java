@@ -5,7 +5,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.webrtuz3.MbusDevice;
 import com.energyict.genericprotocolimpl.webrtuz3.eventhandling.MbusControlLog;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
@@ -68,7 +68,7 @@ public class MbusEventProfile {
      * 
      * @return
      */
-    private Rtu getMeter(){
+    private Device getMeter(){
 		return this.mbusDevice.getMbus();
 	}
 

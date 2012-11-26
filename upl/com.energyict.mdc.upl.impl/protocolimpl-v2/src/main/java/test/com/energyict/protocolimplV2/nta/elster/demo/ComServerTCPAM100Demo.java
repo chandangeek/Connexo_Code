@@ -81,8 +81,8 @@ public final class ComServerTCPAM100Demo {
     private ComServerDAO comServerDAO;
     private OnlineComServer thisComServer;
     private OutboundComPortPool outboundComPortPool;
-    private RtuType rtuType;
-    private Rtu rtu;
+    private DeviceType rtuType;
+    private Device rtu;
     private ProtocolDialectProperties protocolDialectProperties;
     private ConnectionTypePluggableClass connectionTypePluggableClass;
     private DeviceProtocolPluggableClassImpl deviceProtocolPluggableClass;
@@ -242,7 +242,7 @@ public final class ComServerTCPAM100Demo {
 
 
     private boolean findOrCreateDemoDeviceSetup() {
-        System.out.println("Populating database with Demo ComTask/Rtu/ConnectionType/ConnectionTask/ScheduledComTask");
+        System.out.println("Populating database with Demo ComTask/Device/ConnectionType/ConnectionTask/ScheduledComTask");
         return this.findOrCreateComTask() &&
                 this.findOrCreateDeviceProtocol() &&
                 this.findOrCreateRtuType() &&
@@ -319,7 +319,7 @@ public final class ComServerTCPAM100Demo {
                 return false;
             }
         } else {
-            System.out.println("ScheduledComTask already configured on Rtu, rescheduling it now.");
+            System.out.println("ScheduledComTask already configured on Device, rescheduling it now.");
             this.scheduledComTask = byRtu.get(0);
             try {
                 this.scheduledComTask.scheduleNow();
@@ -349,7 +349,7 @@ public final class ComServerTCPAM100Demo {
                 return false;
             }
         } else {
-            System.out.println("Outbound connectionTask already exists on Rtu");
+            System.out.println("Outbound connectionTask already exists on Device");
             this.connectionTask = outboundByRtu.get(0);
         }
         return true;
@@ -423,40 +423,40 @@ public final class ComServerTCPAM100Demo {
         try {
             this.rtuType = this.findRtuType(RTU_TYPE_NAME);
             if (this.rtuType == null) {
-                System.out.println("Creating Demo Rtu Type with name " + RTU_TYPE_NAME);
+                System.out.println("Creating Demo Device Type with name " + RTU_TYPE_NAME);
                 this.rtuType = this.createRtuType(RTU_TYPE_NAME);
                 return true;
             } else {
-                System.out.println("Demo Rtu Type with name " + RTU_TYPE_NAME + " already existed.");
+                System.out.println("Demo Device Type with name " + RTU_TYPE_NAME + " already existed.");
             }
         } catch (BusinessException e) {
             e.printStackTrace(System.err);
-            System.out.println("Failed to create Rtu Type, see stacktrace above");
+            System.out.println("Failed to create Device Type, see stacktrace above");
             return false;
         } catch (SQLException e) {
             e.printStackTrace(System.err);
-            System.out.println("Failed to create Rtu Type, see stacktrace above");
+            System.out.println("Failed to create Device Type, see stacktrace above");
             return false;
         }
         return true;
     }
 
-    public RtuType findRtuType(String name) {
-        List<RtuType> rtuTypes = MeteringWarehouse.getCurrent().getRtuTypeFactory().findByName(name);
+    public DeviceType findRtuType(String name) {
+        List<DeviceType> rtuTypes = MeteringWarehouse.getCurrent().getRtuTypeFactory().findByName(name);
         if (rtuTypes.isEmpty()) {
             return null;
         }
         return rtuTypes.get(0);
     }
 
-    public RtuType createRtuType(String name) throws BusinessException, SQLException {
+    public DeviceType createRtuType(String name) throws BusinessException, SQLException {
         RtuTypeShadow shadow = new RtuTypeShadow();
         shadow.setName(name);
         shadow.setChannelCount(7);
         shadow.setDeviceProtocolId(this.deviceProtocolPluggableClass.getId());
         shadow.setRegisterSpecShadows(findOrCreateAllRegiserSpecShadows());
-        RtuType type = MeteringWarehouse.getCurrent().getRtuTypeFactory().create(shadow);
-        // Update the deviceConfig with the correct RtuType ID
+        DeviceType type = MeteringWarehouse.getCurrent().getRtuTypeFactory().create(shadow);
+        // Update the deviceConfig with the correct DeviceType ID
         DeviceConfig deviceConfig = MeteringWarehouse.getCurrent().getDeviceConfigFactory().find(DEVICE_CONFIG_AM100_DEMO_NAME);
         if (deviceConfig != null) {
             DeviceConfigShadow configShadow = deviceConfig.getShadow();
@@ -474,11 +474,11 @@ public final class ComServerTCPAM100Demo {
             findOrCreateLoadProfiles();
         } catch (BusinessException e) {
             e.printStackTrace(System.err);
-            System.out.println("Failed to create Rtu, see stacktrace above");
+            System.out.println("Failed to create Device, see stacktrace above");
             return false;
         } catch (SQLException e) {
             e.printStackTrace(System.err);
-            System.out.println("Failed to create Rtu, see stacktrace above");
+            System.out.println("Failed to create Device, see stacktrace above");
             return false;
         }
         return true;
@@ -518,7 +518,7 @@ public final class ComServerTCPAM100Demo {
         return deviceConfig;
     }
 
-    private ProtocolDialectProperties createProtocolDialectProperties(Rtu rtu) throws BusinessException, SQLException {
+    private ProtocolDialectProperties createProtocolDialectProperties(Device rtu) throws BusinessException, SQLException {
         ProtocolDialectPropertiesShadow shadow = new ProtocolDialectPropertiesShadow();
         shadow.setName("DSM23DemoDialectName");
         shadow.setRtuId(rtu.getId());
@@ -585,12 +585,12 @@ public final class ComServerTCPAM100Demo {
         throw new BusinessException("Could not create loadProfile cause LoadProfileType " + typeName + " does not exists.");
     }
 
-    public Rtu findOrCreateRtu(RtuType rtuType, String name, int intervalInSeconds) throws BusinessException, SQLException {
-        Rtu rtu = this.findRtu(name);
+    public Device findOrCreateRtu(DeviceType rtuType, String name, int intervalInSeconds) throws BusinessException, SQLException {
+        Device rtu = this.findRtu(name);
         if (rtu == null) {
             rtu = this.createRtu(rtuType, name, intervalInSeconds, MeteringWarehouse.getCurrent().findOrCreateFolder("/ComServer demo"));
         } else {
-            System.out.println("Demo Rtu with name " + RTU_NAME + " already existed.");
+            System.out.println("Demo Device with name " + RTU_NAME + " already existed.");
         }
         RtuShadow shadow = rtu.getShadow();
         TypedProperties properties = rtu.getProperties();
@@ -600,17 +600,17 @@ public final class ComServerTCPAM100Demo {
         return rtu;
     }
 
-    public Rtu findRtu(String name) {
-        List<Rtu> rtus = MeteringWarehouse.getCurrent().getRtuFactory().findByName(name);
+    public Device findRtu(String name) {
+        List<Device> rtus = MeteringWarehouse.getCurrent().getRtuFactory().findByName(name);
         if (rtus.isEmpty()) {
             return null;
         }
         return rtus.get(0);
     }
 
-    public Rtu createRtu(RtuType rtuType, String name, int intervalInSeconds, Folder parent) throws BusinessException, SQLException {
+    public Device createRtu(DeviceType rtuType, String name, int intervalInSeconds, Folder parent) throws BusinessException, SQLException {
         String serialNumber ="3228018";
-        System.out.println("Creating Demo Rtu with name " + RTU_NAME + " and serial number " + serialNumber);
+        System.out.println("Creating Demo Device with name " + RTU_NAME + " and serial number " + serialNumber);
         RtuShadow rtuShadow = rtuType.newRtuShadow();
         rtuShadow.setName(name);
         rtuShadow.setExternalName(name);

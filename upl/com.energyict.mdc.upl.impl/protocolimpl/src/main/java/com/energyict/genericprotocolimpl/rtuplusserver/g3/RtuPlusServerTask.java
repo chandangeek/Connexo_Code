@@ -6,10 +6,10 @@ import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.ModemPool;
 import com.energyict.mdw.core.ModemPoolFactory;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.shadow.ComPortShadow;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 import com.energyict.mdw.shadow.ModemPoolShadow;
@@ -33,7 +33,7 @@ public class RtuPlusServerTask {
     
     private final CommunicationScheduler scheduler;
     private final Logger logger;
-    private final List<Rtu> devicesInField = new ArrayList<Rtu>();
+    private final List<Device> devicesInField = new ArrayList<Device>();
     private final StoreObject storeObject = new StoreObject();
 
     public RtuPlusServerTask(CommunicationScheduler scheduler, Logger logger) {
@@ -53,7 +53,7 @@ public class RtuPlusServerTask {
         return logger;
     }
 
-    public Rtu getGateway() {
+    public Device getGateway() {
         return scheduler.getRtu();
     }
 
@@ -74,15 +74,15 @@ public class RtuPlusServerTask {
     public void updateEIServerTopology(List<SAPAssignmentItem> sapAssignmentItems) {
         for (SAPAssignmentItem item : sapAssignmentItems) {
             if (item.getSap() != 1) {
-                Rtu plcDevice = findByCallHomeId(item);
+                Device plcDevice = findByCallHomeId(item);
                 if (plcDevice != null) {
                     devicesInField.add(plcDevice);
                     updateEiServerGatewaySettings(plcDevice, item);
                 }
             }
         }
-        final List<Rtu> eiServerGhostDevices = getEiServerGhostDevices();
-        for (Rtu ghostDevice : eiServerGhostDevices) {
+        final List<Device> eiServerGhostDevices = getEiServerGhostDevices();
+        for (Device ghostDevice : eiServerGhostDevices) {
             cleanupEiServerGhostDevice(ghostDevice);
         }
     }
@@ -90,10 +90,10 @@ public class RtuPlusServerTask {
     /**
      * Remove the concentrator link in EIServer if this device is not found on the concentrator in the field.
      */
-    private List<Rtu> getEiServerGhostDevices() {
-        final List<Rtu> ghostDevices = new ArrayList<Rtu>();
-        final List<Rtu> downstreamRtus = getGateway().getDownstreamRtus();
-        for (Rtu downstreamRtu : downstreamRtus) {
+    private List<Device> getEiServerGhostDevices() {
+        final List<Device> ghostDevices = new ArrayList<Device>();
+        final List<Device> downstreamRtus = getGateway().getDownstreamRtus();
+        for (Device downstreamRtu : downstreamRtus) {
             if (!devicesInField.contains(downstreamRtu)) {
                 ghostDevices.add(downstreamRtu);
             }
@@ -107,7 +107,7 @@ public class RtuPlusServerTask {
      * @param plcDevice
      * @param sap
      */
-    private void updateEiServerGatewaySettings(Rtu plcDevice, SAPAssignmentItem sap) {
+    private void updateEiServerGatewaySettings(Device plcDevice, SAPAssignmentItem sap) {
         if (sap != null) {
             if (needsUpdate(plcDevice, sap)) {
                 setEiServerGatewaySettings(plcDevice, sap);
@@ -117,8 +117,8 @@ public class RtuPlusServerTask {
         }
     }
 
-    private boolean needsUpdate(Rtu plcDevice, SAPAssignmentItem sap) {
-        final Rtu currentGateway = plcDevice.getGateway();
+    private boolean needsUpdate(Device plcDevice, SAPAssignmentItem sap) {
+        final Device currentGateway = plcDevice.getGateway();
         final String nodeAddress = plcDevice.getNodeAddress() == null ? "" : plcDevice.getNodeAddress().trim();
         final String sapAddress = String.valueOf(sap.getSap());
         if (currentGateway == null) {
@@ -137,7 +137,7 @@ public class RtuPlusServerTask {
      * @param plcDevice The plcDevice to update
      * @param sap       The sap values to use during the update
      */
-    private void setEiServerGatewaySettings(Rtu plcDevice, SAPAssignmentItem sap) {
+    private void setEiServerGatewaySettings(Device plcDevice, SAPAssignmentItem sap) {
         try {
             final String plcName = plcDevice.getName();
             final String newGwName = getGateway().getName();
@@ -172,7 +172,7 @@ public class RtuPlusServerTask {
      *
      * @param plcDevice The plc ghost device to clean up
      */
-    private void cleanupEiServerGhostDevice(Rtu plcDevice) {
+    private void cleanupEiServerGhostDevice(Device plcDevice) {
         try {
             logger.severe("Removing gateway link and sap address from ghost device in EIServer [" + plcDevice.getName() + "]. Device not found in the field on gateway [" + getGateway().getName() + "].");
             final RtuShadow shadow = plcDevice.getShadow();
@@ -222,9 +222,9 @@ public class RtuPlusServerTask {
      * @param sap The SAP assignment item used to get the logical device name
      * @return The rtu if found, or null if there was no exact match
      */
-    private Rtu findByCallHomeId(SAPAssignmentItem sap) {
+    private Device findByCallHomeId(SAPAssignmentItem sap) {
         final String logicalDeviceName = sap.getLogicalDeviceName().trim().toUpperCase();
-        List<Rtu> result = mw().getRtuFactory().findByDialHomeId(logicalDeviceName);
+        List<Device> result = mw().getRtuFactory().findByDialHomeId(logicalDeviceName);
         if (result != null) {
             if (result.isEmpty()) {
                 logger.severe("No matching device found for SAP [" + sap.getSap() + ", " + sap.getLogicalDeviceName() + "] in EIServer!");
@@ -253,7 +253,7 @@ public class RtuPlusServerTask {
     }
 
     public final void scheduleSlaveDevices() {
-        for (Rtu deviceInField : devicesInField) {
+        for (Device deviceInField : devicesInField) {
             final List<CommunicationScheduler> communicationSchedulers = deviceInField.getCommunicationSchedulers();
             for (CommunicationScheduler schedule : communicationSchedulers) {
                 try {

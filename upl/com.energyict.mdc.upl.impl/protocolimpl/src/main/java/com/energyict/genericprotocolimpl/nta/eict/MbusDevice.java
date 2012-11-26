@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.nta.eict;
 
 import com.energyict.genericprotocolimpl.nta.abstractnta.*;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTAObisCodeProvider;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.InvalidPropertyException;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class MbusDevice extends AbstractMbusDevice {
         super();
     }
 
-    public MbusDevice(String serial, int physicalAddress, Rtu mbusRtu, Logger logger) {
+    public MbusDevice(String serial, int physicalAddress, Device mbusRtu, Logger logger) {
         super(serial, physicalAddress, mbusRtu, logger);    //To change body of overridden methods use File | Settings | File Templates.
     }
 

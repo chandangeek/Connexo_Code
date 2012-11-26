@@ -65,38 +65,38 @@ public class Utilities {
     }
 
     /**
-     * Create an RtuType to use in future code as a basic to create new rtu's
+     * Create an DeviceType to use in future code as a basic to create new rtu's
      *
      * @param commProtocol - the protocol
      * @param name         - name
      * @param channelCount
-     * @return the newly created RtuType
+     * @return the newly created DeviceType
      * @throws SQLException
      * @throws BusinessException
      */
-    public static RtuType createRtuType(CommunicationProtocol commProtocol, String name, int channelCount) throws SQLException, BusinessException {
+    public static DeviceType createRtuType(CommunicationProtocol commProtocol, String name, int channelCount) throws SQLException, BusinessException {
         RtuTypeShadow rtuTypeShadow = new RtuTypeShadow();
         rtuTypeShadow.setChannelCount(channelCount);
         rtuTypeShadow.setName(name);
         rtuTypeShadow.setProtocolId(commProtocol.getId());
-        RtuType rtuType = mw().getRtuTypeFactory().create(rtuTypeShadow);
+        DeviceType rtuType = mw().getRtuTypeFactory().create(rtuTypeShadow);
         return rtuType;
     }
 
     /**
-     * Create a basic Rtu with the serialNumber equal to "99999999, interval 3600s
+     * Create a basic Device with the serialNumber equal to "99999999, interval 3600s
      *
      * @param rtuType - the metertype of your wanted rtu
      * @return the newly created rtu
      * @throws SQLException
      * @throws BusinessException
      */
-    public static Rtu createRtu(RtuType rtuType) throws SQLException, BusinessException {
+    public static Device createRtu(DeviceType rtuType) throws SQLException, BusinessException {
         return createRtu(rtuType, "99999999");
     }
 
     /**
-     * Create a basic Rtu with you given serialnumber and an interval of 3600s
+     * Create a basic Device with you given serialnumber and an interval of 3600s
      *
      * @param rtuType
      * @param serial  of your rtu
@@ -104,12 +104,12 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static Rtu createRtu(RtuType rtuType, String serial) throws SQLException, BusinessException {
+    public static Device createRtu(DeviceType rtuType, String serial) throws SQLException, BusinessException {
         return createRtu(rtuType, serial, 3600);
     }
 
     /**
-     * Create your custom Rtu with a given serialnumber and interval
+     * Create your custom Device with a given serialnumber and interval
      *
      * @param rtuType
      * @param serial   of your rtu
@@ -118,14 +118,14 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static Rtu createRtu(RtuType rtuType, String serial, int interval) throws SQLException, BusinessException {
+    public static Device createRtu(DeviceType rtuType, String serial, int interval) throws SQLException, BusinessException {
         final RtuShadow rtuShadow = rtuType.newRtuShadow();
         rtuShadow.setRtuTypeId(rtuType.getId());
         rtuShadow.setName(serial);
         rtuShadow.setExternalName(serial);
         rtuShadow.setIntervalInSeconds(interval);
         rtuShadow.setSerialNumber(serial);
-        Rtu rtu = mw().getRtuFactory().create(rtuShadow);
+        Device rtu = mw().getRtuFactory().create(rtuShadow);
         return rtu;
     }
 
@@ -139,7 +139,7 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static Rtu addPropertyToRtu(Rtu rtu, String key, String value) throws SQLException, BusinessException {
+    public static Device addPropertyToRtu(Device rtu, String key, String value) throws SQLException, BusinessException {
         RtuShadow rtuShadow = rtu.getShadow();
         rtuShadow.getProperties().setProperty(key, value);
         rtu.delete();
@@ -157,7 +157,7 @@ public class Utilities {
      * @throws BusinessException
      * @throws SQLException
      */
-    public static Rtu addChannel(Rtu rtu, int intervalIndex, int profileIndex) throws BusinessException, SQLException {
+    public static Device addChannel(Device rtu, int intervalIndex, int profileIndex) throws BusinessException, SQLException {
         RtuShadow rtuShadow = rtu.getShadow();
         ChannelShadow channelShadow = new ChannelShadow();
         channelShadow.setName("Channel" + profileIndex);
@@ -194,13 +194,13 @@ public class Utilities {
     }
 
     /**
-     * Get a {@link Channel} from a {@link Rtu}, using the channelindex
+     * Get a {@link Channel} from a {@link com.energyict.mdw.core.Device}, using the channelindex
      *
      * @param rtu
      * @param index
      * @return The {@link Channel}
      */
-    public static Channel getChannelWithProfileIndex(Rtu rtu, int index) {
+    public static Channel getChannelWithProfileIndex(Device rtu, int index) {
         Iterator it = rtu.getChannels().iterator();
         while (it.hasNext()) {
             Channel chn = (Channel) it.next();
@@ -244,7 +244,7 @@ public class Utilities {
     }
 
     /**
-     * Create a new {@link CommunicationProfile} given a type name and ad it to a given {@link Rtu}
+     * Create a new {@link CommunicationProfile} given a type name and ad it to a given {@link com.energyict.mdw.core.Device}
      * The types can be:
      *
      * @param rtu
@@ -252,7 +252,7 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static void createCommunicationScheduler(Rtu rtu, String type) throws SQLException, BusinessException {
+    public static void createCommunicationScheduler(Device rtu, String type) throws SQLException, BusinessException {
         CommunicationSchedulerShadow css = new CommunicationSchedulerShadow();
         css.setCommunicationProfileId(createCommunicationProfile(type).getId());
         css.setRtuId(rtu.getId());
@@ -345,7 +345,7 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static void changeLastReading(Rtu meter, Date date) throws SQLException, BusinessException {
+    public static void changeLastReading(Device meter, Date date) throws SQLException, BusinessException {
         RtuShadow rs = meter.getShadow();
         rs.setLastReading(date);
         meter.update(rs);
@@ -358,7 +358,7 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static void changeLastReading(Rtu meter, Date date, int[] channels) throws SQLException, BusinessException {
+    public static void changeLastReading(Device meter, Date date, int[] channels) throws SQLException, BusinessException {
         RtuShadow rs = meter.getShadow();
         for (int i = 0; i < channels.length; i++) {
             if (rs.getChannelShadow(i) != null) {
@@ -415,12 +415,12 @@ public class Utilities {
     }
 
     /**
-     * Set the lastReading of all channels from the given <CODE>Rtu</CODE> to null.
-     * @param rtu the <CODE>Rtu</CODE> whos channels need to be cleared
+     * Set the lastReading of all channels from the given <CODE>Device</CODE> to null.
+     * @param rtu the <CODE>Device</CODE> whos channels need to be cleared
      * @throws BusinessException
      * @throws SQLException
      */
-    public static void clearChannelsLastReading(Rtu rtu) throws BusinessException, SQLException {
+    public static void clearChannelsLastReading(Device rtu) throws BusinessException, SQLException {
         RtuShadow rShadow = rtu.getShadow();
         rShadow.setLastReading(new Date(1));
         rtu.update(rShadow);

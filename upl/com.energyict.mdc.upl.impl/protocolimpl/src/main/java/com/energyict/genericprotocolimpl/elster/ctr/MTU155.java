@@ -50,7 +50,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     private boolean isOutboundSmsProfile;
     private OutboundSmsHandler outboundSmsHandler;
     private ObisCodeMapper obisCodeMapper;
-    private Rtu rtu;
+    private Device rtu;
     private MeterAmrLogging meterAmrLogging;
     private MTU155Discover mtu155Discover;
     private long startTime = -1;
@@ -123,7 +123,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
                 logMeterInfo();
 
                 this.rtu = identifyAndGetRtu();
-                log("Rtu with name '" + getRtu().getName() + "' connected successfully.");
+                log("Device with name '" + getRtu().getName() + "' connected successfully.");
                 getProtocolProperties().addProperties(rtu.getProtocol().getProperties().toStringProperties());
                 getProtocolProperties().addProperties(rtu.getProperties().toStringProperties());
                 updateRequestFactory();
@@ -193,7 +193,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         if ((meterSerial == null) || ("".equals(meterSerial))) {
             severe("Unable to check the serial number of the device! mtuSerial was 'null'");
         } else if ((rtuSerial == null) || ("".equals(rtuSerial))) {
-            severe("Unable to check the serial number of the device! Rtu serialnumer in EiServer was empty. Meter serial was [" + meterSerial + "]");
+            severe("Unable to check the serial number of the device! Device serialnumer in EiServer was empty. Meter serial was [" + meterSerial + "]");
         } else if (!meterSerial.trim().equalsIgnoreCase(rtuSerial.trim())) {
             String message = "Serialnumber from meter [" + meterSerial + "] does not match the serialnumber in EiServer [" + rtuSerial + "]";
             severe(message);
@@ -533,7 +533,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     }
 
     /**
-     * Get the serial from the rtu in EiServer. If Rtu == null, return null as serial number
+     * Get the serial from the rtu in EiServer. If Device == null, return null as serial number
      *
      * @return
      */
@@ -546,7 +546,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     }
 
     /**
-     * Get the serial from the converter in EiServer. If Rtu == null, return null as serial number
+     * Get the serial from the converter in EiServer. If Device == null, return null as serial number
      *
      * @return
      */
@@ -564,18 +564,18 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
      * @return
      * @throws CTRException
      */
-    private Rtu identifyAndGetRtu() throws CTRException {
+    private Device identifyAndGetRtu() throws CTRException {
         String pdr = readPdr();
         log("MTU155 with pdr='" + pdr + "' connected.");
 
-        List<Rtu> rtus = CommonUtils.mw().getRtuFactory().findByDialHomeId(pdr);
+        List<Device> rtus = CommonUtils.mw().getRtuFactory().findByDialHomeId(pdr);
         switch (rtus.size()) {
             case 0:
                 if (getProtocolProperties().isDisableDSTForKnockingDevices()) {
                     getDiscover().disableDSTForKnockingDevice(pdr);
                 }
                 if (getProtocolProperties().isFastDeployment()) {
-                    log("Rtu not found in EIServer. Starting fast discover.");
+                    log("Device not found in EIServer. Starting fast discover.");
                     return getDiscover().doDiscover();
                 } else {
                     throw new CTRConfigurationException("No rtu found in EiServer with callhomeId='" + pdr + "' and FastDeployment is disabled.");
@@ -627,11 +627,11 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
 
     }
 
-    public Rtu getRtu() {
+    public Device getRtu() {
         return rtu;
     }
 
-    public void setRtu(Rtu rtu) {
+    public void setRtu(Device rtu) {
         this.rtu = rtu;
     }
 

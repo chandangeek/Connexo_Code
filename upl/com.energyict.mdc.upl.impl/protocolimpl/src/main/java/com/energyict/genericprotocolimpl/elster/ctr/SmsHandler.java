@@ -43,7 +43,7 @@ public class SmsHandler implements MessageHandler {
 
     private static final String SMS = "SMS";
 
-    private Rtu rtu;
+    private Device rtu;
     private MTU155Properties properties = new MTU155Properties();
     private Logger logger;
     private MeterAmrLogging meterAmrLogging;
@@ -74,7 +74,7 @@ public class SmsHandler implements MessageHandler {
         return logger;
     }
 
-    public Rtu getRtu() {
+    public Device getRtu() {
         return rtu;
     }
 
@@ -169,7 +169,7 @@ public class SmsHandler implements MessageHandler {
     private boolean processSmsFrame(SMSFrame smsFrame) throws BusinessException, SQLException, LinkException {
         List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
         if (communicationSchedulers.size() == 0) {
-            log("Rtu '" + getRtu().getName() + "' has no CommunicationSchedulers. Skipping.");
+            log("Device '" + getRtu().getName() + "' has no CommunicationSchedulers. Skipping.");
         } else {
             for (CommunicationScheduler cs : communicationSchedulers) {
                 if (processSMSFrameSingleSchedule(smsFrame, cs)) {

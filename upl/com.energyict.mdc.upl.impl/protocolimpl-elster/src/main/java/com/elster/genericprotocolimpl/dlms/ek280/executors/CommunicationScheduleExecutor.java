@@ -67,7 +67,7 @@ public class CommunicationScheduleExecutor extends AbstractExecutor<Communicatio
                     new ClockSyncTaskExecutor(this).execute(task);
                 }
 
-                // Rtu messages
+                // Device messages
                 if (profile.getSendRtuMessage()) {
                     new MessageExecutor(this).execute(getEk280().getRtu());
                 }

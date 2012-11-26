@@ -2,7 +2,7 @@ package test.com.energyict.protocolimplV2.elster.ctr.MTU155.profile;
 
 import com.energyict.cbo.Unit;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.ProfileData;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155Properties;
@@ -114,7 +114,7 @@ public class ProfileChannelForSms {
     /**
      * @return
      */
-    private Rtu getRtu() {
+    private Device getRtu() {
         return getMeterChannel().getRtu();
     }
 

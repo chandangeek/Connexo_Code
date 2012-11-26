@@ -10,7 +10,7 @@ import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -31,7 +31,7 @@ public class BgbZ3 implements GenericProtocol {
     private CommunicationScheduler scheduler;
     private Link link;
     private Logger logger;
-    private Rtu rtu;
+    private Device rtu;
     private URL url;
     private StringBuilder responseData;
     private DataImporter di;

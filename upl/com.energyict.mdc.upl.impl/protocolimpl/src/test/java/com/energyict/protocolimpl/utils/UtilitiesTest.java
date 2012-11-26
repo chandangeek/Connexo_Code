@@ -7,11 +7,11 @@ package com.energyict.protocolimpl.utils;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.coreimpl.CommunicationProtocolImpl;
-import com.energyict.mdw.coreimpl.RtuImpl;
+import com.energyict.mdw.coreimpl.DeviceImpl;
 import com.energyict.mdw.testutils.CommunicationProtocolCRUD;
 import com.energyict.mdw.testutils.RtuCRUD;
 import com.energyict.mdw.testutils.RtuTypeCRUD;
@@ -84,7 +84,7 @@ public class UtilitiesTest {
         CommunicationProtocol commProtocol = Utilities.findOrcreateCommunicationProtocol(javaClassName);
 
         Utilities.createRtuType(commProtocol, testRtu, 6);
-        List<RtuType> result = Utilities.mw().getRtuTypeFactory().findByName(testRtu);
+        List<DeviceType> result = Utilities.mw().getRtuTypeFactory().findByName(testRtu);
 
         assertEquals(1, result.size());
         assertEquals(testRtu, result.get(0).getShadow().getName());
@@ -95,7 +95,7 @@ public class UtilitiesTest {
     @Test
     public void createRtuTest() throws BusinessException, SQLException {
         CommunicationProtocol commProtocol = null;
-        RtuType rtuType;
+        DeviceType rtuType;
         List result = Utilities.mw().getCommunicationProtocolFactory().findAll();
         for (Object aResult : result) {
             if (((CommunicationProtocol) aResult).getJavaClassName().equalsIgnoreCase(javaClassName)) {
@@ -112,15 +112,15 @@ public class UtilitiesTest {
         result = Utilities.mw().getRtuFactory().findBySerialNumber("99999999");
 
         assertEquals(1, result.size());
-        assertEquals("99999999", ((RtuImpl) result.get(0)).getShadow().getName());
-        assertEquals(6, ((RtuImpl) result.get(0)).getShadow().getChannelShadows().size());
+        assertEquals("99999999", ((DeviceImpl) result.get(0)).getShadow().getName());
+        assertEquals(6, ((DeviceImpl) result.get(0)).getShadow().getChannelShadows().size());
     }
 
     @Test
     public void addChannelTest() throws BusinessException, SQLException {
         CommunicationProtocol commProtocol;
-        RtuType rtuType;
-        Rtu rtu = null;
+        DeviceType rtuType;
+        Device rtu = null;
         commProtocol = Utilities.findOrcreateCommunicationProtocol(javaClassName);
         rtuType = Utilities.createRtuType(commProtocol, testRtu, 6);
 
@@ -128,7 +128,7 @@ public class UtilitiesTest {
         List result = Utilities.mw().getRtuFactory().findBySerialNumber("99999999");
 
         assertEquals(1, result.size());
-        rtu = (Rtu) result.get(0);
+        rtu = (Device) result.get(0);
 
         rtu = Utilities.addChannel(rtu, TimeDuration.SECONDS, 7);
         rtu = Utilities.addChannel(rtu, TimeDuration.DAYS, 8);

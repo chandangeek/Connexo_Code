@@ -10,7 +10,7 @@ import com.energyict.genericprotocolimpl.iskrap2lpc.stub.P2LPCSoapPort_PortType;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.WebServiceLocator;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.coreimpl.RtuImpl;
+import com.energyict.mdw.coreimpl.DeviceImpl;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -57,7 +57,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     private Connection connection;
     protected CommunicationProfile communicationProfile;
     private CommunicationScheduler communicationScheduler;
-    private Rtu concentrator;
+    private Device concentrator;
 
     private static final boolean ADVANCED = true;
 
@@ -114,7 +114,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                 if (!communicationProfile.getForceClock()) {
 
                     // get the prototype
-                    RtuType type = getRtuType(concentrator);
+                    DeviceType type = getRtuType(concentrator);
 
                     /** use the meters in the dataBase */
                     if (type == null) {
@@ -217,12 +217,12 @@ public class Concentrator implements Messaging, GenericProtocol {
         ArrayList serials = new ArrayList();
         Iterator it = meters.iterator();
         while (it.hasNext()) {
-            serials.add((String) ((RtuImpl) it.next()).getSerialNumber());
+            serials.add((String) ((DeviceImpl) it.next()).getSerialNumber());
         }
         return serials;
     }
 
-    private String checkConcentratorSerial(Rtu concentrator) throws ServiceException, IOException, BusinessException {
+    private String checkConcentratorSerial(Device concentrator) throws ServiceException, IOException, BusinessException {
         String conID = null;
         getLogger().log(Level.INFO, "Checking concentrator serialnumber.");
 
@@ -326,7 +326,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     /**
      * Import a single meter
      */
-    private void handleMeter(Rtu concentrator, String serial) {
+    private void handleMeter(Device concentrator, String serial) {
 
         try {
 
@@ -439,7 +439,7 @@ public class Concentrator implements Messaging, GenericProtocol {
      * @throws ParseException
      * @throws IOException
      */
-    protected void handleConcentrator(Rtu concentrator) throws BusinessException, SQLException, ServiceException, ParseException, IOException {
+    protected void handleConcentrator(Device concentrator) throws BusinessException, SQLException, ServiceException, ParseException, IOException {
 
         getLogger().log(Level.INFO, "Handling the concentrator with serialnumber: " + concentrator.getSerialNumber());
 
@@ -485,7 +485,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         getLogger().log(Level.INFO, "Concentrator " + concentrator.getSerialNumber() + " has completely finished.");
     }
 
-    private Date getClearMidnightDate(Rtu rtu) {
+    private Date getClearMidnightDate(Device rtu) {
         Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
         tempCalendar.set(Calendar.HOUR_OF_DAY, 0);
         tempCalendar.set(Calendar.MINUTE, 0);
@@ -537,7 +537,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
 
     protected void handleConcentratorRtuMessage(
-            Rtu concentrator, String serial, RtuMessage msg)
+            Device concentrator, String serial, RtuMessage msg)
             throws BusinessException, SQLException {
         String contents = msg.getContents();
         boolean success = false;
@@ -656,10 +656,10 @@ public class Concentrator implements Messaging, GenericProtocol {
                                     msg.setFailed();
                                     getLogger().log(Level.INFO, "The binary file is empty.");
                                 } else {
-                                    List<Rtu> meters = gr.getMembers();
+                                    List<Device> meters = gr.getMembers();
                                     if (meters.size() > 0) {
                                         String[] meterSerials = new String[gr.getMembers().size()];
-                                        Iterator<Rtu> it = meters.iterator();
+                                        Iterator<Device> it = meters.iterator();
                                         for (int i = 0; i < meterSerials.length; i++) {
                                             meterSerials[i] = it.next().getSerialNumber();
                                         }
@@ -687,7 +687,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                             }
                         } else {
                             msg.setFailed();
-                            getLogger().log(Level.INFO, "Objects in group '" + gr.getFullName() + "'are not of the type Rtu.");
+                            getLogger().log(Level.INFO, "Objects in group '" + gr.getFullName() + "'are not of the type Device.");
                         }
                     } else {
                         msg.setFailed();
@@ -805,7 +805,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     /**
      * Instantiate webservice stub
      */
-    protected P2LPCSoapPort_PortType port(Rtu concentrator) throws ServiceException {
+    protected P2LPCSoapPort_PortType port(Device concentrator) throws ServiceException {
 
         WebServiceLocator wsl = new WebServiceLocator();
         wsl.setP2LPCSoapPortEndpointAddress(getUrl(concentrator));
@@ -820,20 +820,20 @@ public class Concentrator implements Messaging, GenericProtocol {
     /**
      * @return Network address of concentrator
      */
-    private String getUrl(Rtu concentrator) {
+    private String getUrl(Device concentrator) {
         return "http://" + concentrator.getPhoneNumber() + "/WebService.wsdl";
     }
 
 
     /**
-     * Find RtuType for creating new meters.
+     * Find DeviceType for creating new meters.
      *
      * @throws IOException
      */
-    protected RtuType getRtuType(Rtu concentrator) throws IOException {
+    protected DeviceType getRtuType(Device concentrator) throws IOException {
         String type = (String) concentrator.getProperties().getProperty(Constant.RTU_TYPE);
         if (type != null) {
-            RtuType rtuType = mw().getRtuTypeFactory().find(type);
+            DeviceType rtuType = mw().getRtuTypeFactory().find(type);
             if (rtuType == null) {
                 throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
             }
@@ -842,7 +842,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             }
             return rtuType;
         } else {
-            getLogger().warning("No automatic meter creation: no property RtuType defined.");
+            getLogger().warning("No automatic meter creation: no property DeviceType defined.");
             return null;
         }
     }
@@ -850,7 +850,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     /**
      * Dial up property defined on Concentrator RTU.
      */
-    private boolean useDialUp(Rtu concentrator) {
+    private boolean useDialUp(Device concentrator) {
         return concentrator.getProperties().getProperty(Constant.USE_DIAL_UP) != null;
     }
 
@@ -858,11 +858,11 @@ public class Concentrator implements Messaging, GenericProtocol {
         return (String) properties.get(key);
     }
 
-    private String getPassword(Rtu concentrator) {
+    private String getPassword(Device concentrator) {
         return (String) concentrator.getProperties().getProperty(Constant.PASSWORD);
     }
 
-    private String getUser(Rtu concentrator) {
+    private String getUser(Device concentrator) {
         return (String) concentrator.getProperties().getProperty(Constant.USER);
     }
 
@@ -1138,7 +1138,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         return TESTLOGGING;
     }
 
-    public Rtu getConcentrator() {
+    public Device getConcentrator() {
         return this.concentrator;
     }
 

@@ -84,7 +84,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     private WebRTUZ3 webRtu;
     private String serialNumber;
     private int physicalAddress;
-    private Rtu eMeterRtu;
+    private Device eMeterRtu;
     private Logger logger;
 
     private HistoricalRegisterReadings historicalRegisters;
@@ -100,7 +100,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
      * @param eMeterRtu
      * @param logger
      */
-    public EMeter(String serial, int physicalAddress, Rtu eMeterRtu, Logger logger) {
+    public EMeter(String serial, int physicalAddress, Device eMeterRtu, Logger logger) {
         this.serialNumber = serial;
         this.physicalAddress = physicalAddress;
         this.eMeterRtu = eMeterRtu;
@@ -364,7 +364,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     /**
      * @return the eMeterRtu
      */
-    public Rtu geteMeterRtu() {
+    public Device geteMeterRtu() {
         return eMeterRtu;
     }
 
@@ -422,7 +422,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
         return cal;
     }
 
-    public Rtu getMeter() {
+    public Device getMeter() {
         return geteMeterRtu();
     }
 

@@ -153,7 +153,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
 
         //Need to clear the gateWay
         //TODO this is not fully compliant with the HTTP comserver ...
-        Rtu mbus = getRtuFromDatabaseBySerialNumber(serialNumber);
+        Device mbus = getRtuFromDatabaseBySerialNumber(serialNumber);
         if (mbus != null) {
             RtuShadow shadow = mbus.getShadow();
             shadow.setGatewayId(0);
@@ -389,7 +389,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private Rtu getRtuFromDatabaseBySerialNumber(String serialNumber) {
+    private Device getRtuFromDatabaseBySerialNumber(String serialNumber) {
         return mw().getRtuFactory().findBySerialNumber(serialNumber).get(0);
     }
 }

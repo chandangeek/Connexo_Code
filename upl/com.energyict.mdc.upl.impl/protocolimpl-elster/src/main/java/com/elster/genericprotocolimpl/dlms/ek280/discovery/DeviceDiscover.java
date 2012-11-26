@@ -20,7 +20,7 @@ public class DeviceDiscover {
     private final EK280 ek280;
 
     private Folder folder = null;
-    private RtuType rtuType = null;
+    private DeviceType rtuType = null;
 
     public DeviceDiscover(EK280 ek280) {
         this.ek280 = ek280;
@@ -48,7 +48,7 @@ public class DeviceDiscover {
         }
     }
 
-    public RtuType getRtuType() {
+    public DeviceType getRtuType() {
         if (rtuType == null) {
             String rtuTypeName = getEk280().getProperties().getRtuTypeName();
             if (rtuTypeName != null) {
@@ -57,7 +57,7 @@ public class DeviceDiscover {
                     getLogger().severe("No matching rtu type found for [" + EK280Properties.RTU_TYPE + "=" + rtuTypeName + "].");
                 }
             } else {
-                getLogger().severe("No value found for property [" + EK280Properties.RTU_TYPE + "]. Unable to get RtuType.");
+                getLogger().severe("No value found for property [" + EK280Properties.RTU_TYPE + "]. Unable to get DeviceType.");
             }
         }
         return rtuType;

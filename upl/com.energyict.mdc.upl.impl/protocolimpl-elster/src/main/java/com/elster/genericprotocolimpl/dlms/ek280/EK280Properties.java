@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class EK280Properties extends AbstractProtocolProperties {
 
-    public static final String RTU_TYPE = "RtuType";
+    public static final String RTU_TYPE = "DeviceType";
     public static final String FOLDER_EXT_NAME = "FolderExtName";
     public static final String CHANNEL_BACKLOG = "ChannelBacklog";
     public static final String FAST_DEPLOYMENT = "FastDeployment";

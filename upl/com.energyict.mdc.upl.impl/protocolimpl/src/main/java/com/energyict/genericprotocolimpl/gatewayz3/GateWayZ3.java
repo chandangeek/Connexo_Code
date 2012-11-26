@@ -106,14 +106,14 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
      * @param id - the DeviceId of the rtu
      */
     public void handleSlaveDevice(String id) {
-        Rtu rtu = null;
+        Device rtu = null;
         try {
 
             if (id.equalsIgnoreCase("00000000")) { //this is the master
 
                 rtu = getMeter();
 
-                // Loop over the Rtu's communicationSchedules
+                // Loop over the Device's communicationSchedules
                 for (int i = 0; i < rtu.getCommunicationSchedulers().size(); i++) {
                     CommunicationScheduler commSchedule = (CommunicationScheduler) rtu.getCommunicationSchedulers().get(i);
                     doExecuteMaster(commSchedule);
@@ -123,7 +123,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
                 rtu = findOrCreateDeviceByDeviceId(id);
                 if (rtu != null) {
 
-                    // Loop over the Rtu's communicationSchedules
+                    // Loop over the Device's communicationSchedules
                     for (int i = 0; i < rtu.getCommunicationSchedulers().size(); i++) {
                         CommunicationScheduler commSchedule = (CommunicationScheduler) rtu.getCommunicationSchedulers().get(i);
                         doExecuteSlave(commSchedule, false);
@@ -163,7 +163,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
      * @param useFixedZ3Protocol indicate whether to use the fixed {@link WebRTUZ3} protocol or not
      */
     private void doExecuteSlave(CommunicationScheduler commSchedule, boolean useFixedZ3Protocol) {
-        Rtu rtu = commSchedule.getRtu();
+        Device rtu = commSchedule.getRtu();
         try {
             if ((commSchedule.getNextCommunication() != null) && (commSchedule.getNextCommunication().before(Calendar.getInstance(rtu.getDeviceTimeZone()).getTime()))
                     && !commSchedule.equals(getCommunicationScheduler())) {
@@ -174,7 +174,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
 
                 executeProtocol(commSchedule, rtu, useFixedZ3Protocol);
 
-                Rtu master = getMasterForMeter(rtu.getDeviceId());
+                Device master = getMasterForMeter(rtu.getDeviceId());
                 if (master != null) {
                     if (rtu.getGateway() == null) {
                         rtu.updateGateway(master);
@@ -211,7 +211,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
      * @throws SQLException      if a database error occurred when we update the journal
      * @throws BusinessException if a business error occurred when we update the journal
      */
-    private void executeProtocol(CommunicationScheduler commSchedule, Rtu rtu, boolean useFixedZ3Protocol) throws SQLException, BusinessException {
+    private void executeProtocol(CommunicationScheduler commSchedule, Device rtu, boolean useFixedZ3Protocol) throws SQLException, BusinessException {
         Integer completionCode = AmrJournalEntry.CC_OK;
         String errorMessage = "";
         long connectTime = System.currentTimeMillis();
@@ -268,7 +268,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
             log(Level.INFO, errorMessage);
             failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
         } finally {
-            if (rtu != null) {    // only if we have an Rtu we should set an AmrJournal
+            if (rtu != null) {    // only if we have an Device we should set an AmrJournal
                 if (completionCode != null) {
 
                     AMRJournalManager amrjm = new AMRJournalManager(rtu, commSchedule);
@@ -315,12 +315,12 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
      * Find the master of the meter with the given deviceId in the networkTopology
      *
      * @param deviceId of the slave meter
-     * @return the master meter(Rtu)
+     * @return the master meter(Device)
      * @throws IOException       if multiple meters were found in the database
      * @throws SQLException      if database exception occurred
      * @throws BusinessException if business exception occurred
      */
-    private Rtu getMasterForMeter(String deviceId) throws IOException, SQLException, BusinessException {
+    private Device getMasterForMeter(String deviceId) throws IOException, SQLException, BusinessException {
 
         String masterDeviceId = getDeviceIdFromMaster(deviceId);
         if (masterDeviceId != null) {
@@ -402,9 +402,9 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
      * @throws SQLException      if database exception occurred
      * @throws BusinessException if business exception occurred
      */
-    private Rtu findOrCreateDeviceByDeviceId(String deviceId) throws IOException, SQLException, BusinessException {
+    private Device findOrCreateDeviceByDeviceId(String deviceId) throws IOException, SQLException, BusinessException {
         try {
-            Rtu device = CommonUtils.findOrCreateDeviceByDeviceId(deviceId, slaveRtuType, folderExtName);
+            Device device = CommonUtils.findOrCreateDeviceByDeviceId(deviceId, slaveRtuType, folderExtName);
 
             if (device != null) {
                 updateR2WithPostDialCommandRfClient(device);
@@ -507,15 +507,15 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
 
     /**
      * Set the postDial command for the Given R2.
-     * The postDial command is constructed from the Rtu's deviceID and should be of the form
+     * The postDial command is constructed from the Device's deviceID and should be of the form
      * <b>&lt;ESC&gt;rfclient="deviceid"&lt;/ESC&gt;</b>
      *
-     * @param rtu - the Rtu to update
+     * @param rtu - the Device to update
      * @throws SQLException             if a database error occurred
      * @throws BusinessException        if a business error occurred
      * @throws InvalidPropertyException if the DeviceId is empty
      */
-    protected void updateR2WithPostDialCommandRfClient(Rtu rtu) throws SQLException, BusinessException, InvalidPropertyException {
+    protected void updateR2WithPostDialCommandRfClient(Device rtu) throws SQLException, BusinessException, InvalidPropertyException {
         if ((rtu.getPostDialCommand() == null) || (rtu.getPostDialCommand().equalsIgnoreCase(""))
                 || (rtu.getPostDialCommand().equalsIgnoreCase("<ESC>rfclient=\"\"</ESC>"))) {
 
@@ -645,7 +645,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
     @Override
     protected List<String> doGetOptionalKeys() {
         List<String> result = new ArrayList<String>();
-        result.add("RtuType");            // To define a new SlaveRtu by it's RtuType
+        result.add("DeviceType");            // To define a new SlaveRtu by it's DeviceType
         result.add("FolderExtName");    // To place a new device in a folder
         return result;
     }
@@ -657,7 +657,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
 
     @Override
     protected void doValidateProperties() {
-        this.slaveRtuType = getProperties().getProperty("RtuType");
+        this.slaveRtuType = getProperties().getProperty("DeviceType");
         this.folderExtName = getProperties().getProperty("FolderExtName");
         this.masterDeviceId = getMeter().getDeviceId();
         if (this.masterDeviceId == null) {

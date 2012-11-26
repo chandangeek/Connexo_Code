@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.Rtu;
 
 import java.sql.SQLException;
 import java.util.Iterator;
@@ -18,7 +18,7 @@ public class ReadAllRegisters extends AbstractFolderAction {
             
             while( i.hasNext() ) {
             
-                Rtu rtu = (Rtu)i.next();
+                Device rtu = (Device)i.next();
                 
                 addMessage(rtu, "0.0.1.0.0.255",        0);
                 addMessage(rtu, "0.0.96.5.0.255",       1);

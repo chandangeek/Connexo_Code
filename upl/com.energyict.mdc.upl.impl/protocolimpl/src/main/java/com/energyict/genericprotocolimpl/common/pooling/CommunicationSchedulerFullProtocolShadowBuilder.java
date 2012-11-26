@@ -30,11 +30,11 @@ public class CommunicationSchedulerFullProtocolShadowBuilder {
     /**
      * Create a <CODE>CommunicationSchedulerFullProtocolShadow</CODE> from the given <CODERtu</CODE> and <CODE>CommunicationScheduler</CODE>
      *
-     * @param rtu       the given <CODE>Rtu</CODE>
+     * @param rtu       the given <CODE>Device</CODE>
      * @param scheduler the given <CODE>CommunicationScheduler</CODE>
      * @return the created fullShadowObject
      */
-    public static CommunicationSchedulerFullProtocolShadow createCommunicationSchedulerFullProtocolShadow(final Rtu rtu, final CommunicationScheduler scheduler) {
+    public static CommunicationSchedulerFullProtocolShadow createCommunicationSchedulerFullProtocolShadow(final Device rtu, final CommunicationScheduler scheduler) {
         CommunicationSchedulerFullProtocolShadow csfps = new CommunicationSchedulerFullProtocolShadowImpl();
         csfps.setCommunicationProfileShadow(scheduler.getCommunicationProfile().getShadow());
         csfps.setRtuFullProtocolShadow(RtuFullProtocolShadowBuilder.createRtuFullProtocolShadow(rtu));
@@ -45,15 +45,15 @@ public class CommunicationSchedulerFullProtocolShadowBuilder {
     }
 
     /**
-     * Create a <CODE>List</CODE> of <CODE>CommunicationSchedulerFullProtocolShadow</CODE> of all slave devices from the given <CODE>Rtu</CODE>
+     * Create a <CODE>List</CODE> of <CODE>CommunicationSchedulerFullProtocolShadow</CODE> of all slave devices from the given <CODE>Device</CODE>
      *
-     * @param rtu       the given <CODE>Rtu</CODE>
-     * @param scheduler the <CODE>CommunicationScheduler</CODE> of the Master <CODE>Rtu</CODE>
+     * @param rtu       the given <CODE>Device</CODE>
+     * @param scheduler the <CODE>CommunicationScheduler</CODE> of the Master <CODE>Device</CODE>
      * @return the freshly created <CODE>List</CODE>
      */
-    private static List<CommunicationSchedulerFullProtocolShadow> createSlaveCommunicationSchedulerFullShadows(final Rtu rtu, final CommunicationScheduler scheduler) {
+    private static List<CommunicationSchedulerFullProtocolShadow> createSlaveCommunicationSchedulerFullShadows(final Device rtu, final CommunicationScheduler scheduler) {
         List<CommunicationSchedulerFullProtocolShadow> slaveFullShadowList = new ArrayList<CommunicationSchedulerFullProtocolShadow>();
-        for (Rtu slave : rtu.getDownstreamRtus()) {
+        for (Device slave : rtu.getDownstreamRtus()) {
             slaveFullShadowList.add(createCommunicationSchedulerFullProtocolShadow(slave, scheduler));
         }
         return slaveFullShadowList;
@@ -63,11 +63,11 @@ public class CommunicationSchedulerFullProtocolShadowBuilder {
      * Create a <CODE>List</CODE> of <CODE>RtuRegisterFullProtocolShadow</CODE>. Use the given <CODE>CommunicationProfile</CODE> to determine whether the register
      * is is the readingGroup of this <CODE>CommunicationProfile</CODE>, if not then don't add it to the list.
      *
-     * @param rtu                  the <CODE>Rtu</CODE> to gather the registers from
+     * @param rtu                  the <CODE>Device</CODE> to gather the registers from
      * @param communicationProfile the used <CODE>CommunicationProfile</CODE>
      * @return the newly created List
      */
-    private static List<RtuRegisterFullProtocolShadow> createRtuRegisterShadows(final Rtu rtu, final CommunicationProfile communicationProfile) {
+    private static List<RtuRegisterFullProtocolShadow> createRtuRegisterShadows(final Device rtu, final CommunicationProfile communicationProfile) {
         List<RtuRegisterFullProtocolShadow> rtuRegisterShadowList = new ArrayList<RtuRegisterFullProtocolShadow>();
 
         for (RtuRegister register : rtu.getRegisters()) {
@@ -82,10 +82,10 @@ public class CommunicationSchedulerFullProtocolShadowBuilder {
     /**
      * Creates a <CODE>List</CODE> of <b>Pending AND Sent</b> <CODE>RtuMessage</CODE>
      *
-     * @param rtu the <CODE>Rtu</CODE> which holds the messages
+     * @param rtu the <CODE>Device</CODE> which holds the messages
      * @return the generated list
      */
-    private static List<RtuMessage> createRtuMessages(final Rtu rtu) {
+    private static List<RtuMessage> createRtuMessages(final Device rtu) {
         List<RtuMessage> messageShadowList = new ArrayList<RtuMessage>();
         for (RtuMessage rtuMessage : rtu.getPendingMessages()) {
             messageShadowList.add(rtuMessage);

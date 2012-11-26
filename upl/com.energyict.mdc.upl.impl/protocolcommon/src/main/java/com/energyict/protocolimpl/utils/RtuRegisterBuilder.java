@@ -3,8 +3,8 @@ package com.energyict.protocolimpl.utils;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.ProcessingException;
 import com.energyict.mdw.amr.RtuRegisterMapping;
+import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.RtuType;
 import com.energyict.mdw.shadow.RtuTypeShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
@@ -25,7 +25,7 @@ public class RtuRegisterBuilder {
     public static final String REGISTER_MAPPING_PREFIX = "ACE6000 - ";
     public static final int UNDEFINED_IN_ANY_PRODUCT_SPEC_ID = 0;
     private static final int DEFAULT_RTU_REGISTER_GROUP_ID = 0;
-    public RtuType deviceType = null;
+    public DeviceType deviceType = null;
 
     public static final String[] OBIS_CODES = new String[]{
             "1.1.1.8.3.VZ"
@@ -286,13 +286,13 @@ public class RtuRegisterBuilder {
         return MeteringWarehouse.getCurrent();
     }
 
-    public RtuType getDeviceType() throws BusinessException {
+    public DeviceType getDeviceType() throws BusinessException {
         if (deviceType == null) {
-            List<RtuType> rtuTypes = mw().getRtuTypeFactory().findByName(DEVICE_TYPE_NAME);
+            List<DeviceType> rtuTypes = mw().getRtuTypeFactory().findByName(DEVICE_TYPE_NAME);
             if (rtuTypes.isEmpty()) {
-                throw new BusinessException("RtuType with name [" + DEVICE_TYPE_NAME + "] not found in EIServer!");
+                throw new BusinessException("DeviceType with name [" + DEVICE_TYPE_NAME + "] not found in EIServer!");
             } else if (rtuTypes.size() > 1) {
-                throw new BusinessException("Expected 1 RtuType but found [" + rtuTypes.size() + "] RtuTypes in EIServer with name [" + DEVICE_TYPE_NAME + "]!");
+                throw new BusinessException("Expected 1 DeviceType but found [" + rtuTypes.size() + "] RtuTypes in EIServer with name [" + DEVICE_TYPE_NAME + "]!");
             }
             deviceType = rtuTypes.get(0);
         }
@@ -310,7 +310,7 @@ public class RtuRegisterBuilder {
      * @param rtuType
      * @throws BusinessException
      */
-    private void deleteRegisterSpecs(RtuType rtuType) throws BusinessException {
+    private void deleteRegisterSpecs(DeviceType rtuType) throws BusinessException {
         try {
             RtuTypeShadow shadow = rtuType.getShadow();
             shadow.getRegisterSpecShadows().clear();
@@ -364,7 +364,7 @@ public class RtuRegisterBuilder {
     /**
      * @param deviceType
      */
-    private void createRegisterSpecs(RtuType deviceType) throws BusinessException {
+    private void createRegisterSpecs(DeviceType deviceType) throws BusinessException {
         try {
             RtuTypeShadow deviceTypeShadow = deviceType.getShadow();
             List<RtuRegisterMapping> mappings = getRtuRegisterMappingsWithPrefix();

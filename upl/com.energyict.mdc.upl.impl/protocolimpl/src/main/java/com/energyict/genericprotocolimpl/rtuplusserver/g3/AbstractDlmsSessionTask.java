@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.rtuplusserver.g3;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,7 +54,7 @@ public abstract class AbstractDlmsSessionTask {
         return format.format(date);
     }
 
-    protected final Rtu getGateway() {
+    protected final Device getGateway() {
         return task.getGateway();
     }
 

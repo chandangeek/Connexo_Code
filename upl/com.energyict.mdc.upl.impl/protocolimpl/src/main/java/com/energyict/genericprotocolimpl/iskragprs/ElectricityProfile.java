@@ -24,7 +24,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.genericprotocolimpl.common.StatusCodeProfile;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -262,7 +262,7 @@ public class ElectricityProfile {
 		return this.iskramx37x.getCosemObjectFactory();
 	}
 	
-	private Rtu getMeter(){
+	private Device getMeter(){
 		return this.iskramx37x.getMeter();
 	}
 	

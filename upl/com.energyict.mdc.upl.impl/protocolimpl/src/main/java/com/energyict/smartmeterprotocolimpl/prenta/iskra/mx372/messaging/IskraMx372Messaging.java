@@ -41,7 +41,7 @@ import java.util.logging.Logger;
 public class IskraMx372Messaging extends ProtocolMessages implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging, WakeUpProtocolSupport {
 
     private IskraMx372 protocol;
-    private Rtu rtu;
+    private Device rtu;
 
     private ObisCode llsSecretObisCode1 = ObisCode.fromString("0.0.128.100.1.255");
     private ObisCode llsSecretObisCode2 = ObisCode.fromString("0.0.128.100.2.255");
@@ -353,7 +353,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
     /**
      * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Rtu is being waked up.
+     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
      *
      * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
      * @param link                     Link created by the comserver, can be null if a NullDialer is configured
@@ -906,7 +906,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
     public void checkMbusDevices() throws IOException, SQLException, BusinessException {
         String mSerial = "";
-        Rtu rtu = getRtuFromDatabaseBySerialNumber();
+        Device rtu = getRtuFromDatabaseBySerialNumber();
         if (!((rtu.getDownstreamRtus().size() == 0) && (getProperties().getRtuType() == null))) {
             for (int i = 0; i < MBUS_MAX; i++) {
                 int mbusAddress = (int) protocol.getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
@@ -915,7 +915,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
                     if (!mSerial.equals("")) {
                         Unit mUnit = getMbusUnit(mbusUnit[i]);
                         int mMedium = (int) protocol.getCosemObjectFactory().getCosemObject(mbusMedium[i]).getValue();
-                        Rtu mbusRtu = findOrCreateNewMbusDevice(mSerial);
+                        Device mbusRtu = findOrCreateNewMbusDevice(mSerial);
                         if (mbusRtu != null) {
                             mbusDevices[i] = new MbusDevice(mbusAddress, i, mSerial, mMedium, mbusRtu, mUnit, protocol);
                         } else {
@@ -960,11 +960,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         }
     }
 
-    private Rtu findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
+    private Device findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
         List mbusList = mw().getRtuFactory().findBySerialNumber(customerID);
         ProtocolTools.closeConnection();
         if (mbusList.size() == 1) {
-            Rtu mbusRtu = (Rtu) mbusList.get(0);
+            Device mbusRtu = (Device) mbusList.get(0);
             // Check if gateway has changed, and update if it has
             if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getRtuFromDatabaseBySerialNumber().getId())) {
                 mbusRtu.updateGateway(getRtuFromDatabaseBySerialNumber());
@@ -976,7 +976,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
             protocol.getLogger().severe(new MessageFormat(pattern).format(new Object[]{customerID}));
             return null;
         }
-        RtuType rtuType = getProperties().getRtuType();
+        DeviceType rtuType = getProperties().getRtuType();
         if (rtuType == null) {
             return null;
         } else {
@@ -984,7 +984,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         }
     }
 
-    private Rtu createMeter(RtuType type, String customerID) throws SQLException, BusinessException {
+    private Device createMeter(DeviceType type, String customerID) throws SQLException, BusinessException {
         RtuShadow shadow = type.newRtuShadow();
         Date lastReading = shadow.getLastReading();
 
@@ -1009,11 +1009,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         return mw().getRtuFactory().create(shadow);
     }
 
-    private void updateMbusDevices(List<Rtu> downstreamRtus) throws SQLException, BusinessException {
-        Iterator<Rtu> it = downstreamRtus.iterator();
+    private void updateMbusDevices(List<Device> downstreamRtus) throws SQLException, BusinessException {
+        Iterator<Device> it = downstreamRtus.iterator();
         boolean present;
         while (it.hasNext()) {
-            Rtu mbus = it.next();
+            Device mbus = it.next();
             present = false;
             for (int i = 0; i < mbusDevices.length; i++) {
                 if (mbusDevices[i] != null) {
@@ -1041,7 +1041,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         List slaves = getRtuFromDatabaseBySerialNumber().getDownstreamRtus();
         Iterator it = slaves.iterator();
         while (it.hasNext()) {
-            Rtu slave = (Rtu) it.next();
+            Device slave = (Device) it.next();
             RtuShadow shadow = slave.getShadow();
             shadow.setGatewayId(0);
             slave.update(shadow);
@@ -1172,11 +1172,11 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
      * /****************************************************************************
      */
 
-    // Retrieved the master Rtu, based on its serial number.
-    private Rtu getRtuFromDatabaseBySerialNumber() {
+    // Retrieved the master Device, based on its serial number.
+    private Device getRtuFromDatabaseBySerialNumber() {
         if (rtu == null) {
             String serial = getProperties().getSerialNumber();
-            List<Rtu> rtuList = mw().getRtuFactory().findBySerialNumber(serial);
+            List<Device> rtuList = mw().getRtuFactory().findBySerialNumber(serial);
             if (rtuList.size() > 1) {
                 infoLog("Warning: There are multiple devices configured with serial number: " + getProperties().getSerialNumber() + ".");
             }

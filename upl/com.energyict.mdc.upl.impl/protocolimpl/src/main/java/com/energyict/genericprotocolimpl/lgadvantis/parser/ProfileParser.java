@@ -4,8 +4,8 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.genericprotocolimpl.common.*;
 import com.energyict.genericprotocolimpl.lgadvantis.*;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.protocol.IntervalData;
 
 import java.io.IOException;
@@ -131,13 +131,13 @@ public class ProfileParser extends AbstractParser implements Parser {
     private static boolean isProfileCompressed(String deviceSerial) {
         List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
         for (Iterator it = rtus.iterator(); it.hasNext(); ) {
-            Rtu rtu = (Rtu) it.next();
+            Device rtu = (Device) it.next();
             return isProfileCompressed(rtu);
         }
         return false;
     }
 
-    public static boolean isProfileCompressed(Rtu rtu) {
+    public static boolean isProfileCompressed(Device rtu) {
         String compressed = (String) rtu.getProperties().getProperty(Constant.PK_LOAD_PROFILE_COMPRESSED);
         if (compressed != null && (compressed.equals("1") || compressed.equals("true"))) {
             return true;

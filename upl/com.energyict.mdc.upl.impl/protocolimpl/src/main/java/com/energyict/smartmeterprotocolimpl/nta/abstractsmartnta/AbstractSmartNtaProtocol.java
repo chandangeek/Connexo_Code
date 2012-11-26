@@ -113,9 +113,9 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
     }
 
     /**
-     * Tests if the Rtu wants to use the bulkRequests
+     * Tests if the Device wants to use the bulkRequests
      *
-     * @return true if the Rtu wants to use BulkRequests, false otherwise
+     * @return true if the Device wants to use BulkRequests, false otherwise
      */
     public boolean supportsBulkRequests() {
         return getProperties().isBulkRequest();
@@ -392,7 +392,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
 
     /**
      * Executes the WakeUp call. The implementer should use and/or update the <code>Link</code> if a WakeUp succeeded. The communicationSchedulerId
-     * can be used to find the task which triggered this wakeUp or which Rtu is being waked up.
+     * can be used to find the task which triggered this wakeUp or which Device is being waked up.
      *
      * @param communicationSchedulerId the ID of the <code>CommunicationScheduler</code> which started this task
      * @param link                     Link created by the comserver, can be null if a NullDialer is configured

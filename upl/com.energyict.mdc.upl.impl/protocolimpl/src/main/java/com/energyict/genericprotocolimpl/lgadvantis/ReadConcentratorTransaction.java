@@ -18,9 +18,9 @@ public class ReadConcentratorTransaction implements Transaction {
 
 	private Concentrator concentrator;
 	private CommunicationProfile communicationProfile;
-	private Rtu device;
+	private Device device;
 
-	public ReadConcentratorTransaction(Concentrator protocol, Rtu concentrator)  throws BusinessException {
+	public ReadConcentratorTransaction(Concentrator protocol, Device concentrator)  throws BusinessException {
 		this.concentrator = protocol;
 		this.communicationProfile = protocol.getCommunicationProfile();
 		this.device = concentrator;
@@ -93,7 +93,7 @@ public class ReadConcentratorTransaction implements Transaction {
 				String serial = meterSerial.getIdent();
 				List rtus = (List) MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(serial);
 				for (Iterator jt=rtus.iterator(); jt.hasNext();){
-					Rtu rtu = (Rtu) jt.next();
+					Device rtu = (Device) jt.next();
 					RtuShadow shadow = rtu.getShadow();
 					if (shadow.getGatewayId() != device.getId() ){
 						shadow.setGatewayId(device.getId());

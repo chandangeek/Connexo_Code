@@ -14,7 +14,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 /**
- * Defines the Rtu Messages supported by this meter.
+ * Defines the Device Messages supported by this meter.
  */
 
 public class Meter implements GenericProtocol, Messaging {

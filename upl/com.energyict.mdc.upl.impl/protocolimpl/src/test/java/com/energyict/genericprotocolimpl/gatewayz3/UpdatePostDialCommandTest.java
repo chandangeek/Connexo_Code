@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+import com.energyict.mdw.core.DeviceType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -17,8 +18,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.ModemPool;
-import com.energyict.mdw.core.Rtu;
-import com.energyict.mdw.core.RtuType;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.mdw.testutils.RtuCRUD;
 import com.energyict.mdw.testutils.RtuTypeCRUD;
@@ -32,8 +32,8 @@ public class UpdatePostDialCommandTest {
 	private static Logger logger;
 	private static GateWayZ3 gatewayZ3;
 	private static DummyDLMSConnection connection;
-	private static Rtu rtu;
-	private static RtuType rtuType;
+	private static Device rtu;
+	private static DeviceType rtuType;
 	private static String rtuName = "";
 	private static String rtyTypeName = "";
 	private ModemPool mp;

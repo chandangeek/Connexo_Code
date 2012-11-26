@@ -26,7 +26,7 @@ public class RtuPlusServerInfo extends AbstractDlmsSessionTask {
             Data data = getCosemObjectFactory().getData(FW_VERSION_OBIS);
             return data.getString();
         } catch (IOException e) {
-            getLogger().severe("Unable to read Rtu+Server G3 firmware version! [" + e.getMessage() + "]");
+            getLogger().severe("Unable to read Device+Server G3 firmware version! [" + e.getMessage() + "]");
             return "";
         }
     }
@@ -36,7 +36,7 @@ public class RtuPlusServerInfo extends AbstractDlmsSessionTask {
             Data data = getCosemObjectFactory().getData(SERIAL_NUMBER_OBIS);
             return data.getString();
         } catch (IOException e) {
-            throw new NestedIOException(e, "Unable to read Rtu+Server G3 serial number!");
+            throw new NestedIOException(e, "Unable to read Device+Server G3 serial number!");
         }
     }
 

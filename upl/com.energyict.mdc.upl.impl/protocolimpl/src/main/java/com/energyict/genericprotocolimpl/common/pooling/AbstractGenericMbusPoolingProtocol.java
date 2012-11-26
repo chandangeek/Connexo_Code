@@ -95,15 +95,15 @@ public abstract class AbstractGenericMbusPoolingProtocol extends MbusMessages im
 
     /**
      * Getter for the fullShadow object
-     * @return the fullShadow object which represents the Mbus <CODE>Rtu</CODE> in the database
+     * @return the fullShadow object which represents the Mbus <CODE>Device</CODE> in the database
      */
     protected abstract CommunicationSchedulerFullProtocolShadow getFullShadow();
 
     /**
-     * Getter for the actual Rtu
+     * Getter for the actual Device
      * @return
      */
-    protected abstract Rtu getMbusRtu();
+    protected abstract Device getMbusRtu();
 
     /**
      * The used <CODE>Logger</CODE>

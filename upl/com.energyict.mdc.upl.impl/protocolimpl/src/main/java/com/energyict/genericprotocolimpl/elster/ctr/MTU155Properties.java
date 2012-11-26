@@ -27,7 +27,7 @@ public class MTU155Properties extends AbstractProtocolProperties {
     public static final String SECURITY_LEVEL = "SecurityLevel";
     public static final String DEBUG = "Debug";
     public static final String FOLDER_EXTERNAL_NAME = "FolderExtName";
-    public static final String RTU_TYPE = "RtuType";
+    public static final String RTU_TYPE = "DeviceType";
     public static final String SMS_QUEUE = "SmsQueue";
     public static final String CHANNEL_BACKLOG = "ChannelBacklog";
     public static final String FAST_DEPLOYMENT = "FastDeployment";

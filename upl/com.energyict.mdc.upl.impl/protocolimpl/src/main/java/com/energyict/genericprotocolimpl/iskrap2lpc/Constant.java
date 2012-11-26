@@ -29,8 +29,8 @@ public class Constant {
 
     static final String CHANNEL_MAP = "ChannelMap"; 
 
-    /** RtuType */
-    static final String RTU_TYPE = "RtuType";
+    /** DeviceType */
+    static final String RTU_TYPE = "DeviceType";
     
     /** MeterCreateFolder ID */
     static final String FOLDER_EXT_NAME = "FolderExtName";

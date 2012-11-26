@@ -33,7 +33,7 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
     private static final String REQUEST_INVALIDDATA = "<REQUEST>INVALIDDATA</REQUEST>";
     private static final String REQUEST_OK = "<REQUEST>OK</REQUEST>";
 
-    private Rtu rtu = null;
+    private Device rtu = null;
     private com.elster.protocolimpl.dlms.EK280 dlmsProtocol = null;
     private Link link;
     private Logger logger;
@@ -143,7 +143,7 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
                 getLogger().severe("Discovery session: Received BusinessException while updating rtu fields! [" + e.getMessage() + "]");
             }
 
-            this.properties = null; // Re-init the properties with the new Rtu values
+            this.properties = null; // Re-init the properties with the new Device values
 
         }
     }
@@ -230,7 +230,7 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
      * @throws IOException if there was an error during the fetching of the info
      */
     private void readBasicDeviceInfo() throws IOException {
-        getLogger().info("Rtu firmware version: " + getDlmsProtocol().getFirmwareVersion());
+        getLogger().info("Device firmware version: " + getDlmsProtocol().getFirmwareVersion());
         getLogger().info("Number of channels: " + getDlmsProtocol().getNumberOfChannels());
         getLogger().info("Profile interval: " + getDlmsProtocol().getProfileInterval() + " seconds");
     }
@@ -250,7 +250,7 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
         try {
             deviceDiscoverInfo = deviceDiscover.discoverDevice();
             this.rtu = deployment.deployDevice(deviceDiscoverInfo);
-            this.properties = null; // Re-init the properties with the new Rtu
+            this.properties = null; // Re-init the properties with the new Device
             if (deployment.isDeployed()) {
                 this.discoveredEvent = new RtuDiscoveredEvent(getRtu());
             }
@@ -354,7 +354,7 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
         return logger;
     }
 
-    public Rtu getRtu() {
+    public Device getRtu() {
         return rtu;
     }
 

@@ -5,8 +5,8 @@ import com.elster.genericprotocolimpl.dlms.ek280.EK280Properties;
 import com.elster.genericprotocolimpl.dlms.ek280.discovery.DeviceDiscoverInfo;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.ShadowList;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.Rtu;
 import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.RtuShadow;
 
@@ -41,14 +41,14 @@ public class DeviceDeployment {
      * @return reference to rtu object calling
      * @throws java.io.IOException - in case of errors
      */
-    public Rtu deployDevice(DeviceDiscoverInfo info) throws IOException {
+    public Device deployDevice(DeviceDiscoverInfo info) throws IOException {
         String callHomeId = info.getCallHomeId();
         if (callHomeId != null) {
-            List<Rtu> rtus = MeteringWarehouse.getCurrent().getRtuFactory().findByDialHomeId(callHomeId);
+            List<Device> rtus = MeteringWarehouse.getCurrent().getRtuFactory().findByDialHomeId(callHomeId);
             if (rtus.isEmpty()) {
                 if (properties.isFastDeployment()) {
                     getLogger().warning("Device with call home id [" + callHomeId + "] not found! Starting deployment ...");
-                    Rtu newRtu = createRtuAndAddFields(info);
+                    Device newRtu = createRtuAndAddFields(info);
                     setDeployed(newRtu != null);
                     return newRtu;
                 } else {
@@ -73,10 +73,10 @@ public class DeviceDeployment {
      * @return reference to newly created rtu object for calling device
      * @throws java.io.IOException - in case of errors
      */
-    private Rtu createRtuAndAddFields(DeviceDiscoverInfo info) throws IOException {
+    private Device createRtuAndAddFields(DeviceDiscoverInfo info) throws IOException {
         setInvalidData(true);
         if (info.getRtuType() == null) {
-            throw new IOException("RtuType was 'null'. Unable to do discovery and create device without (valid) device type.");
+            throw new IOException("DeviceType was 'null'. Unable to do discovery and create device without (valid) device type.");
         }
 
         getLogger().warning("Creating new device of type [" + info.getRtuType() + "] ...");
@@ -108,10 +108,10 @@ public class DeviceDeployment {
             if (info.getRtuType().getPrototypeRtu() == null) {
                 shadow.setIntervalInSeconds(3600);
                 if (info.getFolder() == null) {
-                    throw new IOException("RtuType [" + info.getRtuType().getName() + "] has no prototype AND no folder. Unable to create device.");
+                    throw new IOException("DeviceType [" + info.getRtuType().getName() + "] has no prototype AND no folder. Unable to create device.");
                 }
             }
-            Rtu rtu = MeteringWarehouse.getCurrent().getRtuFactory().create(shadow);
+            Device rtu = MeteringWarehouse.getCurrent().getRtuFactory().create(shadow);
             setInvalidData(false);
             return rtu;
         } catch (SQLException e) {

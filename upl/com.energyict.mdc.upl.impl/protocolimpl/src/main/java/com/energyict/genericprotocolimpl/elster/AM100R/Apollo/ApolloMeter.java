@@ -64,12 +64,12 @@ public class ApolloMeter extends DLMSProtocol {
     private boolean forcedToReadCache;
 
     /**
-     * The password of the Rtu
+     * The password of the Device
      */
     private String password;
 
     /**
-     * The serialNumber of the Rtu
+     * The serialNumber of the Device
      */
     private String serialNumber;
 

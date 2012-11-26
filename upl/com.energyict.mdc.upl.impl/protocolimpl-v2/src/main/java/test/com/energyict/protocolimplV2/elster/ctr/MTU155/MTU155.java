@@ -22,7 +22,7 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.core.Rtu;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.offline.OfflineRtu;
 import com.energyict.mdw.offline.OfflineRtuRegister;
 import com.energyict.obis.ObisCode;
@@ -334,7 +334,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         final DeviceTopology deviceTopology = new DeviceTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, new Problem<Rtu>(getDeviceIdentifier().findDevice(), "devicetopologynotsupported"));
+        deviceTopology.setFailureInformation(ResultType.NotSupported, new Problem<Device>(getDeviceIdentifier().findDevice(), "devicetopologynotsupported"));
         return deviceTopology;
     }
 
