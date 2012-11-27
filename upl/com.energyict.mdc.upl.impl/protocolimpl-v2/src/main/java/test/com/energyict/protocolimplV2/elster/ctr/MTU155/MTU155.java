@@ -16,6 +16,7 @@ import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -33,6 +34,7 @@ import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRExceptio
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -87,6 +89,11 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public void terminate() {
         // not needed
+    }
+
+    @Override
+    public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
+        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
     @Override

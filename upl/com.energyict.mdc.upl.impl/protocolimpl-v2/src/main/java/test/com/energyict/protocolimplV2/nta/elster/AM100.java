@@ -6,6 +6,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
@@ -20,6 +21,7 @@ import test.com.energyict.protocolimplV2.nta.dsmr23.profiles.LoadProfileBuilder;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -145,5 +147,10 @@ public class AM100 extends AbstractNtaProtocol {
     @Override
     public void upgradeMessagesAndCategories() throws BusinessException, SQLException {
         //ToDo
+    }
+
+    @Override
+    public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
+        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 }
