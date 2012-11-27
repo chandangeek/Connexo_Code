@@ -23,6 +23,7 @@ import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCaller;
 import com.energyict.genericprotocolimpl.iskragprs.imagetransfer.ImageTransfer;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdw.amr.*;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
@@ -1805,9 +1806,9 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             while (i.hasNext()) {
                 try {
 
-                    RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
+                    RegisterSpec spec = (RegisterSpec) i.next();
                     ObisCode oc = spec.getObisCode();
-                    RtuRegister register = rtu.getRegister(oc);
+                    Register register = rtu.getRegister(oc);
 
                     if (register != null) {
 

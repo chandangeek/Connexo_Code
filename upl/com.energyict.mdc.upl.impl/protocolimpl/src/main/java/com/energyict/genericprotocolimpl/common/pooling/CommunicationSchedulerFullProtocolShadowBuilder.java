@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class CommunicationSchedulerFullProtocolShadowBuilder {
     private static List<RtuRegisterFullProtocolShadow> createRtuRegisterShadows(final Device rtu, final CommunicationProfile communicationProfile) {
         List<RtuRegisterFullProtocolShadow> rtuRegisterShadowList = new ArrayList<RtuRegisterFullProtocolShadow>();
 
-        for (RtuRegister register : rtu.getRegisters()) {
+        for (Register register : rtu.getRegisters()) {
             if ((register.getGroup() == null && communicationProfile.getRtuRegisterGroups().isEmpty()) || communicationProfile.getRtuRegisterGroups().contains(register.getGroup())) {
                 rtuRegisterShadowList.add(RtuRegisterFullProtocolShadowBuilder.createRtuRegisterFullProtocolShadow(register));
             }

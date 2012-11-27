@@ -7,8 +7,8 @@ import java.util.Map;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Transaction;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amrimpl.RtuRegisterImpl;
+import com.energyict.mdw.amr.Register;
+import com.energyict.mdw.amrimpl.RegisterImpl;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.coreimpl.ChannelImpl;
@@ -34,8 +34,8 @@ public class StoreObject implements Transaction{
 				((Device) key).store((ProfileData) entry.getValue(), false);
 			} else if(key instanceof ChannelImpl){
 				(((Channel)key).getRtu()).store((ProfileData) entry.getValue(), false);
-			} else if(key instanceof RtuRegisterImpl){
-				((RtuRegister) key).store((RegisterValue) entry.getValue());
+			} else if(key instanceof RegisterImpl){
+				((Register) key).store((RegisterValue) entry.getValue());
 			}
 		}
 		

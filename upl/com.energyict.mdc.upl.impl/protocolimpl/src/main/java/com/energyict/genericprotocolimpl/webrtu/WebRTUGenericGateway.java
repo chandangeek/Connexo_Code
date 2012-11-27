@@ -8,6 +8,7 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.mdw.amr.*;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.CommunicationProfileShadow;
 import com.energyict.obis.ObisCode;
@@ -184,12 +185,12 @@ public class WebRTUGenericGateway implements GenericProtocol {
                 //Registers
                 if (fullSlaveSchedule.getReadMeterReadings()) {
                     if (registerProtocol != null) {
-                        List<RtuRegister> registers = getScheduledRegisters(slave.getRegisters());
+                        List<Register> registers = getScheduledRegisters(slave.getRegisters());
                         meterReadingData = new MeterReadingData();
                         StringBuilder sb = new StringBuilder();
                         String separator = "";
                         try {
-                            for (RtuRegister register : registers) {
+                            for (Register register : registers) {
                                 try {
                                     RegisterValue registerValue = registerProtocol.readRegister(getCorrectedObisCode(register));
                                     registerValue.setRtuRegisterId(register.getId());
@@ -311,9 +312,9 @@ public class WebRTUGenericGateway implements GenericProtocol {
      * @param allSlaveRegisters list of all slave registers
      * @return list of the relevant registers
      */
-    private List<RtuRegister> getScheduledRegisters(List<RtuRegister> allSlaveRegisters) {
-        List<RtuRegister> relevantRegisters = new ArrayList<RtuRegister>();
-        for (RtuRegister slaveRegister : allSlaveRegisters) {
+    private List<Register> getScheduledRegisters(List<Register> allSlaveRegisters) {
+        List<Register> relevantRegisters = new ArrayList<Register>();
+        for (Register slaveRegister : allSlaveRegisters) {
             if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, slaveRegister)) {
                 relevantRegisters.add(slaveRegister);
             }
@@ -321,7 +322,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
         return relevantRegisters;
     }
 
-    private ObisCode getCorrectedObisCode(RtuRegister slaveRegister) {
+    private ObisCode getCorrectedObisCode(Register slaveRegister) {
         ObisCode obisCode = slaveRegister.getRtuRegisterSpec().getDeviceObisCode();
         if (obisCode == null) {
             obisCode = slaveRegister.getRegisterMapping().getObisCode();

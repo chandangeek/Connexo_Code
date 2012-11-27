@@ -15,7 +15,7 @@ import com.energyict.cbo.ProcessingException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -177,7 +177,7 @@ public class HandleConcentratorTransaction implements Transaction {
         Iterator it = registers.iterator();
         StringBuffer strBuff = null;
         while(it.hasNext()) {
-            RtuRegister register = (RtuRegister) it.next();
+            Register register = (Register) it.next();
             try {
                 RegisterValue registerValue = handleConcentrator.getConcentrator().getConcentratorRegister().readRegister(register.getRtuRegisterSpec().getObisCode());
                 registerValue.setRtuRegisterId(register.getId());
@@ -209,10 +209,10 @@ public class HandleConcentratorTransaction implements Transaction {
         return rtuRegisters;
     }
     
-    private RtuRegister findInRtuRegister(ObisCode obisCode) {
+    private com.energyict.mdw.amr.Register findInRtuRegister(ObisCode obisCode) {
         Iterator it = getRtuRegisters().iterator();
         while(it.hasNext()) {
-            RtuRegister register = (RtuRegister) it.next();
+            Register register = (Register) it.next();
             if (register.getRegisterMapping().getObisCode().equals(obisCode))
                 return register;
         }
@@ -281,7 +281,7 @@ public class HandleConcentratorTransaction implements Transaction {
     
     private void readRegister(MessageReadRegister messageReadRegister) throws IOException, SQLException, BusinessException {
         List registers = new ArrayList();
-        RtuRegister register = findInRtuRegister(ObisCode.fromString(messageReadRegister.getObisCode()));
+        Register register = findInRtuRegister(ObisCode.fromString(messageReadRegister.getObisCode()));
         if (register != null) {
             registers.add(register);
             MeterReadingData meterReadingData = readRegisters(registers);

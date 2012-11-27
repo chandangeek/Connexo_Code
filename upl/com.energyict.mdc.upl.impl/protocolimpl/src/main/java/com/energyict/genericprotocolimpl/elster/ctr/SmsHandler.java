@@ -17,7 +17,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannelForSms
 import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
 import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.messaging.MessageHandler;
 import com.energyict.mdw.shadow.RtuMessageShadow;
@@ -599,7 +599,7 @@ public class SmsHandler implements MessageHandler {
     private MeterReadingData doReadRegisters(CommunicationProfile cp, AbstractTableQueryResponseStructure response) throws CTRException {
 
         MeterReadingData meterReadingData = new MeterReadingData();
-        Iterator<RtuRegister> rtuRegisterIterator = getRtu().getRegisters().iterator();
+        Iterator<com.energyict.mdw.amr.Register> rtuRegisterIterator = getRtu().getRegisters().iterator();
         List groups = cp.getRtuRegisterGroups();
         List<AbstractCTRObject> list = response.getObjects();
 
@@ -607,7 +607,7 @@ public class SmsHandler implements MessageHandler {
         while (rtuRegisterIterator.hasNext()) {
             ObisCode obisCode = null;
             try {
-                RtuRegister rtuRegister = rtuRegisterIterator.next();
+                Register rtuRegister = rtuRegisterIterator.next();
                 if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
                     obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();  //Get the obis code per register
                     try {

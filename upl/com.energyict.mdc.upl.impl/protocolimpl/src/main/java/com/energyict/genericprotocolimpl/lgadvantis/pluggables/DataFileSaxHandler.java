@@ -6,7 +6,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.genericprotocolimpl.lgadvantis.parser.BillingParser;
 import com.energyict.genericprotocolimpl.lgadvantis.parser.LogbookParser;
 import com.energyict.genericprotocolimpl.lgadvantis.parser.ProfileParser;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.IntervalDataStorer;
@@ -243,7 +243,7 @@ public class DataFileSaxHandler extends DefaultHandler {
 				for (Iterator jt = registers.iterator(); jt.hasNext();){
 					RegisterValue register = (RegisterValue) jt.next();
 					// get register id, or discard if the register does not exist on rtu
-					RtuRegister rtuRegister = rtu.getRegister(register.getObisCode());
+					Register rtuRegister = rtu.getRegister(register.getObisCode());
 					if (rtuRegister != null){
 						register.setRtuRegisterId(rtuRegister.getId());
 						readings.add(register);
@@ -315,7 +315,7 @@ public class DataFileSaxHandler extends DefaultHandler {
 					shadow.setReadTime(timestamp);
 					shadow.setValue(new BigDecimal(consumption[i]));
 					
-					RtuRegister register = rtu.getRegister(getObisCode(i));
+					Register register = rtu.getRegister(getObisCode(i));
 					if (register != null){
 						register.add(shadow);
 					}

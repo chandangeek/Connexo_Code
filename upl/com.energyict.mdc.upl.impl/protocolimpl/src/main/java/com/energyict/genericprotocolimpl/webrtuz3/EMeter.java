@@ -7,14 +7,13 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.webrtuz3.historical.HistoricalRegisterReadings;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.EMeterMessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.EmeterMessages;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -215,7 +214,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
         while (registerIterator.hasNext()) {
             ObisCode obisCode = null;
             try {
-                RtuRegister rtuRegister = (RtuRegister) registerIterator.next();
+                Register rtuRegister = (Register) registerIterator.next();
                 if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
                     obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
                     try {
@@ -260,7 +259,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
                 Disconnector register = getCosemObjectFactory().getDisconnector(ProtocolTools.setObisCodeField(DISCONNECTOR_OBIS, 1, (byte) getPhysicalAddress()));
                 registerValue = register != null ? register.asRegisterValue(2) : null;
             } else { //Another register
-                Register register = getCosemObjectFactory().getRegister(physicalObisCode);
+                com.energyict.dlms.cosem.Register register = getCosemObjectFactory().getRegister(physicalObisCode);
                 registerValue = (register != null) ? new RegisterValue(obisCode, register.getQuantityValue()) : null;
             }
         } catch (Exception e) {

@@ -15,8 +15,8 @@ import com.energyict.genericprotocolimpl.webrtuz3.historical.HistoricalRegisterR
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MbusMessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MbusMessages;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.*;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -235,7 +235,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         while (registerIterator.hasNext()) {
             ObisCode obisCode = null;
             try {
-                RtuRegister rtuRegister = (RtuRegister) registerIterator.next();
+                com.energyict.mdw.amr.Register rtuRegister = (Register) registerIterator.next();
                 if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
                     obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
                     try {

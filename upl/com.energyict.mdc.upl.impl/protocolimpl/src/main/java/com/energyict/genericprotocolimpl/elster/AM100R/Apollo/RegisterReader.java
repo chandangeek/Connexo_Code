@@ -4,7 +4,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
@@ -35,7 +34,7 @@ public class RegisterReader {
      * Read the registers defined in the {@link com.energyict.mdw.core.CommunicationProfile}.
      * TODO check how you can implement the readBulkRegisters
      */
-    public Map<RtuRegister, RegisterValue> readRegisters() throws IOException {
+    public Map<com.energyict.mdw.amr.Register, RegisterValue> readRegisters() throws IOException {
         return getMeterProtocol().doReadRegisters();
     }
 
@@ -67,7 +66,7 @@ public class RegisterReader {
 //                    || ((obisCode.getE() >= 20) && (obisCode.getE() <= 26))
 //                    || ((obisCode.getE() >= 30) && (obisCode.getE() <= 36)))
                     && (obisCode.getF() == 255)) {
-                Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
+                com.energyict.dlms.cosem.Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
                 return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
             }
 
@@ -102,7 +101,7 @@ public class RegisterReader {
                     || (obisCode.getC() == 13) || (obisCode.getC() == 33) || (obisCode.getC() == 53) || (obisCode.getC() == 73))
                     && (obisCode.getD() == 7)   // D equals 7 means instantaneous
                     && (obisCode.getE() == 0) && (obisCode.getF() == 255)) {
-                Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
+                com.energyict.dlms.cosem.Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
                 return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
             }
 
@@ -111,7 +110,7 @@ public class RegisterReader {
                     && (obisCode.getE() == 0) && (obisCode.getF() == 255)) {
                 if ((obisCode.getD() == 43) || (obisCode.getD() == 31) || (obisCode.getD() == 33)
                         || (obisCode.getD() == 44) || (obisCode.getD() == 35) || (obisCode.getD() == 37)) {
-                    Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
+                    com.energyict.dlms.cosem.Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
                     return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
                 } else if ((obisCode.getD() == 32) || (obisCode.getD() == 36)) {
                     Data data = getMeterProtocol().getApolloObjectFactory().getData(obisCode);
@@ -125,7 +124,7 @@ public class RegisterReader {
             } else if (obisCode.equals(ObisCodeProvider.DurationVoltageSagsAvgVoltageObisCode)
                     || obisCode.equals(ObisCodeProvider.DurationVoltageSwellsAvgVoltageObisCode)
                     || obisCode.equals(ObisCodeProvider.RefVoltagePQObisCode)) {
-                Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
+                com.energyict.dlms.cosem.Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
                 return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
             }
         }
@@ -167,7 +166,7 @@ public class RegisterReader {
 
         /* TOU BlockRegisters */
         if (isBlockRegister(obisCode) || isBlockRegisterThreshold(obisCode)) {
-            Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
+            com.energyict.dlms.cosem.Register register = getMeterProtocol().getApolloObjectFactory().getRegister(obisCode);
             return new RegisterValue(obisCode, ParseUtils.registerToQuantity(register));
         }
 

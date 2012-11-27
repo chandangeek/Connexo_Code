@@ -4,7 +4,7 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.ace4000.ACE4000;
 import com.energyict.genericprotocolimpl.ace4000.objects.xml.XMLTags;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -1225,7 +1225,7 @@ public class ObjectFactory {
      * @return if the registers have been received or not
      * @throws IOException communication error
      */
-    public boolean requestAllMasterRegisters(Date from, List<RtuRegister> registers) throws IOException {
+    public boolean requestAllMasterRegisters(Date from, List<Register> registers) throws IOException {
         boolean received = true;
         if (!isReceivedBillingRegisters() && shouldRequestBillingRegisters(registers)) {
             sendBDRequest(from);
@@ -1242,7 +1242,7 @@ public class ObjectFactory {
         return received;
     }
 
-    private boolean shouldRequestInstantaneousRegisters(List<RtuRegister> registers) {
+    private boolean shouldRequestInstantaneousRegisters(List<Register> registers) {
         List<Integer> allowedCFields = new ArrayList<Integer>();
         allowedCFields.add(31);
         allowedCFields.add(51);
@@ -1263,7 +1263,7 @@ public class ObjectFactory {
         allowedCFields.add(86);
         allowedCFields.add(87);
 
-        for (RtuRegister register : registers) {
+        for (Register register : registers) {
             ObisCode obisCode = register.getRtuRegisterSpec().getObisCode();
             if (allowedCFields.contains(obisCode.getC()) && obisCode.getA() == 1 && obisCode.getB() == 0 && obisCode.getD() == 7 && obisCode.getE() == 0 && obisCode.getF() == 255) {
                 return true;
@@ -1272,8 +1272,8 @@ public class ObjectFactory {
         return false;
     }
 
-    private boolean shouldRequestCurrentRegisters(List<RtuRegister> registers) {
-        for (RtuRegister register : registers) {
+    private boolean shouldRequestCurrentRegisters(List<Register> registers) {
+        for (Register register : registers) {
             ObisCode obisCode = register.getRtuRegisterSpec().getObisCode();
             if (obisCode.getA() == 1 && obisCode.getB() == 0 && (obisCode.getC() == 1 || obisCode.getC() == 2) && obisCode.getD() == 8 && obisCode.getF() == 255) {
                 return true;
@@ -1288,8 +1288,8 @@ public class ObjectFactory {
      * @param registers list of all registers defined on the RTU
      * @return true or false
      */
-    private boolean shouldRequestBillingRegisters(List<RtuRegister> registers) {
-        for (RtuRegister register : registers) {
+    private boolean shouldRequestBillingRegisters(List<Register> registers) {
+        for (Register register : registers) {
             if (isBillingRegister(register)) {
                 return true;
             }
@@ -1297,7 +1297,7 @@ public class ObjectFactory {
         return false;
     }
 
-    private boolean isBillingRegister(RtuRegister register) {
+    private boolean isBillingRegister(Register register) {
         return register.getRtuRegisterSpec().getObisCode().getF() != 255;
     }
 
@@ -1309,7 +1309,7 @@ public class ObjectFactory {
      * @throws IOException communication error
      */
     public boolean requestAllSlaveRegisters(Date from, HashMap<String, Device> slaves) throws IOException {
-        List<RtuRegister> allSlaveRegisters = new ArrayList<RtuRegister>();
+        List<com.energyict.mdw.amr.Register> allSlaveRegisters = new ArrayList<Register>();
         for (Device slave : slaves.values()) {
             allSlaveRegisters.addAll(slave.getRegisters());
         }
@@ -1335,7 +1335,7 @@ public class ObjectFactory {
     private boolean shouldRequestMBusCurrentRegisters(HashMap<String, Device> slaves) {
         for (Device slave : slaves.values()) {
             int numberOfBillingRegisters = 0;
-            for (RtuRegister register : slave.getRegisters()) {
+            for (Register register : slave.getRegisters()) {
                 numberOfBillingRegisters += isBillingRegister(register) ? 1 : 0;
             }
             if (slave.getRegisters().size() > numberOfBillingRegisters) {

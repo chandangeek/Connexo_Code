@@ -6,7 +6,7 @@ import com.elster.genericprotocolimpl.dlms.ek280.executors.ProfileTaskExecuter.P
 import com.elster.genericprotocolimpl.dlms.ek280.executors.RegisterTaskExecutor.RegisterTask;
 import com.elster.genericprotocolimpl.dlms.ek280.journal.MeterAmrLogging;
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RtuRegisterGroup;
 import com.energyict.mdw.core.*;
 
@@ -56,7 +56,7 @@ public class CommunicationScheduleExecutor extends AbstractExecutor<Communicatio
 
                 // Register data
                 if (profile.getReadMeterReadings()) {
-                    List<RtuRegister> registersToRead = getRegistersFromGroups(getRtu().getRegisters(), profile.getRtuRegisterGroups());
+                    List<Register> registersToRead = getRegistersFromGroups(getRtu().getRegisters(), profile.getRtuRegisterGroups());
                     RegisterTask task = new RegisterTask(registersToRead);
                     new RegisterTaskExecutor(this).execute(task);
                 }
@@ -94,20 +94,20 @@ public class CommunicationScheduleExecutor extends AbstractExecutor<Communicatio
      * @param groups    The list of groups to read
      * @return A filtered list of RtuRegisters
      */
-    private List<RtuRegister> getRegistersFromGroups(List<RtuRegister> registers, List<RtuRegisterGroup> groups) {
-        List<RtuRegister> registersToRead = new ArrayList<RtuRegister>();
+    private List<Register> getRegistersFromGroups(List<Register> registers, List<RtuRegisterGroup> groups) {
+        List<Register> registersToRead = new ArrayList<Register>();
         if ((groups == null) || (groups.isEmpty())) {
             registersToRead.addAll(registers);
         } else {
             for (RtuRegisterGroup group : groups) {
-                for (RtuRegister register : registers) {
+                for (Register register : registers) {
                     RtuRegisterGroup registerGroup = register.getGroup();
                     if ((registerGroup != null) && (registerGroup.getId() == group.getId())) {
                         registersToRead.add(register);
                     }
                 }
             }
-            for (RtuRegister register : registers) {
+            for (Register register : registers) {
                 if (register.getGroup() == null) {
                     registersToRead.add(register);
                 }

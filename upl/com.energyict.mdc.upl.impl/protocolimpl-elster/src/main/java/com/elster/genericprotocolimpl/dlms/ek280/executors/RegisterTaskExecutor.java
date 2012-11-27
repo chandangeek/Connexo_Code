@@ -1,7 +1,7 @@
 package com.elster.genericprotocolimpl.dlms.ek280.executors;
 
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterSpec;
+import com.energyict.mdw.amr.Register;
+import com.energyict.mdw.amr.RegisterSpec;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
@@ -23,9 +23,9 @@ public class RegisterTaskExecutor extends AbstractExecutor<RegisterTaskExecutor.
 
     @Override
     public void execute(RegisterTask registerTask) throws IOException {
-        List<RtuRegister> registers = registerTask.getRegisters();
-        for (RtuRegister register : registers) {
-            RtuRegisterSpec registerSpec = register.getRtuRegisterSpec();
+        List<Register> registers = registerTask.getRegisters();
+        for (Register register : registers) {
+            RegisterSpec registerSpec = register.getRtuRegisterSpec();
             ObisCode obis = registerSpec.getDeviceObisCode();
             ObisCode obisToRead;
             if (obis == null) {
@@ -45,13 +45,13 @@ public class RegisterTaskExecutor extends AbstractExecutor<RegisterTaskExecutor.
 
     protected static class RegisterTask {
 
-        private final List<RtuRegister> registers;
+        private final List<Register> registers;
 
-        public RegisterTask(List<RtuRegister> registers) {
+        public RegisterTask(List<Register> registers) {
             this.registers = registers;
         }
 
-        public List<RtuRegister> getRegisters() {
+        public List<Register> getRegisters() {
             return registers;
         }
 

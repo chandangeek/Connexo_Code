@@ -3,8 +3,8 @@ package com.elster.genericprotocolimpl.dlms.ek280;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.Transaction;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterReadingStorer;
+import com.energyict.mdw.amr.*;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.amr.RtuRegisterReadingShadow;
 import com.energyict.protocol.*;
@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  * If you want to store:
  * 	- profileData -> use the RTU as the key
  * 	- channelData -> use the Channel as the key
- *  - registerData -> use the RtuRegister as the key
+ *  - registerData -> use the Register as the key
  *  Changes:
  *  GNA|09022009| You can use profileData as the key because you can only have the same key once.
  *  If you store the 15min values with the RTU and the daily/monthly values witht the
@@ -46,8 +46,8 @@ public class StoreObject implements Transaction {
                 ((Device) key).store((ProfileData) storeObjectItem.getValue(), false);
             } else if (key instanceof Channel) {
                 (((Channel) key).getRtu()).store((ProfileData) storeObjectItem.getValue(), false);
-            } else if (key instanceof RtuRegister) {
-                ((RtuRegister) key).store((RegisterValue) storeObjectItem.getValue());
+            } else if (key instanceof Register) {
+                ((com.energyict.mdw.amr.Register) key).store((RegisterValue) storeObjectItem.getValue());
             } else if (key instanceof ProfileData) {
                 ((Device) storeObjectItem.getValue()).store((ProfileData) key, false);
             } else if (key instanceof MeterReadingData) {
@@ -71,7 +71,7 @@ public class StoreObject implements Transaction {
         storeObjectItems.add(new StoreObjectItem(channel, pd));
     }
 
-    public void add(RtuRegister rtuRegister, RegisterValue registerValue) {
+    public void add(Register rtuRegister, RegisterValue registerValue) {
         storeObjectItems.add(new StoreObjectItem(rtuRegister, registerValue));
     }
 
@@ -87,8 +87,8 @@ public class StoreObject implements Transaction {
                     add((Device) key, (ProfileData) value);
                 } else if ((key instanceof Channel) && (value instanceof ProfileData)) {
                     add((Channel) key, (ProfileData) value);
-                } else if ((key instanceof RtuRegister) && (value instanceof RegisterValue)) {
-                    add((RtuRegister) key, (RegisterValue) value);
+                } else if ((key instanceof Register) && (value instanceof RegisterValue)) {
+                    add((Register) key, (RegisterValue) value);
                 } else if ((key instanceof ProfileData) && (value instanceof Device)) {
                     add((ProfileData) key, (Device) value);
                 } else if ((key instanceof MeterReadingData) && (value instanceof Device)) {
@@ -108,11 +108,11 @@ public class StoreObject implements Transaction {
     }
 
     private void store(Device rtu, MeterReadingData meterReadingData) throws SQLException, BusinessException {
-        Map<RtuRegister, Date> lastReadings = new HashMap<RtuRegister, Date>();
-        Map<RtuRegister, Date> lastCheckeds = new HashMap<RtuRegister, Date>();
+        Map<Register, Date> lastReadings = new HashMap<Register, Date>();
+        Map<Register, Date> lastCheckeds = new HashMap<Register, Date>();
         RtuRegisterReadingStorer storer = new RtuRegisterReadingStorer();
         for (RegisterValue registerValue : (List<RegisterValue>) meterReadingData.getRegisterValues()) {
-            RtuRegister rtuRegister = getRtuRegister(rtu, registerValue.getRtuRegisterId());
+            Register rtuRegister = getRtuRegister(rtu, registerValue.getRtuRegisterId());
             if (registerValue.isSupported()) {
                 RtuRegisterReadingShadow shadow = new RtuRegisterReadingShadow();
                 shadow.setToTime(registerValue.getToTime());
@@ -145,7 +145,7 @@ public class StoreObject implements Transaction {
             }
         }
         MeteringWarehouse.getCurrent().execute(storer);
-        for (RtuRegister rtuRegister : lastReadings.keySet()) {
+        for (Register rtuRegister : lastReadings.keySet()) {
             Date lastChecked = lastCheckeds.get(rtuRegister);
             if (lastChecked != null) {
                 lastChecked = new Date(lastChecked.getTime() - 1000);
@@ -155,13 +155,13 @@ public class StoreObject implements Transaction {
     }
 
 
-    private RtuRegister getRtuRegister(Device rtu, int id) throws SQLException, BusinessException {
-        for (RtuRegister rtuRegister : rtu.getRegisters()) {
+    private Register getRtuRegister(Device rtu, int id) throws SQLException, BusinessException {
+        for (Register rtuRegister : rtu.getRegisters()) {
             if (rtuRegister.getId() == id) {
                 return rtuRegister;
             }
         }
-        throw new BusinessException("RtuImpl, getRtuRegister(id), no RtuRegister for id " + id);
+        throw new BusinessException("RtuImpl, getRtuRegister(id), no Register for id " + id);
     }
 
     @Override

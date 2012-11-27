@@ -14,7 +14,6 @@ import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages.*;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileBuilder;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ProfileConfiguration;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.RtuMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -149,7 +148,7 @@ public class ApolloMeter extends DLMSProtocol {
                 storeObject.add(profile, getMeter());
 
                 getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
-                Map<RtuRegister, RegisterValue> registerMap = getRegisterReader().readRegisters();
+                Map<com.energyict.mdw.amr.Register, RegisterValue> registerMap = getRegisterReader().readRegisters();
                 storeObject.addAll(registerMap);
             }
 

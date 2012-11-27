@@ -58,7 +58,7 @@ public class DeleteRegisterReadings extends AbstractFolderAction implements Tran
             Iterator ir = rtu.getRegisters().iterator();
             while( ir.hasNext() ) {
 
-                RtuRegister rtuRegister = (RtuRegister) ir.next();
+                Register rtuRegister = (Register) ir.next();
                 rtuRegister.getReadingAfterOrEqual( new Date() );
             
                 Iterator rrrI = factory.findByRegister( rtuRegister.getId() ).iterator();

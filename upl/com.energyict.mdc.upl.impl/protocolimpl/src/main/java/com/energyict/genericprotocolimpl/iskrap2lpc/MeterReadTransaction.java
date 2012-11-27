@@ -7,8 +7,8 @@ import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator.XmlException;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.*;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterSpec;
+import com.energyict.mdw.amr.Register;
+import com.energyict.mdw.amr.RegisterSpec;
 import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceShadow;
@@ -561,7 +561,7 @@ public class MeterReadTransaction implements CacheMechanism {
         Iterator i = dataHandler.getMeterReadingData().getRegisterValues().iterator();
         while (i.hasNext()) {
             RegisterValue registerValue = (RegisterValue) i.next();
-            RtuRegister register = meter.getRegister(registerValue.getObisCode());
+            Register register = meter.getRegister(registerValue.getObisCode());
 
             if (register != null) {
                 if (register.getReadingAt(registerValue.getReadTime()) == null) {
@@ -1116,7 +1116,7 @@ public class MeterReadTransaction implements CacheMechanism {
 
                     while (i.hasNext()) {
 
-                        RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
+                        RegisterSpec spec = (RegisterSpec) i.next();
                         ObisCode oc = spec.getRegisterMapping().getObisCode();
                         if (oc.getF() == 255) {
 

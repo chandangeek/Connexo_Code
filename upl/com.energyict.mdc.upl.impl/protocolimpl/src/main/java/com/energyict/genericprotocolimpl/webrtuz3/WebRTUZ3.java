@@ -14,7 +14,7 @@ import com.energyict.genericprotocolimpl.webrtukp.WebRTUKP;
 import com.energyict.genericprotocolimpl.webrtuz3.composedobjects.ComposedMeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.CommunicationProtocolShadow;
 import com.energyict.obis.ObisCode;
@@ -182,7 +182,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
             // Read the register values
             if (getCommunicationProfile().getReadMeterReadings()) {
                 getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
-                Map<RtuRegister, RegisterValue> registerMap = doReadRegisters();
+                Map<Register, RegisterValue> registerMap = doReadRegisters();
                 storeObject.addAll(registerMap);
             }
 
@@ -584,7 +584,7 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
     }
 
     @Override
-    protected void prepareBulkRegisterReading(Map<ObisCode, RtuRegister> toRead) {
+    protected void prepareBulkRegisterReading(Map<ObisCode, com.energyict.mdw.amr.Register> toRead) {
         WebRtuZ3BulkObisCodeMapper bulkOCM = new WebRtuZ3BulkObisCodeMapper(getCosemObjectFactory());
         for (ObisCode obisCode : toRead.keySet()) {
             bulkOCM.enableRegisterMapping(obisCode);

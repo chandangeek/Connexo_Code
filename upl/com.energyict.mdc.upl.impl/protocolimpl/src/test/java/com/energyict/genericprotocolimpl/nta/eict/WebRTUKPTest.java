@@ -8,9 +8,9 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.pooling.CommunicationSchedulerFullProtocolShadowBuilder;
+import com.energyict.mdw.amr.RegisterSpec;
 import com.energyict.mdw.amr.RtuRegisterGroup;
 import com.energyict.mdw.amr.RtuRegisterMapping;
-import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.testutils.*;
 import com.energyict.obis.ObisCode;
@@ -101,11 +101,11 @@ public class WebRTUKPTest {
 				productSpec.getId(), 0);
 		
 		/* Create rtuRegisterSpec 1 */
-		RtuRegisterSpec registerSpec1 = RtuRegisterSpecCRUD
+		RegisterSpec registerSpec1 = RtuRegisterSpecCRUD
 				.createRtuRegisterSpec(rtuType, rrm1);
 		
 		/* Create rtuRegisterSpec 2 */
-		RtuRegisterSpec registerSpec2 = RtuRegisterSpecCRUD
+		RegisterSpec registerSpec2 = RtuRegisterSpecCRUD
 		.createRtuRegisterSpec(rtuType, rrm2);
 	}
 
@@ -176,10 +176,10 @@ public class WebRTUKPTest {
 //			webRtu.setCommunicationScheduler((CommunicationScheduler)this.rtu.getCommunicationSchedulers().get(0)); // we should only get one!
 //			webRtu.doReadRegisters(webRtu.getFullShadow().getRtuRegisterFullProtocolShadowList());
 //
-//			assertTrue(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRtuRegisterFactory().findByRtuRegisterSpec(
+//			assertTrue(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRegisterFactory().findByRtuRegisterSpec(
 //					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getRtuTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName).getId())).get(0)));
 //
-//			assertFalse(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRtuRegisterFactory().findByRtuRegisterSpec(
+//			assertFalse(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRegisterFactory().findByRtuRegisterSpec(
 //					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getRtuTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName2).getId())).get(0)));
 //
 //		} catch (SQLException e) {

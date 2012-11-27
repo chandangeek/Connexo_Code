@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -39,7 +39,7 @@ public class MK10MeterReadingExecuter {
         Iterator it = getExecuter().getMeter().getRegisters().iterator();
         StringBuffer strBuff = null;
         while (it.hasNext()) {
-        	RtuRegister rtuRegister = (RtuRegister) it.next();
+        	Register rtuRegister = (com.energyict.mdw.amr.Register) it.next();
             RegisterValue registerValue = null;
             ObisCode obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
             try {

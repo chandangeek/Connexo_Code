@@ -1,9 +1,9 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 
 /**
- * Provides functionality to create a fullShadow <CODE>RtuRegister</CODE> which will contain necessary information for the protocol
+ * Provides functionality to create a fullShadow <CODE>Register</CODE> which will contain necessary information for the protocol
  */
 public class RtuRegisterFullProtocolShadowBuilder {
 
@@ -13,10 +13,10 @@ public class RtuRegisterFullProtocolShadowBuilder {
     /**
      * Creates a <CODE>ChannelFullProtocolShadow</CODE> object
      *
-     * @param rtuRegister the <CODE>RtuRegister</CODE> to convert
+     * @param rtuRegister the <CODE>Register</CODE> to convert
      * @return a fully build rtuRegister shadow Object
      */
-    public static RtuRegisterFullProtocolShadow createRtuRegisterFullProtocolShadow(RtuRegister rtuRegister) {
+    public static RtuRegisterFullProtocolShadow createRtuRegisterFullProtocolShadow(Register rtuRegister) {
         RtuRegisterFullProtocolShadow rrfps = new RtuRegisterFullProtocolShadowImpl();
         rrfps.setRegisterObisCode(rtuRegister.getRtuRegisterSpec().getObisCode());
         rrfps.setRegisterUnit(rtuRegister.getUnit());

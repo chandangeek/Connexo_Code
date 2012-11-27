@@ -9,6 +9,7 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.amr.*;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -266,7 +267,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
                     Iterator it = getRtu().getRtuType().getRtuRegisterSpecs().iterator();
 
                     while (it.hasNext()) {
-                        RtuRegisterSpec spec = (RtuRegisterSpec) it.next();
+                        RegisterSpec spec = (RegisterSpec) it.next();
                         ObisCode oc = ObisCode.fromString(modifyObisCodeToChannelNumber(spec.getRegisterMapping().getObisCode().toString()));
                         if (oc.getF() == 255) {
                             if ((oc.getA() == 0) && ((oc.getB() > 0) && (oc.getB() <= 4)) && (oc.getC() == 128) && (oc.getD() == 50) && (oc.getE() == 0)) {
@@ -355,7 +356,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         Iterator it = dataHandler.getMeterReadingData().getRegisterValues().iterator();
         while (it.hasNext()) {
             RegisterValue registerValue = (RegisterValue) it.next();
-            RtuRegister register = getRtu().getRegister(revertModifyObisCodeToChannelNumber(registerValue.getObisCode()));
+            Register register = getRtu().getRegister(revertModifyObisCodeToChannelNumber(registerValue.getObisCode()));
 
             if (register != null) {
                 if (register.getReadingAt(registerValue.getReadTime()) == null) {

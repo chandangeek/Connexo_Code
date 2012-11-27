@@ -13,6 +13,7 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.amr.*;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -259,9 +260,9 @@ public class MbusDevice implements Messaging, GenericProtocol {
                     Iterator i = mbus.getRtuType().getRtuRegisterSpecs().iterator();
                     while (i.hasNext()) {
 
-                        RtuRegisterSpec spec = (RtuRegisterSpec) i.next();
+                        RegisterSpec spec = (RegisterSpec) i.next();
                         ObisCode oc = spec.getObisCode();
-                        RtuRegister register = mbus.getRegister(oc);
+                        Register register = mbus.getRegister(oc);
 
                         if (register != null) {
 

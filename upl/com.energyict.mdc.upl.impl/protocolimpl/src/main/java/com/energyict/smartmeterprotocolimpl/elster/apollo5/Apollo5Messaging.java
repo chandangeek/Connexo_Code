@@ -1,7 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RtuRegisterReading;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
@@ -88,7 +88,7 @@ public class Apollo5Messaging extends AS300Messaging {
                     int index = 1;
                     for (Object o : group.getMembers()) {
                         Device device = (Device) o;
-                        RtuRegister register = device.getRegister(PUBLIC_KEYS);
+                        Register register = device.getRegister(PUBLIC_KEYS);
                         if (register != null) {
                             List<RtuRegisterReading> lastXReadings = register.getLastXReadings(1);
                             if (lastXReadings.size() > 0) {

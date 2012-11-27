@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.ace4000.objects;
 
 import com.energyict.cbo.*;
 import com.energyict.genericprotocolimpl.ace4000.objects.xml.XMLTags;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.RegisterValue;
@@ -110,7 +110,7 @@ public class CurrentReadings extends AbstractActarisObject {
 
     private void addRegister(ObisCode oc, Quantity value) {
         RegisterValue rv;
-        for (RtuRegister rtuRegister : getObjectFactory().getAce4000().getMasterMeter().getRegisters()) {
+        for (Register rtuRegister : getObjectFactory().getAce4000().getMasterMeter().getRegisters()) {
             if (rtuRegister.getRtuRegisterSpec().getObisCode().equals(oc)) {
                 rv = new RegisterValue(oc, value, new Date(), getTimeStamp());
                 rv.setRtuRegisterId(rtuRegister.getId());

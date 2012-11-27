@@ -5,7 +5,7 @@ import com.energyict.cpo.Transaction;
 import com.energyict.genericprotocolimpl.actarisplcc3g.MessagePair;
 import com.energyict.genericprotocolimpl.lgadvantis.collector.Collector;
 import com.energyict.genericprotocolimpl.lgadvantis.encoder.Encoder;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -653,7 +653,7 @@ class ReadMeterTransaction implements Transaction {
 	}
 
 	private void store( RegisterValue registerValue ) throws SQLException, BusinessException {
-		RtuRegister rr = meter.getRegister(registerValue.getObisCode());
+		Register rr = meter.getRegister(registerValue.getObisCode());
 		if (rr != null) rr.store(registerValue);
 
 	}

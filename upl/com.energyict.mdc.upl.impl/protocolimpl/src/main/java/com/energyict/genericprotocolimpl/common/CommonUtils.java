@@ -223,12 +223,12 @@ public final class CommonUtils {
     }
 
     /**
-	 * Check whether the {@link RtuRegisterGroup} from the given RtuRegister is in the given RtuRegisterGroup-List
+	 * Check whether the {@link RtuRegisterGroup} from the given Register is in the given RtuRegisterGroup-List
 	 * @param groups - a List of {@link RtuRegisterGroup}s
-	 * @param rr - the {@link RtuRegister} to check
-	 * @return true if the list contains the RtuRegisterGroup from the given RtuRegister, false otherwise
+	 * @param rr - the {@link com.energyict.mdw.amr.Register} to check
+	 * @return true if the list contains the RtuRegisterGroup from the given Register, false otherwise
 	 */
-	public static boolean isInRegisterGroup(List<RtuRegisterGroup> groups, RtuRegister rr) {
+	public static boolean isInRegisterGroup(List<RtuRegisterGroup> groups, Register rr) {
 		if (rr.getGroup() == null) {
 			if (groups.size() == 0) {
 				return true;

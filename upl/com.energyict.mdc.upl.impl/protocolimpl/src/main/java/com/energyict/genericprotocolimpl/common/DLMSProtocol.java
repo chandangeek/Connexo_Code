@@ -17,9 +17,8 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amr.RtuRegisterGroup;
+import com.energyict.mdw.amr.*;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -1020,16 +1019,16 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     /**
      * Read all the register from the device
      *
-     * @return a HashMap containing the RtuRegister and the RegisterValue
+     * @return a HashMap containing the Register and the RegisterValue
      * @throws IOException
      */
-    public Map<RtuRegister, RegisterValue> doReadRegisters() throws IOException {
-        HashMap<RtuRegister, RegisterValue> regValueMap = new HashMap<RtuRegister, RegisterValue>();
-        Map<ObisCode, RtuRegister> toRead = getRegistersToRead();
+    public Map<Register, RegisterValue> doReadRegisters() throws IOException {
+        HashMap<Register, RegisterValue> regValueMap = new HashMap<Register, RegisterValue>();
+        Map<ObisCode, Register> toRead = getRegistersToRead();
         prepareBulkRegisterReading(toRead);
-        for (Map.Entry<ObisCode, RtuRegister> entry : toRead.entrySet()) {
+        for (Map.Entry<ObisCode, Register> entry : toRead.entrySet()) {
             ObisCode obisCode = entry.getKey();
-            RtuRegister rtuRegister = entry.getValue();
+            Register rtuRegister = entry.getValue();
             try {
                 RegisterValue registerValue = readRegister(obisCode);
                 registerValue.setRtuRegisterId(rtuRegister.getId());
@@ -1044,16 +1043,16 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         return regValueMap;
     }
 
-    protected void prepareBulkRegisterReading(Map<ObisCode, RtuRegister> toRead) {
+    protected void prepareBulkRegisterReading(Map<ObisCode, Register> toRead) {
 
     }
 
-    private Map<ObisCode, RtuRegister> getRegistersToRead() {
-        List<RtuRegister> meterRegisters = getMeter().getRegisters();
+    private Map<ObisCode, Register> getRegistersToRead() {
+        List<Register> meterRegisters = getMeter().getRegisters();
         List<RtuRegisterGroup> groups = getCommunicationProfile().getRtuRegisterGroups();
 
-        Map<ObisCode, RtuRegister> registersToRead = new HashMap<ObisCode, RtuRegister>();
-        for (RtuRegister meterRegister : meterRegisters) {
+        Map<ObisCode, Register> registersToRead = new HashMap<ObisCode, Register>();
+        for (com.energyict.mdw.amr.Register meterRegister : meterRegisters) {
             if (CommonUtils.isInRegisterGroup(groups, meterRegister)) {
                 ObisCode obis = meterRegister.getRtuRegisterSpec().getObisCode();
                 registersToRead.put(obis, meterRegister);

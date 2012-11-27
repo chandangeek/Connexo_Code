@@ -6,7 +6,7 @@ import com.energyict.cpo.*;
 import com.energyict.genericprotocolimpl.ace4000.objects.ObjectFactory;
 import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -400,7 +400,7 @@ public class ACE4000 extends AbstractGenericProtocol {
             //Don't store register values if the register is not defined on the RTU
             MeterReadingData result = new MeterReadingData();
             for (RegisterValue registerValue : mrd.getRegisterValues()) {
-                for (RtuRegister rtuRegister : getMasterMeter().getRegisters()) {
+                for (Register rtuRegister : getMasterMeter().getRegisters()) {
                     if (rtuRegister.getRtuRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
                         registerValue.setRtuRegisterId(rtuRegister.getId());
                         result.add(registerValue);
@@ -421,7 +421,7 @@ public class ACE4000 extends AbstractGenericProtocol {
             MeterReadingData result = new MeterReadingData();
             if (slave != null) {
                 for (RegisterValue registerValue : mrd.getRegisterValues()) {
-                    for (RtuRegister rtuRegister : slave.getRegisters()) {
+                    for (com.energyict.mdw.amr.Register rtuRegister : slave.getRegisters()) {
                         if (rtuRegister.getRtuRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
                             registerValue.setRtuRegisterId(rtuRegister.getId());
                             result.add(registerValue);

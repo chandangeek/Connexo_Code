@@ -10,14 +10,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.energyict.mdw.amr.Register;
+import com.energyict.mdw.amrimpl.RegisterImpl;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdw.amr.RtuRegister;
-import com.energyict.mdw.amrimpl.RtuRegisterImpl;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
@@ -34,25 +34,25 @@ public class DataImporter extends DefaultHandler {
 	private static final String channel = "Channel";
 	private static final String obis = "Obis";
 	
-	private Map<RtuRegister, RegisterValue> registerMap = new HashMap<RtuRegister, RegisterValue>();
+	private Map<Register, RegisterValue> registerMap = new HashMap<Register, RegisterValue>();
 	private RegisterValue rv;
-	private RtuRegister rr;
+	private Register rr;
 	private ObisCode registerOc;
 	private BigDecimal value;
 	
 	private Calendar currentDate;
-	private List<RtuRegister> registers;
+	private List<Register> registers;
 	
 
 	/**
 	 * @param registers
 	 */
-	public DataImporter(List<RtuRegister> registers) {
+	public DataImporter(List<Register> registers) {
 		this.currentDate = ProtocolUtils.getCleanGMTCalendar();
 		this.currentDate.setTimeInMillis(System.currentTimeMillis());
 		this.registers = registers;
 //    	try {
-//    		Iterator<RtuRegister> it = this.registers.iterator();
+//    		Iterator<Register> it = this.registers.iterator();
 //    		List<RtuRegisterShadow> rrs = new ArrayList<RtuRegisterShadow>();
 //    		while(it.hasNext()){
 //    			rrs.add(it.next().getShadow());
@@ -108,10 +108,10 @@ public class DataImporter extends DefaultHandler {
 		this.rr = null;
 		String obisCode = convertToDottedObisCode(attrbs.getValue(obis));
 		if(this.registers != null){
-			Iterator<RtuRegister> it = this.registers.iterator();
-			RtuRegisterImpl tempRr;
+			Iterator<Register> it = this.registers.iterator();
+			RegisterImpl tempRr;
 			while (it.hasNext()) {
-				tempRr = (RtuRegisterImpl) it.next();
+				tempRr = (RegisterImpl) it.next();
 				if(obisCode.equalsIgnoreCase(tempRr.getObisCode().toString())){
 					rr = tempRr;
 					registerOc = ObisCode.fromString(obisCode);
@@ -134,14 +134,14 @@ public class DataImporter extends DefaultHandler {
 	/**
 	 * @return the registers
 	 */
-	protected List<RtuRegister> getRegisters() {
+	protected List<Register> getRegisters() {
 		return registers;
 	}
 
 	/**
 	 * @param registers the registers to set
 	 */
-	protected void setRegisters(List<RtuRegister> registers) {
+	protected void setRegisters(List<Register> registers) {
 		this.registers = registers;
 	}
 

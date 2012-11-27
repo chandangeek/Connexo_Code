@@ -6,7 +6,7 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterDailyEnergyValueProfile;
 import com.energyict.genericprotocolimpl.actarisplcc3g.cosemobjects.PLCCMeterListBlocData;
 import com.energyict.genericprotocolimpl.common.DailyBillingEntry;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -178,7 +178,7 @@ public class HandleMeterTransaction implements Transaction {
         Iterator it = registers.iterator();
         StringBuffer strBuff = null;
         while(it.hasNext()) {
-            RtuRegister register = (RtuRegister) it.next();
+            Register register = (Register) it.next();
             try {
                 RegisterValue registerValue = handleMeter.getConcentrator().getConcentratorRegister().readRegister(register.getRtuRegisterSpec().getObisCode());
                 registerValue.setRtuRegisterId(register.getId());
@@ -211,10 +211,10 @@ public class HandleMeterTransaction implements Transaction {
         return rtuRegisters;
     }
     
-    private RtuRegister findInRtuRegister(ObisCode obisCode) {
+    private Register findInRtuRegister(ObisCode obisCode) {
         Iterator it = getRtuRegisters().iterator();
         while(it.hasNext()) {
-            RtuRegister register = (RtuRegister) it.next();
+            Register register = (Register) it.next();
             if (register.getRegisterMapping().getObisCode().equals(obisCode))
                 return register;
         }
@@ -427,7 +427,7 @@ public class HandleMeterTransaction implements Transaction {
     private void readIndexes(MessageReadIndexes messageReadIndexes) throws IOException, SQLException, BusinessException {
         List registers = new ArrayList();
         for (int e=0;e<=6;e++) {
-            RtuRegister register = findInRtuRegister(ObisCode.fromString("1.0.1.8."+e+".255"));
+            Register register = findInRtuRegister(ObisCode.fromString("1.0.1.8."+e+".255"));
             if (register != null) registers.add(register);
         }
         
@@ -453,7 +453,7 @@ public class HandleMeterTransaction implements Transaction {
             
             RegisterValue registerValue = (RegisterValue)registerValues.get(i);
             handleMeter.getLogger().finer(registerValue.toString());
-            RtuRegister register = findInRtuRegister(registerValue.getObisCode());
+            Register register = findInRtuRegister(registerValue.getObisCode());
             if (register != null) {
                 registerValue.setRtuRegisterId(register.getId());
                 meterReadingData.add(registerValue);
@@ -464,7 +464,7 @@ public class HandleMeterTransaction implements Transaction {
     
     private void readRegister(MessageReadRegister messageReadRegister) throws IOException, SQLException, BusinessException {
         List registers = new ArrayList();
-        RtuRegister register = findInRtuRegister(ObisCode.fromString(messageReadRegister.getObisCode()));
+        Register register = findInRtuRegister(ObisCode.fromString(messageReadRegister.getObisCode()));
         if (register != null) {
             registers.add(register);
             MeterReadingData meterReadingData = readRegisters(registers,true);

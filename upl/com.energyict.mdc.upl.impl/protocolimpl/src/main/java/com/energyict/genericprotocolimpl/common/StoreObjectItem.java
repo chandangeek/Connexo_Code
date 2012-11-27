@@ -1,6 +1,5 @@
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
 import com.energyict.protocol.*;
@@ -25,7 +24,7 @@ public class StoreObjectItem {
         this.value = profileData;
     }
 
-    public StoreObjectItem(RtuRegister register, RegisterValue registerValue) {
+    public StoreObjectItem(com.energyict.mdw.amr.Register register, RegisterValue registerValue) {
         this.key = register;
         this.value = registerValue;
     }

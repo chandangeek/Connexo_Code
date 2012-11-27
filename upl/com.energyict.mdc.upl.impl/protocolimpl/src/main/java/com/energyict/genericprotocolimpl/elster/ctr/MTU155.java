@@ -16,7 +16,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResp
 import com.energyict.genericprotocolimpl.elster.ctr.tariff.CodeTableBase64Builder;
 import com.energyict.genericprotocolimpl.elster.ctr.util.MeterInfo;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 import com.energyict.mdw.shadow.DeviceShadow;
@@ -378,7 +378,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
 
     private void validateAndGetInstallationDate(List<MeterEvent> meterEvents) throws CTRDiscoverException {
         ObisCode obis = ObisCode.fromString(ObisCodeMapper.OBIS_INSTALL_DATE);
-        RtuRegister register = getRtu().getRegister(obis);
+        Register register = getRtu().getRegister(obis);
         if (register == null) {
             throw new CTRDiscoverException("No register configured for the installation date! [" + obis + "]");
         } else if (register.getLastReading() == null) {
@@ -464,14 +464,14 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
      * @param cp
      * @return
      */
-    private Map<RtuRegister, RegisterValue> doReadRegisters(CommunicationProfile cp) throws CTRConnectionException {
-        HashMap<RtuRegister, RegisterValue> regValueMap = new HashMap<RtuRegister, RegisterValue>();
-        Iterator<RtuRegister> rtuRegisterIterator = getRtu().getRegisters().iterator();
+    private Map<Register, RegisterValue> doReadRegisters(CommunicationProfile cp) throws CTRConnectionException {
+        HashMap<Register, RegisterValue> regValueMap = new HashMap<Register, RegisterValue>();
+        Iterator<com.energyict.mdw.amr.Register> rtuRegisterIterator = getRtu().getRegisters().iterator();
         List groups = cp.getRtuRegisterGroups();
         while (rtuRegisterIterator.hasNext()) {
             ObisCode obisCode = null;
             try {
-                RtuRegister rtuRegister = rtuRegisterIterator.next();
+                Register rtuRegister = rtuRegisterIterator.next();
                 if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
                     obisCode = rtuRegister.getRtuRegisterSpec().getDeviceObisCode();
                     ObisCode obisToRead;

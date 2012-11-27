@@ -7,10 +7,9 @@ import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.Register;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.RtuRegister;
+import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -627,7 +626,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 
                     try {
                         // Read the complete register (value and scalerUnit)
-                        RtuRegister rr = getMeter().getRegister(prepaidSetBudgetObisCode);
+                        Register rr = getMeter().getRegister(prepaidSetBudgetObisCode);
                         if (rr != null) {
 
                             DataContainer dc = getCosemObjectFactory().getGenericRead(prepaidSetBudgetObisCode, 0).getDataContainer();
@@ -635,7 +634,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
                                 for (int i = 0; i < dc.getRoot().getElements().length; i++) {
                                     if (dc.getRoot().getStructure(i).getOctetString(0).toString().equals(prepaidSetBudgetObisCode.toString())) {
 
-                                        Register register = getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode);
+                                        com.energyict.dlms.cosem.Register register = getCosemObjectFactory().getRegister(prepaidSetBudgetObisCode);
                                         RegisterValue rv = new RegisterValue(prepaidSetBudgetObisCode, ParseUtils.registerToQuantity(register));
                                         MeterReadingData mrd = new MeterReadingData();
                                         mrd.add(rv);
@@ -650,7 +649,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
                             success = true;
 
                         } else {
-                            throw new IOException("No RtuRegister with the prepaidBudgetObisCode (" + prepaidSetBudgetObisCode + ")");
+                            throw new IOException("No Register with the prepaidBudgetObisCode (" + prepaidSetBudgetObisCode + ")");
                         }
 
                     } catch (SQLException e) {

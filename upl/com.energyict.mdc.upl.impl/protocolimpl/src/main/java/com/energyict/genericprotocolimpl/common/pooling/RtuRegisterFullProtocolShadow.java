@@ -4,7 +4,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 
 /**
- * Contains logical information about an {@link com.energyict.mdw.amr.RtuRegister}
+ * Contains logical information about an {@link com.energyict.mdw.amr.Register}
  */
 public interface RtuRegisterFullProtocolShadow {
 
