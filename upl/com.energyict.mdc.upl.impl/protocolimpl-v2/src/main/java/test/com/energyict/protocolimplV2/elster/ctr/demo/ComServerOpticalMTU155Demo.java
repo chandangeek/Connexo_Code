@@ -452,7 +452,7 @@ public final class ComServerOpticalMTU155Demo {
     }
 
     public DeviceType createRtuType(String name) throws BusinessException, SQLException {
-        RtuTypeShadow shadow = new RtuTypeShadow();
+        DeviceTypeShadow shadow = new DeviceTypeShadow();
         shadow.setName(name);
         shadow.setChannelCount(2);
         shadow.setDeviceProtocolId(this.deviceProtocolPluggableClass.getId());
@@ -562,7 +562,7 @@ public final class ComServerOpticalMTU155Demo {
         } else {
             System.out.println("Demo Device with name " + RTU_NAME + " already existed.");
         }
-        RtuShadow shadow = rtu.getShadow();
+        DeviceShadow shadow = rtu.getShadow();
         TypedProperties properties = rtu.getProperties();
         shadow.setProperties(properties);
         rtu.update(shadow);
@@ -580,7 +580,7 @@ public final class ComServerOpticalMTU155Demo {
     public Device createRtu(DeviceType rtuType, String name, int intervalInSeconds, Folder parent) throws BusinessException, SQLException {
         String serialNumber ="0000000000000000";
         System.out.println("Creating Demo Device with name " + RTU_NAME + " and serial number " + serialNumber);
-        RtuShadow rtuShadow = rtuType.newRtuShadow();
+        DeviceShadow rtuShadow = rtuType.newRtuShadow();
         rtuShadow.setName(name);
         rtuShadow.setExternalName(name);
         rtuShadow.setIntervalInSeconds(intervalInSeconds);

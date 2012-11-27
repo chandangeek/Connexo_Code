@@ -24,7 +24,7 @@ import com.energyict.genericprotocolimpl.iskragprs.imagetransfer.ImageTransfer;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
 import com.energyict.mdw.amr.*;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -487,7 +487,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 }
             }
             if (delete) {
-                RtuShadow shadow = mbus.getShadow();
+                DeviceShadow shadow = mbus.getShadow();
                 shadow.setGatewayId(0);
                 mbus.update(shadow);
             }
@@ -528,7 +528,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
     private Device createMeter(Device rtu2, DeviceType type, String customerID) throws SQLException, BusinessException {
-        RtuShadow shadow = type.newRtuShadow();
+        DeviceShadow shadow = type.newRtuShadow();
 
         Date lastreading = shadow.getLastReading();
 
@@ -1385,7 +1385,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         while (it.hasNext()) {
             Device slave = (Device) it.next();
 //			slave.updateGateway(null);
-            RtuShadow shadow = slave.getShadow();
+            DeviceShadow shadow = slave.getShadow();
             shadow.setGatewayId(0);
             slave.update(shadow);
         }

@@ -12,7 +12,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.ComPortShadow;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.RegisterValue;
@@ -519,7 +519,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
         if ((rtu.getPostDialCommand() == null) || (rtu.getPostDialCommand().equalsIgnoreCase(""))
                 || (rtu.getPostDialCommand().equalsIgnoreCase("<ESC>rfclient=\"\"</ESC>"))) {
 
-            RtuShadow shadow = rtu.getShadow();
+            DeviceShadow shadow = rtu.getShadow();
             String deviceId = rtu.getDeviceId();
             if ((deviceId != null) && !(deviceId.equalsIgnoreCase(""))) {
                 shadow.setPostDialCommand("<ESC>rfclient=\"" + deviceId + "\"</ESC>");

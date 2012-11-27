@@ -12,7 +12,7 @@ import com.energyict.dialer.core.StreamConnection;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.ChannelShadow;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.RtuDiscoveredEvent;
@@ -110,7 +110,7 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
             getLogger().warning("Discovery session: Phone number [" + phoneNumber + "]");
             getLogger().warning("Discovery session: Gas meter serial [" + meterSerial + "]");
 
-            RtuShadow shadow = getRtu().getShadow();
+            DeviceShadow shadow = getRtu().getShadow();
             shadow.setSerialNumber(meterSerial);
             shadow.setNodeAddress(pdr);
             shadow.setPhoneNumber(phoneNumber);

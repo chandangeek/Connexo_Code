@@ -5,7 +5,7 @@ import com.energyict.cbo.ProcessingException;
 import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.shadow.RtuTypeShadow;
+import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
 import com.energyict.obis.ObisCode;
@@ -312,7 +312,7 @@ public class RtuRegisterBuilder {
      */
     private void deleteRegisterSpecs(DeviceType rtuType) throws BusinessException {
         try {
-            RtuTypeShadow shadow = rtuType.getShadow();
+            DeviceTypeShadow shadow = rtuType.getShadow();
             shadow.getRegisterSpecShadows().clear();
             rtuType.update(shadow);
             deviceType = null;
@@ -366,7 +366,7 @@ public class RtuRegisterBuilder {
      */
     private void createRegisterSpecs(DeviceType deviceType) throws BusinessException {
         try {
-            RtuTypeShadow deviceTypeShadow = deviceType.getShadow();
+            DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
             List<RtuRegisterMapping> mappings = getRtuRegisterMappingsWithPrefix();
             for (RtuRegisterMapping mapping : mappings) {
                 RtuRegisterSpecShadow shadow = new RtuRegisterSpecShadow();

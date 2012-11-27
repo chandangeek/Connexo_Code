@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
 import com.energyict.cbo.SerialCommunicationSettings;
-import com.energyict.mdw.shadow.RtuTypeShadow;
+import com.energyict.mdw.shadow.DeviceTypeShadow;
 
 import java.util.*;
 
@@ -86,9 +86,9 @@ public interface RtuFullProtocolShadow {
 
     void setSerialCommunicationSettings(SerialCommunicationSettings serialCommunicationSettings);
 
-    RtuTypeShadow getRtuTypeShadow();
+    DeviceTypeShadow getRtuTypeShadow();
 
-    void setRtuTypeShadow(RtuTypeShadow rtuTypeShadow);
+    void setRtuTypeShadow(DeviceTypeShadow rtuTypeShadow);
 
     List<ChannelFullProtocolShadow> getChannelFullProtocolShadow();
 

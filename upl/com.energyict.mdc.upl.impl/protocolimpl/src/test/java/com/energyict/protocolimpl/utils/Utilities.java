@@ -75,7 +75,7 @@ public class Utilities {
      * @throws BusinessException
      */
     public static DeviceType createRtuType(CommunicationProtocol commProtocol, String name, int channelCount) throws SQLException, BusinessException {
-        RtuTypeShadow rtuTypeShadow = new RtuTypeShadow();
+        DeviceTypeShadow rtuTypeShadow = new DeviceTypeShadow();
         rtuTypeShadow.setChannelCount(channelCount);
         rtuTypeShadow.setName(name);
         rtuTypeShadow.setProtocolId(commProtocol.getId());
@@ -119,7 +119,7 @@ public class Utilities {
      * @throws BusinessException
      */
     public static Device createRtu(DeviceType rtuType, String serial, int interval) throws SQLException, BusinessException {
-        final RtuShadow rtuShadow = rtuType.newRtuShadow();
+        final DeviceShadow rtuShadow = rtuType.newRtuShadow();
         rtuShadow.setRtuTypeId(rtuType.getId());
         rtuShadow.setName(serial);
         rtuShadow.setExternalName(serial);
@@ -140,7 +140,7 @@ public class Utilities {
      * @throws BusinessException
      */
     public static Device addPropertyToRtu(Device rtu, String key, String value) throws SQLException, BusinessException {
-        RtuShadow rtuShadow = rtu.getShadow();
+        DeviceShadow rtuShadow = rtu.getShadow();
         rtuShadow.getProperties().setProperty(key, value);
         rtu.delete();
         rtu = mw().getRtuFactory().create(rtuShadow);
@@ -158,7 +158,7 @@ public class Utilities {
      * @throws SQLException
      */
     public static Device addChannel(Device rtu, int intervalIndex, int profileIndex) throws BusinessException, SQLException {
-        RtuShadow rtuShadow = rtu.getShadow();
+        DeviceShadow rtuShadow = rtu.getShadow();
         ChannelShadow channelShadow = new ChannelShadow();
         channelShadow.setName("Channel" + profileIndex);
         channelShadow.setInterval(new TimeDuration(1, intervalIndex));
@@ -260,7 +260,7 @@ public class Utilities {
         css.setModemPoolId(mp.getId());
         List schedulerShadows = new ArrayList(mp.getId());
         schedulerShadows.add(css);
-        RtuShadow rtuShadow = rtu.getShadow();
+        DeviceShadow rtuShadow = rtu.getShadow();
         rtuShadow.setCommunicationSchedulerShadows(schedulerShadows);
         rtu.update(rtuShadow);
     }
@@ -346,7 +346,7 @@ public class Utilities {
      * @throws BusinessException
      */
     public static void changeLastReading(Device meter, Date date) throws SQLException, BusinessException {
-        RtuShadow rs = meter.getShadow();
+        DeviceShadow rs = meter.getShadow();
         rs.setLastReading(date);
         meter.update(rs);
     }
@@ -359,7 +359,7 @@ public class Utilities {
      * @throws BusinessException
      */
     public static void changeLastReading(Device meter, Date date, int[] channels) throws SQLException, BusinessException {
-        RtuShadow rs = meter.getShadow();
+        DeviceShadow rs = meter.getShadow();
         for (int i = 0; i < channels.length; i++) {
             if (rs.getChannelShadow(i) != null) {
                 rs.getChannelShadow(i).setLastReading(date);
@@ -421,7 +421,7 @@ public class Utilities {
      * @throws SQLException
      */
     public static void clearChannelsLastReading(Device rtu) throws BusinessException, SQLException {
-        RtuShadow rShadow = rtu.getShadow();
+        DeviceShadow rShadow = rtu.getShadow();
         rShadow.setLastReading(new Date(1));
         rtu.update(rShadow);
         for (int i =    0; i < rtu.getChannels().size(); i++) {

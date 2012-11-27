@@ -9,7 +9,7 @@ import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
@@ -132,7 +132,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 				mbusClient.deinstallSlave();
 				
 				//Need to clear the gateWay
-				RtuShadow shadow = mbusDevice.getMbusRtu().getShadow();
+				DeviceShadow shadow = mbusDevice.getMbusRtu().getShadow();
 				shadow.setGatewayId(0);
 				mbusDevice.getMbusRtu().update(shadow);
 				

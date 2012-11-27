@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.logging.Logger;
 
 import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.shadow.DeviceShadow;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -19,7 +20,6 @@ import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.ModemPool;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.shadow.RtuShadow;
 import com.energyict.mdw.testutils.RtuCRUD;
 import com.energyict.mdw.testutils.RtuTypeCRUD;
 import com.energyict.protocol.InvalidPropertyException;
@@ -120,13 +120,13 @@ public class UpdatePostDialCommandTest {
 	}
 	
 	private void setDeviceId(String deviceId) throws SQLException, BusinessException{
-		RtuShadow shadow = rtu.getShadow();
+		DeviceShadow shadow = rtu.getShadow();
 		shadow.setDeviceId(deviceId);
 		rtu.update(shadow);
 	}
 	
 	private void setPostDialCommand(String postDialCommand) throws SQLException, BusinessException{
-		RtuShadow shadow = rtu.getShadow();
+		DeviceShadow shadow = rtu.getShadow();
 		shadow.setPostDialCommand(postDialCommand);
 		rtu.update(shadow);
 	}

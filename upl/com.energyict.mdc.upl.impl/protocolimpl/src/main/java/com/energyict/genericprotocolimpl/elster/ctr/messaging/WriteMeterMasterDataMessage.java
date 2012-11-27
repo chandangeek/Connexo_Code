@@ -7,7 +7,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.info.MeterType;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.CTRObjectFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRObjectID;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.utils.MessagingTools;
@@ -69,7 +69,7 @@ public class WriteMeterMasterDataMessage extends AbstractMTU155Message {
 
     private void updateMeterSerialInEIServer(String serial) throws BusinessException {
         try {
-            RtuShadow shadow = getRtu().getShadow();
+            DeviceShadow shadow = getRtu().getShadow();
             shadow.setSerialNumber(serial);
             getRtu().update(shadow);
         } catch (SQLException e) {

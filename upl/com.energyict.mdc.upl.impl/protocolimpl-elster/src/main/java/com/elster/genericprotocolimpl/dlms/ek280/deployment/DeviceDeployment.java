@@ -8,7 +8,7 @@ import com.energyict.cpo.ShadowList;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.ChannelShadow;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -82,7 +82,7 @@ public class DeviceDeployment {
         getLogger().warning("Creating new device of type [" + info.getRtuType() + "] ...");
 
         try {
-            RtuShadow shadow = info.getRtuType().newRtuShadow();
+            DeviceShadow shadow = info.getRtuType().newRtuShadow();
             shadow.setName(createDeviceName(info)); // EK280 serial
             shadow.setExternalName(createExternalName(info)); // "rtu/" + EK280serial
             shadow.setDeviceId(createDeviceId(info)); // EK280 serial number

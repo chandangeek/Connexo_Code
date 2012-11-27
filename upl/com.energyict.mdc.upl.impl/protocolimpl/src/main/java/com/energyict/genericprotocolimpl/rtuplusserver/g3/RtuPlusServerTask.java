@@ -12,8 +12,8 @@ import com.energyict.mdw.core.ModemPool;
 import com.energyict.mdw.core.ModemPoolFactory;
 import com.energyict.mdw.shadow.ComPortShadow;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.mdw.shadow.ModemPoolShadow;
-import com.energyict.mdw.shadow.RtuShadow;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -149,7 +149,7 @@ public class RtuPlusServerTask {
 
             logger.warning("Changing link [" + plcName + "] from [" + oldGwName + "] to [" + newGwName + "]");
 
-            final RtuShadow shadow = plcDevice.getShadow();
+            final DeviceShadow shadow = plcDevice.getShadow();
             shadow.setPhoneNumber(phoneNumber);
             shadow.setNodeAddress(newNodeAddress);
             shadow.setGatewayId(getGateway().getId());
@@ -175,7 +175,7 @@ public class RtuPlusServerTask {
     private void cleanupEiServerGhostDevice(Device plcDevice) {
         try {
             logger.severe("Removing gateway link and sap address from ghost device in EIServer [" + plcDevice.getName() + "]. Device not found in the field on gateway [" + getGateway().getName() + "].");
-            final RtuShadow shadow = plcDevice.getShadow();
+            final DeviceShadow shadow = plcDevice.getShadow();
             shadow.setNodeAddress("");
             shadow.setGatewayId(0);
             shadow.setPhoneNumber("");

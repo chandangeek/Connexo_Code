@@ -8,7 +8,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
@@ -276,7 +276,7 @@ public class MeterTopology implements MasterMeter {
      * @throws BusinessException when a business related error occurs
      */
     private Device createMeter(DeviceType rtuType, String serialNumber) throws SQLException, BusinessException {
-        RtuShadow shadow = rtuType.newRtuShadow();
+        DeviceShadow shadow = rtuType.newRtuShadow();
 
         shadow.setName(serialNumber);
         shadow.setSerialNumber(serialNumber);

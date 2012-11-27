@@ -32,7 +32,7 @@ import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.MagicNumberConstants;
@@ -988,7 +988,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
     }
 
     private Device createMeter(DeviceType rtuType, String key) throws SQLException, BusinessException {
-        RtuShadow shadow = rtuType.newRtuShadow();
+        DeviceShadow shadow = rtuType.newRtuShadow();
 
         shadow.setName(key);
         shadow.setSerialNumber(key);

@@ -450,7 +450,7 @@ public final class ComServerTCPAM100Demo {
     }
 
     public DeviceType createRtuType(String name) throws BusinessException, SQLException {
-        RtuTypeShadow shadow = new RtuTypeShadow();
+        DeviceTypeShadow shadow = new DeviceTypeShadow();
         shadow.setName(name);
         shadow.setChannelCount(7);
         shadow.setDeviceProtocolId(this.deviceProtocolPluggableClass.getId());
@@ -592,7 +592,7 @@ public final class ComServerTCPAM100Demo {
         } else {
             System.out.println("Demo Device with name " + RTU_NAME + " already existed.");
         }
-        RtuShadow shadow = rtu.getShadow();
+        DeviceShadow shadow = rtu.getShadow();
         TypedProperties properties = rtu.getProperties();
         properties.setProperty(MeterProtocol.PASSWORD, "elster");
         shadow.setProperties(properties);
@@ -611,7 +611,7 @@ public final class ComServerTCPAM100Demo {
     public Device createRtu(DeviceType rtuType, String name, int intervalInSeconds, Folder parent) throws BusinessException, SQLException {
         String serialNumber ="3228018";
         System.out.println("Creating Demo Device with name " + RTU_NAME + " and serial number " + serialNumber);
-        RtuShadow rtuShadow = rtuType.newRtuShadow();
+        DeviceShadow rtuShadow = rtuType.newRtuShadow();
         rtuShadow.setName(name);
         rtuShadow.setExternalName(name);
         rtuShadow.setIntervalInSeconds(intervalInSeconds);

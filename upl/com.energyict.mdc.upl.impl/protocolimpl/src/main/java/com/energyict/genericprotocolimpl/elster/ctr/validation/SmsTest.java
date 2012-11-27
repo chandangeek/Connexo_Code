@@ -9,7 +9,7 @@ import com.energyict.mdw.amr.RtuRegisterReading;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.messaging.MessageService;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.oracle.JmsUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -100,7 +100,7 @@ public class SmsTest {
                     String text = lastReading.getText();
                     if (text != null) {
                         try {
-                            RtuShadow shadow = rtu.getShadow();
+                            DeviceShadow shadow = rtu.getShadow();
                             shadow.setPhoneNumber(text.trim());
                             rtu.update(shadow);
                             System.out.println(text);

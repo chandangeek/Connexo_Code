@@ -4,7 +4,7 @@
 //import com.energyict.mdw.amr.RtuRegisterMapping;
 //import com.energyict.mdw.amr.RtuRegisterMappingFactory;
 //import com.energyict.mdw.core.DeviceType;
-//import com.energyict.mdw.shadow.RtuTypeShadow;
+//import com.energyict.mdw.shadow.DeviceTypeShadow;
 //import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
 //import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
 //import com.energyict.obis.ObisCode;
@@ -83,7 +83,7 @@
 //
 //
 //        DeviceType rtuType = CommonUtils.mw().getRtuTypeFactory().find("MTU155");
-//        RtuTypeShadow rtuTypeShadow = rtuType.getShadow();
+//        DeviceTypeShadow rtuTypeShadow = rtuType.getShadow();
 //        List<RtuRegisterMapping> mappings = factory.findAll();
 //        for (RtuRegisterMapping mapping : mappings) {
 //            RtuRegisterSpecShadow specShadow = new RtuRegisterSpecShadow();

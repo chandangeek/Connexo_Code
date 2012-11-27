@@ -4,8 +4,8 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.ShadowList;
 import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.core.*;
+import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.ProductSpecShadow;
-import com.energyict.mdw.shadow.RtuTypeShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.communicationdump.CommunicationDumpEntry;
@@ -110,7 +110,7 @@ public class EK280MdwConfig {
 
     private void addRtuRegisterSpec(ObisCode obis) {
         try {
-            RtuTypeShadow shadow = getRtuType().getShadow();
+            DeviceTypeShadow shadow = getRtuType().getShadow();
             ShadowList<RtuRegisterSpecShadow> registerSpecShadows = shadow.getRegisterSpecShadows();
             RtuRegisterSpecShadow registerSpecShadow = new RtuRegisterSpecShadow();
             registerSpecShadow.setRtuTypeId(getRtuType().getId());
@@ -180,7 +180,7 @@ public class EK280MdwConfig {
 
     private void clearRegisterSpecs() {
         try {
-            RtuTypeShadow shadow = getRtuType().getShadow();
+            DeviceTypeShadow shadow = getRtuType().getShadow();
             shadow.getRegisterSpecShadows().clear();
             getRtuType().update(shadow);
         } catch (SQLException e) {

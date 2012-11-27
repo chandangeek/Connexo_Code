@@ -11,7 +11,7 @@ import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.amr.RtuRegisterSpec;
 import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProtocolChannel;
@@ -927,7 +927,7 @@ public class MeterReadTransaction implements CacheMechanism {
         cal.add(Calendar.DAY_OF_MONTH, -10);
         Date lastreading = cal.getTime();
 
-        RtuShadow shadow = type.newRtuShadow();
+        DeviceShadow shadow = type.newRtuShadow();
 
         shadow.setName(serial);
         shadow.setSerialNumber(serial);
@@ -1679,7 +1679,7 @@ public class MeterReadTransaction implements CacheMechanism {
             }
             if (delete) {
 //    			mbus.updateGateway(null);	 // you can do this in the latest build of EIServer
-                RtuShadow shadow = mbus.getShadow();
+                DeviceShadow shadow = mbus.getShadow();
                 shadow.setGatewayId(0);
                 mbus.update(shadow);
             }

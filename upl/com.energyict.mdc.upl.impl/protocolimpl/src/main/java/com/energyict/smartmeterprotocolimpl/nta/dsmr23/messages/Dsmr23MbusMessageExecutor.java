@@ -11,7 +11,7 @@ import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
@@ -155,7 +155,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         //TODO this is not fully compliant with the HTTP comserver ...
         Device mbus = getRtuFromDatabaseBySerialNumber(serialNumber);
         if (mbus != null) {
-            RtuShadow shadow = mbus.getShadow();
+            DeviceShadow shadow = mbus.getShadow();
             shadow.setGatewayId(0);
             mbus.update(shadow);
         }

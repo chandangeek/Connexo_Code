@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
 import com.energyict.cbo.SerialCommunicationSettings;
-import com.energyict.mdw.shadow.RtuTypeShadow;
+import com.energyict.mdw.shadow.DeviceTypeShadow;
 
 import java.util.*;
 
@@ -29,7 +29,7 @@ public class RtuFullProtocolShadowImpl implements RtuFullProtocolShadow{
     private int rtuIntervalInSeconds;
     private boolean overruleCommunicationSettings;
     private SerialCommunicationSettings serialCommunicationSettings;
-    private RtuTypeShadow rtuTypeShadow;
+    private DeviceTypeShadow rtuTypeShadow;
     private List<ChannelFullProtocolShadow> channelFullProtocolShadow;
 
     public String getName() {
@@ -176,11 +176,11 @@ public class RtuFullProtocolShadowImpl implements RtuFullProtocolShadow{
         this.serialCommunicationSettings = serialCommunicationSettings;
     }
 
-    public RtuTypeShadow getRtuTypeShadow() {
+    public DeviceTypeShadow getRtuTypeShadow() {
         return rtuTypeShadow;
     }
 
-    public void setRtuTypeShadow(final RtuTypeShadow rtuTypeShadow) {
+    public void setRtuTypeShadow(final DeviceTypeShadow rtuTypeShadow) {
         this.rtuTypeShadow = rtuTypeShadow;
     }
 

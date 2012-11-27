@@ -16,7 +16,7 @@
 //import com.energyict.mdw.coreimpl.RtuFactoryImpl;
 //import com.energyict.mdw.shadow.ChannelShadow;
 //import com.energyict.mdw.shadow.InfoTypeShadow;
-//import com.energyict.mdw.shadow.RtuShadow;
+//import com.energyict.mdw.shadow.DeviceShadow;
 //import com.energyict.metadata.Criterium;
 //import com.energyict.metadata.SearchFilter;
 //import com.energyict.metadata.TypeDescriptor;
@@ -191,7 +191,7 @@
 //    private Device createRtuAndAddFields() throws CTRDiscoverException {
 //        try {
 //            checkAndCreateInfoFields();
-//            RtuShadow shadow = getRtuType().newRtuShadow();
+//            DeviceShadow shadow = getRtuType().newRtuShadow();
 //            shadow.setName(convertorSerial);
 //            shadow.setExternalName(createExternalName());
 //            shadow.setSerialNumber(meterSerial);

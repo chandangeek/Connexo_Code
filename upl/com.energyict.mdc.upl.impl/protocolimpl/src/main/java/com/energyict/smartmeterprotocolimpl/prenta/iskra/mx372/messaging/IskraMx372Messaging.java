@@ -10,7 +10,7 @@ import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
@@ -985,7 +985,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     }
 
     private Device createMeter(DeviceType type, String customerID) throws SQLException, BusinessException {
-        RtuShadow shadow = type.newRtuShadow();
+        DeviceShadow shadow = type.newRtuShadow();
         Date lastReading = shadow.getLastReading();
 
         shadow.setName(customerID);
@@ -1024,7 +1024,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
                 }
             }
             if (!present) {
-                RtuShadow shadow = mbus.getShadow();
+                DeviceShadow shadow = mbus.getShadow();
                 shadow.setGatewayId(0);
                 mbus.update(shadow);
             }
@@ -1042,7 +1042,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         Iterator it = slaves.iterator();
         while (it.hasNext()) {
             Device slave = (Device) it.next();
-            RtuShadow shadow = slave.getShadow();
+            DeviceShadow shadow = slave.getShadow();
             shadow.setGatewayId(0);
             slave.update(shadow);
         }

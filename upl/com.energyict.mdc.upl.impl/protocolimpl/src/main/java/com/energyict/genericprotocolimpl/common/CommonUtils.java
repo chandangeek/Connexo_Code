@@ -5,7 +5,7 @@ import com.energyict.mdw.amr.*;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.coreimpl.DeviceFactoryImpl;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.metadata.Criterium;
 import com.energyict.metadata.TypeDescriptor;
 import com.energyict.protocol.InvalidPropertyException;
@@ -105,7 +105,7 @@ public final class CommonUtils {
 	 * @throws BusinessException if business exception occurred
 	 */
 	public static Device createMeterWithSerialNumber(DeviceType rtuType, String serialNumber, String folderExtNameProperty) throws SQLException, BusinessException{
-		RtuShadow shadow = rtuType.newRtuShadow();
+		DeviceShadow shadow = rtuType.newRtuShadow();
     	shadow.setName(serialNumber);
         shadow.setSerialNumber(serialNumber);
 
@@ -136,7 +136,7 @@ public final class CommonUtils {
 	 * @throws BusinessException if business exception occurred
 	 */
 	public static Device createMeterWithDeviceId(DeviceType rtuType, String deviceId, String folderExtNameProperty) throws SQLException, BusinessException{
-		RtuShadow shadow = rtuType.newRtuShadow();
+		DeviceShadow shadow = rtuType.newRtuShadow();
     	shadow.setName("Device - " + deviceId);
         shadow.setDeviceId(deviceId);
 

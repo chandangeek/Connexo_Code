@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.lgadvantis;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.Transaction;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.protocolimpl.edf.messages.*;
 import org.xml.sax.SAXException;
 
@@ -94,7 +94,7 @@ public class ReadConcentratorTransaction implements Transaction {
 				List rtus = (List) MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(serial);
 				for (Iterator jt=rtus.iterator(); jt.hasNext();){
 					Device rtu = (Device) jt.next();
-					RtuShadow shadow = rtu.getShadow();
+					DeviceShadow shadow = rtu.getShadow();
 					if (shadow.getGatewayId() != device.getId() ){
 						shadow.setGatewayId(device.getId());
 						rtu.update(shadow);

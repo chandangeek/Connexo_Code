@@ -19,7 +19,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.RtuRegister;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -649,7 +649,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     }
 
     public void setNetworkID(int ID) throws BusinessException, SQLException {
-        RtuShadow shadow = getRtu().getShadow();
+        DeviceShadow shadow = getRtu().getShadow();
         shadow.setNetworkId(Integer.toString(ID));
         getRtu().update(shadow);
     }

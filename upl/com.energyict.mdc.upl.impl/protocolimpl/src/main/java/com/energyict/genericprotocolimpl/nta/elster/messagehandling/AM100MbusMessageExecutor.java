@@ -9,7 +9,7 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MbusMessageExecutor;
 import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.shadow.RtuShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -53,7 +53,7 @@ public class  AM100MbusMessageExecutor extends MbusMessageExecutor {
                 Data serialNumb = getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getMbusDevice().getPhysicalAddress()).getObisCode());
                 serialNumb.setValueAttr(OctetString.fromString(new String("")));
 
-                RtuShadow shadow = getMbusDevice().getMbusRtu().getShadow();
+                DeviceShadow shadow = getMbusDevice().getMbusRtu().getShadow();
                 shadow.setGatewayId(0);
                 getMbusDevice().getMbusRtu().update(shadow);
 
