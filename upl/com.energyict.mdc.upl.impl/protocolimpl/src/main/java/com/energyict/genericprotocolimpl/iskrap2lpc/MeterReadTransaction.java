@@ -927,7 +927,7 @@ public class MeterReadTransaction implements CacheMechanism {
         cal.add(Calendar.DAY_OF_MONTH, -10);
         Date lastreading = cal.getTime();
 
-        DeviceShadow shadow = type.newRtuShadow();
+        DeviceShadow shadow = type.newDeviceShadow();
 
         shadow.setName(serial);
         shadow.setSerialNumber(serial);

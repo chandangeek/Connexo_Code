@@ -187,7 +187,7 @@ public class MTU155Discover {
     private Device createRtuAndAddFields() throws CTRDiscoverException {
         try {
             checkAndCreateInfoFields();
-            DeviceShadow shadow = getRtuType().newRtuShadow();
+            DeviceShadow shadow = getRtuType().newDeviceShadow();
             shadow.setName(convertorSerial);
             shadow.setExternalName(createExternalName());
             shadow.setSerialNumber(meterSerial);

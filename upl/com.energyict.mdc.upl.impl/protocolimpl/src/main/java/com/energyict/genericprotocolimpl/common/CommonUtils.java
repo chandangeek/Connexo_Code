@@ -105,7 +105,7 @@ public final class CommonUtils {
 	 * @throws BusinessException if business exception occurred
 	 */
 	public static Device createMeterWithSerialNumber(DeviceType rtuType, String serialNumber, String folderExtNameProperty) throws SQLException, BusinessException{
-		DeviceShadow shadow = rtuType.newRtuShadow();
+		DeviceShadow shadow = rtuType.newDeviceShadow();
     	shadow.setName(serialNumber);
         shadow.setSerialNumber(serialNumber);
 
@@ -136,7 +136,7 @@ public final class CommonUtils {
 	 * @throws BusinessException if business exception occurred
 	 */
 	public static Device createMeterWithDeviceId(DeviceType rtuType, String deviceId, String folderExtNameProperty) throws SQLException, BusinessException{
-		DeviceShadow shadow = rtuType.newRtuShadow();
+		DeviceShadow shadow = rtuType.newDeviceShadow();
     	shadow.setName("Device - " + deviceId);
         shadow.setDeviceId(deviceId);
 

@@ -82,7 +82,7 @@ public class DeviceDeployment {
         getLogger().warning("Creating new device of type [" + info.getRtuType() + "] ...");
 
         try {
-            DeviceShadow shadow = info.getRtuType().newRtuShadow();
+            DeviceShadow shadow = info.getRtuType().newDeviceShadow();
             shadow.setName(createDeviceName(info)); // EK280 serial
             shadow.setExternalName(createExternalName(info)); // "rtu/" + EK280serial
             shadow.setDeviceId(createDeviceId(info)); // EK280 serial number

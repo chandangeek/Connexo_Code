@@ -119,7 +119,7 @@ public class Utilities {
      * @throws BusinessException
      */
     public static Device createRtu(DeviceType rtuType, String serial, int interval) throws SQLException, BusinessException {
-        final DeviceShadow rtuShadow = rtuType.newRtuShadow();
+        final DeviceShadow rtuShadow = rtuType.newDeviceShadow();
         rtuShadow.setRtuTypeId(rtuType.getId());
         rtuShadow.setName(serial);
         rtuShadow.setExternalName(serial);

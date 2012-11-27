@@ -985,7 +985,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     }
 
     private Device createMeter(DeviceType type, String customerID) throws SQLException, BusinessException {
-        DeviceShadow shadow = type.newRtuShadow();
+        DeviceShadow shadow = type.newDeviceShadow();
         Date lastReading = shadow.getLastReading();
 
         shadow.setName(customerID);

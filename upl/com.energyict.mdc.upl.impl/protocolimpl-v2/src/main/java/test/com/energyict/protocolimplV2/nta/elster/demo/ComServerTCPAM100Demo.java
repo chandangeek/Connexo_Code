@@ -611,7 +611,7 @@ public final class ComServerTCPAM100Demo {
     public Device createRtu(DeviceType rtuType, String name, int intervalInSeconds, Folder parent) throws BusinessException, SQLException {
         String serialNumber ="3228018";
         System.out.println("Creating Demo Device with name " + RTU_NAME + " and serial number " + serialNumber);
-        DeviceShadow rtuShadow = rtuType.newRtuShadow();
+        DeviceShadow rtuShadow = rtuType.newDeviceShadow();
         rtuShadow.setName(name);
         rtuShadow.setExternalName(name);
         rtuShadow.setIntervalInSeconds(intervalInSeconds);

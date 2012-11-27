@@ -528,7 +528,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
     private Device createMeter(Device rtu2, DeviceType type, String customerID) throws SQLException, BusinessException {
-        DeviceShadow shadow = type.newRtuShadow();
+        DeviceShadow shadow = type.newDeviceShadow();
 
         Date lastreading = shadow.getLastReading();
 
