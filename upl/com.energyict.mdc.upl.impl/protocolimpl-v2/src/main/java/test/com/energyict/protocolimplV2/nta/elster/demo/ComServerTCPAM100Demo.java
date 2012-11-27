@@ -442,7 +442,7 @@ public final class ComServerTCPAM100Demo {
     }
 
     public DeviceType findRtuType(String name) {
-        List<DeviceType> rtuTypes = MeteringWarehouse.getCurrent().getRtuTypeFactory().findByName(name);
+        List<DeviceType> rtuTypes = MeteringWarehouse.getCurrent().getDeviceTypeFactory().findByName(name);
         if (rtuTypes.isEmpty()) {
             return null;
         }
@@ -455,7 +455,7 @@ public final class ComServerTCPAM100Demo {
         shadow.setChannelCount(7);
         shadow.setDeviceProtocolId(this.deviceProtocolPluggableClass.getId());
         shadow.setRegisterSpecShadows(findOrCreateAllRegiserSpecShadows());
-        DeviceType type = MeteringWarehouse.getCurrent().getRtuTypeFactory().create(shadow);
+        DeviceType type = MeteringWarehouse.getCurrent().getDeviceTypeFactory().create(shadow);
         // Update the deviceConfig with the correct DeviceType ID
         DeviceConfig deviceConfig = MeteringWarehouse.getCurrent().getDeviceConfigFactory().find(DEVICE_CONFIG_AM100_DEMO_NAME);
         if (deviceConfig != null) {
@@ -601,7 +601,7 @@ public final class ComServerTCPAM100Demo {
     }
 
     public Device findRtu(String name) {
-        List<Device> rtus = MeteringWarehouse.getCurrent().getRtuFactory().findByName(name);
+        List<Device> rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findByName(name);
         if (rtus.isEmpty()) {
             return null;
         }

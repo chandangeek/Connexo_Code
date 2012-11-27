@@ -203,7 +203,7 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
 
             concentrator.addProperties(new Properties());
             //concentrator.getP
-            concentrator.setConcentratorDevice(new MeteringWarehouseFactory().getBatch().getRtuFactory().find(4084));
+            concentrator.setConcentratorDevice(new MeteringWarehouseFactory().getBatch().getDeviceFactory().find(4084));
             concentrator.setScheduler((CommunicationScheduler) concentrator.getConcentratorDevice().getCommunicationSchedulers().get(0));
             //concentrator.setProfileInterval(concentrator.getConcentratorDevice().getIntervalInSeconds());
             Dialer dialer = DialerFactory.get("IPDIALER").newDialer();
@@ -282,7 +282,7 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
 //
 //
 //                    try {
-//                        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();
+//                        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
 //                        List found = rtuFactory.findBySerialNumber(o.getSerialNumber());
 //                        if (found.size()==1) {
 //                            concentrator.setCurrentSelectedDevice((Device)found.get(0));

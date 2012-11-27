@@ -84,7 +84,7 @@ public class UtilitiesTest {
         CommunicationProtocol commProtocol = Utilities.findOrcreateCommunicationProtocol(javaClassName);
 
         Utilities.createRtuType(commProtocol, testRtu, 6);
-        List<DeviceType> result = Utilities.mw().getRtuTypeFactory().findByName(testRtu);
+        List<DeviceType> result = Utilities.mw().getDeviceTypeFactory().findByName(testRtu);
 
         assertEquals(1, result.size());
         assertEquals(testRtu, result.get(0).getShadow().getName());
@@ -109,7 +109,7 @@ public class UtilitiesTest {
         rtuType = Utilities.createRtuType(commProtocol, testRtu, 6);
 
         Utilities.createRtu(rtuType);
-        result = Utilities.mw().getRtuFactory().findBySerialNumber("99999999");
+        result = Utilities.mw().getDeviceFactory().findBySerialNumber("99999999");
 
         assertEquals(1, result.size());
         assertEquals("99999999", ((DeviceImpl) result.get(0)).getShadow().getName());
@@ -125,7 +125,7 @@ public class UtilitiesTest {
         rtuType = Utilities.createRtuType(commProtocol, testRtu, 6);
 
         Utilities.createRtu(rtuType);
-        List result = Utilities.mw().getRtuFactory().findBySerialNumber("99999999");
+        List result = Utilities.mw().getDeviceFactory().findBySerialNumber("99999999");
 
         assertEquals(1, result.size());
         rtu = (Device) result.get(0);

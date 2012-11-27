@@ -71,7 +71,7 @@ public class EventFileSaxHandler extends DefaultHandler {
 			if (deviceSerial != null){
 				//Create and store the device Event
 				//Get the RTUs with this serialNumber, cannot differentiate should be only one
-				List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
+				List rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(deviceSerial);
 
 				//Create the deviceEvent
 				for (Iterator it=rtus.iterator(); it.hasNext();){
@@ -133,7 +133,7 @@ public class EventFileSaxHandler extends DefaultHandler {
 	private void executeDiscoverMetersOnDevice() throws BusinessException, SQLException{
 		MessageContent content = new MessageDiscoverMeters(0);
 		//Get the RTUs with this serialNumber, cannot differentiate should be only one
-		List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
+		List rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(deviceSerial);
 		//Create the RtuMessage
 		for (Iterator it=rtus.iterator(); it.hasNext();){
 			Device rtu = (Device) it.next();

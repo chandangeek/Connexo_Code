@@ -506,7 +506,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
     private Device findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
-        List mbusList = mw().getRtuFactory().findBySerialNumber(customerID);
+        List mbusList = mw().getDeviceFactory().findBySerialNumber(customerID);
         if (mbusList.size() == 1) {
             Device mbusRtu = (Device) mbusList.get(0);
             // Check if gateway has changed, and update if it has
@@ -549,7 +549,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
         shadow.setGatewayId(rtu.getId());
         shadow.setLastReading(lastreading);
-        return mw().getRtuFactory().create(shadow);
+        return mw().getDeviceFactory().create(shadow);
     }
 
     /**
@@ -566,7 +566,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             getLogger().warning("No automatic meter creation: no property DeviceType defined.");
             return null;
         } else {
-            DeviceType rtuType = mw().getRtuTypeFactory().find(type);
+            DeviceType rtuType = mw().getDeviceTypeFactory().find(type);
             if (rtuType == null) {
                 throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
             }
@@ -686,7 +686,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      * @return true or false
      */
     protected boolean rtuExists(String serial) {
-        List meterList = mw().getRtuFactory().findBySerialNumber(serial);
+        List meterList = mw().getDeviceFactory().findBySerialNumber(serial);
         if (meterList.size() == 1) {
             return true;
         } else if (meterList.size() == 0) {

@@ -91,7 +91,7 @@ public class ReadConcentratorTransaction implements Transaction {
 			for (Iterator it = meterSerials.iterator(); it.hasNext();){
 				EeItem meterSerial = (EeItem) it.next();
 				String serial = meterSerial.getIdent();
-				List rtus = (List) MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(serial);
+				List rtus = (List) MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(serial);
 				for (Iterator jt=rtus.iterator(); jt.hasNext();){
 					Device rtu = (Device) jt.next();
 					DeviceShadow shadow = rtu.getShadow();

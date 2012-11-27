@@ -191,7 +191,7 @@ public class MK10Push implements GenericProtocol {
         if (serial == null) {
             return null;
         }
-        List meterList = mw().getRtuFactory().findBySerialNumber(serial);
+        List meterList = mw().getDeviceFactory().findBySerialNumber(serial);
 
         for (int i = 0; i < meterList.size(); i++) {
             Device tempMeter = (Device) meterList.get(i);

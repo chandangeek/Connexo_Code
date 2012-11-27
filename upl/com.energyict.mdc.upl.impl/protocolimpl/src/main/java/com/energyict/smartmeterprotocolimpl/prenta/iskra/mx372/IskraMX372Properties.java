@@ -166,7 +166,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
                 // No automatic meter creation: no property DeviceType defined.
                 rtuType = null;
             } else {
-                rtuType = mw().getRtuTypeFactory().find(type);
+                rtuType = mw().getDeviceTypeFactory().find(type);
                 if (rtuType == null) {
                     throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
                 }

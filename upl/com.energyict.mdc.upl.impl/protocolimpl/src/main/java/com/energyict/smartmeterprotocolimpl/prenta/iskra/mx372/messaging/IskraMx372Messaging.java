@@ -961,7 +961,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     }
 
     private Device findOrCreateNewMbusDevice(String customerID) throws SQLException, BusinessException, IOException {
-        List mbusList = mw().getRtuFactory().findBySerialNumber(customerID);
+        List mbusList = mw().getDeviceFactory().findBySerialNumber(customerID);
         ProtocolTools.closeConnection();
         if (mbusList.size() == 1) {
             Device mbusRtu = (Device) mbusList.get(0);
@@ -1006,7 +1006,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
         shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
         shadow.setLastReading(lastReading);
-        return mw().getRtuFactory().create(shadow);
+        return mw().getDeviceFactory().create(shadow);
     }
 
     private void updateMbusDevices(List<Device> downstreamRtus) throws SQLException, BusinessException {
@@ -1176,7 +1176,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     private Device getRtuFromDatabaseBySerialNumber() {
         if (rtu == null) {
             String serial = getProperties().getSerialNumber();
-            List<Device> rtuList = mw().getRtuFactory().findBySerialNumber(serial);
+            List<Device> rtuList = mw().getDeviceFactory().findBySerialNumber(serial);
             if (rtuList.size() > 1) {
                 infoLog("Warning: There are multiple devices configured with serial number: " + getProperties().getSerialNumber() + ".");
             }

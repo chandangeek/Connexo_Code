@@ -90,7 +90,7 @@ public class SmsTest {
     }
 
     private static void updatePhoneNumbers(MeteringWarehouse mw) {
-        List<Device> all = mw.getRtuFactory().findAll();
+        List<Device> all = mw.getDeviceFactory().findAll();
         for (Device rtu : all) {
             String phoneNumber = rtu.getPhoneNumber();
             if (phoneNumber == null || phoneNumber.equalsIgnoreCase("")) {

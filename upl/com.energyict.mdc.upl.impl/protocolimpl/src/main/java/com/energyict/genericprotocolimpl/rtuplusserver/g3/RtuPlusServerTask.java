@@ -224,7 +224,7 @@ public class RtuPlusServerTask {
      */
     private Device findByCallHomeId(SAPAssignmentItem sap) {
         final String logicalDeviceName = sap.getLogicalDeviceName().trim().toUpperCase();
-        List<Device> result = mw().getRtuFactory().findByDialHomeId(logicalDeviceName);
+        List<Device> result = mw().getDeviceFactory().findByDialHomeId(logicalDeviceName);
         if (result != null) {
             if (result.isEmpty()) {
                 logger.severe("No matching device found for SAP [" + sap.getSap() + ", " + sap.getLogicalDeviceName() + "] in EIServer!");

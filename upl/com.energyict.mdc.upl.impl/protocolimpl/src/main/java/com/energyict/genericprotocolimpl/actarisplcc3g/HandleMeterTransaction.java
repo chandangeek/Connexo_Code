@@ -226,7 +226,7 @@ public class HandleMeterTransaction implements Transaction {
     private Device findOrCreateMeter(PLCCMeterListBlocData data) throws BusinessException {
         
         String sNr = data.getSerialNumber();
-        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();
+        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
         
         List found = rtuFactory.findBySerialNumber(sNr);
         

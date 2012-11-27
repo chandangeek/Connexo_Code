@@ -44,7 +44,7 @@ public class DeviceDeployment {
     public Device deployDevice(DeviceDiscoverInfo info) throws IOException {
         String callHomeId = info.getCallHomeId();
         if (callHomeId != null) {
-            List<Device> rtus = MeteringWarehouse.getCurrent().getRtuFactory().findByDialHomeId(callHomeId);
+            List<Device> rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(callHomeId);
             if (rtus.isEmpty()) {
                 if (properties.isFastDeployment()) {
                     getLogger().warning("Device with call home id [" + callHomeId + "] not found! Starting deployment ...");
@@ -111,7 +111,7 @@ public class DeviceDeployment {
                     throw new IOException("DeviceType [" + info.getRtuType().getName() + "] has no prototype AND no folder. Unable to create device.");
                 }
             }
-            Device rtu = MeteringWarehouse.getCurrent().getRtuFactory().create(shadow);
+            Device rtu = MeteringWarehouse.getCurrent().getDeviceFactory().create(shadow);
             setInvalidData(false);
             return rtu;
         } catch (SQLException e) {

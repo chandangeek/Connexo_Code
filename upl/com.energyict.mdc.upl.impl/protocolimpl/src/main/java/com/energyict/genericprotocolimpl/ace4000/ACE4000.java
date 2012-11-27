@@ -570,7 +570,7 @@ public class ACE4000 extends AbstractGenericProtocol {
     public boolean isMasterMeter(String serialNumber) throws ConfigurationException {
 
         // find by CallHomeID, unique in database
-        List meterList = mw().getRtuFactory().findByDialHomeId("ACE4000" + serialNumber);
+        List meterList = mw().getDeviceFactory().findByDialHomeId("ACE4000" + serialNumber);
 
         if (meterList.size() == 1) {    // we found him, take him down boys ....
             setMasterMeter((Device) meterList.get(0));
@@ -594,7 +594,7 @@ public class ACE4000 extends AbstractGenericProtocol {
     public boolean isSlaveMeter(String serialNumber) throws ConfigurationException {
 
         // find by CallHomeID, unique in database
-        List meterList = mw().getRtuFactory().findByDialHomeId("ACE4000MB" + serialNumber);
+        List meterList = mw().getDeviceFactory().findByDialHomeId("ACE4000MB" + serialNumber);
 
         if (meterList.size() == 1) {    // we found him, take him down boys ....
             getMBusMetersMap().put(serialNumber, (Device) meterList.get(0));

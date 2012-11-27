@@ -1133,6 +1133,6 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
 
     private Device getRtuFromDatabaseBySerialNumber() {
         String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
-        return mw().getRtuFactory().findBySerialNumber(serial).get(0);
+        return mw().getDeviceFactory().findBySerialNumber(serial).get(0);
     }
 }

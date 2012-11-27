@@ -56,7 +56,7 @@ class ReadMeterTransaction implements Transaction {
 	private List find(EeItem meter) throws BusinessException {
 
 		String serial = meter.getIdent();
-		DeviceFactory rtuF = MeteringWarehouse.getCurrent().getRtuFactory();
+		DeviceFactory rtuF = MeteringWarehouse.getCurrent().getDeviceFactory();
 
 		return rtuF.findBySerialNumber(serial);
 

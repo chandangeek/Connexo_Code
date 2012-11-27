@@ -390,6 +390,6 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     }
 
     private Device getRtuFromDatabaseBySerialNumber(String serialNumber) {
-        return mw().getRtuFactory().findBySerialNumber(serialNumber).get(0);
+        return mw().getDeviceFactory().findBySerialNumber(serialNumber).get(0);
     }
 }

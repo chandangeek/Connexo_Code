@@ -86,7 +86,7 @@ public class ChannelDataExportProperties extends AbstractProtocolProperties {
                     }
                 }
             } else {
-                getMeteringWarehouse().getRtuFactory().findAllInTree(getParentFolder());
+                getMeteringWarehouse().getDeviceFactory().findAllInTree(getParentFolder());
             }
         }
         return rtus;

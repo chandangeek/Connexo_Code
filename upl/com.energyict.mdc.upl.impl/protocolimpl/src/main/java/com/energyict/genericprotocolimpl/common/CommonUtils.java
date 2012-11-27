@@ -35,7 +35,7 @@ public final class CommonUtils {
 	 * @throws BusinessException if business exception occurred
 	 */
 	public static Device findOrCreateDeviceBySerialNumber(String serialNumber, String rtuTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException{
-		List result = mw().getRtuFactory().findBySerialNumber(serialNumber);
+		List result = mw().getDeviceFactory().findBySerialNumber(serialNumber);
 		if(result.size() == 1){		// we found the rtu so return it
 			return (Device)result.get(0);
 		} else if(result.size() > 1){
@@ -56,7 +56,7 @@ public final class CommonUtils {
 	 * @throws BusinessException if business exception occurred
 	 */
 	public static Device findDeviceBySerialNumber(String serialNumber) throws IOException, SQLException, BusinessException{
-        List result = mw().getRtuFactory().findBySerialNumber(serialNumber);
+        List result = mw().getDeviceFactory().findBySerialNumber(serialNumber);
         if (result.size() == 1) {        // we found the rtu so return it
             return (Device) result.get(0);
         } else if (result.size() > 1) {
@@ -79,7 +79,7 @@ public final class CommonUtils {
 	 * @throws BusinessException if business exception occurred
 	 */
 	public static Device findOrCreateDeviceByDeviceId(String deviceId, String rtuTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException{
-		List result = mw().getRtuFactory().findByDeviceId(deviceId);
+		List result = mw().getDeviceFactory().findByDeviceId(deviceId);
 		if(result.size() == 1){		// we found the rtu so return it
 			return (Device)result.get(0);
 		} else if(result.size() > 1){
@@ -116,7 +116,7 @@ public final class CommonUtils {
     		} // else the new rtu will be placed in the prototype folder
         }// else the new rtu will be placed in the prototype folder
 
-        Device rtu = mw().getRtuFactory().create(shadow);
+        Device rtu = mw().getDeviceFactory().create(shadow);
         setNextCommunications(rtu);
         return rtu;
 	}
@@ -147,7 +147,7 @@ public final class CommonUtils {
     		} // else the new rtu will be placed in the prototype folder
         }// else the new rtu will be placed in the prototype folder
 
-        Device rtu = mw().getRtuFactory().create(shadow);
+        Device rtu = mw().getDeviceFactory().create(shadow);
         setNextCommunications(rtu);
         return rtu;
 	}
@@ -181,7 +181,7 @@ public final class CommonUtils {
 	 */
 	public static DeviceType getRtuType(String rtuTypeProperty) throws InvalidPropertyException{
 		if(rtuTypeProperty != null){
-			DeviceType rtuType = mw().getRtuTypeFactory().find(rtuTypeProperty);
+			DeviceType rtuType = mw().getDeviceTypeFactory().find(rtuTypeProperty);
 			if(rtuType == null){
 				throw new InvalidPropertyException("No rtutype defined with name '" + rtuTypeProperty + "'.");
 			} else if(rtuType.getPrototypeRtu() == null){
@@ -208,7 +208,7 @@ public final class CommonUtils {
      * @throws IOException when no device or more then one device was found with the given phoneNumber
      */
     public static Device findDeviceByPhoneNumber(String phoneNumber) throws IOException {
-        DeviceFactoryImpl factory = (DeviceFactoryImpl) mw().getRtuFactory();
+        DeviceFactoryImpl factory = (DeviceFactoryImpl) mw().getDeviceFactory();
         TypeDescriptor type = factory.getTypeDescriptor();
         com.energyict.metadata.SearchFilter filter = new com.energyict.metadata.SearchFilter(type);
         filter.addAnd(Criterium.eq(type.getAttributeDescriptor("phoneNumber"), phoneNumber));

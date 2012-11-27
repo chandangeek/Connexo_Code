@@ -568,7 +568,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         String pdr = readPdr();
         log("MTU155 with pdr='" + pdr + "' connected.");
 
-        List<Device> rtus = CommonUtils.mw().getRtuFactory().findByDialHomeId(pdr);
+        List<Device> rtus = CommonUtils.mw().getDeviceFactory().findByDialHomeId(pdr);
         switch (rtus.size()) {
             case 0:
                 if (getProtocolProperties().isDisableDSTForKnockingDevices()) {

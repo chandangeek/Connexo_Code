@@ -85,7 +85,7 @@ public class P2LPCTest {
         }
 
         // find out if there is an rtuType defined with this testName, if not, create it
-        result = Utilities.mw().getRtuTypeFactory().findByName(testMeter);
+        result = Utilities.mw().getDeviceTypeFactory().findByName(testMeter);
         if (result.size() == 0) {
             rtuTypeMeter = Utilities.createRtuType(commProtMeter, testMeter, 4);
         } else {
@@ -96,9 +96,9 @@ public class P2LPCTest {
     @After
     public void tearDown() throws BusinessException, SQLException {
         // first delete all the device
-        List result = Utilities.mw().getRtuFactory().findByName(testname);
-        result.addAll(Utilities.mw().getRtuTypeFactory().findByName(testMeter));
-        result.addAll(Utilities.mw().getRtuTypeFactory().findByName(testConcentrator));
+        List result = Utilities.mw().getDeviceFactory().findByName(testname);
+        result.addAll(Utilities.mw().getDeviceTypeFactory().findByName(testMeter));
+        result.addAll(Utilities.mw().getDeviceTypeFactory().findByName(testConcentrator));
         result.addAll(Utilities.mw().getCommunicationProtocolFactory().findByName(jcnIskraMeter));
         result.addAll(Utilities.mw().getCommunicationProtocolFactory().findByName(jcnConcentrator));
         result.addAll(Utilities.mw().getCommunicationProfileFactory().findByName(Utilities.commProfile_SendRtuMessage));
@@ -135,7 +135,7 @@ public class P2LPCTest {
         prepareConcentratorCreation();
 
         // find out if there is already a concentrator with the TestConcentrator name, if not, create it
-        result = Utilities.mw().getRtuFactory().findByName(testConcentrator);
+        result = Utilities.mw().getDeviceFactory().findByName(testConcentrator);
         if (result.size() == 0) {
             concentrator = Utilities.createRtu(rtuTypeMeter, testname, 900);
         } else {
@@ -254,7 +254,7 @@ public class P2LPCTest {
 
         try {
             // find out if there is already a meter with the TestMeter name, if not, create it
-            result = Utilities.mw().getRtuFactory().findByName(testMeter);
+            result = Utilities.mw().getDeviceFactory().findByName(testMeter);
             if (result.size() == 0) {
                 meter = Utilities.createRtu(rtuTypeMeter, testname, 900);
             } else {
@@ -314,7 +314,7 @@ public class P2LPCTest {
             prepareConcentratorCreation();
 
             // find out if there is already a concentrator with the TestConcentrator name, if not, create it
-            result = Utilities.mw().getRtuFactory().findByName(testConcentrator);
+            result = Utilities.mw().getDeviceFactory().findByName(testConcentrator);
             if (result.size() == 0) {
                 concentrator = Utilities.createRtu(rtuTypeMeter, testname, 900);
             } else {
@@ -445,7 +445,7 @@ public class P2LPCTest {
         }
 
         // find out if there is an rtuType defined with this testName, if not, create it
-        result = Utilities.mw().getRtuTypeFactory().findByName(testConcentrator);
+        result = Utilities.mw().getDeviceTypeFactory().findByName(testConcentrator);
         if (result.size() == 0) {
             rtuTypeMeter = Utilities.createRtuType(commProtMeter, testConcentrator, 0);
         } else {

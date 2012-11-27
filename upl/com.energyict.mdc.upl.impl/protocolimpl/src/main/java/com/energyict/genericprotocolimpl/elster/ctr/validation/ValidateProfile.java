@@ -202,7 +202,7 @@ public class ValidateProfile {
             }
             if (group == null) {
                 Folder parentFolder = getParentFolder();
-                rtus = ValidationUtils.getMeteringWarehouse().getRtuFactory().findAllInTree(parentFolder);
+                rtus = ValidationUtils.getMeteringWarehouse().getDeviceFactory().findAllInTree(parentFolder);
             } else {
                 rtus = new ArrayList<Device>();
                 List groupMembers = group.getMembers();

@@ -304,7 +304,7 @@ public class SmsWakeup {
      * @return
      */
     private Device getRefreshedMeter() {
-        return MeteringWarehouse.getCurrent().getRtuFactory().find(this.meter.getId());
+        return MeteringWarehouse.getCurrent().getDeviceFactory().find(this.meter.getId());
     }
 
     /**
@@ -386,7 +386,7 @@ public class SmsWakeup {
 //		Utilities.createEnvironment();
 //		MeteringWarehouse.createBatchContext(false);
 //		MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-//		Device rtu = mw.getRtuFactory().find(18052);
+//		Device rtu = mw.getDeviceFactory().find(18052);
 //		String str = (String)rtu.getDefaultRelation().get("Gov");
 //		System.out.println(str);
 

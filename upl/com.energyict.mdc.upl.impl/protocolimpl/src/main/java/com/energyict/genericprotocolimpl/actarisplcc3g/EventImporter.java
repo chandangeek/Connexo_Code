@@ -157,7 +157,7 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
     }
     
     private Device findDevice(String serialNumber) throws IOException {
-        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getRtuFactory();
+        DeviceFactory rtuFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
         List found = rtuFactory.findBySerialNumber(serialNumber);
         if (found.size()==1) {
             return (Device)found.get(0);

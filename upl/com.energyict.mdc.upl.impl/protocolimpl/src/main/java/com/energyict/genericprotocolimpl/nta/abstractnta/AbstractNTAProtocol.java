@@ -966,7 +966,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
     //TODO we should prevent using directly the rtu
 
     private Device findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
-        List<Device> mbusList = mw().getRtuFactory().findBySerialNumber(key);
+        List<Device> mbusList = mw().getDeviceFactory().findBySerialNumber(key);
         if (mbusList.size() == 1) {
             Device mbusRtu = (Device) mbusList.get(0);
             // Check if gateway has changed, and update if it has
@@ -1006,7 +1006,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         }
 
         shadow.setGatewayId(getCommunicationScheduler().getRtuId());
-        return mw().getRtuFactory().create(shadow);
+        return mw().getDeviceFactory().create(shadow);
     }
 
     private DeviceType getRtuType() {
@@ -1015,7 +1015,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
             getLogger().warning("No automatic meter creation: no property DeviceType defined.");
             return null;
         } else {
-            DeviceType rtuType = mw().getRtuTypeFactory().find(type);
+            DeviceType rtuType = mw().getDeviceTypeFactory().find(type);
             if (rtuType == null) {
                 getLogger().log(Level.INFO, "No rtutype defined with name '" + type + "'");
                 return null;

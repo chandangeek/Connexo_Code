@@ -52,7 +52,7 @@ public class DeviceDiscover {
         if (rtuType == null) {
             String rtuTypeName = getEk280().getProperties().getRtuTypeName();
             if (rtuTypeName != null) {
-                rtuType = MeteringWarehouse.getCurrent().getRtuTypeFactory().find(rtuTypeName);
+                rtuType = MeteringWarehouse.getCurrent().getDeviceTypeFactory().find(rtuTypeName);
                 if (rtuType == null) {
                     getLogger().severe("No matching rtu type found for [" + EK280Properties.RTU_TYPE + "=" + rtuTypeName + "].");
                 }

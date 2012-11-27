@@ -444,7 +444,7 @@ public final class ComServerOpticalMTU155Demo {
     }
 
     public DeviceType findRtuType(String name) {
-        List<DeviceType> rtuTypes = MeteringWarehouse.getCurrent().getRtuTypeFactory().findByName(name);
+        List<DeviceType> rtuTypes = MeteringWarehouse.getCurrent().getDeviceTypeFactory().findByName(name);
         if (rtuTypes.isEmpty()) {
             return null;
         }
@@ -457,7 +457,7 @@ public final class ComServerOpticalMTU155Demo {
         shadow.setChannelCount(2);
         shadow.setDeviceProtocolId(this.deviceProtocolPluggableClass.getId());
         shadow.setRegisterSpecShadows(findOrCreateAllRegiserSpecShadows());
-        return MeteringWarehouse.getCurrent().getRtuTypeFactory().create(shadow);
+        return MeteringWarehouse.getCurrent().getDeviceTypeFactory().create(shadow);
     }
 
     private boolean findOrCreateRtu() {
@@ -570,7 +570,7 @@ public final class ComServerOpticalMTU155Demo {
     }
 
     public Device findRtu(String name) {
-        List<Device> rtus = MeteringWarehouse.getCurrent().getRtuFactory().findByName(name);
+        List<Device> rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findByName(name);
         if (rtus.isEmpty()) {
             return null;
         }

@@ -245,7 +245,7 @@ public class MeterTopology implements MasterMeter {
      * @throws BusinessException when a business related error occurs
      */
     private Device findOrCreateMbusDevice(String serialNumber) throws SQLException, BusinessException {
-        List<Device> mbusList = ProtocolTools.mw().getRtuFactory().findBySerialNumber(serialNumber);
+        List<Device> mbusList = ProtocolTools.mw().getDeviceFactory().findBySerialNumber(serialNumber);
         if (mbusList.size() == 1) {
             Device mbusRtu = mbusList.get(0);
             // Check if gateway has changed, and update if it has
@@ -294,7 +294,7 @@ public class MeterTopology implements MasterMeter {
         }
 
         shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
-        return ProtocolTools.mw().getRtuFactory().create(shadow);
+        return ProtocolTools.mw().getDeviceFactory().create(shadow);
     }
 
     /**
@@ -308,7 +308,7 @@ public class MeterTopology implements MasterMeter {
             log(Level.WARNING, "No automatic meter creation: no property DeviceType defined.");
             return null;
         } else {
-            DeviceType rtuType = ProtocolTools.mw().getRtuTypeFactory().find(type);
+            DeviceType rtuType = ProtocolTools.mw().getDeviceTypeFactory().find(type);
             if (rtuType == null) {
                 log(Level.INFO, "No rtutype defined with name '" + type + "'");
                 return null;
@@ -328,7 +328,7 @@ public class MeterTopology implements MasterMeter {
     private Device getRtuFromDatabaseBySerialNumber() {
         if (rtu == null) {
             String serial = this.protocol.getSerialNumber();
-            this.rtu = ProtocolTools.mw().getRtuFactory().findBySerialNumber(serial).get(0);
+            this.rtu = ProtocolTools.mw().getDeviceFactory().findBySerialNumber(serial).get(0);
         }
         return rtu;
     }

@@ -100,7 +100,7 @@ public class ConcentratorTest{
 		}
 		
 		// find out if there is an rtuType defined with this testName, if not, create it
-		result = Utilities.mw().getRtuTypeFactory().findByName(rtuTypeName);
+		result = Utilities.mw().getDeviceTypeFactory().findByName(rtuTypeName);
 		if(result.size() == 0) {
 			rtuTypeMeter = Utilities.createRtuType(commProtMeter, rtuTypeName, 4);
 		} else {
@@ -112,7 +112,7 @@ public class ConcentratorTest{
 	@After
 	public void tearDown() throws Exception {
 		// first delete all the device
-		List result = Utilities.mw().getRtuFactory().findByName(rtuName);
+		List result = Utilities.mw().getDeviceFactory().findByName(rtuName);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++) {
 				((Device)result.get(i)).delete();
@@ -120,7 +120,7 @@ public class ConcentratorTest{
 		}
 		
 		// then the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findByName(rtuTypeName);
+		result = Utilities.mw().getDeviceTypeFactory().findByName(rtuTypeName);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++){
 				((DeviceTypeImpl)result.get(i)).delete();
@@ -156,7 +156,7 @@ public class ConcentratorTest{
 			Number someNumber = 0.892;
 			
 			// find out if there is already a meter with the TestMeter name, if not, create it
-			result = Utilities.mw().getRtuFactory().findByName(rtuName);
+			result = Utilities.mw().getDeviceFactory().findByName(rtuName);
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
@@ -211,7 +211,7 @@ public class ConcentratorTest{
 		try {
 			
 			String property = "0:0:0:0:1.8.1+9d:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(rtuName);
+			result = Utilities.mw().getDeviceFactory().findByName(rtuName);
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
@@ -297,7 +297,7 @@ public class ConcentratorTest{
 	public void importTwoDailyMonthlyProfilesTest(){
 		try {
 			String property = "0:0:0:0:1.8.1+9d:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(rtuName);
+			result = Utilities.mw().getDeviceFactory().findByName(rtuName);
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
@@ -373,7 +373,7 @@ public class ConcentratorTest{
 	public void importDailyMonthlyFromPLR(){
 		try {
 			String property = "0:0:0:0:1.8.1+9d:1.8.2m";
-			result = Utilities.mw().getRtuFactory().findByName(rtuName);
+			result = Utilities.mw().getDeviceFactory().findByName(rtuName);
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
@@ -453,7 +453,7 @@ public class ConcentratorTest{
 	public void singelMonthlyValueTest(){
 		try {
 			String property = "0:0:0:0:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(rtuName);
+			result = Utilities.mw().getDeviceFactory().findByName(rtuName);
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
@@ -503,7 +503,7 @@ public class ConcentratorTest{
 	public void mutlipleSingleStores(){
 		try {
 			String property = "0:0:0:0:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(rtuName);
+			result = Utilities.mw().getDeviceFactory().findByName(rtuName);
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
@@ -559,7 +559,7 @@ public class ConcentratorTest{
 	
 	private void mbusAfter() throws BusinessException, SQLException{
 		
-		result = Utilities.mw().getRtuFactory().findByName("0000");
+		result = Utilities.mw().getDeviceFactory().findByName("0000");
 		if(result.size() > 0){
 			if (result.size() > 0){
 				for(int j = 0; j < result.size(); j++) {
@@ -567,7 +567,7 @@ public class ConcentratorTest{
 				}
 			}
 		}
-		result = Utilities.mw().getRtuFactory().findByName("1111");
+		result = Utilities.mw().getDeviceFactory().findByName("1111");
 		if(result.size() > 0){
 			if (result.size() > 0){
 				for(int j = 0; j < result.size(); j++) {
@@ -575,7 +575,7 @@ public class ConcentratorTest{
 				}
 			}
 		}
-		result = Utilities.mw().getRtuFactory().findByName("2222");
+		result = Utilities.mw().getDeviceFactory().findByName("2222");
 		if(result.size() > 0){
 			if (result.size() > 0){
 				for(int j = 0; j < result.size(); j++) {
@@ -583,7 +583,7 @@ public class ConcentratorTest{
 				}
 			}
 		}
-		result = Utilities.mw().getRtuFactory().findByName("3333");
+		result = Utilities.mw().getDeviceFactory().findByName("3333");
 		if(result.size() > 0){
 			if (result.size() > 0){
 				for(int j = 0; j < result.size(); j++) {
@@ -593,7 +593,7 @@ public class ConcentratorTest{
 		}
 		
 		// then the deviceType
-		result = Utilities.mw().getRtuTypeFactory().findByName(mbusMeterType);
+		result = Utilities.mw().getDeviceTypeFactory().findByName(mbusMeterType);
 		if (result.size() > 0) {
 			for(int i = 0; i < result.size(); i++) {
 				((DeviceTypeImpl)result.get(i)).delete();
@@ -615,7 +615,7 @@ public class ConcentratorTest{
 		try{
 			
 			String property = "0:0:0:0:1.8.1+9m";
-			result = Utilities.mw().getRtuFactory().findByName(rtuName);
+			result = Utilities.mw().getDeviceFactory().findByName(rtuName);
 			if(result.size() == 0) {
 				meter = Utilities.createRtu(rtuTypeMeter, rtuName, 900);
 			} else {
@@ -642,7 +642,7 @@ public class ConcentratorTest{
 			}
 			
 			// find out if there is an rtuType defined with this testName, if not, create it
-			result = Utilities.mw().getRtuTypeFactory().findByName(mbusMeterType);
+			result = Utilities.mw().getDeviceTypeFactory().findByName(mbusMeterType);
 			if(result.size() == 0) {
 				rtuTypeMeter = Utilities.createRtuType(commProtMeter, mbusMeterType, 4);
 			} else {
@@ -650,7 +650,7 @@ public class ConcentratorTest{
 			}
 			
 			for(int i = 0; i < 4; i++){
-				result = Utilities.mw().getRtuFactory().findByName(""+i+i+i+i);
+				result = Utilities.mw().getDeviceFactory().findByName(""+i+i+i+i);
 				if(result.size() == 0) {
 					mbusRtu[i] = Utilities.createRtu(rtuTypeMeter, ""+i+i+i+i, 3600);
 				} else {

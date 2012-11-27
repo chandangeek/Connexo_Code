@@ -547,7 +547,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      * @return your Device
      */
     private Device getUpdatedMeter() {
-        return CommonUtils.mw().getRtuFactory().find(meter.getId());
+        return CommonUtils.mw().getDeviceFactory().find(meter.getId());
     }
 
     /**

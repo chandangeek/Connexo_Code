@@ -82,7 +82,7 @@
 //*/
 //
 //
-//        DeviceType rtuType = CommonUtils.mw().getRtuTypeFactory().find("MTU155");
+//        DeviceType rtuType = CommonUtils.mw().getDeviceTypeFactory().find("MTU155");
 //        DeviceTypeShadow rtuTypeShadow = rtuType.getShadow();
 //        List<RtuRegisterMapping> mappings = factory.findAll();
 //        for (RtuRegisterMapping mapping : mappings) {

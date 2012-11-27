@@ -129,7 +129,7 @@ public class ProfileParser extends AbstractParser implements Parser {
     }
 
     private static boolean isProfileCompressed(String deviceSerial) {
-        List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
+        List rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(deviceSerial);
         for (Iterator it = rtus.iterator(); it.hasNext(); ) {
             Device rtu = (Device) it.next();
             return isProfileCompressed(rtu);

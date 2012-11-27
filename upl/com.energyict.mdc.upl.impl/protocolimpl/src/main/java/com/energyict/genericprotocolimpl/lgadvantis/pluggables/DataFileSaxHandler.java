@@ -191,7 +191,7 @@ public class DataFileSaxHandler extends DefaultHandler {
 			byte[] binaryData = ProtocolUtils.convert2ascii(data.getBytes());
 
 			// Get the Device, and iterate over
-			List rtus = (List) MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
+			List rtus = (List) MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(deviceSerial);
 			for (Iterator it=rtus.iterator(); it.hasNext();){
 				Device rtu = (Device) it.next();
 				// Decode the data into an abstractDataType
@@ -232,7 +232,7 @@ public class DataFileSaxHandler extends DefaultHandler {
 			AbstractDataType abstractData = AXDRDecoder.decode(binaryData);
 
 			// Get the Device, and iterate over
-			List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
+			List rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(deviceSerial);
 			for (Iterator it=rtus.iterator(); it.hasNext();){
 				Device rtu = (Device) it.next();
 				// Decode the data into an abstractDataType
@@ -273,7 +273,7 @@ public class DataFileSaxHandler extends DefaultHandler {
 			AbstractDataType abstractData = AXDRDecoder.decode(binaryData);
 
 			// Get the Device, and iterate over
-			List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
+			List rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(deviceSerial);
 			for (Iterator it=rtus.iterator(); it.hasNext();){
 				Device rtu = (Device) it.next();
 				// Decode the data into an abstractDataType
@@ -307,7 +307,7 @@ public class DataFileSaxHandler extends DefaultHandler {
 	private void storeIndustrialMeterData(){
 		try {
 			// Get the Device, and iterate over
-			List rtus = MeteringWarehouse.getCurrent().getRtuFactory().findBySerialNumber(deviceSerial);
+			List rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(deviceSerial);
 			for (Iterator it=rtus.iterator(); it.hasNext();){
 				Device rtu = (Device) it.next();
 				for(int i=0; i<6; i++){

@@ -288,7 +288,7 @@ public class RtuRegisterBuilder {
 
     public DeviceType getDeviceType() throws BusinessException {
         if (deviceType == null) {
-            List<DeviceType> rtuTypes = mw().getRtuTypeFactory().findByName(DEVICE_TYPE_NAME);
+            List<DeviceType> rtuTypes = mw().getDeviceTypeFactory().findByName(DEVICE_TYPE_NAME);
             if (rtuTypes.isEmpty()) {
                 throw new BusinessException("DeviceType with name [" + DEVICE_TYPE_NAME + "] not found in EIServer!");
             } else if (rtuTypes.size() > 1) {

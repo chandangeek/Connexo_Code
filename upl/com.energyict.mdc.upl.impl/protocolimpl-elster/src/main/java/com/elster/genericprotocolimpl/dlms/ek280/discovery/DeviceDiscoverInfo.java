@@ -22,7 +22,7 @@ public class DeviceDiscoverInfo {
 
         if (serialNumber instanceof RequestParameters) {
             String rtuTypeName = ((RequestParameters) serialNumber).getRtuType();
-            rtuType = MeteringWarehouse.getCurrent().getRtuTypeFactory().find(rtuTypeName);
+            rtuType = MeteringWarehouse.getCurrent().getDeviceTypeFactory().find(rtuTypeName);
         }
     }
 

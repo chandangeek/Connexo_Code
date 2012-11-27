@@ -27,7 +27,7 @@ class PushProfileDataSaxHandler extends DefaultHandler {
         
         if( XmlTag.TELEREL_ITEM.equals(name) ) {
             int id = Integer.parseInt( attrib.getValue(XmlTag.IDENT) ); 
-            meter = MeteringWarehouse.getCurrent().getRtuFactory().find(id);
+            meter = MeteringWarehouse.getCurrent().getDeviceFactory().find(id);
         }
         
     }

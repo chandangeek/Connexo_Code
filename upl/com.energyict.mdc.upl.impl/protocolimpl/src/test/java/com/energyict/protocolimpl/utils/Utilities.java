@@ -79,7 +79,7 @@ public class Utilities {
         rtuTypeShadow.setChannelCount(channelCount);
         rtuTypeShadow.setName(name);
         rtuTypeShadow.setProtocolId(commProtocol.getId());
-        DeviceType rtuType = mw().getRtuTypeFactory().create(rtuTypeShadow);
+        DeviceType rtuType = mw().getDeviceTypeFactory().create(rtuTypeShadow);
         return rtuType;
     }
 
@@ -125,7 +125,7 @@ public class Utilities {
         rtuShadow.setExternalName(serial);
         rtuShadow.setIntervalInSeconds(interval);
         rtuShadow.setSerialNumber(serial);
-        Device rtu = mw().getRtuFactory().create(rtuShadow);
+        Device rtu = mw().getDeviceFactory().create(rtuShadow);
         return rtu;
     }
 
@@ -143,7 +143,7 @@ public class Utilities {
         DeviceShadow rtuShadow = rtu.getShadow();
         rtuShadow.getProperties().setProperty(key, value);
         rtu.delete();
-        rtu = mw().getRtuFactory().create(rtuShadow);
+        rtu = mw().getDeviceFactory().create(rtuShadow);
         return rtu;
     }
 
@@ -165,7 +165,7 @@ public class Utilities {
         channelShadow.setLoadProfileIndex(profileIndex);
         rtuShadow.add(channelShadow);
         rtu.delete();
-        rtu = mw().getRtuFactory().create(rtuShadow);
+        rtu = mw().getDeviceFactory().create(rtuShadow);
         return rtu;
     }
 
@@ -274,7 +274,7 @@ public class Utilities {
         GroupShadow grs = new GroupShadow();
         grs.setName(emptyGroup);
         grs.setObjectType(MeteringWarehouse.FACTORYID_RTU);
-//		grs.setObjectType(mw().getRtuFactory().getId());
+//		grs.setObjectType(mw().getDeviceFactory().getId());
         grs.getSearchFilter().setUseMaxResults(false);
         return mw().getGroupFactory().create(grs);
     }

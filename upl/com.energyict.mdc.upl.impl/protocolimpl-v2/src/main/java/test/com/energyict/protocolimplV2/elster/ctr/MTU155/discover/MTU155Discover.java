@@ -147,7 +147,7 @@
 //     * @throws CTRDiscoverException when there is a conflicting device in EIServer
 //     */
 //    private void validateExistingRtus() throws CTRDiscoverException {
-//        RtuFactoryImpl factory = (RtuFactoryImpl) mw().getRtuFactory();
+//        RtuFactoryImpl factory = (RtuFactoryImpl) mw().getDeviceFactory();
 //        TypeDescriptor typeDescr = factory.getTypeDescriptor();
 //        SearchFilter filter = new SearchFilter(typeDescr);
 //
@@ -212,7 +212,7 @@
 //            if (getFolder() != null) {
 //                shadow.setFolderId(getFolder().getId());
 //            }
-//            return mw().getRtuFactory().create(shadow);
+//            return mw().getDeviceFactory().create(shadow);
 //        } catch (SQLException e) {
 //            throw new CTRDiscoverException("Unable to create rtu", e);
 //        } catch (BusinessException e) {
@@ -319,7 +319,7 @@
 //    private DeviceType getRtuType() throws CTRDiscoverException {
 //        if (rtuType == null) {
 //            String rtuTypeName = getProperties().getRtuType();
-//            rtuType = mw().getRtuTypeFactory().find(rtuTypeName);
+//            rtuType = mw().getDeviceTypeFactory().find(rtuTypeName);
 //            if (rtuType == null) {
 //                throw new CTRDiscoverException("Unable to find DeviceType with name [" + rtuTypeName + "].");
 //            }

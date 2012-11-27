@@ -796,7 +796,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @return true or false
      */
     protected boolean rtuExists(String serial) {
-        List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
+        List meterList = getConcentrator().mw().getDeviceFactory().findBySerialNumber(serial);
         if (meterList.size() == 1) {
             return true;
         } else if (meterList.size() == 0) {
@@ -819,7 +819,7 @@ public class MeterReadTransaction implements CacheMechanism {
      */
     protected Device findOrCreate(Device concentrator, String serial) throws SQLException, BusinessException, IOException {
 
-        List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
+        List meterList = getConcentrator().mw().getDeviceFactory().findBySerialNumber(serial);
 
         if (meterList.size() == 1) {
             Device rtu = (Device) meterList.get(0);
@@ -855,7 +855,7 @@ public class MeterReadTransaction implements CacheMechanism {
      */
     protected Device findOrCreate(Device concentrator, String serial, int medium) throws SQLException, BusinessException, IOException {
 
-        List meterList = getConcentrator().mw().getRtuFactory().findBySerialNumber(serial);
+        List meterList = getConcentrator().mw().getDeviceFactory().findBySerialNumber(serial);
 
         if (meterList.size() == 1) {
             Device rtu = (Device) meterList.get(0);
@@ -887,7 +887,7 @@ public class MeterReadTransaction implements CacheMechanism {
             } else {
                 type = lut.getValue(medium);
                 if ((type != null) && !type.equalsIgnoreCase("")) {
-                    DeviceType rtuType = getConcentrator().mw().getRtuTypeFactory().find(type);
+                    DeviceType rtuType = getConcentrator().mw().getDeviceTypeFactory().find(type);
                     if (rtuType == null) {
                         throw new IOException("Iskra Mx37x, There is no prototype defined for the MBus medium with code '" + type + "'");
                     }
@@ -946,7 +946,7 @@ public class MeterReadTransaction implements CacheMechanism {
 
         shadow.setGatewayId(concentrator.getId());
         shadow.setLastReading(lastreading);
-        return getConcentrator().mw().getRtuFactory().create(shadow);
+        return getConcentrator().mw().getDeviceFactory().create(shadow);
 
     }
 

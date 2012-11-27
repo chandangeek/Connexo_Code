@@ -645,7 +645,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 
                     Group gr = mw().getGroupFactory().find(Integer.parseInt(groupID));
                     if (gr != null) {
-                        if (gr.getObjectType() == mw().getRtuFactory().getId()) {
+                        if (gr.getObjectType() == mw().getDeviceFactory().getId()) {
                             UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileID));
                             if (!(uf instanceof UserFile)) {
                                 msg.setFailed();
@@ -833,7 +833,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     protected DeviceType getRtuType(Device concentrator) throws IOException {
         String type = (String) concentrator.getProperties().getProperty(Constant.RTU_TYPE);
         if (type != null) {
-            DeviceType rtuType = mw().getRtuTypeFactory().find(type);
+            DeviceType rtuType = mw().getDeviceTypeFactory().find(type);
             if (rtuType == null) {
                 throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
             }
