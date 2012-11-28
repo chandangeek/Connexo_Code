@@ -2,7 +2,7 @@ package com.elster.genericprotocolimpl.dlms.ek280.executors;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 
@@ -35,7 +35,7 @@ public class MessageExecutor extends AbstractExecutor<Device> {
      * @param rtu The rtu with the pending messages
      */
     public void execute(Device rtu) {
-        List<RtuMessage> messagesToQuery = new ArrayList<RtuMessage>();
+        List<DeviceMessage> messagesToQuery = new ArrayList<DeviceMessage>();
         messagesToQuery.addAll(rtu.getPendingMessages());
         messagesToQuery.addAll(rtu.getSentMessages());
         if (!messagesToQuery.isEmpty()) {
@@ -51,7 +51,7 @@ public class MessageExecutor extends AbstractExecutor<Device> {
      *
      * @param pendingMessages The list of all the pending messages
      */
-    private void applyMessages(List<RtuMessage> pendingMessages) {
+    private void applyMessages(List<DeviceMessage> pendingMessages) {
         try {
             getDlmsProtocol().applyMessages(getMessageEntries(pendingMessages));
         } catch (IOException e) {
@@ -60,13 +60,13 @@ public class MessageExecutor extends AbstractExecutor<Device> {
     }
 
     /**
-     * Execute all the messages by calling the queryMessage method of the protocol for each RtuMessage
+     * Execute all the messages by calling the queryMessage method of the protocol for each DeviceMessage
      * and store the result of the message in EIServer
      *
      * @param pendingMessages The list of pending RtuMessages
      */
-    private void queryMessages(List<RtuMessage> pendingMessages) {
-        for (RtuMessage message : pendingMessages) {
+    private void queryMessages(List<DeviceMessage> pendingMessages) {
+        for (DeviceMessage message : pendingMessages) {
             MessageEntry messageEntry = new MessageEntry(message.getContents(), message.getTrackingId());
             try {
                 MessageResult messageResult = getDlmsProtocol().queryMessage(messageEntry);
@@ -84,7 +84,7 @@ public class MessageExecutor extends AbstractExecutor<Device> {
      * @param message       The message that just executed
      * @param messageResult The result of the message
      */
-    private void storeMessageResult(RtuMessage message, MessageResult messageResult) {
+    private void storeMessageResult(DeviceMessage message, MessageResult messageResult) {
         try {
             if (messageResult.isFailed()) {
                 message.setFailed();
@@ -108,9 +108,9 @@ public class MessageExecutor extends AbstractExecutor<Device> {
      * @param messages The list of RtuMessages to convert
      * @return The list of messageEntries
      */
-    private List<MessageEntry> getMessageEntries(List<RtuMessage> messages) {
+    private List<MessageEntry> getMessageEntries(List<DeviceMessage> messages) {
         List<MessageEntry> messageEntries = new ArrayList<MessageEntry>();
-        for (RtuMessage message : messages) {
+        for (DeviceMessage message : messages) {
             messageEntries.add(new MessageEntry(message.getContents(), message.getTrackingId()));
         }
         return messageEntries;

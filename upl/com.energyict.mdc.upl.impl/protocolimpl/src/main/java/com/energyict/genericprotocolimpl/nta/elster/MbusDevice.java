@@ -197,11 +197,11 @@ public class MbusDevice extends AbstractMbusDevice {
      * @param rtuMessageList
      */
     @Override
-    protected void sendMeterMessages(final List<RtuMessage> rtuMessageList) throws BusinessException, SQLException {
+    protected void sendMeterMessages(final List<DeviceMessage> rtuMessageList) throws BusinessException, SQLException {
         AM100MbusMessageExecutor messageExecutor = new AM100MbusMessageExecutor(this);
 
-        Iterator<RtuMessage> it = rtuMessageList.iterator();
-        RtuMessage rm = null;
+        Iterator<DeviceMessage> it = rtuMessageList.iterator();
+        DeviceMessage rm = null;
         while (it.hasNext()) {
             rm = it.next();
             messageExecutor.doMessage(rm);

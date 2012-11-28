@@ -80,17 +80,17 @@ public class CommunicationSchedulerFullProtocolShadowBuilder {
     }
 
     /**
-     * Creates a <CODE>List</CODE> of <b>Pending AND Sent</b> <CODE>RtuMessage</CODE>
+     * Creates a <CODE>List</CODE> of <b>Pending AND Sent</b> <CODE>DeviceMessage</CODE>
      *
      * @param rtu the <CODE>Device</CODE> which holds the messages
      * @return the generated list
      */
-    private static List<RtuMessage> createRtuMessages(final Device rtu) {
-        List<RtuMessage> messageShadowList = new ArrayList<RtuMessage>();
-        for (RtuMessage rtuMessage : rtu.getPendingMessages()) {
+    private static List<DeviceMessage> createRtuMessages(final Device rtu) {
+        List<DeviceMessage> messageShadowList = new ArrayList<DeviceMessage>();
+        for (DeviceMessage rtuMessage : rtu.getPendingMessages()) {
             messageShadowList.add(rtuMessage);
         }
-        for (RtuMessage rtuMessage : rtu.getSentMessages()) {
+        for (DeviceMessage rtuMessage : rtu.getSentMessages()) {
             messageShadowList.add(rtuMessage);
         }
         return messageShadowList;

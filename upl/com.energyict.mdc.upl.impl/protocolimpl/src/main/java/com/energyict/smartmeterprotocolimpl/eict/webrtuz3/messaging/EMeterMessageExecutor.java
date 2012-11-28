@@ -7,7 +7,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -39,7 +39,7 @@ public class EMeterMessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final RtuMessage rtuMessage) throws BusinessException, SQLException, IOException {
+    public void doMessage(final DeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
         // nothing to do
     }
 

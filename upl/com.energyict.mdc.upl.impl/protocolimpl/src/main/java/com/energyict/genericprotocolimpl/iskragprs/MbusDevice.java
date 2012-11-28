@@ -241,7 +241,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         Iterator mi = mbus.getPendingMessages().iterator();
 
         while (mi.hasNext()) {
-            RtuMessage msg = (RtuMessage) mi.next();
+            DeviceMessage msg = (DeviceMessage) mi.next();
             String msgString = msg.getContents();
             String contents = msgString.substring(msgString.indexOf("<") + 1, msgString.indexOf(">"));
             if (contents.endsWith("/")) {
@@ -320,7 +320,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         }
     }
 
-    protected void fail(Exception e, RtuMessage msg, String description) throws BusinessException, SQLException {
+    protected void fail(Exception e, DeviceMessage msg, String description) throws BusinessException, SQLException {
         msg.setFailed();
         Device concentrator = getMbus().getGateway();
         if (concentrator != null) {

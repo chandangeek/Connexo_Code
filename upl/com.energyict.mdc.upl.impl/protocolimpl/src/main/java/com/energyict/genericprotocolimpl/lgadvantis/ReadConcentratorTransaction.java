@@ -39,14 +39,14 @@ public class ReadConcentratorTransaction implements Transaction {
 	private void executeMessages() throws BusinessException, SQLException {
 		List messages =  device.getPendingMessages();
 		for (Iterator it = messages.iterator(); it.hasNext();){
-			RtuMessage message = (RtuMessage) it.next();
+			DeviceMessage message = (DeviceMessage) it.next();
 			String content = message.getContents();
 			MessageContent mc = MessageContentFactory.createMessageContent(content);
 			addMessage(mc, message);
 		}
 	}
 
-	private void addMessage( MessageContent mc, RtuMessage rtuMessage) throws BusinessException, SQLException {
+	private void addMessage( MessageContent mc, DeviceMessage rtuMessage) throws BusinessException, SQLException {
 
 		CosemFactory rf = concentrator.getCosemFactory();
 

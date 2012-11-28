@@ -69,7 +69,7 @@ public class HandleConcentratorTransaction implements Transaction {
         
         while (iter.hasNext()) {
             
-            RtuMessage msg = (RtuMessage) iter.next();
+            DeviceMessage msg = (DeviceMessage) iter.next();
             String content = msg.getContents();
             messagePairs.add(new MessagePair(msg,MessageContentFactory.createMessageContent(msg.getContents())));
             

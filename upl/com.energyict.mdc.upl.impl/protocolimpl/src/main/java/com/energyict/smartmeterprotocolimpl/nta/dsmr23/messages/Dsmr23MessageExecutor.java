@@ -22,7 +22,7 @@ import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
@@ -481,10 +481,10 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                                     }
                                     break;
                                     case 3: { // MESSAGE
-                                        RtuMessageShadow rms = new RtuMessageShadow();
+                                        DeviceMessageShadow rms = new DeviceMessageShadow();
                                         rms.setContents(csvParser.getTestObject(i).getData());
                                         rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
-                                        RtuMessage rm = mw().getRtuMessageFactory().create(rms);
+                                        DeviceMessage rm = mw().getRtuMessageFactory().create(rms);
                                         doMessage(rm);
                                         if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
                                             to.setResult("OK");
@@ -1012,7 +1012,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final RtuMessage rtuMessage) throws BusinessException, SQLException {
+    public void doMessage(final DeviceMessage rtuMessage) throws BusinessException, SQLException {
         //nothing to do
     }
 

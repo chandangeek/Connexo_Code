@@ -679,7 +679,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final RtuMessage rtuMessage) throws BusinessException, SQLException, IOException {
+    public void doMessage(final DeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
         // nothing to do
     }
 

@@ -5,7 +5,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.eisimport.core.AbstractStreamImporter;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceEventShadow;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 import com.energyict.protocolimpl.edf.messages.MessageDiscoverMeters;
@@ -127,7 +127,7 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
     }
     
     private void createMessage( Device concentrator, MessageContent content) throws BusinessException,SQLException {
-        RtuMessageShadow shadow = new RtuMessageShadow(concentrator.getId());
+        DeviceMessageShadow shadow = new DeviceMessageShadow(concentrator.getId());
         shadow.setReleaseDate( new Date() );
         shadow.setContents( content.xmlEncode() );
         concentrator.createMessage(shadow);

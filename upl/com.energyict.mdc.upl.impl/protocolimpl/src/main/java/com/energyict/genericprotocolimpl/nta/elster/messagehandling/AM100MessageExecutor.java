@@ -10,7 +10,7 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -30,7 +30,7 @@ public class AM100MessageExecutor extends MessageExecutor {
     }
 
     @Override
-    public void doMessage(RtuMessage rtuMessage) throws BusinessException, SQLException {
+    public void doMessage(DeviceMessage rtuMessage) throws BusinessException, SQLException {
         boolean success = false;
         String content = rtuMessage.getContents();
         MessageHandler messageHandler = new MessageHandler();

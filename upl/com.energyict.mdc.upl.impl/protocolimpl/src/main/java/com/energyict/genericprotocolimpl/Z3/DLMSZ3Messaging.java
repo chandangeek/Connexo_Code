@@ -507,11 +507,11 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
         MessageHandler messageHandler = new MessageHandler();
 
         Iterator it = rtuMessages.iterator();
-        RtuMessage rm = null;
+        DeviceMessage rm = null;
         boolean success = false;
         while (it.hasNext()) {
             try {
-                rm = (RtuMessage) it.next();
+                rm = (DeviceMessage) it.next();
                 String content = rm.getContents();
                 importMessage(content, messageHandler);
 
@@ -737,7 +737,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
         }
     }
 
-//	private void writeRegisterStructure(RtuMessage rm, ObisCode oc, ScalerUnit su, String value) throws IOException, BusinessException, SQLException{
+//	private void writeRegisterStructure(DeviceMessage rm, ObisCode oc, ScalerUnit su, String value) throws IOException, BusinessException, SQLException{
 //		try {
 //			Structure struct = new Structure();
 //			struct.addDataType(OctetString.fromString(oc.toString()));	
@@ -748,7 +748,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
 //		} catch (NumberFormatException e) {
 //			e.printStackTrace();
 ////			rm.setFailed();
-//			log(Level.INFO, "RtuMessage " + rm + " has a non numeric value.");
+//			log(Level.INFO, "DeviceMessage " + rm + " has a non numeric value.");
 //			throw new NumberFormatException(e.getMessage());
 //		}
 //	}

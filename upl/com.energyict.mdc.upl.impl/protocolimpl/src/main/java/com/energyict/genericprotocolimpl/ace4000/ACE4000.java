@@ -211,10 +211,10 @@ public class ACE4000 extends AbstractGenericProtocol {
             for (CommunicationScheduler scheduler : schedulers) {
 
                 Date fromDate = scheduler.getRtu().getLastReading();
-                List<RtuMessage> messages = scheduler.getRtu().getPendingMessages();
+                List<DeviceMessage> messages = scheduler.getRtu().getPendingMessages();
                 if (getACE4000Messages().shouldRetry(messages) && scheduler.getCommunicationProfile().getSendRtuMessage()) {
                     if (retry < getProtocolProperties().getRetries()) {
-                        for (RtuMessage message : messages) {
+                        for (DeviceMessage message : messages) {
                             getACE4000Messages().doMessage(message);
                             newRequest = getACE4000Messages().isNewRequest();
                         }

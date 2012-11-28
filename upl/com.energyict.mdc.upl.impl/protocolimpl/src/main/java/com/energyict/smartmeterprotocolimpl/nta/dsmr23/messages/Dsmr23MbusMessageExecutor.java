@@ -356,7 +356,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final RtuMessage rtuMessage) throws BusinessException, SQLException {
+    public void doMessage(final DeviceMessage rtuMessage) throws BusinessException, SQLException {
         //nothing to do
     }
 

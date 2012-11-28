@@ -3,7 +3,7 @@ package com.energyict.protocolimpl.edf.messages.usecases;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.*;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 import com.energyict.protocolimpl.edf.messages.MessageReadRegister;
 
@@ -17,7 +17,7 @@ public abstract class AbstractFolderAction implements FolderAction {
     void addMessage(Device rtu, String obis, int ordinal)
             throws Exception {
 
-        RtuMessageShadow shadow = new RtuMessageShadow(rtu.getId());
+        DeviceMessageShadow shadow = new DeviceMessageShadow(rtu.getId());
         shadow.setReleaseDate(new Date());
 
         MessageReadRegister mrr = new MessageReadRegister(obis);
@@ -32,7 +32,7 @@ public abstract class AbstractFolderAction implements FolderAction {
     void createMessage(Device rtu, MessageContent content)
             throws Exception {
 
-        RtuMessageShadow shadow = new RtuMessageShadow(rtu.getId());
+        DeviceMessageShadow shadow = new DeviceMessageShadow(rtu.getId());
         shadow.setReleaseDate(new Date());
 
         shadow.setContents(content.xmlEncode());

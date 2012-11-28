@@ -5,7 +5,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -36,7 +36,7 @@ public class IskraMx372MbusMessageExecutor extends GenericMessageExecutor implem
     }
 
     @Override
-    public void doMessage(RtuMessage rtuMessage) throws BusinessException, SQLException, IOException {
+    public void doMessage(DeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
         // Nothing to do.
     }
 

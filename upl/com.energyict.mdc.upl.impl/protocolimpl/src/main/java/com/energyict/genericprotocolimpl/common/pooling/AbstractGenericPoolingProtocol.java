@@ -10,7 +10,7 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MeterMessages;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.MissingPropertyException;
@@ -133,7 +133,7 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages imple
      *
      * @param rtuMessageList the RtuMessages to send to the device
      */
-    protected abstract void sendMeterMessages(final List<RtuMessage> rtuMessageList) throws BusinessException, SQLException;
+    protected abstract void sendMeterMessages(final List<DeviceMessage> rtuMessageList) throws BusinessException, SQLException;
 
     /**
      * Discover all the MbusDevices. Currently we can go to the database.

@@ -6,7 +6,7 @@ import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.mdw.testutils.RtuCRUD;
 import com.energyict.mdw.testutils.RtuTypeCRUD;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
@@ -32,7 +32,7 @@ public class MessageExecutorTest {
 	private static String rtuName = "";
 	private static String rtuTypeName = "";
 
-	private RtuMessage rtuMessage;
+	private DeviceMessage rtuMessage;
 	private String changeLLSContent = "<Change_LLS_Secret/>";
 	private String okResponse = "100042c4014200";
 	private byte[] expectedRequest = DLMSUtils.hexStringToByteArray("E6E600C10181000f0000280000FF0700090c4e65774c4c53536563726574");
@@ -69,7 +69,7 @@ public class MessageExecutorTest {
 	public void tearDown() throws Exception {
 		RtuCRUD.deleteRtu(rtuName);
 		RtuTypeCRUD.deleteRtuType(rtuTypeName);
-		RtuMessage rm = MeteringWarehouse.getCurrent().getRtuMessageFactory().find(rtuMessageID);
+		DeviceMessage rm = MeteringWarehouse.getCurrent().getRtuMessageFactory().find(rtuMessageID);
 		if(rm != null){
 			rm.delete();
 		}
@@ -78,7 +78,7 @@ public class MessageExecutorTest {
 	@Test
 	public void changeLLSSecretTest(){
 		try {
-			RtuMessageShadow rms = new RtuMessageShadow();
+			DeviceMessageShadow rms = new DeviceMessageShadow();
 //			rms.setUserId(0);
 			rms.setId(rtuMessageID);
 			rms.setContents(changeLLSContent);
@@ -95,7 +95,7 @@ public class MessageExecutorTest {
 			MessageExecutor me = new MessageExecutor(webRtu);
 			me.doMessage(rtuMessage);
 			assertArrayEquals(expectedRequest, connection.getSentBytes());
-			assertEquals(rtuMessage.getState(), RtuMessageState.CONFIRMED);
+			assertEquals(rtuMessage.getState(), DeviceMessageState.CONFIRMED);
 
 
 
@@ -107,7 +107,7 @@ public class MessageExecutorTest {
 
 			me.doMessage(rtuMessage);
 			assertArrayEquals(expectedRequest2, connection.getSentBytes());
-			assertEquals(rtuMessage.getState(), RtuMessageState.CONFIRMED);
+			assertEquals(rtuMessage.getState(), DeviceMessageState.CONFIRMED);
 
 		} catch (SQLException e) {
 			e.printStackTrace();

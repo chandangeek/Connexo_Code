@@ -10,7 +10,7 @@
 
 package com.energyict.genericprotocolimpl.actarisplcc3g;
 
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 
 /**
@@ -19,13 +19,13 @@ import com.energyict.protocolimpl.edf.messages.MessageContent;
  */
 public class MessagePair implements Comparable {
     
-    private RtuMessage rtuMessage;
+    private DeviceMessage rtuMessage;
     private MessageContent messageContent;
     
     /**
      * Creates a new instance of MessagePair 
      */
-    public MessagePair(RtuMessage rtuMessage, MessageContent messageContent) {
+    public MessagePair(DeviceMessage rtuMessage, MessageContent messageContent) {
         this.setRtuMessage(rtuMessage);
         this.setMessageContent(messageContent);
     }
@@ -34,11 +34,11 @@ public class MessagePair implements Comparable {
         return "Device "+rtuMessage.getRtu().getName()+", message id "+messageContent.getOrdinal();
     }
 
-    public RtuMessage getRtuMessage() {
+    public DeviceMessage getRtuMessage() {
         return rtuMessage;
     }
 
-    public void setRtuMessage(RtuMessage rtuMessage) {
+    public void setRtuMessage(DeviceMessage rtuMessage) {
         this.rtuMessage = rtuMessage;
     }
 

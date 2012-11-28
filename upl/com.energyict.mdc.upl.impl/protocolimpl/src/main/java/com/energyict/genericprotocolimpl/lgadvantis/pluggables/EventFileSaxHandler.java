@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.lgadvantis.pluggables;
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceEventShadow;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 import com.energyict.protocolimpl.edf.messages.MessageDiscoverMeters;
@@ -134,11 +134,11 @@ public class EventFileSaxHandler extends DefaultHandler {
 		MessageContent content = new MessageDiscoverMeters(0);
 		//Get the RTUs with this serialNumber, cannot differentiate should be only one
 		List rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(deviceSerial);
-		//Create the RtuMessage
+		//Create the DeviceMessage
 		for (Iterator it=rtus.iterator(); it.hasNext();){
 			Device rtu = (Device) it.next();
 			
-			RtuMessageShadow shadow = new RtuMessageShadow();
+			DeviceMessageShadow shadow = new DeviceMessageShadow();
 			shadow.setReleaseDate(Calendar.getInstance().getTime());
 			shadow.setContents(content.xmlEncode());
 			rtu.createMessage(shadow);

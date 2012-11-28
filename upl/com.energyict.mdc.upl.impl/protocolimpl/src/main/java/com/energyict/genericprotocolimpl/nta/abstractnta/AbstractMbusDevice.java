@@ -11,7 +11,7 @@ import com.energyict.genericprotocolimpl.nta.profiles.*;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.MbusObisCodeMapper;
 import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -316,11 +316,11 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
      * @param rtuMessageList
      */
     @Override
-    protected void sendMeterMessages(final List<RtuMessage> rtuMessageList) throws BusinessException, SQLException {
+    protected void sendMeterMessages(final List<DeviceMessage> rtuMessageList) throws BusinessException, SQLException {
         MbusMessageExecutor messageExecutor = new MbusMessageExecutor(this);
 
-        Iterator<RtuMessage> it = rtuMessageList.iterator();
-        RtuMessage rm = null;
+        Iterator<DeviceMessage> it = rtuMessageList.iterator();
+        DeviceMessage rm = null;
         while (it.hasNext()) {
             rm = it.next();
             messageExecutor.doMessage(rm);

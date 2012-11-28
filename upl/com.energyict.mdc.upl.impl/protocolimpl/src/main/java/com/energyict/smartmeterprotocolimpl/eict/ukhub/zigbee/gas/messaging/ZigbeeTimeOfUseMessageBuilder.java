@@ -51,7 +51,7 @@ public class ZigbeeTimeOfUseMessageBuilder extends TimeOfUseMessageBuilder{
             if (isInlineUserFiles()) {
                 builder.append("<").append(INCLUDED_USERFILE_TAG).append(">");
 
-                // This will generate a message that will make the RtuMessageContentParser inline the file.
+                // This will generate a message that will make the DeviceMessageContentParser inline the file.
                 builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(getUserFileId()).append("\"");
                 if (isZipMessageContent()) {
                     builder.append(" ").append(CREATEZIP_ATTRIBUTE_TAG).append("=\"true\"");

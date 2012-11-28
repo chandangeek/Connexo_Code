@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.mdw.shadow.CommunicationProfileShadow;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public class CommunicationSchedulerFullProtocolShadowImpl implements Communicati
     private RtuFullProtocolShadow rtuFullShadow;
     private CommunicationProfileShadow communicationProfileShadow;
     private List<RtuRegisterFullProtocolShadow> rtuRegisterFullShadowList;
-    private List<RtuMessage> rtuMessageList;
+    private List<DeviceMessage> rtuMessageList;
     private List<CommunicationSchedulerFullProtocolShadow> slaveCommunicationFullShadowList;
 
     public CommunicationSchedulerFullProtocolShadowImpl() {
@@ -55,11 +55,11 @@ public class CommunicationSchedulerFullProtocolShadowImpl implements Communicati
     /**
      * @return the list of <CODE>RtuMessageShadows</CODE> of this device
      */
-    public List<RtuMessage> getRtuMessageList() {
+    public List<DeviceMessage> getRtuMessageList() {
         return this.rtuMessageList;
     }
 
-    public void setRtuMessageList(final List<RtuMessage> rtuMessageList) {
+    public void setRtuMessageList(final List<DeviceMessage> rtuMessageList) {
         this.rtuMessageList = rtuMessageList;
     }
 

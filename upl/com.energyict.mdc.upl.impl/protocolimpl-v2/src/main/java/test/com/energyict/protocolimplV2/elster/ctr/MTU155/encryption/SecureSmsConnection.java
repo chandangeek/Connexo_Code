@@ -4,9 +4,9 @@
 //import com.energyict.cbo.Sms;
 //import com.energyict.mdw.core.MeteringWarehouse;
 //import com.energyict.mdw.core.MeteringWarehouseFactory;
-//import com.energyict.mdw.core.RtuMessage;
+//import com.energyict.mdw.core.DeviceMessage;
 //import com.energyict.mdw.messaging.MessageService;
-//import com.energyict.mdw.shadow.RtuMessageShadow;
+//import com.energyict.mdw.shadow.DeviceMessageShadow;
 //import test.com.energyict.protocolimplV2.elster.ctr.MTU155.CtrConnection;
 //import test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155Properties;
 //import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRConnectionException;
@@ -115,9 +115,9 @@
 //     */
 //    private void updateAndClearTrackingID() {
 //        try {
-//            RtuMessage rtuMessage = mw().getRtuMessageFactory().find(rtuMessageID);
+//            DeviceMessage rtuMessage = mw().getRtuMessageFactory().find(rtuMessageID);
 //            if (rtuMessage != null) {
-//                RtuMessageShadow messageShadow = rtuMessage.getShadow();
+//                DeviceMessageShadow messageShadow = rtuMessage.getShadow();
 //                messageShadow.setTrackingId(trackingID);
 //                rtuMessage.update(messageShadow);
 //            } else {

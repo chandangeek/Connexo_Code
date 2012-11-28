@@ -247,10 +247,10 @@ public class WebRTUGenericGateway implements GenericProtocol {
                 //Send messages
                 if (fullSlaveSchedule.getSendRtuMessage()) {
                     if (messageProtocol != null) {
-                        List<RtuMessage> messages = getPendingMessages(slave);
+                        List<DeviceMessage> messages = getPendingMessages(slave);
                         try {
                             messageProtocol.applyMessages(messages);
-                            for (RtuMessage message : messages) {
+                            for (DeviceMessage message : messages) {
                                 MessageResult messageResult = messageProtocol.queryMessage(new MessageEntry(message.getContents(), message.getTrackingId()));
                                 if (messageResult.isSuccess()) {
                                     message.confirm();
@@ -296,9 +296,9 @@ public class WebRTUGenericGateway implements GenericProtocol {
         timeDiff = 0;
     }
 
-    private List<RtuMessage> getPendingMessages(Device slave) {
-        List<RtuMessage> newMessages = new ArrayList<RtuMessage>();
-        for (RtuMessage rtuMessage : slave.getMessages()) {
+    private List<DeviceMessage> getPendingMessages(Device slave) {
+        List<DeviceMessage> newMessages = new ArrayList<DeviceMessage>();
+        for (DeviceMessage rtuMessage : slave.getMessages()) {
             if (rtuMessage.isPending()) {
                 newMessages.add(rtuMessage);
             }

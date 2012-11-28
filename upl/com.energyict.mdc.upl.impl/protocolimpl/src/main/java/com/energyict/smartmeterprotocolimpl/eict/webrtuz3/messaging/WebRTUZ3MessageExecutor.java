@@ -52,13 +52,13 @@ import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.LookupEntry;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.RtuMessage;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
@@ -93,7 +93,7 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final RtuMessage rtuMessage) throws BusinessException, SQLException, IOException {
+    public void doMessage(final DeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
         // nothing to do
     }
 
@@ -688,10 +688,10 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                                                 }
                                                 break;
                                                 case 3: { // MESSAGE
-                                                    RtuMessageShadow rms = new RtuMessageShadow();
+                                                    DeviceMessageShadow rms = new DeviceMessageShadow();
                                                     rms.setContents(csvParser.getTestObject(i).getData());
                                                     rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
-                                                    RtuMessage rm = mw().getRtuMessageFactory().create(rms);
+                                                    DeviceMessage rm = mw().getRtuMessageFactory().create(rms);
                                                     doMessage(rm);
                                                     if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
                                                         to.setResult("OK");

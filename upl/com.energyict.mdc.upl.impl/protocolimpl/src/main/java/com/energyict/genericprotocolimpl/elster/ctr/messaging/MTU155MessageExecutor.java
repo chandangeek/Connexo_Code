@@ -7,8 +7,8 @@ import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.SmsRequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRFirmwareUpgradeTimeOutException;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.RtuMessage;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.protocol.MessageEntry;
 
 import java.sql.SQLException;
@@ -36,7 +36,7 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(RtuMessage rtuMessage) throws BusinessException, SQLException {
+    public void doMessage(DeviceMessage rtuMessage) throws BusinessException, SQLException {
         boolean success = false;
         boolean pending = false;
         String timeOutMsg = "";
@@ -106,7 +106,7 @@ public class MTU155MessageExecutor extends GenericMessageExecutor {
             } else if (pending) {
                 // Add "PendingUpgrade" to the message TrackingId.
                 // This to ensure next time the message is executed, we can easily recontinue the pending firmware instead of starting a new one.
-                RtuMessageShadow shadow = rtuMessage.getShadow();
+                DeviceMessageShadow shadow = rtuMessage.getShadow();
                 if (!shadow.getTrackingId().contains("PendingUpgrade")) {
                     shadow.setTrackingId(shadow.getTrackingId() + " PendingUpgrade");
                     rtuMessage.update(shadow);

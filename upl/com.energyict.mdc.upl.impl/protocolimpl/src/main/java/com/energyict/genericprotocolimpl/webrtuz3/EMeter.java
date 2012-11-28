@@ -278,9 +278,9 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
      */
     private void sendMeterMessages() throws BusinessException, SQLException {
         EMeterMessageExecutor messageExecutor = new EMeterMessageExecutor(this);
-        List<RtuMessage> pendingMessages = geteMeterRtu().getPendingMessages();
+        List<DeviceMessage> pendingMessages = geteMeterRtu().getPendingMessages();
         for (int i = 0; i < pendingMessages.size(); i++) {
-            RtuMessage rtuMessage = pendingMessages.get(i);
+            DeviceMessage rtuMessage = pendingMessages.get(i);
             messageExecutor.doMessage(rtuMessage);
         }
     }

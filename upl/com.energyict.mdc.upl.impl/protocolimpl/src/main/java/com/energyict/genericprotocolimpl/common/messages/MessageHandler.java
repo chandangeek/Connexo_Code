@@ -13,7 +13,7 @@ import java.io.IOException;
 
 
 /**
- * Generic messageHandler. The xml-RtuMessage is parsed using the {@link DefaultHandler} and the relative
+ * Generic messageHandler. The xml-DeviceMessage is parsed using the {@link DefaultHandler} and the relative
  * variables are set.
  * 
  * @author gna
@@ -24,7 +24,7 @@ public class MessageHandler extends DefaultHandler{
 	/** Represents the current Message type */ 
 	private String type = "";
 	
-	/** Helper to indicate whether the RtuMessage content contains xml */
+	/** Helper to indicate whether the DeviceMessage content contains xml */
 	private boolean isXmlInContent = false;
 
 	/**

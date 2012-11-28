@@ -26,11 +26,11 @@ public abstract class GenericMessaging implements Messaging {
      */
     protected static final String INCLUDE_USERFILE_TAG = "includeFile";
     /**
-     * This is an attribute to aforementioned tag indicating the ID of the user file. See RtuMessageContentParser for more details.
+     * This is an attribute to aforementioned tag indicating the ID of the user file. See DeviceMessageContentParser for more details.
      */
     protected static final String INCLUDE_USERFILE_ID_ATTRIBUTE = "fileId";
     /**
-     * This is an attribute tag to indicate whether zipping needs to be applied. See RtuMessageContentParser for more details.
+     * This is an attribute tag to indicate whether zipping needs to be applied. See DeviceMessageContentParser for more details.
      */
     protected static final String CREATEZIP_ATTRIBUTE_TAG = "createZip";
 

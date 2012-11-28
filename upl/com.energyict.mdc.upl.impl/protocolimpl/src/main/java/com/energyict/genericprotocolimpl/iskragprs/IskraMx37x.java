@@ -1174,7 +1174,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
 
         while (mi.hasNext()) {
-            RtuMessage msg = (RtuMessage) mi.next();
+            DeviceMessage msg = (DeviceMessage) mi.next();
             String msgString = msg.getContents();
             String contents = msgString.substring(msgString.indexOf("<") + 1, msgString.indexOf(">"));
             if (contents.endsWith("/")) {
@@ -1327,7 +1327,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private void changeLLSSecret(final RtuMessage msg) throws BusinessException, SQLException, IOException {
+    private void changeLLSSecret(final DeviceMessage msg) throws BusinessException, SQLException, IOException {
         String newLLSSecret = getProperty(NTASecurityProvider.NEW_LLS_SECRET);
         if (newLLSSecret == null) {
             fail(new InvalidPropertyException("Invalid new LLS secret property."), msg, "Invalid new LLS secret property");
@@ -1355,7 +1355,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private void changeConnectorMode(RtuMessage msg) throws BusinessException, SQLException, IOException {
+    private void changeConnectorMode(DeviceMessage msg) throws BusinessException, SQLException, IOException {
         String description = "Changing the connectorMode for meter with serialnumber: " + rtu.getSerialNumber();
 
         getLogger().log(Level.INFO, description);
@@ -1392,7 +1392,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private void upgradeFirmware(RtuMessage msg) throws BusinessException, SQLException {
+    private void upgradeFirmware(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Upgrade firmware for meter with serialnumber: " + rtu.getSerialNumber();
 
         try {
@@ -1418,7 +1418,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private void clearWhiteList(RtuMessage msg) throws BusinessException, SQLException {
+    private void clearWhiteList(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Clear whitelist for meter with serialnumber: " + rtu.getSerialNumber();
 
         try {
@@ -1448,7 +1448,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      * @throws SQLException
      * @throws BusinessException
      */
-    private void activateWakeUp(RtuMessage msg) throws IOException, BusinessException, SQLException {
+    private void activateWakeUp(DeviceMessage msg) throws IOException, BusinessException, SQLException {
         try {
             Unsigned8 gsmMode = new Unsigned8(0);
             getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0.0.128.20.10.255"), 2, 1).write(gsmMode.getBEREncodedByteArray());
@@ -1460,7 +1460,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private void changeGeneralPhoneRestriction(RtuMessage msg) throws BusinessException, SQLException {
+    private void changeGeneralPhoneRestriction(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Changing Incomming calls general restriction for meter with serialnumber: " + rtu.getSerialNumber();
 
         try {
@@ -1479,7 +1479,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private void changeInactivityTimeout(RtuMessage msg) throws BusinessException, SQLException {
+    private void changeInactivityTimeout(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Changing inactivity timeout for meter with serialnumber: " + rtu.getSerialNumber();
 
         try {
@@ -1506,7 +1506,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      * @throws BusinessException if we failed to create an AMR journal entry
      * @throws SQLException      if we failed to create an AMR journal entry
      */
-    private void addPhoneToManagedList(RtuMessage msg) throws BusinessException, SQLException {
+    private void addPhoneToManagedList(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Adding Managed numbers to whitelist for meter with serialnumber: " + rtu.getSerialNumber();
 
         try {
@@ -1553,7 +1553,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      * @throws BusinessException if we failed to create an AMR journal entry
      * @throws SQLException      if we failed to create an AMR journal entry
      */
-    protected void addPhoneToWhiteList(RtuMessage msg) throws BusinessException, SQLException, IOException {
+    protected void addPhoneToWhiteList(DeviceMessage msg) throws BusinessException, SQLException, IOException {
         AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
         byte[] restrictions = getCosemObjectFactory().getData(ObisCode.fromString("0.0.128.20.20.255")).getValueAttr().getOctetString().getOctetStr();
         Array list = getCosemObjectFactory().getAutoConnect().readDestinationList();    // the list from the meter
@@ -1580,7 +1580,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         msg.confirm();
     }
 
-    private void changeApnUserNamePassword(RtuMessage msg) throws BusinessException, SQLException {
+    private void changeApnUserNamePassword(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Changing apn/username/password for meter with serialnumber: " + rtu.getSerialNumber();
 
         try {
@@ -1610,7 +1610,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
     }
 
-    private void changeGprsCredentials(RtuMessage msg) throws BusinessException, SQLException {
+    private void changeGprsCredentials(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Changing gprs credentials for meter with serialnumber: " + rtu.getSerialNumber();
 
         try {
@@ -1635,7 +1635,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
 
-    private void clearThreshold(RtuMessage msg) throws BusinessException, SQLException {
+    private void clearThreshold(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Clear threshold for meter with serialnumber: " + rtu.getSerialNumber();
         try {
             getLogger().log(Level.INFO, description);
@@ -1682,7 +1682,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private void applyThresholdValue(RtuMessage msg) throws BusinessException, SQLException {
+    private void applyThresholdValue(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Setting threshold value for meter with serialnumber: " + rtu.getSerialNumber();
         try {
             getLogger().log(Level.INFO, description);
@@ -1737,7 +1737,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    private void thresholdParameters(RtuMessage msg) throws BusinessException, SQLException {
+    private void thresholdParameters(DeviceMessage msg) throws BusinessException, SQLException {
         String description = "Sending threshold configuration for meter with serialnumber: " + rtu.getSerialNumber();
         try {
             getLogger().log(Level.INFO, description);
@@ -1797,7 +1797,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
     }
 
-    protected void onDemand(Device rtu, RtuMessage msg) throws IOException, SQLException, BusinessException {
+    protected void onDemand(Device rtu, DeviceMessage msg) throws IOException, SQLException, BusinessException {
         String description = "Getting ondemand registers for meter with serialnumber: " + rtu.getSerialNumber();
         try {
             getLogger().log(Level.INFO, description);
@@ -1834,7 +1834,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
     }
 
-    protected void fail(Exception e, RtuMessage msg, String description) throws BusinessException, SQLException {
+    protected void fail(Exception e, DeviceMessage msg, String description) throws BusinessException, SQLException {
         msg.setFailed();
         AMRJournalManager amrJournalManager =
                 new AMRJournalManager(rtu, scheduler);
@@ -1845,7 +1845,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         getLogger().severe(e.toString());
     }
 
-    public void sendActivityCalendar(String contents, RtuMessage msg) throws SQLException, BusinessException, IOException {
+    public void sendActivityCalendar(String contents, DeviceMessage msg) throws SQLException, BusinessException, IOException {
         String description =
                 "Sending new Tariff Program message to meter with serialnumber: " + rtu.getSerialNumber();
         try {

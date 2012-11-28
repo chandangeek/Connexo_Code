@@ -22,9 +22,9 @@ public class Constant {
     /** property key for Group external name */
     static final String SOCKET_TIMEOUT = "Socket Timeout";
     
-    /** RtuMessage tag for time sync */
+    /** DeviceMessage tag for time sync */
     static final String  TIME_SYNC = "timeSync";
-//    /** RtuMessage tag for user file id */
+//    /** DeviceMessage tag for user file id */
 //    static final String USER_FILE_ID = "userFileId";  
 
     static final String CHANNEL_MAP = "ChannelMap"; 

@@ -227,7 +227,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
             addOpeningTag(builder, msgTag.getName());
             builder.append("<").append(INCLUDED_USERFILE_TAG).append(">");
 
-            // This will generate a message that will make the RtuMessageContentParser inline the file.
+            // This will generate a message that will make the DeviceMessageContentParser inline the file.
             builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(userFileId).append("\"");
             builder.append(" ").append(CREATEZIP_ATTRIBUTE_TAG).append("=\"true\"");
             builder.append("/>");

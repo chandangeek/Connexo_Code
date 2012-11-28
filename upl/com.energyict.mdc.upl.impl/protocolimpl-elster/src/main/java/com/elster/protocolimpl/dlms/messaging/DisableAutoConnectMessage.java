@@ -17,7 +17,7 @@ import java.io.IOException;
 public class DisableAutoConnectMessage extends AbstractDlmsMessage {
 
     /**
-     * RtuMessage tags for the key change message
+     * DeviceMessage tags for the key change message
      */
     public static final String MESSAGE_TAG = "DisableAutoConnect";
     public static final String MESSAGE_DESCRIPTION = "Disable auto connect";

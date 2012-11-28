@@ -1049,7 +1049,7 @@ public class MeterReadTransaction implements CacheMechanism {
     }
 
     /**
-     * Send Pending RtuMessage to meter.
+     * Send Pending DeviceMessage to meter.
      * Currently we use the eRtu as a concentrator for the mbusRtu, so the serialNumber is this from the eRtu.
      * The messages them are those from the mbus device if this is not NULL.
      *
@@ -1084,7 +1084,7 @@ public class MeterReadTransaction implements CacheMechanism {
 
         while (mi.hasNext()) {
 
-            RtuMessage msg = (RtuMessage) mi.next();
+            DeviceMessage msg = (DeviceMessage) mi.next();
             String contents = msg.getContents();
 
             boolean doReadRegister = contents.toLowerCase().indexOf(RtuMessageConstant.READ_ON_DEMAND.toLowerCase()) != -1;

@@ -20,7 +20,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.messaging.MessageHandler;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -294,16 +294,16 @@ public class SmsHandler implements MessageHandler {
         }
 
         if (wdb != -1) {
-            RtuMessageFilter filter = new RtuMessageFilter();
+            DeviceMessageFilter filter = new DeviceMessageFilter();
             filter.setTrackingIdMask("*#" + wdb + "*");
             Set aSet = new HashSet();
-            aSet.add(RtuMessageState.SENT);
-            aSet.add(RtuMessageState.FAILED);
+            aSet.add(DeviceMessageState.SENT);
+            aSet.add(DeviceMessageState.FAILED);
             filter.setStates(aSet);
 
-            List<RtuMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
+            List<DeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
             if (rtuMessageList.size() != 0) {
-                RtuMessage rtuMessage = rtuMessageList.get(0);
+                DeviceMessage rtuMessage = rtuMessageList.get(0);
                 String trackingId = rtuMessage.getTrackingId();
 
                 Pattern p = Pattern.compile("#");
@@ -313,14 +313,14 @@ public class SmsHandler implements MessageHandler {
                     count += 1;
                 }
 
-                RtuMessageShadow shadow = rtuMessage.getShadow();
+                DeviceMessageShadow shadow = rtuMessage.getShadow();
                 message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction();
                 shadow.setTrackingId(trackingId.replace("#" + wdb, ""));
                 if (count > 1) {
                     message += " - rtuMessage with ID " + rtuMessage.getId() + " still has " + (count - 1) + " SMS messages pending.";
                 } else {
-                    if (shadow.getState() != RtuMessageState.FAILED) {
-                        shadow.setState(RtuMessageState.CONFIRMED);
+                    if (shadow.getState() != DeviceMessageState.FAILED) {
+                        shadow.setState(DeviceMessageState.CONFIRMED);
                         message += " - rtuMessage with ID " + rtuMessage.getId() + " will be set Confirmed.";
                     } else {
                         message += " - rtuMessage with ID " + rtuMessage.getId() + " already in state Failed.";
@@ -366,20 +366,20 @@ public class SmsHandler implements MessageHandler {
         }
 
         if (wdb != -1) {
-            RtuMessageFilter filter = new RtuMessageFilter();
+            DeviceMessageFilter filter = new DeviceMessageFilter();
             filter.setTrackingIdMask("*#" + wdb + "*");
             Set aSet = new HashSet();
-            aSet.add(RtuMessageState.SENT);
+            aSet.add(DeviceMessageState.SENT);
             filter.setStates(aSet);
 
-            List<RtuMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
+            List<DeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
             if (rtuMessageList.size() != 0) {
-                RtuMessage rtuMessage = rtuMessageList.get(0);
+                DeviceMessage rtuMessage = rtuMessageList.get(0);
                 message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " for reason: " + data.getReason() +
                         " - rtuMessage with ID " + rtuMessage.getId() + " will be set Failed.";
-                RtuMessageShadow shadow = rtuMessage.getShadow();
+                DeviceMessageShadow shadow = rtuMessage.getShadow();
                 shadow.setTrackingId(rtuMessage.getTrackingId().replace("#" + wdb, ""));
-                shadow.setState(RtuMessageState.FAILED);
+                shadow.setState(DeviceMessageState.FAILED);
                 try {
                     rtuMessage.update(shadow);
                 } catch (SQLException e) {

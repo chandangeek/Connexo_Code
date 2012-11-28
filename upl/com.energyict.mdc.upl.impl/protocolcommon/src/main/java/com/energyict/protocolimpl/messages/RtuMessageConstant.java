@@ -9,44 +9,44 @@ package com.energyict.protocolimpl.messages;
 public class RtuMessageConstant {
 
     /**
-     * RtuMessage tag for connecting load
+     * DeviceMessage tag for connecting load
      */
     public static final String CONNECT_LOAD = "connectLoad";
     /**
-     * RtuMessage tag for disconnecting load
+     * DeviceMessage tag for disconnecting load
      */
     public static final String DISCONNECT_LOAD = "disconnectLoad";
     /**
-     * RtuMessage tag to indicate the digital output to apply the connectControl
+     * DeviceMessage tag to indicate the digital output to apply the connectControl
      */
     public static final String DIGITAL_OUTPUT = "Digital_output";
     /**
-     * RtuMessage tag to indicate the date of the connect/disconnect
+     * DeviceMessage tag to indicate the date of the connect/disconnect
      */
     public static final String DISCONNECT_CONTROL_ACTIVATE_DATE = "Activation_date";
     /**
-     * RtuMessage tag to indicate the id of the disconnector object.
+     * DeviceMessage tag to indicate the id of the disconnector object.
      * Use this field when there is more than 1 disconnect control object
      */
     public static final String DISCONNECTOR_OUTPUT_ID = "Output_ID";
     /**
-     * RtuMessage tag to indicate the connect control mode
+     * DeviceMessage tag to indicate the connect control mode
      */
     public static final String CONNECT_CONTROL_MODE = "Connect_control_mode";
     public static final String CONNECT_MODE = "Mode";
 
     /**
-     * RtuMessage tag for reading profile data
+     * DeviceMessage tag for reading profile data
      */
     public static final String READ_PROFILE = "readProfile";
 
     /**
-     * RtuMessage tag for reading data on demand
+     * DeviceMessage tag for reading data on demand
      */
     public static final String READ_ON_DEMAND = "onDemand";
 
     /**
-     * RtuMessage tag for tou schedule
+     * DeviceMessage tag for tou schedule
      */
     public static final String TOU_SCHEDULE = "UserFile ID of tariff program";
     public static final String TOU_ACTIVITY_CAL = "Activity_Calendar";
@@ -63,7 +63,7 @@ public class RtuMessageConstant {
     public static final String TimeOfUse = "TimeOfUse";
 
     /**
-     * RtuMessage tag for threshold parameters
+     * DeviceMessage tag for threshold parameters
      */
     public static final String THRESHOLD_PARAMETERS = "thresholdParameters";
     public static final String THRESHOLD_GROUPID = "Threshold GroupId *";
@@ -76,28 +76,28 @@ public class RtuMessageConstant {
     public static final String THRESHOLD_STOPDT = "EndDate (dd/mm/yyyy HH:MM:SS)";
 
     /**
-     * RtuMessage tag for connecting load
+     * DeviceMessage tag for connecting load
      */
     public static final String LOAD_CONTROL_ON = "loadControlOn";
     /**
-     * RtuMessage tag for disconnecting load
+     * DeviceMessage tag for disconnecting load
      */
     public static final String LOAD_CONTROL_OFF = "loadControlOff";
 
     /**
-     * RtuMessage tag for changing the repeater mode of a PLC meter
+     * DeviceMessage tag for changing the repeater mode of a PLC meter
      */
     public static final String REPEATER_MODE = "repeaterMode";
 
     /**
-     * RtuMessage tag for changing the PLC frequency of the meter
+     * DeviceMessage tag for changing the PLC frequency of the meter
      */
     public static final String CHANGE_PLC_FREQUENCY = "changePLCFreq";
     public static final String FREQUENCY_MARK = "Frequency mark";
     public static final String FREQUENCY_SPACE = "Frequency space";
 
     /**
-     * RtuMessage tag for upgrading the meters firmware
+     * DeviceMessage tag for upgrading the meters firmware
      */
     public static final String FIRMWARE_UPGRADE = "FirmwareUpgrade";
     public static final String RF_FIRMWARE_UPGRADE = "RFFirmwareUpgrade";
@@ -110,7 +110,7 @@ public class RtuMessageConstant {
     public static final String FIRMWARE_UPDATE_INCLUDED_FILE = "IncludedFile";
 
     /**
-     * RtuMessage tag for prepaid functionality
+     * DeviceMessage tag for prepaid functionality
      */
     public static final String PREPAID_CONFIGURED = "Configure_Prepaid_functionality";
     public static final String PREPAID_ADD = "Add_Prepaid_credit";
@@ -123,7 +123,7 @@ public class RtuMessageConstant {
     public static final String PREPAID_READ_FREQUENCY = "Read_frequency";
 
     /**
-     * RtuMessage tags for load limiting
+     * DeviceMessage tags for load limiting
      */
     public static final String LOAD_LIMIT_ENABLE = "Enable_load_limiting";
     public static final String LOAD_LIMIT_DISABLE = "Disable_load_limitng";
@@ -145,12 +145,12 @@ public class RtuMessageConstant {
     public static final String LOAD_LIMIT_MIN_OVER_THRESHOLD_DURATION = "Over_Threshold_Duration";
 
     /**
-     * RtuMessage tags for XMLConfig
+     * DeviceMessage tags for XMLConfig
      */
     public static final String XMLCONFIG = "XMLConfig";
 
     /**
-     * RtuMessage tags for P1 port messages
+     * DeviceMessage tags for P1 port messages
      */
     public static final String P1TEXTMESSAGE = "Message_text_to_P1_port";
     public static final String P1CODEMESSAGE = "Message_code_to_P1_port";
@@ -158,7 +158,7 @@ public class RtuMessageConstant {
     public static final String P1CODE = "Code";
 
     /**
-     * RtuMessage tags for the GPRS modem setup message
+     * DeviceMessage tags for the GPRS modem setup message
      */
     public static final String GPRS_MODEM_SETUP = "GPRS_modem_setup";
     public static final String GPRS_MODEM_CREDENTIALS = "GPRS_modem_credentials";
@@ -167,7 +167,7 @@ public class RtuMessageConstant {
     public static final String GPRS_PASSWORD = "Password";
 
     /**
-     * RtuMessage tags for MBus setup
+     * DeviceMessage tags for MBus setup
      */
     public static final String MBUS_DECOMMISSION = "Decommission";
     public static final String MBUS_ENCRYPTION_KEYS = "Set_Encryption_keys";
@@ -182,13 +182,13 @@ public class RtuMessageConstant {
     public static final String MBUS_INSTALL_DATAREADOUT = "Mbus_DataReadout";
 
     /**
-     * RtuMessage tags for time set
+     * DeviceMessage tags for time set
      */
     public static final String SET_TIME = "Set_Time";
     public static final String SET_TIME_VALUE = "Time_Value";
 
     /**
-     * RtuMessage tags for Wakeup configuration
+     * DeviceMessage tags for Wakeup configuration
      */
     public static final String WAKEUP_INACT_TIMEOUT = "Inactivity_timeout";
     public static final String WAKEUP_ADD_WHITELIST = "Phonenumbers_to_add";
@@ -206,7 +206,7 @@ public class RtuMessageConstant {
     public static final String WAKEUP_NR5 = "Phonenumber5";
 
     /**
-     * RtuMessage tags for Making entries
+     * DeviceMessage tags for Making entries
      */
     public static final String ME_MAKING_ENTRIES = "Make_database_entries";
     public static final String ME_START_DATE = "StartDate";
@@ -215,25 +215,25 @@ public class RtuMessageConstant {
     public static final String ME_SET_CLOCK_BACK = "Sync_clock_at_end";
 
     /**
-     * RtuMessage tags for ReadingTestFile
+     * DeviceMessage tags for ReadingTestFile
      */
     public static final String TEST_MESSAGE = "Test_Message";
     public static final String TEST_FILE = "Test_File";
 
     /**
-     * RtuMessage tags for GlobalMeterReset
+     * DeviceMessage tags for GlobalMeterReset
      */
     public static final String GLOBAL_METER_RESET = "Global_Meter_Reset";
 
     /**
-     * RtuMessage tags for Webserver activate/deactivate
+     * DeviceMessage tags for Webserver activate/deactivate
      */
     public static final String WEBSERVER_ENABLE = "Enable_Webserver";
     public static final String WEBSERVER_DISABLE = "Disable_Webserver";
     public static final String REBOOT = "Reboot";
 
     /**
-     * RtuMessage tags for Corrected/UnCorrected values in Gas profile
+     * DeviceMessage tags for Corrected/UnCorrected values in Gas profile
      */
 //	public static final String MBUS_CORRECTED_SWITCH = "Correction_switch";
 //	public static final String MBUS_CORRECTED_VALUE = "Switch_State";
@@ -241,7 +241,7 @@ public class RtuMessageConstant {
     public static final String MBUS_UNCORRECTED_VALUES = "UnCorrected_values";
 
     /**
-     * RtuMessage tags for authentication and encryption
+     * DeviceMessage tags for authentication and encryption
      */
     public static final String AEE_CHANGE_HLS_SECRET = "Change_HLS_Secret";
     public static final String AEE_CHANGE_LLS_SECRET = "Change_LLS_Secret";
@@ -256,13 +256,13 @@ public class RtuMessageConstant {
     public static final String AEE_AUTHENTICATIONLEVEL = "AuthenticationLevel";
 
     /**
-     * RtuMessage tags for SMS
+     * DeviceMessage tags for SMS
      */
     public static final String SMS_CHANGE_SMSC = "Change_SMSC";
     public static final String SMS_SMSC_NUMBER = "SMSC_Number";
 
     /**
-     * RtuMessage tags for other communication parameters
+     * DeviceMessage tags for other communication parameters
      */
     public static final String CHANGE_DEVICE_PHONE_NUMBER = "Change_Device_Phone_Number";
     public static final String DEVICE_PHONE_NUMBER = "PhoneNumber";

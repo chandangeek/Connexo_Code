@@ -415,8 +415,8 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
 
     private void sendMeterMessages() {
         MTU155MessageExecutor messageExecutor = getMessageExecuter();
-        Iterator<RtuMessage> it = getRtu().getPendingMessages().iterator();
-        RtuMessage rm = null;
+        Iterator<DeviceMessage> it = getRtu().getPendingMessages().iterator();
+        DeviceMessage rm = null;
         while (it.hasNext()) {
             rm = it.next();
             try {

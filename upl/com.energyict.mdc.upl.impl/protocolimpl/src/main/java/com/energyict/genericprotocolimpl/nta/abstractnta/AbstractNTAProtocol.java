@@ -1312,12 +1312,12 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
      * @throws SQLException
      * @throws BusinessException
      */
-    protected void sendMeterMessages(final List<RtuMessage> rtuMessageList) throws BusinessException, SQLException {
+    protected void sendMeterMessages(final List<DeviceMessage> rtuMessageList) throws BusinessException, SQLException {
 
         MessageExecutor messageExecutor = new MessageExecutor(this);
 
-        Iterator<RtuMessage> it = rtuMessageList.iterator();
-        RtuMessage rm = null;
+        Iterator<DeviceMessage> it = rtuMessageList.iterator();
+        DeviceMessage rm = null;
         while (it.hasNext()) {
             rm = it.next();
             messageExecutor.doMessage(rm);

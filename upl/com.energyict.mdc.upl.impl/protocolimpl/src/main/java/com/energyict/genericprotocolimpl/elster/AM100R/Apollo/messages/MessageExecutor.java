@@ -11,8 +11,7 @@ import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.ApolloMeter;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuMessageShadow;
-import com.energyict.protocolimpl.base.ActivityCalendarController;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
@@ -38,7 +37,7 @@ public class MessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final RtuMessage rtuMessage) throws BusinessException, SQLException {
+    public void doMessage(final DeviceMessage rtuMessage) throws BusinessException, SQLException {
         boolean success = false;
         String content = rtuMessage.getContents();
         MessageHandler messageHandler = new MessageHandler();
@@ -134,10 +133,10 @@ public class MessageExecutor extends GenericMessageExecutor {
                                     }
                                     break;
                                     case 3: { // MESSAGE
-                                        RtuMessageShadow rms = new RtuMessageShadow();
+                                        DeviceMessageShadow rms = new DeviceMessageShadow();
                                         rms.setContents(csvParser.getTestObject(i).getData());
                                         rms.setRtuId(this.protocol.getMeter().getId());
-                                        RtuMessage rm = mw().getRtuMessageFactory().create(rms);
+                                        DeviceMessage rm = mw().getRtuMessageFactory().create(rms);
                                         doMessage(rm);
                                         if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
                                             to.setResult("OK");

@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.lgadvantis;
 
 import com.energyict.cbo.TimePeriod;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
@@ -72,7 +72,7 @@ public class Task {
 		this.badData = badData;
 	}
 
-	RtuMessageLink addMessageLink( MessageContent mc, RtuMessage message ) {
+	RtuMessageLink addMessageLink( MessageContent mc, DeviceMessage message ) {
 
 		RtuMessageLink link = new RtuMessageLink(mc).setRtuMessage(message);
 		rtuMessageLinks.add(link);
@@ -82,14 +82,14 @@ public class Task {
 	}
 
 	RtuMessageLink addMessageLink( 
-			MessageContent mc, RtuMessage message, DirectAction action ) {
+			MessageContent mc, DeviceMessage message, DirectAction action ) {
 
 		return addMessageLink(mc, message).add(action);
 
 	}
 
 	RtuMessageLink addMessageLink( 
-			MessageContent mc, RtuMessage message, List actionsToAdd ){
+			MessageContent mc, DeviceMessage message, List actionsToAdd ){
 
 		return addMessageLink(mc, message).addAll(actionsToAdd);
 

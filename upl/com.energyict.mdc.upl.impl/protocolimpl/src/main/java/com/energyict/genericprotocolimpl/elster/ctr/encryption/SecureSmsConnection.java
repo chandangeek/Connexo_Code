@@ -9,7 +9,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringExcept
 import com.energyict.genericprotocolimpl.elster.ctr.frame.SMSFrame;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.messaging.MessageService;
-import com.energyict.mdw.shadow.RtuMessageShadow;
+import com.energyict.mdw.shadow.DeviceMessageShadow;
 
 import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
@@ -113,9 +113,9 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
      */
     private void updateAndClearTrackingID() {
         try {
-            RtuMessage rtuMessage = mw().getRtuMessageFactory().find(rtuMessageID);
+            DeviceMessage rtuMessage = mw().getRtuMessageFactory().find(rtuMessageID);
             if (rtuMessage != null) {
-                RtuMessageShadow messageShadow = rtuMessage.getShadow();
+                DeviceMessageShadow messageShadow = rtuMessage.getShadow();
                 messageShadow.setTrackingId(trackingID);
                 rtuMessage.update(messageShadow);
             } else {

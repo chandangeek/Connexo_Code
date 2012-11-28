@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.ace4000;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
-import com.energyict.mdw.core.RtuMessage;
+import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 
@@ -49,7 +49,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     }
 
     @Override
-    public void doMessage(RtuMessage messageEntry) throws BusinessException, SQLException, IOException {
+    public void doMessage(DeviceMessage messageEntry) throws BusinessException, SQLException, IOException {
         try {
             if (messageEntry.getContents().contains(READ_EVENTS)) {
                 if (ace4000.getObjectFactory().shouldRetryEvents()) {
@@ -372,7 +372,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     }
 
 
-    private void sendTariffConfiguration(RtuMessage messageEntry) throws IOException, BusinessException, SQLException {
+    private void sendTariffConfiguration(DeviceMessage messageEntry) throws IOException, BusinessException, SQLException {
         String[] parts = messageEntry.getContents().split("=");
         int number = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
         int numberOfRates = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
@@ -389,7 +389,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         }
     }
 
-    private void sendLoadProfileConfigurationRequest(RtuMessage messageEntry) throws IOException, BusinessException, SQLException {
+    private void sendLoadProfileConfigurationRequest(DeviceMessage messageEntry) throws IOException, BusinessException, SQLException {
         String[] parts = messageEntry.getContents().split("=");
         int enable = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
         int intervalInMinutes = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
@@ -405,7 +405,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         ace4000.getObjectFactory().sendLoadProfileConfiguration(enable, intervalInMinutes, maxNumberOfRecords);
     }
 
-    private void readProfileData(RtuMessage messageEntry) throws IOException, BusinessException, SQLException {
+    private void readProfileData(DeviceMessage messageEntry) throws IOException, BusinessException, SQLException {
         String[] parts = messageEntry.getContents().split("=");
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date fromDate = null;
@@ -442,7 +442,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         ace4000.getObjectFactory().sendLoadProfileRequest(fromDate, toDate);
     }
 
-    private void sendContactorCommand(RtuMessage messageEntry, int cmd) throws IOException, BusinessException, SQLException {
+    private void sendContactorCommand(DeviceMessage messageEntry, int cmd) throws IOException, BusinessException, SQLException {
         String[] parts = messageEntry.getContents().split("=");
         Date date = null;
 
@@ -459,7 +459,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         ace4000.getObjectFactory().sendContactorCommand(date, cmd);
     }
 
-    private void sendDisplayMessage(RtuMessage messageEntry, int mode) throws IOException, BusinessException, SQLException {
+    private void sendDisplayMessage(DeviceMessage messageEntry, int mode) throws IOException, BusinessException, SQLException {
         String message = "";
         if (mode != 0) {
             message = stripOffTag(messageEntry.getContents());
@@ -474,7 +474,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     }
 
 
-    private void sendDisplayConfigRequest(RtuMessage messageEntry) throws IOException, BusinessException, SQLException {
+    private void sendDisplayConfigRequest(DeviceMessage messageEntry) throws IOException, BusinessException, SQLException {
         String[] parts = messageEntry.getContents().split("=");
         int number1 = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
         int number2 = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
@@ -539,7 +539,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     }
 
 
-    private void sendFirmwareUpgradeRequest(RtuMessage messageEntry) throws IOException {
+    private void sendFirmwareUpgradeRequest(DeviceMessage messageEntry) throws IOException {
         String[] parts = messageEntry.getContents().split("=");
         String path = parts[1].substring(1).split("\"")[0];
         int jarSize = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
@@ -547,7 +547,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         ace4000.getObjectFactory().sendFirmwareUpgradeRequest(path, jarSize, jadSize);
     }
 
-    private void sendMaxDemandConfigurationRequest(RtuMessage messageEntry) throws IOException, BusinessException, SQLException {
+    private void sendMaxDemandConfigurationRequest(DeviceMessage messageEntry) throws IOException, BusinessException, SQLException {
         String[] parts = messageEntry.getContents().split("=");
         int register = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
         int numberOfSubIntervals = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
@@ -572,7 +572,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         return text;
     }
 
-    private void sendConsumptionLimitationConfiguration(RtuMessage messageEntry) throws BusinessException, SQLException, IOException {
+    private void sendConsumptionLimitationConfiguration(DeviceMessage messageEntry) throws BusinessException, SQLException, IOException {
         String[] parts = messageEntry.getContents().split("=");
         int numberOfSubIntervals = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
         int subIntervalDuration = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
@@ -763,7 +763,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         ace4000.getObjectFactory().sendConsumptionLimitationConfigurationRequest(date, convertToNumberOfSubIntervalsCode(numberOfSubIntervals), convertToSubIntervalDurationCode(subIntervalDuration), ovl, thresholdTolerance, thresholdSelection, switchingTimesDP0, thresholdsDP0, unitsDP0, actionsDP0, switchingTimesDP1, thresholdsDP1, unitsDP1, actionsDP1, weekProfile);
     }
 
-    private void sendEmergencyConsumptionLimitationConfiguration(RtuMessage messageEntry) throws BusinessException, SQLException, IOException {
+    private void sendEmergencyConsumptionLimitationConfiguration(DeviceMessage messageEntry) throws BusinessException, SQLException, IOException {
         String[] parts = messageEntry.getContents().split("=");
         int duration = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
         int threshold = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
@@ -789,7 +789,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         ace4000.getObjectFactory().sendEmergencyConsumptionLimitationConfigurationRequest(duration, threshold, unit, overrideRate);
     }
 
-    private void sendSDMConfigurationRequest(RtuMessage messageEntry) throws BusinessException, SQLException, IOException {
+    private void sendSDMConfigurationRequest(DeviceMessage messageEntry) throws BusinessException, SQLException, IOException {
         String failMsg = "Special data mode configuration message failed, invalid arguments";
         String[] parts = messageEntry.getContents().split("=");
 
@@ -838,7 +838,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
     }
 
 
-    private void failMessage(RtuMessage messageEntry, String msg) throws BusinessException, SQLException {
+    private void failMessage(DeviceMessage messageEntry, String msg) throws BusinessException, SQLException {
         ace4000.log(Level.WARNING, msg);
         messageEntry.setFailed();
     }
@@ -877,8 +877,8 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         return newRequest;
     }
 
-    public void setMessageResult(boolean end, List<RtuMessage> messages) throws BusinessException, SQLException {
-        for (RtuMessage messageEntry : messages) {
+    public void setMessageResult(boolean end, List<DeviceMessage> messages) throws BusinessException, SQLException {
+        for (DeviceMessage messageEntry : messages) {
             if (messageEntry.getContents().contains(READ_EVENTS)) {
                 setMessage(messageEntry, ace4000.getObjectFactory().getReceivedEvents(), "Request for event data failed");
             }
@@ -927,7 +927,7 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         }
     }
 
-    private void setMessage(RtuMessage messageEntry, Boolean success, String failMsg) throws BusinessException, SQLException {
+    private void setMessage(DeviceMessage messageEntry, Boolean success, String failMsg) throws BusinessException, SQLException {
         if (!(success == null)) {
             if (success) {
                 messageEntry.confirm();
@@ -937,8 +937,8 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         }
     }
 
-    public boolean shouldRetry(List<RtuMessage> messages) {
-        for (RtuMessage messageEntry : messages) {
+    public boolean shouldRetry(List<DeviceMessage> messages) {
+        for (DeviceMessage messageEntry : messages) {
             if (messageEntry.getContents().contains(READ_EVENTS)) {
                 if (ace4000.getObjectFactory().shouldRetryEvents()) {
                     return true;
@@ -1008,8 +1008,8 @@ public class ACE4000Messages extends GenericMessageExecutor implements MessagePr
         return false;
     }
 
-    public void logTimeoutMessages(List<RtuMessage> messages, int retries) throws BusinessException, SQLException {
-        for (RtuMessage messageEntry : messages) {
+    public void logTimeoutMessages(List<DeviceMessage> messages, int retries) throws BusinessException, SQLException {
+        for (DeviceMessage messageEntry : messages) {
             if (messageEntry.getContents().contains(READ_EVENTS)) {
                 if (ace4000.getObjectFactory().shouldRetryEvents()) {
                     ace4000.log("Sent request for events " + (retries + 1) + " times, meter didn't reply");

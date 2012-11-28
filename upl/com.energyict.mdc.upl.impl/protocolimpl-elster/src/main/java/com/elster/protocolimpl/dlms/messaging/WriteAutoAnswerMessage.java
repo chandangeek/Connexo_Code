@@ -22,7 +22,7 @@ import static com.elster.protocolimpl.dlms.util.RepetitiveDate.dateStringToDlmsD
 public class WriteAutoAnswerMessage extends AbstractDlmsMessage {
 
     /**
-     * RtuMessage tags for the key change message
+     * DeviceMessage tags for the key change message
      */
     public static final String MESSAGE_TAG = "SetAutoAnswer";
     public static final String MESSAGE_DESCRIPTION = "Change auto answer data";

@@ -453,7 +453,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             String serial = concentrator.getSerialNumber();
             Iterator i = concentrator.getPendingMessages().iterator();
             while (i.hasNext()) {
-                RtuMessage msg = (RtuMessage) i.next();
+                DeviceMessage msg = (DeviceMessage) i.next();
                 handleConcentratorRtuMessage(concentrator, serial, msg);
             }
         }
@@ -537,7 +537,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
 
     protected void handleConcentratorRtuMessage(
-            Device concentrator, String serial, RtuMessage msg)
+            Device concentrator, String serial, DeviceMessage msg)
             throws BusinessException, SQLException {
         String contents = msg.getContents();
         boolean success = false;
@@ -743,7 +743,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                 success = false;
             }
 
-            /* A single RtuMessage failed: log and try next msg. */
+            /* A single DeviceMessage failed: log and try next msg. */
         } catch (NumberFormatException thrown) {
             severe(thrown, toErrorMsg(msg) + " Id is not a number.");
             thrown.printStackTrace();
@@ -904,17 +904,17 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
 
     /**
-     * Convert an RtuMessage to an error message
+     * Convert an DeviceMessage to an error message
      */
-    private String toErrorMsg(RtuMessage message) {
+    private String toErrorMsg(DeviceMessage message) {
         return new StringBuffer()
-                .append("RtuMessage failed: \"")
+                .append("DeviceMessage failed: \"")
                 .append(message.getContents())
                 .append("\".")
                 .toString();
     }
 
-    private String toErrorMsg(String serial, RtuMessage msg) {
+    private String toErrorMsg(String serial, DeviceMessage msg) {
         return toConcetratorErrorMsg(serial) + toErrorMsg(msg);
     }
 
