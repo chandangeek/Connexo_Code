@@ -11,7 +11,7 @@ import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.IntervalDataStorer;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.shadow.RtuEventShadow;
+import com.energyict.mdw.shadow.DeviceEventShadow;
 import com.energyict.mdw.shadow.amr.RegisterReadingShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
@@ -283,7 +283,7 @@ public class DataFileSaxHandler extends DefaultHandler {
 				for (Iterator jt = data.iterator(); jt.hasNext();){
 					MeterEvent event = (MeterEvent) jt.next();
 						
-					RtuEventShadow shadow = new RtuEventShadow();
+					DeviceEventShadow shadow = new DeviceEventShadow();
 					shadow.setDate(event.getTime());
 					shadow.setCode(event.getEiCode());
 					shadow.setDeviceCode(event.getProtocolCode());

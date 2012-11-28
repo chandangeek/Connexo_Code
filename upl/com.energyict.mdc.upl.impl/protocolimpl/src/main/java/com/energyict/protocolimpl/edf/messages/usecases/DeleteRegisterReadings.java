@@ -80,7 +80,7 @@ public class DeleteRegisterReadings extends AbstractFolderAction implements Tran
             i = rtu.getEvents().iterator();
             while( i.hasNext() ) {
                 
-                RtuEvent event = (RtuEvent) i.next();
+                DeviceEvent event = (DeviceEvent) i.next();
                 event.delete();
                 
             }

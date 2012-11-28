@@ -4,7 +4,7 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.eisimport.core.AbstractStreamImporter;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.RtuEventShadow;
+import com.energyict.mdw.shadow.DeviceEventShadow;
 import com.energyict.mdw.shadow.RtuMessageShadow;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
@@ -78,7 +78,7 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
     
     private void createEventForDevice(AlarmEntry alarmEntry) throws IOException,BusinessException,SQLException {
         Device device = findDevice(alarmEntry.getSerialNumber());
-        RtuEventShadow rtuEventShadow = new RtuEventShadow();
+        DeviceEventShadow rtuEventShadow = new DeviceEventShadow();
         rtuEventShadow.setCode(mapMeterEvent(alarmEntry));
         rtuEventShadow.setDate(alarmEntry.getDatetime());
         rtuEventShadow.setDeviceCode(alarmEntry.getId());
