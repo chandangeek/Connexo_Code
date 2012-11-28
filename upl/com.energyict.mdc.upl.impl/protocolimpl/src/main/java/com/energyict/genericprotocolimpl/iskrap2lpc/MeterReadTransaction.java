@@ -9,7 +9,7 @@ import com.energyict.genericprotocolimpl.iskrap2lpc.Concentrator.XmlException;
 import com.energyict.genericprotocolimpl.iskrap2lpc.stub.*;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterSpec;
-import com.energyict.mdw.amrimpl.RtuRegisterReadingImpl;
+import com.energyict.mdw.amrimpl.RegisterReadingImpl;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
@@ -605,10 +605,10 @@ public class MeterReadTransaction implements CacheMechanism {
      * @return a date
      */
     private Date getLastRegisterDate(List registerValues) {
-        Date lastDate = ((RtuRegisterReadingImpl) registerValues.get(0)).getToTime();
+        Date lastDate = ((RegisterReadingImpl) registerValues.get(0)).getToTime();
         Iterator it = registerValues.iterator();
         while (it.hasNext()) {
-            Date dateRrri = ((RtuRegisterReadingImpl) it.next()).getToTime();
+            Date dateRrri = ((RegisterReadingImpl) it.next()).getToTime();
             if (dateRrri.after(lastDate)) {
                 lastDate = dateRrri;
             }

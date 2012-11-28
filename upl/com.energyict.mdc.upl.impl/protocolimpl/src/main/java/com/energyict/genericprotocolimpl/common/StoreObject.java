@@ -4,12 +4,12 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.Transaction;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RtuRegisterReadingStorer;
+import com.energyict.mdw.amr.RegisterReadingStorer;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Phenomenon;
-import com.energyict.mdw.shadow.amr.RtuRegisterReadingShadow;
+import com.energyict.mdw.shadow.amr.RegisterReadingShadow;
 import com.energyict.protocol.MeterData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterReadingData;
@@ -149,11 +149,11 @@ public class StoreObject implements Transaction {
     protected void store(Device rtu, MeterReadingData meterReadingData) throws SQLException, BusinessException {
         Map<Register, Date> lastReadings = new HashMap<Register, Date>();
         Map<Register, Date> lastCheckeds = new HashMap<Register, Date>();
-        RtuRegisterReadingStorer storer = new RtuRegisterReadingStorer();
+        RegisterReadingStorer storer = new RegisterReadingStorer();
         for (RegisterValue registerValue : meterReadingData.getRegisterValues()) {
             Register rtuRegister = getRtuRegister(rtu, registerValue.getRtuRegisterId());
             if (registerValue.isSupported()) {
-                RtuRegisterReadingShadow shadow = new RtuRegisterReadingShadow();
+                RegisterReadingShadow shadow = new RegisterReadingShadow();
                 shadow.setToTime(registerValue.getToTime());
                 shadow.setFromTime(registerValue.getFromTime());
                 shadow.setEventTime(registerValue.getEventTime());

@@ -12,7 +12,7 @@ import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.IntervalDataStorer;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.RtuEventShadow;
-import com.energyict.mdw.shadow.amr.RtuRegisterReadingShadow;
+import com.energyict.mdw.shadow.amr.RegisterReadingShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
@@ -311,7 +311,7 @@ public class DataFileSaxHandler extends DefaultHandler {
 			for (Iterator it=rtus.iterator(); it.hasNext();){
 				Device rtu = (Device) it.next();
 				for(int i=0; i<6; i++){
-					RtuRegisterReadingShadow shadow = new RtuRegisterReadingShadow();
+					RegisterReadingShadow shadow = new RegisterReadingShadow();
 					shadow.setReadTime(timestamp);
 					shadow.setValue(new BigDecimal(consumption[i]));
 					

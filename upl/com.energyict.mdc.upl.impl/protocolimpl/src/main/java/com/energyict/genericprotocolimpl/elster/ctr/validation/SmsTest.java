@@ -5,7 +5,7 @@ import com.energyict.cbo.Sms;
 import com.energyict.cpo.*;
 import com.energyict.genericprotocolimpl.elster.ctr.SmsHandler;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RtuRegisterReading;
+import com.energyict.mdw.amr.RegisterReading;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.messaging.MessageService;
@@ -95,7 +95,7 @@ public class SmsTest {
             String phoneNumber = rtu.getPhoneNumber();
             if (phoneNumber == null || phoneNumber.equalsIgnoreCase("")) {
                 Register register = rtu.getRegister(ObisCode.fromString("0.0.96.12.6.255"));
-                RtuRegisterReading lastReading = register.getLastReading();
+                RegisterReading lastReading = register.getLastReading();
                 if (lastReading != null) {
                     String text = lastReading.getText();
                     if (text != null) {

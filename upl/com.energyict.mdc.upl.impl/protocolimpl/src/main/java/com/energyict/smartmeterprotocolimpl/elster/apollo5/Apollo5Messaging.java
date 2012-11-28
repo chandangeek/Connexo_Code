@@ -2,7 +2,7 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RtuRegisterReading;
+import com.energyict.mdw.amr.RegisterReading;
 import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.messaging.*;
@@ -90,7 +90,7 @@ public class Apollo5Messaging extends AS300Messaging {
                         Device device = (Device) o;
                         Register register = device.getRegister(PUBLIC_KEYS);
                         if (register != null) {
-                            List<RtuRegisterReading> lastXReadings = register.getLastXReadings(1);
+                            List<RegisterReading> lastXReadings = register.getLastXReadings(1);
                             if (lastXReadings.size() > 0) {
                                 String keyPair = lastXReadings.get(0).getText();
                                 addChildTag(builder, KEY_PAIR + String.valueOf(index), keyPair);

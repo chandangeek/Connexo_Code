@@ -6,7 +6,7 @@ import com.energyict.cpo.Transaction;
 import com.energyict.mdw.amr.*;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.amr.RtuRegisterReadingShadow;
+import com.energyict.mdw.shadow.amr.RegisterReadingShadow;
 import com.energyict.protocol.*;
 
 import java.sql.SQLException;
@@ -110,11 +110,11 @@ public class StoreObject implements Transaction {
     private void store(Device rtu, MeterReadingData meterReadingData) throws SQLException, BusinessException {
         Map<Register, Date> lastReadings = new HashMap<Register, Date>();
         Map<Register, Date> lastCheckeds = new HashMap<Register, Date>();
-        RtuRegisterReadingStorer storer = new RtuRegisterReadingStorer();
+        RegisterReadingStorer storer = new RegisterReadingStorer();
         for (RegisterValue registerValue : (List<RegisterValue>) meterReadingData.getRegisterValues()) {
             Register rtuRegister = getRtuRegister(rtu, registerValue.getRtuRegisterId());
             if (registerValue.isSupported()) {
-                RtuRegisterReadingShadow shadow = new RtuRegisterReadingShadow();
+                RegisterReadingShadow shadow = new RegisterReadingShadow();
                 shadow.setToTime(registerValue.getToTime());
                 shadow.setFromTime(registerValue.getFromTime());
                 shadow.setEventTime(registerValue.getEventTime());
