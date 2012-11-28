@@ -397,7 +397,7 @@ public class RtuRegisterBuilder {
                 prefixMappings.add(mapping);
             }
         }
-        com.energyict.mdw.core.MeteringWarehouse.getCurrent().getRtuRegisterReadingFactory().findAll().size();
+        com.energyict.mdw.core.MeteringWarehouse.getCurrent().getRegisterReadingFactory().findAll().size();
         return prefixMappings;
     }
 

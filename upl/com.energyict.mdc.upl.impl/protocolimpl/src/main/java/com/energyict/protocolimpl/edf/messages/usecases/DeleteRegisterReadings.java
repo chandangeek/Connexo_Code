@@ -42,7 +42,7 @@ public class DeleteRegisterReadings extends AbstractFolderAction implements Tran
 
     public Object doExecute() throws BusinessException, SQLException {
         RegisterReadingFactory factory =
-            MeteringWarehouse.getCurrent().getRtuRegisterReadingFactory();
+            MeteringWarehouse.getCurrent().getRegisterReadingFactory();
         
         
         Iterator fi = folder.getRtus().iterator();
