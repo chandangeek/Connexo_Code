@@ -2,11 +2,11 @@ package com.energyict.protocolimpl.utils;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.ProcessingException;
-import com.energyict.mdw.amr.RtuRegisterMapping;
+import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
-import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
+import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
 import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 
@@ -325,8 +325,8 @@ public class RtuRegisterBuilder {
      * @throws BusinessException
      */
     private void deleteDeviceRegisterMappings() throws BusinessException {
-        List<RtuRegisterMapping> mappings = getRtuRegisterMappingsWithPrefix();
-        for (RtuRegisterMapping mapping : mappings) {
+        List<RegisterMapping> mappings = getRtuRegisterMappingsWithPrefix();
+        for (RegisterMapping mapping : mappings) {
             try {
                 mapping.delete();
             } catch (SQLException e) {
@@ -347,7 +347,7 @@ public class RtuRegisterBuilder {
             }
             name = name.length() > 80 ? name.substring(0, 79) : name;
             try {
-                RtuRegisterMappingShadow shadow = new RtuRegisterMappingShadow();
+                RegisterMappingShadow shadow = new RegisterMappingShadow();
                 shadow.setCumulative(false);
                 shadow.setName(name);
                 shadow.setDescription(name);
@@ -367,8 +367,8 @@ public class RtuRegisterBuilder {
     private void createRegisterSpecs(DeviceType deviceType) throws BusinessException {
         try {
             DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
-            List<RtuRegisterMapping> mappings = getRtuRegisterMappingsWithPrefix();
-            for (RtuRegisterMapping mapping : mappings) {
+            List<RegisterMapping> mappings = getRtuRegisterMappingsWithPrefix();
+            for (RegisterMapping mapping : mappings) {
                 RegisterSpecShadow shadow = new RegisterSpecShadow();
                 shadow.setDeviceChannelIndex(mapping.getObisCode().getB());
                 shadow.setIntegral(false);
@@ -389,10 +389,10 @@ public class RtuRegisterBuilder {
         new RtuRegisterBuilder().buildRegisters();
     }
 
-    public List<RtuRegisterMapping> getRtuRegisterMappingsWithPrefix() {
-        List<RtuRegisterMapping> prefixMappings = new ArrayList<RtuRegisterMapping>();
-        List<RtuRegisterMapping> allMappings = mw().getRtuRegisterMappingFactory().findAll();
-        for (RtuRegisterMapping mapping : allMappings) {
+    public List<RegisterMapping> getRtuRegisterMappingsWithPrefix() {
+        List<RegisterMapping> prefixMappings = new ArrayList<RegisterMapping>();
+        List<RegisterMapping> allMappings = mw().getRtuRegisterMappingFactory().findAll();
+        for (RegisterMapping mapping : allMappings) {
             if (mapping.getName().startsWith(REGISTER_MAPPING_PREFIX)) {
                 prefixMappings.add(mapping);
             }

@@ -26,8 +26,8 @@ import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import com.energyict.mdc.shadow.tasks.*;
 import com.energyict.mdc.system.properties.HostName;
 import com.energyict.mdc.tasks.*;
+import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RtuRegisterGroup;
-import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.relation.RelationType;
@@ -481,7 +481,7 @@ public final class ComServerOpticalMTU155Demo {
         ShadowList<RegisterSpecShadow> registerSpecs = new ShadowList<RegisterSpecShadow>();
         RtuRegisterGroup rtuRegisterGroup = MeteringWarehouse.getCurrent().getRtuRegisterGroupFactory().findByName("Read Group").get(0);
 
-        RtuRegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Battery time remaining", "F.5.0, Battery time remaining (hours)", false, ObisCode.fromString("0.0.96.6.6.255"), 0, rtuRegisterGroup.getId());
+        RegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Battery time remaining", "F.5.0, Battery time remaining (hours)", false, ObisCode.fromString("0.0.96.6.6.255"), 0, rtuRegisterGroup.getId());
         registerSpecs.add(findOrCreateRegiserSpecShadow(registerMapping));
 
         registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Battery hours used", "F.5.1, Battery hours used (hours)", false, ObisCode.fromString("0.0.96.6.0.255"), 0, rtuRegisterGroup.getId());
@@ -492,7 +492,7 @@ public final class ComServerOpticalMTU155Demo {
         return registerSpecs;
     }
 
-    private RegisterSpecShadow findOrCreateRegiserSpecShadow(RtuRegisterMapping mapping) {
+    private RegisterSpecShadow findOrCreateRegiserSpecShadow(RegisterMapping mapping) {
         RegisterSpecShadow specShadow = new RegisterSpecShadow();
         specShadow.setRegisterMappingId(mapping.getId());
         specShadow.setDeviceChannelIndex(0);
@@ -541,7 +541,7 @@ public final class ComServerOpticalMTU155Demo {
                     // Add the channels of the rtu to the loadProfile
                     for (int i = 0; i < rtu.getChannels().size(); i++) {
                         Channel channel = rtu.getChannel(i);
-                        RtuRegisterMapping rtuRegisterMapping = loadProfile.getLoadProfileType().getRegisterMappings().get(i);
+                        RegisterMapping rtuRegisterMapping = loadProfile.getLoadProfileType().getRegisterMappings().get(i);
                         loadProfile.addChannel(channel, rtuRegisterMapping);
                     }
                 } catch (BusinessException e) {
@@ -761,7 +761,7 @@ public final class ComServerOpticalMTU155Demo {
                 loadProfileTypeShadow.setObisCode(ObisCode.fromString("0.0.99.1.0.255"));
 
                 // Add the different register mappings to the load profile - currently only 1 registerMapping in use.
-                RtuRegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Hourly - Qm", "1.0.0, Measured flow (Instantaneous)", false, ObisCode.fromString("7.0.43.0.0.255"), 0, 1);
+                RegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Hourly - Qm", "1.0.0, Measured flow (Instantaneous)", false, ObisCode.fromString("7.0.43.0.0.255"), 0, 1);
                 loadProfileTypeShadow.addRegisterMappingShadow(registerMapping.getShadow());
 
                 registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Hourly - T", "7.0.0, Metering temperature (Instantaneous)", false, ObisCode.fromString("7.0.41.0.0.255"), 0, 1);

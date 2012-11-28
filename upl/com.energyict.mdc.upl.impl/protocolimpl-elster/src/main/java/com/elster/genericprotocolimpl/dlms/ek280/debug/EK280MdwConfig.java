@@ -2,7 +2,7 @@ package com.elster.genericprotocolimpl.dlms.ek280.debug;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.ShadowList;
-import com.energyict.mdw.amr.RtuRegisterMapping;
+import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.ProductSpecShadow;
@@ -133,8 +133,8 @@ public class EK280MdwConfig {
         }
     }
 
-    private RtuRegisterMapping getRegisterMapping(ObisCode obis) {
-        RtuRegisterMapping mapping = mw().getRtuRegisterMappingFactory().find(obis, getUndefinedProductSpec().getId());
+    private RegisterMapping getRegisterMapping(ObisCode obis) {
+        RegisterMapping mapping = mw().getRtuRegisterMappingFactory().find(obis, getUndefinedProductSpec().getId());
         if (mapping == null) {
             createRtuRegisterMapping(obis);
         }

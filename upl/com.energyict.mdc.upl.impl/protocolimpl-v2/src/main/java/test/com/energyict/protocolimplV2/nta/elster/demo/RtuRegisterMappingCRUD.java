@@ -1,9 +1,9 @@
 package test.com.energyict.protocolimplV2.nta.elster.demo;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.amr.RtuRegisterMapping;
+import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
+import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
 import com.energyict.obis.ObisCode;
 
 import java.sql.SQLException;
@@ -15,12 +15,12 @@ public class RtuRegisterMappingCRUD {
 
     }
 
-    public static RtuRegisterMapping findOrCreateRegisterMapping(String name, String obisCodeString) throws BusinessException, SQLException {
+    public static RegisterMapping findOrCreateRegisterMapping(String name, String obisCodeString) throws BusinessException, SQLException {
         return findOrCreateRegisterMapping(name, null, true, ObisCode.fromString(obisCodeString), 0, 2);
     }
 
-    public static RtuRegisterMapping findOrCreateRegisterMapping(String name, String description, boolean cumulative, ObisCode obisCode, int productSpecId, int rtuRegisterGroupId) throws BusinessException, SQLException {
-        RtuRegisterMapping mapping = findRegisterMapping(obisCode);
+    public static RegisterMapping findOrCreateRegisterMapping(String name, String description, boolean cumulative, ObisCode obisCode, int productSpecId, int rtuRegisterGroupId) throws BusinessException, SQLException {
+        RegisterMapping mapping = findRegisterMapping(obisCode);
         if (mapping == null) {
             mapping = findRegisterMapping(name);
         }
@@ -30,9 +30,9 @@ public class RtuRegisterMappingCRUD {
         return mapping;
     }
 
-    public static RtuRegisterMapping createRegisterMapping(String name, String description, boolean cumulative, ObisCode obisCode, int productSpecId, int rtuRegisterGroupId) throws BusinessException, SQLException {
+    public static RegisterMapping createRegisterMapping(String name, String description, boolean cumulative, ObisCode obisCode, int productSpecId, int rtuRegisterGroupId) throws BusinessException, SQLException {
         RtuRegisterMappingCRUD.deleteRegisterMapping(name); // first delete if it already exists
-        RtuRegisterMappingShadow shadow = new RtuRegisterMappingShadow();
+        RegisterMappingShadow shadow = new RegisterMappingShadow();
 
         shadow.setName(name);
         shadow.setDescription(description);
@@ -45,21 +45,21 @@ public class RtuRegisterMappingCRUD {
     }
 
     public static void deleteRegisterMapping(String name) throws BusinessException, SQLException {
-        List<RtuRegisterMapping> mappings = MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory().findByName(name);
-        for (RtuRegisterMapping mapping : mappings) {
+        List<RegisterMapping> mappings = MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory().findByName(name);
+        for (RegisterMapping mapping : mappings) {
             mapping.delete();
         }
     }
 
-    public static RtuRegisterMapping findRegisterMapping(String name) {
-        List<RtuRegisterMapping> mappings = MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory().findByName(name);
+    public static RegisterMapping findRegisterMapping(String name) {
+        List<RegisterMapping> mappings = MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory().findByName(name);
         if (mappings.isEmpty()) {
             return null;
         }
         return mappings.get(0);
     }
 
-    private static RtuRegisterMapping findRegisterMapping(ObisCode obisCode) {
+    private static RegisterMapping findRegisterMapping(ObisCode obisCode) {
         return MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory().find(obisCode, 0);
     }
 

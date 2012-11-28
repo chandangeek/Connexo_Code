@@ -10,7 +10,7 @@ import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.pooling.CommunicationSchedulerFullProtocolShadowBuilder;
 import com.energyict.mdw.amr.RegisterSpec;
 import com.energyict.mdw.amr.RtuRegisterGroup;
-import com.energyict.mdw.amr.RtuRegisterMapping;
+import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.testutils.*;
 import com.energyict.obis.ObisCode;
@@ -91,12 +91,12 @@ public class WebRTUKPTest {
 				.createRtuRegisterGroup(regGroupName);
 
 		/* Create the rtuRegisterMapping 1 */
-		RtuRegisterMapping rrm1 = RtuRegisterMappingCRUD.createRegisterMapping(
+		RegisterMapping rrm1 = RtuRegisterMappingCRUD.createRegisterMapping(
 				rtuRegisterMappingName, OC1.getDescription(), false, OC1,
 				productSpec.getId(), rtuRegGroup.getId());
 		
 		/* Create the rtuRegisterMapping 2, this one has no registergroup */
-		RtuRegisterMapping rrm2 = RtuRegisterMappingCRUD.createRegisterMapping(
+		RegisterMapping rrm2 = RtuRegisterMappingCRUD.createRegisterMapping(
 				rtuRegisterMappingName2, OC2.getDescription(), false, OC2,
 				productSpec.getId(), 0);
 		

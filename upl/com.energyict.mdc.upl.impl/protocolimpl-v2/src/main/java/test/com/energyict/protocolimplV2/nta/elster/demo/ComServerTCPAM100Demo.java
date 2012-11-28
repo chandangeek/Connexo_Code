@@ -25,8 +25,8 @@ import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import com.energyict.mdc.shadow.tasks.*;
 import com.energyict.mdc.system.properties.HostName;
 import com.energyict.mdc.tasks.*;
+import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RtuRegisterGroup;
-import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.relation.RelationType;
@@ -488,7 +488,7 @@ public final class ComServerTCPAM100Demo {
         ShadowList<RegisterSpecShadow> registerSpecs = new ShadowList<RegisterSpecShadow>();
         RtuRegisterGroup rtuRegisterGroup = MeteringWarehouse.getCurrent().getRtuRegisterGroupFactory().findByName("Read Group").get(0);
 
-        RtuRegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Gas volume (OMS)", "Current Gas consumption [OMS]", false, ObisCode.fromString("7.1.3.0.0.255"), 0, rtuRegisterGroup.getId());
+        RegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Gas volume (OMS)", "Current Gas consumption [OMS]", false, ObisCode.fromString("7.1.3.0.0.255"), 0, rtuRegisterGroup.getId());
         registerSpecs.add(findOrCreateRegiserSpecShadow(registerMapping));
 
         registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Instantaneous voltage (L1) ", "Instantaneous voltage (L1)", false, ObisCode.fromString("1.0.32.7.0.255"), 0, rtuRegisterGroup.getId());
@@ -496,7 +496,7 @@ public final class ComServerTCPAM100Demo {
         return registerSpecs;
     }
 
-    private RegisterSpecShadow findOrCreateRegiserSpecShadow(RtuRegisterMapping mapping) throws BusinessException, SQLException {
+    private RegisterSpecShadow findOrCreateRegiserSpecShadow(RegisterMapping mapping) throws BusinessException, SQLException {
         RegisterSpecShadow specShadow = new RegisterSpecShadow();
         specShadow.setRegisterMappingId(mapping.getId());
         specShadow.setDeviceChannelIndex(0);
@@ -556,7 +556,7 @@ public final class ComServerTCPAM100Demo {
                 List<LoadProfile> loadProfiles = this.rtu.getLoadProfiles();
                 int y = 0;
                 for (LoadProfile profile : loadProfiles) {
-                    List<RtuRegisterMapping> registerMappings = profile.getLoadProfileType().getRegisterMappings();
+                    List<RegisterMapping> registerMappings = profile.getLoadProfileType().getRegisterMappings();
                     for (int i = 0; i < registerMappings.size(); i++) {
                         Channel channel = rtu.getChannel(y++);
                         profile.addChannel(channel, registerMappings.get(i));
@@ -795,7 +795,7 @@ public final class ComServerTCPAM100Demo {
                 loadProfileTypeShadow.setObisCode(ObisCode.fromString("1.0.99.1.0.255"));
 
                 // Add the different register mappings to the load profile
-                RtuRegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Active Energy Import", "1.0.1.8.0.255");
+                RegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Active Energy Import", "1.0.1.8.0.255");
                 loadProfileTypeShadow.addRegisterMappingShadow(registerMapping.getShadow());
 
                 registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Active Energy Export", "1.0.1.8.0.255");
@@ -829,7 +829,7 @@ public final class ComServerTCPAM100Demo {
                 loadProfileTypeShadow.setObisCode(ObisCode.fromString("1.0.99.2.0.255"));
 
                 // Add the different register mappings to the load profile
-                RtuRegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Daily Import Rate 1", "1.0.1.8.1.255");
+                RegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Daily Import Rate 1", "1.0.1.8.1.255");
                 loadProfileTypeShadow.addRegisterMappingShadow(registerMapping.getShadow());
 
                 registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Daily Import Rate 2", "1.0.1.8.2.255");
@@ -869,7 +869,7 @@ public final class ComServerTCPAM100Demo {
                 loadProfileTypeShadow.setObisCode(ObisCode.fromString("0.x.24.3.0.255"));
 
                 // Add the different register mappings to the load profile
-                RtuRegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Mbus gas consumption", "7.x.3.0.0.255");
+                RegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Mbus gas consumption", "7.x.3.0.0.255");
                 loadProfileTypeShadow.addRegisterMappingShadow(registerMapping.getShadow());
 
                 return MeteringWarehouse.getCurrent().getLoadProfileTypeFactory().create(loadProfileTypeShadow);

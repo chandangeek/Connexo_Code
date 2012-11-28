@@ -1,11 +1,11 @@
 //package test.com.energyict.protocolimplV2.elster.ctr.MTU155.util;
 //
 //import com.energyict.genericprotocolimpl.common.CommonUtils;
-//import com.energyict.mdw.amr.RtuRegisterMapping;
-//import com.energyict.mdw.amr.RtuRegisterMappingFactory;
+//import com.energyict.mdw.amr.RegisterMapping;
+//import com.energyict.mdw.amr.RegisterMappingFactory;
 //import com.energyict.mdw.core.DeviceType;
 //import com.energyict.mdw.shadow.DeviceTypeShadow;
-//import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
+//import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
 //import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 //import com.energyict.obis.ObisCode;
 //
@@ -69,7 +69,7 @@
 //        };
 //
 //
-//        RtuRegisterMappingFactory factory = CommonUtils.mw().getRtuRegisterMappingFactory();
+//        RegisterMappingFactory factory = CommonUtils.mw().getRegisterMappingFactory();
 //
 ///*
 //        for (RegSpec spec : specs) {
@@ -84,8 +84,8 @@
 //
 //        DeviceType rtuType = CommonUtils.mw().getDeviceTypeFactory().find("MTU155");
 //        DeviceTypeShadow rtuTypeShadow = rtuType.getShadow();
-//        List<RtuRegisterMapping> mappings = factory.findAll();
-//        for (RtuRegisterMapping mapping : mappings) {
+//        List<RegisterMapping> mappings = factory.findAll();
+//        for (RegisterMapping mapping : mappings) {
 //            RegisterSpecShadow specShadow = new RegisterSpecShadow();
 //            specShadow.setDeviceChannelIndex(0);
 //            specShadow.setRegisterMappingId(mapping.getId());
@@ -112,8 +112,8 @@
 //            this.description = description;
 //        }
 //
-//        public RtuRegisterMappingShadow getRtuRegisterMappingShadow() {
-//            RtuRegisterMappingShadow shadow = new RtuRegisterMappingShadow();
+//        public RegisterMappingShadow getRtuRegisterMappingShadow() {
+//            RegisterMappingShadow shadow = new RegisterMappingShadow();
 //            shadow.setObisCode(ObisCode.fromString(obis));
 //            shadow.setName("MTU155 - " + description + " [" + id + "]");
 //            shadow.setDescription("MTU155 - " + description + " [" + id + "]");
