@@ -6,7 +6,7 @@ import com.energyict.mdw.amr.RtuRegisterMapping;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.ProductSpecShadow;
-import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
+import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.communicationdump.CommunicationDumpEntry;
 import com.energyict.protocolimpl.utils.communicationdump.CommunicationDumpFile;
@@ -111,8 +111,8 @@ public class EK280MdwConfig {
     private void addRtuRegisterSpec(ObisCode obis) {
         try {
             DeviceTypeShadow shadow = getRtuType().getShadow();
-            ShadowList<RtuRegisterSpecShadow> registerSpecShadows = shadow.getRegisterSpecShadows();
-            RtuRegisterSpecShadow registerSpecShadow = new RtuRegisterSpecShadow();
+            ShadowList<RegisterSpecShadow> registerSpecShadows = shadow.getRegisterSpecShadows();
+            RegisterSpecShadow registerSpecShadow = new RegisterSpecShadow();
             registerSpecShadow.setRtuTypeId(getRtuType().getId());
             registerSpecShadow.setDeviceChannelIndex(obis.getB());
             registerSpecShadow.setDeviceObisCode(obis);

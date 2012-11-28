@@ -6,7 +6,7 @@
 //import com.energyict.mdw.core.DeviceType;
 //import com.energyict.mdw.shadow.DeviceTypeShadow;
 //import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
-//import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
+//import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 //import com.energyict.obis.ObisCode;
 //
 //import java.util.List;
@@ -86,7 +86,7 @@
 //        DeviceTypeShadow rtuTypeShadow = rtuType.getShadow();
 //        List<RtuRegisterMapping> mappings = factory.findAll();
 //        for (RtuRegisterMapping mapping : mappings) {
-//            RtuRegisterSpecShadow specShadow = new RtuRegisterSpecShadow();
+//            RegisterSpecShadow specShadow = new RegisterSpecShadow();
 //            specShadow.setDeviceChannelIndex(0);
 //            specShadow.setRegisterMappingId(mapping.getId());
 //            specShadow.setNumberOfDigits(9);

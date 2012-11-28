@@ -53,7 +53,7 @@ public class DataImporter extends DefaultHandler {
 		this.registers = registers;
 //    	try {
 //    		Iterator<Register> it = this.registers.iterator();
-//    		List<RtuRegisterShadow> rrs = new ArrayList<RtuRegisterShadow>();
+//    		List<RegisterShadow> rrs = new ArrayList<RegisterShadow>();
 //    		while(it.hasNext()){
 //    			rrs.add(it.next().getShadow());
 //    		}

@@ -31,8 +31,8 @@ import com.energyict.mdw.core.*;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.relation.RelationType;
 import com.energyict.mdw.shadow.*;
+import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterGroupShadow;
-import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import test.com.energyict.mdc.tasks.DeviceProtocolDialectNameEnum;
@@ -484,8 +484,8 @@ public final class ComServerTCPAM100Demo {
         return true;
     }
 
-    private ShadowList<RtuRegisterSpecShadow> findOrCreateAllRegiserSpecShadows() throws BusinessException, SQLException {   //ToDo: add all needed registers here
-        ShadowList<RtuRegisterSpecShadow> registerSpecs = new ShadowList<RtuRegisterSpecShadow>();
+    private ShadowList<RegisterSpecShadow> findOrCreateAllRegiserSpecShadows() throws BusinessException, SQLException {   //ToDo: add all needed registers here
+        ShadowList<RegisterSpecShadow> registerSpecs = new ShadowList<RegisterSpecShadow>();
         RtuRegisterGroup rtuRegisterGroup = MeteringWarehouse.getCurrent().getRtuRegisterGroupFactory().findByName("Read Group").get(0);
 
         RtuRegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Gas volume (OMS)", "Current Gas consumption [OMS]", false, ObisCode.fromString("7.1.3.0.0.255"), 0, rtuRegisterGroup.getId());
@@ -496,8 +496,8 @@ public final class ComServerTCPAM100Demo {
         return registerSpecs;
     }
 
-    private RtuRegisterSpecShadow findOrCreateRegiserSpecShadow(RtuRegisterMapping mapping) throws BusinessException, SQLException {
-        RtuRegisterSpecShadow specShadow = new RtuRegisterSpecShadow();
+    private RegisterSpecShadow findOrCreateRegiserSpecShadow(RtuRegisterMapping mapping) throws BusinessException, SQLException {
+        RegisterSpecShadow specShadow = new RegisterSpecShadow();
         specShadow.setRegisterMappingId(mapping.getId());
         specShadow.setDeviceChannelIndex(0);
         specShadow.setIntegral(false);

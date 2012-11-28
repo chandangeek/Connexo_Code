@@ -7,7 +7,7 @@ import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.amr.RtuRegisterMappingShadow;
-import com.energyict.mdw.shadow.amr.RtuRegisterSpecShadow;
+import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 
 import java.sql.SQLException;
@@ -369,7 +369,7 @@ public class RtuRegisterBuilder {
             DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
             List<RtuRegisterMapping> mappings = getRtuRegisterMappingsWithPrefix();
             for (RtuRegisterMapping mapping : mappings) {
-                RtuRegisterSpecShadow shadow = new RtuRegisterSpecShadow();
+                RegisterSpecShadow shadow = new RegisterSpecShadow();
                 shadow.setDeviceChannelIndex(mapping.getObisCode().getB());
                 shadow.setIntegral(false);
                 shadow.setLoadprofileChannelIndex(0);
