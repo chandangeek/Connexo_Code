@@ -43,7 +43,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
     private WaveModuleLinkAdaptor waveModuleLinkAdaptor;
     private List<Integer> failedSchedulesIds = new ArrayList<Integer>();
     private List<Integer> successfulSchedulesIds = new ArrayList<Integer>();
-    private List<RtuRegisterGroup> rtuRegisterGroups;
+    private List<RegisterGroup> rtuRegisterGroups;
 
     /**
      * Necessary to know which communication schedules should be journal'ed
@@ -521,7 +521,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
     }
 
     private CommunicationProfileShadow createFullSlaveSchedule(List<CommunicationScheduler> inboundSlaveSchedules) throws BusinessException, SQLException {
-        rtuRegisterGroups = new ArrayList<RtuRegisterGroup>();
+        rtuRegisterGroups = new ArrayList<RegisterGroup>();
         infosForSlaveSchedules = new ArrayList<List<CommunicationProfileAction>>();
         if (inboundSlaveSchedules.size() == 0) {
             return null;

@@ -27,7 +27,7 @@ import com.energyict.mdc.shadow.tasks.*;
 import com.energyict.mdc.system.properties.HostName;
 import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.amr.RegisterMapping;
-import com.energyict.mdw.amr.RtuRegisterGroup;
+import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.relation.RelationType;
@@ -479,7 +479,7 @@ public final class ComServerOpticalMTU155Demo {
 
     private ShadowList<RegisterSpecShadow> findOrCreateAllRegiserSpecShadows() throws BusinessException, SQLException {
         ShadowList<RegisterSpecShadow> registerSpecs = new ShadowList<RegisterSpecShadow>();
-        RtuRegisterGroup rtuRegisterGroup = MeteringWarehouse.getCurrent().getRtuRegisterGroupFactory().findByName("Read Group").get(0);
+        RegisterGroup rtuRegisterGroup = MeteringWarehouse.getCurrent().getRtuRegisterGroupFactory().findByName("Read Group").get(0);
 
         RegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Battery time remaining", "F.5.0, Battery time remaining (hours)", false, ObisCode.fromString("0.0.96.6.6.255"), 0, rtuRegisterGroup.getId());
         registerSpecs.add(findOrCreateRegiserSpecShadow(registerMapping));

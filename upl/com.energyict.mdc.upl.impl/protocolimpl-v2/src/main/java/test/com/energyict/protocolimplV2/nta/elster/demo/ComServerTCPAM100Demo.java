@@ -26,7 +26,7 @@ import com.energyict.mdc.shadow.tasks.*;
 import com.energyict.mdc.system.properties.HostName;
 import com.energyict.mdc.tasks.*;
 import com.energyict.mdw.amr.RegisterMapping;
-import com.energyict.mdw.amr.RtuRegisterGroup;
+import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.relation.RelationType;
@@ -486,7 +486,7 @@ public final class ComServerTCPAM100Demo {
 
     private ShadowList<RegisterSpecShadow> findOrCreateAllRegiserSpecShadows() throws BusinessException, SQLException {   //ToDo: add all needed registers here
         ShadowList<RegisterSpecShadow> registerSpecs = new ShadowList<RegisterSpecShadow>();
-        RtuRegisterGroup rtuRegisterGroup = MeteringWarehouse.getCurrent().getRtuRegisterGroupFactory().findByName("Read Group").get(0);
+        RegisterGroup rtuRegisterGroup = MeteringWarehouse.getCurrent().getRtuRegisterGroupFactory().findByName("Read Group").get(0);
 
         RegisterMapping registerMapping = RtuRegisterMappingCRUD.findOrCreateRegisterMapping("Gas volume (OMS)", "Current Gas consumption [OMS]", false, ObisCode.fromString("7.1.3.0.0.255"), 0, rtuRegisterGroup.getId());
         registerSpecs.add(findOrCreateRegiserSpecShadow(registerMapping));

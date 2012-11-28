@@ -8,8 +8,8 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.common.pooling.CommunicationSchedulerFullProtocolShadowBuilder;
+import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.amr.RegisterSpec;
-import com.energyict.mdw.amr.RtuRegisterGroup;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.testutils.*;
@@ -87,7 +87,7 @@ public class WebRTUKPTest {
 				timeOfUse, false);
 
 		/* Create the rtuRegisterGroup */
-		RtuRegisterGroup rtuRegGroup = RtuRegisterGroupCRUD
+		RegisterGroup rtuRegGroup = RtuRegisterGroupCRUD
 				.createRtuRegisterGroup(regGroupName);
 
 		/* Create the rtuRegisterMapping 1 */
