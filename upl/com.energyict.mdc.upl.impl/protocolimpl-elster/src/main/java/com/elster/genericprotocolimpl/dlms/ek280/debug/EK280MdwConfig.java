@@ -134,11 +134,11 @@ public class EK280MdwConfig {
     }
 
     private RegisterMapping getRegisterMapping(ObisCode obis) {
-        RegisterMapping mapping = mw().getRtuRegisterMappingFactory().find(obis, getUndefinedProductSpec().getId());
+        RegisterMapping mapping = mw().getRegisterMappingFactory().find(obis, getUndefinedProductSpec().getId());
         if (mapping == null) {
             createRtuRegisterMapping(obis);
         }
-        mapping = mw().getRtuRegisterMappingFactory().find(obis, getUndefinedProductSpec().getId());
+        mapping = mw().getRegisterMappingFactory().find(obis, getUndefinedProductSpec().getId());
         return mapping;
     }
 

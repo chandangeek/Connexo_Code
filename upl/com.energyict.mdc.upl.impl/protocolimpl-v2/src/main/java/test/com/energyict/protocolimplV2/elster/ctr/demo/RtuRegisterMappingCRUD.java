@@ -41,18 +41,18 @@ public class RtuRegisterMappingCRUD {
         shadow.setProductSpecId(productSpecId);
         shadow.setRtuRegisterGroupId(rtuRegisterGroupId);
 
-        return MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory().create(shadow);
+        return MeteringWarehouse.getCurrent().getRegisterMappingFactory().create(shadow);
     }
 
     public static void deleteRegisterMapping(String name) throws BusinessException, SQLException {
-        List<RegisterMapping> mappings = MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory().findByName(name);
+        List<RegisterMapping> mappings = MeteringWarehouse.getCurrent().getRegisterMappingFactory().findByName(name);
         for (RegisterMapping mapping : mappings) {
             mapping.delete();
         }
     }
 
     public static RegisterMapping findRegisterMapping(String name) {
-        List<RegisterMapping> mappings = MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory().findByName(name);
+        List<RegisterMapping> mappings = MeteringWarehouse.getCurrent().getRegisterMappingFactory().findByName(name);
         if (mappings.isEmpty()) {
             return null;
         }
@@ -60,7 +60,7 @@ public class RtuRegisterMappingCRUD {
     }
 
     private static RegisterMapping findRegisterMapping(ObisCode obisCode) {
-        return MeteringWarehouse.getCurrent().getRtuRegisterMappingFactory().find(obisCode, 1);
+        return MeteringWarehouse.getCurrent().getRegisterMappingFactory().find(obisCode, 1);
     }
 
 }

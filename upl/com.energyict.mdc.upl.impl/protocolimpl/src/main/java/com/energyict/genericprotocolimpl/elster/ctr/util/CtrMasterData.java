@@ -69,7 +69,7 @@ public class CtrMasterData {
         };
 
 
-        RegisterMappingFactory factory = CommonUtils.mw().getRtuRegisterMappingFactory();
+        RegisterMappingFactory factory = CommonUtils.mw().getRegisterMappingFactory();
 
 /*
         for (RegSpec spec : specs) {

@@ -354,7 +354,7 @@ public class RtuRegisterBuilder {
                 shadow.setObisCode(obis);
                 shadow.setProductSpecId(UNDEFINED_IN_ANY_PRODUCT_SPEC_ID);
                 shadow.setRtuRegisterGroupId(DEFAULT_RTU_REGISTER_GROUP_ID);
-                mw().getRtuRegisterMappingFactory().create(shadow);
+                mw().getRegisterMappingFactory().create(shadow);
             } catch (Exception e) {
                 System.out.println("Unable to create [" + name + "]: " + e.getMessage());
             }
@@ -391,7 +391,7 @@ public class RtuRegisterBuilder {
 
     public List<RegisterMapping> getRtuRegisterMappingsWithPrefix() {
         List<RegisterMapping> prefixMappings = new ArrayList<RegisterMapping>();
-        List<RegisterMapping> allMappings = mw().getRtuRegisterMappingFactory().findAll();
+        List<RegisterMapping> allMappings = mw().getRegisterMappingFactory().findAll();
         for (RegisterMapping mapping : allMappings) {
             if (mapping.getName().startsWith(REGISTER_MAPPING_PREFIX)) {
                 prefixMappings.add(mapping);
