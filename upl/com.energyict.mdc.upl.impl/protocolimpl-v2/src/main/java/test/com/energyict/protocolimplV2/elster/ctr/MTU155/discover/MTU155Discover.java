@@ -191,7 +191,7 @@
 //    private Device createRtuAndAddFields() throws CTRDiscoverException {
 //        try {
 //            checkAndCreateInfoFields();
-//            DeviceShadow shadow = getRtuType().newDeviceShadow();
+//            DeviceShadow shadow = getDeviceType().newDeviceShadow();
 //            shadow.setName(convertorSerial);
 //            shadow.setExternalName(createExternalName());
 //            shadow.setSerialNumber(meterSerial);
@@ -316,9 +316,9 @@
 //     * @return
 //     * @throws CTRDiscoverException
 //     */
-//    private DeviceType getRtuType() throws CTRDiscoverException {
+//    private DeviceType getDeviceType() throws CTRDiscoverException {
 //        if (rtuType == null) {
-//            String rtuTypeName = getProperties().getRtuType();
+//            String rtuTypeName = getProperties().getDeviceType();
 //            rtuType = mw().getDeviceTypeFactory().find(rtuTypeName);
 //            if (rtuType == null) {
 //                throw new CTRDiscoverException("Unable to find DeviceType with name [" + rtuTypeName + "].");

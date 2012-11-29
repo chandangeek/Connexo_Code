@@ -92,7 +92,7 @@ public class RtuPlusServerTask {
      */
     private List<Device> getEiServerGhostDevices() {
         final List<Device> ghostDevices = new ArrayList<Device>();
-        final List<Device> downstreamRtus = getGateway().getDownstreamRtus();
+        final List<Device> downstreamRtus = getGateway().getDownstreamDevices();
         for (Device downstreamRtu : downstreamRtus) {
             if (!devicesInField.contains(downstreamRtu)) {
                 ghostDevices.add(downstreamRtu);

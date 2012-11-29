@@ -105,7 +105,7 @@ public class DeviceDeployment {
             if (info.getFolder() != null) {
                 shadow.setFolderId(info.getFolder().getId());
             }
-            if (info.getRtuType().getPrototypeRtu() == null) {
+            if (info.getRtuType().getPrototypeDevice() == null) {
                 shadow.setIntervalInSeconds(3600);
                 if (info.getFolder() == null) {
                     throw new IOException("DeviceType [" + info.getRtuType().getName() + "] has no prototype AND no folder. Unable to create device.");

@@ -43,7 +43,7 @@ public class RtuFullProtocolShadowBuilder {
         Properties props = rtu.getProperties().toStringProperties();
         props.putAll(rtu.getProtocol() == null ? new HashMap() : rtu.getProtocol().getProperties().toStringProperties());
         rfps.setRtuProperties(props);
-        rfps.setRtuTypeShadow(rtu.getRtuType().getShadow());
+        rfps.setRtuTypeShadow(rtu.getDeviceType().getShadow());
         rfps.setSerialCommunicationSettings(rtu.getCommunicationSettings());
         rfps.setSerialNumber(rtu.getSerialNumber());
         rfps.setTimeZone(rtu.getTimeZone());

@@ -184,7 +184,7 @@ public final class CommonUtils {
 			DeviceType rtuType = mw().getDeviceTypeFactory().find(rtuTypeProperty);
 			if(rtuType == null){
 				throw new InvalidPropertyException("No rtutype defined with name '" + rtuTypeProperty + "'.");
-			} else if(rtuType.getPrototypeRtu() == null){
+			} else if(rtuType.getPrototypeDevice() == null){
 				throw new InvalidPropertyException("Rtutype '" + rtuTypeProperty + "' has no prototype rtu.");
 			} else {
 				return rtuType;

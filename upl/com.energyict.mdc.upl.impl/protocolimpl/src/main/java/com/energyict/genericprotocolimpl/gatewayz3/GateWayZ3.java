@@ -229,7 +229,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
                 wZ3.execute(commSchedule, getLink(), getLogger());
             } else {    // it's a slave so you can execute his taskImpl
 
-                Class implementor = Class.forName(rtu.getRtuType().getProtocol().getJavaClassName());
+                Class implementor = Class.forName(rtu.getDeviceType().getProtocol().getJavaClassName());
                 Object obj = implementor.newInstance();
                 if (obj instanceof GenericProtocol) {
                     ((GenericProtocol) obj).addProperties(new TypedProperties(props));

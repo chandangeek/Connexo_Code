@@ -257,7 +257,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
             try {
                 if (ondemand) {
                     getLogger().log(Level.INFO, description);
-                    Iterator i = mbus.getRtuType().getRtuRegisterSpecs().iterator();
+                    Iterator i = mbus.getDeviceType().getRegisterSpecs().iterator();
                     while (i.hasNext()) {
 
                         RegisterSpec spec = (RegisterSpec) i.next();

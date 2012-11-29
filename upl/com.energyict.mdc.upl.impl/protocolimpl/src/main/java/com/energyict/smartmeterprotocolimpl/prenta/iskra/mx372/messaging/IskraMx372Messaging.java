@@ -907,7 +907,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     public void checkMbusDevices() throws IOException, SQLException, BusinessException {
         String mSerial = "";
         Device rtu = getRtuFromDatabaseBySerialNumber();
-        if (!((rtu.getDownstreamRtus().size() == 0) && (getProperties().getRtuType() == null))) {
+        if (!((rtu.getDownstreamDevices().size() == 0) && (getProperties().getRtuType() == null))) {
             for (int i = 0; i < MBUS_MAX; i++) {
                 int mbusAddress = (int) protocol.getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
                 if (mbusAddress > 0) {
@@ -929,7 +929,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
                 }
             }
         }
-        updateMbusDevices(rtu.getDownstreamRtus());
+        updateMbusDevices(rtu.getDownstreamDevices());
     }
 
     private String getMbusSerial(ObisCode oc) throws IOException {
@@ -1038,7 +1038,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
      * @throws BusinessException if a business exception occurred
      */
     private void clearMbusGateWays() throws SQLException, BusinessException {
-        List slaves = getRtuFromDatabaseBySerialNumber().getDownstreamRtus();
+        List slaves = getRtuFromDatabaseBySerialNumber().getDownstreamDevices();
         Iterator it = slaves.iterator();
         while (it.hasNext()) {
             Device slave = (Device) it.next();

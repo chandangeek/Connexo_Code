@@ -177,10 +177,10 @@ public class WebRTUKPTest {
 //			webRtu.doReadRegisters(webRtu.getFullShadow().getRtuRegisterFullProtocolShadowList());
 //
 //			assertTrue(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRegisterFactory().findByRtuRegisterSpec(
-//					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getRtuTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName).getId())).get(0)));
+//					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getDeviceTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName).getId())).get(0)));
 //
 //			assertFalse(webRtu.getStoreObject().getMap().containsKey(MeteringWarehouse.getCurrent().getRegisterFactory().findByRtuRegisterSpec(
-//					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getRtuTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName2).getId())).get(0)));
+//					RtuRegisterSpecCRUD.findRtuRegistSpec(this.rtu.getDeviceTypeId(), RtuRegisterMappingCRUD.findRegisterMapping(rtuRegisterMappingName2).getId())).get(0)));
 //
 //		} catch (SQLException e) {
 //			e.printStackTrace();

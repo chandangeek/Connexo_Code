@@ -53,7 +53,7 @@ public class CommunicationSchedulerFullProtocolShadowBuilder {
      */
     private static List<CommunicationSchedulerFullProtocolShadow> createSlaveCommunicationSchedulerFullShadows(final Device rtu, final CommunicationScheduler scheduler) {
         List<CommunicationSchedulerFullProtocolShadow> slaveFullShadowList = new ArrayList<CommunicationSchedulerFullProtocolShadow>();
-        for (Device slave : rtu.getDownstreamRtus()) {
+        for (Device slave : rtu.getDownstreamDevices()) {
             slaveFullShadowList.add(createCommunicationSchedulerFullProtocolShadow(slave, scheduler));
         }
         return slaveFullShadowList;

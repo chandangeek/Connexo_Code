@@ -706,7 +706,7 @@ public class ACE4000 extends AbstractGenericProtocol {
 
     private void findAllSlaveMeters() {
         if (masterMeter != null) {
-            List<Device> slaves = masterMeter.getDownstreamRtus();
+            List<Device> slaves = masterMeter.getDownstreamDevices();
             if (slaves.size() > 0) {
                 for (Device slave : slaves) {
                     if (!getMBusMetersMap().containsKey(slave.getSerialNumber())) {

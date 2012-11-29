@@ -58,7 +58,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
 
     public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
         Device rtu = scheduler.getRtu();
-        List<Device> slaves = rtu.getDownstreamRtus(); //Should be a collection of WaveFlow, WaveTherm, RTM, ... devices
+        List<Device> slaves = rtu.getDownstreamDevices(); //Should be a collection of WaveFlow, WaveTherm, RTM, ... devices
         setLogger(logger);
         for (Device slave : slaves) {
             List<CommunicationScheduler> inboundSlaveSchedules = getInboundSlaveSchedules(slave);

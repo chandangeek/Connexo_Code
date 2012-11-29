@@ -891,7 +891,7 @@ public class MeterReadTransaction implements CacheMechanism {
                     if (rtuType == null) {
                         throw new IOException("Iskra Mx37x, There is no prototype defined for the MBus medium with code '" + type + "'");
                     }
-                    if (rtuType.getPrototypeRtu() == null) {
+                    if (rtuType.getPrototypeDevice() == null) {
                         throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
                     }
                     return rtuType;
@@ -1109,9 +1109,9 @@ public class MeterReadTransaction implements CacheMechanism {
                     Iterator i = null;
 
                     if (mbusRtu != null) {
-                        i = mbusRtu.getRtuType().getRtuRegisterSpecs().iterator();
+                        i = mbusRtu.getDeviceType().getRegisterSpecs().iterator();
                     } else {
-                        i = eRtu.getRtuType().getRtuRegisterSpecs().iterator();
+                        i = eRtu.getDeviceType().getRegisterSpecs().iterator();
                     }
 
                     while (i.hasNext()) {
@@ -1470,7 +1470,7 @@ public class MeterReadTransaction implements CacheMechanism {
     }
 
     private void doMbusParameterCheck() {
-        List<Device> slaveMeters = meter.getDownstreamRtus();
+        List<Device> slaveMeters = meter.getDownstreamDevices();
         if (slaveMeters.size() > 0) {
             for (int i = 0; i < slaveMeters.size(); i++) {
                 Device mbus = slaveMeters.get(i);
@@ -1597,7 +1597,7 @@ public class MeterReadTransaction implements CacheMechanism {
 //		return false;
 
 
-        List slaves = getMeter().getDownstreamRtus();
+        List slaves = getMeter().getDownstreamDevices();
         int count = 0;
 //		while(it.hasNext()){
 //			mbusChannel = -1;
@@ -1947,7 +1947,7 @@ public class MeterReadTransaction implements CacheMechanism {
                 mbusDevices[i] = null;
             }
         }
-        updateMbusDevices(getMeter().getDownstreamRtus());
+        updateMbusDevices(getMeter().getDownstreamDevices());
     }
 
     /**

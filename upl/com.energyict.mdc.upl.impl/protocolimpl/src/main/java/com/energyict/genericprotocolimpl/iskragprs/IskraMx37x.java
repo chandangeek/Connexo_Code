@@ -449,7 +449,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
     private void checkMbusDevices() throws IOException, SQLException, BusinessException {
         String mSerial = "";
-        if (!((getMeter().getDownstreamRtus().size() == 0) && (getRtuType() == null))) {
+        if (!((getMeter().getDownstreamDevices().size() == 0) && (getRtuType() == null))) {
             for (int i = 0; i < MBUS_MAX; i++) {
                 int mbusAddress = (int) getCosemObjectFactory().getCosemObject(mbusPrimaryAddress[i]).getValue();
                 if (mbusAddress > 0) {
@@ -471,7 +471,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 }
             }
         }
-        updateMbusDevices(rtu.getDownstreamRtus());
+        updateMbusDevices(rtu.getDownstreamDevices());
     }
 
     private void updateMbusDevices(List<Device> downstreamRtus) throws SQLException, BusinessException {
@@ -571,7 +571,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             if (rtuType == null) {
                 throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
             }
-            if (rtuType.getPrototypeRtu() == null) {
+            if (rtuType.getPrototypeDevice() == null) {
                 throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
             }
             return rtuType;
@@ -667,7 +667,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
     private void mbusMeterDeletionCheck() throws SQLException, BusinessException, IOException {
-        if (!((getMeter().getDownstreamRtus().size() == 0) && (getRtuType() == null))) {
+        if (!((getMeter().getDownstreamDevices().size() == 0) && (getRtuType() == null))) {
             for (int i = 0; i < dlmsCache.getMbusCount(); i++) {
                 if (rtuExists(dlmsCache.getMbusCustomerID(i))) {
                     mbusDevices[i] = new MbusDevice((int) dlmsCache.getMbusAddress(i), dlmsCache.getMbusPhysicalAddress(i), dlmsCache.getMbusCustomerID(i),
@@ -932,7 +932,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         }
 
         // check if the customerID from the meter matches the customerID from the cache
-        if (!((getMeter().getDownstreamRtus().size() == 0) && (getRtuType() == null))) {
+        if (!((getMeter().getDownstreamDevices().size() == 0) && (getRtuType() == null))) {
             String meterCustomerID;
             String customerID;
             for (int i = 0; i < MBUS_MAX; i++) {
@@ -1381,7 +1381,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      * @throws BusinessException if a business exception occurred
      */
     private void clearMbusGateWays() throws SQLException, BusinessException {
-        List slaves = getMeter().getDownstreamRtus();
+        List slaves = getMeter().getDownstreamDevices();
         Iterator it = slaves.iterator();
         while (it.hasNext()) {
             Device slave = (Device) it.next();
@@ -1802,7 +1802,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         try {
             getLogger().log(Level.INFO, description);
             MeterReadingData mrd = new MeterReadingData();
-            Iterator i = rtu.getRtuType().getRtuRegisterSpecs().iterator();
+            Iterator i = rtu.getDeviceType().getRegisterSpecs().iterator();
             while (i.hasNext()) {
                 try {
 

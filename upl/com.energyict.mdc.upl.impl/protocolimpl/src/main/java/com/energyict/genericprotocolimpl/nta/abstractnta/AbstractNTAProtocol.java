@@ -900,13 +900,13 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
 
     private void checkForDisappearedMbusMeters(Map<String, Integer> mbusMap) {
 
-        List<Device> mbusSlaves = getCommunicationScheduler().getRtu().getDownstreamRtus();
+        List<Device> mbusSlaves = getCommunicationScheduler().getRtu().getDownstreamDevices();
         Iterator<Device> it = mbusSlaves.iterator();
         while (it.hasNext()) {
             Device mbus = it.next();
             Class device = null;
             try {
-                device = Class.forName(mbus.getRtuType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
+                device = Class.forName(mbus.getDeviceType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
                 if ((device != null) && (device.newInstance() instanceof AbstractMbusDevice)) {        // we check to see if it's an Mbus device and no TIC device
                     if (!mbusMap.containsKey(mbus.getSerialNumber())) {
                         getLogger().log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device.");
@@ -1019,7 +1019,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
             if (rtuType == null) {
                 getLogger().log(Level.INFO, "No rtutype defined with name '" + type + "'");
                 return null;
-            } else if (rtuType.getPrototypeRtu() == null) {
+            } else if (rtuType.getPrototypeDevice() == null) {
                 getLogger().log(Level.INFO, "Rtutype '" + type + "' has not prototype rtu");
                 return null;
             }

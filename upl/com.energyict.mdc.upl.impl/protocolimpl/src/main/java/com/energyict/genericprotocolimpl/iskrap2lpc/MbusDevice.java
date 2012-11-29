@@ -264,7 +264,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
 
                     dataHandler = initDatahandler();
                     List registerList = new ArrayList();
-                    Iterator it = getRtu().getRtuType().getRtuRegisterSpecs().iterator();
+                    Iterator it = getRtu().getDeviceType().getRegisterSpecs().iterator();
 
                     while (it.hasNext()) {
                         RegisterSpec spec = (RegisterSpec) it.next();

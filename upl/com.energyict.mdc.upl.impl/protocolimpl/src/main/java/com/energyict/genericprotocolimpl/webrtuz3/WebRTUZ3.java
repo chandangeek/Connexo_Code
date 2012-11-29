@@ -797,15 +797,15 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private void checkForDisappearedMbusMeters(List<DeviceMapping> mbusMap) {
 
-        List<Device> slaves = getMeter().getDownstreamRtus();
+        List<Device> slaves = getMeter().getDownstreamDevices();
         Iterator<Device> it = slaves.iterator();
         while (it.hasNext()) {
             Device mbus = it.next();
             Class device = null;
             try {
-                CommunicationProtocolShadow protocolShadow = mbus.getRtuType().getShadow().getCommunicationProtocolShadow();
+                CommunicationProtocolShadow protocolShadow = mbus.getDeviceType().getShadow().getCommunicationProtocolShadow();
                 if (protocolShadow == null) {
-                    log(Level.SEVERE, "Slave deviceType [" + mbus.getRtuType().displayString() + "] in EIServer has no communication protocol! Skipping device until fixed.");
+                    log(Level.SEVERE, "Slave deviceType [" + mbus.getDeviceType().displayString() + "] in EIServer has no communication protocol! Skipping device until fixed.");
                 } else {
                     device = Class.forName(protocolShadow.getJavaClassName());
                     if ((device != null) && (device.newInstance() instanceof MbusDevice)) {        // we check to see if it's an Mbus device and no TIC device
@@ -836,15 +836,15 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private void checkForDisappearedEMeters(List<DeviceMapping> eMeterMap) {
 
-        List<Device> slaves = getMeter().getDownstreamRtus();
+        List<Device> slaves = getMeter().getDownstreamDevices();
         Iterator<Device> it = slaves.iterator();
         while (it.hasNext()) {
             Device eMeter = it.next();
             Class device = null;
             try {
-                CommunicationProtocolShadow protocolShadow = eMeter.getRtuType().getShadow().getCommunicationProtocolShadow();
+                CommunicationProtocolShadow protocolShadow = eMeter.getDeviceType().getShadow().getCommunicationProtocolShadow();
                 if (protocolShadow == null) {
-                    log(Level.SEVERE, "Slave deviceType [" + eMeter.getRtuType().displayString() + "] in EIServer has no communication protocol! Skipping device until fixed.");
+                    log(Level.SEVERE, "Slave deviceType [" + eMeter.getDeviceType().displayString() + "] in EIServer has no communication protocol! Skipping device until fixed.");
                 } else {
                     device = Class.forName(protocolShadow.getJavaClassName());
                     if ((device != null) && (device.newInstance() instanceof EMeter)) {        // we check to see if it's an Mbus device and no TIC device
@@ -1053,16 +1053,16 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private boolean hasTicDevices() {
         Device tic;
-        List<Device> slaves = getMeter().getDownstreamRtus();
+        List<Device> slaves = getMeter().getDownstreamDevices();
         Iterator<Device> it = slaves.iterator();
         while (it.hasNext()) {
             tic = it.next();
             Class ticDevice = null;
 
             try {
-                CommunicationProtocolShadow protocolShadow = tic.getRtuType().getShadow().getCommunicationProtocolShadow();
+                CommunicationProtocolShadow protocolShadow = tic.getDeviceType().getShadow().getCommunicationProtocolShadow();
                 if (protocolShadow == null) {
-                    log(Level.SEVERE, "Slave deviceType [" + tic.getRtuType().displayString() + "] in EIServer has no communication protocol! Skipping device until fixed.");
+                    log(Level.SEVERE, "Slave deviceType [" + tic.getDeviceType().displayString() + "] in EIServer has no communication protocol! Skipping device until fixed.");
                 } else {
                     ticDevice = Class.forName(protocolShadow.getJavaClassName());
                     if ((ticDevice != null) && (ticDevice.newInstance() instanceof TicDevice)) {

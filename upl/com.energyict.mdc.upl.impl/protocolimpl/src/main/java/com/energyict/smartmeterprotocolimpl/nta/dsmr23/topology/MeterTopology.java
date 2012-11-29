@@ -312,7 +312,7 @@ public class MeterTopology implements MasterMeter {
             if (rtuType == null) {
                 log(Level.INFO, "No rtutype defined with name '" + type + "'");
                 return null;
-            } else if (rtuType.getPrototypeRtu() == null) {
+            } else if (rtuType.getPrototypeDevice() == null) {
                 log(Level.INFO, "Rtutype '" + type + "' has not prototype rtu");
                 return null;
             }

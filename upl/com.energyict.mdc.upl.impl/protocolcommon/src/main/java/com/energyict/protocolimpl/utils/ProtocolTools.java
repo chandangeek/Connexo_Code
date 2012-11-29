@@ -985,7 +985,7 @@ public final class ProtocolTools {
     public static Properties getRtuProperties(Device rtu) {
         Properties properties = new Properties();
         if (rtu != null) {
-            CommunicationProtocol protocol = rtu.getRtuType().getProtocol();
+            CommunicationProtocol protocol = rtu.getDeviceType().getProtocol();
             if (protocol != null) {
                 properties.putAll(protocol.getProperties().toStringProperties());
             }

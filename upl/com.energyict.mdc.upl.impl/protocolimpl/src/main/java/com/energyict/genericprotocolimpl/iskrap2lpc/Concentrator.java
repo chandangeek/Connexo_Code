@@ -155,7 +155,7 @@ public class Concentrator implements Messaging, GenericProtocol {
 
                     /** use the meters in the dataBase */
                     if (type == null) {
-                        meters = concentrator.getDownstreamRtus();
+                        meters = concentrator.getDownstreamDevices();
                         meters = collectSerialsFromRtuList(meters);
                     }
                     /** use the auto discovery - which means create all the meters if they don't exist */
@@ -165,7 +165,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                             meterList = getConnection().getMetersList();
                             meters = collectSerials(meterList);
                         } else {    /** But if you only want to write the clock or send messages, use the downStreamRtu's */
-                            meters = concentrator.getDownstreamRtus();        // returns a list with RTU's
+                            meters = concentrator.getDownstreamDevices();        // returns a list with RTU's
                             meters = collectSerialsFromRtuList(meters);        // returns a list with RTU serialnumbers
                         }
                     }
@@ -874,7 +874,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             if (rtuType == null) {
                 throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
             }
-            if (rtuType.getPrototypeRtu() == null) {
+            if (rtuType.getPrototypeDevice() == null) {
                 throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
             }
             return rtuType;
