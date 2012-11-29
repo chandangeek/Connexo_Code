@@ -1,18 +1,38 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ActivePassive;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
+import com.energyict.dlms.cosem.ChangeOfTenantManagement;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
@@ -31,7 +51,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -547,7 +570,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
 
         Structure structure = new Structure();
-        structure.addDataType(new Unsigned32((int) Calendar.getInstance().getTimeInMillis()));
+        structure.addDataType(new Unsigned32((int) (Calendar.getInstance().getTimeInMillis()/1000)));   // Use the number of seconds as ID
         OctetString octetString = OctetString.fromString((message.length() > 128 ? message.substring(0, 127) : message));
         structure.addDataType(octetString);
         structure.addDataType(new Unsigned16(duration));
