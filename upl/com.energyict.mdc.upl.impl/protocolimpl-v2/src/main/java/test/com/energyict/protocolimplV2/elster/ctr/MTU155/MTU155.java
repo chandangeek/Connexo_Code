@@ -10,7 +10,17 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.LogBook;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.DefaultDeviceRegister;
+import com.energyict.mdc.meterdata.DeviceLogBook;
+import com.energyict.mdc.meterdata.DeviceTopology;
+import com.energyict.mdc.meterdata.MaximumDemandDeviceRegister;
+import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterDataIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
@@ -24,10 +34,14 @@ import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.offline.OfflineRtu;
-import com.energyict.mdw.offline.OfflineRtuRegister;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterValue;
 import test.com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.events.CTRMeterEvent;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRException;
@@ -54,7 +68,7 @@ public class MTU155 implements DeviceProtocol {
     /**
      * The offline rtu
      */
-    private OfflineRtu offlineRtu;
+    private OfflineDevice offlineDevice;
 
     /**
      * Collection of all TypedProperties.
@@ -81,8 +95,8 @@ public class MTU155 implements DeviceProtocol {
     private LoadProfileBuilder loadProfileBuilder;
 
     @Override
-    public void init(OfflineRtu offlineDevice, ComChannel comChannel) {
-        this.offlineRtu = offlineDevice;
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = offlineDevice;
         updateRequestFactory(comChannel);
     }
 
@@ -260,14 +274,14 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public List<CollectedRegister> readRegisters(List<OfflineRtuRegister> rtuRegisters) {
+    public List<CollectedRegister> readRegisters(List<OfflineRegister> rtuRegisters) {
         /** While reading one of the registers, a blocking issue was encountered; this indicates it makes no sense to try to read out the other registers **/
         boolean blockingIssueEncountered = false;
         /** The blocking Communication Exception **/
         CommunicationException blockingIssue = null;
 
         List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
-        for (OfflineRtuRegister register : rtuRegisters) {
+        for (OfflineRegister register : rtuRegisters) {
             if (!blockingIssueEncountered) {
                 try {
                     RegisterValue registerValue = getObisCodeMapper().readRegister(register.getObisCode());
@@ -314,7 +328,7 @@ public class MTU155 implements DeviceProtocol {
      * CTRParsingException
      */
 
-    private DefaultDeviceRegister createBlockingIssueDeviceRegister(OfflineRtuRegister register, CommunicationException e) {
+    private DefaultDeviceRegister createBlockingIssueDeviceRegister(OfflineRegister register, CommunicationException e) {
         DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
         CTRException cause = (CTRException) e.getMessageArguments()[0];
         defaultDeviceRegister.setFailureInformation(ResultType.Other, new Problem<ObisCode>(register.getObisCode(), "registerXBlockingIssue", register.getObisCode(), cause));
@@ -347,7 +361,7 @@ public class MTU155 implements DeviceProtocol {
 
     public DeviceIdentifier getDeviceIdentifier() {
         if (deviceIdentifier == null) {
-            this.deviceIdentifier = new SerialNumberDeviceIdentifier(offlineRtu.getSerialNumber());
+            this.deviceIdentifier = new SerialNumberDeviceIdentifier(offlineDevice.getSerialNumber());
         }
         return deviceIdentifier;
     }
@@ -393,10 +407,10 @@ public class MTU155 implements DeviceProtocol {
     }
 
     public TimeZone getTimeZone() {
-        return offlineRtu.getTimeZone();
+        return offlineDevice.getTimeZone();
     }
 
-    private RegisterIdentifier getRegisterIdentifier(OfflineRtuRegister offlineRtuRegister) {
+    private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
         return new RegisterDataIdentifier(offlineRtuRegister.getObisCode(), new SerialNumberDeviceIdentifier(offlineRtuRegister.getSerialNumber()));
     }
 }

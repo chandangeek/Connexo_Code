@@ -7,12 +7,20 @@ import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.comserver.core.impl.online.ComServerDAOImpl;
 import com.energyict.comserver.main.online.ComServerLauncher;
 import com.energyict.comserver.tools.Strings;
-import com.energyict.cpo.*;
+import com.energyict.cpo.CreateEvent;
+import com.energyict.cpo.Environment;
+import com.energyict.cpo.IdBusinessObject;
+import com.energyict.cpo.ShadowList;
+import com.energyict.cpo.Transaction;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.ip.socket.TcpIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.*;
+import com.energyict.mdc.ports.ComPortPool;
+import com.energyict.mdc.ports.ComPortPoolFactory;
 import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.ports.OutboundComPort;
+import com.energyict.mdc.ports.OutboundComPortPool;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClassImpl;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
@@ -22,15 +30,48 @@ import com.energyict.mdc.shadow.protocol.task.BasicCheckTaskShadow;
 import com.energyict.mdc.shadow.protocol.task.LoadProfilesTaskShadow;
 import com.energyict.mdc.shadow.protocol.task.RegistersTaskShadow;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
-import com.energyict.mdc.shadow.tasks.*;
+import com.energyict.mdc.shadow.tasks.ComTaskShadow;
+import com.energyict.mdc.shadow.tasks.ConnectionMethodShadow;
+import com.energyict.mdc.shadow.tasks.ConnectionTaskPropertyShadow;
+import com.energyict.mdc.shadow.tasks.DeviceProtocolDialectPropertyShadow;
+import com.energyict.mdc.shadow.tasks.NextExecutionSpecsShadow;
+import com.energyict.mdc.shadow.tasks.OutboundConnectionTaskShadow;
+import com.energyict.mdc.shadow.tasks.ProtocolDialectPropertiesShadow;
+import com.energyict.mdc.shadow.tasks.ScheduledComTaskShadow;
 import com.energyict.mdc.system.properties.HostName;
-import com.energyict.mdc.tasks.*;
-import com.energyict.mdw.amr.RegisterMapping;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.ComTaskExecution;
+import com.energyict.mdc.tasks.ComTaskFactory;
+import com.energyict.mdc.tasks.ConnectionStrategy;
+import com.energyict.mdc.tasks.ConnectionTypePluggableClass;
+import com.energyict.mdc.tasks.ConnectionTypePluggableClassImpl;
+import com.energyict.mdc.tasks.ConnectionTypeRelationTypeCreator;
+import com.energyict.mdc.tasks.DeviceProtocolDialectRelationTypeCreator;
+import com.energyict.mdc.tasks.OutboundConnectionTask;
+import com.energyict.mdc.tasks.ProtocolDialectProperties;
+import com.energyict.mdc.tasks.ScheduledComTask;
+import com.energyict.mdc.tasks.ServerNextExecutionSpecs;
 import com.energyict.mdw.amr.RegisterGroup;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.amr.RegisterMapping;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceConfig;
+import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.Folder;
+import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdw.core.LoadProfileType;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.PluggableClass;
+import com.energyict.mdw.core.PluggableClassType;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.relation.RelationType;
-import com.energyict.mdw.shadow.*;
+import com.energyict.mdw.shadow.DeviceConfigShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
+import com.energyict.mdw.shadow.DeviceTypeShadow;
+import com.energyict.mdw.shadow.LoadProfileShadow;
+import com.energyict.mdw.shadow.LoadProfileTypeShadow;
+import com.energyict.mdw.shadow.PluggableClassShadow;
 import com.energyict.mdw.shadow.amr.RegisterGroupShadow;
 import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 import com.energyict.obis.ObisCode;
@@ -209,7 +250,7 @@ public final class ComServerTCPAM100Demo {
             }
             this.deleteBusinessObject(this.outboundComPortPool);
             this.deleteBusinessObject(this.protocolDialectProperties);
-            for (ProtocolDialectProperties dialectProperties : ManagerFactory.getCurrent().getProtocolDialectPropertiesFactory().findProtocolDialectPropertiesForRtu(this.rtu.getId())) {
+            for (ProtocolDialectProperties dialectProperties : ManagerFactory.getCurrent().getProtocolDialectPropertiesFactory().findProtocolDialectPropertiesForDevice(this.rtu.getId())) {
                 this.deleteBusinessObject(dialectProperties);
             }
             this.deleteBusinessObject(this.rtu);
@@ -296,7 +337,7 @@ public final class ComServerTCPAM100Demo {
     }
 
     private boolean findOrCreateScheduledComTask() {
-        List<ScheduledComTask> byRtu = ManagerFactory.getCurrent().getComTaskExecutionFactory().findScheduledByRtu(this.rtu);
+        List<ScheduledComTask> byRtu = ManagerFactory.getCurrent().getComTaskExecutionFactory().findScheduledByDevice(this.rtu);
         if (byRtu.isEmpty()) {
             try {
                 System.out.println("Creating Demo ScheduledComTask for ConnectionTask that will reschedule every " + EVERY_MINUTE.toString());
@@ -304,7 +345,7 @@ public final class ComServerTCPAM100Demo {
                 NextExecutionSpecsShadow nextExecutionSpecs = new NextExecutionSpecsShadow();
                 nextExecutionSpecs.setFrequency(EVERY_MINUTE);
                 shadow.setNextExecutionSpecs(nextExecutionSpecs);
-                shadow.setRtuId(this.rtu.getId());
+                shadow.setDeviceId(this.rtu.getId());
                 shadow.setComTaskId(this.comTask.getId());
                 shadow.setProtocolDialectPropertiesId(this.protocolDialectProperties.getId());
                 this.scheduledComTask = ManagerFactory.getCurrent().getComTaskExecutionFactory().createScheduled(shadow);
@@ -335,7 +376,7 @@ public final class ComServerTCPAM100Demo {
     }
 
     private boolean findOrCreateConnectionTask() {
-        List<OutboundConnectionTask> outboundByRtu = ManagerFactory.getCurrent().getConnectionTaskFactory().findOutboundByRtu(this.rtu);
+        List<OutboundConnectionTask> outboundByRtu = ManagerFactory.getCurrent().getConnectionTaskFactory().findOutboundByDevice(this.rtu);
         if (outboundByRtu == null || outboundByRtu.isEmpty()) {
             try {
                 this.connectionTask = this.createConnectionTask();
@@ -358,7 +399,7 @@ public final class ComServerTCPAM100Demo {
     private OutboundConnectionTask createConnectionTask() throws BusinessException, SQLException {
         System.out.println("Creating Demo TCP ConnectionTask");
         OutboundConnectionTaskShadow shadow = new OutboundConnectionTaskShadow();
-        shadow.setRtuId(this.rtu.getId());
+        shadow.setDeviceId(this.rtu.getId());
         shadow.setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         shadow.setDefault(true);
         ConnectionMethodShadow connectionMethodShadow = new ConnectionMethodShadow(this.connectionTypePluggableClass);
@@ -521,7 +562,7 @@ public final class ComServerTCPAM100Demo {
     private ProtocolDialectProperties createProtocolDialectProperties(Device rtu) throws BusinessException, SQLException {
         ProtocolDialectPropertiesShadow shadow = new ProtocolDialectPropertiesShadow();
         shadow.setName("DSM23DemoDialectName");
-        shadow.setRtuId(rtu.getId());
+        shadow.setDeviceId(rtu.getId());
         shadow.setDeviceProtocolDialectName(DeviceProtocolDialectNameEnum.DSMR23_DEVICE_PROTOCOL_DIALECT_NAME.getName());
         shadow.setDeviceProtocolPluggableClassId(this.deviceProtocolPluggableClass.getId());
         List<DeviceProtocolDialectPropertyShadow> propertyShadows = new ArrayList<DeviceProtocolDialectPropertyShadow>();
@@ -767,7 +808,7 @@ public final class ComServerTCPAM100Demo {
         RegistersTaskShadow registersTaskShadow = new RegistersTaskShadow();
         ShadowList<RegisterGroupShadow> rtuRegisterGroupShadowList = new ShadowList<RegisterGroupShadow>();
         rtuRegisterGroupShadowList.add(MeteringWarehouse.getCurrent().getRegisterGroupFactory().findByName("Read Group").get(0).getShadow());
-        registersTaskShadow.setRtuRegisterGroupShadowList(rtuRegisterGroupShadowList);
+        registersTaskShadow.setRegisterGroupShadows(rtuRegisterGroupShadowList);
         return registersTaskShadow;
     }
 

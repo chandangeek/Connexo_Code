@@ -3,7 +3,12 @@ package test.com.energyict.protocolimplV2.nta.dsmr23;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.comserver.issues.Problem;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -12,7 +17,11 @@ import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
+import com.energyict.dlms.cosem.attributes.DataAttributes;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.meterdata.MaximumDemandDeviceRegister;
@@ -21,7 +30,7 @@ import com.energyict.mdc.meterdata.identifiers.RegisterDataIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdw.offline.OfflineRtuRegister;
+import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
@@ -32,7 +41,11 @@ import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -64,8 +77,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     public static final ObisCode MbusDisconnectOutputState = ObisCode.fromString("0.x.24.4.130.255");
 
     protected final AbstractNtaProtocol protocol;
-    private Map<OfflineRtuRegister, ComposedRegister> composedRegisterMap = new HashMap<OfflineRtuRegister, ComposedRegister>();
-    protected Map<OfflineRtuRegister, DLMSAttribute> registerMap = new HashMap<OfflineRtuRegister, DLMSAttribute>();
+    private Map<OfflineRegister, ComposedRegister> composedRegisterMap = new HashMap<OfflineRegister, ComposedRegister>();
+    protected Map<OfflineRegister, DLMSAttribute> registerMap = new HashMap<OfflineRegister, DLMSAttribute>();
 
     public Dsmr23RegisterFactory(final AbstractNtaProtocol protocol) {
         this.protocol = protocol;
@@ -79,11 +92,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      * @param rtuRegisters The OfflineRtuRegisters for which to request a value
      * @return a <code>List</code> of collected register values
      */
-    public List<CollectedRegister> readRegisters(List<OfflineRtuRegister> rtuRegisters) {
+    public List<CollectedRegister> readRegisters(List<OfflineRegister> rtuRegisters) {
         List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
 
         ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(rtuRegisters, this.protocol.supportsBulkRequests());
-        for (OfflineRtuRegister register : rtuRegisters) {
+        for (OfflineRegister register : rtuRegisters) {
             RegisterValue rv = null;
             try {
                 if (this.composedRegisterMap.containsKey(register)) {
@@ -134,11 +147,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      * @param supportsBulkRequest indicates whether a DLMS Bulk reques(getWithList) is desired
      * @return a ComposedCosemObject or null if the list was empty
      */
-    protected ComposedCosemObject constructComposedObjectFromRegisterList(List<OfflineRtuRegister> registers, boolean supportsBulkRequest) {
+    protected ComposedCosemObject constructComposedObjectFromRegisterList(List<OfflineRegister> registers, boolean supportsBulkRequest) {
 
         if (registers != null) {
             List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
-            for (OfflineRtuRegister register : registers) {
+            for (OfflineRegister register : registers) {
                 ObisCode rObisCode = getCorrectedRegisterObisCode(register);
 
                 if (rObisCode != null) {
@@ -208,7 +221,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         return null;
     }
 
-    public ObisCode getCorrectedRegisterObisCode(OfflineRtuRegister register) {
+    public ObisCode getCorrectedRegisterObisCode(OfflineRegister register) {
         return this.protocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
     }
 
@@ -223,7 +236,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         return new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), 0, oc.getF());
     }
 
-    protected RegisterValue convertCustomAbstractObjectsToRegisterValues(OfflineRtuRegister register, AbstractDataType abstractDataType) throws IOException {
+    protected RegisterValue convertCustomAbstractObjectsToRegisterValues(OfflineRegister register, AbstractDataType abstractDataType) throws IOException {
         ObisCode rObisCode = getCorrectedRegisterObisCode(register);
         if (rObisCode.equals(ACTIVITY_CALENDAR)) {
             return new RegisterValue(register, null, null, null, null, new Date(), 0, new String(((OctetString) abstractDataType).getOctetStr()));
@@ -301,11 +314,11 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private RegisterIdentifier getRegisterIdentifier(OfflineRtuRegister offlineRtuRegister) {
+    private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
         return new RegisterDataIdentifier(offlineRtuRegister.getObisCode(), new SerialNumberDeviceIdentifier(offlineRtuRegister.getSerialNumber()));
     }
 
-    private CollectedRegister createFailureCollectedRegister(OfflineRtuRegister register, ResultType resultType, Object... arguments) {
+    private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, new Problem<ObisCode>(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
