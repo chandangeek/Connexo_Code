@@ -15,7 +15,7 @@ import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdw.offline.OfflineRtu;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.HHUEnabler;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     /**
      * The offline rtu
      */
-    private OfflineRtu offlineDevice;
+    private OfflineDevice offlineDevice;
 
     /**
      * The ComChannel
@@ -70,7 +70,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     protected abstract void initAfterConnect();
 
     @Override
-    public void init(OfflineRtu offlineDevice, ComChannel comChannel) {
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         this.comChannel = comChannel;
     }
@@ -282,7 +282,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
         return dlmsCache;
     }
 
-    public OfflineRtu getOfflineDevice() {
+    public OfflineDevice getOfflineDevice() {
         return offlineDevice;
     }
 
