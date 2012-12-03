@@ -38,10 +38,10 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol implements MasterMeter, SimpleMeter, MessageProtocol, WakeUpProtocolSupport, PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
-    private static final int ObisCodeBFieldIndex = 1;
-    
-    private static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
-    private static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
+    public static final int ObisCodeBFieldIndex = 1;
+
+    public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
+    public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
 
 
     public abstract MessageProtocol getMessageProtocol();
@@ -288,7 +288,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         } else {
             address = getPhysicalAddressFromSerialNumber(serialNumber);
         }
-        if((address == 0 && obisCode.getB() != -1) || obisCode.getB() == 128) { // then don't correct the obisCode
+        if ((address == 0 && obisCode.getB() != -1) || obisCode.getB() == 128) { // then don't correct the obisCode
             return obisCode;
         }
         if (address != -1) {
@@ -435,5 +435,14 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
 
     public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
         return new LoadProfileRegisterMessageBuilder();
+    }
+
+    /**
+     * Sets a custom LoadProfileBuilder object
+     *
+     * @param loadProfileBuilder the loadProfileBuilder to set
+     */
+    protected void setLoadProfileBuilder(LoadProfileBuilder loadProfileBuilder) {
+        this.loadProfileBuilder = loadProfileBuilder;
     }
 }

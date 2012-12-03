@@ -171,7 +171,7 @@ public class LoadProfileBuilder {
      * @return a list of Registers
      * @throws java.io.IOException if an error occurred during dataFetching or -Parsing
      */
-    private List<CapturedRegisterObject> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
+    protected List<CapturedRegisterObject> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
         List<CapturedRegisterObject> channelRegisters = new ArrayList<CapturedRegisterObject>();
         if (this.expectedLoadProfileReaders != null) {
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
@@ -193,16 +193,14 @@ public class LoadProfileBuilder {
                     List<CapturedRegisterObject> coRegisters = new ArrayList<CapturedRegisterObject>();
                     for (CapturedObject co : capturedObjects) {
                         String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
-//                        if ((deviceSerialNumber != null) && (!deviceSerialNumber.equals(""))) {
-                            DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
-                            CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
+                        DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
+                        CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
-                            // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
-                            if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
-                                channelRegisters.add(reg);
-                            }
-                            coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
-//                        }
+                        // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
+                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
+                            channelRegisters.add(reg);
+                        }
+                        coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
                 } //TODO should we log this if we didn't get it???
@@ -228,7 +226,6 @@ public class LoadProfileBuilder {
 
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
                 if (uo != null) {
-                    //TODO do we need to check the classId???
                     if (uo.getDLMSClassId().isRegister()) {
                         DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
                         dlmsAttributes.add(unitAttribute);
@@ -260,7 +257,7 @@ public class LoadProfileBuilder {
      * @return a constructed list of <CODE>ChannelInfos</CODE>
      * @throws java.io.IOException when an error occurred during dataFetching or -Parsing
      */
-    private List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
+    protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         for (CapturedRegisterObject registerUnit : registers) {
             if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
@@ -288,7 +285,7 @@ public class LoadProfileBuilder {
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
             if (isStatusObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
-                statusMask |= (int)Math.pow(2, counter);
+                statusMask |= (int) Math.pow(2, counter);
             }
             counter++;
         }
@@ -427,5 +424,21 @@ public class LoadProfileBuilder {
 
     protected AbstractSmartNtaProtocol getMeterProtocol() {
         return meterProtocol;
+    }
+
+    protected Map<LoadProfileReader, ComposedProfileConfig> getLpConfigMap() {
+        return lpConfigMap;
+    }
+
+    protected Map<LoadProfileReader, List<CapturedRegisterObject>> getCapturedObjectRegisterListMap() {
+        return capturedObjectRegisterListMap;
+    }
+
+    protected List<LoadProfileReader> getExpectedLoadProfileReaders() {
+        return expectedLoadProfileReaders;
+    }
+
+    protected Map<CapturedRegisterObject, DLMSAttribute> getRegisterUnitMap() {
+        return registerUnitMap;
     }
 }

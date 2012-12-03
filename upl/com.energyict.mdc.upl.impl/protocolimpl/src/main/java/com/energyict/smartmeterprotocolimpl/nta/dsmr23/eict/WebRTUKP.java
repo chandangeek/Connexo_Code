@@ -5,10 +5,12 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
@@ -21,6 +23,10 @@ import java.io.IOException;
  * Time: 11:58:33
  */
 public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging, HHUEnabler {
+
+    public WebRTUKP() {
+        setLoadProfileBuilder(new WebRTUKPLoadProfileBuilder(this));
+    }
 
     @Override
     public MessageProtocol getMessageProtocol() {
@@ -39,6 +45,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
 
     /**
      * Returns the implementation version
+     *
      * @return a version string
      */
     @Override
@@ -87,5 +94,32 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
      */
     public byte[] getHHUDataReadout() {
         return getDlmsSession().getDLMSConnection().getHhuSignOn().getDataReadout();
+    }
+
+    /**
+     * Return a B-Field corrected ObisCode.
+     *
+     * @param obisCode     the ObisCode to correct
+     * @param serialNumber the serialNumber of the device for which this ObisCode must be corrected
+     * @return the corrected ObisCode
+     */
+    @Override
+    public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
+        int address;
+
+        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
+            address = 0;
+        } else {
+            address = getPhysicalAddressFromSerialNumber(serialNumber);
+        }
+
+        if ((address == 0 && obisCode.getB() != -1 && obisCode.getB() != 128)) { // then don't correct the obisCode
+            return obisCode;
+        }
+
+        if (address != -1) {
+            return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
+        }
+        return null;
     }
 }
