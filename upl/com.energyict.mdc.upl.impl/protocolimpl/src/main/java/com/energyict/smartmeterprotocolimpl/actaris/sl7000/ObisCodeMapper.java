@@ -7,7 +7,11 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.Register;
@@ -25,6 +29,8 @@ import java.util.Date;
 */
 public class ObisCodeMapper {
 
+    public static final ObisCode OBISCODE_SERIAL_NUMBER_OBJ1 = ObisCode.fromString("0.0.96.1.0.255");
+    public static final ObisCode OBISCODE_SERIAL_NUMBER_OBJ2 = ObisCode.fromString("0.0.96.1.255.255");
     private static ObisCode OBIS_NUMBER_OF_AVAILABLE_HISTORICAL_SETS = ObisCode.fromString("0.0.0.1.1.255");
 
     ActarisSl7000 meterProtocol;
@@ -71,7 +77,7 @@ public class ObisCodeMapper {
             return new RegisterValue(register, meterProtocol.getFirmwareVersion());
         }
         // Serial number
-        if(obisCode.equals(ComposedMeterInfo.SERIALNR.getObisCode())) {
+        if(obisCode.equals(OBISCODE_SERIAL_NUMBER_OBJ1)) {
             return new RegisterValue(register,  meterProtocol.getMeterSerialNumber());
         }
         // Programming ID

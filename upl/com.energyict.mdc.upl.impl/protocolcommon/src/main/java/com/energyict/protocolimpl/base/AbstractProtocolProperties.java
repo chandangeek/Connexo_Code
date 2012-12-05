@@ -98,6 +98,10 @@ public abstract class AbstractProtocolProperties implements ProtocolProperties {
         return Long.parseLong(getStringValue(propertyName, defaultValue));
     }
 
+    protected double getDoubleProperty(String propertyName, String defaultValue) {
+        return Double.parseDouble(getStringValue(propertyName, defaultValue));
+    }
+
     protected boolean getBooleanProperty(String propertyName, String defaultValue) {
         return getIntProperty(propertyName, defaultValue) == 1;
     }

@@ -15,12 +15,10 @@ import java.io.IOException;
  */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
-    public static final DLMSAttribute SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");
     public static final DLMSAttribute FIRMWARE_VERSION = DLMSAttribute.fromString("1:0.0.142.1.1.255:2");
     public static final DLMSAttribute CONFIG_NUMBER = DLMSAttribute.fromString("1:0.0.96.2.0.255:2");
     public static final DLMSAttribute CONFIG_ID = DLMSAttribute.fromString("1:0.0.96.2.0.255:4");
 
-    private String serialNumber;
     private String firmwareVersion;
     private int configNumber;
     private String configId;
@@ -31,7 +29,6 @@ public class ComposedMeterInfo extends ComposedCosemObject {
 
     private static DLMSAttribute[] getDlmsAttributes() {
         return new DLMSAttribute[] {
-                SERIALNR,
                 FIRMWARE_VERSION,
                 CONFIG_NUMBER,
                 CONFIG_ID
@@ -48,20 +45,6 @@ public class ComposedMeterInfo extends ComposedCosemObject {
             firmwareVersion = strbuff.toString();
         }
         return firmwareVersion;
-    }
-
-    public String getSerialNr() throws IOException {
-        if (serialNumber == null) {
-            AbstractDataType attribute = getAttribute(SERIALNR);
-            if (attribute instanceof OctetString) {
-                serialNumber = attribute.getOctetString().stringValue();
-            } else if (attribute instanceof VisibleString) {
-                serialNumber = attribute.getVisibleString().getStr();
-            } else {
-                throw new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
-            }
-        }
-        return serialNumber;
     }
 
     public int getNumberOfConfigurationChanges() throws IOException {

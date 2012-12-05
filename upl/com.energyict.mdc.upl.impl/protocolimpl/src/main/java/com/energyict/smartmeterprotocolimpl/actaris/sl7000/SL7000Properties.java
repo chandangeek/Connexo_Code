@@ -17,6 +17,7 @@ import java.util.List;
 public class SL7000Properties extends DlmsProtocolProperties {
 
     public static final String USE_REGISTER_PROFILE = "UseRegisterProfile";
+    public static final String FIRMWARE_VERSION = "FirmwareVersion";
 
     public static final String DEFAULT_SECURITY_LEVEL = "1:0";
     public static final String DEFAULT_ADDRESSING_MODE = "-1";
@@ -24,6 +25,8 @@ public class SL7000Properties extends DlmsProtocolProperties {
     public static final String DEFAULT_SERVER_MAC_ADDRESS = "1:17";
     public static final String DEFAULT_MAX_REC_PDU_SIZE = "0";
     public static final String DEAULT_USE_REGISTER_PROFILE = "0";
+    public static final String DEFAULT_FIRMWARE_VERSION = "5";
+
 
     public List<String> getOptionalKeys() {
         List result = new ArrayList();
@@ -34,6 +37,7 @@ public class SL7000Properties extends DlmsProtocolProperties {
         result.add(CLIENT_MAC_ADDRESS);
         result.add(SERVER_MAC_ADDRESS);
         result.add(USE_REGISTER_PROFILE);
+        result.add(FIRMWARE_VERSION);
         return result;
     }
 
@@ -87,6 +91,21 @@ public class SL7000Properties extends DlmsProtocolProperties {
 
     public boolean useRegisterProfile() {
         return getBooleanProperty(USE_REGISTER_PROFILE, DEAULT_USE_REGISTER_PROFILE);
+    }
+
+    /**
+     * Based on firmware version custom property, check if the device has an old type of firmware.
+     * For old firmware versions(e.g. ACTARIS 3.65), not all commands are supported.
+     *
+     * @return
+     */
+    public boolean isOldFirmware() {
+        double version = getDoubleProperty(FIRMWARE_VERSION, DEFAULT_FIRMWARE_VERSION);
+        if (version < 4) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @ProtocolProperty
