@@ -1,13 +1,32 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -78,7 +97,12 @@ public class LoadProfileBuilder {
             LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getMeterSerialNumber());
 
             try {
-                UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), lpr.getProfileObisCode());
+                UniversalObject uo;
+                if (!meterProtocol.getProperties().isOldFirmware()) {
+                    uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), lpr.getProfileObisCode());
+                } else {
+                    uo = new UniversalObject(lpr.getProfileObisCode(), DLMSClassId.PROFILE_GENERIC);
+                }
                 ProfileGeneric pg = new ProfileGeneric(meterProtocol.getDlmsSession(), new ObjectReference(uo.getLNArray(), DLMSClassId.PROFILE_GENERIC.getClassId()));
 
                 List<ChannelInfo> channelInfos = constructChannelInfos(pg, lpr);
