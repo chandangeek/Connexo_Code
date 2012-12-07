@@ -98,7 +98,7 @@ public class LoadProfileBuilder {
 
             try {
                 UniversalObject uo;
-                if (!meterProtocol.getProperties().isOldFirmware()) {
+                if (!meterProtocol.isOldFirmware()) {
                     uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), lpr.getProfileObisCode());
                 } else {
                     uo = new UniversalObject(lpr.getProfileObisCode(), DLMSClassId.PROFILE_GENERIC);

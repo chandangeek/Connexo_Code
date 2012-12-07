@@ -12,6 +12,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
@@ -65,6 +66,12 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     private String meterSerial;
 
     /**
+     * Boolean indicating whether or not this device has an old type of firmware.
+     * In this case, some commands (for example the MAC association release) are not supported.
+     */
+    private boolean oldFirmware;
+
+    /**
      * The LoadProfileBuilder, used for fetching the LoadProfileConfiguration and reading of the LoadProfiles.
      */
     private LoadProfileBuilder loadProfileBuilder;
@@ -93,7 +100,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     @Override
     public void disconnect() throws IOException {
         try {
-            if (getDlmsSession().getDLMSConnection() != null && !getProperties().isOldFirmware()) {
+            if (getDlmsSession().getDLMSConnection() != null && !isOldFirmware()) {
                 getDlmsSession().getDLMSConnection().disconnectMAC();
             }
         } catch (IOException e) {
@@ -146,12 +153,14 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         if (meterSerial == null) {
             String serial;
             Data data;
-            if (!getProperties().isOldFirmware()) {
+            try  {
                 data = getDlmsSession().getCosemObjectFactory().getData(ObisCodeMapper.OBISCODE_SERIAL_NUMBER_OBJ1);
-            } else {
+                serial = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
+            } catch (DataAccessResultException e) {
+                oldFirmware = true;
                 data = getDlmsSession().getCosemObjectFactory().getData(ObisCodeMapper.OBISCODE_SERIAL_NUMBER_OBJ2);
+                serial = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
             }
-            serial = AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
             meterSerial = serial;
         }
 
@@ -197,6 +206,10 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         }
         return meterInfo;
     }
+
+      public boolean isOldFirmware() {
+          return oldFirmware;
+      }
 
      private LoadProfileBuilder getLoadProfileBuilder() {
         if (loadProfileBuilder == null) {
