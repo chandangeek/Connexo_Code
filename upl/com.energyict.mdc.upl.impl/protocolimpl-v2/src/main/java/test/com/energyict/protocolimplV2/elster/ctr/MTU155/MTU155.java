@@ -8,7 +8,6 @@ import com.energyict.comserver.issues.Problem;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.LogBook;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
@@ -34,11 +33,13 @@ import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
@@ -213,31 +214,6 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public List<CollectedLogBook> getMeterEvents(List<LogBook> logBooks) {
-        List<CollectedLogBook> collectedLogBooks = new ArrayList<CollectedLogBook>(1);
-        CollectedLogBook collectedLogBook;
-
-        LogBook logBook = logBooks.get(0);
-        try {
-            Date lastLogBookReading = logBook.getLastLogBookReading();
-            CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
-            List<MeterEvent> meterEvents = meterEvent.getMeterEvents(lastLogBookReading);
-
-            collectedLogBook = new DeviceLogBook(0, ResultType.Supported);  //ToDo: id?
-            ((DeviceLogBook) collectedLogBook).setMeterEvents(meterEvents);
-        } catch (CTRException e) {
-            collectedLogBook = new DeviceLogBook(0, ResultType.InCompatible);//ToDO: id?
-            collectedLogBook.setFailureInformation(ResultType.InCompatible, new Problem<LogBook>(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
-        } catch (CommunicationException e) {                                                                                           //ToDO: add DB key to todo-resources.sql
-            collectedLogBook = new DeviceLogBook(0, ResultType.Other); //Todo: id?
-            collectedLogBook.setFailureInformation(ResultType.Other, new Problem<LogBook>(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
-        }                                                                                                                               //ToDO: add DB key to todo-resources.sql
-
-        collectedLogBooks.add(collectedLogBook);
-        return collectedLogBooks;
-    }
-
-    @Override
     public List<DeviceMessageSpec> getSupportedStandardMessages() {
         return null;  //ToDo
     }
@@ -407,10 +383,35 @@ public class MTU155 implements DeviceProtocol {
     }
 
     public TimeZone getTimeZone() {
-        return offlineDevice.getTimeZone();
+        return TimeZone.getTimeZone((String) offlineDevice.getAllProperties().getProperty("TimeZone")); // TODO should make sure the timeZone is defined as property
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
         return new RegisterDataIdentifier(offlineRtuRegister.getObisCode(), new SerialNumberDeviceIdentifier(offlineRtuRegister.getSerialNumber()));
+    }
+
+    @Override
+    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+        List<CollectedLogBook> collectedLogBooks = new ArrayList<CollectedLogBook>(1);
+        CollectedLogBook collectedLogBook;
+
+        LogBookReader logBook = logBooks.get(0);
+        try {
+            Date lastLogBookReading = logBook.getLastLogBook();
+            CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
+            List<MeterEvent> meterEvents = meterEvent.getMeterEvents(lastLogBookReading);
+
+            collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
+            ((DeviceLogBook) collectedLogBook).setMeterEvents(meterEvents);
+        } catch (CTRException e) {
+            collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
+            collectedLogBook.setFailureInformation(ResultType.InCompatible, new Problem<LogBookReader>(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+        } catch (CommunicationException e) {                                                                                           //ToDO: add DB key to todo-resources.sql
+            collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
+            collectedLogBook.setFailureInformation(ResultType.Other, new Problem<LogBookReader>(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+        }                                                                                                                               //ToDO: add DB key to todo-resources.sql
+
+        collectedLogBooks.add(collectedLogBook);
+        return collectedLogBooks;
     }
 }

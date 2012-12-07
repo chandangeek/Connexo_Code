@@ -18,6 +18,7 @@ import java.util.Properties;
 public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
 
     public static final String TIMEOUT = "Timeout";
+    public static final String TIMEZONE = "TimeZone";
     public static final String RETRIES = "Retries";
     public static final String FORCED_DELAY = "ForcedDelay";
     public static final String DELAY_AFTER_ERROR = "DelayAfterError";
@@ -46,6 +47,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
 
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
+    public static final String DEFAULT_TIMEZONE = "GMT";
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
     public static final BigDecimal DEFAULT_FORCED_DELAY = new BigDecimal(0);
     public static final BigDecimal DEFAULT_DELAY_AFTER_ERROR = new BigDecimal(100);
@@ -114,6 +116,11 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     @ProtocolProperty
     public int getTimeout() {
         return getIntProperty(TIMEOUT, DEFAULT_TIMEOUT);
+    }
+
+    @ProtocolProperty
+    public String getTimeZone() {
+        return getStringValue(TIMEZONE, DEFAULT_TIMEZONE);
     }
 
     @ProtocolProperty

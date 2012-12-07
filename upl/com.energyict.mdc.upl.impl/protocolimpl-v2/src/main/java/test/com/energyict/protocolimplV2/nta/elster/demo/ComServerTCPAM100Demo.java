@@ -22,6 +22,7 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.OutboundComPort;
 import com.energyict.mdc.ports.OutboundComPortPool;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClassImpl;
+import com.energyict.mdc.protocol.ServerDeviceProtocolPluggableClass;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.shadow.ports.OutboundComPortPoolShadow;
@@ -126,7 +127,7 @@ public final class ComServerTCPAM100Demo {
     private Device rtu;
     private ProtocolDialectProperties protocolDialectProperties;
     private ConnectionTypePluggableClass connectionTypePluggableClass;
-    private DeviceProtocolPluggableClassImpl deviceProtocolPluggableClass;
+    private ServerDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private RelationType tcpConnectionTypeRelationType;
     private RelationType dialectRelationType;
     private ComTask comTask;
@@ -312,7 +313,7 @@ public final class ComServerTCPAM100Demo {
                 createDeviceProtocolDialectRelationTypes(deviceProtocol);
             }
 
-            this.deviceProtocolPluggableClass = DeviceProtocolPluggableClassImpl.newForPluggableClass(deviceProtocol);
+            this.deviceProtocolPluggableClass = ManagerFactory.getCurrent().getDeviceProtocolPluggableClassFactory().newForPluggableClass(deviceProtocol);
         } catch (BusinessException e) {
             e.printStackTrace(System.err);
             System.out.println("Failed to create DeviceProtocol, see stacktrace above");

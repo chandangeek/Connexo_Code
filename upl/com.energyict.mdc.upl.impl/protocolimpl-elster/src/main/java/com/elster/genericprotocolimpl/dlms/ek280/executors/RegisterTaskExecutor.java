@@ -25,7 +25,7 @@ public class RegisterTaskExecutor extends AbstractExecutor<RegisterTaskExecutor.
     public void execute(RegisterTask registerTask) throws IOException {
         List<Register> registers = registerTask.getRegisters();
         for (Register register : registers) {
-            RegisterSpec registerSpec = register.getRtuRegisterSpec();
+            RegisterSpec registerSpec = register.getRegisterSpec();
             ObisCode obis = registerSpec.getDeviceObisCode();
             ObisCode obisToRead;
             if (obis == null) {

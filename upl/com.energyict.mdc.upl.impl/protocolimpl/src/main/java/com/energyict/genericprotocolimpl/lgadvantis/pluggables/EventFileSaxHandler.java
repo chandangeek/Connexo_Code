@@ -4,7 +4,9 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceEventShadow;
 import com.energyict.mdw.shadow.DeviceMessageShadow;
+import com.energyict.protocol.MeterData;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 import com.energyict.protocolimpl.edf.messages.MessageDiscoverMeters;
 import org.xml.sax.Attributes;
@@ -76,16 +78,14 @@ public class EventFileSaxHandler extends DefaultHandler {
 				//Create the deviceEvent
 				for (Iterator it=rtus.iterator(); it.hasNext();){
 					Device rtu = (Device) it.next();
-						
-					DeviceEventShadow shadow = new DeviceEventShadow();
-					shadow.setCode(deviceCodeTranslation(alarmId.intValue()));
-					shadow.setDeviceCode(alarmId.intValue());
-					shadow.setDate(Calendar.getInstance().getTime());
-					shadow.setMessage(alarmDescription);
-					shadow.setRtuId(rtu.getId());
-
-					rtu.addEvent(shadow);
-
+                    List<LogBook> logBooks = rtu.getLogBooks();
+                    if(logBooks.size() == 1){
+                        MeterData md = new MeterData();
+                        md.addMeterEvent(new MeterProtocolEvent(new Date(), alarmId.intValue(), alarmId.intValue(),
+                                alarmDescription,
+                                0, logBooks.get(0).getId(), 0));
+                        rtu.store(md);
+                    }
 				}
 			}
 		} catch (NumberFormatException e) {

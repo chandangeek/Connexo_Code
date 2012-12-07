@@ -216,7 +216,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
             try {
                 Register rtuRegister = (Register) registerIterator.next();
                 if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
-                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
+                    obisCode = rtuRegister.getRegisterSpec().getObisCode();
                     try {
                         RegisterValue registerValue = readRegister(obisCode);
                         if (registerValue != null) {

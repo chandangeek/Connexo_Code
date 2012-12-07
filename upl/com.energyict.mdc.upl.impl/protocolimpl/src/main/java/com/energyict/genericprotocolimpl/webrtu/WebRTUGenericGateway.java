@@ -323,10 +323,10 @@ public class WebRTUGenericGateway implements GenericProtocol {
     }
 
     private ObisCode getCorrectedObisCode(Register slaveRegister) {
-        ObisCode obisCode = slaveRegister.getRtuRegisterSpec().getDeviceObisCode();
+        ObisCode obisCode = slaveRegister.getRegisterSpec().getDeviceObisCode();
         if (obisCode == null) {
             obisCode = slaveRegister.getRegisterMapping().getObisCode();
-            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) (slaveRegister.getRtuRegisterSpec().getDeviceChannelIndex() & 0x0FF));
+            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) (slaveRegister.getRegisterSpec().getDeviceChannelIndex() & 0x0FF));
         } else {
             return obisCode;
         }

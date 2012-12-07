@@ -18,7 +18,7 @@ public class RtuRegisterFullProtocolShadowBuilder {
      */
     public static RtuRegisterFullProtocolShadow createRtuRegisterFullProtocolShadow(Register rtuRegister) {
         RtuRegisterFullProtocolShadow rrfps = new RtuRegisterFullProtocolShadowImpl();
-        rrfps.setRegisterObisCode(rtuRegister.getRtuRegisterSpec().getObisCode());
+        rrfps.setRegisterObisCode(rtuRegister.getRegisterSpec().getObisCode());
         rrfps.setRegisterUnit(rtuRegister.getUnit());
         rrfps.setRtuRegisterId(rtuRegister.getId());
         return rrfps;

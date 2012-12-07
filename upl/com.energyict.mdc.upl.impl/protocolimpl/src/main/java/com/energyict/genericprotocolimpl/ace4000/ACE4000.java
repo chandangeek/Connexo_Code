@@ -401,7 +401,7 @@ public class ACE4000 extends AbstractGenericProtocol {
             MeterReadingData result = new MeterReadingData();
             for (RegisterValue registerValue : mrd.getRegisterValues()) {
                 for (Register rtuRegister : getMasterMeter().getRegisters()) {
-                    if (rtuRegister.getRtuRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
+                    if (rtuRegister.getRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
                         registerValue.setRtuRegisterId(rtuRegister.getId());
                         result.add(registerValue);
                         break;
@@ -422,7 +422,7 @@ public class ACE4000 extends AbstractGenericProtocol {
             if (slave != null) {
                 for (RegisterValue registerValue : mrd.getRegisterValues()) {
                     for (com.energyict.mdw.amr.Register rtuRegister : slave.getRegisters()) {
-                        if (rtuRegister.getRtuRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
+                        if (rtuRegister.getRegisterSpec().getObisCode().equals(registerValue.getObisCode())) {
                             registerValue.setRtuRegisterId(rtuRegister.getId());
                             result.add(registerValue);
                             break;

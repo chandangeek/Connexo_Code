@@ -180,7 +180,7 @@ public class HandleMeterTransaction implements Transaction {
         while(it.hasNext()) {
             Register register = (Register) it.next();
             try {
-                RegisterValue registerValue = handleMeter.getConcentrator().getConcentratorRegister().readRegister(register.getRtuRegisterSpec().getObisCode());
+                RegisterValue registerValue = handleMeter.getConcentrator().getConcentratorRegister().readRegister(register.getRegisterSpec().getObisCode());
                 registerValue.setRtuRegisterId(register.getId());
                 meterReadingData.add(registerValue);
             }

@@ -41,7 +41,7 @@ public class MK10MeterReadingExecuter {
         while (it.hasNext()) {
         	Register rtuRegister = (com.energyict.mdw.amr.Register) it.next();
             RegisterValue registerValue = null;
-            ObisCode obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
+            ObisCode obisCode = rtuRegister.getRegisterSpec().getObisCode();
             try {
                 registerValue = getExecuter().getMk10Protocol().readRegister(obisCode);
             }

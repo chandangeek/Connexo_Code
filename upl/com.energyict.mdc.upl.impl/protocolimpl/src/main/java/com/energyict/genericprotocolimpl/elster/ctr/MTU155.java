@@ -473,11 +473,11 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
             try {
                 Register rtuRegister = rtuRegisterIterator.next();
                 if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
-                    obisCode = rtuRegister.getRtuRegisterSpec().getDeviceObisCode();
+                    obisCode = rtuRegister.getRegisterSpec().getDeviceObisCode();
                     ObisCode obisToRead;
                     if (obisCode == null) {
                         obisCode = rtuRegister.getRegisterMapping().getObisCode();
-                        obisToRead = ProtocolTools.setObisCodeField(obisCode, 1, (byte) (rtuRegister.getRtuRegisterSpec().getDeviceChannelIndex() & 0x0FF));
+                        obisToRead = ProtocolTools.setObisCodeField(obisCode, 1, (byte) (rtuRegister.getRegisterSpec().getDeviceChannelIndex() & 0x0FF));
                     } else {
                         obisToRead = ObisCode.fromByteArray(obisCode.getLN());
                     }

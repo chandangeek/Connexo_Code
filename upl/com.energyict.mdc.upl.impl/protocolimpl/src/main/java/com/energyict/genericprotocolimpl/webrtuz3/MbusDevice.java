@@ -237,7 +237,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
             try {
                 com.energyict.mdw.amr.Register rtuRegister = (Register) registerIterator.next();
                 if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
-                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();
+                    obisCode = rtuRegister.getRegisterSpec().getObisCode();
                     try {
                         RegisterValue registerValue = readRegister(obisCode);
                         if (registerValue != null) {

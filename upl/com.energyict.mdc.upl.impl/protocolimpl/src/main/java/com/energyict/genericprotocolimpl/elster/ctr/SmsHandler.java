@@ -609,7 +609,7 @@ public class SmsHandler implements MessageHandler {
             try {
                 Register rtuRegister = rtuRegisterIterator.next();
                 if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
-                    obisCode = rtuRegister.getRtuRegisterSpec().getObisCode();  //Get the obis code per register
+                    obisCode = rtuRegister.getRegisterSpec().getObisCode();  //Get the obis code per register
                     try {
                         RegisterValue registerValue = getObisCodeMapper().readRegister(obisCode, list);
                         registerValue.setRtuRegisterId(rtuRegister.getId());

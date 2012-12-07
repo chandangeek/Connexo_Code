@@ -111,7 +111,7 @@ public class CurrentReadings extends AbstractActarisObject {
     private void addRegister(ObisCode oc, Quantity value) {
         RegisterValue rv;
         for (Register rtuRegister : getObjectFactory().getAce4000().getMasterMeter().getRegisters()) {
-            if (rtuRegister.getRtuRegisterSpec().getObisCode().equals(oc)) {
+            if (rtuRegister.getRegisterSpec().getObisCode().equals(oc)) {
                 rv = new RegisterValue(oc, value, new Date(), getTimeStamp());
                 rv.setRtuRegisterId(rtuRegister.getId());
                 mrd.add(rv);

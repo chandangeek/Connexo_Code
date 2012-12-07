@@ -160,7 +160,7 @@ public class StoreObject implements Transaction {
                 shadow.setReadTime(registerValue.getReadTime());
                 shadow.setText(registerValue.getText());
                 if (registerValue.getQuantity() != null) {
-                    Phenomenon phenomenon = rtuRegister.getRtuRegisterSpec().getRegisterMapping().getProductSpec().getPhenomenon();
+                    Phenomenon phenomenon = rtuRegister.getRegisterSpec().getRegisterMapping().getProductSpec().getPhenomenon();
                     Quantity reading = registerValue.getQuantity();
                     try {
                         registerValue.setQuantity(reading.convertTo(phenomenon.getUnit(), true));

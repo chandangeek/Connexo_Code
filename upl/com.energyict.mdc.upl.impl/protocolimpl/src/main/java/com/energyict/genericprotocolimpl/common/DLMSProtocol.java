@@ -1054,7 +1054,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         Map<ObisCode, Register> registersToRead = new HashMap<ObisCode, Register>();
         for (com.energyict.mdw.amr.Register meterRegister : meterRegisters) {
             if (CommonUtils.isInRegisterGroup(groups, meterRegister)) {
-                ObisCode obis = meterRegister.getRtuRegisterSpec().getObisCode();
+                ObisCode obis = meterRegister.getRegisterSpec().getObisCode();
                 registersToRead.put(obis, meterRegister);
             }
         }

@@ -6,7 +6,9 @@ import com.energyict.eisimport.core.AbstractStreamImporter;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.DeviceEventShadow;
 import com.energyict.mdw.shadow.DeviceMessageShadow;
+import com.energyict.protocol.MeterData;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 import com.energyict.protocolimpl.edf.messages.MessageDiscoverMeters;
 
@@ -75,16 +77,20 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
         }
         
     } // protected void importStream() throws BusinessException, SQLException, IOException
-    
-    private void createEventForDevice(AlarmEntry alarmEntry) throws IOException,BusinessException,SQLException {
+
+    private void createEventForDevice(AlarmEntry alarmEntry) throws IOException, BusinessException, SQLException {
         Device device = findDevice(alarmEntry.getSerialNumber());
-        DeviceEventShadow rtuEventShadow = new DeviceEventShadow();
-        rtuEventShadow.setCode(mapMeterEvent(alarmEntry));
-        rtuEventShadow.setDate(alarmEntry.getDatetime());
-        rtuEventShadow.setDeviceCode(alarmEntry.getId());
-        rtuEventShadow.setMessage(alarmEntry.getAlarmDescription());
-        rtuEventShadow.setRtuId(device.getId());
-        device.addEvent(rtuEventShadow);
+
+        List<LogBook> logBooks = device.getLogBooks();
+        if (logBooks.size() == 1) {
+
+            MeterData md = new MeterData();
+            md.addMeterEvent(new MeterProtocolEvent(alarmEntry.getDatetime(), mapMeterEvent(alarmEntry),
+                    alarmEntry.getId(), alarmEntry.getAlarmDescription(),
+                    0, logBooks.get(0).getId(), 0));
+            device.store(md);
+
+        }
     }
     
     private int mapMeterEvent(AlarmEntry alarmEntry) {

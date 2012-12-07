@@ -291,6 +291,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     }
 
     public TimeZone getTimeZone() {
-        return offlineDevice.getTimeZone();
+        return TimeZone.getTimeZone(getProtocolProperties().getTimeZone());
     }
 }

@@ -1,8 +1,9 @@
 package test.com.energyict.protocolimplV2.nta.dsmr23;
 
-import com.energyict.mdc.LogBook;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
+import com.energyict.mdw.core.LogBook;
+import com.energyict.protocol.LogBookReader;
 import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
 
 import java.util.List;
@@ -20,8 +21,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
     }
 
     @Override
-    public List<CollectedLogBook> getMeterEvents(List<LogBook> logBooks) {
-        // ToDo: Provide proper implementation
-        return null;
+    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

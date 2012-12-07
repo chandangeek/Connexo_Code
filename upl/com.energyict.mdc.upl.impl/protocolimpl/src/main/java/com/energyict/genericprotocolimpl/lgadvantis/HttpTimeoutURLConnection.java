@@ -66,10 +66,10 @@ class HttpTimeoutClient extends HttpClient {
 		super(location, proxy, proxyPort);
 	}
 
-	public static HttpTimeoutClient getInstance(URL location, int timeout) 
+	public static HttpTimeoutClient getInstance(URL location, int timeout)
 	throws IOException {
 
-		HttpTimeoutClient client = (HttpTimeoutClient) kac.get(location);
+		HttpTimeoutClient client = (HttpTimeoutClient) kac.get(location, null);
 
 
 		if (client == null) {

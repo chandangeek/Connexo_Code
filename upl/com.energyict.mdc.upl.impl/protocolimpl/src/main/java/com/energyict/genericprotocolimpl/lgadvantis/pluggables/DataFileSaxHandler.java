@@ -10,13 +10,16 @@ import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.IntervalDataStorer;
+import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.DeviceEventShadow;
 import com.energyict.mdw.shadow.amr.RegisterReadingShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterData;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterValue;
@@ -280,17 +283,16 @@ public class DataFileSaxHandler extends DefaultHandler {
 				LogbookParser parser = new LogbookParser(rtu.getTimeZone());
 				List data = parser.parse(abstractData);
 				// Store events in rtu
-				for (Iterator jt = data.iterator(); jt.hasNext();){
-					MeterEvent event = (MeterEvent) jt.next();
-						
-					DeviceEventShadow shadow = new DeviceEventShadow();
-					shadow.setDate(event.getTime());
-					shadow.setCode(event.getEiCode());
-					shadow.setDeviceCode(event.getProtocolCode());
-					shadow.setMessage(event.getMessage());
-					shadow.setRtuId(rtu.getId());
-					rtu.addEvent(shadow);
-				}
+                List<LogBook> logBooks = rtu.getLogBooks();
+                if(logBooks.size() == 1){
+                    for (Iterator jt = data.iterator(); jt.hasNext();){
+                        MeterEvent event = (MeterEvent) jt.next();
+                        MeterData md = new MeterData();
+                        md.addMeterEvent(new MeterProtocolEvent(new Date(), event.getEiCode(), event.getProtocolCode(), event.getMessage(),
+                                0, logBooks.get(0).getId(), 0));
+                        rtu.store(md);
+                    }
+                }
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
