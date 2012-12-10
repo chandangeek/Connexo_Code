@@ -28,6 +28,8 @@
         <eiserver.version>9.0.0-SNAPSHOT</eiserver.version>
         <comserver.version>9.0.0-SNAPSHOT</comserver.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <proguard.maven.version>2.0.4</proguard.maven.version>
+        <proguard.version>4.8</proguard.version> <!-- Supports Java 7 from version 4.7 -->
     </properties>
 
     <dependencyManagement>
@@ -97,6 +99,15 @@
     <build>
 
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

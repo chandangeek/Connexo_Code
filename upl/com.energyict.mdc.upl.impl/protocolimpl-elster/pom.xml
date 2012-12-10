@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>protocolimpl-elster</artifactId>
@@ -26,7 +27,7 @@
         <dependency>
             <groupId>com.elster</groupId>
             <artifactId>ElsterDlmsLibrary</artifactId>
-          <version>1.0.10.4567</version>
+            <version>1.0.10.4567</version>
         </dependency>
         <dependency>
             <groupId>com.elster</groupId>
@@ -41,7 +42,7 @@
             <plugin>
                 <groupId>com.pyx4me</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
-                <version>2.0.2</version>
+                <version>${proguard.maven.version}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -52,6 +53,7 @@
                 </executions>
 
                 <configuration>
+                    <proguardVersion>${proguard.version}</proguardVersion>
                     <maxMemory>512m</maxMemory>
                     <options>
                         <option>-allowaccessmodification</option>
@@ -336,6 +338,18 @@
                         </exclusion>
                     </exclusions>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sf.proguard</groupId>
+                        <artifactId>proguard</artifactId>
+                        <version>${proguard.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.sf.proguard</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>${proguard.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
         </plugins>

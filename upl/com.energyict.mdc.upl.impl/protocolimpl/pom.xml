@@ -210,12 +210,12 @@
 
     <build>
         <plugins>
-
             <!-- This proguard plugin is used to obfuscate the protocolimpl jar-->
             <plugin>
-                <groupId>com.github.wvengen</groupId>
+                <groupId>com.pyx4me</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
-                <version>2.0.5</version>
+                <version>${proguard.maven.version}</version>
+
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -224,9 +224,8 @@
                         </goals>
                     </execution>
                 </executions>
-
-
                 <configuration>
+                    <proguardVersion>${proguard.version}</proguardVersion>
                     <maxMemory>512m</maxMemory>
                     <options>
                         <option>-allowaccessmodification</option>
@@ -238,6 +237,19 @@
                         <lib>${java.home}/lib/jce.jar</lib>
                     </libs>
                 </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sf.proguard</groupId>
+                        <artifactId>proguard</artifactId>
+                        <version>${proguard.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.sf.proguard</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>${proguard.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
             <!-- This plugin is used to add the 'generated-sources' folder to the source folder.-->
