@@ -5,8 +5,27 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.ZigBeeSASStartup;
+import com.energyict.dlms.cosem.ZigBeeSETCControl;
+import com.energyict.dlms.cosem.ZigbeeHanManagement;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
@@ -16,7 +35,11 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
@@ -581,7 +604,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     }
 
     private void readElsterLogbook(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
-        log(Level.INFO, "Sending message : Read Debug logbook");
+        log(Level.INFO, "Sending message : Read Elster logbook");
 
         Calendar from = extractDate(messageHandler.getLogbookFromTimeString());
         Calendar to = extractDate(messageHandler.getLogbookToTimeString());
@@ -637,7 +660,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), buffer.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
         mw().getUserFileFactory().create(ufs);
 
-        log(Level.INFO, "Stored readout of debug logbook in userFile: " + fileName);
+        log(Level.INFO, "Stored readout of Elster logbook in userFile: " + fileName);
     }
 
     private Calendar extractDate(String timeString) throws IOException {
@@ -670,7 +693,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     private String getHANDeviceOTAStatus(Array array) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < array.nrOfDataTypes(); i++) {
-            byte[] macAddressBytes = ((Structure) array.getDataType(i)).getDataType(0).getOctetString().getContentBytes();
+            byte[] macAddressBytes = ((Structure) array.getDataType(i)).getDataType(0).getOctetString().getContentByteArray();
             int applicationFirmwareVersion = ((Structure) array.getDataType(i)).getDataType(1).getUnsigned8().intValue();
             int hardwareFirmwareVersion = ((Structure) array.getDataType(i)).getDataType(2).getUnsigned8().intValue();
             int stackFirmwareVersion = ((Structure) array.getDataType(i)).getDataType(3).getUnsigned8().intValue();
