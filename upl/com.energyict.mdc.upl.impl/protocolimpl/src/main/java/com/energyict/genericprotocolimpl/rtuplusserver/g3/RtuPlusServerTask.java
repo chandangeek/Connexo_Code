@@ -58,7 +58,7 @@ public class RtuPlusServerTask {
     }
 
     public TimeZone getGatewayTimeZone() {
-        return scheduler.getRtu().getDeviceTimeZone();
+        return TimeZone.getDefault();
     }
 
     public String getGatewaySerialNumber() {
@@ -119,7 +119,8 @@ public class RtuPlusServerTask {
 
     private boolean needsUpdate(Device plcDevice, SAPAssignmentItem sap) {
         final Device currentGateway = plcDevice.getGateway();
-        final String nodeAddress = plcDevice.getNodeAddress() == null ? "" : plcDevice.getNodeAddress().trim();
+//        final String nodeAddress = plcDevice.getNodeAddress() == null ? "" : plcDevice.getNodeAddress().trim();
+        final String nodeAddress = "GetTheNodeAddress from a proper property!";
         final String sapAddress = String.valueOf(sap.getSap());
         if (currentGateway == null) {
             return true;
@@ -143,21 +144,23 @@ public class RtuPlusServerTask {
             final String newGwName = getGateway().getName();
             final String oldGwName = plcDevice.getGateway() == null ? "none" : plcDevice.getGateway().getName();
             final String newNodeAddress = String.valueOf(sap.getSap());
-            final String phoneNumber = getGateway().getPhoneNumber();
+//            final String phoneNumber = getGateway().getPhoneNumber();
+            final String phoneNumber = "Get the PhoneNumber from a proper property";
             final ModemPool modemPool = getScheduler().getModemPool();
             final DialerFactory dialer = getScheduler().getDialerFactory();
 
             logger.warning("Changing link [" + plcName + "] from [" + oldGwName + "] to [" + newGwName + "]");
 
             final DeviceShadow shadow = plcDevice.getShadow();
-            shadow.setPhoneNumber(phoneNumber);
-            shadow.setNodeAddress(newNodeAddress);
+//            shadow.setPhoneNumber(phoneNumber);
+//            shadow.setNodeAddress(newNodeAddress);
             shadow.setGatewayId(getGateway().getId());
-            final List<CommunicationSchedulerShadow> schedulerShadowList = shadow.getCommunicationSchedulerShadows();
-            for (CommunicationSchedulerShadow schedulerShadow : schedulerShadowList) {
-                schedulerShadow.setModemPoolId(modemPool.getId());
-                schedulerShadow.setDialer(dialer);
-            }
+            // we don't work with schedulers anymore
+//            final List<CommunicationSchedulerShadow> schedulerShadowList = shadow.getCommunicationSchedulerShadows();
+//            for (CommunicationSchedulerShadow schedulerShadow : schedulerShadowList) {
+//                schedulerShadow.setModemPoolId(modemPool.getId());
+//                schedulerShadow.setDialer(dialer);
+//            }
             plcDevice.update(shadow);
 
         } catch (SQLException e) {
@@ -176,15 +179,15 @@ public class RtuPlusServerTask {
         try {
             logger.severe("Removing gateway link and sap address from ghost device in EIServer [" + plcDevice.getName() + "]. Device not found in the field on gateway [" + getGateway().getName() + "].");
             final DeviceShadow shadow = plcDevice.getShadow();
-            shadow.setNodeAddress("");
-            shadow.setGatewayId(0);
-            shadow.setPhoneNumber("");
-            final List<CommunicationSchedulerShadow> schedulerShadowList = shadow.getCommunicationSchedulerShadows();
-            for (CommunicationSchedulerShadow schedulerShadow : schedulerShadowList) {
-                schedulerShadow.setDialer(DialerFactory.get("NULLDIALER"));
-                schedulerShadow.setNextCommunication(null);
-                schedulerShadow.setModemPoolId(getEmptyModemPoolId());
-            }
+//            shadow.setNodeAddress("");
+//            shadow.setGatewayId(0);
+//            shadow.setPhoneNumber("");
+//            final List<CommunicationSchedulerShadow> schedulerShadowList = shadow.getCommunicationSchedulerShadows();
+//            for (CommunicationSchedulerShadow schedulerShadow : schedulerShadowList) {
+//                schedulerShadow.setDialer(DialerFactory.get("NULLDIALER"));
+//                schedulerShadow.setNextCommunication(null);
+//                schedulerShadow.setModemPoolId(getEmptyModemPoolId());
+//            }
             plcDevice.update(shadow);
         } catch (SQLException e) {
             getLogger().severe("Unable to remove gateway link in EIServer for ghost device [" + plcDevice.getName() + "]!" + e.getMessage());
@@ -253,20 +256,20 @@ public class RtuPlusServerTask {
     }
 
     public final void scheduleSlaveDevices() {
-        for (Device deviceInField : devicesInField) {
-            final List<CommunicationScheduler> communicationSchedulers = deviceInField.getCommunicationSchedulers();
-            for (CommunicationScheduler schedule : communicationSchedulers) {
-                try {
-                    final CommunicationSchedulerShadow shadow = schedule.getShadow();
-                    shadow.setNextCommunication(new Date());
-                    schedule.update(shadow);
-                } catch (SQLException e) {
-                    getLogger().severe("Unable to trigger schedule [" + schedule.displayString() + "]! " + e.getMessage());
-                } catch (BusinessException e) {
-                    getLogger().severe("Unable to trigger schedule [" + schedule.displayString() + "]! " + e.getMessage());
-                }
-            }
-        }
+//        for (Device deviceInField : devicesInField) {
+//            final List<CommunicationScheduler> communicationSchedulers = deviceInField.getCommunicationSchedulers();
+//            for (CommunicationScheduler schedule : communicationSchedulers) {
+//                try {
+//                    final CommunicationSchedulerShadow shadow = schedule.getShadow();
+//                    shadow.setNextCommunication(new Date());
+//                    schedule.update(shadow);
+//                } catch (SQLException e) {
+//                    getLogger().severe("Unable to trigger schedule [" + schedule.displayString() + "]! " + e.getMessage());
+//                } catch (BusinessException e) {
+//                    getLogger().severe("Unable to trigger schedule [" + schedule.displayString() + "]! " + e.getMessage());
+//                }
+//            }
+//        }
     }
 
 }

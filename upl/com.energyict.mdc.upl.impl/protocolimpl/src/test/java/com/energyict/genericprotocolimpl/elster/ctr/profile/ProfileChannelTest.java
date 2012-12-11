@@ -59,7 +59,7 @@ public class ProfileChannelTest {
         when(hourlyChannel.getIntervalInSeconds()).thenReturn(HOURLY_INTERVAL);
         when(hourlyChannel.getLoadProfileIndex()).thenReturn(HOURY_VM_INDEX);
 
-        when(rtu.getDeviceTimeZone()).thenReturn(TimeZone.getDefault());
+//        when(rtu.getDeviceTimeZone()).thenReturn(TimeZone.getDefault());
     }
 
     @Test

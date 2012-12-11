@@ -119,11 +119,11 @@ public class Utilities {
      * @throws BusinessException
      */
     public static Device createRtu(DeviceType rtuType, String serial, int interval) throws SQLException, BusinessException {
-        final DeviceShadow rtuShadow = rtuType.newDeviceShadow();
+        final DeviceShadow rtuShadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
         rtuShadow.setRtuTypeId(rtuType.getId());
         rtuShadow.setName(serial);
         rtuShadow.setExternalName(serial);
-        rtuShadow.setIntervalInSeconds(interval);
+//        rtuShadow.setIntervalInSeconds(interval);
         rtuShadow.setSerialNumber(serial);
         Device rtu = mw().getDeviceFactory().create(rtuShadow);
         return rtu;
@@ -261,7 +261,7 @@ public class Utilities {
         List schedulerShadows = new ArrayList(mp.getId());
         schedulerShadows.add(css);
         DeviceShadow rtuShadow = rtu.getShadow();
-        rtuShadow.setCommunicationSchedulerShadows(schedulerShadows);
+//        rtuShadow.setCommunicationSchedulerShadows(schedulerShadows);
         rtu.update(rtuShadow);
     }
 

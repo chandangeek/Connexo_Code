@@ -204,10 +204,10 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
             concentrator.addProperties(new Properties());
             //concentrator.getP
             concentrator.setConcentratorDevice(new MeteringWarehouseFactory().getBatch().getDeviceFactory().find(4084));
-            concentrator.setScheduler((CommunicationScheduler) concentrator.getConcentratorDevice().getCommunicationSchedulers().get(0));
+//            concentrator.setScheduler((CommunicationScheduler) concentrator.getConcentratorDevice().getCommunicationSchedulers().get(0));
             //concentrator.setProfileInterval(concentrator.getConcentratorDevice().getIntervalInSeconds());
             Dialer dialer = DialerFactory.get("IPDIALER").newDialer();
-            dialer.connect(concentrator.getConcentratorDevice().getPhoneNumber(), 5000);
+//            dialer.connect(concentrator.getConcentratorDevice().getPhoneNumber(), 5000);
 
             InputStream is = dialer.getInputStream();
             OutputStream os = dialer.getOutputStream();
@@ -530,7 +530,8 @@ public class Concentrator implements GenericProtocol, ProtocolLink, Messaging {
 
 
     private String getPassword() {
-        return concentratorDevice.getPassword();
+//        return concentratorDevice.getPassword();
+        return "sorry, your password has expired, use a proper SecurityObject";
     }
 
     private int getTimeout() {

@@ -56,7 +56,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
         this.rtu = scheduler.getRtu();
 
         try {
-            init(link.getInputStream(), link.getOutputStream(), scheduler.getRtu().getDeviceTimeZone(), logger);
+            init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
             connect();
 
             if (commProfile.getSendRtuMessage()) {

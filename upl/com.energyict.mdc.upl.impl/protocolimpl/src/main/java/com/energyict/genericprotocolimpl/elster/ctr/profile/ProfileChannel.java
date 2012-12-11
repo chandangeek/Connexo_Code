@@ -124,10 +124,11 @@ public class ProfileChannel {
      * @return
      */
     private TimeZone getDeviceTimeZone() {
-        if (deviceTimeZone == null) {
-            deviceTimeZone = getRtu().getDeviceTimeZone();
-        }
-        return deviceTimeZone;
+//        if (deviceTimeZone == null) {
+//            deviceTimeZone = getRtu().getDeviceTimeZone();
+//        }
+//        return deviceTimeZone;
+        return TimeZone.getDefault();
     }
 
     /**

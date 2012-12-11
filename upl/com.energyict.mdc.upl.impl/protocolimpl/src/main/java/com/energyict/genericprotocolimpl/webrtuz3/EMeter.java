@@ -430,7 +430,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     }
 
     public TimeZone getTimeZone() {
-        return getMeter().getDeviceTimeZone();
+        return TimeZone.getDefault();
     }
 
     public DLMSMeterConfig getMeterConfig() {

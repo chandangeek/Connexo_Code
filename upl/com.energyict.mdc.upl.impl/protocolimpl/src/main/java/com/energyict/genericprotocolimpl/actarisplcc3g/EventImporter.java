@@ -123,13 +123,13 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
     }
     
     private void startReadingNow(Device device) throws BusinessException,SQLException {
-        List schedulers = device.getCommunicationSchedulers();
-        for (Iterator jt = schedulers.iterator(); jt.hasNext();){
-            CommunicationScheduler scheduler = (CommunicationScheduler) jt.next();
-            if (scheduler.getCommunicationProfile().getSendRtuMessage()){
-                    scheduler.startReadingNow();
-            }
-        }
+//        List schedulers = device.getCommunicationSchedulers();
+//        for (Iterator jt = schedulers.iterator(); jt.hasNext();){
+//            CommunicationScheduler scheduler = (CommunicationScheduler) jt.next();
+//            if (scheduler.getCommunicationProfile().getSendRtuMessage()){
+//                    scheduler.startReadingNow();
+//            }
+//        }
     }
     
     private void createMessage( Device concentrator, MessageContent content) throws BusinessException,SQLException {

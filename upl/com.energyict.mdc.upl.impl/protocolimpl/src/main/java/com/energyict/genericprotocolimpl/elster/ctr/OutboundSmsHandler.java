@@ -33,7 +33,8 @@ public class OutboundSmsHandler {
         meterProtocol.setRtu(cs.getRtu());
         meterProtocol.getProtocolProperties().addProperties(meterProtocol.getRtu().getProperties().toStringProperties());
 
-        String phoneNumber = meterProtocol.getRtu().getPhoneNumber();
+//        String phoneNumber = meterProtocol.getRtu().getPhoneNumber();
+        String phoneNumber = "";
         if ((phoneNumber == null) || ("".compareTo(phoneNumber) == 0)) {
             throw new CTRConfigurationException("The Phone Number cannot be left empty, correct first!");
         }

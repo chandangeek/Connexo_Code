@@ -108,7 +108,8 @@ public class ProfileChannelForSms {
      * @return
      */
     private TimeZone getDeviceTimeZone() {
-        return getRtu().getDeviceTimeZone();
+//        return getRtu().getDeviceTimeZone();
+        return TimeZone.getDefault();
     }
 
     /**

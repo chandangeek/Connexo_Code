@@ -67,6 +67,7 @@ import com.energyict.mdw.core.PluggableClass;
 import com.energyict.mdw.core.PluggableClassType;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.relation.RelationType;
+import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.DeviceConfigShadow;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
@@ -619,7 +620,7 @@ public final class ComServerTCPAM100Demo {
         if (!loadProfileTypes.isEmpty()) {
             LoadProfileShadow loadProfileShadow = new LoadProfileShadow();
             loadProfileShadow.setLoadProfileTypeId(loadProfileTypes.get(0).getId());
-            Calendar calendar = Calendar.getInstance(rtu.getDeviceTimeZone());
+            Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 2);
             loadProfileShadow.setLastReading(calendar.getTime());
             return loadProfileShadow;
@@ -653,11 +654,13 @@ public final class ComServerTCPAM100Demo {
     public Device createRtu(DeviceType rtuType, String name, int intervalInSeconds, Folder parent) throws BusinessException, SQLException {
         String serialNumber ="3228018";
         System.out.println("Creating Demo Device with name " + RTU_NAME + " and serial number " + serialNumber);
-        DeviceShadow rtuShadow = rtuType.newDeviceShadow();
+        DeviceShadow rtuShadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
         rtuShadow.setName(name);
         rtuShadow.setExternalName(name);
-        rtuShadow.setIntervalInSeconds(intervalInSeconds);
         rtuShadow.setSerialNumber(serialNumber);
+        for (ChannelShadow channelShadow : rtuShadow.getChannelShadows().getNewShadows()) {
+            channelShadow.setInterval(new TimeDuration(intervalInSeconds));
+        }
         return parent.createRtu(rtuShadow);
     }
 

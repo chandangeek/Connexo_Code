@@ -72,6 +72,7 @@ import com.energyict.mdw.core.PluggableClass;
 import com.energyict.mdw.core.PluggableClassType;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.relation.RelationType;
+import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.LoadProfileShadow;
@@ -580,7 +581,7 @@ public final class ComServerOpticalMTU155Demo {
                 try {
                     LoadProfileShadow loadProfileShadow = new LoadProfileShadow();
                     loadProfileShadow.setLoadProfileTypeId(loadProfileTypes.get(0).getId());
-                    Calendar calendar = Calendar.getInstance(rtu.getDeviceTimeZone());
+                    Calendar calendar = Calendar.getInstance();
                     calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 2);
                     loadProfileShadow.setLastReading(calendar.getTime());
                     this.rtu.addLoadProfile(loadProfileShadow);
@@ -629,10 +630,15 @@ public final class ComServerOpticalMTU155Demo {
     public Device createRtu(DeviceType rtuType, String name, int intervalInSeconds, Folder parent) throws BusinessException, SQLException {
         String serialNumber ="0000000000000000";
         System.out.println("Creating Demo Device with name " + RTU_NAME + " and serial number " + serialNumber);
-        DeviceShadow rtuShadow = rtuType.newDeviceShadow();
+        DeviceShadow rtuShadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
         rtuShadow.setName(name);
         rtuShadow.setExternalName(name);
-        rtuShadow.setIntervalInSeconds(intervalInSeconds);
+        for (ChannelShadow channelShadow : rtuShadow.getChannelShadows().getNewShadows()) {
+            channelShadow.setInterval(new TimeDuration(intervalInSeconds));
+        }
+        if (parent != null) {
+            rtuShadow.setFolderId(parent.getId());
+        }
         rtuShadow.setSerialNumber(serialNumber);
         return parent.createRtu(rtuShadow);
     }

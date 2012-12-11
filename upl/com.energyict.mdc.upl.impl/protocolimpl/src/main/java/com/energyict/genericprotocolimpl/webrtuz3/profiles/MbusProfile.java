@@ -156,7 +156,7 @@ public class MbusProfile extends AbstractDLMSProfile {
 					cal = new AXDRDateTime(OctetString.fromByteArray(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
 				} else {
 					if(cal != null){
-						cal.add(Calendar.SECOND, mbusDevice.getMbus().getIntervalInSeconds());
+						cal.add(Calendar.SECOND, mbusDevice.getMbus().getChannels().get(0).getIntervalInSeconds());
 					}
 				}
 				if(cal != null){

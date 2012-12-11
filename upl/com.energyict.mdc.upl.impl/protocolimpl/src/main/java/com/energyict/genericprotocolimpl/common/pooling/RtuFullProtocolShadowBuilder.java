@@ -24,29 +24,29 @@ public class RtuFullProtocolShadowBuilder {
      */
     public static RtuFullProtocolShadow createRtuFullProtocolShadow(Device rtu) {
         RtuFullProtocolShadow rfps = new RtuFullProtocolShadowImpl();
-        rfps.setChannelFullProtocolShadow(createChannelFullProtocolShadows(rtu));
-        rfps.setDeviceId(rtu.getDeviceId());
-        rfps.setDeviceTimeZone(rtu.getDeviceTimeZone());
-        rfps.setDialHomeId(rtu.getDialHomeId());
-        rfps.setModemInit(rtu.getModemInit());
-        rfps.setName(rtu.getName());
-        rfps.setNodeAddress(rtu.getNodeAddress());
-        rfps.setOverruleCommunicationSettings(rtu.getOverruleCommunicationSettings());
-        rfps.setPassword(rtu.getPassword());
-        rfps.setPhoneNumber(rtu.getPhoneNumber());
-        rfps.setPostDialCommand(rtu.getPostDialCommand());
-        rfps.setRtuId(rtu.getId());
-        rfps.setFolderId(rtu.getFolderId());
-        rfps.setRtuIntervalInSeconds(rtu.getIntervalInSeconds());
-        rfps.setRtuLastLogBook(rtu.getLastLogbook());
-        rfps.setRtuLastReading(rtu.getLastReading());
-        Properties props = rtu.getProperties().toStringProperties();
-        props.putAll(rtu.getProtocol() == null ? new HashMap() : rtu.getProtocol().getProperties().toStringProperties());
-        rfps.setRtuProperties(props);
-        rfps.setRtuTypeShadow(rtu.getDeviceType().getShadow());
-        rfps.setSerialCommunicationSettings(rtu.getCommunicationSettings());
-        rfps.setSerialNumber(rtu.getSerialNumber());
-        rfps.setTimeZone(rtu.getTimeZone());
+//        rfps.setChannelFullProtocolShadow(createChannelFullProtocolShadows(rtu));
+//        rfps.setDeviceId(rtu.getDeviceId());
+//        rfps.setDeviceTimeZone(rtu.getDeviceTimeZone());
+//        rfps.setDialHomeId(rtu.getDialHomeId());
+//        rfps.setModemInit(rtu.getModemInit());
+//        rfps.setName(rtu.getName());
+//        rfps.setNodeAddress(rtu.getNodeAddress());
+//        rfps.setOverruleCommunicationSettings(rtu.getOverruleCommunicationSettings());
+//        rfps.setPassword(rtu.getPassword());
+//        rfps.setPhoneNumber(rtu.getPhoneNumber());
+//        rfps.setPostDialCommand(rtu.getPostDialCommand());
+//        rfps.setRtuId(rtu.getId());
+//        rfps.setFolderId(rtu.getFolderId());
+//        rfps.setRtuIntervalInSeconds(rtu.getIntervalInSeconds());
+//        rfps.setRtuLastLogBook(rtu.getLastLogbook());
+//        rfps.setRtuLastReading(rtu.getLastReading());
+//        Properties props = rtu.getProperties().toStringProperties();
+//        props.putAll(rtu.getProtocol() == null ? new HashMap() : rtu.getProtocol().getProperties().toStringProperties());
+//        rfps.setRtuProperties(props);
+//        rfps.setRtuTypeShadow(rtu.getDeviceType().getShadow());
+//        rfps.setSerialCommunicationSettings(rtu.getCommunicationSettings());
+//        rfps.setSerialNumber(rtu.getSerialNumber());
+//        rfps.setTimeZone(rtu.getTimeZone());
         return rfps;
     }
 

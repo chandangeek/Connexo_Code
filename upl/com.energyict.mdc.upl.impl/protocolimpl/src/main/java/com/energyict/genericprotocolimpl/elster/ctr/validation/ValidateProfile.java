@@ -66,7 +66,7 @@ public class ValidateProfile {
             Date installationDate = ValidationUtils.getInstallationDate(rtu, getProperties().getOnlyFrom());
             Date before = getProperties().getListDevicesInstalledBeforeDate();
             if (installationDate.before(before)) {
-                ValidationUtils.log(Level.SEVERE, "[" + rtu.getDialHomeId() + "/" + rtu.getName() + "] installed on [" + ValidationUtils.formatDate(installationDate) + "] and before [" + ValidationUtils.formatDate(before) + "]");
+                ValidationUtils.log(Level.SEVERE, "[" + "INVALID_CALL_HOME_ID" + "/" + rtu.getName() + "] installed on [" + ValidationUtils.formatDate(installationDate) + "] and before [" + ValidationUtils.formatDate(before) + "]");
             }
         }
     }
@@ -77,7 +77,7 @@ public class ValidateProfile {
             Date installationDate = ValidationUtils.getInstallationDate(rtu, getProperties().getOnlyFrom());
             Date after = getProperties().getListDevicesInstalledAfterDate();
             if (installationDate.after(after)) {
-                ValidationUtils.log(Level.SEVERE, "[" + rtu.getDialHomeId() + "/" + rtu.getName() + "] installed on [" + ValidationUtils.formatDate(installationDate) + "] and after [" + ValidationUtils.formatDate(after) + "]");
+                ValidationUtils.log(Level.SEVERE, "[" + "INVALID_CALL_HOME_ID" + "/" + rtu.getName() + "] installed on [" + ValidationUtils.formatDate(installationDate) + "] and after [" + ValidationUtils.formatDate(after) + "]");
             }
         }
     }
@@ -89,7 +89,7 @@ public class ValidateProfile {
             Date before = getProperties().getListDevicesInstalledBeforeDate();
             Date after = getProperties().getListDevicesInstalledAfterDate();
             if (installationDate.before(before) && installationDate.after(after)) {
-                ValidationUtils.log(Level.SEVERE, "[" + rtu.getDialHomeId() + "/" + rtu.getName() + "] installed on [" + ValidationUtils.formatDate(installationDate) + "] between [" + ValidationUtils.formatDate(after) + "] and [" + ValidationUtils.formatDate(before) + "]");
+                ValidationUtils.log(Level.SEVERE, "[" + "INVALID_CALL_HOME_ID" + "/" + rtu.getName() + "] installed on [" + ValidationUtils.formatDate(installationDate) + "] between [" + ValidationUtils.formatDate(after) + "] and [" + ValidationUtils.formatDate(before) + "]");
             }
         }
     }

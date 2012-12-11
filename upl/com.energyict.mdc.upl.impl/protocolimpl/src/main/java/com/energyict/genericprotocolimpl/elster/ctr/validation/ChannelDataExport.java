@@ -44,7 +44,8 @@ public class ChannelDataExport {
     private void doExport() {
         List<Device> rtus = getProperties().getRtus();
         for (Device rtu : rtus) {
-            String outputFileName = getProperties().getOutputFolder() + rtu.getDialHomeId() + "_" + rtu.getName() + "_" + getNow() + ".txt";
+            // fetch the callHomeId from a proper property
+            String outputFileName = getProperties().getOutputFolder() + "INVALID_CALL_HOME_ID" + "_" + rtu.getName() + "_" + getNow() + ".txt";
             List<Channel> channels = getChannelsToExport(rtu.getChannels());
             String data = getExportedChannelData(rtu, channels);
             ProtocolTools.writeBytesToFile(outputFileName, data.getBytes(), false);
@@ -62,7 +63,7 @@ public class ChannelDataExport {
         StringBuffer sb = new StringBuffer();
         try {
             Date installationDate = ValidationUtils.getInstallationDate(rtu, null);
-            sb.append(rtu.getDialHomeId()).append(";");
+//            sb.append(rtu.getDialHomeId()).append(";");
             sb.append(rtu.getName()).append(";");
             sb.append(rtu.getSerialNumber()).append(";");
             sb.append(installationDate).append(";");

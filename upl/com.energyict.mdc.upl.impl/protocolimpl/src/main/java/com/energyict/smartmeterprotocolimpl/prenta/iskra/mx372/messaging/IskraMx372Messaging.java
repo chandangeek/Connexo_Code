@@ -379,7 +379,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
             if (getProperties().getCsdCall() != 0) {
                 CSDCall call = new CSDCall(link);
-                call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
+//                call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
                 infoLog("Made a successful call.");
             } else {
                 throw new IOException("CSDCall can not be executed if the csdProperty is not enabled");
@@ -391,7 +391,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
                     CSDCaller caller = new CSDCaller(rtu);
                     ipAddress = caller.doWakeUp();
                     if (!ipAddress.equalsIgnoreCase("")) {
-                        this.rtu.updateIpAddress(ipAddress);
+//                        this.rtu.updateIpAddress(ipAddress);
                         ipAddress = ProtocolTools.checkIPAddressForPortNumber(ipAddress, Integer.toString(getProperties().getIpPortNumber()));
                         protocol.getLogger().log(Level.INFO, "IPAddress " + ipAddress + " found for meter with serialnumber " + getProperties().getSerialNumber());
 
@@ -985,7 +985,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
     }
 
     private Device createMeter(DeviceType type, String customerID) throws SQLException, BusinessException {
-        DeviceShadow shadow = type.newDeviceShadow();
+        DeviceShadow shadow = type.getDeviceConfigs().get(0).newDeviceShadow();
         Date lastReading = shadow.getLastReading();
 
         shadow.setName(customerID);

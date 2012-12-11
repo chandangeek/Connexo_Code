@@ -112,8 +112,8 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
 
             DeviceShadow shadow = getRtu().getShadow();
             shadow.setSerialNumber(meterSerial);
-            shadow.setNodeAddress(pdr);
-            shadow.setPhoneNumber(phoneNumber);
+//            shadow.setNodeAddress(pdr);
+//            shadow.setPhoneNumber(phoneNumber);
 
             Date lastReading = shadow.getLastReading() == null ? getProperties().getChannelBackLogDate() : shadow.getLastReading();
             if (installationDate != null) {
@@ -172,39 +172,39 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
      * @param message The message that's added as detail in the AmrJournal
      */
     private void failAllPendingSchedules(String message) {
-        if ((getRtu() != null) && (!getRtu().getCommunicationSchedulers().isEmpty())) {
-            List<CommunicationScheduler> schedulers = getRtu().getCommunicationSchedulers();
-            for (CommunicationScheduler cs : schedulers) {
-                Date now = new Date();
-                if ((cs != null) && (cs.getNextCommunication() != null) && (!cs.getNextCommunication().after(now))) {
-
-                    try {
-
-                        // Let EIServer know, we 're "starting" the schedule
-                        cs.startCommunication();
-                        cs.startReadingNow();
-
-                        // Build up a AmrJournal session with all the details about the failure
-                        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-                        journal.add(new AmrJournalEntry(AmrJournalEntry.DETAIL, message));
-                        journal.add(new AmrJournalEntry(now, AmrJournalEntry.CONNECTTIME, getConnectTimeInSeconds()));
-                        journal.add(new AmrJournalEntry(now, AmrJournalEntry.PROTOCOL_LOG, "-"));
-                        journal.add(new AmrJournalEntry(now, AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
-                        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
-
-                        // Store the journal, and let EIServer know that the schedule failed
-                        cs.journal(journal);
-                        cs.logFailure(new Date(), message);
-
-                    } catch (SQLException e) {
-                        getLogger().severe("Unable to fail schedule: " + e.getMessage());
-                    } catch (BusinessException e) {
-                        getLogger().severe("Unable to fail schedule: " + e.getMessage());
-                    }
-
-                }
-            }
-        }
+//        if ((getRtu() != null) && (!getRtu().getCommunicationSchedulers().isEmpty())) {
+//            List<CommunicationScheduler> schedulers = getRtu().getCommunicationSchedulers();
+//            for (CommunicationScheduler cs : schedulers) {
+//                Date now = new Date();
+//                if ((cs != null) && (cs.getNextCommunication() != null) && (!cs.getNextCommunication().after(now))) {
+//
+//                    try {
+//
+//                        // Let EIServer know, we 're "starting" the schedule
+//                        cs.startCommunication();
+//                        cs.startReadingNow();
+//
+//                        // Build up a AmrJournal session with all the details about the failure
+//                        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//                        journal.add(new AmrJournalEntry(AmrJournalEntry.DETAIL, message));
+//                        journal.add(new AmrJournalEntry(now, AmrJournalEntry.CONNECTTIME, getConnectTimeInSeconds()));
+//                        journal.add(new AmrJournalEntry(now, AmrJournalEntry.PROTOCOL_LOG, "-"));
+//                        journal.add(new AmrJournalEntry(now, AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
+//                        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
+//
+//                        // Store the journal, and let EIServer know that the schedule failed
+//                        cs.journal(journal);
+//                        cs.logFailure(new Date(), message);
+//
+//                    } catch (SQLException e) {
+//                        getLogger().severe("Unable to fail schedule: " + e.getMessage());
+//                    } catch (BusinessException e) {
+//                        getLogger().severe("Unable to fail schedule: " + e.getMessage());
+//                    }
+//
+//                }
+//            }
+//        }
     }
 
     /**
@@ -306,7 +306,7 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
             getDlmsProtocol().getRequiredKeys();
             getDlmsProtocol().getOptionalKeys();
             getDlmsProtocol().setProperties(getProperties().getProtocolProperties());
-            getDlmsProtocol().init(getLink().getInputStream(), getLink().getOutputStream(), getRtu().getDeviceTimeZone(), getLogger());
+//            getDlmsProtocol().init(getLink().getInputStream(), getLink().getOutputStream(), getRtu().getDeviceTimeZone(), getLogger());
             getDlmsProtocol().connect();
         } else {
             throw new IOException("Protocol needs a link, logger and rtu!");
@@ -320,11 +320,11 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
     }
 
     private void readDevice() {
-        List<CommunicationScheduler> schedulers = getRtu().getCommunicationSchedulers();
-        for (CommunicationScheduler scheduler : schedulers) {
-            getLogger().info("executing schedule" + scheduler.toString());
-            new CommunicationScheduleExecutor(this).execute(scheduler);
-        }
+//        List<CommunicationScheduler> schedulers = getRtu().getCommunicationSchedulers();
+//        for (CommunicationScheduler scheduler : schedulers) {
+//            getLogger().info("executing schedule" + scheduler.toString());
+//            new CommunicationScheduleExecutor(this).execute(scheduler);
+//        }
     }
 
     public long getTimeDifference() {

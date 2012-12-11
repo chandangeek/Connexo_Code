@@ -5,8 +5,8 @@ import com.energyict.comserver.adapters.common.ComChannelOutputStreamAdapter;
 import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.AbstractDiscover;
-import com.energyict.mdc.protocol.inbound.DaillHomeIDDeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdw.core.Device;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.GprsRequestFactory;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155Properties;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.RequestFactory;
@@ -27,7 +27,7 @@ import java.util.TimeZone;
  */
 public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
-    DaillHomeIDDeviceIdentifier deviceIdentifier;
+    DeviceIdentifier deviceIdentifier;
     private RequestFactory requestFactory;
 
     @Override
@@ -64,7 +64,13 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     protected void setCallHomeID(String callHomeID) {
-        this.deviceIdentifier = new DaillHomeIDDeviceIdentifier(callHomeID);
+        this.deviceIdentifier = new DeviceIdentifier() {
+            @Override
+            public Device findDevice() {
+                //TODO complete with proper identifier since callHomeId does not exist anymore
+                return null;  //To change body of implemented methods use File | Settings | File Templates.
+            }
+        };
     }
 
     private RequestFactory getRequestFactory() {

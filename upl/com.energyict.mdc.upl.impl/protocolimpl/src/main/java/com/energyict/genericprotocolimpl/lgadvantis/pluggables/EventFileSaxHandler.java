@@ -142,14 +142,15 @@ public class EventFileSaxHandler extends DefaultHandler {
 			shadow.setReleaseDate(Calendar.getInstance().getTime());
 			shadow.setContents(content.xmlEncode());
 			rtu.createMessage(shadow);
-			
-			List schedulers = rtu.getCommunicationSchedulers();
-			for (Iterator jt = schedulers.iterator(); jt.hasNext();){
-				CommunicationScheduler scheduler = (CommunicationScheduler) jt.next();
-				if (scheduler.getCommunicationProfile().getSendRtuMessage()){
-					scheduler.startReadingNow();
-				}
-			}
+
+            // Note: protocol will not be used anymore
+//			List schedulers = rtu.getCommunicationSchedulers();
+//			for (Iterator jt = schedulers.iterator(); jt.hasNext();){
+//				CommunicationScheduler scheduler = (CommunicationScheduler) jt.next();
+//				if (scheduler.getCommunicationProfile().getSendRtuMessage()){
+//					scheduler.startReadingNow();
+//				}
+//			}
 		}
 	}
 }

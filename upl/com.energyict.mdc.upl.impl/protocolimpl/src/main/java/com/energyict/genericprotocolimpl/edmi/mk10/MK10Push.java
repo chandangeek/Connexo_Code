@@ -195,11 +195,11 @@ public class MK10Push implements GenericProtocol {
 
         for (int i = 0; i < meterList.size(); i++) {
             Device tempMeter = (Device) meterList.get(i);
-            if (tempMeter.getDialHomeId() != null) {
-                if (tempMeter.getDialHomeId().trim().equalsIgnoreCase(serial.trim())) {
-                    return (Device) meterList.get(i);
-                }
-            }
+//            if (tempMeter.getDialHomeId() != null) {
+//                if (tempMeter.getDialHomeId().trim().equalsIgnoreCase(serial.trim())) {
+//                    return (Device) meterList.get(i);
+//                }
+//            }
         }
 
         return null;

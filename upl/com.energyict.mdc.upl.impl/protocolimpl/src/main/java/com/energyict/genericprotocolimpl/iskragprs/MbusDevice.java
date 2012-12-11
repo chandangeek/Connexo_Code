@@ -324,18 +324,18 @@ public class MbusDevice implements Messaging, GenericProtocol {
         msg.setFailed();
         Device concentrator = getMbus().getGateway();
         if (concentrator != null) {
-            List schedulers = concentrator.getCommunicationSchedulers();
-            if (schedulers.size() > 0) {
-                CommunicationScheduler scheduler = (CommunicationScheduler) schedulers.get(0);
-                if (scheduler != null) {
-                    AMRJournalManager amrJournalManager =
-                            new AMRJournalManager(concentrator, scheduler);
-                    amrJournalManager.journal(
-                            new AmrJournalEntry(AmrJournalEntry.DETAIL, description + ": " + e.toString()));
-                    amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
-                    amrJournalManager.updateRetrials();
-                }
-            }
+//            List schedulers = concentrator.getCommunicationSchedulers();
+//            if (schedulers.size() > 0) {
+//                CommunicationScheduler scheduler = (CommunicationScheduler) schedulers.get(0);
+//                if (scheduler != null) {
+//                    AMRJournalManager amrJournalManager =
+//                            new AMRJournalManager(concentrator, scheduler);
+//                    amrJournalManager.journal(
+//                            new AmrJournalEntry(AmrJournalEntry.DETAIL, description + ": " + e.toString()));
+//                    amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+//                    amrJournalManager.updateRetrials();
+//                }
+//            }
         }
         getLogger().severe(e.toString());
     }

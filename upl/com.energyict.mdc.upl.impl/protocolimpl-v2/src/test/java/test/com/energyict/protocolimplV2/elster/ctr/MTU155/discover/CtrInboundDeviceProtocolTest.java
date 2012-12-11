@@ -1,7 +1,6 @@
 package test.com.energyict.protocolimplV2.elster.ctr.MTU155.discover;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdc.protocol.inbound.DaillHomeIDDeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -54,7 +53,7 @@ public class CtrInboundDeviceProtocolTest {
         DeviceIdentifier deviceIdentifier = inboundDeviceProtocol.getDeviceIdentifier();
 
         assertEquals(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER, discoverResultType);
-        assertEquals(DaillHomeIDDeviceIdentifier.class, deviceIdentifier.getClass());
+        assertEquals(DeviceIdentifier.class, deviceIdentifier.getClass());
         assertEquals("66554433221100", deviceIdentifier.toString());
     }
 }

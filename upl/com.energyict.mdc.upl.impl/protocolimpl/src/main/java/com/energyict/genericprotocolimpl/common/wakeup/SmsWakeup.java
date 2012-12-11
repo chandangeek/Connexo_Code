@@ -161,15 +161,15 @@ public class SmsWakeup {
      */
     private void clearMetersIpAddress() throws SQLException, BusinessException {
 
-        try {
-            this.meter.updateIpAddress("");
-        } catch (SQLException e) {
-            logger.log(Level.INFO, e.getMessage());
-            throw new SQLException("Could not clear the IP address.");
-        } catch (BusinessException e) {
-            logger.log(Level.INFO, e.getMessage());
-            throw new BusinessException("Failed to clear the IP address.", e.getMessage());
-        }
+//        try {
+//            this.meter.updateIpAddress("");
+//        } catch (SQLException e) {
+//            logger.log(Level.INFO, e.getMessage());
+//            throw new SQLException("Could not clear the IP address.");
+//        } catch (BusinessException e) {
+//            logger.log(Level.INFO, e.getMessage());
+//            throw new BusinessException("Failed to clear the IP address.", e.getMessage());
+//        }
 
     }
 
@@ -261,14 +261,14 @@ public class SmsWakeup {
         long protocolTimeout = System.currentTimeMillis() + this.pollTimeout;
 
         sleep(this.firstPoll);
-        updatedIpAddress = getRefreshedMeter().getIpAddress();
+//        updatedIpAddress = getRefreshedMeter().getIpAddress();
 
         while (updatedIpAddress.equals("")) {
             if ((System.currentTimeMillis() - protocolTimeout) > 0) {
                 throw new BusinessException("Could not update the meters IP-address");
             }
             sleep(this.secondPollFrequency);
-            updatedIpAddress = getRefreshedMeter().getIpAddress();
+//            updatedIpAddress = getRefreshedMeter().getIpAddress();
         }
         String error = "";
         if (NOTIFY_COMMON_ERROR.equalsIgnoreCase(updatedIpAddress)) {

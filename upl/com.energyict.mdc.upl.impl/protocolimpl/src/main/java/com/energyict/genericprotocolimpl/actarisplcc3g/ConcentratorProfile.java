@@ -40,7 +40,7 @@ public class ConcentratorProfile {
              profileData.setIntervalDatas(buildIntervalDatas(fromLoadProfile,toLoadProfile));
          if (logbook) {
              profileData.setMeterEvents(buildMeterEvents(fromLogbook,toLogbook));
-             profileData.applyEvents(concentrator.getCurrentSelectedDevice().getIntervalInSeconds()/60);
+             profileData.applyEvents(concentrator.getCurrentSelectedDevice().getChannels().get(0).getIntervalInSeconds()/60);
          }
          
          profileData.sort();
@@ -60,8 +60,8 @@ public class ConcentratorProfile {
     }
     private List buildIntervalDatas(Date from,Date to) throws IOException {
         PLCCMeterLoadProfileEnergy o = concentrator.getPLCCObjectFactory().getPLCCMeterLoadProfileEnergy(from,to);
-        if (concentrator.getCurrentSelectedDevice().getIntervalInSeconds() != o.getCapturePeriod())
-            throw new IOException("Load profile interval in meter ("+o.getCapturePeriod()+") is different from configuration ("+concentrator.getCurrentSelectedDevice().getIntervalInSeconds()+")");
+        if (concentrator.getCurrentSelectedDevice().getChannels().get(0).getIntervalInSeconds() != o.getCapturePeriod())
+            throw new IOException("Load profile interval in meter ("+o.getCapturePeriod()+") is different from configuration ("+concentrator.getCurrentSelectedDevice().getChannels().get(0).getIntervalInSeconds()+")");
         return o.toIntervalDatas();
     }
     

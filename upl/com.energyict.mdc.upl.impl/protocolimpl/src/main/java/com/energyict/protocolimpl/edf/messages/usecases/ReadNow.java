@@ -19,12 +19,12 @@ public class ReadNow extends AbstractFolderAction {
             
                 Device rtu = (Device)i.next();
                 
-                Iterator schi = rtu.getCommunicationSchedulers().iterator();
-                
-                if( schi.hasNext() ) {
-                    CommunicationScheduler cs = (CommunicationScheduler)schi.next();
-                    cs.startReadingNow();
-                }
+//                Iterator schi = rtu.getCommunicationSchedulers().iterator();
+//
+//                if( schi.hasNext() ) {
+//                    CommunicationScheduler cs = (CommunicationScheduler)schi.next();
+//                    cs.startReadingNow();
+//                }
                 
             }
             

@@ -82,16 +82,16 @@ public class DeviceDeployment {
         getLogger().warning("Creating new device of type [" + info.getRtuType() + "] ...");
 
         try {
-            DeviceShadow shadow = info.getRtuType().newDeviceShadow();
+            DeviceShadow shadow = info.getRtuType().getDeviceConfigs().get(0).newDeviceShadow();
             shadow.setName(createDeviceName(info)); // EK280 serial
             shadow.setExternalName(createExternalName(info)); // "rtu/" + EK280serial
-            shadow.setDeviceId(createDeviceId(info)); // EK280 serial number
-            shadow.setDialHomeId(createDialHomeId(info)); // EK280 serial number
+//            shadow.setDeviceId(createDeviceId(info)); // EK280 serial number
+//            shadow.setDialHomeId(createDialHomeId(info)); // EK280 serial number
 
             // The following values will be updated after we establish an association to the device
-            shadow.setNodeAddress(""); // Keep it empty for now. Should contain PDR number.
-            shadow.setNodeAddress(""); // Keep it empty for now. Should contain PDR number.
-            shadow.setPhoneNumber(""); // Keep it empty for now. Should contain device phone number.
+//            shadow.setNodeAddress(""); // Keep it empty for now. Should contain PDR number.
+//            shadow.setNodeAddress(""); // Keep it empty for now. Should contain PDR number.
+//            shadow.setPhoneNumber(""); // Keep it empty for now. Should contain device phone number.
 
             // For now, enter (the calculated last reading. This will be updated after we sign on and fetch the installation date
             Date channelBackLogDate = getProperties().getChannelBackLogDate();
@@ -106,7 +106,7 @@ public class DeviceDeployment {
                 shadow.setFolderId(info.getFolder().getId());
             }
             if (info.getRtuType().getPrototypeDevice() == null) {
-                shadow.setIntervalInSeconds(3600);
+//                shadow.setIntervalInSeconds(3600);
                 if (info.getFolder() == null) {
                     throw new IOException("DeviceType [" + info.getRtuType().getName() + "] has no prototype AND no folder. Unable to create device.");
                 }

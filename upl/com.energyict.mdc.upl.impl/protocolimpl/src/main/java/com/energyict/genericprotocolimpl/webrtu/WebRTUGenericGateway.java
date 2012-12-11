@@ -621,17 +621,19 @@ public class WebRTUGenericGateway implements GenericProtocol {
             properties.setProperty(key, protocolProperties.getProperty(key));
         }
 
-        if (slave.getDeviceId() != null) {
-            properties.setProperty(MeterProtocol.ADDRESS, slave.getDeviceId());
-        }
-        if (slave.getPassword() != null) {
-            properties.setProperty(MeterProtocol.PASSWORD, slave.getPassword());
-        }
-        if (slave.getNodeAddress() != null) {
-            properties.setProperty(MeterProtocol.NODEID, slave.getNodeAddress());
-        }
-        if (slave.getIntervalInSeconds() != 0) {
-            properties.setProperty(MeterProtocol.PROFILEINTERVAL, String.valueOf(slave.getIntervalInSeconds()));
+        // NOTE: these properties should be set by the framework
+//        if (slave.getDeviceId() != null) {
+//            properties.setProperty(MeterProtocol.ADDRESS, slave.getDeviceId());
+//        }
+//        if (slave.getPassword() != null) {
+//            properties.setProperty(MeterProtocol.PASSWORD, slave.getPassword());
+//        }
+//        if (slave.getNodeAddress() != null) {
+//            properties.setProperty(MeterProtocol.NODEID, slave.getNodeAddress());
+//        }
+
+        if (slave.getChannels().get(0).getIntervalInSeconds() != 0) {
+            properties.setProperty(MeterProtocol.PROFILEINTERVAL, String.valueOf(slave.getChannels().get(0).getIntervalInSeconds()));
         } else {
             getLogger().log(Level.WARNING, "ProfileInterval in database for this meter is set to 0, protocolreader will use a default value of 900 sec!");
         }
@@ -752,17 +754,19 @@ public class WebRTUGenericGateway implements GenericProtocol {
 
     private List<CommunicationScheduler> getInboundSlaveSchedules(Device slave) {
         List<CommunicationScheduler> inboundSchedules = new ArrayList<CommunicationScheduler>();
-        for (CommunicationScheduler slaveSchedule : slave.getCommunicationSchedulers()) {
-            if (slaveSchedule.getModemPool().getInbound()) {
-                if (slaveSchedule.getNextCommunication() == null) {
-                    getLogger().info("Slave: " + slaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + slaveSchedule.displayString() + "' next communication is 'null'. Skipping.");
-                } else if (slaveSchedule.getNextCommunication().after(new Date())) {
-                    getLogger().info("Slave: " + slaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + slaveSchedule.displayString() + "' next communication not reached yet. Skipping.");
-                } else {
-                    inboundSchedules.add(slaveSchedule);
-                }
-            }
-        }
+        // NOTE: we don't work with schedulers anymore!
+
+//        for (CommunicationScheduler slaveSchedule : slave.getCommunicationSchedulers()) {
+//            if (slaveSchedule.getModemPool().getInbound()) {
+//                if (slaveSchedule.getNextCommunication() == null) {
+//                    getLogger().info("Slave: " + slaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + slaveSchedule.displayString() + "' next communication is 'null'. Skipping.");
+//                } else if (slaveSchedule.getNextCommunication().after(new Date())) {
+//                    getLogger().info("Slave: " + slaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + slaveSchedule.displayString() + "' next communication not reached yet. Skipping.");
+//                } else {
+//                    inboundSchedules.add(slaveSchedule);
+//                }
+//            }
+//        }
         return inboundSchedules;
     }
 

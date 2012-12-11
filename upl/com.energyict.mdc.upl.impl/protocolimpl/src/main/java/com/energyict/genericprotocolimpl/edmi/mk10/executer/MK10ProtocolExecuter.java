@@ -123,17 +123,19 @@ public class MK10ProtocolExecuter {
         if (getMeter().getSerialNumber() != null) {
             this.properties.put(MeterProtocol.SERIALNUMBER, getMeter().getSerialNumber());
         }
-        if (getMeter().getNodeAddress() != null) {
-            this.properties.put(MeterProtocol.NODEID, getMeter().getNodeAddress());
-        }
-        if (getMeter().getDeviceId() != null) {
-            this.properties.put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
-        }
-        if (getMeter().getPassword() != null) {
-            this.properties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
-        }
-        if (String.valueOf(getMeter().getIntervalInSeconds()) != null) {
-            this.properties.put(MeterProtocol.PROFILEINTERVAL, String.valueOf(getMeter().getIntervalInSeconds()));
+
+        // these properties should be properly set by the framework
+//        if (getMeter().getNodeAddress() != null) {
+//            this.properties.put(MeterProtocol.NODEID, getMeter().getNodeAddress());
+//        }
+//        if (getMeter().getDeviceId() != null) {
+//            this.properties.put(MeterProtocol.ADDRESS, getMeter().getDeviceId());
+//        }
+//        if (getMeter().getPassword() != null) {
+//            this.properties.put(MeterProtocol.PASSWORD, getMeter().getPassword());
+//        }
+        if (String.valueOf(getMeter().getChannel(0).getIntervalInSeconds()) != null) {
+            this.properties.put(MeterProtocol.PROFILEINTERVAL, String.valueOf(getMeter().getChannel(0).getIntervalInSeconds()));
         }
 
         getMk10Push().setFullDebugLogging(this.properties.getProperty("FullDebug", "0").equalsIgnoreCase("1"));
@@ -307,14 +309,15 @@ public class MK10ProtocolExecuter {
     }
 
     public CommunicationScheduler getInboundCommunicationScheduler() throws BusinessException {
-        List<CommunicationScheduler> schedulerList = getInboundSchedulers(getMeter().getCommunicationSchedulers());
-        if (schedulerList.size() != 1) {
-            throw new BusinessException(
-                    "Device MUST have one and only one CommunicationScheduler with an INBOUND modem pool when using push protocol. " +
-                            "CommunicationSchedulers found for Device: " + schedulerList.size()
-            );
-        }
-        return schedulerList.get(0);
+//        List<CommunicationScheduler> schedulerList = getInboundSchedulers(getMeter().getCommunicationSchedulers());
+//        if (schedulerList.size() != 1) {
+//            throw new BusinessException(
+//                    "Device MUST have one and only one CommunicationScheduler with an INBOUND modem pool when using push protocol. " +
+//                            "CommunicationSchedulers found for Device: " + schedulerList.size()
+//            );
+//        }
+//        return schedulerList.get(0);
+        return null;
     }
 
     private List<CommunicationScheduler> getInboundSchedulers(List<CommunicationScheduler> schedulers) {

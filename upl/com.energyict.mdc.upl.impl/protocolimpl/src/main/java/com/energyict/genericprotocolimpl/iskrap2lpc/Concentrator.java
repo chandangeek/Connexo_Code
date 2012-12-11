@@ -65,6 +65,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -523,7 +524,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
 
     private Date getClearMidnightDate(Device rtu) {
-        Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
+        Calendar tempCalendar = Calendar.getInstance(TimeZone.getDefault());
         tempCalendar.set(Calendar.HOUR_OF_DAY, 0);
         tempCalendar.set(Calendar.MINUTE, 0);
         tempCalendar.set(Calendar.SECOND, 0);
@@ -858,7 +859,8 @@ public class Concentrator implements Messaging, GenericProtocol {
      * @return Network address of concentrator
      */
     private String getUrl(Device concentrator) {
-        return "http://" + concentrator.getPhoneNumber() + "/WebService.wsdl";
+//        return "http://" + concentrator.getPhoneNumber() + "/WebService.wsdl";
+        return "InvalidURL";
     }
 
 

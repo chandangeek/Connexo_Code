@@ -42,7 +42,7 @@ public class CSDCaller {
         this.timeOut = Integer.parseInt((String) this.rtu.getProperties().getProperty("PollTimeOut", "900000"));
         this.pollFreq = Integer.parseInt((String) this.rtu.getProperties().getProperty("CsdPollFrequency", "20000"));
         this.csdCallTimeout = Integer.parseInt((String) this.rtu.getProperties().getProperty("CsdCallTimeOut", "900000"));
-        this.phone = this.rtu.getPhoneNumber();
+//        this.phone = this.rtu.getPhoneNumber();
         this.fixedIp = ((String) this.rtu.getProperties().getProperty("FixedIpAddress", "0")).equalsIgnoreCase("1");
     }
 
@@ -70,12 +70,12 @@ public class CSDCaller {
 
                 if (checkForSuccessfulCSDCall()) {    // if the csdCall is successful then poll the radius server
                     if (fixedIp) {
-                        String ip = this.rtu.getIpAddress();
-                        if (!ip.equalsIgnoreCase("")) {
-                            return ip;
-                        } else {
+//                        String ip = this.rtu.getIpAddress();
+//                        if (!ip.equalsIgnoreCase("")) {
+//                            return ip;
+//                        } else {
                             throw new ConnectionException("There is no fixed IP address filled in.");
-                        }
+//                        }
                     } else {
                         IpUpdater ipUpdater = new IpUpdater(this.timeOut, this.pollFreq);
                         return ipUpdater.poll(this.phone, this.csdCaller.getLastCommunicationStart());
@@ -110,18 +110,18 @@ public class CSDCaller {
      * @throws IOException
      */
     private void findCSDSchedule() throws IOException {
-        this.csdCaller = null;
-        List allCommSchedules = rtu.getCommunicationSchedulers();
-        Iterator it = allCommSchedules.iterator();
-        while (it.hasNext()) {
-            CommunicationScheduler commSched = (CommunicationScheduler) it.next();
-            if (commSched.displayString().toLowerCase().indexOf("csd") > 0) {
-                if (this.csdCaller != null) {
-                    throw new IOException("Found more then one csdSchedule, only one can have a csd name.");
-                }
-                this.csdCaller = commSched;
-            }
-        }
+//        this.csdCaller = null;
+//        List allCommSchedules = rtu.getCommunicationSchedulers();
+//        Iterator it = allCommSchedules.iterator();
+//        while (it.hasNext()) {
+//            CommunicationScheduler commSched = (CommunicationScheduler) it.next();
+//            if (commSched.displayString().toLowerCase().indexOf("csd") > 0) {
+//                if (this.csdCaller != null) {
+//                    throw new IOException("Found more then one csdSchedule, only one can have a csd name.");
+//                }
+//                this.csdCaller = commSched;
+//            }
+//        }
     }
 
     /**

@@ -85,7 +85,7 @@ public class AMRJournalManager {
     public void updateRetrials() throws SQLException, BusinessException {
         if (communicationScheduler != null) {
             communicationScheduler.journal(getJournal());
-            communicationScheduler.logFailure(Calendar.getInstance(device.getDeviceTimeZone()).getTime(),getErrorMessage());
+            communicationScheduler.logFailure(Calendar.getInstance(TimeZone.getDefault()).getTime(),getErrorMessage());
         }
     }    
     

@@ -7,6 +7,7 @@ import com.energyict.protocol.messaging.*;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -30,7 +31,7 @@ public class ForceSyncClockMessage extends AbstractMTU155Message {
     @Override
     public void executeMessage(MessageEntry messageEntry) throws BusinessException {
         try {
-            Date currentTime = Calendar.getInstance(getRtu().getDeviceTimeZone()).getTime();
+            Date currentTime = Calendar.getInstance(TimeZone.getDefault()).getTime();
             getLogger().severe("Received [" + MESSAGE_TAG + "] message. Writing system time to device: " + currentTime);
             getFactory().getMeterInfo().setTime(currentTime);
         } catch (CTRException e) {

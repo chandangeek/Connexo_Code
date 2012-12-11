@@ -52,7 +52,7 @@ public class WritePDRMessage extends AbstractMTU155Message {
     private void updatePdrInEiserver(String pdr) throws BusinessException {
         try {
             DeviceShadow shadow = getRtu().getShadow();
-            shadow.setDialHomeId(pdr);
+//            shadow.setDialHomeId(pdr);
             getRtu().update(shadow);
         } catch (SQLException e) {
             throw new BusinessException("Wrote PDR to device, but could not change the PDR in EIServer! " + e.getMessage());

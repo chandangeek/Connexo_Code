@@ -178,7 +178,7 @@ public class ParseUtils {
      * @return
      */
 	public static Date getClearLastMonthDate(Device rtu) {
-        return getClearLastMonthDate(rtu.getDeviceTimeZone());
+        return getClearLastMonthDate(TimeZone.getDefault());
 	}
 
     /**

@@ -200,7 +200,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
             if (this.csdCall != 0) {
                 CSDCall call = new CSDCall(link);
-                call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
+//                call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
                 logger.log(Level.INFO, "Made a successful call.");
 
             } else {
@@ -223,7 +223,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 CSDCaller caller = new CSDCaller(rtu);
                 ipAddress = caller.doWakeUp();
                 if (!ipAddress.equalsIgnoreCase("")) {
-                    this.rtu.updateIpAddress(ipAddress);
+//                    this.rtu.updateIpAddress(ipAddress);
                     ipAddress = checkIPAddressForPortNumber(ipAddress);
                     getLogger().log(Level.INFO, "IPAddress " + ipAddress + " found for meter with serialnumber " + this.serialNumber);
 
@@ -529,7 +529,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
     private Device createMeter(Device rtu2, DeviceType type, String customerID) throws SQLException, BusinessException {
-        DeviceShadow shadow = type.newDeviceShadow();
+        DeviceShadow shadow = type.getDeviceConfigs().get(0).newDeviceShadow();
 
         Date lastreading = shadow.getLastReading();
 
@@ -1015,12 +1015,12 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 }
             }
 
-            strID = rtu.getDeviceId();
+//            strID = rtu.getDeviceId();
             if ((strID != null) && (strID.length() > 16)) {
                 throw new InvalidPropertyException("ID must be less or equal then 16 characters.");
             }
 
-            strPassword = rtu.getPassword();
+//            strPassword = rtu.getPassword();
             iHDLCTimeoutProperty = Integer.parseInt(properties.getProperty("Timeout", "5000").trim());
             iProtocolRetriesProperty = Integer.parseInt(properties.getProperty("Retries", "10").trim());
             iSecurityLevelProperty = Integer.parseInt(properties.getProperty("SecurityLevel", "1").trim());
@@ -1030,7 +1030,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             iServerUpperMacAddress=Integer.parseInt(properties.getProperty("ServerUpperMacAddress","17").trim());
             iServerLowerMacAddress=Integer.parseInt(properties.getProperty("ServerLowerMacAddress","1").trim());
             firmwareVersion = properties.getProperty("FirmwareVersion", "ANY");
-            nodeId = rtu.getNodeAddress();
+//            nodeId = rtu.getNodeAddress();
             serialNumber = rtu.getSerialNumber();
             extendedLogging = Integer.parseInt(properties.getProperty("ExtendedLogging", "0"));
             addressingMode = Integer.parseInt(properties.getProperty("AddressingMode", "2"));
@@ -1117,13 +1117,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
     public TimeZone getTimeZone() {
-        try {
-            return isRequestTimeZone() ? TimeZone.getTimeZone(Integer.toString(getClock().getTimeZone())) : rtu.getDeviceTimeZone();
-        } catch (IOException e) {
-            e.printStackTrace();
-            getLogger().log(Level.INFO, "Could not verify meterTimeZone so EIServer timeZone is used.");
-            return rtu.getDeviceTimeZone();
-        }
+//        try {
+//            return isRequestTimeZone() ? TimeZone.getTimeZone(Integer.toString(getClock().getTimeZone())) : rtu.getDeviceTimeZone();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            getLogger().log(Level.INFO, "Could not verify meterTimeZone so EIServer timeZone is used.");
+//            return rtu.getDeviceTimeZone();
+//        }
+        return TimeZone.getDefault();
     }
 
     public boolean isRequestTimeZone() {

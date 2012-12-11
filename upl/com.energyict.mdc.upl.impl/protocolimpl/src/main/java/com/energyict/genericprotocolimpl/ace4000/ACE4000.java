@@ -440,12 +440,12 @@ public class ACE4000 extends AbstractGenericProtocol {
     }
 
     public TimeZone getDeviceTimeZone() {
-        if (getCommSchedulers().size() == 0 || getCommSchedulers().get(0).getRtu() == null || getCommSchedulers().get(0).getRtu().getDeviceTimeZone() == null) {
+        if (getCommSchedulers().size() == 0 || getCommSchedulers().get(0).getRtu() == null || TimeZone.getDefault() == null) {
             TimeZone timeZone = TimeZone.getDefault();
             log(Level.WARNING, "No device time zone found, using system time zone: " + timeZone.getDisplayName());
             return timeZone;
         }
-        return getCommSchedulers().get(0).getRtu().getDeviceTimeZone();
+        return TimeZone.getDefault();
     }
 
     private void setConnectTime(long currentTimeMillis) {
@@ -458,17 +458,17 @@ public class ACE4000 extends AbstractGenericProtocol {
 
     private void addFailureLogging(StringBuilder eString) throws SQLException, BusinessException {
         if (getMasterMeter() != null) {
-            for (CommunicationScheduler cs : getMasterMeter().getCommunicationSchedulers()) {
-                if (!cs.getActive()) {
-                    cs.startCommunication();
-                    AMRJournalManager amrjm = new AMRJournalManager(getMasterMeter(), cs);
-                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, eString.toString()));
-                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime()) / 1000));
-                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
-                    amrjm.updateRetrials();
-                    break;
-                }
-            }
+//            for (CommunicationScheduler cs : getMasterMeter().getCommunicationSchedulers()) {
+//                if (!cs.getActive()) {
+//                    cs.startCommunication();
+//                    AMRJournalManager amrjm = new AMRJournalManager(getMasterMeter(), cs);
+//                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, eString.toString()));
+//                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime()) / 1000));
+//                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+//                    amrjm.updateRetrials();
+//                    break;
+//                }
+//            }
         } else {
             log(Level.WARNING, "Failed to enter an AMR journal entry, meter doesn't exist in database");
         }
@@ -476,16 +476,16 @@ public class ACE4000 extends AbstractGenericProtocol {
 
     private void addSuccessLogging() throws SQLException, BusinessException {
         if (getMasterMeter() != null) {
-            for (CommunicationScheduler cs : getMasterMeter().getCommunicationSchedulers()) {
-                if (!cs.getActive()) {
-                    cs.startCommunication();
-                    AMRJournalManager amrjm = new AMRJournalManager(getMasterMeter(), cs);
-                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime()) / 1000));
-                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_OK));
-                    amrjm.updateLastCommunication();
-                    break;
-                }
-            }
+//            for (CommunicationScheduler cs : getMasterMeter().getCommunicationSchedulers()) {
+//                if (!cs.getActive()) {
+//                    cs.startCommunication();
+//                    AMRJournalManager amrjm = new AMRJournalManager(getMasterMeter(), cs);
+//                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - getConnectTime()) / 1000));
+//                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CC_OK));
+//                    amrjm.updateLastCommunication();
+//                    break;
+//                }
+//            }
         } else {
             log(Level.WARNING, "Failed to enter an AMR journal entry, meter doesn't exist in database");
         }
@@ -649,8 +649,8 @@ public class ACE4000 extends AbstractGenericProtocol {
     }
 
     public int getMeterProfileInterval() {
-        if (masterMeter != null) {
-            return masterMeter.getIntervalInSeconds();
+        if (masterMeter != null && !masterMeter.getChannels().isEmpty()) {
+            return masterMeter.getChannels().get(0).getIntervalInSeconds();
         } else {
             return -1;
         }
@@ -680,13 +680,13 @@ public class ACE4000 extends AbstractGenericProtocol {
     }
 
     private void setCommunicationScheduler() {
-        for (CommunicationScheduler cs : getMasterMeter().getCommunicationSchedulers()) {
-            if (!cs.getActive() && cs.getDialerFactory().getDialerClassName().equalsIgnoreCase("")) {
-                if (!schedulers.contains(cs)) {
-                    schedulers.add(cs);
-                }
-            }
-        }
+//        for (CommunicationScheduler cs : getMasterMeter().getCommunicationSchedulers()) {
+//            if (!cs.getActive() && cs.getDialerFactory().getDialerClassName().equalsIgnoreCase("")) {
+//                if (!schedulers.contains(cs)) {
+//                    schedulers.add(cs);
+//                }
+//            }
+//        }
     }
 
     private void findMasterMeter() {

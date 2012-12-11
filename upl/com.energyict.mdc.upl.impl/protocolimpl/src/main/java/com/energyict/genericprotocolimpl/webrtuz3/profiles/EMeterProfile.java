@@ -119,7 +119,7 @@ public class EMeterProfile extends AbstractDLMSProfile {
 			final ChannelInfo ci = it.next();
             Channel eMeterChannel = getMeter().getChannel(ci.getId());
             if(eMeterChannel.getIntervalInSeconds() != genericProfile.getCapturePeriod()){
-				throw new IOException("Interval mismatch, EIServer: " + getMeter().getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
+				throw new IOException("Interval mismatch, EIServer: " + getMeter().getChannels().get(0).getIntervalInSeconds() + "s - Meter: " + genericProfile.getCapturePeriod() + "s.");
 			}
 		}
 	}
@@ -207,7 +207,7 @@ public class EMeterProfile extends AbstractDLMSProfile {
 					cal = new AXDRDateTime(OctetString.fromByteArray(dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).getArray())).getValue();
 				} else {
 					if(cal != null){
-						cal.add(Calendar.SECOND, eDevice.getMeter().getIntervalInSeconds());
+						cal.add(Calendar.SECOND, eDevice.getMeter().getChannels().get(0).getIntervalInSeconds());
 					}
 				}
 				if(cal != null){

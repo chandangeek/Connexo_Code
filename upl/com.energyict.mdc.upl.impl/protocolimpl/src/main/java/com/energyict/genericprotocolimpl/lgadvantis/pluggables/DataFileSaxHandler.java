@@ -201,9 +201,11 @@ public class DataFileSaxHandler extends DefaultHandler {
 				ProfileParser parser = new ProfileParser(rtu.getTimeZone());
 				List intervalData = null;
 				if (ProfileParser.isProfileCompressed(rtu)){
-					intervalData = parser.parse(binaryData, rtu.getIntervalInSeconds());
+                    // NOTE: protocol will not be used anymore
+//					intervalData = parser.parse(binaryData, rtu.getIntervalInSeconds());
 				} else {
-					intervalData = parser.parse(AXDRDecoder.decode(binaryData), rtu.getIntervalInSeconds());
+                    // NOTE: protocol will not be used anymore
+//					intervalData = parser.parse(AXDRDecoder.decode(binaryData), rtu.getIntervalInSeconds());
 				}
 				// Store intervalData in channel
 				List channels = rtu.getChannels();

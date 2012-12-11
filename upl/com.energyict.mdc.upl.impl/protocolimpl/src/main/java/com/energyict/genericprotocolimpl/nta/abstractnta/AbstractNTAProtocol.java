@@ -988,7 +988,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
     }
 
     private Device createMeter(DeviceType rtuType, String key) throws SQLException, BusinessException {
-        DeviceShadow shadow = rtuType.newDeviceShadow();
+        DeviceShadow shadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
 
         shadow.setName(key);
         shadow.setSerialNumber(key);

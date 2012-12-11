@@ -276,7 +276,7 @@ public class MeterTopology implements MasterMeter {
      * @throws BusinessException when a business related error occurs
      */
     private Device createMeter(DeviceType rtuType, String serialNumber) throws SQLException, BusinessException {
-        DeviceShadow shadow = rtuType.newDeviceShadow();
+        DeviceShadow shadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
 
         shadow.setName(serialNumber);
         shadow.setSerialNumber(serialNumber);

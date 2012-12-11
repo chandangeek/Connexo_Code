@@ -47,7 +47,7 @@ public class Concentrator implements GenericProtocol, Messaging {
         this.logger = logger;
 
         this.concentrator = scheduler.getRtu();
-        this.cosemFactory = new CosemFactory(concentrator.getDeviceTimeZone());
+        this.cosemFactory = new CosemFactory(TimeZone.getDefault());
 
         init();
 
@@ -253,7 +253,8 @@ public class Concentrator implements GenericProtocol, Messaging {
 
     private void init() throws IOException {
 
-        String phone = this.concentrator.getPhoneNumber();
+//        String phone = this.concentrator.getPhoneNumber();
+        String phone = "We don't know the phoneNumber anymore, cant use the generic protocol anymore";
         if ("".equals(phone)) {
             String msg = "Phone nr (cotaining URI) is missing.";
             throw new IOException(msg);

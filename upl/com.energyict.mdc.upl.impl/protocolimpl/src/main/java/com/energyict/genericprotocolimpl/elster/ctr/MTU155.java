@@ -179,10 +179,10 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
             validateMeterSerialNumber();
             validateConverterSerialNumber();
         } catch (CTRConfigurationException e) {
-            List<CommunicationScheduler> communicationSchedulers = getRtu() != null ? getRtu().getCommunicationSchedulers() : new ArrayList<CommunicationScheduler>();
-            for (CommunicationScheduler cs : communicationSchedulers) {
-                logConfigurationError(cs);
-            }
+//            List<CommunicationScheduler> communicationSchedulers = getRtu() != null ? getRtu().getCommunicationSchedulers() : new ArrayList<CommunicationScheduler>();
+//            for (CommunicationScheduler cs : communicationSchedulers) {
+//                logConfigurationError(cs);
+//            }
             throw e;
         }
     }
@@ -245,50 +245,50 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
      * Check the device's communication schedules, and execute them.
      */
     private void readDevice() {
-        List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
-        boolean connectionOk = true;
-        for (CommunicationScheduler cs : communicationSchedulers) {
-            String csName = cs.displayString();
-            if (!SmsHandler.isSmsProfile(cs)) {  //If schedule contains sms in the name (both for outbound / inbound) the schedule will be skipped.
-                meterAmrLogging = null;
-                if (cs.getNextCommunication() == null) {
-                    log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
-                } else if (cs.getNextCommunication().after(getNow())) {
-                    log("CommunicationScheduler '" + csName + "' nextCommunication not reached yet. Skipping.");
-                } else {
-                    storeStartTime();
-                    log("CommunicationScheduler '" + csName + "' nextCommunication reached. Executing scheduler.");
-                    try {
-                        if (connectionOk) {
-                            cs.startCommunication();
-                            cs.startReadingNow();
-                            executeCommunicationSchedule(cs);
-                            logSuccess(cs);
-                        } else {
-                            throw new CTRConnectionException("CTR connection to device down.");
-                        }
-                    } catch (CTRConnectionException e) {
-                        connectionOk = false;
-                        severe(e.getMessage());
-                        logFailure(cs);
-                    } catch (CTRException e) {
-                        severe(e.getMessage());
-                        logFailure(cs);
-                    } catch (SQLException e) {
-                        severe(e.getMessage());
-                        logFailure(cs);
-                    } catch (IOException e) {
-                        severe(e.getMessage());
-                        logFailure(cs);
-                    } catch (BusinessException e) {
-                        severe(e.getMessage());
-                        logFailure(cs);
-                    }
-                }
-            } else {
-                log("CommunicationScheduler '" + csName + "' is only ment for SMS. Skipping.");
-            }
-        }
+//        List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
+//        boolean connectionOk = true;
+//        for (CommunicationScheduler cs : communicationSchedulers) {
+//            String csName = cs.displayString();
+//            if (!SmsHandler.isSmsProfile(cs)) {  //If schedule contains sms in the name (both for outbound / inbound) the schedule will be skipped.
+//                meterAmrLogging = null;
+//                if (cs.getNextCommunication() == null) {
+//                    log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
+//                } else if (cs.getNextCommunication().after(getNow())) {
+//                    log("CommunicationScheduler '" + csName + "' nextCommunication not reached yet. Skipping.");
+//                } else {
+//                    storeStartTime();
+//                    log("CommunicationScheduler '" + csName + "' nextCommunication reached. Executing scheduler.");
+//                    try {
+//                        if (connectionOk) {
+//                            cs.startCommunication();
+//                            cs.startReadingNow();
+//                            executeCommunicationSchedule(cs);
+//                            logSuccess(cs);
+//                        } else {
+//                            throw new CTRConnectionException("CTR connection to device down.");
+//                        }
+//                    } catch (CTRConnectionException e) {
+//                        connectionOk = false;
+//                        severe(e.getMessage());
+//                        logFailure(cs);
+//                    } catch (CTRException e) {
+//                        severe(e.getMessage());
+//                        logFailure(cs);
+//                    } catch (SQLException e) {
+//                        severe(e.getMessage());
+//                        logFailure(cs);
+//                    } catch (IOException e) {
+//                        severe(e.getMessage());
+//                        logFailure(cs);
+//                    } catch (BusinessException e) {
+//                        severe(e.getMessage());
+//                        logFailure(cs);
+//                    }
+//                }
+//            } else {
+//                log("CommunicationScheduler '" + csName + "' is only ment for SMS. Skipping.");
+//            }
+//        }
     }
 
     public void storeStartTime() {
@@ -638,7 +638,9 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     public int getNetworkID() {
         try {
             if (rtu != null) {
-                return Integer.parseInt(getRtu().getNetworkId());
+                // get the network ID from a proper property value
+//                return Integer.parseInt(getRtu().getNetworkId());
+                return -1;
 
             } else {
                 return 0;
@@ -650,7 +652,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
 
     public void setNetworkID(int ID) throws BusinessException, SQLException {
         DeviceShadow shadow = getRtu().getShadow();
-        shadow.setNetworkId(Integer.toString(ID));
+//        shadow.setNetworkId(Integer.toString(ID));
         getRtu().update(shadow);
     }
 
@@ -794,14 +796,15 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
      * @return the meter's {@link TimeZone}
      */
     public TimeZone getTimeZone() {
-        if (getRtu() == null) {
+//        if (getRtu() == null) {
             return TimeZone.getDefault();
-        }
-        return getRtu().getDeviceTimeZone();
+//        }
+//        return getRtu().getDeviceTimeZone();
     }
 
     public String getPhoneNumber() {
-        return getRtu().getPhoneNumber();
+//        return getRtu().getPhoneNumber();
+        return "Get the phoneNumber from a proper property value";
     }
 
     @Override

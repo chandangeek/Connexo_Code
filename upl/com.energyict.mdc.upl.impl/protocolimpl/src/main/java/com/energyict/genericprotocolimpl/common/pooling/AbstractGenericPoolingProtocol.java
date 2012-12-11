@@ -230,7 +230,7 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages imple
             fetchAndSetLocalCache(this.fullShadow.getRtuShadow().getRtuId());
             connect();
             if (this.scheduler.getModemPool().getInbound()) {
-                this.scheduler.getRtu().updateIpAddress(getTheMeterHisIpAddress());
+//                this.scheduler.getRtu().updateIpAddress(getTheMeterHisIpAddress());
             }
 
             // Check if the time is greater then allowed, if so then no data can be stored...

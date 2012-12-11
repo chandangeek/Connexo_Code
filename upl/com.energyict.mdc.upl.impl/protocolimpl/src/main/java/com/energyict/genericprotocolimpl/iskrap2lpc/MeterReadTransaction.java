@@ -665,7 +665,7 @@ public class MeterReadTransaction implements CacheMechanism {
      * @return the current date minus a year at midnight.
      */
     private Date getClearLastMonthDate(Device rtu) {
-        Calendar tempCalendar = Calendar.getInstance(rtu.getDeviceTimeZone());
+        Calendar tempCalendar = Calendar.getInstance(TimeZone.getDefault());
         tempCalendar.add(Calendar.MONTH, -1);
         tempCalendar.set(Calendar.HOUR_OF_DAY, 0);
         tempCalendar.set(Calendar.MINUTE, 0);
@@ -927,7 +927,7 @@ public class MeterReadTransaction implements CacheMechanism {
         cal.add(Calendar.DAY_OF_MONTH, -10);
         Date lastreading = cal.getTime();
 
-        DeviceShadow shadow = type.newDeviceShadow();
+        DeviceShadow shadow = type.getDeviceConfigs().get(0).newDeviceShadow();
 
         shadow.setName(serial);
         shadow.setSerialNumber(serial);
@@ -1476,7 +1476,7 @@ public class MeterReadTransaction implements CacheMechanism {
                 Device mbus = slaveMeters.get(i);
                 int nodeAddress = 0;
                 try {
-                    nodeAddress = Integer.parseInt(mbus.getNodeAddress());
+//                    nodeAddress = Integer.parseInt(mbus.getNodeAddress());
                     if ((nodeAddress >= 1) && (nodeAddress <= 4)) {
                         mbusDevices[i] = new MbusDevice(0, nodeAddress, mbus.getSerialNumber(), 0, mbus, Unit.get(BaseUnit.UNITLESS), getLogger());
                     } else {

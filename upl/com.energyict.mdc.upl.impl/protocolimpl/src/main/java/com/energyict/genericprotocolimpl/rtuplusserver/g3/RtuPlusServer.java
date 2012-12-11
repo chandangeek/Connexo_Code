@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -34,7 +35,7 @@ public class RtuPlusServer implements GenericProtocol {
     }
 
     public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        this.session = new DlmsSession(link.getInputStream(), link.getOutputStream(), logger, properties, scheduler.getRtu().getDeviceTimeZone());
+        this.session = new DlmsSession(link.getInputStream(), link.getOutputStream(), logger, properties, TimeZone.getDefault());
         this.task = new RtuPlusServerTask(scheduler, logger);
         try {
             this.session.connect();

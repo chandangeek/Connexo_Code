@@ -489,11 +489,12 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
             this.serialNumber = "";
         }
 
-        if ((getMeter() != null) && (!getMeter().getPassword().equals(""))) {
-            this.password = getMeter().getPassword();
-        } else if (getMeter() == null) {
+//        if ((getMeter() != null) && (!getMeter().getPassword().equals(""))) {
+//            this.password = getMeter().getPassword();
+//        } else if (getMeter() == null) {
+        // if you want you can get the password from a proper property or securityObject
             this.password = getProperties().getProperty(PROPERTY_PASSWORD, DEFAULT_PASSWORD);
-        }
+//        }
 
         this.requestTimeZone = ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_REQUEST_TIME_ZONE, DEFAULT_REQUEST_TIMEZONE);
         this.readDaily = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_READ_DAILY_VALUES, DEFAULT_READ_DAILY_VALUES) == 1) ? true : false;
@@ -661,37 +662,37 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
     private void failAllPendingSchedules(Device device) {
         if (device != null) {
-            List<CommunicationScheduler> schedulers = device.getCommunicationSchedulers();
-            if ((schedulers != null) && (!schedulers.isEmpty())) {
-                for (CommunicationScheduler scheduler : schedulers) {
-                    String commSchedName = scheduler.displayString();
-                    Date nextCommunication = scheduler.getNextCommunication();
-                    if (nextCommunication != null) {
-                        if (nextCommunication.getTime() <= getNow().getTime()) {
-                            getLogger().fine("Next communication date [" + nextCommunication + "] for [" + commSchedName + "] reached, but device is ghost device. Failing schedule.");
-                            try {
-                                scheduler.startCommunication();
-                                scheduler.startReadingNow();
-                                MeterAmrLogging meterAmrLogging = new MeterAmrLogging();
-                                meterAmrLogging.logInfo("Device is a ghost device: device is configured in EIServer, but not found on the real concentrator!");
-                                logFailure(scheduler, meterAmrLogging);
-                            } catch (SQLException e) {
-                                getLogger().warning("Tried to fail all ghost device schedules for a given rtu, but an exception occured: " + e.getMessage());
-                            } catch (BusinessException e) {
-                                getLogger().warning("Tried to fail all ghost device schedules for a given rtu, but an exception occured: " + e.getMessage());
-                            }
-                        } else {
-                            getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] on ghost device [" + device.getName() + "] not reached yet. Skipping.");
-                        }
-                    } else {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("Communication schedule [").append(commSchedName).append("] is not active.");
-                        sb.append(" Next communication date is 'null'. ");
-                        sb.append(" Skipping.");
-                        getLogger().fine(sb.toString());
-                    }
-                }
-            }
+//            List<CommunicationScheduler> schedulers = device.getCommunicationSchedulers();
+//            if ((schedulers != null) && (!schedulers.isEmpty())) {
+//                for (CommunicationScheduler scheduler : schedulers) {
+//                    String commSchedName = scheduler.displayString();
+//                    Date nextCommunication = scheduler.getNextCommunication();
+//                    if (nextCommunication != null) {
+//                        if (nextCommunication.getTime() <= getNow().getTime()) {
+//                            getLogger().fine("Next communication date [" + nextCommunication + "] for [" + commSchedName + "] reached, but device is ghost device. Failing schedule.");
+//                            try {
+//                                scheduler.startCommunication();
+//                                scheduler.startReadingNow();
+//                                MeterAmrLogging meterAmrLogging = new MeterAmrLogging();
+//                                meterAmrLogging.logInfo("Device is a ghost device: device is configured in EIServer, but not found on the real concentrator!");
+//                                logFailure(scheduler, meterAmrLogging);
+//                            } catch (SQLException e) {
+//                                getLogger().warning("Tried to fail all ghost device schedules for a given rtu, but an exception occured: " + e.getMessage());
+//                            } catch (BusinessException e) {
+//                                getLogger().warning("Tried to fail all ghost device schedules for a given rtu, but an exception occured: " + e.getMessage());
+//                            }
+//                        } else {
+//                            getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] on ghost device [" + device.getName() + "] not reached yet. Skipping.");
+//                        }
+//                    } else {
+//                        StringBuilder sb = new StringBuilder();
+//                        sb.append("Communication schedule [").append(commSchedName).append("] is not active.");
+//                        sb.append(" Next communication date is 'null'. ");
+//                        sb.append(" Skipping.");
+//                        getLogger().fine(sb.toString());
+//                    }
+//                }
+//            }
         } else {
             getLogger().warning("Tried to fail all ghost device schedules for a given rtu, but rtu was 'null'.");
         }
@@ -955,38 +956,38 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private void handleEmeters() throws BusinessException, SQLException, IOException {
         for (EMeter eMeter : eMeters) {
-            try {
-                if (eMeter != null) {
-                    eMeter.addProperties(getProperties());
-                    eMeter.addProperties(ProtocolTools.getRtuProperties(eMeter.geteMeterRtu()));
-                    List<CommunicationScheduler> commSchedulers = eMeter.geteMeterRtu().getCommunicationSchedulers();
-                    for (CommunicationScheduler commSchedule : commSchedulers) {
-                        try {
-                            handleEmeterSingleSchedule(eMeter, commSchedule);
-                        } catch (BusinessException e) {
-                            logFailure(commSchedule, eMeter.getMeterAmrLogging());
-                            throw e;
-                        } catch (SQLException e) {
-                            logFailure(commSchedule, eMeter.getMeterAmrLogging());
-                            throw e;
-                        } catch (IOException e) {
-                            logFailure(commSchedule, eMeter.getMeterAmrLogging());
-                            throw e;
-                        }
-                    }
-                }
-            } catch (BusinessException e) {
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
-            } catch (SQLException e) {
-                /** Close the connection after an SQL exception, connection will startup again if requested */
-                Environment.getDefault().closeConnection();
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
-            } catch (IOException e) {
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed. [" + e.getMessage() + "]");
-            }
+//            try {
+//                if (eMeter != null) {
+//                    eMeter.addProperties(getProperties());
+//                    eMeter.addProperties(ProtocolTools.getRtuProperties(eMeter.geteMeterRtu()));
+//                    List<CommunicationScheduler> commSchedulers = eMeter.geteMeterRtu().getCommunicationSchedulers();
+//                    for (CommunicationScheduler commSchedule : commSchedulers) {
+//                        try {
+//                            handleEmeterSingleSchedule(eMeter, commSchedule);
+//                        } catch (BusinessException e) {
+//                            logFailure(commSchedule, eMeter.getMeterAmrLogging());
+//                            throw e;
+//                        } catch (SQLException e) {
+//                            logFailure(commSchedule, eMeter.getMeterAmrLogging());
+//                            throw e;
+//                        } catch (IOException e) {
+//                            logFailure(commSchedule, eMeter.getMeterAmrLogging());
+//                            throw e;
+//                        }
+//                    }
+//                }
+//            } catch (BusinessException e) {
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
+//            } catch (SQLException e) {
+//                /** Close the connection after an SQL exception, connection will startup again if requested */
+//                Environment.getDefault().closeConnection();
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed.");
+//            } catch (IOException e) {
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.SEVERE, "Emeter with serial: " + eMeter.getSerialNumber() + " has failed. [" + e.getMessage() + "]");
+//            }
         }
     }
 
@@ -995,54 +996,54 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      */
     private void handleMbusMeters() {
         for (MbusDevice mbusDevice : mbusDevices) {
-            try {
-                if (mbusDevice != null) {
-                    mbusDevice.addProperties(getProperties());
-                    mbusDevice.addProperties(ProtocolTools.getRtuProperties(mbusDevice.getMbus()));
-                    List<CommunicationScheduler> commSchedulers = mbusDevice.getMbus().getCommunicationSchedulers();
-                    for (CommunicationScheduler commSchedule : commSchedulers) {
-                        try {
-                            handleMbusSingleSchedule(mbusDevice, commSchedule);
-                        } catch (SQLException e) {
-                            logFailure(commSchedule, mbusDevice.getMeterAmrLogging());
-                            throw e;
-                        } catch (BusinessException e) {
-                            logFailure(commSchedule, mbusDevice.getMeterAmrLogging());
-                            throw e;
-                        } catch (IOException e) {
-                            logFailure(commSchedule, mbusDevice.getMeterAmrLogging());
-                            throw e;
-                        }
-                    }
-                }
-            } catch (BusinessException e) {
-
-                /*
-                     * A single MBusMeter failed: log and try next MBusMeter.
-                     */
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevice.getCustomerID() + " has failed.");
-
-            } catch (SQLException e) {
-
-                /** Close the connection after an SQL exception, connection will startup again if requested */
-                Environment.getDefault().closeConnection();
-
-                /*
-                     * A single MBusMeter failed: log and try next MBusMeter.
-                     */
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevice.getCustomerID() + " has failed.");
-
-            } catch (IOException e) {
-
-                /*
-                     * A single MBusMeter failed: log and try next MBusMeter.
-                     */
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevice.getCustomerID() + " has failed. [" + e.getMessage() + "]");
-
-            }
+//            try {
+//                if (mbusDevice != null) {
+//                    mbusDevice.addProperties(getProperties());
+//                    mbusDevice.addProperties(ProtocolTools.getRtuProperties(mbusDevice.getMbus()));
+//                    List<CommunicationScheduler> commSchedulers = mbusDevice.getMbus().getCommunicationSchedulers();
+//                    for (CommunicationScheduler commSchedule : commSchedulers) {
+//                        try {
+//                            handleMbusSingleSchedule(mbusDevice, commSchedule);
+//                        } catch (SQLException e) {
+//                            logFailure(commSchedule, mbusDevice.getMeterAmrLogging());
+//                            throw e;
+//                        } catch (BusinessException e) {
+//                            logFailure(commSchedule, mbusDevice.getMeterAmrLogging());
+//                            throw e;
+//                        } catch (IOException e) {
+//                            logFailure(commSchedule, mbusDevice.getMeterAmrLogging());
+//                            throw e;
+//                        }
+//                    }
+//                }
+//            } catch (BusinessException e) {
+//
+//                /*
+//                     * A single MBusMeter failed: log and try next MBusMeter.
+//                     */
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevice.getCustomerID() + " has failed.");
+//
+//            } catch (SQLException e) {
+//
+//                /** Close the connection after an SQL exception, connection will startup again if requested */
+//                Environment.getDefault().closeConnection();
+//
+//                /*
+//                     * A single MBusMeter failed: log and try next MBusMeter.
+//                     */
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevice.getCustomerID() + " has failed.");
+//
+//            } catch (IOException e) {
+//
+//                /*
+//                     * A single MBusMeter failed: log and try next MBusMeter.
+//                     */
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevice.getCustomerID() + " has failed. [" + e.getMessage() + "]");
+//
+//            }
         }
     }
 

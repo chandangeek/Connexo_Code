@@ -167,16 +167,16 @@ public class SmsHandler implements MessageHandler {
      * @throws LinkException
      */
     private boolean processSmsFrame(SMSFrame smsFrame) throws BusinessException, SQLException, LinkException {
-        List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
-        if (communicationSchedulers.size() == 0) {
-            log("Device '" + getRtu().getName() + "' has no CommunicationSchedulers. Skipping.");
-        } else {
-            for (CommunicationScheduler cs : communicationSchedulers) {
-                if (processSMSFrameSingleSchedule(smsFrame, cs)) {
-                    return true;
-                }
-            }
-        }
+//        List<CommunicationScheduler> communicationSchedulers = getRtu().getCommunicationSchedulers();
+//        if (communicationSchedulers.size() == 0) {
+//            log("Device '" + getRtu().getName() + "' has no CommunicationSchedulers. Skipping.");
+//        } else {
+//            for (CommunicationScheduler cs : communicationSchedulers) {
+//                if (processSMSFrameSingleSchedule(smsFrame, cs)) {
+//                    return true;
+//                }
+//            }
+//        }
         return false;
     }
 
@@ -250,7 +250,8 @@ public class SmsHandler implements MessageHandler {
         }
 
         smsFrame.doParse();
-        String pdr = getRtu().getDialHomeId();
+//        String pdr = getRtu().getDialHomeId();
+        String pdr = "No valid PDR, need to get it from a proper property";
 
         if (smsFrame.getData() instanceof ArrayEventsQueryResponseStructure) {
             ArrayEventsQueryResponseStructure data = (ArrayEventsQueryResponseStructure) smsFrame.getData();
@@ -582,10 +583,10 @@ public class SmsHandler implements MessageHandler {
      * @return the meter's {@link TimeZone}
      */
     public TimeZone getTimeZone() {
-        if (getRtu() == null) {
+//        if (getRtu() == null) {
             return TimeZone.getDefault();
-        }
-        return getRtu().getDeviceTimeZone();
+//        }
+//        return getRtu().getDeviceTimeZone();
     }
 
     /**

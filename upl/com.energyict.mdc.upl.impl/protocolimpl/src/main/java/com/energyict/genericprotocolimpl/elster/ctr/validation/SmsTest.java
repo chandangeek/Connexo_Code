@@ -92,26 +92,26 @@ public class SmsTest {
     private static void updatePhoneNumbers(MeteringWarehouse mw) {
         List<Device> all = mw.getDeviceFactory().findAll();
         for (Device rtu : all) {
-            String phoneNumber = rtu.getPhoneNumber();
-            if (phoneNumber == null || phoneNumber.equalsIgnoreCase("")) {
-                Register register = rtu.getRegister(ObisCode.fromString("0.0.96.12.6.255"));
-                RegisterReading lastReading = register.getLastReading();
-                if (lastReading != null) {
-                    String text = lastReading.getText();
-                    if (text != null) {
-                        try {
-                            DeviceShadow shadow = rtu.getShadow();
-                            shadow.setPhoneNumber(text.trim());
-                            rtu.update(shadow);
-                            System.out.println(text);
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        } catch (BusinessException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
+//            String phoneNumber = rtu.getPhoneNumber();
+//            if (phoneNumber == null || phoneNumber.equalsIgnoreCase("")) {
+//                Register register = rtu.getRegister(ObisCode.fromString("0.0.96.12.6.255"));
+//                RegisterReading lastReading = register.getLastReading();
+//                if (lastReading != null) {
+//                    String text = lastReading.getText();
+//                    if (text != null) {
+//                        try {
+//                            DeviceShadow shadow = rtu.getShadow();
+//                            shadow.setPhoneNumber(text.trim());
+//                            rtu.update(shadow);
+//                            System.out.println(text);
+//                        } catch (SQLException e) {
+//                            e.printStackTrace();
+//                        } catch (BusinessException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 

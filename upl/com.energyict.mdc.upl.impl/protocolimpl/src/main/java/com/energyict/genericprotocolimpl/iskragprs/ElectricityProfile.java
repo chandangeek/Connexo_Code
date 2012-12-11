@@ -87,7 +87,7 @@ public class ElectricityProfile {
 				final DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, iskramx37x.getToCalendar());
 				final Logbook logbook = new Logbook(getTimeZone(), iskramx37x.getLogger());
 				profileData.getMeterEvents().addAll(logbook.getMeterEvents(dcEvent));
-				profileData.applyEvents(iskramx37x.getMeter().getIntervalInSeconds()/60);
+//				profileData.applyEvents(iskramx37x.getMeter().getIntervalInSeconds()/60);
 			}
 			
 			getMeter().store(profileData, false);
@@ -185,7 +185,7 @@ public class ElectricityProfile {
 					cal = dc.getRoot().getStructure(i).getOctetString(getProfileClockChannelIndex(pg)).toCalendar(getTimeZone());
 				} else {
 					if(cal != null){
-						cal.add(Calendar.SECOND, iskramx37x.getMeter().getIntervalInSeconds());
+//						cal.add(Calendar.SECOND, iskramx37x.getMeter().getIntervalInSeconds());
 					}
 				}
 				if(cal != null){		

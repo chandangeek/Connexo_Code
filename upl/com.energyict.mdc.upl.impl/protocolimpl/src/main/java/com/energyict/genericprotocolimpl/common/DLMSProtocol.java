@@ -419,7 +419,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
             throw new InvalidPropertyException("SecurityLevel property contains an illegal value " + properties.getProperty("SecurityLevel", "0"));
         }
 
-        this.password = getMeter().getPassword();
+//        this.password = getMeter().getPassword();
 
         this.connectionMode = ProtocolTools.getPropertyAsInt(properties, "Connection", "1");
 
@@ -1122,7 +1122,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      * @return the meter's {@link TimeZone}
      */
     public TimeZone getTimeZone() {
-        return getMeter().getDeviceTimeZone();
+        return TimeZone.getDefault();
     }
 
     /**

@@ -173,10 +173,10 @@ public class ApolloMeter extends DLMSProtocol {
         ProfileGeneric pg;
         ProfileConfiguration pc;
         if (this.defaultProfileConfiguration.equalsIgnoreCase("")) {
-            pc = new ProfileConfiguration(getApolloObjectFactory().getObisCodeProvider().getDefaultLoadProfileObisCode().toString(), "", getMeter().getIntervalInSeconds());
+            pc = new ProfileConfiguration(getApolloObjectFactory().getObisCodeProvider().getDefaultLoadProfileObisCode().toString(), "", getMeter().getChannel(0).getIntervalInSeconds());
             pg = getApolloObjectFactory().getDefaultProfile();
         } else {
-            pc = new ProfileConfiguration(getApolloObjectFactory().getObisCodeProvider().getDailyLoadProfileObisCode().toString(), this.defaultProfileConfiguration, getMeter().getIntervalInSeconds());
+            pc = new ProfileConfiguration(getApolloObjectFactory().getObisCodeProvider().getDailyLoadProfileObisCode().toString(), this.defaultProfileConfiguration, getMeter().getChannel(0).getIntervalInSeconds());
             pg = getApolloObjectFactory().getGenericProfileObject(pc.getProfileObisCode());
         }
         return getProfileData(pg, pc);
@@ -426,11 +426,12 @@ public class ApolloMeter extends DLMSProtocol {
         }
 
         this.forcedToReadCache = !getProperties().getProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase("0");
-        if ((getMeter() != null) && (!getMeter().getPassword().equals(""))) {
-            this.password = getMeter().getPassword();
-        } else if (getMeter() == null) {
+//        if ((getMeter() != null) && (!getMeter().getPassword().equals(""))) {
+//            this.password = getMeter().getPassword();
+//        } else if (getMeter() == null) {
+        // the password should be properly fetched from a securityObject
             this.password = getProperties().getProperty(PROPERTY_PASSWORD, "");
-        }
+//        }
         this.defaultProfileConfiguration = getProperties().getProperty(PROPERTY_DEFAULT_PROFILE_CONFIGURATION, "");
         this.dailyProfileConfiguration = getProperties().getProperty(PROPERTY_DAILY_PROFILE_CONFIGURATION, "");
     }

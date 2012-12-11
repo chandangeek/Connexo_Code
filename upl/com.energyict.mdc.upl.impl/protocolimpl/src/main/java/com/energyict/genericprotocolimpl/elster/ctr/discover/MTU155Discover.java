@@ -187,14 +187,14 @@ public class MTU155Discover {
     private Device createRtuAndAddFields() throws CTRDiscoverException {
         try {
             checkAndCreateInfoFields();
-            DeviceShadow shadow = getRtuType().newDeviceShadow();
+            DeviceShadow shadow = getRtuType().getDeviceConfigs().get(0).newDeviceShadow();
             shadow.setName(convertorSerial);
             shadow.setExternalName(createExternalName());
             shadow.setSerialNumber(meterSerial);
-            shadow.setDeviceId(mtuSerial);
-            shadow.setNodeAddress(pdr);
-            shadow.setDialHomeId(pdr);
-            shadow.setIpAddress(getRequestFactory().getIPAddress());
+//            shadow.setDeviceId(mtuSerial);
+//            shadow.setNodeAddress(pdr);
+//            shadow.setDialHomeId(pdr);
+//            shadow.setIpAddress(getRequestFactory().getIPAddress());
             shadow.getProperties().setProperty(PULSE_WEIGHT_VM, weightVm.getAmount().toString());
             shadow.getProperties().setProperty(PULSE_WEIGHT_VBS, weightVbs.getAmount().toString());
             shadow.getProperties().setProperty(METER_NUMBER_OF_DIGITS, "" + DigitsCalculator.getMeterNumberOfDigits(meterType, meterCaliber, weightVm));

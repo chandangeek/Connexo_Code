@@ -68,7 +68,8 @@ public class BgbZ3 implements GenericProtocol {
      */
     private void init() throws ConnectionException {
         this.rtu = this.scheduler.getRtu();
-        constructUrl(this.rtu.getPhoneNumber());
+        // the the url from a proper property on the connectionType
+//        constructUrl(this.rtu.getPhoneNumber());
         this.di = new DataImporter(this.rtu.getRegisters());
         this.storeObject = new StoreObject();
     }

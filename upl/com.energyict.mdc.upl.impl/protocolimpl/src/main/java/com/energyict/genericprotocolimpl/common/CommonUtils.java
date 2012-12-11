@@ -105,7 +105,7 @@ public final class CommonUtils {
 	 * @throws BusinessException if business exception occurred
 	 */
 	public static Device createMeterWithSerialNumber(DeviceType rtuType, String serialNumber, String folderExtNameProperty) throws SQLException, BusinessException{
-		DeviceShadow shadow = rtuType.newDeviceShadow();
+		DeviceShadow shadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
     	shadow.setName(serialNumber);
         shadow.setSerialNumber(serialNumber);
 
@@ -136,9 +136,9 @@ public final class CommonUtils {
 	 * @throws BusinessException if business exception occurred
 	 */
 	public static Device createMeterWithDeviceId(DeviceType rtuType, String deviceId, String folderExtNameProperty) throws SQLException, BusinessException{
-		DeviceShadow shadow = rtuType.newDeviceShadow();
-    	shadow.setName("Device - " + deviceId);
-        shadow.setDeviceId(deviceId);
+        DeviceShadow shadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
+        shadow.setName("Device - " + deviceId);
+//        shadow.setDeviceId(deviceId);
 
         if(folderExtNameProperty != null){
         	Folder result = mw().getFolderFactory().findByExternalName(folderExtNameProperty);
@@ -162,14 +162,14 @@ public final class CommonUtils {
      * @throws BusinessException
      */
     private static void setNextCommunications(Device slaveDevice) throws SQLException, BusinessException {
-        List<CommunicationScheduler> schedulers = slaveDevice.getCommunicationSchedulers();
-        for (CommunicationScheduler scheduler : schedulers) {
-            if (scheduler.getActive() && (scheduler.getNextCommunication() == null)) {
-                CommunicationSchedulerShadow shadow = scheduler.getShadow();
-                shadow.setNextCommunication(new Date());
-                scheduler.update(shadow);
-            }
-        }
+//        List<CommunicationScheduler> schedulers = slaveDevice.getCommunicationSchedulers();
+//        for (CommunicationScheduler scheduler : schedulers) {
+//            if (scheduler.getActive() && (scheduler.getNextCommunication() == null)) {
+//                CommunicationSchedulerShadow shadow = scheduler.getShadow();
+//                shadow.setNextCommunication(new Date());
+//                scheduler.update(shadow);
+//            }
+//        }
     }
 
 	/**
