@@ -3,9 +3,11 @@ package test.com.energyict.protocolimplV2.elster.ctr.MTU155.discover;
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -18,6 +20,7 @@ import test.com.energyict.protocolimplV2.elster.ctr.MTU155.structure.Identificat
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -53,7 +56,7 @@ public class CtrInboundDeviceProtocolTest {
         DeviceIdentifier deviceIdentifier = inboundDeviceProtocol.getDeviceIdentifier();
 
         assertEquals(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER, discoverResultType);
-        assertEquals(DeviceIdentifier.class, deviceIdentifier.getClass());
+        assertTrue(deviceIdentifier instanceof SerialNumberDeviceIdentifier);
         assertEquals("66554433221100", deviceIdentifier.toString());
     }
 }
