@@ -75,6 +75,8 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     public static ObisCode KEYS_LOCK_DOWN_SWITCH_OBIS = ObisCode.fromString("0.128.0.0.1.255");
     public static ObisCode GPRS_MODEM_PING_SETUP_OBIS = ObisCode.fromString("0.0.93.44.17.255");
+    private static final String RESUME = "resume";
+
     private final AbstractSmartDlmsProtocol protocol;
 
     private boolean success;
@@ -97,6 +99,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     public MessageResult executeMessageEntry(final MessageEntry messageEntry) {
         String content = messageEntry.getContent();
+        String trackingId = messageEntry.getTrackingId();
         MessageHandler messageHandler = new NTAMessageHandler();
         success = true;
         try {
@@ -146,7 +149,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             } else if (modemPingSetup) {
                 modemPingSetup(messageHandler, content);
             } else if (firmwareUpdate) {
-                firmwareUpdate(messageHandler, content);
+                firmwareUpdate(messageHandler, content, trackingId);
             } else if (zigbeeNCPFirmwareUpgrade) {
                 zigbeeNCPFirmwareUpdate(messageHandler, content);
             } else if (testMessage) {
@@ -255,10 +258,14 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "GPRS Modem Ping Setup message successful");
     }
 
-    private void firmwareUpdate(MessageHandler messageHandler, String content) throws IOException, InterruptedException {
+    private void firmwareUpdate(MessageHandler messageHandler, String content, String trackingId) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
+        boolean resume = false;
+        if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
+            resume = true;
+        }
 
         if (!ParseUtils.isInteger(userFileID)) {
             String str = "Not a valid entry for the userFile.";
@@ -289,6 +296,12 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
         byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
+        if (resume) {
+            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                it.setStartIndex(lastTransferredBlockNumber);
+            }
+        }
         it.upgrade(imageData);
         if (date != null) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(ObisCodeProvider.IMAGE_ACTIVATION_SCHEDULER);
