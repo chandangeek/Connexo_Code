@@ -33,7 +33,6 @@ import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -41,6 +40,7 @@ import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import test.com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
@@ -65,6 +65,8 @@ public class MTU155 implements DeviceProtocol {
     public static final String CHANNEL_BACKLOG_PROPERTY_NAME = "ChannelBacklog";
     public static final String EXTRACT_INSTALLATION_DATE_PROPERTY_NAME = "ExtractInstallationDate";
     public static final String REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME = "RemoveDayProfileOffset";
+
+    private static final int UNKNOWN_ID = 0;
 
     /**
      * The offline rtu
@@ -399,19 +401,38 @@ public class MTU155 implements DeviceProtocol {
         try {
             Date lastLogBookReading = logBook.getLastLogBook();
             CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
-            List<MeterEvent> meterEvents = meterEvent.getMeterEvents(lastLogBookReading);
-
+            List<MeterProtocolEvent> meterProtocolEvents = mapMeterEventsToMeterProtocolEvents(
+                    meterEvent.getMeterEvents(lastLogBookReading),
+                    logBook.getLogBookIdentifier().getLogBook().getId()
+            );
             collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
-            ((DeviceLogBook) collectedLogBook).setMeterEvents(meterEvents);
+            ((DeviceLogBook) collectedLogBook).setMeterEvents(meterProtocolEvents);
         } catch (CTRException e) {
             collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
-            collectedLogBook.setFailureInformation(ResultType.InCompatible, new Problem<LogBookReader>(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+            collectedLogBook.setFailureInformation(ResultType.InCompatible, new Problem<>(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
         } catch (CommunicationException e) {                                                                                           //ToDO: add DB key to todo-resources.sql
             collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
-            collectedLogBook.setFailureInformation(ResultType.Other, new Problem<LogBookReader>(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+            collectedLogBook.setFailureInformation(ResultType.Other, new Problem<>(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
         }                                                                                                                               //ToDO: add DB key to todo-resources.sql
 
         collectedLogBooks.add(collectedLogBook);
         return collectedLogBooks;
+    }
+
+    private List<MeterProtocolEvent> mapMeterEventsToMeterProtocolEvents(List<MeterEvent> meterEvents, int logBookId) {
+        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
+        for (MeterEvent event : meterEvents) {
+            meterProtocolEvents.add(
+                    new MeterProtocolEvent(event.getTime(),
+                            event.getEiCode(),
+                            event.getProtocolCode(),
+                            event.getMessage(),
+                            UNKNOWN_ID,
+                            logBookId,
+                            UNKNOWN_ID
+                    )
+            );
+        }
+        return meterProtocolEvents;
     }
 }
