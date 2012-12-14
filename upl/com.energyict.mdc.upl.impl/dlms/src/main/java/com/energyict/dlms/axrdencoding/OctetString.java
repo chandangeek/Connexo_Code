@@ -131,6 +131,13 @@ public class OctetString extends AbstractDataType {
 		return offsetEnd - offsetBegin;
 	}
 
+    /**
+     * Deprecated, because the behavior is not consistent and clashes with doGetBEREncodedByteArray.
+     * This method is only valid if getOctetStr() contains the <b>BER Encoded</b> octetString. <br>
+     *
+     * @return the contentBytes
+     */
+    @Deprecated
 	public byte[] getContentBytes() {
 		byte[] content = new byte[getOctetStr().length - 2];
 		System.arraycopy(getOctetStr(), fixed ? 1 : 2, content, 0, content.length);
