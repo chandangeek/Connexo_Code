@@ -3,11 +3,17 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -98,7 +104,7 @@ public class MeterTopology implements MasterMeter {
         // get an MbusDeviceMap
         this.mbusMap = getMbusMapper();
 
-        if(this.mbusMap.size() > 0){
+        if (this.mbusMap.size() > 0) {
             try {
                 // check if all the mbus devices are configured in EIServer
                 checkToUpdateMbusMeters(mbusMap);
@@ -276,7 +282,7 @@ public class MeterTopology implements MasterMeter {
      * @throws BusinessException when a business related error occurs
      */
     private Device createMeter(DeviceType rtuType, String serialNumber) throws SQLException, BusinessException {
-        DeviceShadow shadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
+        DeviceShadow shadow = rtuType.getConfigurations().get(0).newDeviceShadow();
 
         shadow.setName(serialNumber);
         shadow.setSerialNumber(serialNumber);

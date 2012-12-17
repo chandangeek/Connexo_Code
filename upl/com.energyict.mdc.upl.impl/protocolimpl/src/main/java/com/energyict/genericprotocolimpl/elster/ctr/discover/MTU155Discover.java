@@ -4,7 +4,9 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.ShadowList;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.genericprotocolimpl.elster.ctr.*;
+import com.energyict.genericprotocolimpl.elster.ctr.MTU155;
+import com.energyict.genericprotocolimpl.elster.ctr.MTU155Properties;
+import com.energyict.genericprotocolimpl.elster.ctr.RequestFactory;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRDiscoverException;
 import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
 import com.energyict.genericprotocolimpl.elster.ctr.info.ConverterType;
@@ -13,15 +15,25 @@ import com.energyict.genericprotocolimpl.elster.ctr.messaging.ChangeDSTMessage;
 import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.Folder;
+import com.energyict.mdw.core.InfoType;
+import com.energyict.mdw.core.InfoTypeFactory;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.coreimpl.DeviceFactoryImpl;
-import com.energyict.mdw.shadow.*;
-import com.energyict.metadata.*;
+import com.energyict.mdw.shadow.ChannelShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
+import com.energyict.mdw.shadow.InfoTypeShadow;
+import com.energyict.metadata.Criterium;
 import com.energyict.metadata.SearchFilter;
+import com.energyict.metadata.TypeDescriptor;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -187,7 +199,7 @@ public class MTU155Discover {
     private Device createRtuAndAddFields() throws CTRDiscoverException {
         try {
             checkAndCreateInfoFields();
-            DeviceShadow shadow = getRtuType().getDeviceConfigs().get(0).newDeviceShadow();
+            DeviceShadow shadow = getRtuType().getConfigurations().get(0).newDeviceShadow();
             shadow.setName(convertorSerial);
             shadow.setExternalName(createExternalName());
             shadow.setSerialNumber(meterSerial);

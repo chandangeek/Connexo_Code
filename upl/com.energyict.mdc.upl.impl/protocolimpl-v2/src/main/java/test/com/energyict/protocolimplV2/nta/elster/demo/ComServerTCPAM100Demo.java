@@ -21,7 +21,6 @@ import com.energyict.mdc.ports.ComPortPoolFactory;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.OutboundComPort;
 import com.energyict.mdc.ports.OutboundComPortPool;
-import com.energyict.mdc.protocol.DeviceProtocolPluggableClassImpl;
 import com.energyict.mdc.protocol.ServerDeviceProtocolPluggableClass;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
@@ -56,7 +55,7 @@ import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceConfig;
+import com.energyict.mdw.core.DeviceConfiguration;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.LoadProfile;
@@ -68,7 +67,7 @@ import com.energyict.mdw.core.PluggableClassType;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.relation.RelationType;
 import com.energyict.mdw.shadow.ChannelShadow;
-import com.energyict.mdw.shadow.DeviceConfigShadow;
+import com.energyict.mdw.shadow.DeviceConfigurationShadow;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.LoadProfileShadow;
@@ -110,7 +109,7 @@ public final class ComServerTCPAM100Demo {
     private static final String RTU_NAME = "AM100DemoDemoRtu";
     private static final String HOST = "10.113.0.28";
     private static final BigDecimal PORT = new BigDecimal(4059);
-    private static final  BigDecimal TIMEOUT = new BigDecimal("4000");
+    private static final BigDecimal TIMEOUT = new BigDecimal("4000");
     private static final String OUTBOUND_DEMO_POOL_NAME = "AM100DemoOutboundDemoPool";
     private static final String DEVICE_PROTOCOL_NAME = "AM100DemoDeviceProtocolName";
     private static final TimeDuration EVERY_MINUTE = new TimeDuration(1, TimeDuration.MINUTES);
@@ -159,7 +158,7 @@ public final class ComServerTCPAM100Demo {
         }
     }
 
-    private void safeDeleteBusinessObjects(IdBusinessObject businessObject){
+    private void safeDeleteBusinessObjects(IdBusinessObject businessObject) {
         try {
             deleteBusinessObject(businessObject);
         } catch (BusinessException e) {
@@ -319,7 +318,7 @@ public final class ComServerTCPAM100Demo {
             e.printStackTrace(System.err);
             System.out.println("Failed to create DeviceProtocol, see stacktrace above");
             return false;
-        } catch (SQLException  e) {
+        } catch (SQLException e) {
             e.printStackTrace(System.err);
             System.out.println("Failed to create DeviceProtocol, see stacktrace above");
             return false;
@@ -500,9 +499,9 @@ public final class ComServerTCPAM100Demo {
         shadow.setRegisterSpecShadows(findOrCreateAllRegiserSpecShadows());
         DeviceType type = MeteringWarehouse.getCurrent().getDeviceTypeFactory().create(shadow);
         // Update the deviceConfig with the correct DeviceType ID
-        DeviceConfig deviceConfig = MeteringWarehouse.getCurrent().getDeviceConfigFactory().find(DEVICE_CONFIG_AM100_DEMO_NAME);
+        DeviceConfiguration deviceConfig = MeteringWarehouse.getCurrent().getDeviceConfigFactory().find(DEVICE_CONFIG_AM100_DEMO_NAME);
         if (deviceConfig != null) {
-            DeviceConfigShadow configShadow = deviceConfig.getShadow();
+            DeviceConfigurationShadow configShadow = deviceConfig.getShadow();
             configShadow.setDeviceTypeId(type.getId());
             deviceConfig.update(configShadow);
         }
@@ -549,10 +548,10 @@ public final class ComServerTCPAM100Demo {
         return specShadow;
     }
 
-    private DeviceConfig getDeviceConfig() throws BusinessException, SQLException {
-        DeviceConfig deviceConfig = MeteringWarehouse.getCurrent().getDeviceConfigFactory().find(DEVICE_CONFIG_AM100_DEMO_NAME);
+    private DeviceConfiguration getDeviceConfig() throws BusinessException, SQLException {
+        DeviceConfiguration deviceConfig = MeteringWarehouse.getCurrent().getDeviceConfigFactory().find(DEVICE_CONFIG_AM100_DEMO_NAME);
         if (deviceConfig == null) {
-            DeviceConfigShadow shadow = new DeviceConfigShadow();
+            DeviceConfigurationShadow shadow = new DeviceConfigurationShadow();
             shadow.setName(DEVICE_CONFIG_AM100_DEMO_NAME);
             shadow.setActive(true);
             shadow.setDeviceTypeId(121);    //ToDo: this is a wrong ID (cause ID of correct type not yet known, as we are creating it...)!!! After the creation of the type, the DeviceType will be updated with the correct ID.
@@ -652,9 +651,9 @@ public final class ComServerTCPAM100Demo {
     }
 
     public Device createRtu(DeviceType rtuType, String name, int intervalInSeconds, Folder parent) throws BusinessException, SQLException {
-        String serialNumber ="3228018";
+        String serialNumber = "3228018";
         System.out.println("Creating Demo Device with name " + RTU_NAME + " and serial number " + serialNumber);
-        DeviceShadow rtuShadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
+        DeviceShadow rtuShadow = rtuType.getConfigurations().get(0).newDeviceShadow();
         rtuShadow.setName(name);
         rtuShadow.setExternalName(name);
         rtuShadow.setSerialNumber(serialNumber);
@@ -832,7 +831,7 @@ public final class ComServerTCPAM100Demo {
     private LoadProfileType findOrCreateElectricityLoadProfileType() {
         List<LoadProfileType> loadProfileTypes = MeteringWarehouse.getCurrent().getLoadProfileTypeFactory().findByName(LOAD_PROFILE_TYPE_ELECTRICITY);
         if (loadProfileTypes.isEmpty()) {
-            System.out.println("Creating LoadProfile Type "+ LOAD_PROFILE_TYPE_ELECTRICITY);
+            System.out.println("Creating LoadProfile Type " + LOAD_PROFILE_TYPE_ELECTRICITY);
             try {
                 LoadProfileTypeShadow loadProfileTypeShadow = new LoadProfileTypeShadow();
                 loadProfileTypeShadow.setName(LOAD_PROFILE_TYPE_ELECTRICITY);
@@ -866,7 +865,7 @@ public final class ComServerTCPAM100Demo {
     private LoadProfileType findOrCreateDailyLoadProfileType() {
         List<LoadProfileType> loadProfileTypes = MeteringWarehouse.getCurrent().getLoadProfileTypeFactory().findByName(LOAD_PROFILE_TYPE_DAILY);
         if (loadProfileTypes.isEmpty()) {
-            System.out.println("Creating LoadProfile Type "+ LOAD_PROFILE_TYPE_DAILY);
+            System.out.println("Creating LoadProfile Type " + LOAD_PROFILE_TYPE_DAILY);
             try {
                 LoadProfileTypeShadow loadProfileTypeShadow = new LoadProfileTypeShadow();
                 loadProfileTypeShadow.setName(LOAD_PROFILE_TYPE_DAILY);
@@ -902,11 +901,11 @@ public final class ComServerTCPAM100Demo {
         }
     }
 
-     //ToDo: WARNING - types are persistent (no auto-clean at the end of demo)! If you change something in this section, please manually clean-up old types (so they are recreated, instead of the old ones being reused)!
+    //ToDo: WARNING - types are persistent (no auto-clean at the end of demo)! If you change something in this section, please manually clean-up old types (so they are recreated, instead of the old ones being reused)!
     private LoadProfileType findOrCreateMbusLoadProfile() {
         List<LoadProfileType> loadProfileTypes = MeteringWarehouse.getCurrent().getLoadProfileTypeFactory().findByName(LOAD_PROFILE_TYPE_MBUS_PROFILE);
         if (loadProfileTypes.isEmpty()) {
-            System.out.println("Creating LoadProfile Type "+ LOAD_PROFILE_TYPE_MBUS_PROFILE);
+            System.out.println("Creating LoadProfile Type " + LOAD_PROFILE_TYPE_MBUS_PROFILE);
             try {
                 LoadProfileTypeShadow loadProfileTypeShadow = new LoadProfileTypeShadow();
                 loadProfileTypeShadow.setName(LOAD_PROFILE_TYPE_MBUS_PROFILE);

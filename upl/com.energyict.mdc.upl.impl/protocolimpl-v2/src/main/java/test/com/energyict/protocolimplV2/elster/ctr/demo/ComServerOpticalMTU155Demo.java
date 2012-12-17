@@ -27,7 +27,6 @@ import com.energyict.mdc.ports.ComPortPoolFactory;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.OutboundComPort;
 import com.energyict.mdc.ports.OutboundComPortPool;
-import com.energyict.mdc.protocol.DeviceProtocolPluggableClassImpl;
 import com.energyict.mdc.protocol.ServerDeviceProtocolPluggableClass;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
@@ -158,7 +157,7 @@ public final class ComServerOpticalMTU155Demo {
         }
     }
 
-    private void safeDeleteBusinessObjects(IdBusinessObject businessObject){
+    private void safeDeleteBusinessObjects(IdBusinessObject businessObject) {
         try {
             deleteBusinessObject(businessObject);
         } catch (BusinessException e) {
@@ -318,7 +317,7 @@ public final class ComServerOpticalMTU155Demo {
             e.printStackTrace(System.err);
             System.out.println("Failed to create DeviceProtocol, see stacktrace above");
             return false;
-        } catch (SQLException  e) {
+        } catch (SQLException e) {
             e.printStackTrace(System.err);
             System.out.println("Failed to create DeviceProtocol, see stacktrace above");
             return false;
@@ -628,9 +627,9 @@ public final class ComServerOpticalMTU155Demo {
     }
 
     public Device createRtu(DeviceType rtuType, String name, int intervalInSeconds, Folder parent) throws BusinessException, SQLException {
-        String serialNumber ="0000000000000000";
+        String serialNumber = "0000000000000000";
         System.out.println("Creating Demo Device with name " + RTU_NAME + " and serial number " + serialNumber);
-        DeviceShadow rtuShadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
+        DeviceShadow rtuShadow = rtuType.getConfigurations().get(0).newDeviceShadow();
         rtuShadow.setName(name);
         rtuShadow.setExternalName(name);
         for (ChannelShadow channelShadow : rtuShadow.getChannelShadows().getNewShadows()) {

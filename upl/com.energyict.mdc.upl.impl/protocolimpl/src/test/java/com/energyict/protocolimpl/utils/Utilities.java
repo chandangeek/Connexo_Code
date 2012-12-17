@@ -1,15 +1,46 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
-import com.energyict.dialer.core.*;
-import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.CommunicationProfile;
+import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.Group;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.ModemPool;
+import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.shadow.ChannelShadow;
+import com.energyict.mdw.shadow.CommunicationProfileShadow;
+import com.energyict.mdw.shadow.CommunicationProtocolShadow;
+import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
+import com.energyict.mdw.shadow.DeviceShadow;
+import com.energyict.mdw.shadow.DeviceTypeShadow;
+import com.energyict.mdw.shadow.GroupShadow;
+import com.energyict.mdw.shadow.ModemPoolShadow;
+import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.Reader;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 public class Utilities {
 
@@ -55,7 +86,7 @@ public class Utilities {
      */
     public static CommunicationProtocol findOrcreateCommunicationProtocol(String javaClassName) throws BusinessException, SQLException {
         List<CommunicationProtocol> comProtocols = mw().getCommunicationProtocolFactory().findByName(javaClassName);
-        if(comProtocols.size() >= 1) {
+        if (comProtocols.size() >= 1) {
             return comProtocols.get(0);
         }
         CommunicationProtocolShadow commProtShadow = new CommunicationProtocolShadow();
@@ -119,7 +150,7 @@ public class Utilities {
      * @throws BusinessException
      */
     public static Device createRtu(DeviceType rtuType, String serial, int interval) throws SQLException, BusinessException {
-        final DeviceShadow rtuShadow = rtuType.getDeviceConfigs().get(0).newDeviceShadow();
+        final DeviceShadow rtuShadow = rtuType.getConfigurations().get(0).newDeviceShadow();
         rtuShadow.setRtuTypeId(rtuType.getId());
         rtuShadow.setName(serial);
         rtuShadow.setExternalName(serial);
@@ -416,6 +447,7 @@ public class Utilities {
 
     /**
      * Set the lastReading of all channels from the given <CODE>Device</CODE> to null.
+     *
      * @param rtu the <CODE>Device</CODE> whos channels need to be cleared
      * @throws BusinessException
      * @throws SQLException
@@ -424,7 +456,7 @@ public class Utilities {
         DeviceShadow rShadow = rtu.getShadow();
         rShadow.setLastReading(new Date(1));
         rtu.update(rShadow);
-        for (int i =    0; i < rtu.getChannels().size(); i++) {
+        for (int i = 0; i < rtu.getChannels().size(); i++) {
             Channel chn = rtu.getChannel(i);
             chn.updateLastReading(null);
         }
