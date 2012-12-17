@@ -1,11 +1,29 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ActivePassive;
+import com.energyict.dlms.cosem.ChangeOfSupplierManagement;
+import com.energyict.dlms.cosem.ChangeOfTenantManagement;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.xmlparsing.GenericDataToWrite;
 import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
@@ -14,7 +32,11 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
@@ -36,7 +58,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -67,6 +92,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     private static final String CONVERSION_FACTOR = "Conversion factor";
     private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
     private static final ObisCode IPD_MESSAGE_CONTROL = ObisCode.fromString("7.0.35.3.7.255");
+    private static final String RESUME = "resume";
 
     private final AbstractSmartDlmsProtocol protocol;
     private ActivityCalendarController activityCalendarController;
@@ -91,6 +117,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
     public MessageResult executeMessageEntry(final MessageEntry messageEntry) {
         String content = messageEntry.getContent();
+        String trackingId = messageEntry.getTrackingId();
         success = true;
 
         try {
@@ -126,7 +153,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
                 } else if (isTestMessage(messageHandler)) {
                     testMessage(messageHandler);
                 } else if (isFirmwareUpgradeMessage(content)) {
-                    doFirmwareUpgrade(messageHandler, content);
+                    doFirmwareUpgrade(messageHandler, content, trackingId);
                 } else {
                     log(Level.INFO, "Message not supported : " + content);
                     success = false;
@@ -491,10 +518,15 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         connector.remoteDisconnect();
     }
 
-    private void doFirmwareUpgrade(MessageHandler messageHandler, final String content) throws IOException, InterruptedException {
+    private void doFirmwareUpgrade(MessageHandler messageHandler, final String content, final String trackingId) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
+         boolean resume = false;
+        if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
+            resume = true;
+        }
+
         if (!com.energyict.genericprotocolimpl.common.ParseUtils.isInteger(userFileID)) {
             String str = "Not a valid entry for the userFile.";
             throw new IOException(str);
@@ -524,13 +556,19 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
 
         byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
         ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.FIRMWARE_UPDATE);
+        if (resume) {
+            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                it.setStartIndex(lastTransferredBlockNumber);
+            }
+        }
         it.upgrade(imageData);
         if (date != null) {
             SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(ObisCodeProvider.IMAGE_ACTIVATION_SCHEDULER);
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
             sas.writeExecutionTime(dateArray);
         } else {
-            it.imageActivation();
+             it.imageActivation();
         }
     }
 

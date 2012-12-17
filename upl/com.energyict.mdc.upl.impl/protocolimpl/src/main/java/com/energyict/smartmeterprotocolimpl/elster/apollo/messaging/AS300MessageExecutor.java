@@ -85,6 +85,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final ObisCode METER_MESSAGE_IHD_CONTROL = ObisCode.fromString("1.0.35.3.7.255");
     private static final ObisCode DISCONNECTOR = ObisCode.fromString("0.0.96.3.10.255");
     private static final ObisCode IMAGE_ACTIVATION_SCHEDULER_OBIS = ObisCode.fromString("0.0.15.0.2.255");
+    private static final String RESUME = "resume";
 
     protected final AbstractSmartDlmsProtocol protocol;
 
@@ -108,6 +109,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     public MessageResult executeMessageEntry(final MessageEntry messageEntry) {
         String content = messageEntry.getContent();
+        String trackingId = messageEntry.getTrackingId();
         String logMessage = "";
         success = true;
 
@@ -142,7 +144,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
                 } else if (isChangeOfSupplierMessage(messageHandler)) {
                     changeOfSupplier(messageHandler);
                 } else if (isFirmwareUpdateMessage(content)) {
-                    updateFirmware(messageHandler, content);
+                    updateFirmware(messageHandler, content, trackingId);
                 } else {
                     log(Level.INFO, "Message not supported : " + content);
                     success = false;
@@ -401,10 +403,14 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void updateFirmware(MessageHandler messageHandler, String content) throws IOException, InterruptedException {
+    private void updateFirmware(MessageHandler messageHandler, String content, String trackingId) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
+        boolean resume = false;
+        if ((trackingId != null) && trackingId.toLowerCase().contains(RESUME)) {
+            resume = true;
+        }
 
         if (!com.energyict.genericprotocolimpl.common.ParseUtils.isInteger(userFileID)) {
             String str = "Not a valid entry for the userFile.";
@@ -435,6 +441,12 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
         byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+        if (resume) {
+            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                it.setStartIndex(lastTransferredBlockNumber);
+            }
+        }
         it.setUsePollingVerifyAndActivate(true);
         it.upgrade(imageData, false);
         if (date != null) {
