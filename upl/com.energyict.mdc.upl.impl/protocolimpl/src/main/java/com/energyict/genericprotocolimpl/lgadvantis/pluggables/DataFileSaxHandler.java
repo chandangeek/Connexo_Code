@@ -290,8 +290,9 @@ public class DataFileSaxHandler extends DefaultHandler {
                     for (Iterator jt = data.iterator(); jt.hasNext();){
                         MeterEvent event = (MeterEvent) jt.next();
                         MeterData md = new MeterData();
-                        md.addMeterEvent(new MeterProtocolEvent(new Date(), event.getEiCode(), event.getProtocolCode(), event.getMessage(),
-                                0, logBooks.get(0).getId(), 0));
+                        // will not be used anymore, generics will be deleted in 9.1
+//                        md.addMeterEvent(new MeterProtocolEvent(new Date(), event.getEiCode(), event.getProtocolCode(), event.getMessage(),
+//                                0, logBooks.get(0).getId(), 0));
                         rtu.store(md);
                     }
                 }

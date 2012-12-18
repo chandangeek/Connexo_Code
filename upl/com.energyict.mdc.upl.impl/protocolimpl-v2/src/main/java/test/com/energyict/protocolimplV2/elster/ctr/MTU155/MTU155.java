@@ -30,6 +30,8 @@ import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.Device;
@@ -50,6 +52,7 @@ import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRExceptio
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -428,11 +431,31 @@ public class MTU155 implements DeviceProtocol {
                             event.getProtocolCode(),
                             event.getMessage(),
                             UNKNOWN_ID,
-                            logBookId,
                             UNKNOWN_ID
                     )
             );
         }
         return meterProtocolEvents;
+    }
+
+    @Override
+    public List<PropertySpec> getSecurityProperties() {
+        // TODO return proper functionality
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        // TODO return proper functionality
+        return Collections.emptyList();    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        // TODO return proper functionality
+        return Collections.emptyList();    }
+
+    @Override
+    public PropertySpec getSecurityPropertySpec(String name) {
+        return null;  //TODO return proper functionality
     }
 }

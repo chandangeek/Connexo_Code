@@ -85,9 +85,10 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
         if (logBooks.size() == 1) {
 
             MeterData md = new MeterData();
-            md.addMeterEvent(new MeterProtocolEvent(alarmEntry.getDatetime(), mapMeterEvent(alarmEntry),
-                    alarmEntry.getId(), alarmEntry.getAlarmDescription(),
-                    0, logBooks.get(0).getId(), 0));
+            // will not be used anymore, generics will be deleted in 9.1
+//            md.addMeterEvent(new MeterProtocolEvent(alarmEntry.getDatetime(), mapMeterEvent(alarmEntry),
+//                    alarmEntry.getId(), alarmEntry.getAlarmDescription(),
+//                    0, logBooks.get(0).getId(), 0));
             device.store(md);
 
         }

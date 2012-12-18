@@ -555,7 +555,6 @@ public final class ComServerOpticalMTU155Demo {
         shadow.setName("DemoDialectName");
         shadow.setDeviceId(rtu.getId());
         shadow.setDeviceProtocolDialectName(DeviceProtocolDialectNameEnum.CTR_DEVICE_PROTOCOL_DIALECT_NAME.getName());
-        shadow.setDeviceProtocolPluggableClassId(this.deviceProtocolPluggableClass.getId());
         List<DeviceProtocolDialectPropertyShadow> propertyShadows = new ArrayList<DeviceProtocolDialectPropertyShadow>();
         shadow.setPropertyShadows(propertyShadows);
         //All required properties
@@ -579,7 +578,8 @@ public final class ComServerOpticalMTU155Demo {
             if (!loadProfileTypes.isEmpty()) {
                 try {
                     LoadProfileShadow loadProfileShadow = new LoadProfileShadow();
-                    loadProfileShadow.setLoadProfileTypeId(loadProfileTypes.get(0).getId());
+                    // todo need to set the spec ID
+//                    loadProfileShadow.setLoadProfileTypeId(loadProfileTypes.get(0).getId());
                     Calendar calendar = Calendar.getInstance();
                     calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 2);
                     loadProfileShadow.setLastReading(calendar.getTime());

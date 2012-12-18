@@ -565,7 +565,6 @@ public final class ComServerTCPAM100Demo {
         shadow.setName("DSM23DemoDialectName");
         shadow.setDeviceId(rtu.getId());
         shadow.setDeviceProtocolDialectName(DeviceProtocolDialectNameEnum.DSMR23_DEVICE_PROTOCOL_DIALECT_NAME.getName());
-        shadow.setDeviceProtocolPluggableClassId(this.deviceProtocolPluggableClass.getId());
         List<DeviceProtocolDialectPropertyShadow> propertyShadows = new ArrayList<DeviceProtocolDialectPropertyShadow>();
         shadow.setPropertyShadows(propertyShadows);
         //All DeviceProtocolDialect properties
@@ -618,7 +617,8 @@ public final class ComServerTCPAM100Demo {
         List<LoadProfileType> loadProfileTypes = MeteringWarehouse.getCurrent().getLoadProfileTypeFactory().findByName(typeName);
         if (!loadProfileTypes.isEmpty()) {
             LoadProfileShadow loadProfileShadow = new LoadProfileShadow();
-            loadProfileShadow.setLoadProfileTypeId(loadProfileTypes.get(0).getId());
+            // TODO need to set the loadprofilespec ID
+//            loadProfileShadow.setLoadProfileTypeId(loadProfileTypes.get(0).getId());
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 2);
             loadProfileShadow.setLastReading(calendar.getTime());

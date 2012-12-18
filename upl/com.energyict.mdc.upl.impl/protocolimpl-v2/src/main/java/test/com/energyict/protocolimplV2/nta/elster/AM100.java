@@ -7,6 +7,8 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
@@ -22,6 +24,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -152,5 +155,26 @@ public class AM100 extends AbstractNtaProtocol {
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
+    }
+
+    @Override
+    public List<PropertySpec> getSecurityProperties() {
+        // TODO return proper functionality
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        // TODO return proper functionality
+        return Collections.emptyList();    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        // TODO return proper functionality
+        return Collections.emptyList();    }
+
+    @Override
+    public PropertySpec getSecurityPropertySpec(String name) {
+        return null;  //TODO return proper functionality
     }
 }

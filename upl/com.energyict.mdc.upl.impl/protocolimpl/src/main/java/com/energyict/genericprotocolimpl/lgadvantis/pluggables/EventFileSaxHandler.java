@@ -81,9 +81,10 @@ public class EventFileSaxHandler extends DefaultHandler {
                     List<LogBook> logBooks = rtu.getLogBooks();
                     if(logBooks.size() == 1){
                         MeterData md = new MeterData();
-                        md.addMeterEvent(new MeterProtocolEvent(new Date(), alarmId.intValue(), alarmId.intValue(),
-                                alarmDescription,
-                                0, logBooks.get(0).getId(), 0));
+                        // will not be used anymore, generics will be deleted in 9.1
+//                        md.addMeterEvent(new MeterProtocolEvent(new Date(), alarmId.intValue(), alarmId.intValue(),
+//                                alarmDescription,
+//                                0, logBooks.get(0).getId(), 0));
                         rtu.store(md);
                     }
 				}
