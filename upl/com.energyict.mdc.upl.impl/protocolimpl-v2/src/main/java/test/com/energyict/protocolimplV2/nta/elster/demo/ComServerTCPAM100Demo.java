@@ -33,7 +33,6 @@ import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import com.energyict.mdc.shadow.tasks.ComTaskShadow;
 import com.energyict.mdc.shadow.tasks.ConnectionMethodShadow;
 import com.energyict.mdc.shadow.tasks.ConnectionTaskPropertyShadow;
-import com.energyict.mdc.shadow.tasks.DeviceProtocolDialectPropertyShadow;
 import com.energyict.mdc.shadow.tasks.NextExecutionSpecsShadow;
 import com.energyict.mdc.shadow.tasks.OutboundConnectionTaskShadow;
 import com.energyict.mdc.shadow.tasks.ProtocolDialectPropertiesShadow;
@@ -86,7 +85,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
@@ -565,15 +563,8 @@ public final class ComServerTCPAM100Demo {
         shadow.setName("DSM23DemoDialectName");
         shadow.setDeviceId(rtu.getId());
         shadow.setDeviceProtocolDialectName(DeviceProtocolDialectNameEnum.DSMR23_DEVICE_PROTOCOL_DIALECT_NAME.getName());
-        List<DeviceProtocolDialectPropertyShadow> propertyShadows = new ArrayList<DeviceProtocolDialectPropertyShadow>();
-        shadow.setPropertyShadows(propertyShadows);
-        //All DeviceProtocolDialect properties
-        DeviceProtocolDialectPropertyShadow prop = new DeviceProtocolDialectPropertyShadow(Dsmr23DeviceProtocolDialect.SECURITY_LEVEL_PROPERTY_NAME, "1:0");
-        propertyShadows.add(prop);
-        prop = new DeviceProtocolDialectPropertyShadow(Dsmr23DeviceProtocolDialect.FIX_MBUS_HEX_SHORT_ID, true);
-        propertyShadows.add(prop);
-
-        // ToDo: this is the place to add all ProtocolDialect properties
+        shadow.getProperties().setProperty(Dsmr23DeviceProtocolDialect.SECURITY_LEVEL_PROPERTY_NAME, "1:0");
+        shadow.getProperties().setProperty(Dsmr23DeviceProtocolDialect.FIX_MBUS_HEX_SHORT_ID, true);
         return ManagerFactory.getCurrent().getProtocolDialectPropertiesFactory().create(shadow);
     }
 

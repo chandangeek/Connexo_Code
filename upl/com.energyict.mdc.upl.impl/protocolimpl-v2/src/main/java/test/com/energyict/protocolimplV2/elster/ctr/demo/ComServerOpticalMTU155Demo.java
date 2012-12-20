@@ -39,7 +39,6 @@ import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import com.energyict.mdc.shadow.tasks.ComTaskShadow;
 import com.energyict.mdc.shadow.tasks.ConnectionMethodShadow;
 import com.energyict.mdc.shadow.tasks.ConnectionTaskPropertyShadow;
-import com.energyict.mdc.shadow.tasks.DeviceProtocolDialectPropertyShadow;
 import com.energyict.mdc.shadow.tasks.NextExecutionSpecsShadow;
 import com.energyict.mdc.shadow.tasks.OutboundConnectionTaskShadow;
 import com.energyict.mdc.shadow.tasks.ProtocolDialectPropertiesShadow;
@@ -89,7 +88,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -555,19 +553,11 @@ public final class ComServerOpticalMTU155Demo {
         shadow.setName("DemoDialectName");
         shadow.setDeviceId(rtu.getId());
         shadow.setDeviceProtocolDialectName(DeviceProtocolDialectNameEnum.CTR_DEVICE_PROTOCOL_DIALECT_NAME.getName());
-        List<DeviceProtocolDialectPropertyShadow> propertyShadows = new ArrayList<DeviceProtocolDialectPropertyShadow>();
-        shadow.setPropertyShadows(propertyShadows);
-        //All required properties
-        DeviceProtocolDialectPropertyShadow prop = new DeviceProtocolDialectPropertyShadow(CtrDeviceProtocolDialect.SECURITY_LEVEL_PROPERTY_NAME, new BigDecimal(1));
-        propertyShadows.add(prop);
-        prop = new DeviceProtocolDialectPropertyShadow(CtrDeviceProtocolDialect.ENCRYPTION_KEY_C_PROPERTY_NAME, "0000000000000001");
-        propertyShadows.add(prop);
-        prop = new DeviceProtocolDialectPropertyShadow(CtrDeviceProtocolDialect.ENCRYPTION_KEY_F_PROPERTY_NAME, "0000000000000001");
-        propertyShadows.add(prop);
-        prop = new DeviceProtocolDialectPropertyShadow(CtrDeviceProtocolDialect.ENCRYPTION_KEY_T_PROPERTY_NAME, "0000000000000001");
-        propertyShadows.add(prop);
-        prop = new DeviceProtocolDialectPropertyShadow(CtrDeviceProtocolDialect.TIMEOUT_PROPERTY_NAME, new BigDecimal(2000));
-        propertyShadows.add(prop);
+        shadow.getProperties().setProperty(CtrDeviceProtocolDialect.SECURITY_LEVEL_PROPERTY_NAME, new BigDecimal(1));
+        shadow.getProperties().setProperty(CtrDeviceProtocolDialect.ENCRYPTION_KEY_C_PROPERTY_NAME, "0000000000000001");
+        shadow.getProperties().setProperty(CtrDeviceProtocolDialect.ENCRYPTION_KEY_F_PROPERTY_NAME, "0000000000000001");
+        shadow.getProperties().setProperty(CtrDeviceProtocolDialect.ENCRYPTION_KEY_T_PROPERTY_NAME, "0000000000000001");
+        shadow.getProperties().setProperty(CtrDeviceProtocolDialect.TIMEOUT_PROPERTY_NAME, new BigDecimal(2000));
         return ManagerFactory.getCurrent().getProtocolDialectPropertiesFactory().create(shadow);
     }
 

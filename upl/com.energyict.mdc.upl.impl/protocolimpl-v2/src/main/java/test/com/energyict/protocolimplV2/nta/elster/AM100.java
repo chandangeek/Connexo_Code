@@ -164,6 +164,11 @@ public class AM100 extends AbstractNtaProtocol {
     }
 
     @Override
+    public String getSecurityRelationTypeName() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         // TODO return proper functionality
         return Collections.emptyList();    }
