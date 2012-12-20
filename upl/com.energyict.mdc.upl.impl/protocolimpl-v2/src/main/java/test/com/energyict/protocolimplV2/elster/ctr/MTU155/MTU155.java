@@ -69,8 +69,6 @@ public class MTU155 implements DeviceProtocol {
     public static final String EXTRACT_INSTALLATION_DATE_PROPERTY_NAME = "ExtractInstallationDate";
     public static final String REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME = "RemoveDayProfileOffset";
 
-    private static final int UNKNOWN_ID = 0;
-
     /**
      * The offline rtu
      */
@@ -404,10 +402,8 @@ public class MTU155 implements DeviceProtocol {
         try {
             Date lastLogBookReading = logBook.getLastLogBook();
             CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
-            List<MeterProtocolEvent> meterProtocolEvents = mapMeterEventsToMeterProtocolEvents(
-                    meterEvent.getMeterEvents(lastLogBookReading),
-                    logBook.getLogBookIdentifier().getLogBook().getId()
-            );
+            List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
+                    meterEvent.getMeterEvents(lastLogBookReading));
             collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
             ((DeviceLogBook) collectedLogBook).setMeterEvents(meterProtocolEvents);
         } catch (CTRException e) {
@@ -422,22 +418,6 @@ public class MTU155 implements DeviceProtocol {
         return collectedLogBooks;
     }
 
-    private List<MeterProtocolEvent> mapMeterEventsToMeterProtocolEvents(List<MeterEvent> meterEvents, int logBookId) {
-        List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-        for (MeterEvent event : meterEvents) {
-            meterProtocolEvents.add(
-                    new MeterProtocolEvent(event.getTime(),
-                            event.getEiCode(),
-                            event.getProtocolCode(),
-                            event.getMessage(),
-                            UNKNOWN_ID,
-                            UNKNOWN_ID
-                    )
-            );
-        }
-        return meterProtocolEvents;
-    }
-
     @Override
     public List<PropertySpec> getSecurityProperties() {
         // TODO return proper functionality
@@ -447,7 +427,8 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         // TODO return proper functionality
-        return Collections.emptyList();    }
+        return Collections.emptyList();
+    }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
