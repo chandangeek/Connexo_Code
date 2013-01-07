@@ -300,26 +300,26 @@ public class RtuRegisterBuilder {
     }
 
     private void buildRegisters() throws BusinessException {
-        deleteRegisterSpecs(getDeviceType());
-        deleteDeviceRegisterMappings();
-        createDeviceRegisterMappings();
-        createRegisterSpecs(getDeviceType());
+//        deleteRegisterSpecs(getDeviceType());
+//        deleteDeviceRegisterMappings();
+//        createDeviceRegisterMappings();
+//        createRegisterSpecs(getDeviceType());
     }
 
-    /**
-     * @param rtuType
-     * @throws BusinessException
-     */
-    private void deleteRegisterSpecs(DeviceType rtuType) throws BusinessException {
-        try {
-            DeviceTypeShadow shadow = rtuType.getShadow();
-            shadow.getRegisterSpecShadows().clear();
-            rtuType.update(shadow);
-            deviceType = null;
-        } catch (SQLException e) {
-            throw new ProcessingException("Unable to delete the RtuRegisterSpecs for deviceType [" + rtuType.getName() + "]", e);
-        }
-    }
+//    /**
+//     * @param rtuType
+//     * @throws BusinessException
+//     */
+//    private void deleteRegisterSpecs(DeviceType rtuType) throws BusinessException {
+//        try {
+//            DeviceTypeShadow shadow = rtuType.getShadow();
+//            shadow.getRegisterSpecShadows().clear();
+//            rtuType.update(shadow);
+//            deviceType = null;
+//        } catch (SQLException e) {
+//            throw new ProcessingException("Unable to delete the RtuRegisterSpecs for deviceType [" + rtuType.getName() + "]", e);
+//        }
+//    }
 
     /**
      * @throws BusinessException
@@ -360,30 +360,30 @@ public class RtuRegisterBuilder {
             }
         }
     }
-
-    /**
-     * @param deviceType
-     */
-    private void createRegisterSpecs(DeviceType deviceType) throws BusinessException {
-        try {
-            DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
-            List<RegisterMapping> mappings = getRtuRegisterMappingsWithPrefix();
-            for (RegisterMapping mapping : mappings) {
-                RegisterSpecShadow shadow = new RegisterSpecShadow();
-                shadow.setDeviceChannelIndex(mapping.getObisCode().getB());
-                shadow.setIntegral(false);
-                shadow.setLoadprofileChannelIndex(0);
-                shadow.setNumberOfDigits(15);
-                shadow.setNumberOfFractionDigits(3);
-                shadow.setRegisterMappingId(mapping.getId());
-                shadow.setRtuTypeId(deviceType.getId());
-                deviceTypeShadow.getRegisterSpecShadows().add(shadow);
-            }
-            deviceType.update(deviceTypeShadow);
-        } catch (Exception e) {
-            throw new ProcessingException("Unable to create RtuRegisterSpecs for device type [" + deviceType.getName() + "]:", e);
-        }
-    }
+//
+//    /**
+//     * @param deviceType
+//     */
+//    private void createRegisterSpecs(DeviceType deviceType) throws BusinessException {
+//        try {
+//            DeviceTypeShadow deviceTypeShadow = deviceType.getShadow();
+//            List<RegisterMapping> mappings = getRtuRegisterMappingsWithPrefix();
+//            for (RegisterMapping mapping : mappings) {
+//                RegisterSpecShadow shadow = new RegisterSpecShadow();
+//                shadow.setDeviceChannelIndex(mapping.getObisCode().getB());
+//                shadow.setIntegral(false);
+//                shadow.setLoadprofileChannelIndex(0);
+//                shadow.setNumberOfDigits(15);
+//                shadow.setNumberOfFractionDigits(3);
+//                shadow.setRegisterMappingId(mapping.getId());
+//                shadow.setRtuTypeId(deviceType.getId());
+//                deviceTypeShadow.getRegisterSpecShadows().add(shadow);
+//            }
+//            deviceType.update(deviceTypeShadow);
+//        } catch (Exception e) {
+//            throw new ProcessingException("Unable to create RtuRegisterSpecs for device type [" + deviceType.getName() + "]:", e);
+//        }
+//    }
 
     public static void main(String[] args) throws BusinessException {
         new RtuRegisterBuilder().buildRegisters();

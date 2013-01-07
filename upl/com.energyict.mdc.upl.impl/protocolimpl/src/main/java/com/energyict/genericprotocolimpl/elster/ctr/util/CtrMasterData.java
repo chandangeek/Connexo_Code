@@ -12,6 +12,8 @@ import com.energyict.obis.ObisCode;
 import java.util.List;
 
 /**
+ * TODO, creating masterData changed and does not work in the way it is coded below!
+ *
  * Copyrights EnergyICT
  * Date: 29-okt-2010
  * Time: 14:45:25
@@ -92,7 +94,8 @@ public class CtrMasterData {
             specShadow.setNumberOfDigits(9);
             specShadow.setNumberOfFractionDigits(4);
             specShadow.setIntegral(false);
-            rtuTypeShadow.getRegisterSpecShadows().add(specShadow);
+            // TODO change this in order to work properly
+//            rtuTypeShadow.getRegisterSpecShadows().add(specShadow);
         }
         try {
             rtuType.update(rtuTypeShadow);
