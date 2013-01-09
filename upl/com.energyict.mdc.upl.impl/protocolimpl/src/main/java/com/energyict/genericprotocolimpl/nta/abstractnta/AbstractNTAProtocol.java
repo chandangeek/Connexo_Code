@@ -1022,31 +1022,33 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         if (rtuType == null) {
             return null;
         } else {
-            return createMeter(rtuType, key);
+            // we are not creating devices anymore!
+            return null;
+//            return createMeter(rtuType, key);
         }
     }
-
-    private Device createMeter(DeviceType rtuType, String key) throws SQLException, BusinessException {
-        DeviceShadow shadow = rtuType.getConfigurations().get(0).newDeviceShadow();
-
-        shadow.setName(key);
-        shadow.setSerialNumber(key);
-
-        String folderExtName = getProperty("FolderExtName");
-        if (folderExtName != null) {
-            Folder result = mw().getFolderFactory().findByExternalName(folderExtName);
-            if (result != null) {
-                shadow.setFolderId(result.getId());
-            } else {
-                getLogger().log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
-            }
-        } else {
-            getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
-        }
-
-        shadow.setGatewayId(getCommunicationScheduler().getRtuId());
-        return mw().getDeviceFactory().create(shadow);
-    }
+//
+//    private Device createMeter(DeviceType rtuType, String key) throws SQLException, BusinessException {
+//        DeviceShadow shadow = rtuType.getConfigurations().get(0).newDeviceShadow();
+//
+//        shadow.setName(key);
+//        shadow.setSerialNumber(key);
+//
+//        String folderExtName = getProperty("FolderExtName");
+//        if (folderExtName != null) {
+//            Folder result = mw().getFolderFactory().findByExternalName(folderExtName);
+//            if (result != null) {
+//                shadow.setFolderId(result.getId());
+//            } else {
+//                getLogger().log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
+//            }
+//        } else {
+//            getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
+//        }
+//
+//        shadow.setGatewayId(getCommunicationScheduler().getRtuId());
+//        return mw().getDeviceFactory().create(shadow);
+//    }
 
     private DeviceType getRtuType() {
         String type = getProperty("DeviceType");

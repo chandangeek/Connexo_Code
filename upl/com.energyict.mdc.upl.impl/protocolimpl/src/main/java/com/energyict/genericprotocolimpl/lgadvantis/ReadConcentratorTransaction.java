@@ -95,10 +95,11 @@ public class ReadConcentratorTransaction implements Transaction {
 				for (Iterator jt=rtus.iterator(); jt.hasNext();){
 					Device rtu = (Device) jt.next();
 					DeviceShadow shadow = rtu.getShadow();
-					if (shadow.getGatewayId() != device.getId() ){
-						shadow.setGatewayId(device.getId());
-						rtu.update(shadow);
-					}
+                    // LGAdvantis is deprectaed, just fixing syntax error
+//					if (shadow.getGatewayId() != device.getId() ){
+//						shadow.setGatewayId(device.getId());
+//						rtu.update(shadow);
+//					}
 				}
 			}
 		} catch (IOException e) {

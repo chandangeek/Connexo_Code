@@ -268,7 +268,9 @@ public class MeterTopology implements MasterMeter {
         if (rtuType == null) {
             return null;
         } else {
-            return createMeter(rtuType, serialNumber);
+            // we don't create any meters anymore!
+            return null;
+//            return createMeter(rtuType, serialNumber);
         }
     }
 
@@ -281,27 +283,28 @@ public class MeterTopology implements MasterMeter {
      * @throws SQLException      when a database exception occurs
      * @throws BusinessException when a business related error occurs
      */
-    private Device createMeter(DeviceType rtuType, String serialNumber) throws SQLException, BusinessException {
-        DeviceShadow shadow = rtuType.getConfigurations().get(0).newDeviceShadow();
-
-        shadow.setName(serialNumber);
-        shadow.setSerialNumber(serialNumber);
-
-        String folderExtName = (String) this.protocol.getProperties().getProtocolProperties().get("FolderExtName");
-        if (folderExtName != null) {
-            Folder result = ProtocolTools.mw().getFolderFactory().findByExternalName(folderExtName);
-            if (result != null) {
-                shadow.setFolderId(result.getId());
-            } else {
-                log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
-            }
-        } else {
-            log(Level.INFO, "New meter will be placed in prototype folder.");
-        }
-
-        shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
-        return ProtocolTools.mw().getDeviceFactory().create(shadow);
-    }
+    // we don't create any meters anymore!
+//    private Device createMeter(DeviceType rtuType, String serialNumber) throws SQLException, BusinessException {
+//        DeviceShadow shadow = rtuType.getConfigurations().get(0).newDeviceShadow();
+//
+//        shadow.setName(serialNumber);
+//        shadow.setSerialNumber(serialNumber);
+//
+//        String folderExtName = (String) this.protocol.getProperties().getProtocolProperties().get("FolderExtName");
+//        if (folderExtName != null) {
+//            Folder result = ProtocolTools.mw().getFolderFactory().findByExternalName(folderExtName);
+//            if (result != null) {
+//                shadow.setFolderId(result.getId());
+//            } else {
+//                log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
+//            }
+//        } else {
+//            log(Level.INFO, "New meter will be placed in prototype folder.");
+//        }
+//
+//        shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
+//        return ProtocolTools.mw().getDeviceFactory().create(shadow);
+//    }
 
     /**
      * Create an DeviceType based on the custom property DeviceType

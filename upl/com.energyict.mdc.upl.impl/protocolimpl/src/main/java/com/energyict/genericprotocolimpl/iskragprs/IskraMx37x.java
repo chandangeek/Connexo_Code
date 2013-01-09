@@ -558,9 +558,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
                 }
             }
             if (delete) {
-                DeviceShadow shadow = mbus.getShadow();
-                shadow.setGatewayId(0);
-                mbus.update(shadow);
+                mbus.updateGateway(null);
             }
         }
     }
@@ -594,34 +592,36 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         if (rtuType == null) {
             return null;
         } else {
-            return createMeter(rtu, getRtuType(), customerID);
+            // we don't create any meters anymore!
+            return null;
+//            return createMeter(rtu, getRtuType(), customerID);
         }
     }
-
-    private Device createMeter(Device rtu2, DeviceType type, String customerID) throws SQLException, BusinessException {
-        DeviceShadow shadow = type.getConfigurations().get(0).newDeviceShadow();
-
-        Date lastreading = shadow.getLastReading();
-
-        shadow.setName(customerID);
-        shadow.setSerialNumber(customerID);
-
-        String folderExtName = getFolderID();
-        if (folderExtName != null) {
-            Folder result = mw().getFolderFactory().findByExternalName(folderExtName);
-            if (result != null) {
-                shadow.setFolderId(result.getId());
-            } else {
-                getLogger().log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
-            }
-        } else {
-            getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
-        }
-
-        shadow.setGatewayId(rtu.getId());
-        shadow.setLastReading(lastreading);
-        return mw().getDeviceFactory().create(shadow);
-    }
+// we don't create any meters anymore!
+//    private Device createMeter(Device rtu2, DeviceType type, String customerID) throws SQLException, BusinessException {
+//        DeviceShadow shadow = type.getConfigurations().get(0).newDeviceShadow();
+//
+//        Date lastreading = shadow.getLastReading();
+//
+//        shadow.setName(customerID);
+//        shadow.setSerialNumber(customerID);
+//
+//        String folderExtName = getFolderID();
+//        if (folderExtName != null) {
+//            Folder result = mw().getFolderFactory().findByExternalName(folderExtName);
+//            if (result != null) {
+//                shadow.setFolderId(result.getId());
+//            } else {
+//                getLogger().log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
+//            }
+//        } else {
+//            getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
+//        }
+//
+//        shadow.setGatewayId(rtu.getId());
+//        shadow.setLastReading(lastreading);
+//        return mw().getDeviceFactory().create(shadow);
+//    }
 
     /**
      * @return the folderID of the given rtu
@@ -1456,10 +1456,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         Iterator it = slaves.iterator();
         while (it.hasNext()) {
             Device slave = (Device) it.next();
-//			slave.updateGateway(null);
-            DeviceShadow shadow = slave.getShadow();
-            shadow.setGatewayId(0);
-            slave.update(shadow);
+			slave.updateGateway(null);
         }
     }
 

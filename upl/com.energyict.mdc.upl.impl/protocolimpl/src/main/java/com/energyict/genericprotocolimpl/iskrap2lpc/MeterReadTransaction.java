@@ -859,7 +859,9 @@ public class MeterReadTransaction implements CacheMechanism {
         }
 
         if (getConcentrator().getRtuType(concentrator) != null) {
-            return createMeter(concentrator, getConcentrator().getRtuType(concentrator), serial);
+            // we don't create any meters anymore!
+            return null;
+//            return createMeter(concentrator, getConcentrator().getRtuType(concentrator), serial);
         } else {
             getLogger().severe(Constant.NO_AUTODISCOVERY);
             return null;
@@ -895,7 +897,9 @@ public class MeterReadTransaction implements CacheMechanism {
         }
 
         if (getMbusRtuType(medium) != null) {
-            return createMeter(concentrator, getMbusRtuType(medium), serial);
+            // we don't create any meters anymore!
+            return null;
+//            return createMeter(concentrator, getMbusRtuType(medium), serial);
         } else {
             getLogger().severe(Constant.NO_AUTODISCOVERY);
             return null;
@@ -945,35 +949,35 @@ public class MeterReadTransaction implements CacheMechanism {
      * @throws BusinessException
      * @throws SQLException
      */
-
-    private Device createMeter(Device concentrator, DeviceType type, String serial) throws SQLException, BusinessException {
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, -10);
-        Date lastreading = cal.getTime();
-
-        DeviceShadow shadow = type.getConfigurations().get(0).newDeviceShadow();
-
-        shadow.setName(serial);
-        shadow.setSerialNumber(serial);
-
-        String folderExtName = getFolderID(concentrator);
-        if (folderExtName != null) {
-            Folder result = getConcentrator().mw().getFolderFactory().findByExternalName(folderExtName);
-            if (result != null) {
-                shadow.setFolderId(result.getId());
-            } else {
-                getLogger().log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
-            }
-        } else {
-            getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
-        }
-
-        shadow.setGatewayId(concentrator.getId());
-        shadow.setLastReading(lastreading);
-        return getConcentrator().mw().getDeviceFactory().create(shadow);
-
-    }
+       // we don't create any meters anymore!
+//    private Device createMeter(Device concentrator, DeviceType type, String serial) throws SQLException, BusinessException {
+//
+//        Calendar cal = Calendar.getInstance();
+//        cal.add(Calendar.DAY_OF_MONTH, -10);
+//        Date lastreading = cal.getTime();
+//
+//        DeviceShadow shadow = type.getConfigurations().get(0).newDeviceShadow();
+//
+//        shadow.setName(serial);
+//        shadow.setSerialNumber(serial);
+//
+//        String folderExtName = getFolderID(concentrator);
+//        if (folderExtName != null) {
+//            Folder result = getConcentrator().mw().getFolderFactory().findByExternalName(folderExtName);
+//            if (result != null) {
+//                shadow.setFolderId(result.getId());
+//            } else {
+//                getLogger().log(Level.INFO, "No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
+//            }
+//        } else {
+//            getLogger().log(Level.INFO, "New meter will be placed in prototype folder.");
+//        }
+//
+//        shadow.setGatewayId(concentrator.getId());
+//        shadow.setLastReading(lastreading);
+//        return getConcentrator().mw().getDeviceFactory().create(shadow);
+//
+//    }
 
     private String toDuplicateSerialsErrorMsg(String serial) {
         return new MessageFormat(Constant.DUPLICATE_SERIALS)
@@ -1703,10 +1707,7 @@ public class MeterReadTransaction implements CacheMechanism {
                 }
             }
             if (delete) {
-//    			mbus.updateGateway(null);	 // you can do this in the latest build of EIServer
-                DeviceShadow shadow = mbus.getShadow();
-                shadow.setGatewayId(0);
-                mbus.update(shadow);
+                mbus.updateGateway(null);
             }
         }
     }

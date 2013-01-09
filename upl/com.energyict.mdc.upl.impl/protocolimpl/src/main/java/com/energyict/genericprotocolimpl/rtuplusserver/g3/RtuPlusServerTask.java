@@ -151,17 +151,18 @@ public class RtuPlusServerTask {
 
             logger.warning("Changing link [" + plcName + "] from [" + oldGwName + "] to [" + newGwName + "]");
 
-            final DeviceShadow shadow = plcDevice.getShadow();
-//            shadow.setPhoneNumber(phoneNumber);
-//            shadow.setNodeAddress(newNodeAddress);
-            shadow.setGatewayId(getGateway().getId());
-            // we don't work with schedulers anymore
-//            final List<CommunicationSchedulerShadow> schedulerShadowList = shadow.getCommunicationSchedulerShadows();
-//            for (CommunicationSchedulerShadow schedulerShadow : schedulerShadowList) {
-//                schedulerShadow.setModemPoolId(modemPool.getId());
-//                schedulerShadow.setDialer(dialer);
-//            }
-            plcDevice.update(shadow);
+//            final DeviceShadow shadow = plcDevice.getShadow();
+////            shadow.setPhoneNumber(phoneNumber);
+////            shadow.setNodeAddress(newNodeAddress);
+//            shadow.setGatewayId(getGateway().getId());
+//            // we don't work with schedulers anymore
+////            final List<CommunicationSchedulerShadow> schedulerShadowList = shadow.getCommunicationSchedulerShadows();
+////            for (CommunicationSchedulerShadow schedulerShadow : schedulerShadowList) {
+////                schedulerShadow.setModemPoolId(modemPool.getId());
+////                schedulerShadow.setDialer(dialer);
+////            }
+//            plcDevice.update(shadow);
+            plcDevice.updateGateway(getGateway());
 
         } catch (SQLException e) {
             getLogger().severe("Unable to update gateway link in EIServer for [" + plcDevice.getName() + "] to [" + getGateway().getName() + "]! " + e.getMessage());

@@ -155,9 +155,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         //TODO this is not fully compliant with the HTTP comserver ...
         Device mbus = getRtuFromDatabaseBySerialNumber(serialNumber);
         if (mbus != null) {
-            DeviceShadow shadow = mbus.getShadow();
-            shadow.setGatewayId(0);
-            mbus.update(shadow);
+            mbus.updateGateway(null);
         }
     }
 

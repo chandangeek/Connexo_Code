@@ -19,7 +19,9 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
+/**
+ * @deprecated This protocol is not supported anymore. If required, then you need to convert it to a new DeviceProtocol
+ */
 public class Concentrator implements GenericProtocol, Messaging {
 
     /* property timeout (milliseconds), defaults to 60 s */

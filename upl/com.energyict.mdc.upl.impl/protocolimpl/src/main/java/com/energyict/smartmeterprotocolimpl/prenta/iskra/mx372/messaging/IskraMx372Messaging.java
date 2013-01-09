@@ -1028,34 +1028,37 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         if (rtuType == null) {
             return null;
         } else {
-            return createMeter(getProperties().getRtuType(), customerID);
+            // we don't create any meters anymore!
+            return null;
+//            return createMeter(getProperties().getRtuType(), customerID);
         }
     }
 
-    private Device createMeter(DeviceType type, String customerID) throws SQLException, BusinessException {
-        DeviceShadow shadow = type.getConfigurations().get(0).newDeviceShadow();
-        Date lastReading = shadow.getLastReading();
-
-        shadow.setName(customerID);
-        shadow.setSerialNumber(customerID);
-
-        String folderExtName = getProperties().getFolderExtName();
-        if (folderExtName != null) {
-            Folder result = mw().getFolderFactory().findByExternalName(folderExtName);
-            ProtocolTools.closeConnection();
-            if (result != null) {
-                shadow.setFolderId(result.getId());
-            } else {
-                infoLog("No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
-            }
-        } else {
-            infoLog("New meter will be placed in prototype folder.");
-        }
-
-        shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
-        shadow.setLastReading(lastReading);
-        return mw().getDeviceFactory().create(shadow);
-    }
+    // we don't create any meters anymore!
+//    private Device createMeter(DeviceType type, String customerID) throws SQLException, BusinessException {
+//        DeviceShadow shadow = type.getConfigurations().get(0).newDeviceShadow();
+//        Date lastReading = shadow.getLastReading();
+//
+//        shadow.setName(customerID);
+//        shadow.setSerialNumber(customerID);
+//
+//        String folderExtName = getProperties().getFolderExtName();
+//        if (folderExtName != null) {
+//            Folder result = mw().getFolderFactory().findByExternalName(folderExtName);
+//            ProtocolTools.closeConnection();
+//            if (result != null) {
+//                shadow.setFolderId(result.getId());
+//            } else {
+//                infoLog("No folder found with external name: " + folderExtName + ", new meter will be placed in prototype folder.");
+//            }
+//        } else {
+//            infoLog("New meter will be placed in prototype folder.");
+//        }
+//
+//        shadow.setGatewayId(getRtuFromDatabaseBySerialNumber().getId());
+//        shadow.setLastReading(lastReading);
+//        return mw().getDeviceFactory().create(shadow);
+//    }
 
     private void updateMbusDevices(List<Device> downstreamRtus) throws SQLException, BusinessException {
         Iterator<Device> it = downstreamRtus.iterator();
@@ -1072,9 +1075,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
                 }
             }
             if (!present) {
-                DeviceShadow shadow = mbus.getShadow();
-                shadow.setGatewayId(0);
-                mbus.update(shadow);
+                mbus.updateGateway(null);
             }
         }
     }
@@ -1090,9 +1091,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         Iterator it = slaves.iterator();
         while (it.hasNext()) {
             Device slave = (Device) it.next();
-            DeviceShadow shadow = slave.getShadow();
-            shadow.setGatewayId(0);
-            slave.update(shadow);
+            slave.updateGateway(null);
         }
     }
     /** END OF MBUS SECTION **/
