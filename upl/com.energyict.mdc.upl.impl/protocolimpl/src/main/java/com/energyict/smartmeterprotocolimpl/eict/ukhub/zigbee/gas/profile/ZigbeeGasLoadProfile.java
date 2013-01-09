@@ -1,19 +1,35 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.profile;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileConfigurationException;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
-import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ObisCodeProvider;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -42,6 +58,8 @@ public class ZigbeeGasLoadProfile {
      * will represent the 'data' channels of the Profile
      */
     private Map<LoadProfileReader, List<Register>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<Register>>();
+
+    private Map<LoadProfileReader, List<Integer>> maskMask = new HashMap<LoadProfileReader, List<Integer>>();
 
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
@@ -156,9 +174,20 @@ public class ZigbeeGasLoadProfile {
                     ProfileGeneric pg = new ProfileGeneric(this.zigbeeGas.getDlmsSession(), null);
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
                     List<Register> coRegisters = new ArrayList<Register>();
+                    int index = -1;
+                    int clockMask = 0;
+                    int statusMask = 0;
+                    int channelMask = 0;
                     for (CapturedObject co : capturedObjects) {
-                        if (loadProfileContains(lpr, co.getLogicalName().getObisCode())) {
-                            Register reg = new Register(-1, co.getLogicalName().getObisCode(), this.zigbeeGas.getSerialNumber());
+                        index++;
+                        final ObisCode obisCode = co.getLogicalName().getObisCode();
+                        if (isClockObisCode(obisCode)) {
+                            clockMask = (int) Math.pow( 2, index);
+                        } else if (isStatusObisCode(obisCode)) {
+                            statusMask = (int) Math.pow( 2, index);
+                        }   else if (loadProfileContains(lpr, obisCode)) {
+                            channelMask += (int) Math.pow( 2, index);
+                            Register reg = new Register(-1, obisCode, this.zigbeeGas.getSerialNumber());
                             if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {// this way we don't get duplicate registerRequests in one getWithList
                                 channelRegisters.add(reg);
                             }
@@ -166,7 +195,13 @@ public class ZigbeeGasLoadProfile {
                         }
                     }
                     this.capturedObjectRegisterListMap.put(lpr, coRegisters);
-                } //TODO should we log this if we didn't get it???
+
+                    List<Integer> maskList = new ArrayList<Integer>(3);
+                    maskList.add(clockMask);
+                    maskList.add(statusMask);
+                    maskList.add(channelMask);
+                    this.maskMask.put(lpr, maskList);
+                }
             }
         } else {
             throw new LoadProfileConfigurationException("ExpectedLoadProfileReaders may not be null");
@@ -255,6 +290,14 @@ public class ZigbeeGasLoadProfile {
         return !(Clock.getDefaultObisCode().equals(obisCode) || obisCode.equalsIgnoreBChannel(ObisCodeProvider.GENERAL_LP_STATUS_OBISCODE));
     }
 
+    protected boolean isClockObisCode(ObisCode obisCode) {
+        return Clock.getDefaultObisCode().equals(obisCode);
+    }
+
+    protected boolean isStatusObisCode(ObisCode obisCode) {
+        return obisCode.equalsIgnoreBChannel(ObisCodeProvider.GENERAL_LP_STATUS_OBISCODE);
+    }
+
     /**
      * <p>
      * Fetches one or more LoadProfiles from the device. Each <CODE>LoadProfileReader</CODE> contains a list of necessary
@@ -288,8 +331,8 @@ public class ZigbeeGasLoadProfile {
                 Calendar toCalendar = Calendar.getInstance(this.zigbeeGas.getTimeZone());
                 toCalendar.setTime(lpr.getEndReadingTime());
 
-                //TODO it is possible that we need to check for the masks ...
-                DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), null);
+                List<Integer> maskList = this.maskMask.get(lpr);
+                ZigbeeGasDLMSProfileIntervals intervals = new ZigbeeGasDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar),  maskList.get(0), maskList.get(1), maskList.get(2), null);
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);

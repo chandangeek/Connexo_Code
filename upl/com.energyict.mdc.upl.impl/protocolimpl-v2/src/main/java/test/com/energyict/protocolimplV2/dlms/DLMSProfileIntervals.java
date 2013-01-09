@@ -1,6 +1,10 @@
 package test.com.energyict.protocolimplV2.dlms;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
@@ -9,7 +13,12 @@ import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * A default DLMS {@link com.energyict.dlms.cosem.ProfileGeneric} buffer parser to a list of {@link com.energyict.protocol.IntervalData}.
@@ -33,24 +42,24 @@ public class DLMSProfileIntervals extends Array {
     /**
      * Represents a bitmasked location of the clock object. Default this is on position 1.
      */
-    private final int clockMask;
+    protected final int clockMask;
     /**
      * Represents a bitmasked location of the status object(s). Default this is on position 2.
      */
-    private final int statusMask;
+    protected final int statusMask;
     /**
      * Represents the bitmasked location of the channels in the structure. Default this is -1 (meaning all channels that are not clock or status).
      * If you for example only want to store channel 1 and channel 3 and the default structure applies(clock = 1 and status = 2), then the
      * channelMask should be 20 (b00010100)
      */
-    private final int channelMask;
+    protected final int channelMask;
 
     /**
      * The used {@link com.energyict.protocolimpl.base.ProfileIntervalStatusBits}
      */
-    private final ProfileIntervalStatusBits profileStatusBits;
+    protected final ProfileIntervalStatusBits profileStatusBits;
 
-    private int profileInterval;
+    protected int profileInterval;
 
     /**
      * Constructor with the default masks enabled:
@@ -61,7 +70,7 @@ public class DLMSProfileIntervals extends Array {
      * </ul>
      *
      * @param encodedData the raw encoded data of the buffer of the {@link com.energyict.dlms.cosem.ProfileGeneric}
-     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
+     * @param statusBits  the statusbits converter to use (if set to null, then the {@link DLMSDefaultProfileIntervalStatusBits} will be used)
      * @throws java.io.IOException when encoding types are not as expected
      */
     public DLMSProfileIntervals(byte[] encodedData, ProfileIntervalStatusBits statusBits) throws IOException {
@@ -75,7 +84,7 @@ public class DLMSProfileIntervals extends Array {
      * @param clockMask   the binary represented mask of the clock index
      * @param statusMask  the binary represented mask of all the status indexes
      * @param channelMask the binary represented mask of all the channel indexes
-     * @param statusBits  the statusbits converter to use (if set to null, then the {@link com.energyict.protocolimpl.dlms.DLMSDefaultProfileIntervalStatusBits} will be used)
+     * @param statusBits  the statusbits converter to use (if set to null, then the {@link DLMSDefaultProfileIntervalStatusBits} will be used)
      * @throws java.io.IOException when encoding types are not as expected
      */
     public DLMSProfileIntervals(byte[] encodedData, int clockMask, int statusMask, int channelMask, ProfileIntervalStatusBits statusBits) throws IOException {
@@ -90,25 +99,25 @@ public class DLMSProfileIntervals extends Array {
         }
     }
 
-   /**
+    /**
      * Parse the content to a list of IntervalData objects
      *
      * @param profileInterval the interval of the profile
      * @return a list of intervalData
      */
-     public List<IntervalData> parseIntervals(int profileInterval) throws IOException {
-         return this.parseIntervals(profileInterval, null);
-     }
+    public List<IntervalData> parseIntervals(int profileInterval) throws IOException {
+        return this.parseIntervals(profileInterval, null);
+    }
 
     /**
      * Parse the content to a list of IntervalData objects
      *
      * @param profileInterval the interval of the profile
-     * @param timeZone the TimeZone to be used to construct the intervalCalendar
-     *          - use this when the deviation information is not present in the octet string, otherwise leave this parameter null.
+     * @param timeZone        the TimeZone to be used to construct the intervalCalendar
+     *                        - use this when the deviation information is not present in the octet string, otherwise leave this parameter null.
      * @return a list of intervalData
      */
-     public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
+    public List<IntervalData> parseIntervals(int profileInterval, TimeZone timeZone) throws IOException {
         this.profileInterval = profileInterval;
         List<IntervalData> intervalList = new ArrayList<IntervalData>();
         Calendar cal = null;
@@ -152,7 +161,7 @@ public class DLMSProfileIntervals extends Array {
                                 throw new IOException("IntervalStructure: \r\n" + element + "\r\n" + e.getMessage());
                             }
                         } else if (isStatusIndex(d)) {
-                            statuses.put(values.size(),profileStatusBits.getEisStatusCode(element.getDataType(d).intValue()));
+                            statuses.put(values.size(), profileStatusBits.getEisStatusCode(element.getDataType(d).intValue()));
                             // we add all the statuses on the 'main' profileStatus
                             profileStatus |= profileStatusBits.getEisStatusCode(element.getDataType(d).intValue());
                         } else if (isChannelIndex(d)) {
@@ -165,7 +174,7 @@ public class DLMSProfileIntervals extends Array {
                     if (cal != null) {
                         currentInterval = new IntervalData(cal.getTime(), profileStatus);
                         for (int j = 0; j < values.size(); j++) {
-                            currentInterval.addValue(values.get(j), 0, (statuses.containsKey(j)?statuses.get(j):0));
+                            currentInterval.addValue(values.get(j), 0, (statuses.containsKey(j) ? statuses.get(j) : 0));
                         }
                     } else {
                         throw new IOException("Calender can not be NULL for building an IntervalData. IntervalStructure: \r\n" + element);
@@ -185,7 +194,7 @@ public class DLMSProfileIntervals extends Array {
      * @param tz       The timezone to use if there are dates involved
      * @return The numerical value of the data type
      */
-    private final Number getValueFromDataType(AbstractDataType dataType, TimeZone tz) {
+    protected Number getValueFromDataType(AbstractDataType dataType, TimeZone tz) {
         if ((dataType instanceof OctetString) && (dataType.getOctetString() != null)) {
             final DateTime dateTime = dataType.getOctetString().getDateTime(tz);
             if (dateTime == null) {
@@ -194,7 +203,7 @@ public class DLMSProfileIntervals extends Array {
                 return dateTime.getValue().getTimeInMillis();
             }
         }
-        return dataType.intValue();
+        return dataType.longValue();     //To avoid negative int values
     }
 
     /**

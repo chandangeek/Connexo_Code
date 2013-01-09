@@ -5,8 +5,24 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SmartMeterProtocol;
+import com.energyict.protocol.WakeUpProtocolSupport;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocol.messaging.TimeOfUseMessaging;
+import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
@@ -206,7 +222,7 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
 
     /**
      * Returns the implementation version
-     * @return a version string
+     * @return the version
      */
     public String getVersion() {
         return "$Date$";
