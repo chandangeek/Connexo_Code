@@ -63,7 +63,7 @@ public class MK10InboundDeviceProtocolTest {
 
         assertEquals(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER, discoverResultType);
         assertEquals(SerialNumberDeviceIdentifier.class, deviceIdentifier.getClass());
-        assertEquals(SERIALNUMBER, deviceIdentifier.toString());
+        assertEquals("device with serial number " + SERIALNUMBER, deviceIdentifier.toString());
     }
 
     @Test(expected = CommunicationException.class)

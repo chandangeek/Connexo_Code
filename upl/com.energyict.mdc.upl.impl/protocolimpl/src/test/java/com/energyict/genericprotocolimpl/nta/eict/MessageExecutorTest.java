@@ -2,10 +2,22 @@ package com.energyict.genericprotocolimpl.nta.eict;
 
 
 import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.DuplicateException;
+import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
+import com.energyict.mdc.InMemoryPersistence;
+import com.energyict.mdc.meta.persistence.model.DatabaseModel;
+import com.energyict.mdc.meta.persistence.model.DatabaseModelImpl;
 import com.energyict.mdw.core.*;
+import com.energyict.mdw.coreimpl.AccessEntryTableDescription;
+import com.energyict.mdw.coreimpl.CodeTableDescription;
+import com.energyict.mdw.coreimpl.FolderTableDescription;
+import com.energyict.mdw.coreimpl.PluggableClassPropertiesTableDescription;
+import com.energyict.mdw.coreimpl.PluggableClassTableDescription;
+import com.energyict.mdw.coreimpl.TimeZoneInUseTableDescription;
+import com.energyict.mdw.coreimpl.VersionedGatewayRelationTypeCreatorProvider;
 import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.mdw.testutils.RtuCRUD;
 import com.energyict.mdw.testutils.RtuTypeCRUD;
@@ -18,6 +30,8 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MessageExecutorTest {
 
@@ -28,9 +42,6 @@ public class MessageExecutorTest {
 	private static int rtuId = 963;
 	private static String trackingId = "testMessageTrackingId";
 	private static Device rtu;
-	private static DeviceType rtuType;
-	private static String rtuName = "";
-	private static String rtuTypeName = "";
 
 	private DeviceMessage rtuMessage;
 	private String changeLLSContent = "<Change_LLS_Secret/>";
@@ -41,8 +52,10 @@ public class MessageExecutorTest {
 	@BeforeClass
 	public static void setUpOnce() throws Exception {
 
-		Utilities.createEnvironment();
-		MeteringWarehouse.createBatchContext(false);
+        InMemoryPersistence.initializeDatabase();
+        InMemoryPersistence.createTablesForDeviceUsage();
+
+        createGateWayRelationType();
 
 		logger = Logger.getLogger("global");
 		webRtu = new WebRTUKP();
@@ -51,35 +64,30 @@ public class MessageExecutorTest {
 		webRtu.setDLMSConnection(connection);
 		webRtu.setCosemObjectFactory(new CosemObjectFactory(webRtu));
 
-		rtuTypeName = "RtuTypeName" + System.currentTimeMillis();
-		rtuName = "RtuName" + System.currentTimeMillis();
-		rtuType = RtuTypeCRUD.findOrCreateRtuType(rtuTypeName, 0);
-		rtu = RtuCRUD.findOrCreateRtu(rtuType, rtuName, 900);
+        rtu = mock(Device.class);
+        when(rtu.getId()).thenReturn(rtuId);
 	}
 
-	@AfterClass
+    private static void createGateWayRelationType() throws SQLException, BusinessException {
+        try {
+            VersionedGatewayRelationTypeCreatorProvider.instance.get().getVersionedGatewayRelationTypeCreator().createRelationType();
+        } catch (DuplicateException e) {
+            if(!e.getMessage().contains("A relation type with the name \"gateway\" already exists")){
+                throw e;
+            }
+        }
+    }
+
+    @AfterClass
 	public static void tearDownOnce() throws Exception {
+        InMemoryPersistence.cleanUpDataBase();
 	}
 
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		RtuCRUD.deleteRtu(rtuName);
-		RtuTypeCRUD.deleteRtuType(rtuTypeName);
-		DeviceMessage rm = MeteringWarehouse.getCurrent().getRtuMessageFactory().find(rtuMessageID);
-		if(rm != null){
-			rm.delete();
-		}
-	}
 
 	@Test
 	public void changeLLSSecretTest(){
 		try {
 			DeviceMessageShadow rms = new DeviceMessageShadow();
-//			rms.setUserId(0);
 			rms.setId(rtuMessageID);
 			rms.setContents(changeLLSContent);
 			rms.setRtuId(rtu.getId());
@@ -96,9 +104,6 @@ public class MessageExecutorTest {
 			me.doMessage(rtuMessage);
 			assertArrayEquals(expectedRequest, connection.getSentBytes());
 			assertEquals(rtuMessage.getState(), DeviceMessageState.CONFIRMED);
-
-
-
 
 			props = new Properties();
 			props.put("NewLLSSecret", "12345678");
