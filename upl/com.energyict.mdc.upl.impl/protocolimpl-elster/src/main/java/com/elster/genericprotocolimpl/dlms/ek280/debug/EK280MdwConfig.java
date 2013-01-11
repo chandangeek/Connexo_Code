@@ -111,19 +111,20 @@ public class EK280MdwConfig {
     private void addRtuRegisterSpec(ObisCode obis) {
         try {
             DeviceTypeShadow shadow = getRtuType().getShadow();
-            ShadowList<RegisterSpecShadow> registerSpecShadows = shadow.getRegisterSpecShadows();
-            RegisterSpecShadow registerSpecShadow = new RegisterSpecShadow();
-            registerSpecShadow.setRtuTypeId(getRtuType().getId());
-            registerSpecShadow.setDeviceChannelIndex(obis.getB());
-            registerSpecShadow.setDeviceObisCode(obis);
-            registerSpecShadow.setLoadprofileChannelIndex(-1);
-            registerSpecShadow.setNumberOfDigits(9);
-            registerSpecShadow.setNumberOfFractionDigits(3);
-            registerSpecShadow.setIntegral(false);
-            registerSpecShadow.setOverflowValue(new BigDecimal("999999999"));
-            registerSpecShadow.setRegisterMappingId(getRegisterMapping(obis).getId());
+            //TODO fix with the correct DeviceConfig in order for this to work
+//            ShadowList<RegisterSpecShadow> registerSpecShadows = shadow.getRegisterSpecShadows();
+//            RegisterSpecShadow registerSpecShadow = new RegisterSpecShadow();
+//            registerSpecShadow.setRtuTypeId(getRtuType().getId());
+//            registerSpecShadow.setDeviceChannelIndex(obis.getB());
+//            registerSpecShadow.setDeviceObisCode(obis);
+//            registerSpecShadow.setLoadprofileChannelIndex(-1);
+//            registerSpecShadow.setNumberOfDigits(9);
+//            registerSpecShadow.setNumberOfFractionDigits(3);
+//            registerSpecShadow.setIntegral(false);
+//            registerSpecShadow.setOverflowValue(new BigDecimal("999999999"));
+//            registerSpecShadow.setRegisterMappingId(getRegisterMapping(obis).getId());
 
-            registerSpecShadows.add(registerSpecShadow);
+//            registerSpecShadows.add(registerSpecShadow);
 
             getRtuType().update(shadow);
         } catch (SQLException e) {
@@ -181,7 +182,7 @@ public class EK280MdwConfig {
     private void clearRegisterSpecs() {
         try {
             DeviceTypeShadow shadow = getRtuType().getShadow();
-            shadow.getRegisterSpecShadows().clear();
+            shadow.getRegisterMappingShadows().clear();
             getRtuType().update(shadow);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
