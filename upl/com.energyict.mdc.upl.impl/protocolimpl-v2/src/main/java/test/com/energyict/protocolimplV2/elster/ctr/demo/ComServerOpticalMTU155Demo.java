@@ -14,7 +14,6 @@ import com.energyict.cpo.ShadowList;
 import com.energyict.cpo.Transaction;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.channels.serial.BaudrateValues;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
@@ -38,7 +37,6 @@ import com.energyict.mdc.shadow.protocol.task.RegistersTaskShadow;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import com.energyict.mdc.shadow.tasks.ComTaskShadow;
 import com.energyict.mdc.shadow.tasks.ConnectionMethodShadow;
-import com.energyict.mdc.shadow.tasks.ConnectionTaskPropertyShadow;
 import com.energyict.mdc.shadow.tasks.NextExecutionSpecsShadow;
 import com.energyict.mdc.shadow.tasks.OutboundConnectionTaskShadow;
 import com.energyict.mdc.shadow.tasks.ProtocolDialectPropertiesShadow;
@@ -403,27 +401,13 @@ public final class ComServerOpticalMTU155Demo {
         ConnectionMethodShadow connectionMethodShadow = new ConnectionMethodShadow(this.connectionTypePluggableClass);
         connectionMethodShadow.setComPortPoolId(this.outboundComPortPool.getId());
 
-        ConnectionTaskPropertyShadow baudrateShadow = new ConnectionTaskPropertyShadow(SerialPortConfiguration.BAUDRATE_NAME);
-        baudrateShadow.setValue(BaudrateValues.BAUDRATE_9600.getBaudrate());
-        connectionMethodShadow.add(baudrateShadow);
-        ConnectionTaskPropertyShadow stopBitsShadow = new ConnectionTaskPropertyShadow(SerialPortConfiguration.NR_OF_STOP_BITS_NAME);
-        stopBitsShadow.setValue(NrOfStopBits.ONE.getNrOfStopBits());
-        connectionMethodShadow.add(stopBitsShadow);
-        ConnectionTaskPropertyShadow dataBitsShadow = new ConnectionTaskPropertyShadow(SerialPortConfiguration.NR_OF_DATA_BITS_NAME);
-        dataBitsShadow.setValue(NrOfDataBits.EIGHT.getNrOfDataBits());
-        connectionMethodShadow.add(dataBitsShadow);
-        ConnectionTaskPropertyShadow parityShadow = new ConnectionTaskPropertyShadow(SerialPortConfiguration.PARITY_NAME);
-        parityShadow.setValue(Parities.NONE.getParity());
-        connectionMethodShadow.add(parityShadow);
-        ConnectionTaskPropertyShadow flowControlShadow = new ConnectionTaskPropertyShadow(SerialPortConfiguration.FLOW_CONTROL_NAME);
-        flowControlShadow.setValue(FlowControl.NONE.getFlowControl());
-        connectionMethodShadow.add(flowControlShadow);
-        ConnectionTaskPropertyShadow readTimeOutShadow = new ConnectionTaskPropertyShadow(SerialPortConfiguration.SERIAL_PORT_READ_TIMEOUT_NAME);
-        readTimeOutShadow.setValue(SerialPortConfiguration.DEFAULT_SERIAL_PORT_READ_TIMEOUT);
-        connectionMethodShadow.add(readTimeOutShadow);
-        ConnectionTaskPropertyShadow writeTimeOutShadow = new ConnectionTaskPropertyShadow(SerialPortConfiguration.SERIAL_PORT_WRITE_TIMEOUT_NAME);
-        writeTimeOutShadow.setValue(SerialPortConfiguration.DEFAULT_SERIAL_PORT_WRITE_TIMEOUT);
-        connectionMethodShadow.add(writeTimeOutShadow);
+        connectionMethodShadow.set(SerialPortConfiguration.BAUDRATE_NAME, SerialPortConfiguration.BAUDRATE_NAME);
+        connectionMethodShadow.set(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, NrOfStopBits.ONE.getNrOfStopBits());
+        connectionMethodShadow.set(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, NrOfDataBits.EIGHT.getNrOfDataBits());
+        connectionMethodShadow.set(SerialPortConfiguration.PARITY_NAME, Parities.NONE.getParity());
+        connectionMethodShadow.set(SerialPortConfiguration.FLOW_CONTROL_NAME, FlowControl.NONE.getFlowControl());
+        connectionMethodShadow.set(SerialPortConfiguration.SERIAL_PORT_READ_TIMEOUT_NAME, SerialPortConfiguration.DEFAULT_SERIAL_PORT_READ_TIMEOUT);
+        connectionMethodShadow.set(SerialPortConfiguration.SERIAL_PORT_WRITE_TIMEOUT_NAME, SerialPortConfiguration.DEFAULT_SERIAL_PORT_WRITE_TIMEOUT);
 
         shadow.setConnectionMethodShadow(connectionMethodShadow);
         NextExecutionSpecsShadow nextExecutionSpecsShadow = new NextExecutionSpecsShadow();
@@ -503,7 +487,8 @@ public final class ComServerOpticalMTU155Demo {
         shadow.setName(name);
         shadow.setChannelCount(2);
         shadow.setDeviceProtocolId(this.deviceProtocolPluggableClass.getId());
-        shadow.setRegisterSpecShadows(findOrCreateAllRegiserSpecShadows());
+        //TODO should be proper mappings
+//        shadow.setRegisterSpecShadows(findOrCreateAllRegiserSpecShadows());
         return MeteringWarehouse.getCurrent().getDeviceTypeFactory().create(shadow);
     }
 
