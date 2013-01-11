@@ -32,7 +32,6 @@ import com.energyict.mdc.shadow.protocol.task.RegistersTaskShadow;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import com.energyict.mdc.shadow.tasks.ComTaskShadow;
 import com.energyict.mdc.shadow.tasks.ConnectionMethodShadow;
-import com.energyict.mdc.shadow.tasks.ConnectionTaskPropertyShadow;
 import com.energyict.mdc.shadow.tasks.NextExecutionSpecsShadow;
 import com.energyict.mdc.shadow.tasks.OutboundConnectionTaskShadow;
 import com.energyict.mdc.shadow.tasks.ProtocolDialectPropertiesShadow;
@@ -403,18 +402,9 @@ public final class ComServerTCPAM100Demo {
         shadow.setDefault(true);
         ConnectionMethodShadow connectionMethodShadow = new ConnectionMethodShadow(this.connectionTypePluggableClass);
         connectionMethodShadow.setComPortPoolId(this.outboundComPortPool.getId());
-
-        ConnectionTaskPropertyShadow hostShadow = new ConnectionTaskPropertyShadow(TcpIpConnectionType.HOST_PROPERTY_NAME);
-        hostShadow.setValue(HOST);
-        connectionMethodShadow.add(hostShadow);
-
-        ConnectionTaskPropertyShadow portShadow = new ConnectionTaskPropertyShadow(TcpIpConnectionType.PORT_PROPERTY_NAME);
-        portShadow.setValue(PORT);
-        connectionMethodShadow.add(portShadow);
-
-        ConnectionTaskPropertyShadow connectionTimeOutShadow = new ConnectionTaskPropertyShadow(TcpIpConnectionType.CONNECTION_TIMEOUT_PROPERTY_NAME);
-        connectionTimeOutShadow.setValue(TIMEOUT);
-        connectionMethodShadow.add(connectionTimeOutShadow);
+        connectionMethodShadow.set(TcpIpConnectionType.HOST_PROPERTY_NAME, HOST);
+        connectionMethodShadow.set(TcpIpConnectionType.PORT_PROPERTY_NAME, PORT);
+        connectionMethodShadow.set(TcpIpConnectionType.CONNECTION_TIMEOUT_PROPERTY_NAME, TIMEOUT);
 
         shadow.setConnectionMethodShadow(connectionMethodShadow);
         NextExecutionSpecsShadow nextExecutionSpecsShadow = new NextExecutionSpecsShadow();
@@ -494,10 +484,12 @@ public final class ComServerTCPAM100Demo {
         shadow.setName(name);
         shadow.setChannelCount(7);
         shadow.setDeviceProtocolId(this.deviceProtocolPluggableClass.getId());
-        shadow.setRegisterSpecShadows(findOrCreateAllRegiserSpecShadows());
+        // TODO create the proper DeviceRegisterMappingShadows
+//        shadow.setRegisterSpecShadows(findOrCreateAllRegiserSpecShadows());
         DeviceType type = MeteringWarehouse.getCurrent().getDeviceTypeFactory().create(shadow);
         // Update the deviceConfig with the correct DeviceType ID
-        DeviceConfiguration deviceConfig = MeteringWarehouse.getCurrent().getDeviceConfigFactory().find(DEVICE_CONFIG_AM100_DEMO_NAME);
+        List<DeviceConfiguration> deviceConfigurations = MeteringWarehouse.getCurrent().getDeviceConfigFactory().findByName(DEVICE_CONFIG_AM100_DEMO_NAME);
+        DeviceConfiguration deviceConfig = deviceConfigurations.get(0);
         if (deviceConfig != null) {
             DeviceConfigurationShadow configShadow = deviceConfig.getShadow();
             configShadow.setDeviceTypeId(type.getId());
@@ -547,7 +539,8 @@ public final class ComServerTCPAM100Demo {
     }
 
     private DeviceConfiguration getDeviceConfig() throws BusinessException, SQLException {
-        DeviceConfiguration deviceConfig = MeteringWarehouse.getCurrent().getDeviceConfigFactory().find(DEVICE_CONFIG_AM100_DEMO_NAME);
+        List<DeviceConfiguration> deviceConfigurations = MeteringWarehouse.getCurrent().getDeviceConfigFactory().findByName(DEVICE_CONFIG_AM100_DEMO_NAME);
+        DeviceConfiguration deviceConfig = deviceConfigurations.get(0);
         if (deviceConfig == null) {
             DeviceConfigurationShadow shadow = new DeviceConfigurationShadow();
             shadow.setName(DEVICE_CONFIG_AM100_DEMO_NAME);
