@@ -13,7 +13,8 @@ public enum SecurityRelationTypeName {
 
     SIMPLE_PASSWORD("SimplePassword"),
     PASSWORD_AND_LEVEL("LevelPassword"),
-    DLMS_SECURITY("DlmsSecurity");
+    DLMS_SECURITY("DlmsSecurity"),
+    WAVENIS_SECURITY("WavenisSecurity");
 
     private final String name;
 
