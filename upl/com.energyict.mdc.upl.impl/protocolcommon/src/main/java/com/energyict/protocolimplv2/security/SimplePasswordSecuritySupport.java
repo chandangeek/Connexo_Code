@@ -26,7 +26,7 @@ public class SimplePasswordSecuritySupport implements DeviceSecuritySupport {
 
     @Override
     public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.SIMPLEPASSWORD.toString();
+        return SecurityRelationTypeName.SIMPLE_PASSWORD.toString();
     }
 
     @Override

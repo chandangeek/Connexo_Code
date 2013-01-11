@@ -56,7 +56,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
     @Override
     public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.DLMSSECURITY.toString();
+        return SecurityRelationTypeName.DLMS_SECURITY.toString();
     }
 
     @Override

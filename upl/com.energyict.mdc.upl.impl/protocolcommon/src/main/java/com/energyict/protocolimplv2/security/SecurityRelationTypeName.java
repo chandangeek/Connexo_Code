@@ -11,8 +11,9 @@ package com.energyict.protocolimplv2.security;
  */
 public enum SecurityRelationTypeName {
 
-    SIMPLEPASSWORD("SimplePassword"),
-    DLMSSECURITY("DlmsSecurity");
+    SIMPLE_PASSWORD("SimplePassword"),
+    PASSWORD_AND_LEVEL("LevelPassword"),
+    DLMS_SECURITY("DlmsSecurity");
 
     private final String name;
 

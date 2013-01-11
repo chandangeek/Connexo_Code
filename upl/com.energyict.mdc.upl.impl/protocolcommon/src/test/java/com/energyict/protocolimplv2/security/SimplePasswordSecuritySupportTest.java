@@ -45,7 +45,7 @@ public class SimplePasswordSecuritySupportTest {
     public void getAuthenticationAccessLevelsTest() {
         SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
 
-        // assert that you only have one property to set
+        // assert that you only have one authentication level
         assertThat(simplePasswordSecuritySupport.getAuthenticationAccessLevels()).hasSize(1);
 
         // check for the simple authentication level

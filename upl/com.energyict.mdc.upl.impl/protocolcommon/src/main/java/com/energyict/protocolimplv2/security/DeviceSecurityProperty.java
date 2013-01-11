@@ -12,10 +12,26 @@ import com.energyict.cpo.PropertySpecFactory;
  */
 public enum DeviceSecurityProperty {
 
+    /**
+     * A plain old password, can be a high- or low level password
+     */
     PASSWORD(PropertySpecFactory.passwordPropertySpec(SecurityPropertySpecName.PASSWORD.toString())),
+    /**
+     * A key used for encryption of bytes
+     */
     ENCRYPTION_KEY(PropertySpecFactory.passwordPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY.toString())),
+    /**
+     * A key used for authentication to a device
+     */
     AUTHENTICATION_KEY(PropertySpecFactory.passwordPropertySpec(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())),
-    CLIENT_IDENTIFIER(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.CLIENT_ID.toString()));
+    /**
+     * A numeric identification of an accessing client
+     */
+    CLIENT_IDENTIFIER(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.CLIENT_ID.toString())),
+    /**
+     * A character identification, can be a username or just a level number ...
+     */
+    DEVICE_ACCESS_IDENTIFIER(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.DEVICE_ACCESS_LEVEL_IDENTIFIER.toString()));
 
     private final PropertySpec propertySpec;
 

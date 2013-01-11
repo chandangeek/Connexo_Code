@@ -13,7 +13,8 @@ public enum SecurityPropertySpecName {
     PASSWORD("Password"),
     ENCRYPTION_KEY("EncryptionKey"),
     AUTHENTICATION_KEY("AuthenticationKey"),
-    CLIENT_ID("ClientId");
+    CLIENT_ID("ClientId"),
+    DEVICE_ACCESS_LEVEL_IDENTIFIER("DeviceAccessIdentifier");
 
     private final String name;
 
