@@ -81,9 +81,9 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        for (DeviceSecurityProperty deviceSecurityProperty : DeviceSecurityProperty.values()) {
-            if (deviceSecurityProperty.getPropertySpec().getName().equals(name)) {
-                return deviceSecurityProperty.getPropertySpec();
+        for (PropertySpec securityProperty : getSecurityProperties()) {
+            if (securityProperty.getName().equals(name)) {
+                return securityProperty;
             }
         }
         return null;
