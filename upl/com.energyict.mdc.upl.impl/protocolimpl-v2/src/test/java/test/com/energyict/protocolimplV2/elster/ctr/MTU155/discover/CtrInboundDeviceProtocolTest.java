@@ -57,6 +57,6 @@ public class CtrInboundDeviceProtocolTest {
 
         assertEquals(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER, discoverResultType);
         assertTrue(deviceIdentifier instanceof SerialNumberDeviceIdentifier);
-        assertEquals("66554433221100", deviceIdentifier.toString());
+        assertEquals("device with serial number 66554433221100", deviceIdentifier.toString());
     }
 }
