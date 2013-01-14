@@ -92,7 +92,7 @@ public class LIS200Utils {
         } else if (strUnit.equalsIgnoreCase("bar")) {
             return Unit.get(BaseUnit.BAR);
         } else if (strUnit.equalsIgnoreCase("{F") ||
-                strUnit.equalsIgnoreCase("°F") ||
+                strUnit.equalsIgnoreCase("\u00B0F") ||
                 strUnit.equalsIgnoreCase("F")) {
             return Unit.get(BaseUnit.FAHRENHEIT);
         } else if (strUnit.contains("Wh")) {
@@ -116,7 +116,7 @@ public class LIS200Utils {
                 (strUnit.contains("m3:h"))) {
             return Unit.get(BaseUnit.CUBICMETERPERHOUR);
         } else if (strUnit.equals("K") ||
-                strUnit.equals("°K")) {
+                strUnit.equals("\u00B0K")) {
             return Unit.get(BaseUnit.KELVIN);
         } else {
             if (strUnit.endsWith("C") || strUnit.endsWith("c")) {
@@ -124,7 +124,7 @@ public class LIS200Utils {
                     case 1:
                         return Unit.get(BaseUnit.DEGREE_CELSIUS);
                     case 2:
-                        if ((strUnit.charAt(0) == '{') || (strUnit.charAt(0) == '°')) {
+                        if ((strUnit.charAt(0) == '{') || (strUnit.charAt(0) == '\u00B0')) {
                             return Unit.get(BaseUnit.DEGREE_CELSIUS);
                         }
                         break;
