@@ -4,6 +4,12 @@ import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.registers.DlmsRegisterMapping;
 import com.elster.protocolimpl.dlms.registers.RegisterMap;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * User: heuckeg
@@ -13,7 +19,29 @@ import com.elster.protocolimpl.dlms.registers.RegisterMap;
 @SuppressWarnings({"unused"})
 public class EK280 extends Dlms {
 
-    private static DlmsRegisterMapping[] mappings = {
+    private static String ARCHIVESTRUCTUREVERSION = "ArchiveStructureVersion";
+
+    protected static String V2ARCHIVESTRUCTURE = "TST=0.0.1.0.0.255" + "," +
+            "CHN0[C9]=7.0.11.2.0.255" + "," +
+            "CHN1[C9]=7.0.13.2.0.255" + "," +
+            "CHN2[C9]=7.0.11.0.0.255" + "," +
+            "CHN3[C9]=7.0.13.0.0.255" + "," +
+            "CHN4=7.0.42.42.0.255" + "," +
+            "CHN5=7.0.41.42.0.255" + "," +
+            "CHN6=7.0.53.0.16.255" + "," +
+            "CHN7=7.0.52.0.16.255" + "," +
+            "SYS=7.129.96.5.2.255" + "," +
+            "EVT=7.128.96.5.67.255";
+
+    // Standard event log 7.0.99.98.0.255
+    protected static String ITALYLOGSTRUCTURE = "TST=0.0.1.0.0.255" + "," +
+            "EVT_DLMS=7.128.96.5.74.255";
+
+    protected static String V2LOGSTRUCTURE = "TST=0.0.1.0.0.255" + "," +
+            "EVT_L2=7.128.96.5.68.255";
+
+    protected static DlmsRegisterMapping[] italyMappings = {
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 2, 1, 255), Ek280Defs.SOFTWARE_VERSION),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 2, 1, 255), Ek280Defs.SOFTWARE_VERSION),
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 2, 13, 255), Ek280Defs.DLMS_DEVICE_SERIAL),
 
@@ -91,9 +119,73 @@ public class EK280 extends Dlms {
             new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 67, 255), Ek280Defs.GAV_METHAN_CONT_CURR)
     };
 
+    protected static DlmsRegisterMapping[] v2Mappings = {
+//            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 2, 96, 10, 1, 255), Ek280Defs.STATUS_REGISTER_1_2),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 97, 97, 0, 255), new ObisCode("7.0.97.97.0.255")),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 3, 96, 12, 5, 255), Ek280Defs.GSM_SIGNAL_STRENGTH),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 3, 96, 12, 6, 255), Ek280Defs.GSM_PHONE_NUMBER),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 0, 96, 6, 6, 255), Ek280Defs.BATTERY_REMAINING),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 2, 96, 6, 3, 255), Ek280Defs.MODEM_BATTERY_VOLTAGE),
+
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 2, 13, 255), Ek280Defs.DLMS_DEVICE_SERIAL),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 2, 1, 255), Ek280Defs.SOFTWARE_VERSION),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 2, 1, 255), new ObisCode("7.0.0.2.2.255")),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 2, 0, 255), Ek280Defs.EQUIPMENT_CONFIG),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 0, 96, 1, 10, 255), Ek280Defs.METERING_POINT_ID),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 96, 99, 3, 255), Ek280Defs.INST_METER_TYPE),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 96, 99, 2, 255), Ek280Defs.INST_METER_CALIBER),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 2, 14, 255), Ek280Defs.INST_METER_SERIAL),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 15, 1, 255), new ObisCode("7.0.0.15.1.255")),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 15, 2, 255), new ObisCode("7.0.0.15.2.255")),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(0, 0, 96, 52, 0, 255), Ek280Defs.INSTALLATION_DATE),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 9, 4, 255), Ek280Defs.REMAINING_SHIFT_TIME),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 42, 2, 0, 255), Ek280Defs.PRESSURE_REFERENCE),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 41, 2, 0, 255), Ek280Defs.TEMPERATURE_REFERENCE),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 53, 12, 0, 255), Ek280Defs.Z_CALC_METHOD),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 4, 2, 255), Ek280Defs.Z_CALC_METHOD_CODE),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 4, 0, 255), Ek280Defs.VOLUME_CALC_METHOD),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 0, 9, 255), Ek280Defs.EQUIPMENT_CLASS),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 96, 99, 5, 255), Ek280Defs.NUMBER_OF_PRE_DECIMAL_PLACES),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 1, 0, 7, 2, 255), Ek280Defs.CP_VALUE),
+
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 11, 2, 0, 255), new ObisCode("7.0.11.2.0.255")),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 13, 2, 0, 255), Ek280Defs.VB_TOTAL_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 3, 0, 0, 255), new ObisCode("7.0.3.0.0.255")),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 11, 0, 0, 255), new ObisCode("7.0.11.0.0.255")),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 13, 0, 0, 255), Ek280Defs.VM_TOTAL_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 33, 2, 0, 255), new ObisCode("7.0.33.2.0.255")),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 42, 0, 0, 255), Ek280Defs.PRESSURE_ABSOLUTE_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 41, 0, 0, 255), Ek280Defs.TEMPERATURE_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 52, 0, 0, 255), Ek280Defs.COEFFICIENT_C_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 53, 0, 0, 255), Ek280Defs.COEFFICIENT_Z_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 43, 0, 0, 255), Ek280Defs.FLOWRATE_VM_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 43, 2, 0, 255), Ek280Defs.FLOWRATE_VB_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 45, 255), Ek280Defs.DENSITY_GAS_BASE_COND),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 46, 255), Ek280Defs.DENSITY_RATIO),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 54, 255), Ek280Defs.CALORIFIC_VALUE_COMP_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 60, 255), Ek280Defs.GAV_NITROGEN_CONT_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 61, 255), Ek280Defs.GAV_HYDROGEN_CONT_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 65, 255), Ek280Defs.GAV_CARBONOXID_CONT_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 66, 255), Ek280Defs.GAV_CARBONDIOXID_CONT_CURR),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 0, 12, 67, 255), Ek280Defs.GAV_METHAN_CONT_CURR),
+
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 43, 153, 0, 255), Ek280Defs.FLOWRATE_CONV_MAX_CURR_DAY),
+            new DlmsRegisterMapping(new com.energyict.obis.ObisCode(7, 0, 43, 153, 0, 101), Ek280Defs.FLOWRATE_CONV_MAX_PREV_DAY),
+
+
+    };
+
+    protected static String archiveStructureVersion = "";
+    protected DlmsRegisterMapping[] mappings;
 
     public EK280() {
         super();
+        ocIntervalProfile = Ek280Defs.LOAD_PROFILE_60;
+        ocLogProfile = Ek280Defs.EVENT_LOG;
+
+        logStructure = ITALYLOGSTRUCTURE;
+
+        this.mappings = italyMappings;
     }
 
     protected RegisterMap getRegisterMap() {
@@ -105,5 +197,29 @@ public class EK280 extends Dlms {
         return "$Date: 2011-06-10 16:05:38 +0200 (vr, 10 jun 2011) $";
     }
 
+    @Override
+    @SuppressWarnings({"unchecked"})
+    protected List doGetOptionalKeys() {
 
+        List result = new ArrayList();
+        result.add(EK280.ARCHIVESTRUCTUREVERSION);
+        return result;
+    }
+
+    @Override
+    protected void validateProperties(Properties properties)
+            throws MissingPropertyException, InvalidPropertyException
+    {
+        archiveStructureVersion = properties.getProperty(EK280.ARCHIVESTRUCTUREVERSION, "");
+        if (archiveStructureVersion.equalsIgnoreCase("V2"))
+        {
+            archiveStructure = V2ARCHIVESTRUCTURE;
+
+            ocLogProfile = new ObisCode("7.0.99.98.1.255");
+            logStructure = V2LOGSTRUCTURE;
+
+            this.mappings = v2Mappings;
+        }
+        super.validateProperties(properties);
+    }
 }

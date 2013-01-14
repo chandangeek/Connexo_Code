@@ -5,14 +5,17 @@ import com.elster.protocolimpl.dsfg.telegram.DataElement;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TimeZone;
+import java.util.TreeMap;
 
 /**
  * class to hold the read out raw data from a dsfg archive
  * 
  * @author heuckeg
- * 
  */
 @SuppressWarnings({"unused"})
 public class IntervalDataMap {
@@ -27,10 +30,8 @@ public class IntervalDataMap {
 	 * Adds a read out data element to the data.<BR>
 	 * Data elements with the same date are grouped together (in a "line").
 	 * 
-	 * @param de
-	 *            - the DateElement to add
-	 * @param index
-	 *            - position in the "line"
+     * @param de    - the DateElement to add
+     * @param index - position in the "line"
 	 */
 	public void addElement(DataElement de, int index) {
 
@@ -88,8 +89,9 @@ public class IntervalDataMap {
 		String s = "";
 
 		for (DataElement de : value) {
-			if (s.length() > 0)
+			if (s.length() > 0) {
 				s = s + ";";
+            }
 			if (de != null) {
 				s = s + de.toString(",");
 			}
@@ -130,8 +132,9 @@ public class IntervalDataMap {
 				}
 				else {
 					state = IntervalStateBits.OK;
-					if ((de.getState() != null) && (de.getState() != 0))
+					if ((de.getState() != null) && (de.getState() != 0)) {
 						state = IntervalStateBits.CORRUPTED;
+                    }
 
 					o = de.getValue();
 					if (o instanceof Double) {
@@ -155,5 +158,4 @@ public class IntervalDataMap {
 
 		return iList;
 	}
-
 }

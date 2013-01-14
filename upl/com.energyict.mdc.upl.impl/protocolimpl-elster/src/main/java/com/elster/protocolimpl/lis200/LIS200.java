@@ -1,21 +1,48 @@
 package com.elster.protocolimpl.lis200;
 
-import com.elster.protocolimpl.lis200.objects.*;
+import com.elster.protocolimpl.lis200.objects.AbstractObject;
+import com.elster.protocolimpl.lis200.objects.HistoricalValueObject;
+import com.elster.protocolimpl.lis200.objects.IntervalObject;
+import com.elster.protocolimpl.lis200.objects.LockObject;
 import com.elster.protocolimpl.lis200.objects.LockObject.STATE;
+import com.elster.protocolimpl.lis200.objects.MaxDemandObject;
+import com.elster.protocolimpl.lis200.objects.SimpleObject;
+import com.elster.protocolimpl.lis200.objects.StatusObject;
 import com.elster.protocolimpl.lis200.profile.Lis200Profile;
-import com.elster.protocolimpl.lis200.registers.*;
+import com.elster.protocolimpl.lis200.registers.HistoricRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.IRegisterReadable;
+import com.elster.protocolimpl.lis200.registers.Lis200RegisterN;
+import com.elster.protocolimpl.lis200.registers.MaxRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.RegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.RegisterMapN;
+import com.elster.protocolimpl.lis200.registers.RegisterReader;
+import com.elster.protocolimpl.lis200.registers.SimpleRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.StateRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.ValueRegisterDefinition;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.elster.utils.lis200.events.EventInterpreter;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.AbstractCommand;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -246,9 +273,8 @@ public class LIS200 extends AbstractIEC1107Protocol {
 
         setLogger(logger);
 
-        String euVersion = "?";
-        int vma = 0;
-        int vmi = 0;
+        int vma;
+        int vmi;
         try {
             vma = com.elster.utils.VersionInfo.getVersionMajor();
             vmi = com.elster.utils.VersionInfo.getVersionMinor();
@@ -258,7 +284,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
             throw new IOException(msg);
         }
 
-        euVersion = vma + "." + vmi;
+        final String euVersion = vma + "." + vmi;
         if ((vma * 100 + (vmi % 100)) < 102) {
             throw new IOException("Wrong version of ElsterUtils. Needed: V1.2  Found: " + euVersion);
         }
@@ -387,7 +413,7 @@ public class LIS200 extends AbstractIEC1107Protocol {
     /**
      * Validate the serialNumber of the device.
      *
-     * @throws IOException if the serialNumber doesn't match the one from the Device
+     * @throws IOException if the serialNumber doesn't match the one from the Rtu
      */
     protected void validateSerialNumber() throws IOException {
         getLogger().info(
@@ -450,9 +476,6 @@ public class LIS200 extends AbstractIEC1107Protocol {
 
         } catch (FlagIEC1107ConnectionException e) {
             getLogger().severe("disconnect() error, " + e.getMessage());
-        } catch (ConnectionException e) {
-            getLogger().severe(
-                    "disconnect() error - setLock ConnectionError, " + e.getMessage());
         } catch (IOException e) {
             getLogger().severe(
                     "disconnect() error - setLock IOException, " + e.getMessage());
@@ -541,6 +564,15 @@ public class LIS200 extends AbstractIEC1107Protocol {
      */
     public int getMeterIndex() {
         return meterIndex;
+    }
+
+    /**
+     * Getter for meter type in derived classes
+     *
+     * @return read meter type
+     */
+    protected String getMeterType() {
+        return meterType;
     }
 
     /**

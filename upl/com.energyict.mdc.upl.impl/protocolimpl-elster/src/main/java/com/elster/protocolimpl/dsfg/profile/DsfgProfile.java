@@ -3,7 +3,9 @@
  */
 package com.elster.protocolimpl.dsfg.profile;
 
-import com.elster.protocolimpl.dsfg.*;
+import com.elster.protocolimpl.dsfg.ChannelDefinition;
+import com.elster.protocolimpl.dsfg.DsfgUtils;
+import com.elster.protocolimpl.dsfg.ProtocolLink;
 import com.elster.protocolimpl.dsfg.objects.ClockObject;
 import com.elster.protocolimpl.dsfg.objects.SimpleObject;
 import com.elster.protocolimpl.dsfg.telegram.DataBlock;
@@ -14,24 +16,28 @@ import com.energyict.protocol.IntervalData;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
- * 
  * @author gh
  * @since 5/26/2010
- * 
  */
 public class DsfgProfile {
 
-	/** The used {@link ProtocolLink} */
+    /**
+     * The used {@link ProtocolLink}
+     */
 	private final ProtocolLink link;
 
-	/** instance letter of reg. instance to use */
+    /**
+     * instance letter of reg. instance to use
+     */
 	private String registrationInstance = "";
-	/** instance letter of archive to readout */
-	@SuppressWarnings("unused")
-	private String archiveInstance = "";
+    /**
+     * instance letter of archive to readout
+     */
 
 	private ArchiveRecordConfig archiveStructure;
 
@@ -53,14 +59,13 @@ public class DsfgProfile {
 	/** The used {@link DL200MeterEventList} */
 	// private MeterEventList meterEventList;
 
-	/** The List containing all {@link IntervalData}s */
+    /**
+     * The List containing all {@link IntervalData}s
+     */
 	private List<IntervalData> intervalList = new ArrayList<IntervalData>();
 
-	/** The used {@link Unit} (the unit is the same for each channel) */
-	@SuppressWarnings("unused")
-	private String[] unit = null;
-
-	private int interval = 60;
+    /* interval of archive in sec! */
+    private int interval = 3600;
 
 	@SuppressWarnings("unused")
 	private String capturedObjects = "";
@@ -72,15 +77,12 @@ public class DsfgProfile {
 	/**
 	 * Default constructor
 	 * 
-	 * @param link
-	 *            - the use {@link ProtocolLink}
-	 * @param archiveStructure
-	 *            - structure of the archive
+     * @param link             - the use {@link ProtocolLink}
+     * @param archiveStructure - structure of the archive
 	 */
 	public DsfgProfile(ProtocolLink link, ArchiveRecordConfig archiveStructure) {
 		this.link = link;
 		this.registrationInstance = link.getRegistrationInstance();
-		this.archiveInstance = link.getArchiveInstance();
 		this.archiveStructure = archiveStructure;
 	}
 
@@ -94,9 +96,7 @@ public class DsfgProfile {
 
 	/**
 	 * @return the interval of the Profile
-	 * 
-	 * @throws IOException
-	 *             when something happens during the read
+     * @throws IOException when something happens during the read
 	 */
 	public int getInterval() throws IOException {
 		return this.interval;
@@ -105,10 +105,9 @@ public class DsfgProfile {
 	/**
 	 * Setter for the interval
 	 * 
-	 * @param interval
-	 *            - the interval to set
+     * @param interval - the interval to set
 	 */
-	protected void setInterval(int interval) {
+    public void setInterval(int interval) {
 		this.interval = interval;
 	}
 
@@ -116,9 +115,7 @@ public class DsfgProfile {
 	 * Construct the channelInfos
 	 * 
 	 * @return a list of {@link ChannelInfo}s
-	 * 
-	 * @throws IOException
-	 *             if an error occurred during the read of the
+     * @throws IOException if an error occurred during the read of the
 	 *             {@link ChannelInfo}s
 	 */
 	@SuppressWarnings("deprecation")
@@ -156,9 +153,7 @@ public class DsfgProfile {
 	 * Get the Unit list from the device and return the {@link Unit}
 	 * 
 	 * @return the {@link Unit} for the channel
-	 * 
-	 * @throws IOException
-	 *             when reading the unit failed
+     * @throws IOException when reading the unit failed
 	 */
 	public Unit getValueUnit(String unit) throws IOException {
 		return DsfgUtils.getUnitFromString(unit);
@@ -167,16 +162,10 @@ public class DsfgProfile {
 	/**
 	 * Get interval data within the request period
 	 * 
-	 * @param from
-	 *            - the initial date for the interval data
-	 * 
-	 * @param to
-	 *            - the end date for the interval data
-	 * 
+     * @param from - the initial date for the interval data
+     * @param to   - the end date for the interval data
 	 * @return the requested interval data
-	 * 
-	 * @throws IOException
-	 *             when reading of the data failed
+     * @throws IOException when reading of the data failed
 	 */
 	public List<IntervalData> getIntervalData(Date from, Date to)
 			throws IOException {
@@ -195,18 +184,19 @@ public class DsfgProfile {
 			}
 		}
 
-		return data.buildIntervalData(link.getTimeZone());
+        List<IntervalData> result = data.buildIntervalData(link.getTimeZone());
+
+        cleanSuspiciousTimeStamps(result, interval);
+
+        return result;
 	}
 
 	/**
 	 * read out data of one archive channel and put data in map
 	 * 
-	 * @param index
-	 *            - channel to readout
-	 * @param data
-	 *            - map to add the data to
-	 * @param roi
-	 *            - readout info
+     * @param index - channel to readout
+     * @param data  - map to add the data to
+     * @param roi   - readout info
 	 * @throws IOException
 	 */
 	private void readChannelArchiveData(int index, IntervalDataMap data,
@@ -325,7 +315,33 @@ public class DsfgProfile {
 	 * 
 	 * @return the {@link #intervalList}
 	 */
-	public List<IntervalData> getIntervalList() {
+    @SuppressWarnings({"unused"})
+    public List<IntervalData> getIntervalList()
+    {
 		return this.intervalList;
 	}
+
+    private void cleanSuspiciousTimeStamps(List<IntervalData> lid, final int intervalInSec)
+    {
+        IntervalData line;
+
+        for (int i = 0; i < lid.size(); )
+        {
+            line = lid.get(i);
+
+            final long time = line.getEndTime().getTime() / 1000;
+            final long timeDiv = time / intervalInSec;
+            final long timeRounded = timeDiv * intervalInSec;
+
+            if (time != timeRounded)
+            {
+                // timestamp is not on a full interval boundary...
+                // so remove from list!
+                lid.remove(i);
+            } else
+            {
+                i++;
+            }
+        }
+    }
 }

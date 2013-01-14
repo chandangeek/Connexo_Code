@@ -9,6 +9,7 @@ import com.elster.protocolimpl.dsfg.telegram.DataElement;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
@@ -21,9 +22,8 @@ import java.util.TimeZone;
  * User: Gunter
  * Date: 17.11.11
  * Time: 10:15
- *
+ * <p/>
  * 23/2/2012  gh  corrected: same behaviour as lis200 driver when calculating obis code by date
- *
  */
 public class DsfgRegisterReader {
 
@@ -45,9 +45,9 @@ public class DsfgRegisterReader {
      * @param tst      - read date of register value
      * @return read value if successful, null if not
      */
-    public RegisterValue getRegisterValue(ObisCode obisCode, Date tst) {
+    public RegisterValue getRegisterValue(ObisCode obisCode, Date tst) throws NoSuchRegisterException {
 
-        RegisterValue result = null;
+        RegisterValue result;
 
         String instance = getInstance(obisCode);
 
@@ -83,7 +83,7 @@ public class DsfgRegisterReader {
                     }
                 }
                 if (v == null) {
-                    return null;
+                    throw new NoSuchRegisterException("Register setting currently not supported!");
                 }
 
                 // no error so far, get unit of value
@@ -114,7 +114,8 @@ public class DsfgRegisterReader {
                             tst, 0, v);
                 }
             }
-        } catch (IOException ignore) {
+        } catch (IOException e) {
+            throw new NoSuchRegisterException(e.getMessage());
         }
         return result;
     }

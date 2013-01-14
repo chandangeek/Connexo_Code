@@ -9,16 +9,22 @@ import com.elster.protocolimpl.lis200.objects.IntervalObject;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLine;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.elster.utils.lis200.events.EventInterpreter;
-import com.elster.utils.lis200.profile.*;
+import com.elster.utils.lis200.profile.IArchiveLineData;
+import com.elster.utils.lis200.profile.IArchiveRawData;
+import com.elster.utils.lis200.profile.ProcessArchiveData;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.ArchiveEmptyException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static com.elster.protocolimpl.lis200.utils.utils.splitLine;
 
@@ -231,6 +237,8 @@ public class Lis200Profile implements IArchiveRawData {
 
         removeDoublesFromIntervalData(lid);
 
+        cleanSuspiciousTimeStamps(lid);
+
         return lid;
     }
 
@@ -260,7 +268,7 @@ public class Lis200Profile implements IArchiveRawData {
 
     /**
      * removing "double" values of the list
-     *
+     * <p/>
      * Used algorithm: start from the end and
      * remove all previous records with a date greater than the current
      *
@@ -287,11 +295,37 @@ public class Lis200Profile implements IArchiveRawData {
         }
     }
 
+    private void cleanSuspiciousTimeStamps(List<IntervalData> lid) {
+        IntervalData line;
+
+        try {
+            final long intervalMs = getInterval() * 1000;
+
+            for (int i = 0; i < lid.size(); ) {
+                line = lid.get(i);
+
+                final long time = line.getEndTime().getTime();
+                final long timeDiv = time / intervalMs;
+                final long timeRounded = timeDiv * intervalMs;
+
+                if (time != timeRounded) {
+                    // timestamp is not on a full interval boundary...
+                    // so remove from list!
+                    lid.remove(i);
+                } else {
+                    i++;
+                }
+            }
+        } catch (IOException ignore) {
+        }
+    }
+
     // *******************************************************************************************
     //
     // reading & processing events
     //
     // *******************************************************************************************/
+
     /**
      * Get a list of meterEvents starting from the given fromDate
      *
@@ -328,7 +362,7 @@ public class Lis200Profile implements IArchiveRawData {
         for(String me: eventData) {
             try {
                 ral = new RawArchiveLine(logEntry, me);
-                meterEvent = eventInterpreter.interpretEvent(ral.getTimeStamp(), ral.getEvent());
+                meterEvent = eventInterpreter.interpretEvent(ral.getTimeStampUtc(link.getTimeZone()), ral.getEvent());
                 mel.add(meterEvent);
             }
             catch (ParseException ignored) {

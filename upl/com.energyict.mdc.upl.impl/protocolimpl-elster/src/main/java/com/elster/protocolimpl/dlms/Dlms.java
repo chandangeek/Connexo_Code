@@ -3,28 +3,59 @@ package com.elster.protocolimpl.dlms;
 import com.elster.dlms.cosem.application.services.common.DataAccessResult;
 import com.elster.dlms.cosem.application.services.get.GetDataResult;
 import com.elster.dlms.cosem.applicationlayer.CosemApplicationLayer;
-import com.elster.dlms.cosem.simpleobjectmodel.*;
+import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleClockObject;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleCosemObjectManager;
+import com.elster.dlms.cosem.simpleobjectmodel.SimpleProfileObject;
 import com.elster.dlms.types.basic.DlmsDateTime;
 import com.elster.dlms.types.basic.ObisCode;
 import com.elster.genericprotocolimpl.dlms.ek280.EventProtocol;
 import com.elster.protocolimpl.dlms.connection.DlmsConnection;
 import com.elster.protocolimpl.dlms.messaging.DlmsMessageExecutor;
 import com.elster.protocolimpl.dlms.messaging.XmlMessageWriter;
-import com.elster.protocolimpl.dlms.profile.DlmsConsumptionProfile;
-import com.elster.protocolimpl.dlms.profile.DlmsLogProfile;
-import com.elster.protocolimpl.dlms.registers.*;
+import com.elster.protocolimpl.dlms.profile.ArchiveProcessorFactory;
+import com.elster.protocolimpl.dlms.profile.DlmsProfile;
+import com.elster.protocolimpl.dlms.profile.ILogProcessor;
+import com.elster.protocolimpl.dlms.registers.DlmsRegisterMapping;
+import com.elster.protocolimpl.dlms.registers.RegisterMap;
+import com.elster.protocolimpl.dlms.registers.SimpleObisCodeMapper;
 import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -51,9 +82,12 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     protected static String ENCRYPTIONKEY = "EncryptionKey";
     protected static String AUTHENTICATIONKEY = "AuthenticationKey";
     protected static String RETIEVEOFFSET = "RetrieveOffset";
-    protected static String TRYDOUBLECONN = "TryDoubleConn";
     protected static String LOGICALDEVICE = "LogicalDevice";
     protected static String USEMODEE = "UseModeE";
+    protected static String OC_INTERVALPROFILE = "ObisCodeIntervalProfile";
+    protected static String OC_LOGPROFILE = "ObisCodeLogProfile";
+    protected static String ARCHIVESTRUCTURE = "ArchiveStructure";
+    protected static String LOGSTRUCTURE = "LogStructure";
 
     protected static DlmsRegisterMapping[] mappings = {};
 
@@ -82,11 +116,6 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
      */
     protected SimpleObisCodeMapper ocMapper = null;
 
-    /**
-     * profile class
-     */
-    protected DlmsConsumptionProfile profile = null;
-
     /* password from given properties */
     protected String strPassword;
     /* client id for Dlms connection */
@@ -97,7 +126,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
 
     protected boolean useModeE;
     protected long retrieveOffset = 0;
-    protected int tryDoubleConnTo = 0;
+    protected int timeout = -1;
     /**
      * compatibility properties..., currently not used
      */
@@ -119,6 +148,16 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
      */
     protected DlmsMessageExecutor messageExecutor = null;
 
+    /*
+     *Archive structure information
+     */
+    protected String archiveStructure = "";
+    protected ObisCode ocIntervalProfile = null;
+    protected DlmsProfile intervalProfile = null;
+
+    protected String logStructure = "";
+    protected ObisCode ocLogProfile = null;
+    protected ILogProcessor logProfile = null;
 
     /**
      * initialization -> create connection class
@@ -176,7 +215,10 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         result.add(Dlms.ENCRYPTIONKEY);
         result.add(Dlms.RETIEVEOFFSET);
         result.add(Dlms.USEMODEE);
-        result.add(Dlms.TRYDOUBLECONN);
+        result.add(Dlms.OC_INTERVALPROFILE);
+        result.add(Dlms.OC_LOGPROFILE);
+        result.add(Dlms.ARCHIVESTRUCTURE);
+        result.add(Dlms.LOGSTRUCTURE);
 
         List result2 = doGetOptionalKeys();
         if (result2 != null) {
@@ -207,7 +249,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
 
     public void connect() throws IOException {
 
-        connection.connect(serverAddress, logicalDevice, clientID, securityData, useModeE, tryDoubleConnTo);
+        connection.connect(serverAddress, logicalDevice, clientID, securityData, useModeE, timeout);
 
         connection.signon(strPassword);
 
@@ -290,15 +332,14 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         try {
             profileData = new ProfileData();
 
-            profileData.setChannelInfos(getProfileObject().buildChannelInfos());
+            profileData.setChannelInfos(getProfileObject().buildChannelInfo());
 
             List<IntervalData> ivd = getProfileObject().getIntervalData(from, to);
 
             profileData.setIntervalDatas(ivd);
 
-            if (includeEvents) {
-                List<MeterEvent> mel = new DlmsLogProfile(this, Ek280Defs.EVENT_LOG, Ek280Defs.TRIGGER_EVENT_A9).
-                        getMeterEvents(from, to);
+            if (includeEvents && (getLogProfileObject() != null)) {
+                List<MeterEvent> mel = getLogProfileObject().getMeterEvents(from, to);
                 profileData.setMeterEvents(mel);
             }
         } catch (IOException e) {
@@ -309,10 +350,10 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     }
 
     public List<MeterEvent> getMeterEvents(Date from) {
-
         try {
-            return new DlmsLogProfile(this, Ek280Defs.EVENT_LOG, Ek280Defs.TRIGGER_EVENT_A9).getMeterEvents(from, new Date());
+            return getLogProfileObject().getMeterEvents(from, new Date());
         } catch (IOException e) {
+            getLogger().severe(e.getMessage());
             return null;
         }
     }
@@ -403,7 +444,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
      * @throws InvalidPropertyException - in case of a invalid value in property
      */
     @SuppressWarnings({"unchecked"})
-    private void validateProperties(Properties properties)
+    protected void validateProperties(Properties properties)
             throws MissingPropertyException, InvalidPropertyException {
         try {
             //System.out.println("DLMS driver started with properties:");
@@ -431,6 +472,8 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
             serverAddress = getPropertyAsInteger(properties.getProperty(Dlms.SERVERADDRESS, "5959"));
             logicalDevice = getPropertyAsInteger(properties.getProperty(Dlms.LOGICALDEVICE, "0"));
 
+            timeout = getPropertyAsInteger(properties.getProperty("Timeout", "-1"));
+
             String dsl = properties.getProperty(Dlms.DLMSSECURITYLEVEL);
             if (!dsl.contains(":")) {
                 throw new InvalidPropertyException("Security data: Invalid data (" + dsl + ")");
@@ -447,8 +490,31 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
 
             // debugging tools...
             retrieveOffset = getPropertyAsInteger(properties.getProperty(Dlms.RETIEVEOFFSET, "0"));
-            tryDoubleConnTo = getPropertyAsInteger(properties.getProperty(Dlms.TRYDOUBLECONN, "0"));
             doValidateProperties(properties);
+
+            String structure = properties.getProperty(Dlms.ARCHIVESTRUCTURE);
+            if ((structure != null) && (structure.length() > 0)) {
+                archiveStructure = structure;
+            }
+            structure = properties.getProperty(Dlms.LOGSTRUCTURE);
+            if ((structure != null) && (structure.length() > 0)) {
+                logStructure = structure;
+            }
+
+            // check in an obis code for interval profile is defined
+            String ocIntervalProfile = properties.getProperty(Dlms.OC_INTERVALPROFILE, "");
+            if ((ocIntervalProfile != null) && (ocIntervalProfile.length() > 0)) {
+                this.ocIntervalProfile = new ObisCode(ocIntervalProfile);
+            }
+            String ocLogProfile = properties.getProperty(Dlms.OC_LOGPROFILE, "");
+            if ((ocLogProfile != null) && (ocLogProfile.length() > 0)) {
+                this.ocLogProfile = new ObisCode(ocLogProfile);
+            }
+
+            if (this.ocIntervalProfile == null) {
+                throw new InvalidPropertyException(" validateProperties, no obis code for interval profile defined");
+            }
+
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(" validateProperties, NumberFormatException, "
                     + e.getMessage());
@@ -483,11 +549,23 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
      * @return DsfgProfile object
      */
     @SuppressWarnings({"unused"})
-    protected DlmsConsumptionProfile getProfileObject() {
-        if (this.profile == null) {
-            this.profile = new DlmsConsumptionProfile(this);
+    protected DlmsProfile getProfileObject() throws IOException {
+        if (intervalProfile == null) {
+            SimpleProfileObject profileObject = (SimpleProfileObject) getObjectManager().getSimpleCosemObject(ocIntervalProfile);
+            intervalProfile = new DlmsProfile(this, meterType, archiveStructure, profileObject);
         }
-        return this.profile;
+        return intervalProfile;
+    }
+
+    protected ILogProcessor getLogProfileObject()
+            throws IOException
+    {
+        if (logProfile == null)
+        {
+            SimpleProfileObject profileObject = (SimpleProfileObject) getObjectManager().getSimpleCosemObject(ocLogProfile);
+            logProfile = ArchiveProcessorFactory.createLogProcessor(meterType, logStructure, profileObject, getLogger());
+        }
+        return logProfile;
     }
 
     @SuppressWarnings({"unused"})
@@ -623,7 +701,6 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
     // * interface FirmwareUpdateMessaging
     // *
     // *******************************************************************************************/
-
     public FirmwareUpdateMessagingConfig getFirmwareUpdateMessagingConfig() {
         return new FirmwareUpdateMessagingConfig(false, true, false);
     }

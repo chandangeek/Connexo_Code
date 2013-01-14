@@ -5,11 +5,16 @@ import com.elster.utils.lis200.events.Ek260EventInterpreter;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.ChannelMap;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -87,6 +92,7 @@ public class Lis200ProfileTest implements ProtocolLink {
                 2, ",,TST,CHN00[C],CHN01[C],ST.1,ST.SY,EVNT,CHKSUM", null, 0, 0,
                 new Dl220EventInterpreter());
 
+        profile.setInterval(5); // min
         List<IntervalData> id = profile.buildIntervalData(rawData);
 
         StringBuilder result = new StringBuilder();
@@ -113,6 +119,7 @@ public class Lis200ProfileTest implements ProtocolLink {
                 2, ",,TST,CHN00[C],CHN01[C],CHN02[C],CHN03[C],CHN04,CHN05,CHN06,CHN07,ST1,ST2,ST3,ST4,STSY,EVNT,CKSUM",
                 null, 0, 0, new Ek260EventInterpreter());
 
+        profile.setInterval(60);
         List<IntervalData> id = profile.buildIntervalData(intervalRawData);
 
         TimeZone.setDefault(TimeZone.getTimeZone("Europe/Berlin"));

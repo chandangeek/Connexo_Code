@@ -7,7 +7,9 @@ import com.elster.protocolimpl.dlms.SecurityData;
 import com.energyict.dialer.connection.Connection;
 import com.energyict.dialer.connection.ConnectionException;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Implementation of dsfg protocol. <br>
@@ -32,7 +34,7 @@ public class DlmsConnection extends Connection {
     private int logicalDevice = 0;
     private int clientID = 0;
     private SecurityData secData;
-    private int tryDoubleConnTo = 0;
+    private int timeout = -1;
 
     private EictDlmsHdlcStack stack = null;
     private boolean useModeE;
@@ -66,19 +68,19 @@ public class DlmsConnection extends Connection {
      * @param clientID      - party connecting to device
      * @param securityData  - as the name said...
      * @param useModeE      - if used with optical head
-     * @param tryDoubleConnTo - try to connect first to the logical device set here (testing purposes)
+     * @param timeout       -  timeout
      *
      * @return always null
      * @throws java.io.IOException - in case of an error
      */
-    public String connect(int serverAddress, int logicalDevice, int clientID, SecurityData securityData, boolean useModeE, int tryDoubleConnTo) throws IOException {
+    public String connect(int serverAddress, int logicalDevice, int clientID, SecurityData securityData, boolean useModeE, int timeout) throws IOException {
 
         this.serverAddress = serverAddress;
         this.logicalDevice = logicalDevice;
         this.clientID = clientID;
         this.secData = securityData;
         this.useModeE = useModeE;
-        this.tryDoubleConnTo = tryDoubleConnTo;
+        this.timeout = timeout;
         return null;
     }
 
@@ -95,14 +97,9 @@ public class DlmsConnection extends Connection {
 
         stack = new EictDlmsHdlcStack(in, out);
 
-        if (tryDoubleConnTo > 0) {
-            stack.setLogicalDeviceId(0x01);
-            stack.setServerLowerHdlcAddress(serverAddress);
-            stack.setClientId(0x10);
-            stack.setModeE(useModeE);
-            stack.setSecurityLevel(EictDlmsHdlcStack.SecurityLevel.LOWEST_LEVEL_SECURITY);
-            stack.open();
-            stack.close();
+        if (timeout > 0)
+        {
+            stack.setResponseTimeOut(timeout);
         }
 
         if (logicalDevice > 0) {

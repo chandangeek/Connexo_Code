@@ -10,18 +10,32 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
  * ProtocolImplementation for DSfG devices. <br>
  * <br>
- * <p/>
+ *
  * <b>General Description:</b><br>
  * <br>
  * <br>
@@ -30,8 +44,10 @@ import java.util.logging.Logger;
  * <br>
  * <b>Additional information:</b><br>
  *
+ *
  * @author gh
  * @since 5-mai-2010
+ *
  */
 @SuppressWarnings({"unused"})
 public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, ProtocolLink {
@@ -52,6 +68,8 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
      * profile class
      */
     private DsfgProfile profile = null;
+    /* interval of profile in sec */
+    private int profileInterval = 3600;
 
     private DsfgRegisterReader dsfgRegisterReader = null;
 
@@ -118,7 +136,6 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     }
 
     /**
-     * /**
      * the implementation returns both the address and password key
      *
      * @return a list of strings
@@ -163,7 +180,8 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
     /**
      * set the protocol specific properties
      *
-     * @param properties - properties to use
+	 * @param properties
+	 *            - properties to use
      */
     public void setProperties(Properties properties)
             throws InvalidPropertyException, MissingPropertyException {
@@ -217,6 +235,7 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
 
         profileData.setChannelInfos(getProfileObject().buildChannelInfos());
 
+        getProfileObject().setInterval(profileInterval);
         profileData.setIntervalDatas(getProfileObject().getIntervalData(from,
                 to));
 
@@ -225,7 +244,7 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
 
     public int getProfileInterval() throws IOException {
         /* interval time of archive can't be easily read out as a value */
-        return 3600;
+		return profileInterval;
     }
 
     public Date getTime() throws IOException {
@@ -294,6 +313,14 @@ public class Dsfg extends PluggableMeterProtocol implements RegisterProtocol, Pr
                 throw new InvalidPropertyException(
                         " validateProperties, ChannelMap is not valid ("
                                 + channelMap + ")");
+			}
+
+            final String intervalString = properties.getProperty("ProfileInterval", "3600");
+            try {
+                profileInterval = Integer.parseInt(intervalString);
+            } catch (NumberFormatException nfe) {
+                throw new InvalidPropertyException(
+                        " validateProperties, no valid value for ProfileInterval (" + intervalString + ")");
             }
 
             doValidateProperties(properties);

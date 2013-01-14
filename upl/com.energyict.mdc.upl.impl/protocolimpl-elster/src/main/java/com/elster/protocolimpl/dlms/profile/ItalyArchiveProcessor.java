@@ -1,34 +1,31 @@
-/**
- *
- */
 package com.elster.protocolimpl.dlms.profile;
 
 import com.elster.dlms.cosem.simpleobjectmodel.Ek280Defs;
 import com.elster.dlms.cosem.simpleobjectmodel.SimpleProfileObject;
-import com.elster.dlms.types.basic.*;
+import com.elster.dlms.types.basic.BitString;
+import com.elster.dlms.types.basic.DlmsDateTime;
+import com.elster.dlms.types.basic.ObisCode;
 import com.elster.protocolimpl.dlms.util.DlmsUtils;
-import com.elster.protocolimpl.dlms.util.ProtocolLink;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
- * @author gh
- * @since 5/26/2010
+ * User: heuckeg
+ * Date: 04.09.12
+ * Time: 14:49
  */
-public class DlmsConsumptionProfile {
-
-    /**
-     * The used {@link com.elster.protocolimpl.dsfg.ProtocolLink}
-     */
-    private final ProtocolLink link;
-    /*
-     * profile object to get the profile data
-     */
-    private SimpleProfileObject profile = null;
+public class ItalyArchiveProcessor implements IArchiveProcessor
+{
 
     /*
     ONO         0.128.96.8.67.255, attributeIndex=2, dataIndex=0}
@@ -61,54 +58,47 @@ public class DlmsConsumptionProfile {
             , 0
     };
 
-    /**
-     * Default constructor
-     *
-     * @param link - reference to ProtocolLink
-     */
-    public DlmsConsumptionProfile(ProtocolLink link) {
-        this.link = link;
+    private final Logger logger;
+    private SimpleProfileObject profile;
+
+    public ItalyArchiveProcessor(Logger logger)
+    {
+        this.logger = logger;
     }
 
-    /**
-     * @return the number of channels
-     * @throws java.io.IOException - in case of an io error
-     */
-    public int getNumberOfChannels() throws IOException {
+    public void prepare(SimpleProfileObject profileObject, ArchiveStructure archiveStructure)
+    {
+        this.profile = profileObject;
+    }
+
+    public int getNumberOfChannels()
+            throws IOException
+    {
         return capturedObjects.length;
     }
 
-    /**
-     * @return the interval of the Profile
-     * @throws java.io.IOException when something happens during the read
-     */
-    public int getInterval() throws IOException {
-        return (int) getProfileObject().getCapturePeriod();
+    public int getInterval()
+            throws IOException
+    {
+        return (int) profile.getCapturePeriod();
     }
 
-    /**
-     * Construct the channelInfos
-     *
-     * @return a list of {@link com.energyict.protocol.ChannelInfo}s
-     * @throws java.io.IOException if an error occurred during the read of the
-     *                             {@link com.energyict.protocol.ChannelInfo}s
-     */
-    @SuppressWarnings({"unused", "deprecation"})
-    public List<ChannelInfo> buildChannelInfos() throws IOException {
-
+    public List<ChannelInfo> buildChannelInfo()
+            throws IOException
+    {
         String unitString;
         ChannelInfo ci;
 
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfo = new ArrayList<ChannelInfo>();
 
         // create a ChannelInfo object for all captured objects
         for (int i = 0; i < capturedObjects.length; i++) {
 
             // do we have the wanted object in the profile?
-            int index = getProfileObject().indexOfCapturedObject(capturedObjects[i]);
+            int index = profile.indexOfCapturedObject(capturedObjects[i]);
             if (index >= 0) {
                 // get the unit of the object
-                com.elster.dlms.cosem.classes.class03.Unit u = getProfileObject().getUnit(index);
+                com.elster.dlms.cosem.classes.class03.Unit u = profile.getUnit(index);
                 unitString = u.getDisplayName();
             } else {
                 unitString = "";
@@ -127,50 +117,41 @@ public class DlmsConsumptionProfile {
                 }
                 ci.setCumulativeWrapValue(new BigDecimal(ov));
             }
-            channelInfos.add(ci);
+            channelInfo.add(ci);
             //System.out.println(String.format("%d: %s [%s] %s %g", ci.getChannelId(), ci.getName(), ci.getUnit().toString(), ci.isCumulative(), ci.getCumulativeWrapValue()));
         }
 
-        return channelInfos;
+        return channelInfo;
     }
 
-    /**
-     * Get interval data within the request period
-     *
-     * @param from - the initial date for the interval data
-     * @param to   - the end date for the interval data
-     * @return the requested interval data
-     * @throws java.io.IOException when reading of the data failed
-     */
-    @SuppressWarnings({"unused"})
     public List<IntervalData> getIntervalData(Date from, Date to)
-            throws IOException {
-
+            throws IOException
+    {
         List<IntervalData> intervalList = new ArrayList<IntervalData>();
 
-        System.out.println(String.format("getIntervalData: try to get data from %s to %s", from.toString(), to.toString()));
+        System.out.println(String.format("ItalyArchiveProcessor.getIntervalData: try to get data from %s to %s", from.toString(), to.toString()));
 
-        long readLines = getProfileObject().readProfileData(from, to);
-        link.getLogger().info("getIntervalData: " + readLines + " lines read.");
+        long readLines = profile.readProfileData(from, to);
+        logger.info("ItalyArchiveProcessor.getIntervalData: " + readLines + " lines read.");
         if (readLines == 0) {
-            System.out.println("getIntervalData: no data to readout");
+            logger.info("ItalyArchiveProcessor.getIntervalData: no data to readout");
             return intervalList;
         }
 
         int[] indexes = getIndexArray();
 
-        int tstIndex = getProfileObject().indexOfCapturedObject(Ek280Defs.CLOCK_OBJECT);
-        int stateIndex = getProfileObject().indexOfCapturedObject(Ek280Defs.STATUS_REGISTER_1_2);
-        int tariffIndex = getProfileObject().indexOfCapturedObject(Ek280Defs.VB_WITHIN_LAST_MEASURING_PERIOD, 4);
+        int tstIndex = profile.indexOfCapturedObject(Ek280Defs.CLOCK_OBJECT);
+        int stateIndex = profile.indexOfCapturedObject(Ek280Defs.STATUS_REGISTER_1_2);
+        int tariffIndex = profile.indexOfCapturedObject(Ek280Defs.VB_WITHIN_LAST_MEASURING_PERIOD, 4);
 
-        System.out.println("getIntervalData: lines to parse: " + getProfileObject().getRowCount());
+        logger.info("ItalyArchiveProcessor.getIntervalData: lines to parse: " + profile.getRowCount());
 
         Object v;
         List<IntervalValue> intervalValues;
         IntervalData id;
 
         /* for every line we have... */
-        for (int i = 0; i < getProfileObject().getRowCount(); i++) {
+        for (int i = 0; i < profile.getRowCount(); i++) {
 
             /* get time stamp */
             DlmsDateTime tst = (DlmsDateTime) profile.getValue(i, tstIndex);
@@ -202,7 +183,7 @@ public class DlmsConsumptionProfile {
                         intervalValues.add(new IntervalValue((Number) v, 0, eiStatus));
                     }
                 } else {
-                    intervalValues.add(new IntervalValue(null, 0, 0));
+                    intervalValues.add(new IntervalValue(BigDecimal.ZERO, 0, IntervalStateBits.MISSING));
                 }
             }
 
@@ -223,22 +204,8 @@ public class DlmsConsumptionProfile {
             //System.out.println("(" + Integer.toHexString(tst.getClockStatus()) + ")  " + id);
         }
 
-        link.getLogger().info("getIntervalData: generated interval list with " + intervalList.size() + " of IntervalData.");
+        logger.info("getIntervalData: generated interval list with " + intervalList.size() + " of IntervalData.");
         return intervalList;
-    }
-
-    /**
-     * returns an object to get profile data.
-     * Iff it still doesn't exist, it will be created
-     *
-     * @return a profile object
-     * @throws IOException - in case of error
-     */
-    private SimpleProfileObject getProfileObject() throws IOException {
-        if (profile == null) {
-            profile = (SimpleProfileObject) link.getObjectManager().getSimpleCosemObject(Ek280Defs.LOAD_PROFILE_60);
-        }
-        return profile;
     }
 
     private int[] getIndexArray() throws IOException {
@@ -247,7 +214,7 @@ public class DlmsConsumptionProfile {
 
         /* for all >possible< captured objects */
         for (int i = 0; i < capturedObjects.length; i++) {
-            result[i] = getProfileObject().indexOfCapturedObject(capturedObjects[i]);
+            result[i] = profile.indexOfCapturedObject(capturedObjects[i]);
         }
         return result;
     }
