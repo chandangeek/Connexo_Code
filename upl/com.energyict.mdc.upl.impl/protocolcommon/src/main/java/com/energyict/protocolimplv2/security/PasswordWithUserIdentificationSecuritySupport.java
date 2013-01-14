@@ -10,24 +10,26 @@ import java.util.List;
 
 /**
  * Provides general security <b>capabilities</b> for DeviceProtocols
- * that use a single password and a (numerical)level to do authentication/encryption
+ * that use a single password and a UserIdentification to do authentication/encryption.<br/>
+ * Be aware that the UserIdentification is validated as a string, but can also just
+ * contain a numerical value.
  * <p/>
  * Copyrights EnergyICT
- * Date: 11/01/13
- * Time: 15:10
+ * Date: 14/01/13
+ * Time: 9:28
  */
-public class PasswordWithLevelSecuritySupport implements DeviceSecuritySupport {
+public class PasswordWithUserIdentificationSecuritySupport implements DeviceSecuritySupport {
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
-                DeviceSecurityProperty.DEVICE_ACCESS_LEVEL.getPropertySpec(),
+                DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(),
                 DeviceSecurityProperty.PASSWORD.getPropertySpec());
     }
 
     @Override
     public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.PASSWORD_AND_LEVEL.toString();
+        return SecurityRelationTypeName.PASSWORD_AND_USER.toString();
     }
 
     @Override
@@ -62,13 +64,13 @@ public class PasswordWithLevelSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "PasswordWithLevelSecuritySupport.accesslevel.10";
+            return "PasswordWithUserIdentificationSecuritySupport.accesslevel.10";
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.DEVICE_ACCESS_LEVEL.getPropertySpec(),
+                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(),
                     DeviceSecurityProperty.PASSWORD.getPropertySpec());
         }
     }
@@ -85,13 +87,13 @@ public class PasswordWithLevelSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "PasswordWithLevelSecuritySupport.accesslevel.20";
+            return "PasswordWithUserIdentificationSecuritySupport.accesslevel.20";
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.DEVICE_ACCESS_LEVEL.getPropertySpec(),
+                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(),
                     DeviceSecurityProperty.PASSWORD.getPropertySpec());
         }
     }

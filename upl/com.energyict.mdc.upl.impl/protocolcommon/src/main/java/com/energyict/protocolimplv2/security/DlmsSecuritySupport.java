@@ -50,7 +50,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(),
                 DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
                 DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(),
-                DeviceSecurityProperty.CLIENT_IDENTIFIER.getPropertySpec()
+                DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec()
         );
     }
 
@@ -320,7 +320,6 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
             return Arrays.asList(
                     DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
                     DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
-
         }
     }
 }

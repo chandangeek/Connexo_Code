@@ -11,23 +11,23 @@ import java.util.List;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
- * Tests for the {@link PasswordWithLevelSecuritySupport} component
+ * Tests for the {@link PasswordWithUserIdentificationSecuritySupport} component
  * <p/>
  * Copyrights EnergyICT
- * Date: 11/01/13
- * Time: 15:48
+ * Date: 14/01/13
+ * Time: 9:36
  */
-public class PasswordWithLevelSecuritySupportTest {
+public class PasswordWithUserIdentificationSecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        PasswordWithLevelSecuritySupport passwordWithLevelSecuritySupport = new PasswordWithLevelSecuritySupport();
+        PasswordWithUserIdentificationSecuritySupport passwordWithUserIdentificationSecuritySupport = new PasswordWithUserIdentificationSecuritySupport();
 
         // assert that you only have two properties to set
-        assertThat(passwordWithLevelSecuritySupport.getSecurityProperties()).hasSize(2);
+        assertThat(passwordWithUserIdentificationSecuritySupport.getSecurityProperties()).hasSize(2);
 
         // check for the password propertySpec
-        assertThat(passwordWithLevelSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
+        assertThat(passwordWithUserIdentificationSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
             @Override
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
@@ -41,12 +41,12 @@ public class PasswordWithLevelSecuritySupportTest {
         });
 
         // check for the deviceAccessIdentifier propertySpec
-        assertThat(passwordWithLevelSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
+        assertThat(passwordWithUserIdentificationSecuritySupport.getSecurityProperties()).has(new Condition<List<PropertySpec>>() {
             @Override
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.DEVICE_ACCESS_LEVEL.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec())) {
                         match |= true;
                     }
                 }
@@ -57,18 +57,18 @@ public class PasswordWithLevelSecuritySupportTest {
 
     @Test
     public void getAuthenticationAccessLevelsTest() {
-        PasswordWithLevelSecuritySupport passwordWithLevelSecuritySupport = new PasswordWithLevelSecuritySupport();
+        PasswordWithUserIdentificationSecuritySupport passwordWithUserIdentificationSecuritySupport = new PasswordWithUserIdentificationSecuritySupport();
 
         // assert that you only have one authentication level
-        assertThat(passwordWithLevelSecuritySupport.getAuthenticationAccessLevels()).hasSize(1);
+        assertThat(passwordWithUserIdentificationSecuritySupport.getAuthenticationAccessLevels()).hasSize(1);
 
         // check for the standard authentication level
-        assertThat(passwordWithLevelSecuritySupport.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
+        assertThat(passwordWithUserIdentificationSecuritySupport.getAuthenticationAccessLevels()).has(new Condition<List<AuthenticationDeviceAccessLevel>>() {
             @Override
             public boolean matches(List<AuthenticationDeviceAccessLevel> authenticationDeviceAccessLevels) {
                 boolean match = false;
                 for (AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel : authenticationDeviceAccessLevels) {
-                    if (authenticationDeviceAccessLevel.getClass().isAssignableFrom(PasswordWithLevelSecuritySupport.StandardAuthenticationAccessLevel.class)) {
+                    if (authenticationDeviceAccessLevel.getClass().isAssignableFrom(PasswordWithUserIdentificationSecuritySupport.StandardAuthenticationAccessLevel.class)) {
                         match |= true;
                     }
                 }
@@ -78,19 +78,19 @@ public class PasswordWithLevelSecuritySupportTest {
     }
 
     @Test
-    public void getEncryptionAccessLevelsTest(){
-        PasswordWithLevelSecuritySupport passwordWithLevelSecuritySupport = new PasswordWithLevelSecuritySupport();
+    public void getEncryptionAccessLevelsTest() {
+        PasswordWithUserIdentificationSecuritySupport passwordWithUserIdentificationSecuritySupport = new PasswordWithUserIdentificationSecuritySupport();
 
         // assert that you only have one encryption level
-        assertThat(passwordWithLevelSecuritySupport.getEncryptionAccessLevels()).hasSize(1);
+        assertThat(passwordWithUserIdentificationSecuritySupport.getEncryptionAccessLevels()).hasSize(1);
 
         // check for the standard encryption level
-        assertThat(passwordWithLevelSecuritySupport.getEncryptionAccessLevels()).has(new Condition<List<EncryptionDeviceAccessLevel>>() {
+        assertThat(passwordWithUserIdentificationSecuritySupport.getEncryptionAccessLevels()).has(new Condition<List<EncryptionDeviceAccessLevel>>() {
             @Override
             public boolean matches(List<EncryptionDeviceAccessLevel> encryptionDeviceAccessLevels) {
                 boolean match = false;
                 for (EncryptionDeviceAccessLevel encryptionDeviceAccessLevel : encryptionDeviceAccessLevels) {
-                    if (encryptionDeviceAccessLevel.getClass().isAssignableFrom(PasswordWithLevelSecuritySupport.StandardEncryptionAccessLevel.class)) {
+                    if (encryptionDeviceAccessLevel.getClass().isAssignableFrom(PasswordWithUserIdentificationSecuritySupport.StandardEncryptionAccessLevel.class)) {
                         match |= true;
                     }
                 }

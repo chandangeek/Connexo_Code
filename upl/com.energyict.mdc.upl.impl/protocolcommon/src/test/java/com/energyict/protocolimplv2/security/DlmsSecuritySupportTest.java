@@ -74,7 +74,7 @@ public class DlmsSecuritySupportTest {
             public boolean matches(List<PropertySpec> propertySpecs) {
                 boolean match = false;
                 for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.equals(DeviceSecurityProperty.CLIENT_IDENTIFIER.getPropertySpec())) {
+                    if (propertySpec.equals(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec())) {
                         match |= true;
                     }
                 }

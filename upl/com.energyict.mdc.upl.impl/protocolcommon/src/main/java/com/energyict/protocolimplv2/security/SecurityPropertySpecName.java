@@ -13,8 +13,14 @@ public enum SecurityPropertySpecName {
     PASSWORD("Password"),
     ENCRYPTION_KEY("EncryptionKey"),
     AUTHENTICATION_KEY("AuthenticationKey"),
-    CLIENT_ID("ClientId"),
-    DEVICE_ACCESS_LEVEL_IDENTIFIER("DeviceAccessIdentifier");
+    /**
+     * A UserName or a UserIdentification
+     */
+    DEVICE_ACCESS_IDENTIFIER("DeviceAccessIdentifier"),
+    /**
+     * Defines which <i>security</i> level you want to access from the device
+     */
+    DEVICE_ACCESS_LEVEL("DeviceAccessLevel");
 
     private final String name;
 

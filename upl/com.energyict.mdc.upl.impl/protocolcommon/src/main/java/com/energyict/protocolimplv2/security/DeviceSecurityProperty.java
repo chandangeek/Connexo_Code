@@ -25,13 +25,13 @@ public enum DeviceSecurityProperty {
      */
     AUTHENTICATION_KEY(PropertySpecFactory.passwordPropertySpec(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())),
     /**
-     * A numeric identification of an accessing client
+     * A character identification of the accessing client
      */
-    CLIENT_IDENTIFIER(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.CLIENT_ID.toString())),
+    DEVICE_ACCESS_IDENTIFIER(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString())),
     /**
-     * A character identification, can be a username or just a level number ...
+     * A level definition, indication of which access should be granted to the ComServer
      */
-    DEVICE_ACCESS_IDENTIFIER(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.DEVICE_ACCESS_LEVEL_IDENTIFIER.toString()));
+    DEVICE_ACCESS_LEVEL(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.DEVICE_ACCESS_LEVEL.toString()));
 
     private final PropertySpec propertySpec;
 
@@ -39,6 +39,9 @@ public enum DeviceSecurityProperty {
         this.propertySpec = propertySpec;
     }
 
+    /**
+     * @return the PropertySpec for this Enum value
+     */
     public PropertySpec getPropertySpec() {
         return propertySpec;
     }
