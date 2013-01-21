@@ -21,21 +21,23 @@ import java.util.List;
  */
 public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
+    private final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
+    private final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
+
     /**
      * Summarizes the used ID for the Encryption- and AuthenticationLevels.
-     * These do not match the DLMS levels, they are just for internal usage
      */
     private enum AccessLevelIds {
-        NO_AUTHENTICATION(10),
-        LOW_LEVEL_AUTHENTICATION(20),
-        MANUFACTURER_SPECIFIC_AUTHENTICATION(30),
-        MD5_AUTHENTICATION(40),
-        SHA1_AUTHENTICATION(50),
-        GMAC_AUTHENTICATION(60),
-        NO_MESSAGE_ENCRYPTION(100),
-        MESSAGE_ENCRYPTION(200),
-        MESSAGE_AUTHENTICATION(300),
-        MESSAGE_ENCRYPTION_AUTHENTICATION(400);
+        NO_AUTHENTICATION(0),
+        LOW_LEVEL_AUTHENTICATION(1),
+        MANUFACTURER_SPECIFIC_AUTHENTICATION(2),
+        MD5_AUTHENTICATION(3),
+        SHA1_AUTHENTICATION(4),
+        GMAC_AUTHENTICATION(5),
+        NO_MESSAGE_ENCRYPTION(0),
+        MESSAGE_ENCRYPTION(1),
+        MESSAGE_AUTHENTICATION(2),
+        MESSAGE_ENCRYPTION_AUTHENTICATION(3);
 
         private final int accessLevel;
 
@@ -101,7 +103,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.100";
+            return encryptionTranslationKeyConstant + getId();
         }
 
         @Override
@@ -123,7 +125,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.200";
+            return encryptionTranslationKeyConstant + getId();
         }
 
         @Override
@@ -147,7 +149,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.300";
+            return encryptionTranslationKeyConstant + getId();
         }
 
         @Override
@@ -171,7 +173,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.400";
+            return encryptionTranslationKeyConstant + getId();
         }
 
         @Override
@@ -195,7 +197,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.10";
+            return authenticationTranslationKeyConstant + getId();
         }
 
         @Override
@@ -217,7 +219,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.20";
+            return authenticationTranslationKeyConstant + getId();
         }
 
         @Override
@@ -242,7 +244,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.30";
+            return authenticationTranslationKeyConstant + getId();
         }
 
         @Override
@@ -265,7 +267,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.40";
+            return authenticationTranslationKeyConstant + getId();
         }
 
         @Override
@@ -288,7 +290,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.50";
+            return authenticationTranslationKeyConstant + getId();
         }
 
         @Override
@@ -312,7 +314,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public String getTranslationKey() {
-            return "DlmsSecuritySupport.accesslevel.60";
+            return authenticationTranslationKeyConstant + getId();
         }
 
         @Override

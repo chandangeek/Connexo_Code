@@ -20,6 +20,8 @@ import java.util.List;
  */
 public class PasswordWithUserIdentificationSecuritySupport implements DeviceSecuritySupport {
 
+    private final String translationKeyConstant = "PasswordWithUserIdentificationSecuritySupport.accesslevel.";
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
@@ -59,12 +61,12 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceSecu
 
         @Override
         public int getId() {
-            return 10;
+            return 0;
         }
 
         @Override
         public String getTranslationKey() {
-            return "PasswordWithUserIdentificationSecuritySupport.accesslevel.10";
+            return translationKeyConstant + getId();
         }
 
         @Override
@@ -82,12 +84,12 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceSecu
 
         @Override
         public int getId() {
-            return 20;
+            return 1;
         }
 
         @Override
         public String getTranslationKey() {
-            return "PasswordWithUserIdentificationSecuritySupport.accesslevel.20";
+            return translationKeyConstant + getId();
         }
 
         @Override

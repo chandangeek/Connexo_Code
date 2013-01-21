@@ -55,12 +55,12 @@ public class SimplePasswordSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public int getId() {
-            return 10;
+            return 0;
         }
 
         @Override
         public String getTranslationKey() {
-            return "SimplePasswordSecuritySupport.accesslevel.10";
+            return "SimplePasswordSecuritySupport.authenticationlevel." + getId();
         }
 
         @Override

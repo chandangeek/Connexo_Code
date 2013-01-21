@@ -18,6 +18,9 @@ import java.util.List;
  */
 public class WavenisSecuritySupport implements DeviceSecuritySupport {
 
+    private final String authenticationTranslationKeyConstant = "WavenisSecuritySupport.authenticationlevel.";
+    private final String encryptionTranslationKeyConstant = "WavenisSecuritySupport.encryptionlevel.";
+
     @Override
     public List<PropertySpec> getSecurityProperties() {
         return Arrays.asList(
@@ -57,12 +60,12 @@ public class WavenisSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public int getId() {
-            return 10;
+            return 0;
         }
 
         @Override
         public String getTranslationKey() {
-            return "WavenisSecuritySupport.accesslevel.10";
+            return authenticationTranslationKeyConstant + getId();
         }
 
         @Override
@@ -80,12 +83,12 @@ public class WavenisSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public int getId() {
-            return 20;
+            return 0;
         }
 
         @Override
         public String getTranslationKey() {
-            return "WavenisSecuritySupport.accesslevel.20";
+            return encryptionTranslationKeyConstant + getId();
         }
 
         @Override
