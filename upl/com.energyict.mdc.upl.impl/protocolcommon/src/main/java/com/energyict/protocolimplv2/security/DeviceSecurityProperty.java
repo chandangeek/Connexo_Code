@@ -31,7 +31,15 @@ public enum DeviceSecurityProperty {
     /**
      * A level definition, indication of which access should be granted to the ComServer
      */
-    DEVICE_ACCESS_LEVEL(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.DEVICE_ACCESS_LEVEL.toString()));
+    DEVICE_ACCESS_LEVEL(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.DEVICE_ACCESS_LEVEL.toString())),
+    /**
+     * A username for ANSI C12 protocols
+     */
+    ANSI_C12_USER(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.ANSI_C12_USER.toString())),
+    /**
+     * A UserId for ANSI C12 protocols
+     */
+    ANSI_C12_USER_ID(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.ANSI_C12_USER_ID.toString()));
 
     private final PropertySpec propertySpec;
 

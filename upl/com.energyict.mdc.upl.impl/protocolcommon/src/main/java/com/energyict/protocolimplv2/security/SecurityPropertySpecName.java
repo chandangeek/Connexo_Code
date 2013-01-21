@@ -20,7 +20,9 @@ public enum SecurityPropertySpecName {
     /**
      * Defines which <i>security</i> level you want to access from the device
      */
-    DEVICE_ACCESS_LEVEL("DeviceAccessLevel");
+    DEVICE_ACCESS_LEVEL("DeviceAccessLevel"),
+    ANSI_C12_USER("C12User"),
+    ANSI_C12_USER_ID("C12UserId");
 
     private final String name;
 
