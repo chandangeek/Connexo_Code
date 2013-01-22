@@ -15,6 +15,7 @@ import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.HHUEnabler;
 
@@ -292,5 +293,10 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
 
     public TimeZone getTimeZone() {
         return TimeZone.getTimeZone(getProtocolProperties().getTimeZone());
+    }
+
+    @Override
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        //TODO provide proper functionality so your protocol can make proper use of the security properties
     }
 }

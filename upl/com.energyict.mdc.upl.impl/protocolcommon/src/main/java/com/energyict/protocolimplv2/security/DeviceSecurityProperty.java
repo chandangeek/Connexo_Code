@@ -25,6 +25,10 @@ public enum DeviceSecurityProperty {
      */
     AUTHENTICATION_KEY(PropertySpecFactory.passwordPropertySpec(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())),
     /**
+     * A DLMS clientMacAddress
+     */
+    CLIENT_MAC_ADDRESS(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())),
+    /**
      * A character identification of the accessing client
      */
     DEVICE_ACCESS_IDENTIFIER(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString())),

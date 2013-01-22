@@ -1,12 +1,14 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.tasks.support.DeviceSecuritySupport;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,10 +21,25 @@ import java.util.List;
  * Date: 10/01/13
  * Time: 16:39
  */
-public class DlmsSecuritySupport implements DeviceSecuritySupport {
+public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
+
+    @Override
+    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        TypedProperties typedProperties = new TypedProperties();
+        typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        typedProperties.setProperty("SecurityLevel",
+                deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
+                        ":" +
+                        deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
+        typedProperties.setProperty("DataTransportEncryptionKey",
+                deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
+        typedProperties.setProperty("DataTransportAuthenticationKey",
+                deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), ""));
+        return typedProperties;
+    }
 
     /**
      * Summarizes the used ID for the Encryption- and AuthenticationLevels.
@@ -52,7 +69,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(),
                 DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
                 DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec(),
-                DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec()
+                DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec()
         );
     }
 
@@ -108,7 +125,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.emptyList();
+            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec());
         }
     }
 
@@ -131,6 +148,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
                     DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
                     DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
         }
@@ -155,6 +173,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
                     DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
                     DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
         }
@@ -179,6 +198,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
                     DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
                     DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
         }
@@ -202,7 +222,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.emptyList();
+            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec());
         }
     }
 
@@ -224,7 +244,9 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Arrays.asList(
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec());
         }
     }
 
@@ -249,7 +271,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Collections.emptyList();
+            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec());
         }
     }
 
@@ -272,7 +294,9 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Arrays.asList(
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec());
         }
     }
 
@@ -295,7 +319,9 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec());
+            return Arrays.asList(
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
+                    DeviceSecurityProperty.PASSWORD.getPropertySpec());
 
         }
     }
@@ -320,6 +346,7 @@ public class DlmsSecuritySupport implements DeviceSecuritySupport {
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
+                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
                     DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
                     DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
         }

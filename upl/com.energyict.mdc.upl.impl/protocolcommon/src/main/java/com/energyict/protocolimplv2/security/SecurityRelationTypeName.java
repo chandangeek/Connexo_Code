@@ -20,7 +20,8 @@ public enum SecurityRelationTypeName {
     DLMS_SECURITY("DlmsSecurity"),
     WAVENIS_SECURITY("WavenisSecurity"),
     IEC1107_SECURITY("IEC1107Security"),
-    ANSI_C12_SECURITY("AnsiC12Security");
+    ANSI_C12_SECURITY("AnsiC12Security"),
+    NO_OR_PASSWORD_SECURITY("NoOrPasswordSecurity");
 
     private final String name;
 

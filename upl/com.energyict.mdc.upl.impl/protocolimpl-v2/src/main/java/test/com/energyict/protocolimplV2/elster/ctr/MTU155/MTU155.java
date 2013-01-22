@@ -31,6 +31,7 @@ import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -443,5 +444,10 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
         return null;  //TODO return proper functionality
+    }
+
+    @Override
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        //TODO provide proper functionality so your protocol can make proper use of the security properties
     }
 }

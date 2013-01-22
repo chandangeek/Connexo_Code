@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.tasks.support.DeviceSecuritySupport;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 11/01/13
  * Time: 16:13
  */
-public class WavenisSecuritySupport implements DeviceSecuritySupport {
+public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilities {
 
     private final String authenticationTranslationKeyConstant = "WavenisSecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "WavenisSecuritySupport.encryptionlevel.";

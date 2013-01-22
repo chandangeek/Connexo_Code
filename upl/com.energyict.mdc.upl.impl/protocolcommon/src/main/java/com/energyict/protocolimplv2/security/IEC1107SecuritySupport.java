@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.tasks.support.DeviceSecuritySupport;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 21/01/13
  * Time: 11:10
  */
-public class IEC1107SecuritySupport implements DeviceSecuritySupport {
+public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilities {
 
     private final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
 
