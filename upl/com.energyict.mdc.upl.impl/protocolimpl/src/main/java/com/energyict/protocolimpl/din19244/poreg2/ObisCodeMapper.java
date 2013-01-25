@@ -1,12 +1,19 @@
 package com.energyict.protocolimpl.din19244.poreg2;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.din19244.poreg2.request.register.DstSettings;
+import com.energyict.protocolimpl.din19244.poreg2.request.register.ProfileParameters;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class for reading out registers.
@@ -24,6 +31,11 @@ public class ObisCodeMapper {
     private static final ObisCode OBISCODE_FIRMWARE = ObisCode.fromString("0.0.96.1.5.255");
     private static final ObisCode OBISCODE_LAST_DEMAND_RESET_TIMESTAMP = ObisCode.fromString("1.0.0.1.2.0");
     private static final ObisCode OBISCODE_BILLING_COUNTER = ObisCode.fromString("1.0.0.1.0.255");
+    private static final ObisCode OBISCODE_PROFILE_INTERVAL = ObisCode.fromString("0.0.136.0.1.255");
+    private static final ObisCode OBISCODE_NR_OF_CHANNELS = ObisCode.fromString("0.0.96.3.0.255");
+
+    private static final ObisCode OBISCODE_DST_SWITCH_SUMMER = ObisCode.fromString("0.0.131.0.6.255");
+    private static final ObisCode OBISCODE_DST_SWITCH_WINTER = ObisCode.fromString("0.0.131.0.7.255");
 
     private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_TOTAL = ObisCode.fromString("1.0.1.6.0.255");
     private static final ObisCode OBISCODE_MAX_ACTIVE_ENERGY_TOTAL2 = ObisCode.fromString("1.0.1.6.4.255");
@@ -71,6 +83,11 @@ public class ObisCodeMapper {
         registerMaps.put(OBISCODE_LAST_DEMAND_RESET_TIMESTAMP, "Time of last demand reset");
         registerMaps.put(OBISCODE_BILLING_COUNTER, "Demand reset counter");
         registerMaps.put(OBISCODE_FIRMWARE, "Active firmware version");
+        registerMaps.put(OBISCODE_PROFILE_INTERVAL, "Profile interval");
+        registerMaps.put(OBISCODE_NR_OF_CHANNELS, "Number of channels");
+
+        registerMaps.put(OBISCODE_DST_SWITCH_SUMMER, "Daylight switching time (start of summertime)");
+        registerMaps.put(OBISCODE_DST_SWITCH_WINTER, "Daylight switching time (end of summertime)");
 
         registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY, "Max apparent energy total");
         registerMaps.put(OBISCODE_MAX_APPARENT_ENERGY2, "Max apparent energy total");
@@ -139,6 +156,14 @@ public class ObisCodeMapper {
         } else if (obisCode.equals(OBISCODE_SERIAL_NUMBER)) {
             String id = poreg.getRegisterFactory().readSerialNumber();
             return new RegisterValue(obisCode, new Quantity(Integer.parseInt(id), Unit.get("")), new Date(), null, new Date(), new Date(), 0, id);
+        } else if (obisCode.equals(OBISCODE_PROFILE_INTERVAL)) {
+            ProfileParameters parameters = poreg.getRegisterFactory().readProfileParameters();
+            int profileIntervalIndex = parameters.getProfileParameters().get(0).getProfileIntervalIndex();
+            int profileInterval = poreg.getRegisterFactory().readMeasurementPeriod(profileIntervalIndex);
+            return new RegisterValue(obisCode, new Quantity(profileInterval, Unit.get("")), new Date());
+        }   else if (obisCode.equals(OBISCODE_NR_OF_CHANNELS)) {
+            int nrOfChanneld = poreg.getNumberOfChannels();
+            return new RegisterValue(obisCode, new Quantity(nrOfChanneld, Unit.get("")), new Date());
         } else if (obisCode.equals(OBISCODE_BILLING_COUNTER)) {
             int counter = poreg.getRegisterFactory().readBillingCounter();
             return new RegisterValue(obisCode, new Quantity(counter, Unit.get("")), new Date());
@@ -225,10 +250,10 @@ public class ObisCodeMapper {
     }
 
     private boolean isDSTSwitchSummer(ObisCode obisCode) {
-        return obisCode.equals(ObisCode.fromString("0.0.131.0.6.255"));
+        return obisCode.equals(OBISCODE_DST_SWITCH_SUMMER);
     }
 
     private boolean isDSTSwitchWinter(ObisCode obisCode) {
-        return obisCode.equals(ObisCode.fromString("0.0.131.0.7.255"));
+        return obisCode.equals(OBISCODE_DST_SWITCH_WINTER);
     }
 }

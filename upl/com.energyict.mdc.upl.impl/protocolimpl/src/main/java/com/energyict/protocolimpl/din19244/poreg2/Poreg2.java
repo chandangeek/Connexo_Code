@@ -2,7 +2,10 @@ package com.energyict.protocolimpl.din19244.poreg2;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.din19244.poreg2.core.PoregConnection;
@@ -10,7 +13,9 @@ import com.energyict.protocolimpl.din19244.poreg2.core.PoregMessages;
 import com.energyict.protocolimpl.din19244.poreg2.factory.RegisterFactory;
 import com.energyict.protocolimpl.din19244.poreg2.factory.RequestFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 
 /**
@@ -66,6 +71,9 @@ public class Poreg2 extends Poreg {
         return getObisCodeMapper().getRegisterInfo(obisCode);
     }
 
+    /**
+     * The protocol verion
+     */
     @Override
     public String getProtocolVersion() {
         return "$Date$";
