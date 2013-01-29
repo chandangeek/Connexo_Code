@@ -43,7 +43,15 @@ public enum DeviceSecurityProperty {
     /**
      * A UserId for ANSI C12 protocols
      */
-    ANSI_C12_USER_ID(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.ANSI_C12_USER_ID.toString()));
+    ANSI_C12_USER_ID(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.ANSI_C12_USER_ID.toString())),
+    /**
+     * Indication for ansi protocols to use a binary password
+     */
+    BINARY_PASSWORD(PropertySpecFactory.booleanPropertySpec(SecurityPropertySpecName.BINARY_PASSWORD.toString())),
+    /**
+     * ANSI ap title
+     */
+    CALLED_AP_TITLE(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.CALLED_AP_TITLE.toString()));
 
     private final PropertySpec propertySpec;
 

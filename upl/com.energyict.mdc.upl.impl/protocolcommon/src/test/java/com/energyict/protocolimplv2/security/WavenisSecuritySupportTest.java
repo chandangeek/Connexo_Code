@@ -1,7 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
@@ -9,6 +12,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests for the {@link WavenisSecuritySupport} component
@@ -100,6 +104,29 @@ public class WavenisSecuritySupportTest {
                 return match;
             }
         });
+    }
+
+    @Test
+    public void convertToTypedPropertiesTest() {
+        WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+
+        String passwordValue = "MyPassword";
+        String encryptionKey = "MyEncryptionKey";
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKey);
+
+        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySetImpl(0, 0, securityProperties);
+
+        // business method
+        TypedProperties legacyProperties = wavenisSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+
+        // asserts
+        assertNotNull(legacyProperties);
+        assertThat(legacyProperties.getProperty("SecurityLevel")).isEqualTo("0");
+        assertThat(legacyProperties.getProperty("Password")).isEqualTo(passwordValue);
+        assertThat(legacyProperties.getProperty("WavenisEncryptionKey")).isEqualTo(encryptionKey);
     }
 
 }

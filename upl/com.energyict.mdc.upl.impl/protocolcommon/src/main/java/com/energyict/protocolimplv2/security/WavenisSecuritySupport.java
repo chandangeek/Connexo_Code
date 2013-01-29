@@ -1,7 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 
@@ -16,7 +19,7 @@ import java.util.List;
  * Date: 11/01/13
  * Time: 16:13
  */
-public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilities {
+public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     private final String authenticationTranslationKeyConstant = "WavenisSecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "WavenisSecuritySupport.encryptionlevel.";
@@ -51,6 +54,18 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
             }
         }
         return null;
+    }
+
+    @Override
+    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        TypedProperties typedProperties = new TypedProperties();
+        if (deviceProtocolSecurityPropertySet != null) {
+            typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+            typedProperties.setProperty("SecurityLevel", String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
+            typedProperties.setProperty("WavenisEncryptionKey",
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
+        }
+        return typedProperties;
     }
 
     /**

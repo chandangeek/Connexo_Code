@@ -1,7 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 
@@ -17,7 +20,7 @@ import java.util.List;
  * Date: 11/01/13
  * Time: 14:47
  */
-public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapabilities {
+public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
@@ -46,6 +49,15 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
         } else {
             return null;
         }
+    }
+
+    @Override
+    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        TypedProperties typedProperties = new TypedProperties();
+        if (deviceProtocolSecurityPropertySet != null) {
+            typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+        }
+        return typedProperties;
     }
 
     /**

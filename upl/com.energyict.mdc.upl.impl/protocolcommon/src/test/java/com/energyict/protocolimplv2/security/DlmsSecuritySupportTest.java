@@ -1,7 +1,9 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
@@ -9,6 +11,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests the {@link DlmsSecuritySupport} component
@@ -237,5 +240,33 @@ public class DlmsSecuritySupportTest {
                 return match;
             }
         });
+    }
+
+    @Test
+    public void convertToTypedPropertiesTest() {
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        String encryptionKeyValue = "MyEncryptionKey";
+        securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKeyValue);
+        String authenticationKeyValue = "MyAuthenticationKey";
+        securityProperties.setProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), authenticationKeyValue);
+        String clientMacAddressValue = "1";
+        securityProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), clientMacAddressValue);
+        String passwordValue = "MyPassword";
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySetImpl(DlmsSecuritySupport.AccessLevelIds.GMAC_AUTHENTICATION.getAccessLevel(),
+                        DlmsSecuritySupport.AccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel(), securityProperties);
+
+        // business method
+        TypedProperties legacyProperties = dlmsSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+
+        // asserts
+        assertNotNull(legacyProperties);
+        assertThat(legacyProperties.getProperty("SecurityLevel")).isEqualTo("5:0");
+        assertThat(legacyProperties.getProperty("DataTransportEncryptionKey")).isEqualTo(encryptionKeyValue);
+        assertThat(legacyProperties.getProperty("DataTransportAuthenticationKey")).isEqualTo(authenticationKeyValue);
+        assertThat(legacyProperties.getProperty("ClientMacAddress")).isEqualTo(clientMacAddressValue);
+        assertThat(legacyProperties.getProperty("Password")).isEqualTo(passwordValue);
     }
 }

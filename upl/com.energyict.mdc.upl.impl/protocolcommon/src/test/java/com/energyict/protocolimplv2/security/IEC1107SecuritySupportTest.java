@@ -1,13 +1,17 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
 
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests the {@link IEC1107SecuritySupport} component
@@ -85,6 +89,24 @@ public class IEC1107SecuritySupportTest {
 
         // currently no encryption levels are supported
         assertThat(iec1107SecuritySupport.getEncryptionAccessLevels()).isEmpty();
+    }
 
+    @Test
+    public void convertToTypedPropertiesTest() {
+        IEC1107SecuritySupport iec1107SecuritySupport = new IEC1107SecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        String passwordValue = "MyPassword";
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySetImpl(IEC1107SecuritySupport.AccessLevelIds.LEVEL_TWO.getAccessLevel(),
+                        DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, securityProperties);
+
+        // business method
+        TypedProperties legacyProperties = iec1107SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+
+        // asserts
+        assertNotNull(legacyProperties);
+        assertThat(legacyProperties.getProperty("SecurityLevel")).isEqualTo("2");
+        assertThat(legacyProperties.getProperty("Password")).isEqualTo(passwordValue);
     }
 }

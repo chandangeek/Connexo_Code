@@ -23,7 +23,12 @@ public enum SecurityPropertySpecName {
      */
     DEVICE_ACCESS_LEVEL("DeviceAccessLevel"),
     ANSI_C12_USER("C12User"),
-    ANSI_C12_USER_ID("C12UserId");
+    ANSI_C12_USER_ID("C12UserId"),
+    /**
+     * Indicates whether the password should be represented as ASCII or as Binary
+     */
+    BINARY_PASSWORD("PasswordBinary"),
+    CALLED_AP_TITLE("CalledAPTitle");
 
     private final String name;
 

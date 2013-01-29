@@ -26,25 +26,10 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     private final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
-    @Override
-    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        TypedProperties typedProperties = new TypedProperties();
-        typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-        typedProperties.setProperty("SecurityLevel",
-                deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
-                        ":" +
-                        deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
-        typedProperties.setProperty("DataTransportEncryptionKey",
-                deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
-        typedProperties.setProperty("DataTransportAuthenticationKey",
-                deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), ""));
-        return typedProperties;
-    }
-
     /**
      * Summarizes the used ID for the Encryption- and AuthenticationLevels.
      */
-    private enum AccessLevelIds {
+    protected enum AccessLevelIds {
         NO_AUTHENTICATION(0),
         LOW_LEVEL_AUTHENTICATION(1),
         MANUFACTURER_SPECIFIC_AUTHENTICATION(2),
@@ -61,6 +46,11 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         private AccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
+
+        protected int getAccessLevel() {
+            return this.accessLevel;
+        }
+
     }
 
     @Override
@@ -106,6 +96,23 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
             }
         }
         return null;
+    }
+
+    @Override
+    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        TypedProperties typedProperties = new TypedProperties();
+        if(deviceProtocolSecurityPropertySet != null){
+            typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+            typedProperties.setProperty("SecurityLevel",
+                    deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
+                            ":" +
+                            deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
+            typedProperties.setProperty("DataTransportEncryptionKey",
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
+            typedProperties.setProperty("DataTransportAuthenticationKey",
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), ""));
+        }
+        return typedProperties;
     }
 
     /**
