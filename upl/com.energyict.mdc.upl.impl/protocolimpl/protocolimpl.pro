@@ -539,4 +539,4 @@
 
 -keepnames class com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000
 
--keepnames class test.com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
+-keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
