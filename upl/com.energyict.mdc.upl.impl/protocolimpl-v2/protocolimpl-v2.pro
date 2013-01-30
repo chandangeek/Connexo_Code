@@ -38,4 +38,10 @@
     native <methods>;
 }
 
--keepnames class test.com.*
+-keep class test.com.*{
+ public *;
+}
+-keepnames class test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155
+-keepnames class test.com.energyict.protocolimplV2.nta.elster.AM100
+-keepnames class test.com.energyict.protocolimplV2.nta.elster.MbusDevice
+-keepnames class test.com.energyict.protocolimplV2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol

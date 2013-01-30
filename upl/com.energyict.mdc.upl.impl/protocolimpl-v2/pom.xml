@@ -16,13 +16,16 @@
         <dependency>
             <groupId>com.energyict.comserver</groupId>
             <artifactId>comserver-core-impl</artifactId>
-            <version>${comserver.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-core-common</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.energyict.comserver</groupId>
             <artifactId>comserver-online</artifactId>
-            <version>${comserver.version}</version>
         </dependency>
 
         <!-- EIServer dependencies -->
@@ -137,28 +140,6 @@
                                 <source>${basedir}/src/generated-sources/jaxws-maven-plugin/java</source>
                             </sources>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- This plugin is used to generate the java sources from the wsdl's.-->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <version>1.10</version>
-
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-
-                        <configuration>
-                            <wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>
-                            <sourceDestDir>${basedir}/src/generated-sources/jaxws-maven-plugin/java</sourceDestDir>
-                            <xnocompile>true</xnocompile>
-                        </configuration>
-
                     </execution>
                 </executions>
             </plugin>

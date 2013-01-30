@@ -16,7 +16,16 @@
         <dependency>
             <groupId>com.energyict.comserver</groupId>
             <artifactId>comserver-core-impl</artifactId>
-            <version>${comserver.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-core-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-online</artifactId>
         </dependency>
 
         <!-- EIServer dependencies -->
