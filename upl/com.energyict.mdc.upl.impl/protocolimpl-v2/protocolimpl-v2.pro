@@ -45,3 +45,4 @@
 -keepnames class test.com.energyict.protocolimplV2.nta.elster.AM100
 -keepnames class test.com.energyict.protocolimplV2.nta.elster.MbusDevice
 -keepnames class test.com.energyict.protocolimplV2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol
+-keepnames class test.com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol

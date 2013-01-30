@@ -538,3 +538,5 @@
 -keepnames class com.energyict.protocolimpl.modbus.multilin.epm2200.EPM2200
 
 -keepnames class com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000
+
+-keepnames class test.com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
