@@ -1,14 +1,12 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,9 +17,8 @@ import java.util.List;
  * Date: 28/01/13
  * Time: 11:30
  */
-public class ExtendedAnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
 
-    private final String authenticationTranslationKeyConstant = "AnsiC12SecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "AnsiC12SecuritySupport.encryptionlevel.";
 
     @Override
@@ -31,37 +28,99 @@ public class ExtendedAnsiC12SecuritySupport implements DeviceProtocolSecurityCap
                 DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                 DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(),
                 DeviceSecurityProperty.CALLED_AP_TITLE.getPropertySpec(),
-                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec()
+                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
+                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec()
         );
     }
 
     @Override
     public String getSecurityRelationTypeName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return SecurityRelationTypeName.EXTENDED_ANSI_C12_SECURITY.toString();
     }
 
-    @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return Arrays.asList(new NoMessageEncryption(),
+                new ClearTextAuthenticationMessageEncryption(),
+                new CipherTextAuthenticationMessageEncryption());
     }
 
     @Override
     public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        TypedProperties typedProperties = new TypedProperties();
-
+        TypedProperties typedProperties = super.convertToTypedProperties(deviceProtocolSecurityPropertySet);
         if (deviceProtocolSecurityPropertySet != null) {
-
+            typedProperties.setProperty("SecurityKey", deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
+            typedProperties.setProperty("SecurityMode", String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
         }
         return typedProperties;
+    }
+
+
+    /**
+     * An encryption level where no encryption is done, no properties must be set
+     */
+    protected class NoMessageEncryption implements EncryptionDeviceAccessLevel {
+
+        @Override
+        public int getId() {
+            return 0;
+        }
+
+        @Override
+        public String getTranslationKey() {
+            return encryptionTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * An encryption level where clear text data is authenticated
+     */
+    protected class ClearTextAuthenticationMessageEncryption implements EncryptionDeviceAccessLevel {
+
+        @Override
+        public int getId() {
+            return 1;
+        }
+
+        @Override
+        public String getTranslationKey() {
+            return encryptionTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Arrays.asList(
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
+                    DeviceSecurityProperty.CALLED_AP_TITLE.getPropertySpec());
+        }
+    }
+
+    /**
+     * An encryption level where clear text data is authenticated
+     */
+    protected class CipherTextAuthenticationMessageEncryption implements EncryptionDeviceAccessLevel {
+
+        @Override
+        public int getId() {
+            return 2;
+        }
+
+        @Override
+        public String getTranslationKey() {
+            return encryptionTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Arrays.asList(
+                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
+                    DeviceSecurityProperty.CALLED_AP_TITLE.getPropertySpec());
+        }
     }
 }

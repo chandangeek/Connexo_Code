@@ -21,16 +21,17 @@ public enum SecurityRelationTypeName {
     WAVENIS_SECURITY("WavenisSecurity"),
     IEC1107_SECURITY("IEC1107Security"),
     ANSI_C12_SECURITY("AnsiC12Security"),
+    EXTENDED_ANSI_C12_SECURITY("ExtendedAnsiC12Security"),
     NO_OR_PASSWORD_SECURITY("NoOrPasswordSecurity");
 
-    private final String name;
+    private final String securityRelationTypeName;
 
-    private SecurityRelationTypeName(String name) {
-        this.name = name;
+    private SecurityRelationTypeName(String securityRelationTypeName) {
+        this.securityRelationTypeName = securityRelationTypeName;
     }
 
     @Override
     public String toString() {
-        return name;
+        return securityRelationTypeName;
     }
 }

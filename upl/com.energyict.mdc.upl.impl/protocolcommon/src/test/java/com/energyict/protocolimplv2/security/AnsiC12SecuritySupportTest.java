@@ -24,27 +24,27 @@ public class AnsiC12SecuritySupportTest {
 
     @Test
     public void getSecurityPropertiesTest() {
-        AnsiC12SecuritySupport iec1107SecuritySupport = new AnsiC12SecuritySupport();
+        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
 
         // currently only 3 properties are necessary
-        assertThat(iec1107SecuritySupport.getSecurityProperties()).hasSize(3);
+        assertThat(ansiC12SecuritySupport.getSecurityProperties()).hasSize(3);
 
         // check for the password propertySpec
-        assertThat(iec1107SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
+        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
                 return propertySpec.equals(DeviceSecurityProperty.PASSWORD.getPropertySpec());
             }
         });
         // check for the ANSI C12 user propertySpec
-        assertThat(iec1107SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
+        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
                 return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec());
             }
         });
         // check for the ANSI C12 userId propertySpec
-        assertThat(iec1107SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
+        assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
                 return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec());
