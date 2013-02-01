@@ -6,8 +6,17 @@
 
 package com.energyict.protocolimpl.dlms.iskrame37x;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.OctetString;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -16,11 +25,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-
-/**
- *
- * @author  Koen
- */
 public class StoredValuesImpl implements StoredValues {
 
     public static final ObisCode OBISCODE_CLOCK = ObisCode.fromString("0.0.1.0.0.255");
@@ -60,7 +64,7 @@ public class StoredValuesImpl implements StoredValues {
 
     public Date getBillingPointTimeDate(int billingPoint) throws IOException {
         DataStructure ds = (DataStructure) getBuffer().getRoot().getElement(getReversedBillingPoint(billingPoint));
-        Clock clock = new Clock(getCosemObjectFactory().getProtocolLink(),getCosemObjectFactory().getObjectReference(getCosemObjectFactory().CLOCK_OBJECT_LN, getCosemObjectFactory().getProtocolLink().getMeterConfig().getClockSN()));
+        Clock clock = new Clock(getCosemObjectFactory().getProtocolLink(), getCosemObjectFactory().getObjectReference(getCosemObjectFactory().CLOCK_OBJECT_LN, getCosemObjectFactory().getProtocolLink().getMeterConfig().getClockSN()));
         clock.setDateTime((OctetString) ds.getElement(getCapturedObjectIndex(OBISCODE_CLOCK)));
         return clock.getDateTime();
     }
@@ -97,10 +101,20 @@ public class StoredValuesImpl implements StoredValues {
                 return i;
             }
         }
-        throw new NoSuchRegisterException("StoredValues, register with obiscode " + obisCode + " not found in the Capture Objects list of the billing profile.");
+        throw new NoSuchRegisterException("Register with obiscode " + obisCode + " not found in the Capture Objects list of billing profile " + profileGeneric.getObisCode() + ".");
     }
 
     private int getReversedBillingPoint(int billingPoint) throws IOException {
-        return getBillingPointCounter() - billingPoint - 1;
+        int billingPointCounter = getBillingPointCounter();
+        if (billingPointCounter != 0) {
+            int reversedBillingPoint = billingPointCounter - billingPoint - 1;
+            if (reversedBillingPoint >= 0) {
+                return reversedBillingPoint;
+            } else {
+                throw new NoSuchRegisterException("Billing point " + billingPoint + " not available.");
+            }
+        } else {
+            throw new NoSuchRegisterException("No billing points available for billing profile " + profileGeneric.getObisCode() + ".");
+        }
     }
 }
