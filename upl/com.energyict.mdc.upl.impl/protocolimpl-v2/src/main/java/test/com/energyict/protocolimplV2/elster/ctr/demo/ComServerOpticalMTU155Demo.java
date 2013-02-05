@@ -77,8 +77,8 @@ import com.energyict.mdw.shadow.PluggableClassShadow;
 import com.energyict.mdw.shadow.amr.RegisterGroupShadow;
 import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import test.com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
-import test.com.energyict.mdc.tasks.DeviceProtocolDialectNameEnum;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155;
 
 import java.io.BufferedReader;

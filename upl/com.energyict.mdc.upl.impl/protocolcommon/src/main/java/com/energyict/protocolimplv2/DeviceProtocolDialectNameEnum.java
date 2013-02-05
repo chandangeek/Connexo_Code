@@ -1,4 +1,4 @@
-package test.com.energyict.mdc.tasks;
+package com.energyict.protocolimplv2;
 
 /**
  * Specifies the possible DeviceProtocolDialect names.
@@ -14,8 +14,11 @@ package test.com.energyict.mdc.tasks;
 public enum DeviceProtocolDialectNameEnum {
 
     CTR_DEVICE_PROTOCOL_DIALECT_NAME("CtrDialect"),
-
-    DSMR23_DEVICE_PROTOCOL_DIALECT_NAME("Dsmr23Dialect");
+    DSMR23_DEVICE_PROTOCOL_DIALECT_NAME("Dsmr23Dialect"),
+    SDK_SAMPLE_STANDARD_DEVICE_PROTOCOL_DIALECT_NAME("SDKStandardDialect"),
+    SDK_SAMPLE_LOAD_PROFILE_DEVICE_PROTOCOL_DIALECT_NAME("SDKLoadProfileDialect"),
+    SDK_SAMPLE_TIME_DEVICE_PROTOCOL_DIALECT_NAME("SDKTimeDialect")
+    ;
 
     DeviceProtocolDialectNameEnum(String uniqueName) {
         this.uniqueName = uniqueName;

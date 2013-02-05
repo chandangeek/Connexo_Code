@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.tasks.DeviceProtocolDialectImpl;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 
 import java.util.Arrays;
 import java.util.List;
