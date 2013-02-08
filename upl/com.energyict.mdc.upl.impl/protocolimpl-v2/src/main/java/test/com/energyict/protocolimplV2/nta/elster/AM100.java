@@ -148,11 +148,6 @@ public class AM100 extends AbstractNtaProtocol {
     }
 
     @Override
-    public void upgradeMessagesAndCategories() throws BusinessException, SQLException {
-        //ToDo
-    }
-
-    @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }

@@ -233,11 +233,6 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public void upgradeMessagesAndCategories() throws BusinessException, SQLException {
-        //ToDo
-    }
-
-    @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<DeviceProtocolDialect>(1);
         dialects.add(new CtrDeviceProtocolDialect());

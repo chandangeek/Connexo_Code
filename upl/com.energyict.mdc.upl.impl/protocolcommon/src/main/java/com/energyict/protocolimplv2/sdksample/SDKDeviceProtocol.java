@@ -2,11 +2,12 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeDuration;
-import com.energyict.comserver.time.TimeFactory;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.StandardDeviceMessage;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
@@ -78,6 +79,9 @@ public class SDKDeviceProtocol implements DeviceProtocol {
      * Keeps track of all the protocol properties <b>AND</b> the current deviceProtocolDialectProperties
      */
     private TypedProperties typedProperties = new TypedProperties();
+    /**
+     * The securityPropertySet that will be used for this session
+     */
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
     @Override
@@ -214,8 +218,9 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedStandardMessages() {
-        //TODO
-        return Collections.emptyList();
+        return Arrays.<DeviceMessageSpec>asList(
+                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND,
+                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE);
     }
 
     @Override
@@ -228,11 +233,6 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     public CollectedData updateSentMessages(List<DeviceMessageShadow> sentMessages) {
         //TODO
         return null;
-    }
-
-    @Override
-    public void upgradeMessagesAndCategories() throws BusinessException, SQLException {
-        // TODO
     }
 
     @Override

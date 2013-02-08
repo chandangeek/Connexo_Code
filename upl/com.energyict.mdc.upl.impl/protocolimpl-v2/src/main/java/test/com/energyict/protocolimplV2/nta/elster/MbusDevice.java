@@ -35,9 +35,4 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     public String getVersion() {
         return "$Date$";
     }
-
-    @Override
-    public void upgradeMessagesAndCategories() throws BusinessException, SQLException {
-        //ToDo
-    }
 }
