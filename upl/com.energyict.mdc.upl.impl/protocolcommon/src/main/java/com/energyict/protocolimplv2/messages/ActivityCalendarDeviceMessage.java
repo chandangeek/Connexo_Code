@@ -72,6 +72,6 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
-        return new DeviceMessageSpecPrimaryKey(this, getName());
+        return new DeviceMessageSpecPrimaryKey(this, name());
     }
 }
