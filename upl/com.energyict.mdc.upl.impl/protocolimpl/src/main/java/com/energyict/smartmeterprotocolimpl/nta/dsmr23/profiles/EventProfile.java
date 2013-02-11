@@ -37,11 +37,16 @@ public class EventProfile {
             fromDate = ProtocolUtils.getClearLastMonthDate(getTimeZone());
         }
         fromCal.setTime(fromDate);
-        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + ".");
+        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + " from " + fromCal + " to "+getToCalendar());
+        protocol.getLogger().log(Level.INFO, "StandardLogEvents :" + getMeterConfig().getEventLogObject().getObisCode());
         DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
+        protocol.getLogger().log(Level.INFO, "ControlLogEvents :" + getMeterConfig().getControlLogObject().getObisCode());
         DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
+        protocol.getLogger().log(Level.INFO, "PowerFailureLogEvents :" + getMeterConfig().getPowerFailureLogObject().getObisCode());
         DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
+        protocol.getLogger().log(Level.INFO, "FraudDetectionLogEvents :" + getMeterConfig().getFraudDetectionLogObject().getObisCode());
         DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
+        protocol.getLogger().log(Level.INFO, "MbusLogEvents :" + getMeterConfig().getMbusEventLogObject().getObisCode());
         DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
 
         EventsLog standardEvents = new EventsLog(dcEvent, this.protocol.getDateTimeDeviationType());
