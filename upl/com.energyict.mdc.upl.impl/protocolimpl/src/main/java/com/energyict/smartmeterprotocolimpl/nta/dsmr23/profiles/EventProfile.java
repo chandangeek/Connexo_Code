@@ -37,7 +37,7 @@ public class EventProfile {
             fromDate = ProtocolUtils.getClearLastMonthDate(getTimeZone());
         }
         fromCal.setTime(fromDate);
-        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + " from " + fromCal + " to "+getToCalendar());
+        protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + " from " + fromCal.getTime() + " to "+getToCalendar().getTime());
         protocol.getLogger().log(Level.INFO, "StandardLogEvents :" + getMeterConfig().getEventLogObject().getObisCode());
         DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
         protocol.getLogger().log(Level.INFO, "ControlLogEvents :" + getMeterConfig().getControlLogObject().getObisCode());
