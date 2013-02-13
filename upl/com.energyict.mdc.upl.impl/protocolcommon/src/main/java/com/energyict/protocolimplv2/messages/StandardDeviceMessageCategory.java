@@ -4,7 +4,6 @@ import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.Collections;
