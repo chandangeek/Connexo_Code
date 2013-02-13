@@ -2,7 +2,9 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -113,21 +115,8 @@ public enum StandardDeviceMessageCategory implements DeviceMessageCategory {
     @Override
     public abstract List<DeviceMessageSpec> getMessageSpecifications();
 
-    /**
-     * Gets the StandardDeviceMessageCategory with the specified code.
-     *
-     * @param code The Code
-     * @return The StandardDeviceMessageCategory
-     * @see #getId()
-     */
-    public static StandardDeviceMessageCategory fromCode(int code) {
-        for (StandardDeviceMessageCategory messageCategory : values()) {
-            if (messageCategory.getId() == code) {
-                return messageCategory;
-            }
-        }
-        return null;
+    @Override
+    public DeviceMessageCategoryPrimaryKey getPrimaryKey() {
+        return new DeviceMessageCategoryPrimaryKey(this, name());
     }
-
-
 }
