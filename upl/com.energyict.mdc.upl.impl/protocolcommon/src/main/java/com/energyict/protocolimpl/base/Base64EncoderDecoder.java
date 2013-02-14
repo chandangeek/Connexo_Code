@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.base;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public class Base64EncoderDecoder {
 
@@ -33,7 +33,7 @@ public class Base64EncoderDecoder {
         }
     }
 
-    public final String encode(byte[] data) throws IOException {
+    public final String encode(byte[] data) throws UnsupportedEncodingException {
         return encode(data, 0, data != null ? data.length : 0);
     }
 
@@ -42,7 +42,7 @@ public class Base64EncoderDecoder {
      *
      * @return the number of bytes produced.
      */
-    public final String encode(byte[] data, int off, int length) throws IOException {
+    public final String encode(byte[] data, int off, int length) throws UnsupportedEncodingException {
         int modulus = length % 3;
         int dataLength = (length - modulus);
         int a1, a2, a3;
@@ -101,7 +101,7 @@ public class Base64EncoderDecoder {
         return (c == '\n' || c == '\r' || c == '\t' || c == ' ');
     }
 
-    public final byte[] decode(byte[] data) throws IOException {
+    public final byte[] decode(byte[] data) {
         return decode(data, 0, data != null ? data.length : 0);
     }
 
@@ -111,7 +111,7 @@ public class Base64EncoderDecoder {
      *
      * @return the number of bytes produced.
      */
-    public final byte[] decode(byte[] data, int off, int length) throws IOException {
+    public final byte[] decode(byte[] data, int off, int length) {
         if ((data == null) || data.length == 0) {
             return new byte[0];
         }
@@ -171,7 +171,7 @@ public class Base64EncoderDecoder {
      *
      * @return the number of bytes produced.
      */
-    public final byte[] decode(String data) throws IOException {
+    public final byte[] decode(String data) {
         if ((data == null) || (data.length() == 0)) {
             return new byte[0];
         }
@@ -216,7 +216,7 @@ public class Base64EncoderDecoder {
         return out.toByteArray();
     }
 
-    private final int decodeLastBlock(ByteArrayOutputStream out, char c1, char c2, char c3, char c4) throws IOException {
+    private final int decodeLastBlock(ByteArrayOutputStream out, char c1, char c2, char c3, char c4) {
         byte b1, b2, b3, b4;
 
         if (c3 == padding) {
