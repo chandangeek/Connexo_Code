@@ -14,6 +14,7 @@ package com.energyict.protocolimplv2.security;
  */
 public enum SecurityRelationTypeName {
 
+    NONE("None"),
     SIMPLE_PASSWORD("SimplePassword"),
     PASSWORD_AND_LEVEL("LevelAndPassword"),
     PASSWORD_AND_USER("UserAndPassword"),
