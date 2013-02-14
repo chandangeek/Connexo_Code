@@ -11,14 +11,15 @@
 package com.energyict.protocolimpl.mbus.nzr.pn16;
 
 import com.energyict.dialer.core.*;
-import com.energyict.obis.*;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.discover.*;
-import com.energyict.protocolimpl.mbus.core.*;
-import com.energyict.protocolimpl.mbus.core.connection.iec870.*;
-import java.io.*;
+import com.energyict.protocol.discover.DiscoverResult;
+import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.mbus.core.MBus;
+
+import java.io.IOException;
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 /**
  *

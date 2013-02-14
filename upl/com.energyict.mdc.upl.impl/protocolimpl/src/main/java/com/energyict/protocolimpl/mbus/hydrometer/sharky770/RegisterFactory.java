@@ -10,10 +10,7 @@
 
 package com.energyict.protocolimpl.mbus.hydrometer.sharky770;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.mbus.core.*;
-import java.util.*;
-import java.io.*;
+import com.energyict.protocolimpl.mbus.core.AbstractRegisterFactory;
 
 /**
  *
