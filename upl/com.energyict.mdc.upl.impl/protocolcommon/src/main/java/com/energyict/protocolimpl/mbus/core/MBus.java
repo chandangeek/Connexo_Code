@@ -17,6 +17,7 @@ import com.energyict.protocol.discover.Discover;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.mbus.core.connection.MBusConnection;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
+import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
 import com.energyict.protocolimpl.mbus.core.discover.SecondaryAddressDiscover;
 
 import java.io.*;
