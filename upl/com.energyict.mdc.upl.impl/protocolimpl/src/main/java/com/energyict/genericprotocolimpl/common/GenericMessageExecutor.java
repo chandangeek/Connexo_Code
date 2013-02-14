@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.common;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.protocol.LoadProfileReader;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -19,7 +19,7 @@ import java.util.*;
  */
 public abstract class GenericMessageExecutor {
 
-    abstract public void doMessage(DeviceMessage rtuMessage) throws BusinessException, SQLException, IOException;
+    abstract public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException;
 
     abstract protected TimeZone getTimeZone();
 

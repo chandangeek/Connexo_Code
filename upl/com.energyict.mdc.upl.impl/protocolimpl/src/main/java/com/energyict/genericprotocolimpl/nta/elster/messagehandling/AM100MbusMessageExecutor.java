@@ -5,11 +5,10 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MbusMessageExecutor;
-import com.energyict.mdw.shadow.DeviceShadow;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -39,7 +38,7 @@ public class  AM100MbusMessageExecutor extends MbusMessageExecutor {
      * @throws SQLException
      */
     @Override
-    public void doMessage(DeviceMessage rtuMessage) throws BusinessException, SQLException {
+    public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
         boolean success = false;
         String content = rtuMessage.getContents();
         MessageHandler messageHandler = new MessageHandler();

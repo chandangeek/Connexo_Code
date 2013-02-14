@@ -43,7 +43,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 		this.mbusDevice = mbusDevice;
 	}
 
-	public void doMessage(DeviceMessage rtuMessage) throws BusinessException,SQLException {
+	public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException,SQLException {
 		boolean success = false;
 		String content = rtuMessage.getContents();
 		MessageHandler messageHandler = new MessageHandler();

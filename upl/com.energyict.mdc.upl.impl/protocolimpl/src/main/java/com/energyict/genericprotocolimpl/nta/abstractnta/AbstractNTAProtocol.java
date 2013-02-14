@@ -51,11 +51,9 @@ import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeM
 import com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
@@ -1353,12 +1351,12 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
      * @throws SQLException
      * @throws BusinessException
      */
-    protected void sendMeterMessages(final List<DeviceMessage> rtuMessageList) throws BusinessException, SQLException {
+    protected void sendMeterMessages(final List<OldDeviceMessage> rtuMessageList) throws BusinessException, SQLException {
 
         MessageExecutor messageExecutor = new MessageExecutor(this);
 
-        Iterator<DeviceMessage> it = rtuMessageList.iterator();
-        DeviceMessage rm = null;
+        Iterator<OldDeviceMessage> it = rtuMessageList.iterator();
+        OldDeviceMessage rm = null;
         while (it.hasNext()) {
             rm = it.next();
             messageExecutor.doMessage(rm);

@@ -21,7 +21,7 @@ public class MeterLocationMessage extends AbstractDlmsMessage {
     public static final int METERLOCATION_MAX_LENGTH = 30;
 
     /**
-     * DeviceMessage tags for the GPRS modem setup message
+     * OldDeviceMessage tags for the GPRS modem setup message
      */
     public final static String MESSAGE_DESC = "Change meter location";
 

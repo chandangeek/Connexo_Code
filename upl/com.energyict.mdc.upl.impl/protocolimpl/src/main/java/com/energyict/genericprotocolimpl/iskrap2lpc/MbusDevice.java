@@ -252,7 +252,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         }
 
         while (messageIt.hasNext()) {
-            DeviceMessage msg = (DeviceMessage) messageIt.next();
+            OldDeviceMessage msg = (OldDeviceMessage) messageIt.next();
             String contents = msg.getContents();
 
             boolean doReadOnDemand = (contents.toLowerCase()).indexOf(RtuMessageConstant.READ_ON_DEMAND.toLowerCase()) != -1;

@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.shadow.CommunicationProfileShadow;
 
 import java.util.List;
@@ -34,9 +34,9 @@ public interface CommunicationSchedulerFullProtocolShadow {
     /**
      * @return the list of <CODE>DeviceMessage</CODE> of this device
      */
-    List<DeviceMessage> getRtuMessageList();
+    List<OldDeviceMessage> getRtuMessageList();
 
-    void setRtuMessageList(List<DeviceMessage> rtuMessageList);
+    void setRtuMessageList(List<OldDeviceMessage> rtuMessageList);
 
     /**
      * @return the list of <CODE>CommunicationSchedulerFullProtocolShadows</CODE> of all slaveDevices

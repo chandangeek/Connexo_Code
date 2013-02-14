@@ -22,7 +22,7 @@ public class DeleteMessages extends AbstractFolderAction {
                 Iterator ir = rtu.getOldMessages().iterator();
                 
                 while( ir.hasNext() ) {
-                    DeviceMessage msg = (DeviceMessage) ir.next();
+                    OldDeviceMessage msg = (OldDeviceMessage) ir.next();
                     
                     msg.delete();
                     

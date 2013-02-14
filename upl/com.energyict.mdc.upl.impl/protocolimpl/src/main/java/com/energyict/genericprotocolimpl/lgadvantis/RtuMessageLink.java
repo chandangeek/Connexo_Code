@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.lgadvantis;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 
 import java.sql.SQLException;
@@ -10,7 +10,7 @@ import java.util.*;
 public class RtuMessageLink {
     
     private MessageContent messageContent;
-    private DeviceMessage message;
+    private OldDeviceMessage message;
     private List directPrimitives = new ArrayList();
     
     RtuMessageLink( MessageContent content ) {
@@ -21,7 +21,7 @@ public class RtuMessageLink {
         return messageContent;
     }
 
-    DeviceMessage getMessage() {
+    OldDeviceMessage getMessage() {
         return message;
     }
 
@@ -29,7 +29,7 @@ public class RtuMessageLink {
         return directPrimitives;
     }
 
-    RtuMessageLink setRtuMessage(DeviceMessage rtuMessage) {
+    RtuMessageLink setRtuMessage(OldDeviceMessage rtuMessage) {
         this.message = rtuMessage;
         return this;
     }

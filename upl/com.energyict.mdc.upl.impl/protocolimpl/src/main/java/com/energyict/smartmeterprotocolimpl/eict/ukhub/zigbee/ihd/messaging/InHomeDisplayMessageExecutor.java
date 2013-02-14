@@ -135,7 +135,7 @@ public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(DeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
+    public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
         // nothing to do
     }
 

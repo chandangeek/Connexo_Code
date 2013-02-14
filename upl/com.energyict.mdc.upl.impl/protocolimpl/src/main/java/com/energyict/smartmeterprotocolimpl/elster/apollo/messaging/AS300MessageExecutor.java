@@ -29,7 +29,7 @@ import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.core.UserFile;
@@ -714,7 +714,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final DeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
+    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
         // nothing to do
     }
 

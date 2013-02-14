@@ -3,7 +3,7 @@ package com.energyict.genericprotocolimpl.nta.elster;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.protocolimpl.messages.*;
 import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
@@ -86,12 +86,12 @@ public class AM100 extends AbstractNTAProtocol {
 	 * @throws BusinessException
      * @param rtuMessageList
 	 */
-    protected void sendMeterMessages(final List<DeviceMessage> rtuMessageList) throws BusinessException, SQLException {
+    protected void sendMeterMessages(final List<OldDeviceMessage> rtuMessageList) throws BusinessException, SQLException {
 
 		AM100MessageExecutor messageExecutor = new AM100MessageExecutor(this);
 
-		Iterator<DeviceMessage> it = rtuMessageList.iterator();
-		DeviceMessage rm = null;
+		Iterator<OldDeviceMessage> it = rtuMessageList.iterator();
+		OldDeviceMessage rm = null;
 		while (it.hasNext()) {
 			rm = it.next();
 			messageExecutor.doMessage(rm);

@@ -53,7 +53,7 @@ public class XmlUtils {
     }
 
     /**
-     * Prints the document to a {@link String}, without the docType (this way we can put it in the DeviceMessage)
+     * Prints the document to a {@link String}, without the docType (this way we can put it in the OldDeviceMessage)
      *
      * @param doc the {@link org.w3c.dom.Document} to converted
      * @return the XML String from the Document

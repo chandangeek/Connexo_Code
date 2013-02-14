@@ -615,8 +615,8 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
         MessageExecutor messageExecutor = new MessageExecutor(this);
 
-        Iterator<DeviceMessage> it = getMeter().getOldPendingMessages().iterator();
-        DeviceMessage rm = null;
+        Iterator<OldDeviceMessage> it = getMeter().getOldPendingMessages().iterator();
+        OldDeviceMessage rm = null;
         while (it.hasNext()) {
             rm = it.next();
             messageExecutor.doMessage(rm);

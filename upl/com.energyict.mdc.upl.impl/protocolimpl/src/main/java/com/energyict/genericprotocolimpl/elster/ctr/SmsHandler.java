@@ -20,7 +20,7 @@ import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.messaging.MessageHandler;
-import com.energyict.mdw.shadow.DeviceMessageShadow;
+import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 
@@ -302,9 +302,9 @@ public class SmsHandler implements MessageHandler {
             aSet.add(DeviceMessageState.FAILED);
             filter.setStates(aSet);
 
-            List<DeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
+            List<OldDeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
             if (rtuMessageList.size() != 0) {
-                DeviceMessage rtuMessage = rtuMessageList.get(0);
+                OldDeviceMessage rtuMessage = rtuMessageList.get(0);
                 String trackingId = rtuMessage.getTrackingId();
 
                 Pattern p = Pattern.compile("#");
@@ -314,7 +314,7 @@ public class SmsHandler implements MessageHandler {
                     count += 1;
                 }
 
-                DeviceMessageShadow shadow = rtuMessage.getShadow();
+                OldDeviceMessageShadow shadow = rtuMessage.getShadow();
                 message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction();
                 shadow.setTrackingId(trackingId.replace("#" + wdb, ""));
                 if (count > 1) {
@@ -373,12 +373,12 @@ public class SmsHandler implements MessageHandler {
             aSet.add(DeviceMessageState.SENT);
             filter.setStates(aSet);
 
-            List<DeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
+            List<OldDeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
             if (rtuMessageList.size() != 0) {
-                DeviceMessage rtuMessage = rtuMessageList.get(0);
+                OldDeviceMessage rtuMessage = rtuMessageList.get(0);
                 message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " for reason: " + data.getReason() +
                         " - rtuMessage with ID " + rtuMessage.getId() + " will be set Failed.";
-                DeviceMessageShadow shadow = rtuMessage.getShadow();
+                OldDeviceMessageShadow shadow = rtuMessage.getShadow();
                 shadow.setTrackingId(rtuMessage.getTrackingId().replace("#" + wdb, ""));
                 shadow.setState(DeviceMessageState.FAILED);
                 try {

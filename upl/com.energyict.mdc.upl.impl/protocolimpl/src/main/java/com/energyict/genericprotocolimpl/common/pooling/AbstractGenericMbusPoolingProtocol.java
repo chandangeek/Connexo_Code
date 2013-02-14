@@ -84,7 +84,7 @@ public abstract class AbstractGenericMbusPoolingProtocol extends MbusMessages im
      *
      * @param rtuMessageList the messages to send to the device
      */
-    protected abstract void sendMeterMessages(final List<DeviceMessage> rtuMessageList) throws BusinessException, SQLException;
+    protected abstract void sendMeterMessages(final List<OldDeviceMessage> rtuMessageList) throws BusinessException, SQLException;
 
     /**
      * Set a fullShadow object which was created by the master in the Mbus object

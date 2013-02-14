@@ -71,8 +71,8 @@ public class OutboundSmsHandler {
 
     private void sendMeterMessages() {
         MTU155MessageExecutor messageExecutor = getMessageExecuter();
-        Iterator<DeviceMessage> it = meterProtocol.getRtu().getOldPendingMessages().iterator();
-        DeviceMessage rm = null;
+        Iterator<OldDeviceMessage> it = meterProtocol.getRtu().getOldPendingMessages().iterator();
+        OldDeviceMessage rm = null;
         while (it.hasNext()) {
             rm = it.next();
             try {

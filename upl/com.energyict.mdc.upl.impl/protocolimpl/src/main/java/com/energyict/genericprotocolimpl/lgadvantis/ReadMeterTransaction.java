@@ -143,7 +143,7 @@ class ReadMeterTransaction implements Transaction {
 		List messagePairs = new ArrayList();
 
 		for (Iterator it = meter.getOldPendingMessages().iterator(); it.hasNext();){
-			DeviceMessage msg = (DeviceMessage) it.next();
+			OldDeviceMessage msg = (OldDeviceMessage) it.next();
 			messagePairs.add(new MessagePair(msg,MessageContentFactory.createMessageContent(msg.getContents())));
 		}
 
@@ -151,7 +151,7 @@ class ReadMeterTransaction implements Transaction {
 
 		for (Iterator jt = messagePairs.iterator();jt.hasNext();){
 			MessagePair msgPair = (MessagePair) jt.next();
-			DeviceMessage msg = msgPair.getRtuMessage();
+			OldDeviceMessage msg = msgPair.getRtuMessage();
 			String content = msg.getContents();
 			MessageContent mc = MessageContentFactory.createMessageContent(content);
 			addMessage(mc, msg, task);
@@ -183,7 +183,7 @@ class ReadMeterTransaction implements Transaction {
 	}
 
 	/** Add a SINGLE directaction. */
-	private void addMessage( MessageContent mc, DeviceMessage rtuMessage, Task task )
+	private void addMessage( MessageContent mc, OldDeviceMessage rtuMessage, Task task )
 	throws BusinessException, SQLException {
 
 		CosemFactory rf = getCosemFactory();

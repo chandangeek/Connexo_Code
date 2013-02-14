@@ -19,7 +19,7 @@ import java.io.IOException;
 public class ChangeKeysMessage extends AbstractDlmsMessage {
 
     /**
-     * DeviceMessage tags for the key change message
+     * OldDeviceMessage tags for the key change message
      */
     public static final String MESSAGE_TAG = "ChangeKeys";
     public static final String MESSAGE_DESCRIPTION = "Change keys in EK280";

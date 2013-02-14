@@ -20,7 +20,7 @@ import com.energyict.mdw.amrimpl.RegisterReadingImpl;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.obis.ObisCode;
@@ -1111,7 +1111,7 @@ public class MeterReadTransaction implements CacheMechanism {
 
         while (mi.hasNext()) {
 
-            DeviceMessage msg = (DeviceMessage) mi.next();
+            OldDeviceMessage msg = (OldDeviceMessage) mi.next();
             String contents = msg.getContents();
 
             boolean doReadRegister = contents.toLowerCase().indexOf(RtuMessageConstant.READ_ON_DEMAND.toLowerCase()) != -1;

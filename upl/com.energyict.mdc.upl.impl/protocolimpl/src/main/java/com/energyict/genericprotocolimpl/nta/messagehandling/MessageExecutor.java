@@ -55,12 +55,12 @@ import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.LookupEntry;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.DeviceMessageShadow;
+import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -105,7 +105,7 @@ public class MessageExecutor extends GenericMessageExecutor{
 		return this.webRtu;
 	}
 
-	public void doMessage(DeviceMessage rtuMessage) throws BusinessException, SQLException {
+	public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
 		byte theMonitoredAttributeType = -1;
 		boolean success = false;
 		String content = rtuMessage.getContents();
@@ -673,10 +673,10 @@ public class MessageExecutor extends GenericMessageExecutor{
 											hasWritten = true;
 										}break;
 										case 3 :{ // MESSAGE
-											DeviceMessageShadow rms = new DeviceMessageShadow();
+											OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
 											rms.setContents(csvParser.getTestObject(i).getData());
 											rms.setRtuId(getWebRtu().getFullShadow().getRtuShadow().getRtuId());
-											DeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+											OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
 											doMessage(rm);
 											if(rm.getState().getId() == rm.getState().CONFIRMED.getId()){
 												to.setResult("OK");

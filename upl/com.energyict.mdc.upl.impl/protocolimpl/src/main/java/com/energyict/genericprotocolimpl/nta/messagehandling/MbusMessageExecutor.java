@@ -8,8 +8,7 @@ import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
-import com.energyict.mdw.core.DeviceMessage;
-import com.energyict.mdw.shadow.DeviceShadow;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
@@ -32,7 +31,7 @@ public class MbusMessageExecutor extends GenericMessageExecutor{
 		this.mbusDevice = mbusDevice;
 	}
 
-	public void doMessage(DeviceMessage rtuMessage) throws BusinessException,SQLException {
+	public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException,SQLException {
 		boolean success = false;
 		String content = rtuMessage.getContents();
 		MessageHandler messageHandler = new MessageHandler();

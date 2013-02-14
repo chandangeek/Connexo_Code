@@ -23,7 +23,7 @@ import static com.elster.protocolimpl.dlms.util.RepetitiveDate.dateStringToDlmsD
 public class WriteAutoConnectMessage extends AbstractDlmsMessage {
 
     /**
-     * DeviceMessage tags for the key change message
+     * OldDeviceMessage tags for the key change message
      */
     public static final String MESSAGE_TAG = "SetAutoConnect";
     public static final String MESSAGE_DESCRIPTION = "Change auto connect data";

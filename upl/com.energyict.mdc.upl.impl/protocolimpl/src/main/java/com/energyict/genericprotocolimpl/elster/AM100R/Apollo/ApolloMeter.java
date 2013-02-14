@@ -14,7 +14,7 @@ import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages.*;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileBuilder;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ProfileConfiguration;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageTag;
@@ -643,7 +643,7 @@ public class ApolloMeter extends DLMSProtocol {
      */
     private void sendMeterMessages() throws BusinessException, SQLException {
         MessageExecutor me = new MessageExecutor(this);
-        for (DeviceMessage rm : getMeter().getOldPendingMessages()) {
+        for (OldDeviceMessage rm : getMeter().getOldPendingMessages()) {
             me.doMessage(rm);
         }
     }

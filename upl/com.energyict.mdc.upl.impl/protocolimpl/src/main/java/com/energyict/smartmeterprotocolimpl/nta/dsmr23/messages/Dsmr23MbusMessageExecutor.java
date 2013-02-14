@@ -11,7 +11,6 @@ import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
@@ -354,7 +353,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final DeviceMessage rtuMessage) throws BusinessException, SQLException {
+    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
         //nothing to do
     }
 

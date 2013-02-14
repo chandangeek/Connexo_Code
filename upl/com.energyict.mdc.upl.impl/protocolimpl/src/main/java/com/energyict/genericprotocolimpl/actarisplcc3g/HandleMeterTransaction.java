@@ -256,7 +256,7 @@ public class HandleMeterTransaction implements Transaction {
         
         while (iter.hasNext()) {
             
-            DeviceMessage msg = (DeviceMessage) iter.next();
+            OldDeviceMessage msg = (OldDeviceMessage) iter.next();
             String content = msg.getContents();
             
             try {

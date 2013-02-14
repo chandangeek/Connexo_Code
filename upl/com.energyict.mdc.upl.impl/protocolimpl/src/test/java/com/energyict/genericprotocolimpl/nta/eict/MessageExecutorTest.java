@@ -3,26 +3,14 @@ package com.energyict.genericprotocolimpl.nta.eict;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.DuplicateException;
-import com.energyict.cpo.Environment;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
 import com.energyict.mdc.InMemoryPersistence;
-import com.energyict.mdc.meta.persistence.model.DatabaseModel;
-import com.energyict.mdc.meta.persistence.model.DatabaseModelImpl;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.coreimpl.AccessEntryTableDescription;
-import com.energyict.mdw.coreimpl.CodeTableDescription;
-import com.energyict.mdw.coreimpl.FolderTableDescription;
-import com.energyict.mdw.coreimpl.PluggableClassPropertiesTableDescription;
-import com.energyict.mdw.coreimpl.PluggableClassTableDescription;
-import com.energyict.mdw.coreimpl.TimeZoneInUseTableDescription;
 import com.energyict.mdw.coreimpl.VersionedGatewayRelationTypeCreatorProvider;
-import com.energyict.mdw.shadow.DeviceMessageShadow;
-import com.energyict.mdw.testutils.RtuCRUD;
-import com.energyict.mdw.testutils.RtuTypeCRUD;
+import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.protocolimpl.utils.DummyDLMSConnection;
-import com.energyict.protocolimpl.utils.Utilities;
 import org.junit.*;
 
 import java.sql.SQLException;
@@ -43,7 +31,7 @@ public class MessageExecutorTest {
 	private static String trackingId = "testMessageTrackingId";
 	private static Device rtu;
 
-	private DeviceMessage rtuMessage;
+	private OldDeviceMessage rtuMessage;
 	private String changeLLSContent = "<Change_LLS_Secret/>";
 	private String okResponse = "100042c4014200";
 	private byte[] expectedRequest = DLMSUtils.hexStringToByteArray("E6E600C10181000f0000280000FF0700090c4e65774c4c53536563726574");
@@ -87,7 +75,7 @@ public class MessageExecutorTest {
 	@Test
 	public void changeLLSSecretTest(){
 		try {
-			DeviceMessageShadow rms = new DeviceMessageShadow();
+			OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
 			rms.setId(rtuMessageID);
 			rms.setContents(changeLLSContent);
 			rms.setRtuId(rtu.getId());

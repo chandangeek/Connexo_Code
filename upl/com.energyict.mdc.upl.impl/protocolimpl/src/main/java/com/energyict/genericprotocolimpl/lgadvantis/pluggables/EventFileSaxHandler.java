@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.lgadvantis.pluggables;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.DeviceMessageShadow;
+import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.protocol.MeterData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
@@ -137,7 +137,7 @@ public class EventFileSaxHandler extends DefaultHandler {
 		for (Iterator it=rtus.iterator(); it.hasNext();){
 			Device rtu = (Device) it.next();
 			
-			DeviceMessageShadow shadow = new DeviceMessageShadow();
+			OldDeviceMessageShadow shadow = new OldDeviceMessageShadow();
 			shadow.setReleaseDate(Calendar.getInstance().getTime());
 			shadow.setContents(content.xmlEncode());
 			rtu.createOldMessage(shadow);

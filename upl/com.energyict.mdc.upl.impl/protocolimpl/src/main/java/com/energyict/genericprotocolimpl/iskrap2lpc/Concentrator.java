@@ -15,7 +15,7 @@ import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceMessage;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -491,7 +491,7 @@ public class Concentrator implements Messaging, GenericProtocol {
             String serial = concentrator.getSerialNumber();
             Iterator i = concentrator.getOldPendingMessages().iterator();
             while (i.hasNext()) {
-                DeviceMessage msg = (DeviceMessage) i.next();
+                OldDeviceMessage msg = (OldDeviceMessage) i.next();
                 handleConcentratorRtuMessage(concentrator, serial, msg);
             }
         }
@@ -575,7 +575,7 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
 
     protected void handleConcentratorRtuMessage(
-            Device concentrator, String serial, DeviceMessage msg)
+            Device concentrator, String serial, OldDeviceMessage msg)
             throws BusinessException, SQLException {
         String contents = msg.getContents();
         boolean success = false;
@@ -781,7 +781,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                 success = false;
             }
 
-            /* A single DeviceMessage failed: log and try next msg. */
+            /* A single OldDeviceMessage failed: log and try next msg. */
         } catch (NumberFormatException thrown) {
             severe(thrown, toErrorMsg(msg) + " Id is not a number.");
             thrown.printStackTrace();
@@ -943,9 +943,9 @@ public class Concentrator implements Messaging, GenericProtocol {
     }
 
     /**
-     * Convert an DeviceMessage to an error message
+     * Convert an OldDeviceMessage to an error message
      */
-    private String toErrorMsg(DeviceMessage message) {
+    private String toErrorMsg(OldDeviceMessage message) {
         return new StringBuffer()
                 .append("DeviceMessage failed: \"")
                 .append(message.getContents())
@@ -953,7 +953,7 @@ public class Concentrator implements Messaging, GenericProtocol {
                 .toString();
     }
 
-    private String toErrorMsg(String serial, DeviceMessage msg) {
+    private String toErrorMsg(String serial, OldDeviceMessage msg) {
         return toConcetratorErrorMsg(serial) + toErrorMsg(msg);
     }
 
