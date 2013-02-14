@@ -643,7 +643,7 @@ public class ApolloMeter extends DLMSProtocol {
      */
     private void sendMeterMessages() throws BusinessException, SQLException {
         MessageExecutor me = new MessageExecutor(this);
-        for (DeviceMessage rm : getMeter().getPendingMessages()) {
+        for (DeviceMessage rm : getMeter().getOldPendingMessages()) {
             me.doMessage(rm);
         }
     }

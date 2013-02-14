@@ -36,8 +36,8 @@ public class MessageExecutor extends AbstractExecutor<Device> {
      */
     public void execute(Device rtu) {
         List<DeviceMessage> messagesToQuery = new ArrayList<DeviceMessage>();
-        messagesToQuery.addAll(rtu.getPendingMessages());
-        messagesToQuery.addAll(rtu.getSentMessages());
+        messagesToQuery.addAll(rtu.getOldPendingMessages());
+        messagesToQuery.addAll(rtu.getOldSentMessages());
         if (!messagesToQuery.isEmpty()) {
             applyMessages(messagesToQuery);
             queryMessages(messagesToQuery);

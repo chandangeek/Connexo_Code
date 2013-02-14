@@ -41,7 +41,7 @@ public class HandleMeterTransaction implements Transaction {
                 handleMeter.getConcentratorScheduler().getCommunicationProfile().getReadDemandValues() ||    
                 handleMeter.getConcentratorScheduler().getCommunicationProfile().getReadMeterEvents() ||    
                 handleMeter.getConcentratorScheduler().getCommunicationProfile().getReadMeterReadings() ||
-                (handleMeter.getConcentratorScheduler().getCommunicationProfile().getSendRtuMessage()&&(device.getPendingMessages().size()>0))) {    
+                (handleMeter.getConcentratorScheduler().getCommunicationProfile().getSendRtuMessage()&&(device.getOldPendingMessages().size()>0))) {
                 
                 handleMeter.getConcentrator().selectMeter(handleMeter.getMeterInfo());
                 
@@ -252,7 +252,7 @@ public class HandleMeterTransaction implements Transaction {
        
         List messagePairs = new ArrayList();
                 
-        Iterator iter = device.getPendingMessages().iterator();
+        Iterator iter = device.getOldPendingMessages().iterator();
         
         while (iter.hasNext()) {
             

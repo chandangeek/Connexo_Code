@@ -262,7 +262,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
 
     private void sendMeterMessages() throws BusinessException, SQLException {
         MbusMessageExecutor messageExecutor = new MbusMessageExecutor(this);
-        List<DeviceMessage> pendingMessages = getMbus().getPendingMessages();
+        List<DeviceMessage> pendingMessages = getMbus().getOldPendingMessages();
         for (int i = 0; i < pendingMessages.size(); i++) {
             DeviceMessage rtuMessage = pendingMessages.get(i);
             messageExecutor.doMessage(rtuMessage);

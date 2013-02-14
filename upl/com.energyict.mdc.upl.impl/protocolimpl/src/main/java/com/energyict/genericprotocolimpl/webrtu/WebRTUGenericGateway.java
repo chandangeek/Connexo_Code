@@ -77,7 +77,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
                 RegisterProtocol registerProtocol = null;
                 MessageProtocol messageProtocol = null;
 
-                ConfigurationSupport configurationSupport = slave.getProtocol().newInstance();
+                ConfigurationSupport configurationSupport = slave.getOldProtocol().newInstance();
                 if (configurationSupport instanceof RegisterProtocol) {
                     registerProtocol = (RegisterProtocol) configurationSupport;
                 }
@@ -298,7 +298,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
 
     private List<DeviceMessage> getPendingMessages(Device slave) {
         List<DeviceMessage> newMessages = new ArrayList<DeviceMessage>();
-        for (DeviceMessage rtuMessage : slave.getMessages()) {
+        for (DeviceMessage rtuMessage : slave.getOldMessages()) {
             if (rtuMessage.isPending()) {
                 newMessages.add(rtuMessage);
             }
@@ -609,7 +609,7 @@ public class WebRTUGenericGateway implements GenericProtocol {
 
     private Properties getProperties(Device slave) {
         properties = slave.getProperties().toStringProperties();
-        Properties protocolProperties = slave.getProtocol().getProperties().toStringProperties();
+        Properties protocolProperties = slave.getOldProtocol().getProperties().toStringProperties();
 
         for (Object keyObject : protocolProperties.keySet()) {
             String key;

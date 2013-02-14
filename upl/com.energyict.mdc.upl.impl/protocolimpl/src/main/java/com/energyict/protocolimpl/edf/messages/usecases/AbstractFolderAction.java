@@ -25,7 +25,7 @@ public abstract class AbstractFolderAction implements FolderAction {
 
         shadow.setContents(mrr.xmlEncode());
 
-        rtu.createMessage(shadow);
+        rtu.createOldMessage(shadow);
 
     }
 
@@ -36,7 +36,7 @@ public abstract class AbstractFolderAction implements FolderAction {
         shadow.setReleaseDate(new Date());
 
         shadow.setContents(content.xmlEncode());
-        rtu.createMessage(shadow);
+        rtu.createOldMessage(shadow);
 
     }
 

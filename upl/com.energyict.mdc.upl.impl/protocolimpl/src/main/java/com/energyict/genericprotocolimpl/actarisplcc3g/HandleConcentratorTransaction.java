@@ -65,7 +65,7 @@ public class HandleConcentratorTransaction implements Transaction {
        
         List messagePairs = new ArrayList();
                 
-        Iterator iter = handleConcentrator.getConcentratorDevice().getPendingMessages().iterator();
+        Iterator iter = handleConcentrator.getConcentratorDevice().getOldPendingMessages().iterator();
         
         while (iter.hasNext()) {
             

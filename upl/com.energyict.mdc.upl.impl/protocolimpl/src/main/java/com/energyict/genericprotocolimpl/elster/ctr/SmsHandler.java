@@ -679,7 +679,7 @@ public class SmsHandler implements MessageHandler {
         }
 
         if (rtu != null) {
-            getProtocolProperties().addProperties(rtu.getProtocol().getProperties().toStringProperties());
+            getProtocolProperties().addProperties(rtu.getOldProtocol().getProperties().toStringProperties());
             getProtocolProperties().addProperties(rtu.getProperties().toStringProperties());
 
             try {

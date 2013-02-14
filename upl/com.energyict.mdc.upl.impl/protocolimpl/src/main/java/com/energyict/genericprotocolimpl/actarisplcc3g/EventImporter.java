@@ -4,11 +4,9 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.eisimport.core.AbstractStreamImporter;
 import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.DeviceEventShadow;
 import com.energyict.mdw.shadow.DeviceMessageShadow;
 import com.energyict.protocol.MeterData;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimpl.edf.messages.MessageContent;
 import com.energyict.protocolimpl.edf.messages.MessageDiscoverMeters;
 
@@ -137,7 +135,7 @@ public class EventImporter extends AbstractStreamImporter { //AbstractImporter {
         DeviceMessageShadow shadow = new DeviceMessageShadow(concentrator.getId());
         shadow.setReleaseDate( new Date() );
         shadow.setContents( content.xmlEncode() );
-        concentrator.createMessage(shadow);
+        concentrator.createOldMessage(shadow);
     }
     
     private Date getEventFileDate(String fileName) throws IOException {

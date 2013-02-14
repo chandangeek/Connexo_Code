@@ -142,7 +142,7 @@ class ReadMeterTransaction implements Transaction {
 	private void addMessages(Task task) throws BusinessException, SQLException {
 		List messagePairs = new ArrayList();
 
-		for (Iterator it = meter.getPendingMessages().iterator(); it.hasNext();){
+		for (Iterator it = meter.getOldPendingMessages().iterator(); it.hasNext();){
 			DeviceMessage msg = (DeviceMessage) it.next();
 			messagePairs.add(new MessagePair(msg,MessageContentFactory.createMessageContent(msg.getContents())));
 		}

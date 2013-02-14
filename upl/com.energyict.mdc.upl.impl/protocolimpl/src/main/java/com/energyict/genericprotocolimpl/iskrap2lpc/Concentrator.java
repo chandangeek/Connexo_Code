@@ -489,7 +489,7 @@ public class Concentrator implements Messaging, GenericProtocol {
         if (communicationProfile.getSendRtuMessage()) {
 
             String serial = concentrator.getSerialNumber();
-            Iterator i = concentrator.getPendingMessages().iterator();
+            Iterator i = concentrator.getOldPendingMessages().iterator();
             while (i.hasNext()) {
                 DeviceMessage msg = (DeviceMessage) i.next();
                 handleConcentratorRtuMessage(concentrator, serial, msg);

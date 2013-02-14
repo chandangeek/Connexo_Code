@@ -64,10 +64,8 @@ import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
@@ -1239,7 +1237,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      */
     private void sendMeterMessages() throws IOException, BusinessException, SQLException {
 
-        Iterator mi = rtu.getPendingMessages().iterator();
+        Iterator mi = rtu.getOldPendingMessages().iterator();
         if (mi.hasNext()) {
             getLogger().log(Level.INFO, "Handling messages for meter with serialnumber: " + rtu.getSerialNumber());
         }

@@ -161,11 +161,11 @@ public class P2LPCTest {
 //            rms.setContents(contents);
 //            rms.setRtuId(concentrator.getId());
 //            rms.setState(rmt);
-//            concentrator.createMessage(rms);
-//            pendingMessageID = ((DeviceMessage) concentrator.getPendingMessages().get(0)).getId();
+//            concentrator.createOldMessage(rms);
+//            pendingMessageID = ((DeviceMessage) concentrator.getOldPendingMessages().get(0)).getId();
 //
 //            String serial = concentrator.getSerialNumber();
-//            Iterator i = concentrator.getPendingMessages().iterator();
+//            Iterator i = concentrator.getOldPendingMessages().iterator();
 //            while (i.hasNext()) {
 //                DeviceMessage msg = (DeviceMessage) i.next();
 //                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
@@ -176,11 +176,11 @@ public class P2LPCTest {
 //
 //            rms.setState(rmt);
 //            rms.setContents("<" + RtuMessageConstant.FIRMWARE + ">220</" + RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>17800</GroupID of meters to receive new firmware>");
-//            concentrator.createMessage(rms);
-//            pendingMessageID = ((DeviceMessage) concentrator.getPendingMessages().get(0)).getId();
+//            concentrator.createOldMessage(rms);
+//            pendingMessageID = ((DeviceMessage) concentrator.getOldPendingMessages().get(0)).getId();
 //
 //            serial = concentrator.getSerialNumber();
-//            i = concentrator.getPendingMessages().iterator();
+//            i = concentrator.getOldPendingMessages().iterator();
 //            while (i.hasNext()) {
 //                DeviceMessage msg = (DeviceMessage) i.next();
 //                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
@@ -191,11 +191,11 @@ public class P2LPCTest {
 //
 //            rms.setState(rmt);
 //            rms.setContents("<" + RtuMessageConstant.FIRMWARE + ">" + gr.getId() + "</" + RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");
-//            concentrator.createMessage(rms);
-//            pendingMessageID = ((DeviceMessage) concentrator.getPendingMessages().get(0)).getId();
+//            concentrator.createOldMessage(rms);
+//            pendingMessageID = ((DeviceMessage) concentrator.getOldPendingMessages().get(0)).getId();
 //
 //            serial = concentrator.getSerialNumber();
-//            i = concentrator.getPendingMessages().iterator();
+//            i = concentrator.getOldPendingMessages().iterator();
 //            while (i.hasNext()) {
 //                DeviceMessage msg = (DeviceMessage) i.next();
 //                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
@@ -207,11 +207,11 @@ public class P2LPCTest {
 //            UserFile uf = Utilities.createEmptyUserFile();
 //            rms.setState(rmt);
 //            rms.setContents("<" + RtuMessageConstant.FIRMWARE + ">" + uf.getId() + "</" + RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + gr.getId() + "</GroupID of meters to receive new firmware>");
-//            concentrator.createMessage(rms);
-//            pendingMessageID = ((DeviceMessage) concentrator.getPendingMessages().get(0)).getId();
+//            concentrator.createOldMessage(rms);
+//            pendingMessageID = ((DeviceMessage) concentrator.getOldPendingMessages().get(0)).getId();
 //
 //            serial = concentrator.getSerialNumber();
-//            i = concentrator.getPendingMessages().iterator();
+//            i = concentrator.getOldPendingMessages().iterator();
 //            while (i.hasNext()) {
 //                DeviceMessage msg = (DeviceMessage) i.next();
 //                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
@@ -234,11 +234,11 @@ public class P2LPCTest {
 //
 //            rms.setState(rmt);
 //            rms.setContents("<" + RtuMessageConstant.FIRMWARE + ">" + uf.getId() + "</" + RtuMessageConstant.FIRMWARE + "><GroupID of meters to receive new firmware>" + group2.getId() + "</GroupID of meters to receive new firmware>");
-//            concentrator.createMessage(rms);
-//            pendingMessageID = ((DeviceMessage) concentrator.getPendingMessages().get(0)).getId();
+//            concentrator.createOldMessage(rms);
+//            pendingMessageID = ((DeviceMessage) concentrator.getOldPendingMessages().get(0)).getId();
 //
 //            serial = concentrator.getSerialNumber();
-//            i = concentrator.getPendingMessages().iterator();
+//            i = concentrator.getOldPendingMessages().iterator();
 //            while (i.hasNext()) {
 //                DeviceMessage msg = (DeviceMessage) i.next();
 //                iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
@@ -279,7 +279,7 @@ public class P2LPCTest {
 //                rms.setState(rmt);
 //                rms.setRtuId(meter.getId());
 //
-//                meter.createMessage(rms);
+//                meter.createOldMessage(rms);
 //
 //                meterReadTransaction.sendMeterMessages(meter, null);
 //            } else {
@@ -340,14 +340,14 @@ public class P2LPCTest {
 //                rms.setContents(contents);
 //                rms.setRtuId(concentrator.getId());
 //                rms.setState(rmt);
-//                concentrator.createMessage(rms);
-//                pendingMessageID = ((DeviceMessage) concentrator.getPendingMessages().get(0)).getId();
+//                concentrator.createOldMessage(rms);
+//                pendingMessageID = ((DeviceMessage) concentrator.getOldPendingMessages().get(0)).getId();
 //
 //                // the response contains no DLC tag, message should fail
 //                connection.setByteArrayResponse(new byte[]{0x3C, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x3C, 0x2F, 0x53, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x3E});
 //
 //                String serial = concentrator.getSerialNumber();
-//                Iterator i = concentrator.getPendingMessages().iterator();
+//                Iterator i = concentrator.getOldPendingMessages().iterator();
 //                while (i.hasNext()) {
 //                    DeviceMessage msg = (DeviceMessage) i.next();
 //                    iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
@@ -359,13 +359,13 @@ public class P2LPCTest {
 //                assertEquals(TConnection.DOWNLOADFILECHUNK, connection.getConnectionEvents().get(1));
 //
 //                rms.setState(rmt);
-//                concentrator.createMessage(rms);
-//                pendingMessageID = ((DeviceMessage) concentrator.getPendingMessages().get(0)).getId();
+//                concentrator.createOldMessage(rms);
+//                pendingMessageID = ((DeviceMessage) concentrator.getOldPendingMessages().get(0)).getId();
 //                // the response contains a DLC tag, message should succeed
 //                connection.setByteArrayResponse(new byte[]{0x3C, 0x44, 0x4C, 0x43, 0x3E, 0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F, 0x72, 0x6C, 0x64, 0x21, 0x3C, 0x2F, 0x44, 0x4C, 0x43, 0x3E});
 //
 //                serial = concentrator.getSerialNumber();
-//                i = concentrator.getPendingMessages().iterator();
+//                i = concentrator.getOldPendingMessages().iterator();
 //                while (i.hasNext()) {
 //                    DeviceMessage msg = (DeviceMessage) i.next();
 //                    iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);
@@ -380,12 +380,12 @@ public class P2LPCTest {
 //
 //                rms.setState(rmt);
 //                rms.setContents("<Frequency mark>66</Frequency mark><Frequency space>TEXT75</Frequency space>");
-//                concentrator.createMessage(rms);
-//                pendingMessageID = ((DeviceMessage) concentrator.getPendingMessages().get(0)).getId();
+//                concentrator.createOldMessage(rms);
+//                pendingMessageID = ((DeviceMessage) concentrator.getOldPendingMessages().get(0)).getId();
 //                // the message should fail because the content contains a NON-numeric value
 //
 //                serial = concentrator.getSerialNumber();
-//                i = concentrator.getPendingMessages().iterator();
+//                i = concentrator.getOldPendingMessages().iterator();
 //                while (i.hasNext()) {
 //                    DeviceMessage msg = (DeviceMessage) i.next();
 //                    iskraConcentrator.handleConcentratorRtuMessage(concentrator, serial, msg);

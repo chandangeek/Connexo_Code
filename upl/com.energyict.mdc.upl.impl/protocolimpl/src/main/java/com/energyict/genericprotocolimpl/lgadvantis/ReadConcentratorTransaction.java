@@ -37,7 +37,7 @@ public class ReadConcentratorTransaction implements Transaction {
 	}
 
 	private void executeMessages() throws BusinessException, SQLException {
-		List messages =  device.getPendingMessages();
+		List messages =  device.getOldPendingMessages();
 		for (Iterator it = messages.iterator(); it.hasNext();){
 			DeviceMessage message = (DeviceMessage) it.next();
 			String content = message.getContents();

@@ -10,7 +10,6 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.mdw.amr.*;
 import com.energyict.mdw.amr.Register;
@@ -238,7 +237,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
     }
 
     public void sendMeterMessages() throws IOException, BusinessException, SQLException {
-        Iterator mi = mbus.getPendingMessages().iterator();
+        Iterator mi = mbus.getOldPendingMessages().iterator();
 
         while (mi.hasNext()) {
             DeviceMessage msg = (DeviceMessage) mi.next();

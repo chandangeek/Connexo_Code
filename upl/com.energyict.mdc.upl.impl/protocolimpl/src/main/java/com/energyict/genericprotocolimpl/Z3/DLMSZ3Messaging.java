@@ -60,7 +60,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
             connect();
 
             if (commProfile.getSendRtuMessage()) {
-                List messageEntries = rtu.getPendingMessages();
+                List messageEntries = rtu.getOldPendingMessages();
                 applyMessages(messageEntries);
             }
 

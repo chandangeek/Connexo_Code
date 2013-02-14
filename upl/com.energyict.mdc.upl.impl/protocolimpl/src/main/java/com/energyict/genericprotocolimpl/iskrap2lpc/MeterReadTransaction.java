@@ -22,9 +22,7 @@ import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceMessage;
 import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.IntervalData;
@@ -1096,10 +1094,10 @@ public class MeterReadTransaction implements CacheMechanism {
         String showSerial = null;
 
         if (mbusRtu != null) {    //mbus messages
-            mi = mbusRtu.getPendingMessages().iterator();
+            mi = mbusRtu.getOldPendingMessages().iterator();
             showSerial = mbusRtu.getSerialNumber();
         } else {                    //eRtu messages
-            mi = eRtu.getPendingMessages().iterator();
+            mi = eRtu.getOldPendingMessages().iterator();
             showSerial = eRtu.getSerialNumber();
         }
 

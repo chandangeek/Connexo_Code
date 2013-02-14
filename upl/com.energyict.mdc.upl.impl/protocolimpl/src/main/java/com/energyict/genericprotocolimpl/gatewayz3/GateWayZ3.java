@@ -220,7 +220,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
 //            log(Level.INFO, "modem dialing " + getMeter().getPhoneNumber() + "(" + rtu.getPostDialCommand() + ")");
 //
 //            Properties props = rtu.getProperties().toStringProperties();
-//            props.putAll(rtu.getProtocol().getProperties().toStringProperties());
+//            props.putAll(rtu.getOldProtocol().getProperties().toStringProperties());
 //            if (useFixedZ3Protocol) { // then it's the master and you MUST use the WebRTUZ3 protocol
 //                WebRTUZ3 wZ3 = new WebRTUZ3();
 //                /* We remove the WakeUp property so it only wakes up in the Gateway protocol and not in the WebRTUZ3 protocol */
@@ -229,7 +229,7 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
 //                wZ3.execute(commSchedule, getLink(), getLogger());
 //            } else {    // it's a slave so you can execute his taskImpl
 //
-//                Class implementor = Class.forName(rtu.getDeviceType().getProtocol().getJavaClassName());
+//                Class implementor = Class.forName(rtu.getDeviceType().getOldProtocol().getJavaClassName());
 //                Object obj = implementor.newInstance();
 //                if (obj instanceof GenericProtocol) {
 //                    ((GenericProtocol) obj).addProperties(new TypedProperties(props));

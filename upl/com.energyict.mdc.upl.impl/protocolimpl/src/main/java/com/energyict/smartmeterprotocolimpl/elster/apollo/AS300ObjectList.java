@@ -725,7 +725,7 @@ public class AS300ObjectList {
     }
 
     /** usage example.
-     *  UniversalObject[] buffer = ((AS300) getProtocol()).getObjectFactory().getAssociationLnObject(0).getBuffer();
+     *  UniversalObject[] buffer = ((AS300) getOldProtocol()).getObjectFactory().getAssociationLnObject(0).getBuffer();
      *  AS300ObjectList.printObjectList(buffer);
      *
      */

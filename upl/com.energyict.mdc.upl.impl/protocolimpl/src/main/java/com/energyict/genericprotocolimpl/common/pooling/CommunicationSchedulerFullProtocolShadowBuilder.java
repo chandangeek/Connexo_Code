@@ -87,10 +87,10 @@ public class CommunicationSchedulerFullProtocolShadowBuilder {
      */
     private static List<DeviceMessage> createRtuMessages(final Device rtu) {
         List<DeviceMessage> messageShadowList = new ArrayList<DeviceMessage>();
-        for (DeviceMessage rtuMessage : rtu.getPendingMessages()) {
+        for (DeviceMessage rtuMessage : rtu.getOldPendingMessages()) {
             messageShadowList.add(rtuMessage);
         }
-        for (DeviceMessage rtuMessage : rtu.getSentMessages()) {
+        for (DeviceMessage rtuMessage : rtu.getOldSentMessages()) {
             messageShadowList.add(rtuMessage);
         }
         return messageShadowList;

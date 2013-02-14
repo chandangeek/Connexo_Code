@@ -89,7 +89,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
             // send RtuMessages
             if (commProfile.getSendRtuMessage()) {
                 dataHandler = initDatahandler();
-                if (getRtu().getMessages().size() != 0) {
+                if (getRtu().getOldMessages().size() != 0) {
                     sendMeterMessages(mrt.getMeter());
                 }
             }
@@ -246,7 +246,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
     }
 
     private void sendMeterMessages(Device eMeter) throws BusinessException, SQLException {
-        Iterator messageIt = getRtu().getPendingMessages().iterator();
+        Iterator messageIt = getRtu().getOldPendingMessages().iterator();
         if (messageIt.hasNext()) {
             getLogger().log(Level.INFO, "Handling MESSAGES from meter with serialnumber " + getCustomerID());
         }

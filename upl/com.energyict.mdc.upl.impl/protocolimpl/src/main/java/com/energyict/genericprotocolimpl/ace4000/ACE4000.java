@@ -4,7 +4,6 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.*;
 import com.energyict.genericprotocolimpl.ace4000.objects.ObjectFactory;
-import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.core.*;
@@ -211,7 +210,7 @@ public class ACE4000 extends AbstractGenericProtocol {
             for (CommunicationScheduler scheduler : schedulers) {
 
                 Date fromDate = scheduler.getRtu().getLastReading();
-                List<DeviceMessage> messages = scheduler.getRtu().getPendingMessages();
+                List<DeviceMessage> messages = scheduler.getRtu().getOldPendingMessages();
                 if (getACE4000Messages().shouldRetry(messages) && scheduler.getCommunicationProfile().getSendRtuMessage()) {
                     if (retry < getProtocolProperties().getRetries()) {
                         for (DeviceMessage message : messages) {
@@ -355,7 +354,7 @@ public class ACE4000 extends AbstractGenericProtocol {
     public void setMessageResults(boolean end) throws BusinessException, SQLException {
         if (getObjectFactory().isRequestsAllowed()) {
             for (CommunicationScheduler scheduler : getCommSchedulers()) {
-                getACE4000Messages().setMessageResult(end, scheduler.getRtu().getPendingMessages());
+                getACE4000Messages().setMessageResult(end, scheduler.getRtu().getOldPendingMessages());
             }
         }
     }

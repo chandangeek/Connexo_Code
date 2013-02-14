@@ -110,7 +110,7 @@ public class MK10ProtocolExecuter {
             this.properties = new Properties();
         }
 
-        CommunicationProtocol protocol = getMeter().getProtocol();
+        CommunicationProtocol protocol = getMeter().getOldProtocol();
         if (protocol != null) {
             if (protocol.getProperties() != null) {
                 this.properties.putAll(protocol.getProperties().toStringProperties());
