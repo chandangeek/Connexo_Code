@@ -1,8 +1,11 @@
 package com.energyict.protocolimpl.base;
 
 import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.protocolcollections.*;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocolimpl.base.protocolcollections.ProtocolCollectionImpl;
+import com.energyict.protocolimpl.base.protocolcollections.SmartMeterProtocolCollectionImpl;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -111,28 +114,6 @@ public class ProtocolCollectionImplTest {
     public void printMessages() {
         ProtocolCollectionImpl collection = new ProtocolCollectionImpl();
         List<String> classNames = collection.getProtocolClasses();
-        for (String className : classNames) {
-            try {
-                Object object = Class.forName(className).newInstance();
-                if (object instanceof Messaging) {
-                    Messaging messaging = (Messaging) object;
-                    for (Object messageCategorySpec : messaging.getMessageCategories()) {
-                        MessageCategorySpec mcs = (MessageCategorySpec) messageCategorySpec;
-                        for (Object messageSpec : mcs.getMessageSpecs()) {
-                            MessageSpec ms = (MessageSpec) messageSpec;
-                            System.out.println(ms.getName());
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-        }
-
-        System.out.println("*************************************************************************");
-
-        GenericProtocolCollectionImpl gcollection = new GenericProtocolCollectionImpl();
-        classNames = gcollection.getProtocolClasses();
         for (String className : classNames) {
             try {
                 Object object = Class.forName(className).newInstance();
