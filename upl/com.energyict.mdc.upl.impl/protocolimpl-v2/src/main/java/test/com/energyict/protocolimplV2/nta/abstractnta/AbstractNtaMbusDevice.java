@@ -86,8 +86,8 @@ public abstract class AbstractNtaMbusDevice implements Pluggable, SimpleMeter, D
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedStandardMessages() {
-        return getMessageProtocol().getSupportedStandardMessages();
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return getMessageProtocol().getSupportedMessages();
     }
 
     @Override

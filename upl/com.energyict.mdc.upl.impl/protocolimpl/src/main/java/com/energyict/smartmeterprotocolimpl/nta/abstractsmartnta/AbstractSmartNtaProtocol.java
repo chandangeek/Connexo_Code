@@ -7,7 +7,7 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
-import com.energyict.mdw.core.CommunicationScheduler;
+//import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
@@ -403,29 +403,29 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      * @throws java.io.IOException   if an io exception occurred
      */
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
-        if (getProperties().isWakeUp()) {
-            String ipAddress = "";
-            logger.info("In Wakeup");
-            CommunicationScheduler cs = ProtocolTools.mw().getCommunicationSchedulerFactory().find(communicationSchedulerId);
-            if(cs != null){
-                SmsWakeup smsWakeup = new SmsWakeup(cs.getRtu(), logger);
-                try {
-                    smsWakeup.doWakeUp();
-                } catch (SQLException e) {
-                    logger.severe("WakeUp failed - " + e.getMessage());
-                    ProtocolTools.closeConnection();
-                    throw new ProcessingException("Failed during the WakeUp",e);
-                }
-
-                ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), "4059");
-
-                link.setStreamConnection(new SocketStreamConnection(ipAddress));
-                link.getStreamConnection().open();
-                logger.log(Level.INFO, "Connected to " + ipAddress);
-            } else {
-                throw new BusinessException("Could not find the proper CommunicationScheduler during the WakeUp.");
-            }
-        }
+//        if (getProperties().isWakeUp()) {
+//            String ipAddress = "";
+//            logger.info("In Wakeup");
+//            CommunicationScheduler cs = ProtocolTools.mw().getCommunicationSchedulerFactory().find(communicationSchedulerId);
+//            if(cs != null){
+//                SmsWakeup smsWakeup = new SmsWakeup(cs.getRtu(), logger);
+//                try {
+//                    smsWakeup.doWakeUp();
+//                } catch (SQLException e) {
+//                    logger.severe("WakeUp failed - " + e.getMessage());
+//                    ProtocolTools.closeConnection();
+//                    throw new ProcessingException("Failed during the WakeUp",e);
+//                }
+//
+//                ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), "4059");
+//
+//                link.setStreamConnection(new SocketStreamConnection(ipAddress));
+//                link.getStreamConnection().open();
+//                logger.log(Level.INFO, "Connected to " + ipAddress);
+//            } else {
+//                throw new BusinessException("Could not find the proper CommunicationScheduler during the WakeUp.");
+//            }
+//        }
         return true;
     }
 

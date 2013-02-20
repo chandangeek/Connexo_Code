@@ -54,18 +54,18 @@ public class MK10DemandValuesExecuter {
 	 * Public methods
 	 */
 
-	public void validateChannels() throws UnsupportedException, IOException, BusinessException {
-        if (getExecuter().getCommunicationProfile().getCheckChannelConfig()) {
-            // check if configuration nr of channels == protocol nr of channels... else throw exception
-            if (getConfigNumberOfChannels() != getExecuter().getMk10Protocol().getNumberOfChannels()) {
-            	getExecuter().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION);
-                throw new IOException(
-                		"nr of channels configuration (" + getConfigNumberOfChannels() + 
-                		") != nr of channels protocol (" + getExecuter().getMk10Protocol().getNumberOfChannels() + ")"
-                );
-            }
-        }
-	}
+//	public void validateChannels() throws UnsupportedException, IOException, BusinessException {
+//        if (getExecuter().getCommunicationProfile().getCheckChannelConfig()) {
+//            // check if configuration nr of channels == protocol nr of channels... else throw exception
+//            if (getConfigNumberOfChannels() != getExecuter().getMk10Protocol().getNumberOfChannels()) {
+//            	getExecuter().adjustCompletionCode(AmrJournalEntry.CC_CONFIGURATION);
+//                throw new IOException(
+//                		"nr of channels configuration (" + getConfigNumberOfChannels() +
+//                		") != nr of channels protocol (" + getExecuter().getMk10Protocol().getNumberOfChannels() + ")"
+//                );
+//            }
+//        }
+//	}
 
     public Date validateLastReading(Date lastReading, TimeZone timeZone) {
         Date testdate;
@@ -106,27 +106,28 @@ public class MK10DemandValuesExecuter {
 	    }
 	    this.now = new Date(); //Calendar.getInstance().getTime();
 		
-		// Partial data read
-    	getExecuter().log(Level.INFO,	"retrieve interval data from " + (new java.util.Date(validatedLastReading.getTime())) +	" to " + now);
-        if (validatedLastReading.getTime() > Calendar.getInstance().getTime().getTime()) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.HOUR_OF_DAY, -1);
-            getExecuter().log(Level.SEVERE, "error lastreading > current time, use " + calendar.getTime() + " as last reading");
-            return getExecuter().getMk10Protocol().getProfileData(calendar.getTime(), getExecuter().getCommunicationProfile().getReadMeterEvents());
-        } else {
-            return getExecuter().getMk10Protocol().getProfileData(new Date(validatedLastReading.getTime()), getExecuter().getCommunicationProfile().getReadMeterEvents());
-        }
+//		// Partial data read
+//    	getExecuter().log(Level.INFO,	"retrieve interval data from " + (new java.util.Date(validatedLastReading.getTime())) +	" to " + now);
+//        if (validatedLastReading.getTime() > Calendar.getInstance().getTime().getTime()) {
+//            Calendar calendar = Calendar.getInstance();
+//            calendar.add(Calendar.HOUR_OF_DAY, -1);
+//            getExecuter().log(Level.SEVERE, "error lastreading > current time, use " + calendar.getTime() + " as last reading");
+//            return getExecuter().getMk10Protocol().getProfileData(calendar.getTime(), getExecuter().getCommunicationProfile().getReadMeterEvents());
+//        } else {
+//            return getExecuter().getMk10Protocol().getProfileData(new Date(validatedLastReading.getTime()), getExecuter().getCommunicationProfile().getReadMeterEvents());
+//        }
+        return null;
 	}
 	
-	public ProfileData getReadAllDemandValues() throws IOException, BusinessException {
-	    if (getExtraIntervals() > 0) {
-	    	this.validatedLastReading = validateLastReading(new Date(getExecuter().getMeter().getLastReading().getTime() - getExtraIntervals() * getExecuter().getMk10Protocol().getInfoTypeProfileInterval() * 1000), getExecuter().getMeter().getTimeZone());
-	    } else {
-	    	this.validatedLastReading = validateLastReading(getExecuter().getMeter().getLastReading(), getExecuter().getMeter().getTimeZone());
-	    }
-	    this.now = new Date(); //Calendar.getInstance().getTime();
-	    return getExecuter().getMk10Protocol().getProfileData(getExecuter().getCommunicationProfile().getReadMeterEvents());
-	}
+//	public ProfileData getReadAllDemandValues() throws IOException, BusinessException {
+//	    if (getExtraIntervals() > 0) {
+//	    	this.validatedLastReading = validateLastReading(new Date(getExecuter().getMeter().getLastReading().getTime() - getExtraIntervals() * getExecuter().getMk10Protocol().getInfoTypeProfileInterval() * 1000), getExecuter().getMeter().getTimeZone());
+//	    } else {
+//	    	this.validatedLastReading = validateLastReading(getExecuter().getMeter().getLastReading(), getExecuter().getMeter().getTimeZone());
+//	    }
+//	    this.now = new Date(); //Calendar.getInstance().getTime();
+//	    return getExecuter().getMk10Protocol().getProfileData(getExecuter().getCommunicationProfile().getReadMeterEvents());
+//	}
 	
 	/*
 	 * Public getters and setters

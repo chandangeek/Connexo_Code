@@ -2,30 +2,44 @@ package com.energyict.genericprotocolimpl.gatewayz3;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.DuplicateException;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.coreimpl.IPDialerSelector;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.*;
-import com.energyict.genericprotocolimpl.webrtuz3.WebRTUZ3;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.ComPortShadow;
-import com.energyict.mdw.shadow.DeviceShadow;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.genericprotocolimpl.common.CommonUtils;
+import com.energyict.genericprotocolimpl.common.ConcentratorProtocol;
+import com.energyict.genericprotocolimpl.common.DLMSProtocol;
+import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.Device;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocolimpl.cynet.*;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.cynet.ManufacturerId;
+import com.energyict.protocolimpl.cynet.Network;
+import com.energyict.protocolimpl.cynet.NetworkNode;
+import com.energyict.protocolimpl.cynet.NetworkTopology;
+import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -147,151 +161,151 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
         }
     }
 
-    /**
-     * Execute the Masters Protocol. The protocol for the master is the {@link WebRTUZ3} protocol.
-     *
-     * @param commSchedule
-     */
-    private void doExecuteMaster(CommunicationScheduler commSchedule) {
-        doExecuteSlave(commSchedule, true);
-    }
+//    /**
+//     * Execute the Masters Protocol. The protocol for the master is the {@link WebRTUZ3} protocol.
+//     *
+//     * @param commSchedule
+//     */
+//    private void doExecuteMaster(CommunicationScheduler commSchedule) {
+//        doExecuteSlave(commSchedule, true);
+//    }
+//
+//    /**
+//     * Execute the slave devices
+//     *
+//     * @param commSchedule       the CommunicationSchedule to execute
+//     * @param useFixedZ3Protocol indicate whether to use the fixed {@link WebRTUZ3} protocol or not
+//     */
+//    private void doExecuteSlave(CommunicationScheduler commSchedule, boolean useFixedZ3Protocol) {
+////        Device rtu = commSchedule.getRtu();
+////        try {
+////            if ((commSchedule.getNextCommunication() != null) && (commSchedule.getNextCommunication().before(Calendar.getInstance(rtu.getDeviceTimeZone()).getTime()))
+////                    && !commSchedule.equals(getCommunicationScheduler())) {
+////
+////                log(Level.INFO, "Starting to handle meter \'" + rtu + "\'");
+////
+////                getLink().getStreamConnection().write(rtu.getPostDialCommand() + "\r\n", 500);
+////
+////                executeProtocol(commSchedule, rtu, useFixedZ3Protocol);
+////
+////                Device master = getMasterForMeter(rtu.getDeviceId());
+////                if (master != null) {
+////                    if (rtu.getGateway() == null) {
+////                        rtu.updateGateway(master);
+////                    } else if (!master.getDeviceId().equalsIgnoreCase(rtu.getGateway().getDeviceId())) {
+////                        rtu.updateGateway(master);
+////                    }
+////                }
+////
+////                log(Level.INFO, "Meter \'" + rtu + "\' has finished.");
+////            }
+////        } catch (IOException e) {
+////            if (e instanceof SocketException) {
+////                failingSlaves.add("- Meter with deviceId " + rtu.getDeviceId() + " has failed, a SocketException occurred.\r\n");
+////            } else {
+////                log(Level.FINEST, e.getMessage());
+////                failingSlaves.add(logErrorDuringDBUpdate(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+////            }
+////
+////        } catch (SQLException e) {
+////            log(Level.FINEST, e.getMessage());
+////            failingSlaves.add(logErrorDuringDBUpdate(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+////        } catch (BusinessException e) {
+////            log(Level.FINEST, e.getMessage());
+////            failingSlaves.add(logErrorDuringDBUpdate(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+////        }
+//    }
 
-    /**
-     * Execute the slave devices
-     *
-     * @param commSchedule       the CommunicationSchedule to execute
-     * @param useFixedZ3Protocol indicate whether to use the fixed {@link WebRTUZ3} protocol or not
-     */
-    private void doExecuteSlave(CommunicationScheduler commSchedule, boolean useFixedZ3Protocol) {
-//        Device rtu = commSchedule.getRtu();
-//        try {
-//            if ((commSchedule.getNextCommunication() != null) && (commSchedule.getNextCommunication().before(Calendar.getInstance(rtu.getDeviceTimeZone()).getTime()))
-//                    && !commSchedule.equals(getCommunicationScheduler())) {
-//
-//                log(Level.INFO, "Starting to handle meter \'" + rtu + "\'");
-//
-//                getLink().getStreamConnection().write(rtu.getPostDialCommand() + "\r\n", 500);
-//
-//                executeProtocol(commSchedule, rtu, useFixedZ3Protocol);
-//
-//                Device master = getMasterForMeter(rtu.getDeviceId());
-//                if (master != null) {
-//                    if (rtu.getGateway() == null) {
-//                        rtu.updateGateway(master);
-//                    } else if (!master.getDeviceId().equalsIgnoreCase(rtu.getGateway().getDeviceId())) {
-//                        rtu.updateGateway(master);
-//                    }
-//                }
-//
-//                log(Level.INFO, "Meter \'" + rtu + "\' has finished.");
-//            }
-//        } catch (IOException e) {
-//            if (e instanceof SocketException) {
-//                failingSlaves.add("- Meter with deviceId " + rtu.getDeviceId() + " has failed, a SocketException occurred.\r\n");
-//            } else {
-//                log(Level.FINEST, e.getMessage());
-//                failingSlaves.add(logErrorDuringDBUpdate(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-//            }
-//
-//        } catch (SQLException e) {
-//            log(Level.FINEST, e.getMessage());
-//            failingSlaves.add(logErrorDuringDBUpdate(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-//        } catch (BusinessException e) {
-//            log(Level.FINEST, e.getMessage());
-//            failingSlaves.add(logErrorDuringDBUpdate(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-//        }
-    }
-
-    /**
-     * Handles the protocol. The rtu properties are added before the generic execute method is called
-     *
-     * @param commSchedule       - the {@link CommunicationScheduler} to execute
-     * @param rtu                - the rtu we are dealing with
-     * @param useFixedZ3Protocol - indicates to use the WebRTUZ3 protocol(for the master)
-     * @throws SQLException      if a database error occurred when we update the journal
-     * @throws BusinessException if a business error occurred when we update the journal
-     */
-    private void executeProtocol(CommunicationScheduler commSchedule, Device rtu, boolean useFixedZ3Protocol) throws SQLException, BusinessException {
-//        Integer completionCode = AmrJournalEntry.CC_OK;
-//        String errorMessage = "";
-//        long connectTime = System.currentTimeMillis();
-//        try {
-//            commSchedule.startCommunication();
-//            log(Level.INFO, "modem dialing " + getMeter().getPhoneNumber() + "(" + rtu.getPostDialCommand() + ")");
-//
-//            Properties props = rtu.getProperties().toStringProperties();
-//            props.putAll(rtu.getOldProtocol().getProperties().toStringProperties());
-//            if (useFixedZ3Protocol) { // then it's the master and you MUST use the WebRTUZ3 protocol
-//                WebRTUZ3 wZ3 = new WebRTUZ3();
-//                /* We remove the WakeUp property so it only wakes up in the Gateway protocol and not in the WebRTUZ3 protocol */
-//                props.remove("WakeUp");
-//                wZ3.addProperties(props);
-//                wZ3.execute(commSchedule, getLink(), getLogger());
-//            } else {    // it's a slave so you can execute his taskImpl
-//
-//                Class implementor = Class.forName(rtu.getDeviceType().getOldProtocol().getJavaClassName());
-//                Object obj = implementor.newInstance();
-//                if (obj instanceof GenericProtocol) {
-//                    ((GenericProtocol) obj).addProperties(new TypedProperties(props));
-//                    ((GenericProtocol) obj).execute(commSchedule, getLink(), getLogger());
-//                }
-//            }
-//
-//        } catch (IOException e) {
-//            completionCode = AmrJournalEntry.CC_IOERROR;
-//            errorMessage = e.getMessage();
-//            log(Level.INFO, errorMessage);
-//            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-//        } catch (SQLException e) {
-//            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
-//            errorMessage = e.getMessage();
-//            log(Level.INFO, errorMessage);
-//            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-//        } catch (BusinessException e) {
-//            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
-//            errorMessage = e.getMessage();
-//            log(Level.INFO, errorMessage);
-//            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-//        } catch (ClassNotFoundException e) {
-//            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
-//            errorMessage = e.getMessage();
-//            log(Level.INFO, errorMessage);
-//            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-//        } catch (InstantiationException e) {
-//            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
-//            errorMessage = e.getMessage();
-//            log(Level.INFO, errorMessage);
-//            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-//        } catch (IllegalAccessException e) {
-//            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
-//            errorMessage = e.getMessage();
-//            log(Level.INFO, errorMessage);
-//            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
-//        } finally {
-//            if (rtu != null) {    // only if we have an Device we should set an AmrJournal
-//                if (completionCode != null) {
-//
-//                    AMRJournalManager amrjm = new AMRJournalManager(rtu, commSchedule);
-//                    amrjm.journal(new AmrJournalEntry(completionCode));
-//                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - connectTime) / 1000));
-//
-//                    String deviceId = rtu.getDeviceId();
-//                    NetworkNode nn = getNetworkNodeForDeviceId(deviceId);
-//                    if ((nn != null) && (nn.getSignalStrength() != null)) {
-//                        String message = "Slave RSSI for node [" + deviceId + "]: (" + nn.getSignalStrength().getDisplayName() + ", " + nn.getSignalStrength().getRSSIValue() + ")";
-//                        amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, message));
-//                    }
-//
-//                    if (completionCode == AmrJournalEntry.CC_OK) {
-//                        amrjm.updateLastCommunication();
-//                    } else {
-//                        amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, errorMessage));
-//                        amrjm.updateRetrials();
-//                    }
-//                }
-//            }
-//        }
-    }
+//    /**
+//     * Handles the protocol. The rtu properties are added before the generic execute method is called
+//     *
+//     * @param commSchedule       - the {@link CommunicationScheduler} to execute
+//     * @param rtu                - the rtu we are dealing with
+//     * @param useFixedZ3Protocol - indicates to use the WebRTUZ3 protocol(for the master)
+//     * @throws SQLException      if a database error occurred when we update the journal
+//     * @throws BusinessException if a business error occurred when we update the journal
+//     */
+//    private void executeProtocol(CommunicationScheduler commSchedule, Device rtu, boolean useFixedZ3Protocol) throws SQLException, BusinessException {
+////        Integer completionCode = AmrJournalEntry.CC_OK;
+////        String errorMessage = "";
+////        long connectTime = System.currentTimeMillis();
+////        try {
+////            commSchedule.startCommunication();
+////            log(Level.INFO, "modem dialing " + getMeter().getPhoneNumber() + "(" + rtu.getPostDialCommand() + ")");
+////
+////            Properties props = rtu.getProperties().toStringProperties();
+////            props.putAll(rtu.getOldProtocol().getProperties().toStringProperties());
+////            if (useFixedZ3Protocol) { // then it's the master and you MUST use the WebRTUZ3 protocol
+////                WebRTUZ3 wZ3 = new WebRTUZ3();
+////                /* We remove the WakeUp property so it only wakes up in the Gateway protocol and not in the WebRTUZ3 protocol */
+////                props.remove("WakeUp");
+////                wZ3.addProperties(props);
+////                wZ3.execute(commSchedule, getLink(), getLogger());
+////            } else {    // it's a slave so you can execute his taskImpl
+////
+////                Class implementor = Class.forName(rtu.getDeviceType().getOldProtocol().getJavaClassName());
+////                Object obj = implementor.newInstance();
+////                if (obj instanceof GenericProtocol) {
+////                    ((GenericProtocol) obj).addProperties(new TypedProperties(props));
+////                    ((GenericProtocol) obj).execute(commSchedule, getLink(), getLogger());
+////                }
+////            }
+////
+////        } catch (IOException e) {
+////            completionCode = AmrJournalEntry.CC_IOERROR;
+////            errorMessage = e.getMessage();
+////            log(Level.INFO, errorMessage);
+////            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+////        } catch (SQLException e) {
+////            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+////            errorMessage = e.getMessage();
+////            log(Level.INFO, errorMessage);
+////            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+////        } catch (BusinessException e) {
+////            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+////            errorMessage = e.getMessage();
+////            log(Level.INFO, errorMessage);
+////            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+////        } catch (ClassNotFoundException e) {
+////            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+////            errorMessage = e.getMessage();
+////            log(Level.INFO, errorMessage);
+////            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+////        } catch (InstantiationException e) {
+////            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+////            errorMessage = e.getMessage();
+////            log(Level.INFO, errorMessage);
+////            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+////        } catch (IllegalAccessException e) {
+////            completionCode = AmrJournalEntry.CC_UNEXPECTED_ERROR;
+////            errorMessage = e.getMessage();
+////            log(Level.INFO, errorMessage);
+////            failingSlaves.add(logErrorDuringCommunication(rtu.getDeviceId(), commSchedule.getCommunicationProfile().getFullName()));
+////        } finally {
+////            if (rtu != null) {    // only if we have an Device we should set an AmrJournal
+////                if (completionCode != null) {
+////
+////                    AMRJournalManager amrjm = new AMRJournalManager(rtu, commSchedule);
+////                    amrjm.journal(new AmrJournalEntry(completionCode));
+////                    amrjm.journal(new AmrJournalEntry(AmrJournalEntry.CONNECTTIME, Math.abs(System.currentTimeMillis() - connectTime) / 1000));
+////
+////                    String deviceId = rtu.getDeviceId();
+////                    NetworkNode nn = getNetworkNodeForDeviceId(deviceId);
+////                    if ((nn != null) && (nn.getSignalStrength() != null)) {
+////                        String message = "Slave RSSI for node [" + deviceId + "]: (" + nn.getSignalStrength().getDisplayName() + ", " + nn.getSignalStrength().getRSSIValue() + ")";
+////                        amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, message));
+////                    }
+////
+////                    if (completionCode == AmrJournalEntry.CC_OK) {
+////                        amrjm.updateLastCommunication();
+////                    } else {
+////                        amrjm.journal(new AmrJournalEntry(AmrJournalEntry.DETAIL, errorMessage));
+////                        amrjm.updateRetrials();
+////                    }
+////                }
+////            }
+////        }
+//    }
 
     /**
      * @param rtu             the deviceId of the rtu
@@ -606,14 +620,14 @@ public class GateWayZ3 extends DLMSProtocol implements ConcentratorProtocol {
         return catGPRSModemSetup;
     }
 
-    /**
-     * Get the ComPort the ComServer is using for the Z3 communication
-     *
-     * @return current schedulers {@link ComPortShadow}
-     */
-    private ComPortShadow getCurrentComportSchadow() {
-        return getCommunicationScheduler().getComPort().getShadow();
-    }
+//    /**
+//     * Get the ComPort the ComServer is using for the Z3 communication
+//     *
+//     * @return current schedulers {@link ComPortShadow}
+//     */
+//    private ComPortShadow getCurrentComportSchadow() {
+//        return getCommunicationScheduler().getComPort().getShadow();
+//    }
 
     /**
      * Setter for the CosemObjectFactory, mainly for testing purposes

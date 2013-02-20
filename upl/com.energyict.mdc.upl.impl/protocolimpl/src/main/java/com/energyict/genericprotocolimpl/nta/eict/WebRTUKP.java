@@ -1,11 +1,13 @@
 package com.energyict.genericprotocolimpl.nta.eict;
 
 import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractMbusDevice;
 import com.energyict.genericprotocolimpl.nta.abstractnta.AbstractNTAProtocol;
-import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
 
 import java.util.ArrayList;
@@ -110,10 +112,10 @@ public class WebRTUKP extends AbstractNTAProtocol {
         super.setMeterConfig(meterConfig);
     }
 
-//    @Override
-    protected void setCommunicationScheduler(CommunicationScheduler communicationScheduler) {
-//        super.setCommunicationScheduler(communicationScheduler);
-    }
+////    @Override
+//    protected void setCommunicationScheduler(CommunicationScheduler communicationScheduler) {
+////        super.setCommunicationScheduler(communicationScheduler);
+//    }
 
     @Override
     protected void setStoreObject(StoreObject storeObject) {

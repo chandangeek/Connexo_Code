@@ -107,49 +107,49 @@ public class SmsHandler implements MessageHandler {
         storeObject = null; //reset
     }
 
-    /**
-     * Log a failed event
-     *
-     * @param commSchedule
-     */
-    private void logFailure(CommunicationScheduler commSchedule) {
-        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
-        journal.addAll(getMeterAmrLogging().getJournalEntries());
-        try {
-            commSchedule.journal(journal);
-            commSchedule.logFailure(new Date(), "");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
+//    /**
+//     * Log a failed event
+//     *
+//     * @param commSchedule
+//     */
+//    private void logFailure(CommunicationScheduler commSchedule) {
+//        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+//        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
+//        journal.addAll(getMeterAmrLogging().getJournalEntries());
+//        try {
+//            commSchedule.journal(journal);
+//            commSchedule.logFailure(new Date(), "");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-    /**
-     * Log a successful event
-     *
-     * @param commSchedule
-     */
-    private void logSuccess(CommunicationScheduler commSchedule) {
-        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
-        journal.addAll(getMeterAmrLogging().getJournalEntries());
-        try {
-            commSchedule.logSuccess(new Date());
-            commSchedule.journal(journal);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
+//    /**
+//     * Log a successful event
+//     *
+//     * @param commSchedule
+//     */
+//    private void logSuccess(CommunicationScheduler commSchedule) {
+//        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+//        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
+//        journal.addAll(getMeterAmrLogging().getJournalEntries());
+//        try {
+//            commSchedule.logSuccess(new Date());
+//            commSchedule.journal(journal);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public MeterAmrLogging getMeterAmrLogging() {
         if (meterAmrLogging == null) {
@@ -180,43 +180,43 @@ public class SmsHandler implements MessageHandler {
         return false;
     }
 
-    private boolean processSMSFrameSingleSchedule(SMSFrame smsFrame, CommunicationScheduler cs) {
-        boolean csExecuted = false;
-        String csName = cs.displayString();
-        if (isInboundSmsProfile(cs)) {
-            meterAmrLogging = null;
-            if (cs.getNextCommunication() == null) {
-                log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
-            } else {
-                log("Executing communicationScheduler '" + csName + "'.");
-                try {
-                    cs.startCommunication();
-                    cs.startReadingNow();
-                    csExecuted = true;
-                    processSchedule(smsFrame, cs.getCommunicationProfile());
-                    logSuccess(cs);
-                } catch (CTRException e) {
-                    getMeterAmrLogging().logInfo(e);
-                    logFailure(cs);
-                } catch (SQLException e) {
-                    getMeterAmrLogging().logInfo(e);
-                    logFailure(cs);
-                } catch (IOException e) {
-                    getMeterAmrLogging().logInfo(e);
-                    logFailure(cs);
-                } catch (BusinessException e) {
-                    getMeterAmrLogging().logInfo(e);
-                    logFailure(cs);
-                } catch (Exception e) {
-                    getMeterAmrLogging().logInfo(e);
-                    e.printStackTrace();
-                }
-            }
-        } else {
-            log(Level.FINE, "CommunicationScheduler '" + csName + "' is no SMS communication profile. The name should contain '" + SMS + "'. Skipping.");
-        }
-        return csExecuted;
-    }
+//    private boolean processSMSFrameSingleSchedule(SMSFrame smsFrame, CommunicationScheduler cs) {
+//        boolean csExecuted = false;
+//        String csName = cs.displayString();
+//        if (isInboundSmsProfile(cs)) {
+//            meterAmrLogging = null;
+//            if (cs.getNextCommunication() == null) {
+//                log("CommunicationScheduler '" + csName + "' nextCommunication is 'null'. Skipping.");
+//            } else {
+//                log("Executing communicationScheduler '" + csName + "'.");
+//                try {
+//                    cs.startCommunication();
+//                    cs.startReadingNow();
+//                    csExecuted = true;
+//                    processSchedule(smsFrame, cs.getCommunicationProfile());
+//                    logSuccess(cs);
+//                } catch (CTRException e) {
+//                    getMeterAmrLogging().logInfo(e);
+//                    logFailure(cs);
+//                } catch (SQLException e) {
+//                    getMeterAmrLogging().logInfo(e);
+//                    logFailure(cs);
+//                } catch (IOException e) {
+//                    getMeterAmrLogging().logInfo(e);
+//                    logFailure(cs);
+//                } catch (BusinessException e) {
+//                    getMeterAmrLogging().logInfo(e);
+//                    logFailure(cs);
+//                } catch (Exception e) {
+//                    getMeterAmrLogging().logInfo(e);
+//                    e.printStackTrace();
+//                }
+//            }
+//        } else {
+//            log(Level.FINE, "CommunicationScheduler '" + csName + "' is no SMS communication profile. The name should contain '" + SMS + "'. Skipping.");
+//        }
+//        return csExecuted;
+//    }
 
     /**
      * Decrypt and parse the sms data using the rtu properties
@@ -243,161 +243,161 @@ public class SmsHandler implements MessageHandler {
      * @param communicationProfile: the meter's communication profile
      * @throws CTRException
      */
-    private void processSchedule(SMSFrame smsFrame, CommunicationProfile communicationProfile) throws CTRException {
+//    private void processSchedule(SMSFrame smsFrame, CommunicationProfile communicationProfile) throws CTRException {
+//
+//        if (communicationProfile == null) {
+//            throw new CTRConfigurationException("There was no communication profile.");
+//        }
+//
+//        smsFrame.doParse();
+////        String pdr = getRtu().getDialHomeId();
+//        String pdr = "No valid PDR, need to get it from a proper property";
+//
+//        if (smsFrame.getData() instanceof ArrayEventsQueryResponseStructure) {
+//            ArrayEventsQueryResponseStructure data = (ArrayEventsQueryResponseStructure) smsFrame.getData();
+//            parseAndStoreEventArray(communicationProfile, pdr, data);
+//        } else if (smsFrame.getData() instanceof Trace_CQueryResponseStructure) {
+//            Trace_CQueryResponseStructure data = (Trace_CQueryResponseStructure) smsFrame.getData();
+//            parseAndStoreTrace_C(pdr, data, communicationProfile);
+//        } else if (smsFrame.getData() instanceof TableDECFQueryResponseStructure) {
+//            TableDECFQueryResponseStructure data = (TableDECFQueryResponseStructure) smsFrame.getData();
+//            parseAndStoreDECFTableData(communicationProfile, pdr, data);
+//        } else if (smsFrame.getData() instanceof TableDECQueryResponseStructure) {
+//            TableDECQueryResponseStructure data = (TableDECQueryResponseStructure) smsFrame.getData();
+//            parseAndStoreDECTableData(communicationProfile, pdr, data);
+//        } else if (smsFrame.getData() instanceof AckStructure) {
+//            AckStructure data = (AckStructure) smsFrame.getData();
+//            String message = handleACK(data);
+//            log(message);
+//            getMeterAmrLogging().logInfo(message);
+//        } else if (smsFrame.getData() instanceof NackStructure) {
+//            NackStructure data = (NackStructure) smsFrame.getData();
+//            String message = handleNACK(data);
+//            logWarning(message);
+//            getMeterAmrLogging().logInfo(message);
+//        } else {
+//            String message = "Unrecognized data structure in SMS. Expected array of event records, trace_C response or tableDEC(F) response.";
+//            logWarning(message);
+//            getMeterAmrLogging().logInfo(message);
+//            throw new CTRException(message);
+//        }
+//
+//        storeDataToEIServer();
+//    }
 
-        if (communicationProfile == null) {
-            throw new CTRConfigurationException("There was no communication profile.");
-        }
+//    private String handleACK(AckStructure data) {
+//        String message;
+//        int wdb = -1;
+//        if (data.getFunctionCode().getFunction().equals(Function.WRITE) || data.getFunctionCode().getFunction().equals(Function.SECRET)) {
+//            wdb = data.getAdditionalData().getBytes()[0];
+//        } else if (data.getFunctionCode().getFunction().equals(Function.EXECUTE)) {
+//            wdb = data.getAdditionalData().getBytes()[2];
+//        }
+//
+//        if (wdb != -1) {
+//            DeviceMessageFilter filter = new DeviceMessageFilter();
+//            filter.setTrackingIdMask("*#" + wdb + "*");
+//            Set aSet = new HashSet();
+//            aSet.add(DeviceMessageState.SENT);
+//            aSet.add(DeviceMessageState.FAILED);
+//            filter.setStates(aSet);
+//
+//            List<OldDeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
+//            if (rtuMessageList.size() != 0) {
+//                OldDeviceMessage rtuMessage = rtuMessageList.get(0);
+//                String trackingId = rtuMessage.getTrackingId();
+//
+//                Pattern p = Pattern.compile("#");
+//                Matcher m = p.matcher(trackingId);
+//                int count = 0;
+//                while (m.find()) {
+//                    count += 1;
+//                }
+//
+//                OldDeviceMessageShadow shadow = rtuMessage.getShadow();
+//                message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction();
+//                shadow.setTrackingId(trackingId.replace("#" + wdb, ""));
+//                if (count > 1) {
+//                    message += " - rtuMessage with ID " + rtuMessage.getId() + " still has " + (count - 1) + " SMS messages pending.";
+//                } else {
+//                    if (shadow.getState() != DeviceMessageState.FAILED) {
+//                        shadow.setState(DeviceMessageState.CONFIRMED);
+//                        message += " - rtuMessage with ID " + rtuMessage.getId() + " will be set Confirmed.";
+//                    } else {
+//                        message += " - rtuMessage with ID " + rtuMessage.getId() + " already in state Failed.";
+//                    }
+//                }
+//                try {
+//                    rtuMessage.update(shadow);
+//                } catch (SQLException e) {
+//                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
+//                } catch (BusinessException e) {
+//                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
+//                }
+//            } else {
+//                message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction() +
+//                        " - Could not find the corresponding rtuMessage.";
+//            }
+//        } else {
+//            message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction() +
+//                    " - Could not parse the WriteDataBlock identifier from the response.";
+//        }
+//        return message;
+//    }
 
-        smsFrame.doParse();
-//        String pdr = getRtu().getDialHomeId();
-        String pdr = "No valid PDR, need to get it from a proper property";
-
-        if (smsFrame.getData() instanceof ArrayEventsQueryResponseStructure) {
-            ArrayEventsQueryResponseStructure data = (ArrayEventsQueryResponseStructure) smsFrame.getData();
-            parseAndStoreEventArray(communicationProfile, pdr, data);
-        } else if (smsFrame.getData() instanceof Trace_CQueryResponseStructure) {
-            Trace_CQueryResponseStructure data = (Trace_CQueryResponseStructure) smsFrame.getData();
-            parseAndStoreTrace_C(pdr, data, communicationProfile);
-        } else if (smsFrame.getData() instanceof TableDECFQueryResponseStructure) {
-            TableDECFQueryResponseStructure data = (TableDECFQueryResponseStructure) smsFrame.getData();
-            parseAndStoreDECFTableData(communicationProfile, pdr, data);
-        } else if (smsFrame.getData() instanceof TableDECQueryResponseStructure) {
-            TableDECQueryResponseStructure data = (TableDECQueryResponseStructure) smsFrame.getData();
-            parseAndStoreDECTableData(communicationProfile, pdr, data);
-        } else if (smsFrame.getData() instanceof AckStructure) {
-            AckStructure data = (AckStructure) smsFrame.getData();
-            String message = handleACK(data);
-            log(message);
-            getMeterAmrLogging().logInfo(message);
-        } else if (smsFrame.getData() instanceof NackStructure) {
-            NackStructure data = (NackStructure) smsFrame.getData();
-            String message = handleNACK(data);
-            logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-        } else {
-            String message = "Unrecognized data structure in SMS. Expected array of event records, trace_C response or tableDEC(F) response.";
-            logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-            throw new CTRException(message);
-        }
-
-        storeDataToEIServer();
-    }
-
-    private String handleACK(AckStructure data) {
-        String message;
-        int wdb = -1;
-        if (data.getFunctionCode().getFunction().equals(Function.WRITE) || data.getFunctionCode().getFunction().equals(Function.SECRET)) {
-            wdb = data.getAdditionalData().getBytes()[0];
-        } else if (data.getFunctionCode().getFunction().equals(Function.EXECUTE)) {
-            wdb = data.getAdditionalData().getBytes()[2];
-        }
-
-        if (wdb != -1) {
-            DeviceMessageFilter filter = new DeviceMessageFilter();
-            filter.setTrackingIdMask("*#" + wdb + "*");
-            Set aSet = new HashSet();
-            aSet.add(DeviceMessageState.SENT);
-            aSet.add(DeviceMessageState.FAILED);
-            filter.setStates(aSet);
-
-            List<OldDeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
-            if (rtuMessageList.size() != 0) {
-                OldDeviceMessage rtuMessage = rtuMessageList.get(0);
-                String trackingId = rtuMessage.getTrackingId();
-
-                Pattern p = Pattern.compile("#");
-                Matcher m = p.matcher(trackingId);
-                int count = 0;
-                while (m.find()) {
-                    count += 1;
-                }
-
-                OldDeviceMessageShadow shadow = rtuMessage.getShadow();
-                message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction();
-                shadow.setTrackingId(trackingId.replace("#" + wdb, ""));
-                if (count > 1) {
-                    message += " - rtuMessage with ID " + rtuMessage.getId() + " still has " + (count - 1) + " SMS messages pending.";
-                } else {
-                    if (shadow.getState() != DeviceMessageState.FAILED) {
-                        shadow.setState(DeviceMessageState.CONFIRMED);
-                        message += " - rtuMessage with ID " + rtuMessage.getId() + " will be set Confirmed.";
-                    } else {
-                        message += " - rtuMessage with ID " + rtuMessage.getId() + " already in state Failed.";
-                    }
-                }
-                try {
-                    rtuMessage.update(shadow);
-                } catch (SQLException e) {
-                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
-                } catch (BusinessException e) {
-                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
-                }
-            } else {
-                message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction() +
-                        " - Could not find the corresponding rtuMessage.";
-            }
-        } else {
-            message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction() +
-                    " - Could not parse the WriteDataBlock identifier from the response.";
-        }
-        return message;
-    }
-
-    private String handleNACK(NackStructure data) {
-        String message;
-        int wdb = -1;
-        if (((data.getReason().getReason() == 0x42) && (data.getFunctionCode().getFunction() == Function.EXECUTE)) ||
-                ((data.getReason().getReason() == 0x47) && (data.getFunctionCode().getFunction() == Function.EXECUTE)) ||
-                ((data.getReason().getReason() == 0x47) && (data.getFunctionCode().getFunction() == Function.WRITE)) ||
-                data.getReason().getReason() == 0x43 ||
-                data.getReason().getReason() == 0x4B ||
-                data.getReason().getReason() == 0x4F) {
-            wdb = data.getAdditionalData().getBytes()[2];
-        }
-        if (data.getReason().getReason() == 0x4A ||
-                data.getReason().getReason() == 0x4E) {
-            wdb = data.getAdditionalData().getBytes()[0];
-        }
-        if (data.getReason().getReason() == 0x50 ||
-                data.getReason().getReason() == 0x51 ||
-                data.getReason().getReason() == 0x52) {
-            wdb = data.getAdditionalData().getBytes()[1];
-        }
-
-        if (wdb != -1) {
-            DeviceMessageFilter filter = new DeviceMessageFilter();
-            filter.setTrackingIdMask("*#" + wdb + "*");
-            Set aSet = new HashSet();
-            aSet.add(DeviceMessageState.SENT);
-            filter.setStates(aSet);
-
-            List<OldDeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
-            if (rtuMessageList.size() != 0) {
-                OldDeviceMessage rtuMessage = rtuMessageList.get(0);
-                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " for reason: " + data.getReason() +
-                        " - rtuMessage with ID " + rtuMessage.getId() + " will be set Failed.";
-                OldDeviceMessageShadow shadow = rtuMessage.getShadow();
-                shadow.setTrackingId(rtuMessage.getTrackingId().replace("#" + wdb, ""));
-                shadow.setState(DeviceMessageState.FAILED);
-                try {
-                    rtuMessage.update(shadow);
-                } catch (SQLException e) {
-                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
-                } catch (BusinessException e) {
-                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
-                }
-            } else {
-                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " for reason: " + data.getReason() +
-                        " - Could not find the corresponding rtuMessage.";
-            }
-        } else {
-            message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction() + " -for reason: " + data.getReason() +
-                    " - Could not parse the WriteDataBlock identifier from the response.";
-        }
-        return message;
-    }
+//    private String handleNACK(NackStructure data) {
+//        String message;
+//        int wdb = -1;
+//        if (((data.getReason().getReason() == 0x42) && (data.getFunctionCode().getFunction() == Function.EXECUTE)) ||
+//                ((data.getReason().getReason() == 0x47) && (data.getFunctionCode().getFunction() == Function.EXECUTE)) ||
+//                ((data.getReason().getReason() == 0x47) && (data.getFunctionCode().getFunction() == Function.WRITE)) ||
+//                data.getReason().getReason() == 0x43 ||
+//                data.getReason().getReason() == 0x4B ||
+//                data.getReason().getReason() == 0x4F) {
+//            wdb = data.getAdditionalData().getBytes()[2];
+//        }
+//        if (data.getReason().getReason() == 0x4A ||
+//                data.getReason().getReason() == 0x4E) {
+//            wdb = data.getAdditionalData().getBytes()[0];
+//        }
+//        if (data.getReason().getReason() == 0x50 ||
+//                data.getReason().getReason() == 0x51 ||
+//                data.getReason().getReason() == 0x52) {
+//            wdb = data.getAdditionalData().getBytes()[1];
+//        }
+//
+//        if (wdb != -1) {
+//            DeviceMessageFilter filter = new DeviceMessageFilter();
+//            filter.setTrackingIdMask("*#" + wdb + "*");
+//            Set aSet = new HashSet();
+//            aSet.add(DeviceMessageState.SENT);
+//            filter.setStates(aSet);
+//
+//            List<OldDeviceMessage> rtuMessageList = mw().getRtuMessageFactory().findByRtuAndFilter(getRtu(), filter);
+//            if (rtuMessageList.size() != 0) {
+//                OldDeviceMessage rtuMessage = rtuMessageList.get(0);
+//                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " for reason: " + data.getReason() +
+//                        " - rtuMessage with ID " + rtuMessage.getId() + " will be set Failed.";
+//                OldDeviceMessageShadow shadow = rtuMessage.getShadow();
+//                shadow.setTrackingId(rtuMessage.getTrackingId().replace("#" + wdb, ""));
+//                shadow.setState(DeviceMessageState.FAILED);
+//                try {
+//                    rtuMessage.update(shadow);
+//                } catch (SQLException e) {
+//                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
+//                } catch (BusinessException e) {
+//                    message += " - Failed to update rtuMessage with ID " + rtuMessage.getId() + ".";
+//                }
+//            } else {
+//                message = "Received NACK for rtu with id " + getRtu().getId() + " - NACK of function " + data.getFunctionCode().getFunction() + " for reason: " + data.getReason() +
+//                        " - Could not find the corresponding rtuMessage.";
+//            }
+//        } else {
+//            message = "Received ACK for rtu with id " + getRtu().getId() + " - ACK of function " + data.getFunctionCode().getFunction() + " -for reason: " + data.getReason() +
+//                    " - Could not parse the WriteDataBlock identifier from the response.";
+//        }
+//        return message;
+//    }
 
     /**
      * Parse and store the data in the dec table (received via sms)
@@ -407,22 +407,22 @@ public class SmsHandler implements MessageHandler {
      * @param data:                 sent by the meter via sms
      * @throws CTRException
      */
-    private void parseAndStoreDECTableData(CommunicationProfile communicationProfile, String pdr, TableDECQueryResponseStructure data) throws CTRException {
-        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
-            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
-            logWarning(message);
-            throw new CTRException(message);
-        }
-
-        if (communicationProfile.getReadMeterReadings()) {
-            log("Getting registers for meter with serial number: " + getRtuSerialNumber());
-            getStoreObject().add(doReadRegisters(communicationProfile, data), getRtu());
-        } else {
-            String message = "Received SMS with register data, but register readings in EIServer are disabled for this meter ";
-            logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-        }
-    }
+//    private void parseAndStoreDECTableData(CommunicationProfile communicationProfile, String pdr, TableDECQueryResponseStructure data) throws CTRException {
+//        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
+//            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+//            logWarning(message);
+//            throw new CTRException(message);
+//        }
+//
+//        if (communicationProfile.getReadMeterReadings()) {
+//            log("Getting registers for meter with serial number: " + getRtuSerialNumber());
+//            getStoreObject().add(doReadRegisters(communicationProfile, data), getRtu());
+//        } else {
+//            String message = "Received SMS with register data, but register readings in EIServer are disabled for this meter ";
+//            logWarning(message);
+//            getMeterAmrLogging().logInfo(message);
+//        }
+//    }
 
     /**
      * Parse and store the data in the decf table (received via sms)
@@ -432,22 +432,22 @@ public class SmsHandler implements MessageHandler {
      * @param data:                 sent by the meter via sms
      * @throws CTRException
      */
-    private void parseAndStoreDECFTableData(CommunicationProfile communicationProfile, String pdr, TableDECFQueryResponseStructure data) throws CTRException {
-        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
-            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
-            logWarning(message);
-            throw new CTRException(message);
-        }
-
-        if (communicationProfile.getReadMeterReadings()) {
-            log("Getting registers for meter with serial number: " + getRtuSerialNumber());
-            getStoreObject().add(doReadRegisters(communicationProfile, data), getRtu());
-        } else {
-            String message = "Received SMS with register data, but register readings in EIServer are disabled for this meter ";
-            logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-        }
-    }
+//    private void parseAndStoreDECFTableData(CommunicationProfile communicationProfile, String pdr, TableDECFQueryResponseStructure data) throws CTRException {
+//        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
+//            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+//            logWarning(message);
+//            throw new CTRException(message);
+//        }
+//
+//        if (communicationProfile.getReadMeterReadings()) {
+//            log("Getting registers for meter with serial number: " + getRtuSerialNumber());
+//            getStoreObject().add(doReadRegisters(communicationProfile, data), getRtu());
+//        } else {
+//            String message = "Received SMS with register data, but register readings in EIServer are disabled for this meter ";
+//            logWarning(message);
+//            getMeterAmrLogging().logInfo(message);
+//        }
+//    }
 
     /**
      * Store the parsed data to EiServer, via a store object.
@@ -466,53 +466,53 @@ public class SmsHandler implements MessageHandler {
         }
     }
 
-    /**
-     * parse and store the trace_c data (received via sms)
-     *
-     * @param communicationProfile: the meter's communication profile
-     * @param pdr:                  the meter's pdr number
-     * @param data:                 sent by the meter via sms
-     * @throws CTRException
-     */
-    private void parseAndStoreTrace_C(String pdr, Trace_CQueryResponseStructure data, CommunicationProfile communicationProfile) throws CTRException {
-        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
-            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
-            logWarning(message);
-            throw new CTRException(message);
-        }
-        if (communicationProfile.getReadDemandValues()) {
-            getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + getRtuSerialNumber());
-            List<Channel> channelList = getRtu().getChannels();
-            for (Channel channel : channelList) {
-                try {
-                    if (hasDataForThisChannel(data, channel)) {
-                        boolean totalizerIncluded = hasExtraTotalizerForThisChannel(data, channel);
-                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone(), totalizerIncluded);
-                        ProfileData pd = profileForSms.getProfileData();
-                        getStoreObject().add(channel, pd);
-                        String dataId = data.getId().toString();
-                        if (totalizerIncluded) {
-                            dataId = getDailyTotObjectId(dataId);
-                        }
-                        log("Added profile data for channel " + channel.toString() + ". Data ID is " + dataId);
-                    } else {
-                        String message = "Found profile data (" + data.getId().toString() + ", " + CTRObjectInfo.getSymbol(data.getId().toString()) + "), but not for channel " + channel.toString();
-                        log(message);
-                        getMeterAmrLogging().logInfo(message);
-                    }
-                } catch (CTRException e) {
-                    String message = "Unable to read channelValues for channel [" + channel.getName() + "] " + e.getMessage();
-                    logWarning(message);
-                    getMeterAmrLogging().logInfo(message);
-                }
-            }
-        } else {
-            String message = "Received SMS with profile data, but profile readings in EIServer are disabled for this meter ";
-            logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-        }
-
-    }
+//    /**
+//     * parse and store the trace_c data (received via sms)
+//     *
+//     * @param communicationProfile: the meter's communication profile
+//     * @param pdr:                  the meter's pdr number
+//     * @param data:                 sent by the meter via sms
+//     * @throws CTRException
+//     */
+//    private void parseAndStoreTrace_C(String pdr, Trace_CQueryResponseStructure data, CommunicationProfile communicationProfile) throws CTRException {
+//        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
+//            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+//            logWarning(message);
+//            throw new CTRException(message);
+//        }
+//        if (communicationProfile.getReadDemandValues()) {
+//            getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + getRtuSerialNumber());
+//            List<Channel> channelList = getRtu().getChannels();
+//            for (Channel channel : channelList) {
+//                try {
+//                    if (hasDataForThisChannel(data, channel)) {
+//                        boolean totalizerIncluded = hasExtraTotalizerForThisChannel(data, channel);
+//                        ProfileChannelForSms profileForSms = new ProfileChannelForSms(logger, properties, channel, data, getTimeZone(), totalizerIncluded);
+//                        ProfileData pd = profileForSms.getProfileData();
+//                        getStoreObject().add(channel, pd);
+//                        String dataId = data.getId().toString();
+//                        if (totalizerIncluded) {
+//                            dataId = getDailyTotObjectId(dataId);
+//                        }
+//                        log("Added profile data for channel " + channel.toString() + ". Data ID is " + dataId);
+//                    } else {
+//                        String message = "Found profile data (" + data.getId().toString() + ", " + CTRObjectInfo.getSymbol(data.getId().toString()) + "), but not for channel " + channel.toString();
+//                        log(message);
+//                        getMeterAmrLogging().logInfo(message);
+//                    }
+//                } catch (CTRException e) {
+//                    String message = "Unable to read channelValues for channel [" + channel.getName() + "] " + e.getMessage();
+//                    logWarning(message);
+//                    getMeterAmrLogging().logInfo(message);
+//                }
+//            }
+//        } else {
+//            String message = "Received SMS with profile data, but profile readings in EIServer are disabled for this meter ";
+//            logWarning(message);
+//            getMeterAmrLogging().logInfo(message);
+//        }
+//
+//    }
 
     private boolean hasDataForThisChannel(Trace_CQueryResponseStructure data, Channel channel) {
         // Get the channel ID from the data received in the SMS
@@ -558,26 +558,26 @@ public class SmsHandler implements MessageHandler {
      * @param data:                 sent by the meter via sms
      * @throws CTRException
      */
-    private void parseAndStoreEventArray(CommunicationProfile communicationProfile, String pdr, ArrayEventsQueryResponseStructure data) throws CTRException {
-        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
-            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
-            logWarning(message);
-            throw new CTRException(message);
-        }
-
-        if (communicationProfile.getReadMeterEvents()) {
-            log("Storing events for meter with serial number: " + getRtuSerialNumber());
-            CTRMeterEvent ctrMeterEvent = new CTRMeterEvent(getTimeZone());
-            List<MeterEvent> meterEvents = ctrMeterEvent.convertToMeterEvents(Arrays.asList(data.getEvento_Short()));
-            ProfileData profileData = new ProfileData();
-            profileData.setMeterEvents(ProtocolUtils.checkOnOverlappingEvents(meterEvents));
-            getStoreObject().add(getRtu(), profileData);
-        } else {
-            String message = "Received SMS with event records, but event readings in EIServer are disabled for this meter ";
-            logWarning(message);
-            getMeterAmrLogging().logInfo(message);
-        }
-    }
+//    private void parseAndStoreEventArray(CommunicationProfile communicationProfile, String pdr, ArrayEventsQueryResponseStructure data) throws CTRException {
+//        if (!data.getPdr().getValue(0).getValue().equals(pdr)) {
+//            String message = "The meter PDR is " + pdr + ", but the pdr in the sms response was " + data.getPdr().getValue(0).getValue().toString();
+//            logWarning(message);
+//            throw new CTRException(message);
+//        }
+//
+//        if (communicationProfile.getReadMeterEvents()) {
+//            log("Storing events for meter with serial number: " + getRtuSerialNumber());
+//            CTRMeterEvent ctrMeterEvent = new CTRMeterEvent(getTimeZone());
+//            List<MeterEvent> meterEvents = ctrMeterEvent.convertToMeterEvents(Arrays.asList(data.getEvento_Short()));
+//            ProfileData profileData = new ProfileData();
+//            profileData.setMeterEvents(ProtocolUtils.checkOnOverlappingEvents(meterEvents));
+//            getStoreObject().add(getRtu(), profileData);
+//        } else {
+//            String message = "Received SMS with event records, but event readings in EIServer are disabled for this meter ";
+//            logWarning(message);
+//            getMeterAmrLogging().logInfo(message);
+//        }
+//    }
 
     /**
      * @return the meter's {@link TimeZone}
@@ -589,49 +589,49 @@ public class SmsHandler implements MessageHandler {
 //        return getRtu().getDeviceTimeZone();
     }
 
-    /**
-     * Read the register data from a received DEC(F) table
-     *
-     * @param cp:       the meter's communication profile
-     * @param response: the table containing register data
-     * @throws CTRException
-     * @return: register values
-     */
-    private MeterReadingData doReadRegisters(CommunicationProfile cp, AbstractTableQueryResponseStructure response) throws CTRException {
-
-        MeterReadingData meterReadingData = new MeterReadingData();
-        Iterator<com.energyict.mdw.amr.Register> rtuRegisterIterator = getRtu().getRegisters().iterator();
-        List groups = cp.getRtuRegisterGroups();
-        List<AbstractCTRObject> list = response.getObjects();
-
-        //Checks all registers in EIServer for that RTU. See if the SMS provides data for these registers.
-        while (rtuRegisterIterator.hasNext()) {
-            ObisCode obisCode = null;
-            try {
-                Register rtuRegister = rtuRegisterIterator.next();
-                if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
-                    obisCode = rtuRegister.getRegisterSpec().getObisCode();  //Get the obis code per register
-                    try {
-                        RegisterValue registerValue = getObisCodeMapper().readRegister(obisCode, list);
-                        registerValue.setRtuRegisterId(rtuRegister.getId());
-                        if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
-                            meterReadingData.add(registerValue);
-                        }
-                    } catch (NoSuchRegisterException e) {
-                        String message = "Received no data for " + rtuRegister.toString() + "(" + obisCode + ") " + e.getMessage();
-                        getMeterAmrLogging().logInfo(message);
-                        log(message);
-                    }
-                }
-            } catch (IOException e) {
-                //TODO if the connection is out you should not try and read the others as well...
-                getMeterAmrLogging().logInfo("An error occurred in the connection! " + e.getMessage());
-                log(Level.FINEST, e.getMessage());
-                log("Reading register with obisCode " + obisCode + " FAILED.");
-            }
-        }
-        return meterReadingData;
-    }
+//    /**
+//     * Read the register data from a received DEC(F) table
+//     *
+//     * @param cp:       the meter's communication profile
+//     * @param response: the table containing register data
+//     * @throws CTRException
+//     * @return: register values
+//     */
+//    private MeterReadingData doReadRegisters(CommunicationProfile cp, AbstractTableQueryResponseStructure response) throws CTRException {
+//
+//        MeterReadingData meterReadingData = new MeterReadingData();
+//        Iterator<com.energyict.mdw.amr.Register> rtuRegisterIterator = getRtu().getRegisters().iterator();
+//        List groups = cp.getRtuRegisterGroups();
+//        List<AbstractCTRObject> list = response.getObjects();
+//
+//        //Checks all registers in EIServer for that RTU. See if the SMS provides data for these registers.
+//        while (rtuRegisterIterator.hasNext()) {
+//            ObisCode obisCode = null;
+//            try {
+//                Register rtuRegister = rtuRegisterIterator.next();
+//                if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
+//                    obisCode = rtuRegister.getRegisterSpec().getObisCode();  //Get the obis code per register
+//                    try {
+//                        RegisterValue registerValue = getObisCodeMapper().readRegister(obisCode, list);
+//                        registerValue.setRtuRegisterId(rtuRegister.getId());
+//                        if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
+//                            meterReadingData.add(registerValue);
+//                        }
+//                    } catch (NoSuchRegisterException e) {
+//                        String message = "Received no data for " + rtuRegister.toString() + "(" + obisCode + ") " + e.getMessage();
+//                        getMeterAmrLogging().logInfo(message);
+//                        log(message);
+//                    }
+//                }
+//            } catch (IOException e) {
+//                //TODO if the connection is out you should not try and read the others as well...
+//                getMeterAmrLogging().logInfo("An error occurred in the connection! " + e.getMessage());
+//                log(Level.FINEST, e.getMessage());
+//                log("Reading register with obisCode " + obisCode + " FAILED.");
+//            }
+//        }
+//        return meterReadingData;
+//    }
 
     public ObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
@@ -736,24 +736,24 @@ public class SmsHandler implements MessageHandler {
         return Collections.emptyList();
     }
 
-
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     *
-     * @return the current metering warehouse
-     */
-    private MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
-    }
-
-    public static boolean isSmsProfile(CommunicationScheduler cs) {
-        String displayName = cs != null ? cs.displayString() : null;
-        return (displayName != null) && displayName.contains(SMS);
-    }
-
-    public static boolean isInboundSmsProfile(CommunicationScheduler cs) {
-        String displayName = cs != null ? cs.displayString() : null;
-        return (displayName != null) && displayName.contains(SMS) && cs.getModemPool().getInbound();
-    }
+//
+//    /**
+//     * Short notation for MeteringWarehouse.getCurrent()
+//     *
+//     * @return the current metering warehouse
+//     */
+//    private MeteringWarehouse mw() {
+//        MeteringWarehouse result = MeteringWarehouse.getCurrent();
+//        return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
+//    }
+//
+//    public static boolean isSmsProfile(CommunicationScheduler cs) {
+//        String displayName = cs != null ? cs.displayString() : null;
+//        return (displayName != null) && displayName.contains(SMS);
+//    }
+//
+//    public static boolean isInboundSmsProfile(CommunicationScheduler cs) {
+//        String displayName = cs != null ? cs.displayString() : null;
+//        return (displayName != null) && displayName.contains(SMS) && cs.getModemPool().getInbound();
+//    }
 }

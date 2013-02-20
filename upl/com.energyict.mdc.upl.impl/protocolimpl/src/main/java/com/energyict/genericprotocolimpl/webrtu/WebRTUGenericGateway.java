@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  * Date: 18/01/12
  * Time: 15:03
  */
-public class WebRTUGenericGateway implements GenericProtocol {
+public class WebRTUGenericGateway {
 
     private static final String FRIENDLY_NAME = "MUC___";
     private static final int HOUR = 3600000;
@@ -56,245 +56,245 @@ public class WebRTUGenericGateway implements GenericProtocol {
         MESSAGES
     }
 
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        Device rtu = scheduler.getRtu();
-        List<Device> slaves = rtu.getDownstreamDevices(); //Should be a collection of WaveFlow, WaveTherm, RTM, ... devices
-        setLogger(logger);
-        for (Device slave : slaves) {
-            List<CommunicationScheduler> inboundSlaveSchedules = getInboundSlaveSchedules(slave);
-            try {
-                meterReadingData = null;
-                profileData = null;
-                meterProtocol = null;
-                timeDiff = -1;
-
-                if (inboundSlaveSchedules.size() == 0) {
-                    getLogger().info("No active communication schedules for slave " + slave.getSerialNumber() + ", skipping");
-                    continue;
-                }
-                CommunicationProfileShadow fullSlaveSchedule = createFullSlaveSchedule(inboundSlaveSchedules);
-
-                RegisterProtocol registerProtocol = null;
-                MessageProtocol messageProtocol = null;
-
-                ConfigurationSupport configurationSupport = slave.getOldProtocol().newInstance();
-                if (configurationSupport instanceof RegisterProtocol) {
-                    registerProtocol = (RegisterProtocol) configurationSupport;
-                }
-                if (configurationSupport instanceof MessageProtocol) {
-                    messageProtocol = (MessageProtocol) configurationSupport;
-                }
-
-                try {
-                    if (configurationSupport instanceof MeterProtocol) {
-                        meterProtocol = (MeterProtocol) configurationSupport;
-                        initAndConnect(link, logger, slave);
-                    } else {
-                        meterProtocol = null;
-                        String msg = "Protocol for RTU with serial number " + slave.getSerialNumber() + " must implement the MeterProtocol interface";
-                        logError(inboundSlaveSchedules, msg, AmrJournalEntry.CC_PROTOCOLERROR);    //All schedules fail here
-                        continue;    //A continue will move on to the next slave device
-                    }
-                } catch (IOException e) {
-                    meterProtocol = null;
-                    logError(inboundSlaveSchedules, e.getMessage(), AmrJournalEntry.CC_NOCONNECTION);           //All schedules fail here
-                    continue;
-                }
-
-                getLogger().log(Level.FINE, "Protocol version: " + meterProtocol.getProtocolVersion());
-                try {
-                    getLogger().log(Level.FINE, "Meter firmware version: " + meterProtocol.getFirmwareVersion());
-                } catch (UnsupportedException e) {
-                    getLogger().info(e.getMessage());         //Move on
-                } catch (IOException e) {
-                    logError(inboundSlaveSchedules, e.getMessage(), AmrJournalEntry.CC_IOERROR);                //All schedules fail here
-                    continue;
-                }
-
-                //Force clock
-                if (fullSlaveSchedule.getForceClock()) {
-                    try {
-                        meterProtocol.setTime();
-                        rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.FORCECLOCK);
-                        timeDiff = -1;
-                    } catch (IOException e) {
-                        logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.FORCECLOCK, AmrJournalEntry.CC_IOERROR);
-                        continue;
-                    }
-                }
-
-                //Profile data
-                if (fullSlaveSchedule.getReadDemandValues()) {
-                    int eiServerProfileInterval = getProfileInterval(getProperties());
-                    int meterNrOfChannels = meterProtocol.getNumberOfChannels();
-                    int eiServerNumberOfChannels = slave.getShadow().getChannelShadows().size();
-                    int meterProfileInterval = meterProtocol.getProfileInterval();
-                    if (meterProfileInterval != eiServerProfileInterval) {
-                        String msg = "Profile interval setting in EiServer configuration (" + eiServerProfileInterval + " sec) is different than requested from the meter (" + meterProfileInterval + " sec)";
-                        logError(inboundSlaveSchedules, msg, CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_CONFIGURATION);
-                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
-                    } else if (meterNrOfChannels != eiServerNumberOfChannels) {
-                        String msg = "Number of channels configured in eiserver (" + eiServerNumberOfChannels + ") is different than the number of channels on the meter (" + meterNrOfChannels + ")";
-                        logError(inboundSlaveSchedules, msg, CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_CONFIGURATION);
-                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
-                    } else {
-                        Date validatedLastReading = validateLastReading(slave.getLastReading(), slave.getTimeZone());
-                        if (validatedLastReading == null) {
-                            String msg = "Last reading is null!";
-                            logError(inboundSlaveSchedules, msg, CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_CONFIGURATION);
-                            rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
-                        } else {
-                            try {
-                                getLogger().log(Level.INFO, "Retrieving profile data from " + validatedLastReading + " to " + new Date());
-                                profileData = meterProtocol.getProfileData(slave.getLastReading(), validatedLastReading, fullSlaveSchedule.getReadMeterEvents());
-                                if (profileData != null) {
-                                    validateProfileData(profileData);
-                                    profileData.sort();
-
-                                    boolean markAsBadTime = false;
-                                    long differenceInMillis = getTimeDifference();
-                                    if (differenceInMillis > (fullSlaveSchedule.getMaximumClockDifference())) {
-                                        if (!fullSlaveSchedule.getForceClock()) {
-                                            if (!fullSlaveSchedule.getCollectOutsideBoundary()) {
-                                                String msg = "Time difference exceeds configured maximum: " + (differenceInMillis / 1000) + " s >" + fullSlaveSchedule.getMaximumClockDifference() + " s";
-                                                logError(inboundSlaveSchedules, msg, AmrJournalEntry.CC_TIME_ERROR);
-                                                continue;
-                                            } else {
-                                                markAsBadTime = true;
-                                            }
-                                        }
-                                    }
-
-                                    if (markAsBadTime) {
-                                        profileData.markIntervalsAsBadTime();
-                                    }
-                                    rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
-                                } else {
-                                    String msg = "No profile data available, data logging possibly not started..";
-                                    logError(inboundSlaveSchedules, msg, CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_UNEXPECTED_ERROR);
-                                    rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
-                                }
-                            } catch (IOException e) {
-                                logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_IOERROR);
-                                continue;
-                            }
-                        }
-                    }
-                }
-
-                //Registers
-                if (fullSlaveSchedule.getReadMeterReadings()) {
-                    if (registerProtocol != null) {
-                        List<Register> registers = getScheduledRegisters(slave.getRegisters());
-                        meterReadingData = new MeterReadingData();
-                        StringBuilder sb = new StringBuilder();
-                        String separator = "";
-                        try {
-                            for (Register register : registers) {
-                                try {
-                                    RegisterValue registerValue = registerProtocol.readRegister(getCorrectedObisCode(register));
-                                    registerValue.setRtuRegisterId(register.getId());
-                                    meterReadingData.add(registerValue);
-                                } catch (NoSuchRegisterException e) {
-                                    String obisCode = getCorrectedObisCode(register).toString();
-                                    getLogger().severe("Register with obiscode " + obisCode + " is not supported: " + e.getMessage());
-                                    sb.append(separator).append(obisCode);
-                                    separator = ", ";
-                                }
-                            }
-                        } catch (IOException e) {
-                            logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.REGISTERS, AmrJournalEntry.CC_IOERROR);
-                            continue;
-                        }
-                        if (sb.toString() != null && !sb.toString().equals("")) {
-                            logError(inboundSlaveSchedules, "Unsupported registers: " + sb.toString(), CommunicationProfileAction.REGISTERS, AmrJournalEntry.CC_CONFIGURATION);
-                            rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.REGISTERS);
-                        } else {
-                            rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.REGISTERS);
-                        }
-                    } else {
-                        String msg = "Couldn't read the registers for RTU with serial number " + slave.getSerialNumber() + ", the protocol should implement the RegisterProtocol interface";
-                        logProtocolError(inboundSlaveSchedules, msg, CommunicationProfileAction.REGISTERS);
-                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.REGISTERS);
-                    }
-                }
-
-                //Write clock
-                if (fullSlaveSchedule.getWriteClock()) {
-                    long diff = getTimeDifference();
-                    int max = fullSlaveSchedule.getMaximumClockDifference();
-                    int min = fullSlaveSchedule.getMinimumClockDifference();
-                    if (diff > max) {
-                        String msg = "Will not write clock, time difference is greater than maximum difference (" + diff + " > " + max + ")";
-                        logError(inboundSlaveSchedules, msg, CommunicationProfileAction.WRITECLOCK, AmrJournalEntry.CC_TIME_ERROR);
-                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.WRITECLOCK);
-                    } else if (diff < min) {
-                        String msg = "Will not write clock, time difference is smaller than minimum difference (" + diff + " < " + min + ")";
-                        logError(inboundSlaveSchedules, msg, CommunicationProfileAction.WRITECLOCK, AmrJournalEntry.CC_TIME_ERROR);
-                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.WRITECLOCK);
-                    } else {
-                        try {
-                            meterProtocol.setTime();
-                            rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.WRITECLOCK);
-                            timeDiff = -1;
-                        } catch (IOException e) {
-                            logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.WRITECLOCK, AmrJournalEntry.CC_IOERROR);
-                            continue;
-                        }
-                    }
-                }
-
-                //Send messages
-                if (fullSlaveSchedule.getSendRtuMessage()) {
-                    if (messageProtocol != null) {
-                        List<OldDeviceMessage> messages = getPendingMessages(slave);
-                        try {
-                            messageProtocol.applyMessages(messages);
-                            for (OldDeviceMessage message : messages) {
-                                MessageResult messageResult = messageProtocol.queryMessage(new MessageEntry(message.getContents(), message.getTrackingId()));
-                                if (messageResult.isSuccess()) {
-                                    message.confirm();
-                                }
-                                if (messageResult.isFailed()) {
-                                    message.setFailed();
-                                }
-                                if (messageResult.isQueued()) {
-                                    message.setSent();
-                                }
-                                if (messageResult.isUnknown()) {
-                                    message.setIndoubt();
-                                }
-                            }
-                            rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.MESSAGES);
-                        } catch (IOException e) {
-                            logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.MESSAGES, AmrJournalEntry.CC_IOERROR);
-                            continue;
-                        }
-                    } else {
-                        String msg = "Couldn't execute messages for RTU with serial number " + slave.getSerialNumber() + ", the protocol should implement the MessageProtocol interface";
-                        logProtocolError(inboundSlaveSchedules, msg, CommunicationProfileAction.MESSAGES);
-                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.MESSAGES);
-                    }
-                }
-            } catch (IOException e) {
-                logError(inboundSlaveSchedules, e.getMessage(), AmrJournalEntry.CC_IOERROR);
-            } finally {
-                try {
-                    if (meterProtocol != null) {
-                        meterProtocol.release();
-                        meterProtocol.disconnect();
-                        getLogger().info("Meter protocol disconnected");
-                        storeData(slave);
-                        logSuccess(inboundSlaveSchedules, slave);       //Log a success to the successful schedules.
-                    }
-                } catch (IOException e) {
-                    logError(inboundSlaveSchedules, e.getMessage(), AmrJournalEntry.CC_IOERROR);
-                }
-            }
-        }
-        stopWavenisStack();
-        timeDiff = 0;
-    }
+//    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+//        Device rtu = scheduler.getRtu();
+//        List<Device> slaves = rtu.getDownstreamDevices(); //Should be a collection of WaveFlow, WaveTherm, RTM, ... devices
+//        setLogger(logger);
+//        for (Device slave : slaves) {
+//            List<CommunicationScheduler> inboundSlaveSchedules = getInboundSlaveSchedules(slave);
+//            try {
+//                meterReadingData = null;
+//                profileData = null;
+//                meterProtocol = null;
+//                timeDiff = -1;
+//
+//                if (inboundSlaveSchedules.size() == 0) {
+//                    getLogger().info("No active communication schedules for slave " + slave.getSerialNumber() + ", skipping");
+//                    continue;
+//                }
+//                CommunicationProfileShadow fullSlaveSchedule = createFullSlaveSchedule(inboundSlaveSchedules);
+//
+//                RegisterProtocol registerProtocol = null;
+//                MessageProtocol messageProtocol = null;
+//
+//                ConfigurationSupport configurationSupport = slave.getOldProtocol().newInstance();
+//                if (configurationSupport instanceof RegisterProtocol) {
+//                    registerProtocol = (RegisterProtocol) configurationSupport;
+//                }
+//                if (configurationSupport instanceof MessageProtocol) {
+//                    messageProtocol = (MessageProtocol) configurationSupport;
+//                }
+//
+//                try {
+//                    if (configurationSupport instanceof MeterProtocol) {
+//                        meterProtocol = (MeterProtocol) configurationSupport;
+//                        initAndConnect(link, logger, slave);
+//                    } else {
+//                        meterProtocol = null;
+//                        String msg = "Protocol for RTU with serial number " + slave.getSerialNumber() + " must implement the MeterProtocol interface";
+//                        logError(inboundSlaveSchedules, msg, AmrJournalEntry.CC_PROTOCOLERROR);    //All schedules fail here
+//                        continue;    //A continue will move on to the next slave device
+//                    }
+//                } catch (IOException e) {
+//                    meterProtocol = null;
+//                    logError(inboundSlaveSchedules, e.getMessage(), AmrJournalEntry.CC_NOCONNECTION);           //All schedules fail here
+//                    continue;
+//                }
+//
+//                getLogger().log(Level.FINE, "Protocol version: " + meterProtocol.getProtocolVersion());
+//                try {
+//                    getLogger().log(Level.FINE, "Meter firmware version: " + meterProtocol.getFirmwareVersion());
+//                } catch (UnsupportedException e) {
+//                    getLogger().info(e.getMessage());         //Move on
+//                } catch (IOException e) {
+//                    logError(inboundSlaveSchedules, e.getMessage(), AmrJournalEntry.CC_IOERROR);                //All schedules fail here
+//                    continue;
+//                }
+//
+//                //Force clock
+//                if (fullSlaveSchedule.getForceClock()) {
+//                    try {
+//                        meterProtocol.setTime();
+//                        rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.FORCECLOCK);
+//                        timeDiff = -1;
+//                    } catch (IOException e) {
+//                        logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.FORCECLOCK, AmrJournalEntry.CC_IOERROR);
+//                        continue;
+//                    }
+//                }
+//
+//                //Profile data
+//                if (fullSlaveSchedule.getReadDemandValues()) {
+//                    int eiServerProfileInterval = getProfileInterval(getProperties());
+//                    int meterNrOfChannels = meterProtocol.getNumberOfChannels();
+//                    int eiServerNumberOfChannels = slave.getShadow().getChannelShadows().size();
+//                    int meterProfileInterval = meterProtocol.getProfileInterval();
+//                    if (meterProfileInterval != eiServerProfileInterval) {
+//                        String msg = "Profile interval setting in EiServer configuration (" + eiServerProfileInterval + " sec) is different than requested from the meter (" + meterProfileInterval + " sec)";
+//                        logError(inboundSlaveSchedules, msg, CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_CONFIGURATION);
+//                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
+//                    } else if (meterNrOfChannels != eiServerNumberOfChannels) {
+//                        String msg = "Number of channels configured in eiserver (" + eiServerNumberOfChannels + ") is different than the number of channels on the meter (" + meterNrOfChannels + ")";
+//                        logError(inboundSlaveSchedules, msg, CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_CONFIGURATION);
+//                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
+//                    } else {
+//                        Date validatedLastReading = validateLastReading(slave.getLastReading(), slave.getTimeZone());
+//                        if (validatedLastReading == null) {
+//                            String msg = "Last reading is null!";
+//                            logError(inboundSlaveSchedules, msg, CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_CONFIGURATION);
+//                            rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
+//                        } else {
+//                            try {
+//                                getLogger().log(Level.INFO, "Retrieving profile data from " + validatedLastReading + " to " + new Date());
+//                                profileData = meterProtocol.getProfileData(slave.getLastReading(), validatedLastReading, fullSlaveSchedule.getReadMeterEvents());
+//                                if (profileData != null) {
+//                                    validateProfileData(profileData);
+//                                    profileData.sort();
+//
+//                                    boolean markAsBadTime = false;
+//                                    long differenceInMillis = getTimeDifference();
+//                                    if (differenceInMillis > (fullSlaveSchedule.getMaximumClockDifference())) {
+//                                        if (!fullSlaveSchedule.getForceClock()) {
+//                                            if (!fullSlaveSchedule.getCollectOutsideBoundary()) {
+//                                                String msg = "Time difference exceeds configured maximum: " + (differenceInMillis / 1000) + " s >" + fullSlaveSchedule.getMaximumClockDifference() + " s";
+//                                                logError(inboundSlaveSchedules, msg, AmrJournalEntry.CC_TIME_ERROR);
+//                                                continue;
+//                                            } else {
+//                                                markAsBadTime = true;
+//                                            }
+//                                        }
+//                                    }
+//
+//                                    if (markAsBadTime) {
+//                                        profileData.markIntervalsAsBadTime();
+//                                    }
+//                                    rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
+//                                } else {
+//                                    String msg = "No profile data available, data logging possibly not started..";
+//                                    logError(inboundSlaveSchedules, msg, CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_UNEXPECTED_ERROR);
+//                                    rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.PROFILEDATA);
+//                                }
+//                            } catch (IOException e) {
+//                                logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.PROFILEDATA, AmrJournalEntry.CC_IOERROR);
+//                                continue;
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                //Registers
+//                if (fullSlaveSchedule.getReadMeterReadings()) {
+//                    if (registerProtocol != null) {
+//                        List<Register> registers = getScheduledRegisters(slave.getRegisters());
+//                        meterReadingData = new MeterReadingData();
+//                        StringBuilder sb = new StringBuilder();
+//                        String separator = "";
+//                        try {
+//                            for (Register register : registers) {
+//                                try {
+//                                    RegisterValue registerValue = registerProtocol.readRegister(getCorrectedObisCode(register));
+//                                    registerValue.setRtuRegisterId(register.getId());
+//                                    meterReadingData.add(registerValue);
+//                                } catch (NoSuchRegisterException e) {
+//                                    String obisCode = getCorrectedObisCode(register).toString();
+//                                    getLogger().severe("Register with obiscode " + obisCode + " is not supported: " + e.getMessage());
+//                                    sb.append(separator).append(obisCode);
+//                                    separator = ", ";
+//                                }
+//                            }
+//                        } catch (IOException e) {
+//                            logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.REGISTERS, AmrJournalEntry.CC_IOERROR);
+//                            continue;
+//                        }
+//                        if (sb.toString() != null && !sb.toString().equals("")) {
+//                            logError(inboundSlaveSchedules, "Unsupported registers: " + sb.toString(), CommunicationProfileAction.REGISTERS, AmrJournalEntry.CC_CONFIGURATION);
+//                            rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.REGISTERS);
+//                        } else {
+//                            rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.REGISTERS);
+//                        }
+//                    } else {
+//                        String msg = "Couldn't read the registers for RTU with serial number " + slave.getSerialNumber() + ", the protocol should implement the RegisterProtocol interface";
+//                        logProtocolError(inboundSlaveSchedules, msg, CommunicationProfileAction.REGISTERS);
+//                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.REGISTERS);
+//                    }
+//                }
+//
+//                //Write clock
+//                if (fullSlaveSchedule.getWriteClock()) {
+//                    long diff = getTimeDifference();
+//                    int max = fullSlaveSchedule.getMaximumClockDifference();
+//                    int min = fullSlaveSchedule.getMinimumClockDifference();
+//                    if (diff > max) {
+//                        String msg = "Will not write clock, time difference is greater than maximum difference (" + diff + " > " + max + ")";
+//                        logError(inboundSlaveSchedules, msg, CommunicationProfileAction.WRITECLOCK, AmrJournalEntry.CC_TIME_ERROR);
+//                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.WRITECLOCK);
+//                    } else if (diff < min) {
+//                        String msg = "Will not write clock, time difference is smaller than minimum difference (" + diff + " < " + min + ")";
+//                        logError(inboundSlaveSchedules, msg, CommunicationProfileAction.WRITECLOCK, AmrJournalEntry.CC_TIME_ERROR);
+//                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.WRITECLOCK);
+//                    } else {
+//                        try {
+//                            meterProtocol.setTime();
+//                            rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.WRITECLOCK);
+//                            timeDiff = -1;
+//                        } catch (IOException e) {
+//                            logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.WRITECLOCK, AmrJournalEntry.CC_IOERROR);
+//                            continue;
+//                        }
+//                    }
+//                }
+//
+//                //Send messages
+//                if (fullSlaveSchedule.getSendRtuMessage()) {
+//                    if (messageProtocol != null) {
+//                        List<OldDeviceMessage> messages = getPendingMessages(slave);
+//                        try {
+//                            messageProtocol.applyMessages(messages);
+//                            for (OldDeviceMessage message : messages) {
+//                                MessageResult messageResult = messageProtocol.queryMessage(new MessageEntry(message.getContents(), message.getTrackingId()));
+//                                if (messageResult.isSuccess()) {
+//                                    message.confirm();
+//                                }
+//                                if (messageResult.isFailed()) {
+//                                    message.setFailed();
+//                                }
+//                                if (messageResult.isQueued()) {
+//                                    message.setSent();
+//                                }
+//                                if (messageResult.isUnknown()) {
+//                                    message.setIndoubt();
+//                                }
+//                            }
+//                            rememberSchedulesAsSuccessful(inboundSlaveSchedules, CommunicationProfileAction.MESSAGES);
+//                        } catch (IOException e) {
+//                            logError(inboundSlaveSchedules, e.getMessage(), CommunicationProfileAction.MESSAGES, AmrJournalEntry.CC_IOERROR);
+//                            continue;
+//                        }
+//                    } else {
+//                        String msg = "Couldn't execute messages for RTU with serial number " + slave.getSerialNumber() + ", the protocol should implement the MessageProtocol interface";
+//                        logProtocolError(inboundSlaveSchedules, msg, CommunicationProfileAction.MESSAGES);
+//                        rememberSchedulesAsFailed(inboundSlaveSchedules, CommunicationProfileAction.MESSAGES);
+//                    }
+//                }
+//            } catch (IOException e) {
+//                logError(inboundSlaveSchedules, e.getMessage(), AmrJournalEntry.CC_IOERROR);
+//            } finally {
+//                try {
+//                    if (meterProtocol != null) {
+//                        meterProtocol.release();
+//                        meterProtocol.disconnect();
+//                        getLogger().info("Meter protocol disconnected");
+//                        storeData(slave);
+//                        logSuccess(inboundSlaveSchedules, slave);       //Log a success to the successful schedules.
+//                    }
+//                } catch (IOException e) {
+//                    logError(inboundSlaveSchedules, e.getMessage(), AmrJournalEntry.CC_IOERROR);
+//                }
+//            }
+//        }
+//        stopWavenisStack();
+//        timeDiff = 0;
+//    }
 
     private List<OldDeviceMessage> getPendingMessages(Device slave) {
         List<OldDeviceMessage> newMessages = new ArrayList<OldDeviceMessage>();
@@ -356,34 +356,34 @@ public class WebRTUGenericGateway implements GenericProtocol {
             }
         }
     }
-
-    /**
-     * Remember that this slave schedule failed. A success should not be scheduled on this schedule, during this communication session.
-     * The other slave schedules can still be executed and be journal'ed as success
-     */
-    private void rememberSchedulesAsFailed(List<CommunicationScheduler> allInboundSlaveSchedules, CommunicationProfileAction action) {
-        List<CommunicationScheduler> relevantSchedules = getRelevantSchedulesForAction(allInboundSlaveSchedules, action);
-        for (CommunicationScheduler communicationScheduler : relevantSchedules) {
-            int id = communicationScheduler.getId();
-            if (!failedSchedulesIds.contains(id)) {
-                failedSchedulesIds.add(id);
-            }
-        }
-    }
-
-    /**
-     * Remember that this action (and the relevant schedules) was successful.
-     * At the end of the communication session, the schedule will be logged as successful, except when another action of said schedule failed.
-     */
-    private void rememberSchedulesAsSuccessful(List<CommunicationScheduler> allInboundSlaveSchedules, CommunicationProfileAction action) {
-        List<CommunicationScheduler> relevantSchedules = getRelevantSchedulesForAction(allInboundSlaveSchedules, action);
-        for (CommunicationScheduler communicationScheduler : relevantSchedules) {
-            int id = communicationScheduler.getId();
-            if (!successfulSchedulesIds.contains(id)) {
-                successfulSchedulesIds.add(id);
-            }
-        }
-    }
+//
+//    /**
+//     * Remember that this slave schedule failed. A success should not be scheduled on this schedule, during this communication session.
+//     * The other slave schedules can still be executed and be journal'ed as success
+//     */
+//    private void rememberSchedulesAsFailed(List<CommunicationScheduler> allInboundSlaveSchedules, CommunicationProfileAction action) {
+//        List<CommunicationScheduler> relevantSchedules = getRelevantSchedulesForAction(allInboundSlaveSchedules, action);
+//        for (CommunicationScheduler communicationScheduler : relevantSchedules) {
+//            int id = communicationScheduler.getId();
+//            if (!failedSchedulesIds.contains(id)) {
+//                failedSchedulesIds.add(id);
+//            }
+//        }
+//    }
+//
+//    /**
+//     * Remember that this action (and the relevant schedules) was successful.
+//     * At the end of the communication session, the schedule will be logged as successful, except when another action of said schedule failed.
+//     */
+//    private void rememberSchedulesAsSuccessful(List<CommunicationScheduler> allInboundSlaveSchedules, CommunicationProfileAction action) {
+//        List<CommunicationScheduler> relevantSchedules = getRelevantSchedulesForAction(allInboundSlaveSchedules, action);
+//        for (CommunicationScheduler communicationScheduler : relevantSchedules) {
+//            int id = communicationScheduler.getId();
+//            if (!successfulSchedulesIds.contains(id)) {
+//                successfulSchedulesIds.add(id);
+//            }
+//        }
+//    }
 
     private Date validateLastReading(Date lastReading, TimeZone timeZone) throws BusinessException {
         if (lastReading == null) {
@@ -520,56 +520,56 @@ public class WebRTUGenericGateway implements GenericProtocol {
         }
     }
 
-    private CommunicationProfileShadow createFullSlaveSchedule(List<CommunicationScheduler> inboundSlaveSchedules) throws BusinessException, SQLException {
-        rtuRegisterGroups = new ArrayList<RegisterGroup>();
-        infosForSlaveSchedules = new ArrayList<List<CommunicationProfileAction>>();
-        if (inboundSlaveSchedules.size() == 0) {
-            return null;
-        }
-        CommunicationProfileShadow shadow = inboundSlaveSchedules.get(0).getCommunicationProfile().getShadow();
-
-        for (CommunicationScheduler inboundSlaveSchedule : inboundSlaveSchedules) {
-            List<CommunicationProfileAction> infoForSlaveSchedule = new ArrayList<CommunicationProfileAction>();
-            if (inboundSlaveSchedule.getNextCommunication() == null) {
-                getLogger().info("Slave: " + inboundSlaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + inboundSlaveSchedule.displayString() + "' next communication is 'null'. Skipping.");
-            } else if (inboundSlaveSchedule.getNextCommunication().after(new Date())) {
-                getLogger().info("Slave: " + inboundSlaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + inboundSlaveSchedule.displayString() + "' next communication not reached yet. Skipping.");
-            } else {
-                inboundSlaveSchedule.startCommunication();
-                CommunicationProfile communicationProfile = inboundSlaveSchedule.getCommunicationProfile();
-                if (communicationProfile.getReadDemandValues()) {     //Profile data
-                    infoForSlaveSchedule.add(CommunicationProfileAction.PROFILEDATA);                //TODO readAllProfileData ? :S
-                    shadow.setReadDemandValues(true);
-                }
-                if (communicationProfile.getReadMeterReadings()) {    //Registers
-                    infoForSlaveSchedule.add(CommunicationProfileAction.REGISTERS);
-                    rtuRegisterGroups.addAll(communicationProfile.getRtuRegisterGroups());           //Remember which registers are on this schedule
-                    shadow.setReadMeterReadings(true);
-                }
-                if (communicationProfile.getReadMeterEvents()) {      //Events
-                    infoForSlaveSchedule.add(CommunicationProfileAction.PROFILEDATA);
-                    shadow.setReadMeterEvents(true);
-                }
-                if (communicationProfile.getSendRtuMessage()) {       //Messages
-                    infoForSlaveSchedule.add(CommunicationProfileAction.MESSAGES);
-                    shadow.setSendRtuMessage(true);
-                }
-                if (communicationProfile.getWriteClock()) {
-                    infoForSlaveSchedule.add(CommunicationProfileAction.WRITECLOCK);
-                    shadow.setWriteClock(true);
-                    shadow.setMaximumClockDifference(communicationProfile.getMaximumClockDifference());
-                    shadow.setMinimumClockDifference(communicationProfile.getMinimumClockDifference());
-                }
-                if (communicationProfile.getForceClock()) {
-                    infoForSlaveSchedule.add(CommunicationProfileAction.FORCECLOCK);
-                    shadow.setForceClock(true);
-                }
-                infosForSlaveSchedules.add(infoForSlaveSchedule);
-            }
-        }
-
-        return shadow;
-    }
+//    private CommunicationProfileShadow createFullSlaveSchedule(List<CommunicationScheduler> inboundSlaveSchedules) throws BusinessException, SQLException {
+//        rtuRegisterGroups = new ArrayList<RegisterGroup>();
+//        infosForSlaveSchedules = new ArrayList<List<CommunicationProfileAction>>();
+//        if (inboundSlaveSchedules.size() == 0) {
+//            return null;
+//        }
+//        CommunicationProfileShadow shadow = inboundSlaveSchedules.get(0).getCommunicationProfile().getShadow();
+//
+//        for (CommunicationScheduler inboundSlaveSchedule : inboundSlaveSchedules) {
+//            List<CommunicationProfileAction> infoForSlaveSchedule = new ArrayList<CommunicationProfileAction>();
+//            if (inboundSlaveSchedule.getNextCommunication() == null) {
+//                getLogger().info("Slave: " + inboundSlaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + inboundSlaveSchedule.displayString() + "' next communication is 'null'. Skipping.");
+//            } else if (inboundSlaveSchedule.getNextCommunication().after(new Date())) {
+//                getLogger().info("Slave: " + inboundSlaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + inboundSlaveSchedule.displayString() + "' next communication not reached yet. Skipping.");
+//            } else {
+//                inboundSlaveSchedule.startCommunication();
+//                CommunicationProfile communicationProfile = inboundSlaveSchedule.getCommunicationProfile();
+//                if (communicationProfile.getReadDemandValues()) {     //Profile data
+//                    infoForSlaveSchedule.add(CommunicationProfileAction.PROFILEDATA);                //TODO readAllProfileData ? :S
+//                    shadow.setReadDemandValues(true);
+//                }
+//                if (communicationProfile.getReadMeterReadings()) {    //Registers
+//                    infoForSlaveSchedule.add(CommunicationProfileAction.REGISTERS);
+//                    rtuRegisterGroups.addAll(communicationProfile.getRtuRegisterGroups());           //Remember which registers are on this schedule
+//                    shadow.setReadMeterReadings(true);
+//                }
+//                if (communicationProfile.getReadMeterEvents()) {      //Events
+//                    infoForSlaveSchedule.add(CommunicationProfileAction.PROFILEDATA);
+//                    shadow.setReadMeterEvents(true);
+//                }
+//                if (communicationProfile.getSendRtuMessage()) {       //Messages
+//                    infoForSlaveSchedule.add(CommunicationProfileAction.MESSAGES);
+//                    shadow.setSendRtuMessage(true);
+//                }
+//                if (communicationProfile.getWriteClock()) {
+//                    infoForSlaveSchedule.add(CommunicationProfileAction.WRITECLOCK);
+//                    shadow.setWriteClock(true);
+//                    shadow.setMaximumClockDifference(communicationProfile.getMaximumClockDifference());
+//                    shadow.setMinimumClockDifference(communicationProfile.getMinimumClockDifference());
+//                }
+//                if (communicationProfile.getForceClock()) {
+//                    infoForSlaveSchedule.add(CommunicationProfileAction.FORCECLOCK);
+//                    shadow.setForceClock(true);
+//                }
+//                infosForSlaveSchedules.add(infoForSlaveSchedule);
+//            }
+//        }
+//
+//        return shadow;
+//    }
 
     private void storeStartTime() {
         this.startTime = System.currentTimeMillis();
@@ -644,100 +644,100 @@ public class WebRTUGenericGateway implements GenericProtocol {
         return properties;
     }
 
-    /**
-     * List a successful action for certain schedules of a slave
-     *
-     * @param commSchedules all (inbound) schedules of a slave
-     * @param slave         the slave RTU...
-     */
-    private void logSuccess(List<CommunicationScheduler> commSchedules, Device slave) {
-        for (CommunicationScheduler commSchedule : commSchedules) {
-            if (successfulSchedulesIds.contains(commSchedule.getId()) && !failedSchedulesIds.contains(commSchedule.getId())) {
-                logSuccess(commSchedule, slave);
-            }      //TODO what to do with unhandled schedules????
-        }
-    }
+//    /**
+//     * List a successful action for certain schedules of a slave
+//     *
+//     * @param commSchedules all (inbound) schedules of a slave
+//     * @param slave         the slave RTU...
+//     */
+//    private void logSuccess(List<CommunicationScheduler> commSchedules, Device slave) {
+//        for (CommunicationScheduler commSchedule : commSchedules) {
+//            if (successfulSchedulesIds.contains(commSchedule.getId()) && !failedSchedulesIds.contains(commSchedule.getId())) {
+//                logSuccess(commSchedule, slave);
+//            }      //TODO what to do with unhandled schedules????
+//        }
+//    }
+//
+//    private void logSuccess(CommunicationScheduler commSchedule, Device slave) {
+//        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
+//        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + slave.getSerialNumber() + "]"));
+//        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
+//        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
+//        try {
+//            commSchedule.journal(journal);
+//            commSchedule.logSuccess(new Date());
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    /**
+//     * All schedules log a failure
+//     *
+//     * @param commSchedules    list of schedules for a slave device
+//     * @param exceptionMessage the message (describing the error) that should be logged on the schedule
+//     * @param completionCode   the completion code for the journal of the schedules
+//     */
+//    private void logError(List<CommunicationScheduler> commSchedules, String exceptionMessage, int completionCode) {
+//        getLogger().severe(exceptionMessage);
+//        for (CommunicationScheduler commSchedule : commSchedules) {
+//            logProtocolError(commSchedule, exceptionMessage, completionCode);
+//        }
+//    }
 
-    private void logSuccess(CommunicationScheduler commSchedule, Device slave) {
-        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
-        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + slave.getSerialNumber() + "]"));
-        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
-        try {
-            commSchedule.journal(journal);
-            commSchedule.logSuccess(new Date());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
+//    /**
+//     * Logs a failure on the relevant slave schedules.
+//     *
+//     * @param commSchedules    all schedules of the slave
+//     * @param exceptionMessage the error message
+//     * @param action           the action that caused the error.
+//     * @param completionCode   the completion code for the amr journal (e.g. CC_CONFIGURATION_ERROR)
+//     */
+//    private void logError(List<CommunicationScheduler> commSchedules, String exceptionMessage, CommunicationProfileAction action, int completionCode) {
+//        getLogger().severe(exceptionMessage);
+//        List<CommunicationScheduler> relevantSchedules = getRelevantSchedulesForAction(commSchedules, action);
+//        for (CommunicationScheduler commSchedule : relevantSchedules) {
+//            logProtocolError(commSchedule, exceptionMessage, completionCode);
+//        }
+//    }
 
-    /**
-     * All schedules log a failure
-     *
-     * @param commSchedules    list of schedules for a slave device
-     * @param exceptionMessage the message (describing the error) that should be logged on the schedule
-     * @param completionCode   the completion code for the journal of the schedules
-     */
-    private void logError(List<CommunicationScheduler> commSchedules, String exceptionMessage, int completionCode) {
-        getLogger().severe(exceptionMessage);
-        for (CommunicationScheduler commSchedule : commSchedules) {
-            logProtocolError(commSchedule, exceptionMessage, completionCode);
-        }
-    }
+//    private List<CommunicationScheduler> getRelevantSchedulesForAction(List<CommunicationScheduler> commSchedules, CommunicationProfileAction action) {
+//        List<CommunicationScheduler> relevantSchedules = new ArrayList<CommunicationScheduler>();
+//        int scheduleCount = 0;
+//        for (List<CommunicationProfileAction> infoForSlaveSchedule : infosForSlaveSchedules) {
+//            if (infoForSlaveSchedule.contains(action)) {
+//                relevantSchedules.add(commSchedules.get(scheduleCount));     //A schedule is relevant if it contains the action (LP, registers, ...) that the AMR logging is meant for.
+//            }
+//            scheduleCount++;
+//        }
+//        return relevantSchedules;
+//    }
 
-    /**
-     * Logs a failure on the relevant slave schedules.
-     *
-     * @param commSchedules    all schedules of the slave
-     * @param exceptionMessage the error message
-     * @param action           the action that caused the error.
-     * @param completionCode   the completion code for the amr journal (e.g. CC_CONFIGURATION_ERROR)
-     */
-    private void logError(List<CommunicationScheduler> commSchedules, String exceptionMessage, CommunicationProfileAction action, int completionCode) {
-        getLogger().severe(exceptionMessage);
-        List<CommunicationScheduler> relevantSchedules = getRelevantSchedulesForAction(commSchedules, action);
-        for (CommunicationScheduler commSchedule : relevantSchedules) {
-            logProtocolError(commSchedule, exceptionMessage, completionCode);
-        }
-    }
-
-    private List<CommunicationScheduler> getRelevantSchedulesForAction(List<CommunicationScheduler> commSchedules, CommunicationProfileAction action) {
-        List<CommunicationScheduler> relevantSchedules = new ArrayList<CommunicationScheduler>();
-        int scheduleCount = 0;
-        for (List<CommunicationProfileAction> infoForSlaveSchedule : infosForSlaveSchedules) {
-            if (infoForSlaveSchedule.contains(action)) {
-                relevantSchedules.add(commSchedules.get(scheduleCount));     //A schedule is relevant if it contains the action (LP, registers, ...) that the AMR logging is meant for.
-            }
-            scheduleCount++;
-        }
-        return relevantSchedules;
-    }
-
-    private void logProtocolError(List<CommunicationScheduler> commSchedules, String exceptionMessage, CommunicationProfileAction action) {
-        logError(commSchedules, exceptionMessage, action, AmrJournalEntry.CC_PROTOCOLERROR);
-    }
+//    private void logProtocolError(List<CommunicationScheduler> commSchedules, String exceptionMessage, CommunicationProfileAction action) {
+//        logError(commSchedules, exceptionMessage, action, AmrJournalEntry.CC_PROTOCOLERROR);
+//    }
 
 
-    private void logProtocolError(CommunicationScheduler commSchedule, String exceptionMessage, int completionCode) {
-        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.START, new Date().toString()));
-        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
-        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + commSchedule.getRtu().getSerialNumber() + "]"));
-        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
-        journal.add(new AmrJournalEntry(completionCode));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.DETAIL, exceptionMessage));
-        try {
-            commSchedule.journal(journal);
-            commSchedule.logFailure(new Date(), "");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void logProtocolError(CommunicationScheduler commSchedule, String exceptionMessage, int completionCode) {
+//        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.START, new Date().toString()));
+//        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
+//        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + commSchedule.getRtu().getSerialNumber() + "]"));
+//        journal.add(new AmrJournalEntry(new Date(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
+//        journal.add(new AmrJournalEntry(completionCode));
+//        journal.add(new AmrJournalEntry(AmrJournalEntry.DETAIL, exceptionMessage));
+//        try {
+//            commSchedule.journal(journal);
+//            commSchedule.logFailure(new Date(), "");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     private String getConnectTime() {
@@ -752,23 +752,23 @@ public class WebRTUGenericGateway implements GenericProtocol {
         return connectTimeStr;
     }
 
-    private List<CommunicationScheduler> getInboundSlaveSchedules(Device slave) {
-        List<CommunicationScheduler> inboundSchedules = new ArrayList<CommunicationScheduler>();
-        // NOTE: we don't work with schedulers anymore!
-
-//        for (CommunicationScheduler slaveSchedule : slave.getCommunicationSchedulers()) {
-//            if (slaveSchedule.getModemPool().getInbound()) {
-//                if (slaveSchedule.getNextCommunication() == null) {
-//                    getLogger().info("Slave: " + slaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + slaveSchedule.displayString() + "' next communication is 'null'. Skipping.");
-//                } else if (slaveSchedule.getNextCommunication().after(new Date())) {
-//                    getLogger().info("Slave: " + slaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + slaveSchedule.displayString() + "' next communication not reached yet. Skipping.");
-//                } else {
-//                    inboundSchedules.add(slaveSchedule);
-//                }
-//            }
-//        }
-        return inboundSchedules;
-    }
+//    private List<CommunicationScheduler> getInboundSlaveSchedules(Device slave) {
+//        List<CommunicationScheduler> inboundSchedules = new ArrayList<CommunicationScheduler>();
+//        // NOTE: we don't work with schedulers anymore!
+//
+////        for (CommunicationScheduler slaveSchedule : slave.getCommunicationSchedulers()) {
+////            if (slaveSchedule.getModemPool().getInbound()) {
+////                if (slaveSchedule.getNextCommunication() == null) {
+////                    getLogger().info("Slave: " + slaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + slaveSchedule.displayString() + "' next communication is 'null'. Skipping.");
+////                } else if (slaveSchedule.getNextCommunication().after(new Date())) {
+////                    getLogger().info("Slave: " + slaveSchedule.getRtu().getSerialNumber() + ", communication scheduler '" + slaveSchedule.displayString() + "' next communication not reached yet. Skipping.");
+////                } else {
+////                    inboundSchedules.add(slaveSchedule);
+////                }
+////            }
+////        }
+//        return inboundSchedules;
+//    }
 
     public long getTimeDifference() {
         if (timeDiff == -1) {            //Cache the time difference per slave
@@ -797,19 +797,19 @@ public class WebRTUGenericGateway implements GenericProtocol {
         return "$Date: 2012-02-16 14:45:23 +0100 (do, 16 feb 2012) $";
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
-    }
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return Collections.emptyList();
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return Collections.emptyList();
+//    }
 
     public void setLogger(Logger logger) {
         this.logger = logger;

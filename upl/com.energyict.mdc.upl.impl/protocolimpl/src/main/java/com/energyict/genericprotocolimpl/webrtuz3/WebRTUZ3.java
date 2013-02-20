@@ -160,87 +160,87 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
 
     @Override
     protected void doExecute() throws BusinessException, SQLException, IOException {
-
-        try {
-
-            testMethod();
-
-            // Check if the time is greater then allowed, if so then no data can be stored...
-            // Don't do this when a forceClock is scheduled
-            if (!getCommunicationScheduler().getCommunicationProfile().getForceClock() && !getCommunicationScheduler().getCommunicationProfile().getAdHoc()) {
-                badTime = verifyMaxTimeDifference();
-            }
-
-            // Read the events
-            if (getCommunicationProfile().getReadMeterEvents()) {
-                getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + this.serialNumber);
-                EMeterEventProfile evp = new EMeterEventProfile(this);
-                ProfileData pd = evp.getEvents();
-                storeObject.add(pd, getMeter());
-            }
-
-            // Read the register values
-            if (getCommunicationProfile().getReadMeterReadings()) {
-                getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
-                Map<Register, RegisterValue> registerMap = doReadRegisters();
-                storeObject.addAll(registerMap);
-            }
-
-            // Read the muc/z3 profiles (temp, DI/DO, ...)
-            if (getCommunicationProfile().getReadDemandValues()) {
-                getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + this.serialNumber);
-                int profileIndex = 0;
-                for (int i = 0; i <= 255; i++) {
-                    ObisCode profileObisCode = ProtocolTools.setObisCodeField(LOGGER_PROFILE_BASE_OBISCODE, 4, (byte) i);
-                    if (getMeterConfig().isObisCodeInObjectList(profileObisCode)) {
-                        ProfileData profileData = readChannels(profileIndex, profileObisCode);
-                        storeObject.add(profileData, getMeter());
-                        profileIndex += profileData.getNumberOfChannels();
-                    }
-                }
-            }
-
-            //Send the meter messages
-            if (getCommunicationProfile().getSendRtuMessage()) {
-                sendMeterMessages();
-            }
-
-            // Discover and handle MbusMeters
-            discoverMbusDevices();
-            if (getValidMbusDevices() != 0) {
-                getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
-                handleMbusMeters();
-            }
-
-            // Discover and handle MbusMeters
-            discoverEMeters();
-            if (getValidEMeters() != 0) {
-                getLogger().log(Level.INFO, "Starting to handle the Emeters.");
-                handleEmeters();
-            }
-
-            // Check for TIC devices and if there is one handle it
-            if (hasTicDevices()) {
-                getLogger().log(Level.INFO, "Starting to handle the Tic device.");
-                handleTicDevice();
-            }
-
-            // Set clock or Force clock... if necessary
-            if (getCommunicationProfile().getForceClock()) {
-                Date meterTime = getTime();
-                Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
-                setTimeDifference(Math.abs(currentTime.getTime() - meterTime.getTime()));
-                getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
-                forceClock(currentTime);
-            } else {
-                verifyAndWriteClock();
-            }
-
-        } finally {
-            if (storeObject != null) {
-                Environment.getDefault().execute(storeObject);
-            }
-        }
+//
+//        try {
+//
+//            testMethod();
+//
+//            // Check if the time is greater then allowed, if so then no data can be stored...
+//            // Don't do this when a forceClock is scheduled
+//            if (!getCommunicationScheduler().getCommunicationProfile().getForceClock() && !getCommunicationScheduler().getCommunicationProfile().getAdHoc()) {
+//                badTime = verifyMaxTimeDifference();
+//            }
+//
+//            // Read the events
+//            if (getCommunicationProfile().getReadMeterEvents()) {
+//                getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + this.serialNumber);
+//                EMeterEventProfile evp = new EMeterEventProfile(this);
+//                ProfileData pd = evp.getEvents();
+//                storeObject.add(pd, getMeter());
+//            }
+//
+//            // Read the register values
+//            if (getCommunicationProfile().getReadMeterReadings()) {
+//                getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
+//                Map<Register, RegisterValue> registerMap = doReadRegisters();
+//                storeObject.addAll(registerMap);
+//            }
+//
+//            // Read the muc/z3 profiles (temp, DI/DO, ...)
+//            if (getCommunicationProfile().getReadDemandValues()) {
+//                getLogger().log(Level.INFO, "Getting profile data for meter with serialnumber: " + this.serialNumber);
+//                int profileIndex = 0;
+//                for (int i = 0; i <= 255; i++) {
+//                    ObisCode profileObisCode = ProtocolTools.setObisCodeField(LOGGER_PROFILE_BASE_OBISCODE, 4, (byte) i);
+//                    if (getMeterConfig().isObisCodeInObjectList(profileObisCode)) {
+//                        ProfileData profileData = readChannels(profileIndex, profileObisCode);
+//                        storeObject.add(profileData, getMeter());
+//                        profileIndex += profileData.getNumberOfChannels();
+//                    }
+//                }
+//            }
+//
+//            //Send the meter messages
+//            if (getCommunicationProfile().getSendRtuMessage()) {
+//                sendMeterMessages();
+//            }
+//
+//            // Discover and handle MbusMeters
+//            discoverMbusDevices();
+//            if (getValidMbusDevices() != 0) {
+//                getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
+//                handleMbusMeters();
+//            }
+//
+//            // Discover and handle MbusMeters
+//            discoverEMeters();
+//            if (getValidEMeters() != 0) {
+//                getLogger().log(Level.INFO, "Starting to handle the Emeters.");
+//                handleEmeters();
+//            }
+//
+//            // Check for TIC devices and if there is one handle it
+//            if (hasTicDevices()) {
+//                getLogger().log(Level.INFO, "Starting to handle the Tic device.");
+//                handleTicDevice();
+//            }
+//
+//            // Set clock or Force clock... if necessary
+//            if (getCommunicationProfile().getForceClock()) {
+//                Date meterTime = getTime();
+//                Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
+//                setTimeDifference(Math.abs(currentTime.getTime() - meterTime.getTime()));
+//                getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + currentTime);
+//                forceClock(currentTime);
+//            } else {
+//                verifyAndWriteClock();
+//            }
+//
+//        } finally {
+//            if (storeObject != null) {
+//                Environment.getDefault().execute(storeObject);
+//            }
+//        }
 
     }
 
@@ -1093,107 +1093,107 @@ public class WebRTUZ3 extends DLMSProtocol implements EDevice {
      * @throws SQLException
      * @throws IOException
      */
-    private void handleTicDevice() throws BusinessException, SQLException, IOException {
-        this.ticDevice.setWebRTU(this);
-        this.ticDevice.execute(getCommunicationScheduler(), null, getLogger());
-    }
+//    private void handleTicDevice() throws BusinessException, SQLException, IOException {
+//        this.ticDevice.setWebRTU(this);
+//        this.ticDevice.execute(getCommunicationScheduler(), null, getLogger());
+//    }
 
-    private void handleEmeterSingleSchedule(EMeter eMeter, CommunicationScheduler commSchedule) throws BusinessException, SQLException, IOException {
-        String commSchedName = commSchedule.displayString();
-        Date nextCommunicationDate = commSchedule.getNextCommunication();
+//    private void handleEmeterSingleSchedule(EMeter eMeter, CommunicationScheduler commSchedule) throws BusinessException, SQLException, IOException {
+//        String commSchedName = commSchedule.displayString();
+//        Date nextCommunicationDate = commSchedule.getNextCommunication();
+//
+//        if (nextCommunicationDate != null) {
+//            if (nextCommunicationDate.getTime() <= getNow().getTime()) {
+//                getLogger().fine("Next communication date [" + nextCommunicationDate + "] for [" + commSchedName + "] reached. Executing schedule now.");
+//                commSchedule.startCommunication();
+//                commSchedule.startReadingNow();
+//                eMeter.setWebRtu(this);
+//                eMeter.execute(commSchedule, null, null);
+//                logSuccess(commSchedule, eMeter.getMeterAmrLogging());
+//                getLogger().info("Emeter " + eMeter + " has finished.");
+//            } else {
+//                getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] not reached yet. Skipping.");
+//            }
+//        } else {
+//            StringBuilder sb = new StringBuilder();
+//            sb.append("Communication schedule [").append(commSchedName).append("] is not active.");
+//            sb.append(" Next communication date is 'null'. ");
+//            sb.append(" Skipping.");
+//            getLogger().fine(sb.toString());
+//        }
+//    }
 
-        if (nextCommunicationDate != null) {
-            if (nextCommunicationDate.getTime() <= getNow().getTime()) {
-                getLogger().fine("Next communication date [" + nextCommunicationDate + "] for [" + commSchedName + "] reached. Executing schedule now.");
-                commSchedule.startCommunication();
-                commSchedule.startReadingNow();
-                eMeter.setWebRtu(this);
-                eMeter.execute(commSchedule, null, null);
-                logSuccess(commSchedule, eMeter.getMeterAmrLogging());
-                getLogger().info("Emeter " + eMeter + " has finished.");
-            } else {
-                getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] not reached yet. Skipping.");
-            }
-        } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Communication schedule [").append(commSchedName).append("] is not active.");
-            sb.append(" Next communication date is 'null'. ");
-            sb.append(" Skipping.");
-            getLogger().fine(sb.toString());
-        }
-    }
+//    private void handleMbusSingleSchedule(MbusDevice mbusDevice, CommunicationScheduler commSchedule) throws SQLException, BusinessException, IOException {
+//        try {
+//            String commSchedName = commSchedule.displayString();
+//            Date nextCommunicationDate = commSchedule.getNextCommunication();
+//
+//            if (nextCommunicationDate != null) {
+//                if (nextCommunicationDate.getTime() <= getNow().getTime()) {
+//                    getLogger().fine("Next communication date [" + nextCommunicationDate + "] for [" + commSchedName + "] reached. Executing schedule now.");
+//                    commSchedule.startCommunication(getCommunicationScheduler().getComPortId());
+//                    commSchedule.startReadingNow();
+//                    mbusDevice.setWebRtu(this);
+//                    mbusDevice.execute(commSchedule, null, null);
+//                    logSuccess(commSchedule, mbusDevice.getMeterAmrLogging());
+//                    getLogger().info("MbusDevice " + mbusDevice + " has finished.");
+//                } else {
+//                    getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] not reached yet. Skipping.");
+//                }
+//            } else {
+//                StringBuilder sb = new StringBuilder();
+//                sb.append("Communication schedule [").append(commSchedName).append("] is not active: ");
+//                sb.append(" Next communication date is 'null'. ");
+//                sb.append(" Skipping.");
+//                getLogger().fine(sb.toString());
+//            }
+//        } catch (SQLException e) {
+//            mbusDevice.getMeterAmrLogging().logInfo(e);
+//            throw e;
+//        } catch (BusinessException e) {
+//            mbusDevice.getMeterAmrLogging().logInfo(e);
+//            throw e;
+//        } catch (IOException e) {
+//            mbusDevice.getMeterAmrLogging().logInfo(e);
+//            throw e;
+//        }
+//    }
 
-    private void handleMbusSingleSchedule(MbusDevice mbusDevice, CommunicationScheduler commSchedule) throws SQLException, BusinessException, IOException {
-        try {
-            String commSchedName = commSchedule.displayString();
-            Date nextCommunicationDate = commSchedule.getNextCommunication();
+//    private void logSuccess(CommunicationScheduler commSchedule, MeterAmrLogging meterAmrLogging) {
+//        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getMeter().toString() + "]"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+//        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
+//        journal.addAll(meterAmrLogging.getJournalEntries());
+//        try {
+//            commSchedule.journal(journal);
+//            commSchedule.logSuccess(getNow());
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-            if (nextCommunicationDate != null) {
-                if (nextCommunicationDate.getTime() <= getNow().getTime()) {
-                    getLogger().fine("Next communication date [" + nextCommunicationDate + "] for [" + commSchedName + "] reached. Executing schedule now.");
-                    commSchedule.startCommunication(getCommunicationScheduler().getComPortId());
-                    commSchedule.startReadingNow();
-                    mbusDevice.setWebRtu(this);
-                    mbusDevice.execute(commSchedule, null, null);
-                    logSuccess(commSchedule, mbusDevice.getMeterAmrLogging());
-                    getLogger().info("MbusDevice " + mbusDevice + " has finished.");
-                } else {
-                    getLogger().fine("Next communication date for Communication schedule [" + commSchedName + "] not reached yet. Skipping.");
-                }
-            } else {
-                StringBuilder sb = new StringBuilder();
-                sb.append("Communication schedule [").append(commSchedName).append("] is not active: ");
-                sb.append(" Next communication date is 'null'. ");
-                sb.append(" Skipping.");
-                getLogger().fine(sb.toString());
-            }
-        } catch (SQLException e) {
-            mbusDevice.getMeterAmrLogging().logInfo(e);
-            throw e;
-        } catch (BusinessException e) {
-            mbusDevice.getMeterAmrLogging().logInfo(e);
-            throw e;
-        } catch (IOException e) {
-            mbusDevice.getMeterAmrLogging().logInfo(e);
-            throw e;
-        }
-    }
-
-    private void logSuccess(CommunicationScheduler commSchedule, MeterAmrLogging meterAmrLogging) {
-        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getMeter().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
-        journal.addAll(meterAmrLogging.getJournalEntries());
-        try {
-            commSchedule.journal(journal);
-            commSchedule.logSuccess(getNow());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void logFailure(CommunicationScheduler commSchedule, MeterAmrLogging meterAmrLogging) {
-        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getMeter().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
-        journal.addAll(meterAmrLogging.getJournalEntries());
-        try {
-            commSchedule.journal(journal);
-            commSchedule.logFailure(getNow(), "");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void logFailure(CommunicationScheduler commSchedule, MeterAmrLogging meterAmrLogging) {
+//        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, "0"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getMeter().toString() + "]"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "0"));
+//        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
+//        journal.addAll(meterAmrLogging.getJournalEntries());
+//        try {
+//            commSchedule.journal(journal);
+//            commSchedule.logFailure(getNow(), "");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private Date getNow() {
         return new Date();

@@ -32,17 +32,17 @@ public class RtuPlusServerEventLog extends AbstractDlmsSessionTask {
         super(session, task);
     }
 
-    public final void readNewEvents() throws IOException {
-        if (getCommunicationProfile().getReadMeterEvents()) {
-            final Calendar to = Calendar.getInstance(getTimeZone());
-            final Calendar from = Calendar.getInstance(getTimeZone());
-            from.setTime(getTask().getLastLogBookDate());
-            final List<MeterEvent> meterEvents = readMeterEvents(to, from);
-            getTask().getStoreObject().add(getGateway(), meterEvents);
-        } else {
-            getLogger().info("Readout of meter events disabled in communication profile [" + getCommunicationProfile().displayString() + "]. Skipping.");
-        }
-    }
+//    public final void readNewEvents() throws IOException {
+//        if (getCommunicationProfile().getReadMeterEvents()) {
+//            final Calendar to = Calendar.getInstance(getTimeZone());
+//            final Calendar from = Calendar.getInstance(getTimeZone());
+//            from.setTime(getTask().getLastLogBookDate());
+//            final List<MeterEvent> meterEvents = readMeterEvents(to, from);
+//            getTask().getStoreObject().add(getGateway(), meterEvents);
+//        } else {
+//            getLogger().info("Readout of meter events disabled in communication profile [" + getCommunicationProfile().displayString() + "]. Skipping.");
+//        }
+//    }
 
     private final List<MeterEvent> readMeterEvents(Calendar to, Calendar from) throws IOException {
         getLogger().log(Level.INFO, "Fetching EVENTS from [" + OBIS_CODE + "], [" + NAME + "] from [" + from.getTime() + "] to [" + to.getTime() + "]");

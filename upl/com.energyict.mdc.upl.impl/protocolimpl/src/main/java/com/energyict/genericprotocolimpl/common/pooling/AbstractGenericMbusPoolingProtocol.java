@@ -6,7 +6,6 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MbusMessages;
-import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.*;
 import com.energyict.protocol.*;
 
@@ -20,7 +19,7 @@ import java.util.logging.Logger;
 /**
  * Generic Abstract MBUSProtocol framework which make proper use of database pooling
  */
-public abstract class AbstractGenericMbusPoolingProtocol extends MbusMessages implements GenericProtocol {
+public abstract class AbstractGenericMbusPoolingProtocol extends MbusMessages {
 
     /**
      * Validate all required and optional properties
@@ -120,99 +119,99 @@ public abstract class AbstractGenericMbusPoolingProtocol extends MbusMessages im
      * This method handles the complete taskExecution.
      * Before each dataCollection task, we will close our current databaseConnection so other threads can reuse this connection.
      */
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-
-        boolean success = false;
-        ProfileData mbusProfile = null;
-        ProfileData eventProfile = null;
-        ProfileData dailyProfile = null;
-        ProfileData monthlyProfile = null;
-        MeterReadingData rtuRegisters = null;
-
-        this.logger = logger;
-        this.storeObject = new StoreObject();
-
-        addProperties(getFullShadow().getRtuShadow().getRtuProperties());
-        validateProperties();
-        try {
-
-            releaseConnectionFromPool();
-            executeWakeUpSequence();
-
-            init();
-
-            /**
-             * After 03/06/09 the events are read apart from the intervalData
-             */
-            if (getFullShadow().getCommunicationProfileShadow().getReadDemandValues()) {
-                releaseConnectionFromPool();
-                mbusProfile = getMbusProfile();
-            }
-
-            if (getFullShadow().getCommunicationProfileShadow().getReadMeterEvents()) {
-                releaseConnectionFromPool();
-                eventProfile = getEventProfile();
-            }
-
-            /**
-             * Here we are assuming that the daily and monthly values should be read. In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to
-             * indicate whether you want to read the actual registers or the daily/monthly registers ...
-             */
-            if (getFullShadow().getCommunicationProfileShadow().getReadMeterReadings()) {
-
-                releaseConnectionFromPool();
-                dailyProfile = readDailyProfiles();
-                monthlyProfile = readMonthlyProfiles();
-
-                getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + getFullShadow().getRtuShadow().getSerialNumber());
-                rtuRegisters = doReadRegisters(getFullShadow().getRtuRegisterFullProtocolShadowList());
-            }
-
-            if (getFullShadow().getCommunicationProfileShadow().getSendRtuMessage()) {
-                releaseConnectionFromPool();
-                sendMeterMessages(getFullShadow().getRtuMessageList());
-            }
-
-            if (mbusProfile != null) {
-                getStoreObject().add(mbusProfile, getMbusRtu());
-            }
-            if (dailyProfile != null) {
-                getStoreObject().add(dailyProfile, getMbusRtu());
-            }
-            if (monthlyProfile != null) {
-                getStoreObject().add(monthlyProfile, getMbusRtu());
-            }
-            if (eventProfile != null) {
-                getStoreObject().add(eventProfile, getMbusRtu());
-            }
-            if (rtuRegisters != null) {
-                getStoreObject().add(rtuRegisters, getMbusRtu());
-            }
-
-            success = true;
-        } catch (DLMSConnectionException e) {
-            log(Level.FINEST, e.getMessage());
-
-        } catch (ClassCastException e) {
-            // Mostly programmers fault if you get here ...
-            log(Level.FINEST, e.getMessage());
-
-        } catch (SQLException e) {
-            log(Level.FINEST, e.getMessage());
-
-            /** Close the connection after an SQL exception, connection will startup again if requested */
-            Environment.getDefault().closeConnection();
-
-            throw new BusinessException(e);
-        } finally {
-            if (success) {
-                getLogger().info("Meter " + getFullShadow().getRtuShadow().getSerialNumber() + " has completely finished.");
-            }
-            if (getStoreObject() != null) {
-                Environment.getDefault().execute(getStoreObject());
-            }
-        }
-    }
+//    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+//
+//        boolean success = false;
+//        ProfileData mbusProfile = null;
+//        ProfileData eventProfile = null;
+//        ProfileData dailyProfile = null;
+//        ProfileData monthlyProfile = null;
+//        MeterReadingData rtuRegisters = null;
+//
+//        this.logger = logger;
+//        this.storeObject = new StoreObject();
+//
+//        addProperties(getFullShadow().getRtuShadow().getRtuProperties());
+//        validateProperties();
+//        try {
+//
+//            releaseConnectionFromPool();
+//            executeWakeUpSequence();
+//
+//            init();
+//
+//            /**
+//             * After 03/06/09 the events are read apart from the intervalData
+//             */
+//            if (getFullShadow().getCommunicationProfileShadow().getReadDemandValues()) {
+//                releaseConnectionFromPool();
+//                mbusProfile = getMbusProfile();
+//            }
+//
+//            if (getFullShadow().getCommunicationProfileShadow().getReadMeterEvents()) {
+//                releaseConnectionFromPool();
+//                eventProfile = getEventProfile();
+//            }
+//
+//            /**
+//             * Here we are assuming that the daily and monthly values should be read. In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to
+//             * indicate whether you want to read the actual registers or the daily/monthly registers ...
+//             */
+//            if (getFullShadow().getCommunicationProfileShadow().getReadMeterReadings()) {
+//
+//                releaseConnectionFromPool();
+//                dailyProfile = readDailyProfiles();
+//                monthlyProfile = readMonthlyProfiles();
+//
+//                getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + getFullShadow().getRtuShadow().getSerialNumber());
+//                rtuRegisters = doReadRegisters(getFullShadow().getRtuRegisterFullProtocolShadowList());
+//            }
+//
+//            if (getFullShadow().getCommunicationProfileShadow().getSendRtuMessage()) {
+//                releaseConnectionFromPool();
+//                sendMeterMessages(getFullShadow().getRtuMessageList());
+//            }
+//
+//            if (mbusProfile != null) {
+//                getStoreObject().add(mbusProfile, getMbusRtu());
+//            }
+//            if (dailyProfile != null) {
+//                getStoreObject().add(dailyProfile, getMbusRtu());
+//            }
+//            if (monthlyProfile != null) {
+//                getStoreObject().add(monthlyProfile, getMbusRtu());
+//            }
+//            if (eventProfile != null) {
+//                getStoreObject().add(eventProfile, getMbusRtu());
+//            }
+//            if (rtuRegisters != null) {
+//                getStoreObject().add(rtuRegisters, getMbusRtu());
+//            }
+//
+//            success = true;
+//        } catch (DLMSConnectionException e) {
+//            log(Level.FINEST, e.getMessage());
+//
+//        } catch (ClassCastException e) {
+//            // Mostly programmers fault if you get here ...
+//            log(Level.FINEST, e.getMessage());
+//
+//        } catch (SQLException e) {
+//            log(Level.FINEST, e.getMessage());
+//
+//            /** Close the connection after an SQL exception, connection will startup again if requested */
+//            Environment.getDefault().closeConnection();
+//
+//            throw new BusinessException(e);
+//        } finally {
+//            if (success) {
+//                getLogger().info("Meter " + getFullShadow().getRtuShadow().getSerialNumber() + " has completely finished.");
+//            }
+//            if (getStoreObject() != null) {
+//                Environment.getDefault().execute(getStoreObject());
+//            }
+//        }
+//    }
 
     /**
      * Closes the current databaseConnection (if we have one)

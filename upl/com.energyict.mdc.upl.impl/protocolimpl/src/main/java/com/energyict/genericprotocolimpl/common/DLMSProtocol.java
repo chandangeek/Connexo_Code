@@ -37,7 +37,7 @@ import java.util.logging.Logger;
  *
  * @author gna
  */
-public abstract class DLMSProtocol extends GenericMessaging implements GenericProtocol, ProtocolLink, Z3MeterToolProtocol {
+public abstract class DLMSProtocol extends GenericMessaging implements ProtocolLink, Z3MeterToolProtocol {
 
     /**
      * The {@link ConformanceBlock} used
@@ -98,11 +98,11 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
      * The current {@link com.energyict.mdw.core.Device}
      */
     private Device meter;
-
-    /**
-     * The used {@link CommunicationScheduler}
-     */
-    private CommunicationScheduler communicationScheduler;
+//
+//    /**
+//     * The used {@link CommunicationScheduler}
+//     */
+//    private CommunicationScheduler communicationScheduler;
 
     /**
      * The used {@link Link}
@@ -267,48 +267,48 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
       * @see com.energyict.mdw.amr.GenericProtocol#execute(com.energyict.mdw.core.CommunicationScheduler, com.energyict.dialer.core.Link, java.util.logging.Logger)
       */
 
-    /**
-     * @param scheduler Task to execute
-     * @param link      Link created by the comserver, can be null if a NullDialer is
-     *                  configured
-     * @param logger    Loggger object - when using a level of warning or higher
-     *                  message will be stored in the communication session's database log,
-     *                  messages with a level lower than warning will only be logged in the file
-     *                  log if active.
-     * @throws BusinessException
-     * @throws SQLException
-     * @throws IOException
-     */
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-
-        try {
-
-            this.meter = scheduler.getRtu();
-            this.communicationScheduler = scheduler;
-            this.link = link;
-            setLogger(logger);
-
-            validateProperties();
-//            configureDLMSProperties();
+//    /**
+//     * @param scheduler Task to execute
+//     * @param link      Link created by the comserver, can be null if a NullDialer is
+//     *                  configured
+//     * @param logger    Loggger object - when using a level of warning or higher
+//     *                  message will be stored in the communication session's database log,
+//     *                  messages with a level lower than warning will only be logged in the file
+//     *                  log if active.
+//     * @throws BusinessException
+//     * @throws SQLException
+//     * @throws IOException
+//     */
+//    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
 //
-//            initializeGlobals();
-            init();
-
-            connect();
-
-            doExecute();
-
-        } catch (DLMSConnectionException e) {
-            log(Level.FINEST, e.getMessage());
-            disConnect();
-        } finally {
-            disConnect();
-            if ((getMeter() != null) && (dlmsCache != null)) {
-                updateCache(getMeter().getId(), dlmsCache);
-            }
-        }
-
-    }
+//        try {
+//
+//            this.meter = scheduler.getRtu();
+//            this.communicationScheduler = scheduler;
+//            this.link = link;
+//            setLogger(logger);
+//
+//            validateProperties();
+////            configureDLMSProperties();
+////
+////            initializeGlobals();
+//            init();
+//
+//            connect();
+//
+//            doExecute();
+//
+//        } catch (DLMSConnectionException e) {
+//            log(Level.FINEST, e.getMessage());
+//            disConnect();
+//        } finally {
+//            disConnect();
+//            if ((getMeter() != null) && (dlmsCache != null)) {
+//                updateCache(getMeter().getId(), dlmsCache);
+//            }
+//        }
+//
+//    }
 
 
     /**
@@ -344,7 +344,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     public void init() throws IOException, DLMSConnectionException, SQLException, BusinessException {
         configureDLMSProperties();
 
-        initializeGlobals();
+//        initializeGlobals();
     }
 
     /**
@@ -478,56 +478,56 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         doValidateProperties();
     }
 
-    /**
-     * Initialize global variables
-     *
-     * @throws IOException
-     * @throws DLMSConnectionException if addressingMode is unknown
-     * @throws BusinessException       if multiple records were found for the current Device ID
-     * @throws SQLException            if a database access error occurs
-     */
-    protected void initializeGlobals() throws IOException, DLMSConnectionException, SQLException, BusinessException {
-
-        if (this.wakeup == 1) {
-            this.logger.info("In Wakeup");
-            SmsWakeup smsWakeup = new SmsWakeup(communicationScheduler.getRtu(), this.logger);
-            smsWakeup.doWakeUp();
-
-            meter = getUpdatedMeter();
-
-            String ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
-
-            this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
-            this.link.getStreamConnection().open();
-            getLogger().log(Level.INFO, "Connected to " + ipAddress);
-        } else if ((communicationScheduler != null) && (communicationScheduler.getDialerFactory().getName() != null) && (communicationScheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))) {
-            throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
-        }
-
-        this.cosemObjectFactory = new CosemObjectFactory((ProtocolLink) this, isBulkRequest());
-
-        SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, getSystemIdentifier(), this.securityProvider, this.cipheringType);
-
-        if (ntaSimulationTool) {
-            this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId(), getMeter().getSerialNumber().getBytes(), null);
-        } else {
-            this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId());
-        }
-
-        this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
-
-        this.dlmsConnection.setInvokeIdAndPriority(this.invokeIdAndPriority);
-        this.dlmsConnection.setIskraWrapper(1);
-
-        this.dlmsMeterConfig = DLMSMeterConfig.getInstance(this.manufacturer);
-
-        if (getMeter() != null) {
-            setCache(fetchCache(getMeter().getId()));
-        }
-
-
-        doInit();
-    }
+//    /**
+//     * Initialize global variables
+//     *
+//     * @throws IOException
+//     * @throws DLMSConnectionException if addressingMode is unknown
+//     * @throws BusinessException       if multiple records were found for the current Device ID
+//     * @throws SQLException            if a database access error occurs
+//     */
+//    protected void initializeGlobals() throws IOException, DLMSConnectionException, SQLException, BusinessException {
+//
+//        if (this.wakeup == 1) {
+//            this.logger.info("In Wakeup");
+//            SmsWakeup smsWakeup = new SmsWakeup(communicationScheduler.getRtu(), this.logger);
+//            smsWakeup.doWakeUp();
+//
+//            meter = getUpdatedMeter();
+//
+//            String ipAddress = checkIPAddressForPortNumber(smsWakeup.getIpAddress());
+//
+//            this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
+//            this.link.getStreamConnection().open();
+//            getLogger().log(Level.INFO, "Connected to " + ipAddress);
+//        } else if ((communicationScheduler != null) && (communicationScheduler.getDialerFactory().getName() != null) && (communicationScheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer"))) {
+//            throw new ConnectionException("The NullDialer type is only allowed for the wakeup meter.");
+//        }
+//
+//        this.cosemObjectFactory = new CosemObjectFactory((ProtocolLink) this, isBulkRequest());
+//
+//        SecurityContext sc = new SecurityContext(this.datatransportSecurityLevel, this.authenticationSecurityLevel, 0, getSystemIdentifier(), this.securityProvider, this.cipheringType);
+//
+//        if (ntaSimulationTool) {
+//            this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId(), getMeter().getSerialNumber().getBytes(), null);
+//        } else {
+//            this.aso = new ApplicationServiceObject(this.xdlmsAse, this, sc, getContextId());
+//        }
+//
+//        this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
+//
+//        this.dlmsConnection.setInvokeIdAndPriority(this.invokeIdAndPriority);
+//        this.dlmsConnection.setIskraWrapper(1);
+//
+//        this.dlmsMeterConfig = DLMSMeterConfig.getInstance(this.manufacturer);
+//
+//        if (getMeter() != null) {
+//            setCache(fetchCache(getMeter().getId()));
+//        }
+//
+//
+//        doInit();
+//    }
 
     /**
      * Return the SystemTitle to be used in the DLMS association request.
@@ -842,21 +842,21 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     public void addProperties(Properties properties) {
         this.properties = properties;
     }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
+//
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
 
     /**
      * Getter for the Properties object
@@ -879,35 +879,35 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
         return dlmsCache;
     }
 
-    /**
-     * Check if the timeDifference exceeds the maximum.
-     * Depending on the result, all intervalvalues are marked as dirty
-     *
-     * @return true if timedifference exceeds maximum, false otherwise
-     * @throws IOException if timeDifference exceeds maximum and the flag collectOutSideBoundary isn't checked,
-     *                     or when reading the time failed
-     */
-    protected boolean verifyMaxTimeDifference() throws IOException {
-        Date systemTime = Calendar.getInstance().getTime();
-        Date meterTime = getTime();
-
-        this.timeDifference = Math.abs(meterTime.getTime() - systemTime.getTime());
-        long diff = this.timeDifference; // in milliseconds
-        if ((diff / 1000 > communicationScheduler.getCommunicationProfile().getMaximumClockDifference())) {
-
-            String msg = "Time difference exceeds configured maximum: (" + (diff / 1000) + " s > " + communicationScheduler.getCommunicationProfile().getMaximumClockDifference() + " s )";
-
-            getLogger().log(Level.SEVERE, msg);
-
-            if (communicationScheduler.getCommunicationProfile().getCollectOutsideBoundary()) {
-                // TODO should set the completion code to TIMEERROR, but that's not possible without changing the interface ...
-                return true;
-            } else {
-                throw new IOException(msg);
-            }
-        }
-        return false;
-    }
+//    /**
+//     * Check if the timeDifference exceeds the maximum.
+//     * Depending on the result, all intervalvalues are marked as dirty
+//     *
+//     * @return true if timedifference exceeds maximum, false otherwise
+//     * @throws IOException if timeDifference exceeds maximum and the flag collectOutSideBoundary isn't checked,
+//     *                     or when reading the time failed
+//     */
+//    protected boolean verifyMaxTimeDifference() throws IOException {
+//        Date systemTime = Calendar.getInstance().getTime();
+//        Date meterTime = getTime();
+//
+//        this.timeDifference = Math.abs(meterTime.getTime() - systemTime.getTime());
+//        long diff = this.timeDifference; // in milliseconds
+//        if ((diff / 1000 > communicationScheduler.getCommunicationProfile().getMaximumClockDifference())) {
+//
+//            String msg = "Time difference exceeds configured maximum: (" + (diff / 1000) + " s > " + communicationScheduler.getCommunicationProfile().getMaximumClockDifference() + " s )";
+//
+//            getLogger().log(Level.SEVERE, msg);
+//
+//            if (communicationScheduler.getCommunicationProfile().getCollectOutsideBoundary()) {
+//                // TODO should set the completion code to TIMEERROR, but that's not possible without changing the interface ...
+//                return true;
+//            } else {
+//                throw new IOException(msg);
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * Fetch the meter's time
@@ -988,13 +988,13 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     protected void setTimeDifference(long timeDifference) {
         this.timeDifference = timeDifference;
     }
-
-    /**
-     * @return the current CommunicationProfile
-     */
-    public CommunicationProfile getCommunicationProfile() {
-        return communicationScheduler.getCommunicationProfile();
-    }
+//
+//    /**
+//     * @return the current CommunicationProfile
+//     */
+//    public CommunicationProfile getCommunicationProfile() {
+//        return communicationScheduler.getCommunicationProfile();
+//    }
 
     /**
      * Check if a given ObisCode is in the objectList
@@ -1049,15 +1049,15 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
 
     private Map<ObisCode, Register> getRegistersToRead() {
         List<Register> meterRegisters = getMeter().getRegisters();
-        List<RegisterGroup> groups = getCommunicationProfile().getRtuRegisterGroups();
-
+//        List<RegisterGroup> groups = getCommunicationProfile().getRtuRegisterGroups();
+//
         Map<ObisCode, Register> registersToRead = new HashMap<ObisCode, Register>();
-        for (com.energyict.mdw.amr.Register meterRegister : meterRegisters) {
-            if (CommonUtils.isInRegisterGroup(groups, meterRegister)) {
-                ObisCode obis = meterRegister.getRegisterSpec().getObisCode();
-                registersToRead.put(obis, meterRegister);
-            }
-        }
+//        for (com.energyict.mdw.amr.Register meterRegister : meterRegisters) {
+//            if (CommonUtils.isInRegisterGroup(groups, meterRegister)) {
+//                ObisCode obis = meterRegister.getRegisterSpec().getObisCode();
+//                registersToRead.put(obis, meterRegister);
+//            }
+//        }
         return registersToRead;
     }
 
@@ -1092,29 +1092,29 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     }
 
     protected void verifyAndWriteClock() throws IOException {
-        try {
-            Date meterTime = getTime();
-            Date now = Calendar.getInstance(getTimeZone()).getTime();
-
-            this.timeDifference = Math.abs(now.getTime() - meterTime.getTime());
-            long diff = this.timeDifference / 1000;
-
-            logger.log(Level.INFO, "Difference between metertime(" + meterTime + ") and systemtime(" + now + ") is " + diff + "s.");
-            if (getCommunicationProfile().getWriteClock()) {
-                if ((diff < getCommunicationProfile().getMaximumClockDifference()) && (diff > getCommunicationProfile().getMinimumClockDifference())) {
-                    logger.log(Level.INFO, "Metertime will be set to systemtime: " + now);
-                    setClock(now);
-                } else if (diff > getCommunicationProfile().getMaximumClockDifference()) {
-                    logger.log(Level.INFO, "Metertime will not be set, timeDifference is to large.");
-                }
-            } else {
-                logger.log(Level.INFO, "WriteClock is disabled, metertime will not be set.");
-            }
-
-        } catch (IOException e) {
-            log(Level.FINEST, e.getMessage());
-            throw new IOException("Could not get or write the time." + e);
-        }
+//        try {
+//            Date meterTime = getTime();
+//            Date now = Calendar.getInstance(getTimeZone()).getTime();
+//
+//            this.timeDifference = Math.abs(now.getTime() - meterTime.getTime());
+//            long diff = this.timeDifference / 1000;
+//
+//            logger.log(Level.INFO, "Difference between metertime(" + meterTime + ") and systemtime(" + now + ") is " + diff + "s.");
+//            if (getCommunicationProfile().getWriteClock()) {
+//                if ((diff < getCommunicationProfile().getMaximumClockDifference()) && (diff > getCommunicationProfile().getMinimumClockDifference())) {
+//                    logger.log(Level.INFO, "Metertime will be set to systemtime: " + now);
+//                    setClock(now);
+//                } else if (diff > getCommunicationProfile().getMaximumClockDifference()) {
+//                    logger.log(Level.INFO, "Metertime will not be set, timeDifference is to large.");
+//                }
+//            } else {
+//                logger.log(Level.INFO, "WriteClock is disabled, metertime will not be set.");
+//            }
+//
+//        } catch (IOException e) {
+//            log(Level.FINEST, e.getMessage());
+//            throw new IOException("Could not get or write the time." + e);
+//        }
 
     }
 
@@ -1173,15 +1173,15 @@ public abstract class DLMSProtocol extends GenericMessaging implements GenericPr
     protected void setDLMSConnection(DLMSConnection dlmsConnection) {
         this.dlmsConnection = dlmsConnection;
     }
-
-    /**
-     * Getter for the communicationScheduler
-     *
-     * @return the current communicationScheduler
-     */
-    protected CommunicationScheduler getCommunicationScheduler() {
-        return this.communicationScheduler;
-    }
+//
+//    /**
+//     * Getter for the communicationScheduler
+//     *
+//     * @return the current communicationScheduler
+//     */
+//    protected CommunicationScheduler getCommunicationScheduler() {
+//        return this.communicationScheduler;
+//    }
 
     /**
      * Getter for the Link object

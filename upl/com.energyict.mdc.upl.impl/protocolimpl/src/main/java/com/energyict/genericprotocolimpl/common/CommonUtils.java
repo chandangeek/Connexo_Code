@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.amr.GenericProtocol;
+//import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.core.Device;
@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Commonly used methods for a {@link GenericProtocol}
  *
  * @author gna
  */

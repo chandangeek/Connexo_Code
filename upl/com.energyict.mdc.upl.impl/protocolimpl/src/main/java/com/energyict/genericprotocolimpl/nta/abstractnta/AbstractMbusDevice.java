@@ -1,23 +1,38 @@
 package com.energyict.genericprotocolimpl.nta.abstractnta;
 
-import com.energyict.cbo.*;
-import com.energyict.cpo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Unit;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.genericprotocolimpl.common.pooling.*;
+import com.energyict.genericprotocolimpl.common.pooling.AbstractGenericMbusPoolingProtocol;
+import com.energyict.genericprotocolimpl.common.pooling.CommunicationSchedulerFullProtocolShadow;
+import com.energyict.genericprotocolimpl.common.pooling.RtuRegisterFullProtocolShadow;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MbusMessageExecutor;
-import com.energyict.genericprotocolimpl.nta.profiles.*;
+import com.energyict.genericprotocolimpl.nta.profiles.MbusDailyMonthlyProfile;
+import com.energyict.genericprotocolimpl.nta.profiles.MbusEventProfile;
+import com.energyict.genericprotocolimpl.nta.profiles.MbusProfile;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.MbusObisCodeMapper;
-import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +47,7 @@ import java.util.logging.Logger;
  *         Changed all messageEntrys in date-form to a UnixTime entry;
  */
 
-public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProtocol implements GenericProtocol {
+public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProtocol {
 
     /**
      * Extra protocol settings for a <b>subclassed NTA protocol</b>
@@ -165,21 +180,21 @@ public abstract class AbstractMbusDevice extends AbstractGenericMbusPoolingProto
     public int getPhysicalAddress() {
         return this.physicalAddress;
     }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
+//
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
 
     public void addProperties(Properties properties) {
         this.properties = properties;

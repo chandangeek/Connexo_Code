@@ -10,22 +10,17 @@ import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.ModemPool;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.ChannelShadow;
-import com.energyict.mdw.shadow.CommunicationProfileShadow;
 import com.energyict.mdw.shadow.CommunicationProtocolShadow;
-import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.GroupShadow;
-import com.energyict.mdw.shadow.ModemPoolShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
 
@@ -36,11 +31,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+
+//import com.energyict.mdw.core.CommunicationProfile;
+//import com.energyict.mdw.core.ModemPool;
 
 public class Utilities {
 
@@ -251,28 +248,28 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static CommunicationProfile createCommunicationProfile(String type) throws SQLException, BusinessException {
-        CommunicationProfileShadow cps = new CommunicationProfileShadow();
-        if (type.equals(commProfile_All)) {
-            cps.setName(commProfile_All);
-            cps.setReadAllDemandValues(true);
-            cps.setReadDemandValues(true);
-            cps.setReadMeterEvents(true);
-            cps.setReadMeterReadings(true);
-            cps.setSendRtuMessage(true);
-            cps.setStoreData(true);
-        } else if (type.equals(commProfile_SendRtuMessage)) {
-            cps.setName(commProfile_SendRtuMessage);
-            cps.setSendRtuMessage(true);
-            cps.setStoreData(true);
-        } else if (type.equals(commProfile_ReadDemandValues)) {
-            cps.setName(commProfile_ReadDemandValues);
-            cps.setReadDemandValues(true);
-            cps.setStoreData(true);
-        }
-        return mw().getCommunicationProfileFactory().create(cps);
-
-    }
+//    public static CommunicationProfile createCommunicationProfile(String type) throws SQLException, BusinessException {
+//        CommunicationProfileShadow cps = new CommunicationProfileShadow();
+//        if (type.equals(commProfile_All)) {
+//            cps.setName(commProfile_All);
+//            cps.setReadAllDemandValues(true);
+//            cps.setReadDemandValues(true);
+//            cps.setReadMeterEvents(true);
+//            cps.setReadMeterReadings(true);
+//            cps.setSendRtuMessage(true);
+//            cps.setStoreData(true);
+//        } else if (type.equals(commProfile_SendRtuMessage)) {
+//            cps.setName(commProfile_SendRtuMessage);
+//            cps.setSendRtuMessage(true);
+//            cps.setStoreData(true);
+//        } else if (type.equals(commProfile_ReadDemandValues)) {
+//            cps.setName(commProfile_ReadDemandValues);
+//            cps.setReadDemandValues(true);
+//            cps.setStoreData(true);
+//        }
+//        return mw().getCommunicationProfileFactory().create(cps);
+//
+//    }
 
     /**
      * Create a new {@link CommunicationProfile} given a type name and ad it to a given {@link com.energyict.mdw.core.Device}
@@ -283,18 +280,18 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static void createCommunicationScheduler(Device rtu, String type) throws SQLException, BusinessException {
-        CommunicationSchedulerShadow css = new CommunicationSchedulerShadow();
-        css.setCommunicationProfileId(createCommunicationProfile(type).getId());
-        css.setRtuId(rtu.getId());
-        ModemPool mp = createDummyModemPool();
-        css.setModemPoolId(mp.getId());
-        List schedulerShadows = new ArrayList(mp.getId());
-        schedulerShadows.add(css);
-        DeviceShadow rtuShadow = rtu.getShadow();
-//        rtuShadow.setCommunicationSchedulerShadows(schedulerShadows);
-        rtu.update(rtuShadow);
-    }
+//    public static void createCommunicationScheduler(Device rtu, String type) throws SQLException, BusinessException {
+//        CommunicationSchedulerShadow css = new CommunicationSchedulerShadow();
+//        css.setCommunicationProfileId(createCommunicationProfile(type).getId());
+//        css.setRtuId(rtu.getId());
+//        ModemPool mp = createDummyModemPool();
+//        css.setModemPoolId(mp.getId());
+//        List schedulerShadows = new ArrayList(mp.getId());
+//        schedulerShadows.add(css);
+//        DeviceShadow rtuShadow = rtu.getShadow();
+////        rtuShadow.setCommunicationSchedulerShadows(schedulerShadows);
+//        rtu.update(rtuShadow);
+//    }
 
     /**
      * @return
@@ -354,21 +351,21 @@ public class Utilities {
         return mw().getUserFileFactory().create(ufs);
     }
 
-    /**
-     * @return
-     * @throws SQLException
-     * @throws BusinessException
-     */
-    public static ModemPool createDummyModemPool() throws SQLException, BusinessException {
-        List<ModemPool> result = mw().getModemPoolFactory().findByName(dummyModemPool);
-        if (result.size() == 0) {
-            ModemPoolShadow mps = new ModemPoolShadow();
-            mps.setName(dummyModemPool);
-            return mw().getModemPoolFactory().create(mps);
-        } else {
-            return result.get(0);
-        }
-    }
+//    /**
+//     * @return
+//     * @throws SQLException
+//     * @throws BusinessException
+//     */
+//    public static ModemPool createDummyModemPool() throws SQLException, BusinessException {
+//        List<ModemPool> result = mw().getModemPoolFactory().findByName(dummyModemPool);
+//        if (result.size() == 0) {
+//            ModemPoolShadow mps = new ModemPoolShadow();
+//            mps.setName(dummyModemPool);
+//            return mw().getModemPoolFactory().create(mps);
+//        } else {
+//            return result.get(0);
+//        }
+//    }
 
     /**
      * @param meter

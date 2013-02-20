@@ -1,25 +1,16 @@
 package com.energyict.genericprotocolimpl.common.wakeup;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.Utils;
 import com.energyict.cpo.Environment;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.mdw.core.CommunicationScheduler;
-import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.vodafone.gdsp.ws.*;
 
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import javax.xml.ws.WebServiceException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.concurrent.Semaphore;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -63,7 +54,7 @@ public class SmsWakeup {
 
     private String soapAction;
     private Device meter;
-    private CommunicationScheduler scheduler;
+//    private CommunicationScheduler scheduler;
 
     private Logger logger;
     private static final String VF_ENDPOINT_ADDRESS_PROPERTY = "vfEndpointAddress";
@@ -103,7 +94,7 @@ public class SmsWakeup {
             try {
                 log(5, "Got Lock at " + Calendar.getInstance().getTime());
 
-                createWakeupCall();
+//                createWakeupCall();
 
             } finally {
                 semaphore.release();
@@ -180,56 +171,56 @@ public class SmsWakeup {
      *
      * @throws IOException when the wsdl is not found, or when certain attributes are not correctly filled in
      */
-    private void createWakeupCall() throws IOException {
-        log(5, "In createWakeupCall");
-        WUTrigger wuTrigger = getWUTrigger();
-        log(5, "Got wuTriggerPort");
-        SubmitWUTrigger parameters = new SubmitWUTrigger();
-        GdspHeader gdspHeader = new GdspHeader();
-        GdspCredentials value = new GdspCredentials();
-        value.setUserId("");
-        value.setPassword("");
-        gdspHeader.setGdspCredentials(value);
-        Object bd = getAttributeValue("IMSI");
-        if (bd != null) {
-            parameters.setDeviceId(Long.toString(((BigDecimal) bd).longValue()));
-        } else {
-            throw new IOException("The IMSI number is a required attribute to successfully execute the wakeup trigger.");
-        }
-        Object MSISDN = getAttributeValue("MSISDN");
-        if (MSISDN != null) {
-            parameters.setMSISDNNumber((String) MSISDN);
-        }
-        Object provider = getAttributeValue("GPRSProvider");
-        if (provider != null) {
-            parameters.setOperatorName((String) provider);
-        } else {
-            throw new IOException("The Provider is a required attribute to successfully execute the wakeup trigger.");
-        }
-        String srcId = mw().getSystemProperty("SourceId");
-        if (srcId != null) {
-            parameters.setSourceId(srcId);
-        } else {
-            throw new IOException("The SourceId is a required System property to successfully execute the wakeup trigger.");
-        }
-
-        /** If in time CSD is added to this functionality, then make sure this one is fetched from the attributes and is correctly filled in*/
-        parameters.setTriggerType("SMS");
-
-        log(5, "Ready for takeoff");
-        SubmitWUTriggerResponse swuTriggerResponse;
-
-        try {
-            swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
-        } catch (WebServiceException e) { // TODO: We should not use an internal class like ClientTransportException. Maybe just catch a WebServiceException?
-            throw new ConnectionException("Could not send the WakeUp request, request timed out!");
-        } catch (Exception e) {
-            throw new ConnectionException("Could not send the WakeUp request. " + e.getMessage());
-        }
-        log(5, "Took off ...");
-        analyseRespsonse(swuTriggerResponse);
-
-    }
+//    private void createWakeupCall() throws IOException {
+//        log(5, "In createWakeupCall");
+//        WUTrigger wuTrigger = getWUTrigger();
+//        log(5, "Got wuTriggerPort");
+//        SubmitWUTrigger parameters = new SubmitWUTrigger();
+//        GdspHeader gdspHeader = new GdspHeader();
+//        GdspCredentials value = new GdspCredentials();
+//        value.setUserId("");
+//        value.setPassword("");
+//        gdspHeader.setGdspCredentials(value);
+//        Object bd = getAttributeValue("IMSI");
+//        if (bd != null) {
+//            parameters.setDeviceId(Long.toString(((BigDecimal) bd).longValue()));
+//        } else {
+//            throw new IOException("The IMSI number is a required attribute to successfully execute the wakeup trigger.");
+//        }
+//        Object MSISDN = getAttributeValue("MSISDN");
+//        if (MSISDN != null) {
+//            parameters.setMSISDNNumber((String) MSISDN);
+//        }
+//        Object provider = getAttributeValue("GPRSProvider");
+//        if (provider != null) {
+//            parameters.setOperatorName((String) provider);
+//        } else {
+//            throw new IOException("The Provider is a required attribute to successfully execute the wakeup trigger.");
+//        }
+//        String srcId = mw().getSystemProperty("SourceId");
+//        if (srcId != null) {
+//            parameters.setSourceId(srcId);
+//        } else {
+//            throw new IOException("The SourceId is a required System property to successfully execute the wakeup trigger.");
+//        }
+//
+//        /** If in time CSD is added to this functionality, then make sure this one is fetched from the attributes and is correctly filled in*/
+//        parameters.setTriggerType("SMS");
+//
+//        log(5, "Ready for takeoff");
+//        SubmitWUTriggerResponse swuTriggerResponse;
+//
+//        try {
+//            swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
+//        } catch (WebServiceException e) { // TODO: We should not use an internal class like ClientTransportException. Maybe just catch a WebServiceException?
+//            throw new ConnectionException("Could not send the WakeUp request, request timed out!");
+//        } catch (Exception e) {
+//            throw new ConnectionException("Could not send the WakeUp request. " + e.getMessage());
+//        }
+//        log(5, "Took off ...");
+//        analyseRespsonse(swuTriggerResponse);
+//
+//    }
 
     /**
      * Analyze the response code.
@@ -238,18 +229,18 @@ public class SmsWakeup {
      * @param swuTriggerResponse
      * @throws IOException
      */
-    private void analyseRespsonse(SubmitWUTriggerResponse swuTriggerResponse) throws ConnectionException {
-        String majorReturnCode = swuTriggerResponse.getReturn().getReturnCode().getMajorReturnCode();
-        String minorReturnCode = swuTriggerResponse.getReturn().getReturnCode().getMinorReturnCode();
-        if (majorReturnCode.equalsIgnoreCase(mrcRequestComplete)) {
-            this.requestSuccess = true;
-            this.logger.info("Successfully sent the wakeup trigger.");
-        } else {
-            this.requestSuccess = false;
-            this.logger.info("Wakeup trigger failed, majorReturnCode: " + majorReturnCode + ", minorReturnCode: " + minorReturnCode);
-            throw new ConnectionException("TriggerResponse is not as excpected, MajorReturnCode: " + majorReturnCode + ", MinorReturnCode: " + minorReturnCode);
-        }
-    }
+//    private void analyseRespsonse(SubmitWUTriggerResponse swuTriggerResponse) throws ConnectionException {
+//        String majorReturnCode = swuTriggerResponse.getReturn().getReturnCode().getMajorReturnCode();
+//        String minorReturnCode = swuTriggerResponse.getReturn().getReturnCode().getMinorReturnCode();
+//        if (majorReturnCode.equalsIgnoreCase(mrcRequestComplete)) {
+//            this.requestSuccess = true;
+//            this.logger.info("Successfully sent the wakeup trigger.");
+//        } else {
+//            this.requestSuccess = false;
+//            this.logger.info("Wakeup trigger failed, majorReturnCode: " + majorReturnCode + ", minorReturnCode: " + minorReturnCode);
+//            throw new ConnectionException("TriggerResponse is not as excpected, MajorReturnCode: " + majorReturnCode + ", MinorReturnCode: " + minorReturnCode);
+//        }
+//    }
 
     /**
      * Poll the meters IP-address field for an update
@@ -331,17 +322,17 @@ public class SmsWakeup {
         return this.meter.getDefaultRelation().get(attribute);
     }
 
-    public WUTrigger getWUTrigger() throws IOException {
-        WUTriggerService wuService = new WUTriggerService(Utils.class.getResource("/wsdl/WUTriggerServiceConcrete_Incl_Schema.wsdl"),
-                new QName("http://ws.gdsp.vodafone.com/", "WUTriggerService"));
-        WUTrigger proxy = wuService.getWUTriggerPort();
-        ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
-        ((BindingProvider) proxy).getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
-        ((BindingProvider) proxy).getRequestContext().put("com.sun.xml.ws.request.timeout", wakeUpRequestTimeOut);
-        ((BindingProvider) proxy).getRequestContext().put("com.sun.xml.ws.connect.timeout", wakeUpRequestTimeOut);
-
-        return proxy;
-    }
+//    public WUTrigger getWUTrigger() throws IOException {
+//        WUTriggerService wuService = new WUTriggerService(Utils.class.getResource("/wsdl/WUTriggerServiceConcrete_Incl_Schema.wsdl"),
+//                new QName("http://ws.gdsp.vodafone.com/", "WUTriggerService"));
+//        WUTrigger proxy = wuService.getWUTriggerPort();
+//        ((BindingProvider) proxy).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+//        ((BindingProvider) proxy).getRequestContext().put(BindingProvider.SOAPACTION_URI_PROPERTY, soapAction);
+//        ((BindingProvider) proxy).getRequestContext().put("com.sun.xml.ws.request.timeout", wakeUpRequestTimeOut);
+//        ((BindingProvider) proxy).getRequestContext().put("com.sun.xml.ws.connect.timeout", wakeUpRequestTimeOut);
+//
+//        return proxy;
+//    }
 
     public boolean isRequestSuccess() {
         return this.requestSuccess;
@@ -360,49 +351,49 @@ public class SmsWakeup {
         return MeteringWarehouse.getCurrent();
     }
 
-    public static void main(String args[]) {
-
-        SmsWakeup swu = new SmsWakeup(null);
-
-        try {
-            WUTrigger wuTrigger = swu.getWUTrigger();
-            SubmitWUTrigger parameters = new SubmitWUTrigger();
-            GdspHeader gdspHeader = new GdspHeader();
-            GdspCredentials value = new GdspCredentials();
-            value.setUserId("User");
-            value.setPassword("Passw");
-            gdspHeader.setGdspCredentials(value);
-            parameters.setDeviceId("The_DeviceId");
-            parameters.setMSISDNNumber("The_MSISDNNumber");
-            parameters.setOperatorName("The_OperatorName");
-            parameters.setSourceId("The_SourceId");
-            parameters.setTriggerType("The_TriggerType");
-            SubmitWUTriggerResponse swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-//		Utilities.createEnvironment();
-//		MeteringWarehouse.createBatchContext(false);
-//		MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-//		Device rtu = mw.getDeviceFactory().find(18052);
-//		String str = (String)rtu.getDefaultRelation().get("Gov");
-//		System.out.println(str);
-
-
-////		MdwAttributeType mat = rtu.getDefaultRelationType().getAttributeType("IMSI");
-////			rtu.getDefaultRelation().get("IMSI");
-//		
-//		SmsWakeup smsWakeup = new SmsWakeup((CommunicationScheduler) rtu.getCommunicationSchedulers().get(9));
-//		try {
-//			smsWakeup.waitForIpUpdate();
-//		} catch (BusinessException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		};
-    }
+//    public static void main(String args[]) {
+//
+//        SmsWakeup swu = new SmsWakeup(null);
+//
+//        try {
+//            WUTrigger wuTrigger = swu.getWUTrigger();
+//            SubmitWUTrigger parameters = new SubmitWUTrigger();
+//            GdspHeader gdspHeader = new GdspHeader();
+//            GdspCredentials value = new GdspCredentials();
+//            value.setUserId("User");
+//            value.setPassword("Passw");
+//            gdspHeader.setGdspCredentials(value);
+//            parameters.setDeviceId("The_DeviceId");
+//            parameters.setMSISDNNumber("The_MSISDNNumber");
+//            parameters.setOperatorName("The_OperatorName");
+//            parameters.setSourceId("The_SourceId");
+//            parameters.setTriggerType("The_TriggerType");
+//            SubmitWUTriggerResponse swuTriggerResponse = wuTrigger.submitWUTrigger(parameters, gdspHeader);
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//
+////		Utilities.createEnvironment();
+////		MeteringWarehouse.createBatchContext(false);
+////		MeteringWarehouse mw = MeteringWarehouse.getCurrent();
+////		Device rtu = mw.getDeviceFactory().find(18052);
+////		String str = (String)rtu.getDefaultRelation().get("Gov");
+////		System.out.println(str);
+//
+//
+//////		MdwAttributeType mat = rtu.getDefaultRelationType().getAttributeType("IMSI");
+//////			rtu.getDefaultRelation().get("IMSI");
+////
+////		SmsWakeup smsWakeup = new SmsWakeup((CommunicationScheduler) rtu.getCommunicationSchedulers().get(9));
+////		try {
+////			smsWakeup.waitForIpUpdate();
+////		} catch (BusinessException e) {
+////			// TODO Auto-generated catch block
+////			e.printStackTrace();
+////		} catch (IOException e) {
+////			// TODO Auto-generated catch block
+////			e.printStackTrace();
+////		};
+//    }
 }

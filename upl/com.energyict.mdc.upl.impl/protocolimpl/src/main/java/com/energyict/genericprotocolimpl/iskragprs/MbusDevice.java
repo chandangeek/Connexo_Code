@@ -5,23 +5,36 @@ package com.energyict.genericprotocolimpl.iskragprs;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dialer.core.Link;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.mdw.amr.*;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.amr.RegisterSpec;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +47,7 @@ import java.util.logging.Logger;
 @Deprecated
 /** Jan 2012: If the IskraMx37x protocol is replaced by its smart version (com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372),
  the protocol for the Mbus device should also be changed to its smart alternative (com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice) **/
-public class MbusDevice implements Messaging, GenericProtocol {
+public class MbusDevice implements Messaging {
 
     private int mbusAddress = -1;        // this is the address that was given by the E-meter or a hardcoded MBusAddress in the MBusMeter itself
     private int physicalAddress = -1;    // this is the orderNumber of the MBus meters on the E-meter, we need this to compute the ObisRegisterValues
@@ -64,7 +77,7 @@ public class MbusDevice implements Messaging, GenericProtocol {
         this.mbus = rtu;
         this.logger = logger;
         if (mbus != null) {
-            addProperties(mbus.getProperties());
+//            addProperties(mbus.getProperties());
         }
     }
 
@@ -77,31 +90,31 @@ public class MbusDevice implements Messaging, GenericProtocol {
         this.mbusUnit = unit;
         this.logger = logger;
         if (mbus != null) {
-            addProperties(mbus.getProperties());
+//            addProperties(mbus.getProperties());
         }
     }
 
 
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        CommunicationProfile commProfile = scheduler.getCommunicationProfile();
-        // import profile
-        if (commProfile.getReadDemandValues()) {
-            MbusProfile mp = new MbusProfile(this);
-            mp.getProfile(iskra.getMbusLoadProfile(getPhysicalAddress()));
-        }
-
-        // import Daily/Monthly registers
-        if (commProfile.getReadMeterReadings()) {
-            MbusDailyMonthly mdm = new MbusDailyMonthly(this);
-            mdm.getDailyValues(iskra.getDailyLoadProfile());
-            mdm.getMonthlyValues(iskra.getMonthlyLoadProfile());
-        }
-
-        // send RtuMessages
-        if (commProfile.getSendRtuMessage()) {
-            sendMeterMessages();
-        }
-    }
+//    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+//        CommunicationProfile commProfile = scheduler.getCommunicationProfile();
+//        // import profile
+//        if (commProfile.getReadDemandValues()) {
+//            MbusProfile mp = new MbusProfile(this);
+//            mp.getProfile(iskra.getMbusLoadProfile(getPhysicalAddress()));
+//        }
+//
+//        // import Daily/Monthly registers
+//        if (commProfile.getReadMeterReadings()) {
+//            MbusDailyMonthly mdm = new MbusDailyMonthly(this);
+//            mdm.getDailyValues(iskra.getDailyLoadProfile());
+//            mdm.getMonthlyValues(iskra.getMonthlyLoadProfile());
+//        }
+//
+//        // send RtuMessages
+//        if (commProfile.getSendRtuMessage()) {
+//            sendMeterMessages();
+//        }
+//    }
 
     public void addProperties(Properties properties) {
         try {
@@ -133,20 +146,20 @@ public class MbusDevice implements Messaging, GenericProtocol {
         return new ArrayList(0);
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        rtuType = (String) properties.getProperty("DeviceType", "mbus");
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
-    }
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        rtuType = (String) properties.getProperty("DeviceType", "mbus");
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return Collections.emptyList();
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return Collections.emptyList();
+//    }
 
     public List getMessageCategories() {
         List theCategories = new ArrayList();

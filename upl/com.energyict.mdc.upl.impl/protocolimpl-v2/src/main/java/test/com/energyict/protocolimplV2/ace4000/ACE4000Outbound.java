@@ -119,7 +119,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedStandardMessages() {
+    public List<DeviceMessageSpec> getSupportedMessages() {
         return null;
     }
 

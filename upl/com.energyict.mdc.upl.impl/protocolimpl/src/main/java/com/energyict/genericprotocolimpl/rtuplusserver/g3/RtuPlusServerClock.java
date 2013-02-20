@@ -25,29 +25,29 @@ public class RtuPlusServerClock extends AbstractDlmsSessionTask {
         super(session, task);
     }
 
-    public final void validateClock() throws IOException, BusinessException {
-        readClock();
-        if (getCommunicationProfile().getAdHoc() && getCommunicationProfile().getForceClock()) {
-            getLogger().severe("Ad hoc 'Force write clock' option is enabled for [" + getCommunicationProfile().displayString() + "]!");
-            writeClock();
-        } else if (getCommunicationProfile().getWriteClock()) {
-            final int minDiff = getCommunicationProfile().getMinimumClockDifference();
-            final int maxDiff = getCommunicationProfile().getMaximumClockDifference();
-            final int diff = (int) (getTimeDifference() / 1000);
-            if (diff < minDiff) {
-                getLogger().info("Time difference [" + diff + " s] is less than configured minimum clock difference [" + minDiff + " s]. Skipping clock sync.");
-            } else if (diff > maxDiff) {
-                if (getCommunicationProfile().getCollectOutsideBoundary()) {
-                    getLogger().severe("Time difference [" + diff + " s] exceeds the configured maximum clock difference [" + maxDiff + " s]! Skipping clock sync.");
-                } else {
-                    throw new BusinessException("Time difference [" + diff + " s] exceeds the configured maximum clock difference [" + maxDiff + " s] and 'collect outside boundary' disabled.");
-                }
-            } else {
-                getLogger().warning("Time difference [" + diff + " s] exceeds the configured minimum clock difference [" + maxDiff + " s]! Writing clock.");
-                writeClock();
-            }
-        }
-    }
+//    public final void validateClock() throws IOException, BusinessException {
+//        readClock();
+//        if (getCommunicationProfile().getAdHoc() && getCommunicationProfile().getForceClock()) {
+//            getLogger().severe("Ad hoc 'Force write clock' option is enabled for [" + getCommunicationProfile().displayString() + "]!");
+//            writeClock();
+//        } else if (getCommunicationProfile().getWriteClock()) {
+//            final int minDiff = getCommunicationProfile().getMinimumClockDifference();
+//            final int maxDiff = getCommunicationProfile().getMaximumClockDifference();
+//            final int diff = (int) (getTimeDifference() / 1000);
+//            if (diff < minDiff) {
+//                getLogger().info("Time difference [" + diff + " s] is less than configured minimum clock difference [" + minDiff + " s]. Skipping clock sync.");
+//            } else if (diff > maxDiff) {
+//                if (getCommunicationProfile().getCollectOutsideBoundary()) {
+//                    getLogger().severe("Time difference [" + diff + " s] exceeds the configured maximum clock difference [" + maxDiff + " s]! Skipping clock sync.");
+//                } else {
+//                    throw new BusinessException("Time difference [" + diff + " s] exceeds the configured maximum clock difference [" + maxDiff + " s] and 'collect outside boundary' disabled.");
+//                }
+//            } else {
+//                getLogger().warning("Time difference [" + diff + " s] exceeds the configured minimum clock difference [" + maxDiff + " s]! Writing clock.");
+//                writeClock();
+//            }
+//        }
+//    }
 
     private final Date readClock() throws IOException {
         final Date meterTime = getCosemObjectFactory().getClock(CLOCK_OBIS_CODE).getDateTime();

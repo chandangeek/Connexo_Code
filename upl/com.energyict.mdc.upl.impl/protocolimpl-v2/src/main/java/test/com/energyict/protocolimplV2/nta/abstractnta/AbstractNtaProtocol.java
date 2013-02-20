@@ -219,8 +219,8 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedStandardMessages() {
-        return getMessageProtocol().getSupportedStandardMessages();
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return getMessageProtocol().getSupportedMessages();
     }
 
     @Override

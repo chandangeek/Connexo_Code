@@ -4,21 +4,27 @@
 package com.energyict.genericprotocolimpl.bgbz3;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.*;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.StoreObject;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.*;
-import java.io.*;
-import java.net.*;
-import java.sql.SQLException;
-import java.util.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,9 +32,9 @@ import java.util.logging.Logger;
  * @author gna
  * @since 23-dec-2009
  */
-public class BgbZ3 implements GenericProtocol {
+public class BgbZ3 {
 
-    private CommunicationScheduler scheduler;
+//    private CommunicationScheduler scheduler;
     private Link link;
     private Logger logger;
     private Device rtu;
@@ -37,29 +43,29 @@ public class BgbZ3 implements GenericProtocol {
     private DataImporter di;
     private StoreObject storeObject;
 
-    /**
-     * {@inheritDoc}
-     */
-    public void execute(CommunicationScheduler scheduler, Link link,
-                        Logger logger) throws BusinessException, SQLException, IOException {
-        this.scheduler = scheduler;
-        this.link = link;
-        this.logger = logger;
-        try {
-
-            init();
-
-            requestData();
-
-            importData(responseData.toString(), this.di);
-            storeObject.addAll(di.getRegisterValueMap());
-
-        } finally {
-            if (storeObject != null) {
-                Environment.getDefault().execute(storeObject);
-            }
-        }
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public void execute(CommunicationScheduler scheduler, Link link,
+//                        Logger logger) throws BusinessException, SQLException, IOException {
+//        this.scheduler = scheduler;
+//        this.link = link;
+//        this.logger = logger;
+//        try {
+//
+//            init();
+//
+//            requestData();
+//
+//            importData(responseData.toString(), this.di);
+//            storeObject.addAll(di.getRegisterValueMap());
+//
+//        } finally {
+//            if (storeObject != null) {
+//                Environment.getDefault().execute(storeObject);
+//            }
+//        }
+//    }
 
     /**
      * Init some values
@@ -67,7 +73,7 @@ public class BgbZ3 implements GenericProtocol {
      * @throws ConnectionException
      */
     private void init() throws ConnectionException {
-        this.rtu = this.scheduler.getRtu();
+//        this.rtu = this.scheduler.getRtu();
         // the the url from a proper property on the connectionType
 //        constructUrl(this.rtu.getPhoneNumber());
         this.di = new DataImporter(this.rtu.getRegisters());
@@ -151,28 +157,28 @@ public class BgbZ3 implements GenericProtocol {
     public List getRequiredKeys() {
         return new ArrayList();
     }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
+//
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    /**
-     * @return the scheduler
-     */
-    protected CommunicationScheduler getScheduler() {
-        return scheduler;
-    }
+//    /**
+//     * @return the scheduler
+//     */
+//    protected CommunicationScheduler getScheduler() {
+//        return scheduler;
+//    }
 
     /**
      * @return the link
@@ -187,13 +193,13 @@ public class BgbZ3 implements GenericProtocol {
     protected Logger getLogger() {
         return logger;
     }
-
-    /**
-     * @param scheduler the scheduler to set
-     */
-    protected void setScheduler(CommunicationScheduler scheduler) {
-        this.scheduler = scheduler;
-    }
+//
+//    /**
+//     * @param scheduler the scheduler to set
+//     */
+//    protected void setScheduler(CommunicationScheduler scheduler) {
+//        this.scheduler = scheduler;
+//    }
 
     /**
      * @param link the link to set

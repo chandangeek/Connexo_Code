@@ -409,7 +409,7 @@ public final class ComServerOpticalMTU155Demo {
         connectionMethodShadow.set(SerialPortConfiguration.SERIAL_PORT_READ_TIMEOUT_NAME, SerialPortConfiguration.DEFAULT_SERIAL_PORT_READ_TIMEOUT);
         connectionMethodShadow.set(SerialPortConfiguration.SERIAL_PORT_WRITE_TIMEOUT_NAME, SerialPortConfiguration.DEFAULT_SERIAL_PORT_WRITE_TIMEOUT);
 
-        shadow.setConnectionMethodShadow(connectionMethodShadow);
+//        shadow.setConnectionMethodShadow(connectionMethodShadow);
         NextExecutionSpecsShadow nextExecutionSpecsShadow = new NextExecutionSpecsShadow();
         nextExecutionSpecsShadow.setFrequency(EVERY_MINUTE);
         shadow.setNextExecutionSpecs(nextExecutionSpecsShadow);

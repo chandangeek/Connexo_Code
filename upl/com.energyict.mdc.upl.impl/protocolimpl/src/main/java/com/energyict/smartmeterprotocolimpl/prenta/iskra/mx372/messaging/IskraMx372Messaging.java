@@ -4,9 +4,7 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -22,13 +20,10 @@ import com.energyict.dlms.cosem.TCPUDPSetup;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
-import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -62,8 +57,6 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMX372Properties;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice;
-import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd.CSDCall;
-import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd.CSDCaller;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
@@ -77,7 +70,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -412,51 +404,51 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
      * @throws java.io.IOException if an io exception occurred
      */
     public boolean executeWakeUp(int communicationSchedulerId, Link link, Logger logger) throws BusinessException, IOException {
-        String ipAddress;
-
-        CommunicationScheduler scheduler = mw().getCommunicationSchedulerFactory().get(communicationSchedulerId);
-        ProtocolTools.closeConnection();
-        rtu = scheduler.getRtu();
-
-        // if it is a CSD scheduler, we just have to make a call
-        if (scheduler.displayString().toLowerCase().indexOf("csd") > 0) {
-            getProperties().setbCSDCall(true);
-            if (!scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
-                throw new IOException("Only NoDialer is allowed as csd dialers.");
-            }
-
-            if (getProperties().getCsdCall() != 0) {
-                CSDCall call = new CSDCall(link);
-//                call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
-                infoLog("Made a successful call.");
-            } else {
-                throw new IOException("CSDCall can not be executed if the csdProperty is not enabled");
-            }
-        } else {
-            protocol.setLogger(logger);
-            if (getProperties().getCsdCall() != 0) {
-                try {
-                    CSDCaller caller = new CSDCaller(rtu);
-                    ipAddress = caller.doWakeUp();
-                    if (!ipAddress.equalsIgnoreCase("")) {
-//                        this.rtu.updateIpAddress(ipAddress);
-                        ipAddress = ProtocolTools.checkIPAddressForPortNumber(ipAddress, Integer.toString(getProperties().getIpPortNumber()));
-                        protocol.getLogger().log(Level.INFO, "IPAddress " + ipAddress + " found for meter with serialnumber " + getProperties().getSerialNumber());
-
-                        link.setStreamConnection(new SocketStreamConnection(ipAddress));
-                        link.getStreamConnection().open();
-                        infoLog("Connected to " + ipAddress);
-                    } else {
-                        throw new ConnectionException("CSD Wakeup call failed.");
-                    }
-                } catch (SQLException e) {
-                    // e.printStackTrace();
-                    // Absorb exception
-                }
-            } else if (scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
-                throw new IOException("NoDialer is only allowed for CSD calls (CsdCall property should be set to 1)");
-            }
-        }
+//        String ipAddress;
+//
+//        CommunicationScheduler scheduler = mw().getCommunicationSchedulerFactory().get(communicationSchedulerId);
+//        ProtocolTools.closeConnection();
+//        rtu = scheduler.getRtu();
+//
+//        // if it is a CSD scheduler, we just have to make a call
+//        if (scheduler.displayString().toLowerCase().indexOf("csd") > 0) {
+//            getProperties().setbCSDCall(true);
+//            if (!scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
+//                throw new IOException("Only NoDialer is allowed as csd dialers.");
+//            }
+//
+//            if (getProperties().getCsdCall() != 0) {
+//                CSDCall call = new CSDCall(link);
+////                call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
+//                infoLog("Made a successful call.");
+//            } else {
+//                throw new IOException("CSDCall can not be executed if the csdProperty is not enabled");
+//            }
+//        } else {
+//            protocol.setLogger(logger);
+//            if (getProperties().getCsdCall() != 0) {
+//                try {
+//                    CSDCaller caller = new CSDCaller(rtu);
+//                    ipAddress = caller.doWakeUp();
+//                    if (!ipAddress.equalsIgnoreCase("")) {
+////                        this.rtu.updateIpAddress(ipAddress);
+//                        ipAddress = ProtocolTools.checkIPAddressForPortNumber(ipAddress, Integer.toString(getProperties().getIpPortNumber()));
+//                        protocol.getLogger().log(Level.INFO, "IPAddress " + ipAddress + " found for meter with serialnumber " + getProperties().getSerialNumber());
+//
+//                        link.setStreamConnection(new SocketStreamConnection(ipAddress));
+//                        link.getStreamConnection().open();
+//                        infoLog("Connected to " + ipAddress);
+//                    } else {
+//                        throw new ConnectionException("CSD Wakeup call failed.");
+//                    }
+//                } catch (SQLException e) {
+//                    // e.printStackTrace();
+//                    // Absorb exception
+//                }
+//            } else if (scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
+//                throw new IOException("NoDialer is only allowed for CSD calls (CsdCall property should be set to 1)");
+//            }
+//        }
         return true;
     }
 

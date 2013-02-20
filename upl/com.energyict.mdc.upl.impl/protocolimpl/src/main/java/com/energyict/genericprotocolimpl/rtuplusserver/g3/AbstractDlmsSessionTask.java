@@ -2,7 +2,7 @@ package com.energyict.genericprotocolimpl.rtuplusserver.g3;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdw.core.CommunicationProfile;
+//import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.mdw.core.Device;
 
 import java.text.SimpleDateFormat;
@@ -46,20 +46,22 @@ public abstract class AbstractDlmsSessionTask {
         return session.getTimeZone();
     }
     
-    protected final CommunicationProfile getCommunicationProfile() {
-        return task.getCommunicationProfile();
-    }
+//    protected final CommunicationProfile getCommunicationProfile() {
+//        return task.getCommunicationProfile();
+//    }
     
     protected final String format(Date date) {
         return format.format(date);
     }
 
     protected final Device getGateway() {
-        return task.getGateway();
+//        return task.getGateway();
+        return null;
     }
 
     protected final String getGatewaySerialNumber() {
-        return task.getGatewaySerialNumber();
+//        return task.getGatewaySerialNumber();
+        return null;
     }
 
 }

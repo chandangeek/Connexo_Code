@@ -4,8 +4,6 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.CommunicationScheduler;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,12 +21,12 @@ import java.util.logging.Logger;
  * This abstract class should contain all the most used and common methods of a basic generic protocol.
  * Keep this class reusable for other generic protocols. No protocol specific code here.
  */
-public abstract class AbstractGenericProtocol extends GenericMessaging implements GenericProtocol {
+public abstract class AbstractGenericProtocol extends GenericMessaging {
 
     private Properties properties = null;
     private long timeDifference = 0;
 
-    private CommunicationScheduler communicationScheduler;
+//    private CommunicationScheduler communicationScheduler;
     private Link link;
     private Logger logger;
 
@@ -37,13 +35,13 @@ public abstract class AbstractGenericProtocol extends GenericMessaging implement
      */
     protected abstract void doExecute() throws IOException, BusinessException, SQLException;
 
-    public void execute(CommunicationScheduler communicationScheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        this.communicationScheduler = communicationScheduler;
-        this.link = link;
-        this.logger = logger;
-        initProperties();
-        doExecute();
-    }
+//    public void execute(CommunicationScheduler communicationScheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+//        this.communicationScheduler = communicationScheduler;
+//        this.link = link;
+//        this.logger = logger;
+//        initProperties();
+//        doExecute();
+//    }
 
     /**
      * Override this method to initiate the properties object in the implementing protocol
@@ -81,10 +79,10 @@ public abstract class AbstractGenericProtocol extends GenericMessaging implement
     }
 
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
 
 
     /**
@@ -99,15 +97,15 @@ public abstract class AbstractGenericProtocol extends GenericMessaging implement
         }
         return properties;
     }
-
-    /**
-     * Getter for the communicationScheduler field
-     *
-     * @return
-     */
-    public CommunicationScheduler getCommunicationScheduler() {
-        return communicationScheduler;
-    }
+//
+//    /**
+//     * Getter for the communicationScheduler field
+//     *
+//     * @return
+//     */
+//    public CommunicationScheduler getCommunicationScheduler() {
+//        return communicationScheduler;
+//    }
 
     /**
      * Getter for the link field

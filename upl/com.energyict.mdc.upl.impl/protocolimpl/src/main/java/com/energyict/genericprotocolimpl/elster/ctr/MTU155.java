@@ -85,16 +85,16 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     public List<String> getOptionalKeys() {
         return properties.getOptionalKeys();
     }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
 
     /**
      *
@@ -109,50 +109,50 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
      */
     @Override
     protected void doExecute() throws BusinessException, SQLException {
-
-        try {
-            isOutboundSmsProfile = getOutboundSmsHandler().isOutboundSmsProfile(getCommunicationScheduler());
-            if (isOutboundSmsProfile) {
-                getOutboundSmsHandler().doExecute(getCommunicationScheduler());
-            } else {
-
-                getProtocolProperties().addProperties(getPropertiesFromProtocolClass());
-                log("Incomming TCP connection from: " + getRequestFactory().getIPAddress());
-                updateRequestFactory();
-
-                logMeterInfo();
-
-                this.rtu = identifyAndGetRtu();
-                log("Device with name '" + getRtu().getName() + "' connected successfully.");
-                getProtocolProperties().addProperties(rtu.getOldProtocol().getProperties().toStringProperties());
-                getProtocolProperties().addProperties(rtu.getProperties().toStringProperties());
-                updateRequestFactory();
-                checkSerialNumbers();
-                readDevice();
-            }
-        } catch (CTRException e) {
-            severe(e.getMessage());
-        } finally {
-            try {
-                disconnect();
-            } catch (Exception e) {
-                severe("Error closing connection: " + e.getMessage());
-            }
-        }
-
-        try {
-            getStoreObject().doExecute();
-            if (discoveredEvent != null) {
-                log("Sending new RtuDiscoveredEvent for rtu [" + getRtu() + "]");
-                MeteringWarehouse.getCurrent().signalEvent(discoveredEvent);
-            }
-        } catch (BusinessException e) {
-            e.printStackTrace();
-            severe(e.getMessage());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            severe(e.getMessage());
-        }
+//
+//        try {
+//            isOutboundSmsProfile = getOutboundSmsHandler().isOutboundSmsProfile(getCommunicationScheduler());
+//            if (isOutboundSmsProfile) {
+//                getOutboundSmsHandler().doExecute(getCommunicationScheduler());
+//            } else {
+//
+//                getProtocolProperties().addProperties(getPropertiesFromProtocolClass());
+//                log("Incomming TCP connection from: " + getRequestFactory().getIPAddress());
+//                updateRequestFactory();
+//
+//                logMeterInfo();
+//
+//                this.rtu = identifyAndGetRtu();
+//                log("Device with name '" + getRtu().getName() + "' connected successfully.");
+//                getProtocolProperties().addProperties(rtu.getOldProtocol().getProperties().toStringProperties());
+//                getProtocolProperties().addProperties(rtu.getProperties().toStringProperties());
+//                updateRequestFactory();
+//                checkSerialNumbers();
+//                readDevice();
+//            }
+//        } catch (CTRException e) {
+//            severe(e.getMessage());
+//        } finally {
+//            try {
+//                disconnect();
+//            } catch (Exception e) {
+//                severe("Error closing connection: " + e.getMessage());
+//            }
+//        }
+//
+//        try {
+//            getStoreObject().doExecute();
+//            if (discoveredEvent != null) {
+//                log("Sending new RtuDiscoveredEvent for rtu [" + getRtu() + "]");
+//                MeteringWarehouse.getCurrent().signalEvent(discoveredEvent);
+//            }
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//            severe(e.getMessage());
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            severe(e.getMessage());
+//        }
 
     }
 
@@ -294,87 +294,87 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     public void storeStartTime() {
         this.startTime = System.currentTimeMillis();
     }
-
-    /**
-     * Executes the communication schedule. Can set time, read time, read event records, read profile data or read register data.
-     *
-     * @param communicationScheduler: the device's communication schedule
-     * @throws IOException
-     */
-    private void executeCommunicationSchedule(CommunicationScheduler communicationScheduler) throws CTRConfigurationException, CTRConnectionException {
-        CommunicationProfile communicationProfile = communicationScheduler.getCommunicationProfile();
-        String csName = communicationScheduler.displayString();
-        if (communicationProfile == null) {
-            throw new CTRConfigurationException("CommunicationScheduler '" + csName + "' has no communication profile.");
-        }
-
-        //Send the meter messages
-        if (communicationProfile.getSendRtuMessage()) {
-            getLogger().log(Level.INFO, "Sending messages to meter with serial number: " + getMeterSerialNumberFromRtu());
-            sendMeterMessages();
-        }
-
-        // Check if the time is greater then allowed, if so then no data can be stored...
-        // Don't do this when a forceClock is scheduled
-        if (!communicationProfile.getForceClock() && !communicationProfile.getAdHoc()) {
-            // TODO: implement method
-        }
-
-        // Read the clock & set if needed
-        if (communicationProfile.getForceClock()) {
-            try {
-                Date meterTime = getRequestFactory().getMeterInfo().getTime();
-                Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
-                setTimeDifference(Math.abs(currentTime.getTime() - meterTime.getTime()));
-                severe("Forced to set meterClock to systemTime: " + currentTime);
-                getRequestFactory().getMeterInfo().setTime(currentTime);
-            } catch (CTRConnectionException e) {
-                throw e;
-            } catch (CTRException e) {
-                severe(e.getMessage());
-            }
-        } else {
-            try {
-                verifyAndWriteClock(communicationProfile);
-            } catch (CTRConnectionException e) {
-                throw e;
-            } catch (CTRException e) {
-                severe(e.getMessage());
-            }
-        }
-
-        // Read the events
-        if (communicationProfile.getReadMeterEvents()) {
-            try {
-                getLogger().log(Level.INFO, "Getting events for meter with serial number: " + getMeterSerialNumberFromRtu());
-                CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
-                List<MeterEvent> meterEvents = meterEvent.getMeterEvents(getRtu().getLastLogbook());
-                ProfileData profileData = new ProfileData();
-                profileData.setMeterEvents(meterEvents);
-                storeObject.add(getRtu(), profileData);
-                validateAndGetInstallationDate(meterEvents);
-            } catch (CTRConnectionException e) {
-                throw e;
-            } catch (CTRDiscoverException e) {
-                severe(e.getMessage());
-            } catch (CTRException e) {
-                severe("Unable to read events: " + e.getMessage());
-            }
-        }
-
-        // Read the register values
-        if (communicationProfile.getReadMeterReadings()) {
-            getLogger().log(Level.INFO, "Getting registers for meter with serial number: " + getMeterSerialNumberFromRtu());
-            storeObject.addAll(doReadRegisters(communicationProfile));
-        }
-
-        // Read the profiles
-        if (communicationProfile.getReadDemandValues()) {
-            getLogger().log(Level.INFO, "Getting profile data for meter with serial number: " + getMeterSerialNumberFromRtu());
-            readChannelData();
-        }
-
-    }
+//
+//    /**
+//     * Executes the communication schedule. Can set time, read time, read event records, read profile data or read register data.
+//     *
+//     * @param communicationScheduler: the device's communication schedule
+//     * @throws IOException
+//     */
+//    private void executeCommunicationSchedule(CommunicationScheduler communicationScheduler) throws CTRConfigurationException, CTRConnectionException {
+//        CommunicationProfile communicationProfile = communicationScheduler.getCommunicationProfile();
+//        String csName = communicationScheduler.displayString();
+//        if (communicationProfile == null) {
+//            throw new CTRConfigurationException("CommunicationScheduler '" + csName + "' has no communication profile.");
+//        }
+//
+//        //Send the meter messages
+//        if (communicationProfile.getSendRtuMessage()) {
+//            getLogger().log(Level.INFO, "Sending messages to meter with serial number: " + getMeterSerialNumberFromRtu());
+//            sendMeterMessages();
+//        }
+//
+//        // Check if the time is greater then allowed, if so then no data can be stored...
+//        // Don't do this when a forceClock is scheduled
+//        if (!communicationProfile.getForceClock() && !communicationProfile.getAdHoc()) {
+//            // TODO: implement method
+//        }
+//
+//        // Read the clock & set if needed
+//        if (communicationProfile.getForceClock()) {
+//            try {
+//                Date meterTime = getRequestFactory().getMeterInfo().getTime();
+//                Date currentTime = Calendar.getInstance(getTimeZone()).getTime();
+//                setTimeDifference(Math.abs(currentTime.getTime() - meterTime.getTime()));
+//                severe("Forced to set meterClock to systemTime: " + currentTime);
+//                getRequestFactory().getMeterInfo().setTime(currentTime);
+//            } catch (CTRConnectionException e) {
+//                throw e;
+//            } catch (CTRException e) {
+//                severe(e.getMessage());
+//            }
+//        } else {
+//            try {
+//                verifyAndWriteClock(communicationProfile);
+//            } catch (CTRConnectionException e) {
+//                throw e;
+//            } catch (CTRException e) {
+//                severe(e.getMessage());
+//            }
+//        }
+//
+//        // Read the events
+//        if (communicationProfile.getReadMeterEvents()) {
+//            try {
+//                getLogger().log(Level.INFO, "Getting events for meter with serial number: " + getMeterSerialNumberFromRtu());
+//                CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
+//                List<MeterEvent> meterEvents = meterEvent.getMeterEvents(getRtu().getLastLogbook());
+//                ProfileData profileData = new ProfileData();
+//                profileData.setMeterEvents(meterEvents);
+//                storeObject.add(getRtu(), profileData);
+//                validateAndGetInstallationDate(meterEvents);
+//            } catch (CTRConnectionException e) {
+//                throw e;
+//            } catch (CTRDiscoverException e) {
+//                severe(e.getMessage());
+//            } catch (CTRException e) {
+//                severe("Unable to read events: " + e.getMessage());
+//            }
+//        }
+//
+//        // Read the register values
+//        if (communicationProfile.getReadMeterReadings()) {
+//            getLogger().log(Level.INFO, "Getting registers for meter with serial number: " + getMeterSerialNumberFromRtu());
+//            storeObject.addAll(doReadRegisters(communicationProfile));
+//        }
+//
+//        // Read the profiles
+//        if (communicationProfile.getReadDemandValues()) {
+//            getLogger().log(Level.INFO, "Getting profile data for meter with serial number: " + getMeterSerialNumberFromRtu());
+//            readChannelData();
+//        }
+//
+//    }
 
     private void validateAndGetInstallationDate(List<MeterEvent> meterEvents) throws CTRDiscoverException {
         ObisCode obis = ObisCode.fromString(ObisCodeMapper.OBIS_INSTALL_DATE);
@@ -457,80 +457,80 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
             storeObject.add(channel, pd);
         }
     }
-
-    /**
-     * Read registers from the meter
-     *
-     * @param cp
-     * @return
-     */
-    private Map<Register, RegisterValue> doReadRegisters(CommunicationProfile cp) throws CTRConnectionException {
-        HashMap<Register, RegisterValue> regValueMap = new HashMap<Register, RegisterValue>();
-        Iterator<com.energyict.mdw.amr.Register> rtuRegisterIterator = getRtu().getRegisters().iterator();
-        List groups = cp.getRtuRegisterGroups();
-        while (rtuRegisterIterator.hasNext()) {
-            ObisCode obisCode = null;
-            try {
-                Register rtuRegister = rtuRegisterIterator.next();
-                if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
-                    obisCode = rtuRegister.getRegisterSpec().getDeviceObisCode();
-                    ObisCode obisToRead;
-                    if (obisCode == null) {
-                        obisCode = rtuRegister.getRegisterMapping().getObisCode();
-                        obisToRead = ProtocolTools.setObisCodeField(obisCode, 1, (byte) (rtuRegister.getRegisterSpec().getDeviceChannelIndex() & 0x0FF));
-                    } else {
-                        obisToRead = ObisCode.fromByteArray(obisCode.getLN());
-                    }
-
-                    try {
-                        RegisterValue registerValue = getObisCodeMapper().readRegister(obisToRead);
-                        registerValue.setRtuRegisterId(rtuRegister.getId());
-                        if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
-                            regValueMap.put(rtuRegister, registerValue);
-                        }
-                    } catch (NoSuchRegisterException e) {
-                        log(Level.FINEST, e.getMessage());
-                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
-                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter.");
-                    }
-                }
-            } catch (CTRConnectionException e) {
-                throw e;
-            } catch (CTRException e) {
-                // TODO if the connection is out you should not try and read the others as well...
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED.");
-            }
-        }
-        return regValueMap;
-    }
-
-    /**
-     * Write the meter clock
-     *
-     * @param communicationProfile
-     * @throws IOException
-     */
-    private void verifyAndWriteClock(CommunicationProfile communicationProfile) throws CTRException {
-        Date meterTime = getRequestFactory().getMeterInfo().getTime();
-        Date now = Calendar.getInstance(getTimeZone()).getTime();
-
-        setTimeDifference(Math.abs(now.getTime() - meterTime.getTime()));
-        long diff = getTimeDifference() / 1000;
-
-        log(Level.INFO, "Difference between metertime(" + meterTime + ") and systemtime(" + now + ") is " + diff + "s.");
-        if (communicationProfile.getWriteClock()) {
-            if ((diff < communicationProfile.getMaximumClockDifference()) && (diff > communicationProfile.getMinimumClockDifference())) {
-                severe("Metertime will be set to systemtime: " + now);
-                getRequestFactory().getMeterInfo().setTime(now);
-            } else if (diff > communicationProfile.getMaximumClockDifference()) {
-                severe("Metertime will not be set, timeDifference is too large.");
-            }
-        } else {
-            log("WriteClock is disabled, metertime will not be set.");
-        }
-
-    }
+//
+//    /**
+//     * Read registers from the meter
+//     *
+//     * @param cp
+//     * @return
+//     */
+//    private Map<Register, RegisterValue> doReadRegisters(CommunicationProfile cp) throws CTRConnectionException {
+//        HashMap<Register, RegisterValue> regValueMap = new HashMap<Register, RegisterValue>();
+//        Iterator<com.energyict.mdw.amr.Register> rtuRegisterIterator = getRtu().getRegisters().iterator();
+//        List groups = cp.getRtuRegisterGroups();
+//        while (rtuRegisterIterator.hasNext()) {
+//            ObisCode obisCode = null;
+//            try {
+//                Register rtuRegister = rtuRegisterIterator.next();
+//                if (CommonUtils.isInRegisterGroup(groups, rtuRegister)) {
+//                    obisCode = rtuRegister.getRegisterSpec().getDeviceObisCode();
+//                    ObisCode obisToRead;
+//                    if (obisCode == null) {
+//                        obisCode = rtuRegister.getRegisterMapping().getObisCode();
+//                        obisToRead = ProtocolTools.setObisCodeField(obisCode, 1, (byte) (rtuRegister.getRegisterSpec().getDeviceChannelIndex() & 0x0FF));
+//                    } else {
+//                        obisToRead = ObisCode.fromByteArray(obisCode.getLN());
+//                    }
+//
+//                    try {
+//                        RegisterValue registerValue = getObisCodeMapper().readRegister(obisToRead);
+//                        registerValue.setRtuRegisterId(rtuRegister.getId());
+//                        if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
+//                            regValueMap.put(rtuRegister, registerValue);
+//                        }
+//                    } catch (NoSuchRegisterException e) {
+//                        log(Level.FINEST, e.getMessage());
+//                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
+//                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter.");
+//                    }
+//                }
+//            } catch (CTRConnectionException e) {
+//                throw e;
+//            } catch (CTRException e) {
+//                // TODO if the connection is out you should not try and read the others as well...
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED.");
+//            }
+//        }
+//        return regValueMap;
+//    }
+//
+//    /**
+//     * Write the meter clock
+//     *
+//     * @param communicationProfile
+//     * @throws IOException
+//     */
+//    private void verifyAndWriteClock(CommunicationProfile communicationProfile) throws CTRException {
+//        Date meterTime = getRequestFactory().getMeterInfo().getTime();
+//        Date now = Calendar.getInstance(getTimeZone()).getTime();
+//
+//        setTimeDifference(Math.abs(now.getTime() - meterTime.getTime()));
+//        long diff = getTimeDifference() / 1000;
+//
+//        log(Level.INFO, "Difference between metertime(" + meterTime + ") and systemtime(" + now + ") is " + diff + "s.");
+//        if (communicationProfile.getWriteClock()) {
+//            if ((diff < communicationProfile.getMaximumClockDifference()) && (diff > communicationProfile.getMinimumClockDifference())) {
+//                severe("Metertime will be set to systemtime: " + now);
+//                getRequestFactory().getMeterInfo().setTime(now);
+//            } else if (diff > communicationProfile.getMaximumClockDifference()) {
+//                severe("Metertime will not be set, timeDifference is too large.");
+//            }
+//        } else {
+//            log("WriteClock is disabled, metertime will not be set.");
+//        }
+//
+//    }
 
     /**
      * Get the serial from the rtu in EiServer. If Device == null, return null as serial number
@@ -623,7 +623,7 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         Dialer dialer = DebugUtils.getConnectedDirectDialer("COM1", baudRate, dataBits, parity, stopBits);
 
         MTU155 mtu155 = new MTU155();
-        mtu155.execute(null, dialer, Logger.getLogger(MTU155.class.getName()));
+//        mtu155.execute(null, dialer, Logger.getLogger(MTU155.class.getName()));
 
     }
 
@@ -664,27 +664,27 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         return new Date();
     }
 
-    /**
-     * Log a successful event
-     *
-     * @param commSchedule
-     */
-    public void logSuccess(CommunicationScheduler commSchedule) {
-        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
-        journal.addAll(getMeterAmrLogging().getJournalEntries());
-        try {
-            commSchedule.journal(journal);
-            commSchedule.logSuccess(new Date());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
+//    /**
+//     * Log a successful event
+//     *
+//     * @param commSchedule
+//     */
+//    public void logSuccess(CommunicationScheduler commSchedule) {
+//        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
+//        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_OK));
+//        journal.addAll(getMeterAmrLogging().getJournalEntries());
+//        try {
+//            commSchedule.journal(journal);
+//            commSchedule.logSuccess(new Date());
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private String getConnectTime() {
         String connectTimeStr = "0";
@@ -698,58 +698,58 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
         return connectTimeStr;
     }
 
-    /**
-     * Log a failed event
-     *
-     * @param commSchedule
-     */
-    private void logFailure(CommunicationScheduler commSchedule) {
-        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.START, "" + getNow().getTime()));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
-        try {
-            // If the schedule has an SMS fallback schedule set, we should trigger it - for SMS schedules no fallback is possible
-            if (commSchedule.getFallback() != null && !SmsHandler.isSmsProfile(commSchedule)) {
-                severe("The fallback schedule " + commSchedule.getFallback().getCommunicationProfile().getName() + " will be triggered.");
-                CommunicationSchedulerShadow shadow = commSchedule.getFallback().getShadow();
-                commSchedule.getFallback().update(shadow);
-                shadow.setNextCommunication(new Date());
-            }
-
-            journal.addAll(getMeterAmrLogging().getJournalEntries());
-            commSchedule.journal(journal);
-            commSchedule.logFailure(new Date(), "");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Log a failed event
-     *
-     * @param commSchedule
-     */
-    private void logConfigurationError(CommunicationScheduler commSchedule) {
-        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
-        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
-        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_CONFIGURATION));
-        journal.addAll(getMeterAmrLogging().getJournalEntries());
-        try {
-            commSchedule.journal(journal);
-            commSchedule.logFailure(new Date(), "");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (BusinessException e) {
-            e.printStackTrace();
-        }
-    }
+//    /**
+//     * Log a failed event
+//     *
+//     * @param commSchedule
+//     */
+//    private void logFailure(CommunicationScheduler commSchedule) {
+//        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.START, "" + getNow().getTime()));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
+//        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_PROTOCOLERROR));
+//        try {
+//            // If the schedule has an SMS fallback schedule set, we should trigger it - for SMS schedules no fallback is possible
+//            if (commSchedule.getFallback() != null && !SmsHandler.isSmsProfile(commSchedule)) {
+//                severe("The fallback schedule " + commSchedule.getFallback().getCommunicationProfile().getName() + " will be triggered.");
+//                CommunicationSchedulerShadow shadow = commSchedule.getFallback().getShadow();
+//                commSchedule.getFallback().update(shadow);
+//                shadow.setNextCommunication(new Date());
+//            }
+//
+//            journal.addAll(getMeterAmrLogging().getJournalEntries());
+//            commSchedule.journal(journal);
+//            commSchedule.logFailure(new Date(), "");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//        }
+//    }
+//
+//    /**
+//     * Log a failed event
+//     *
+//     * @param commSchedule
+//     */
+//    private void logConfigurationError(CommunicationScheduler commSchedule) {
+//        List<AmrJournalEntry> journal = new ArrayList<AmrJournalEntry>();
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.CONNECTTIME, getConnectTime()));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.PROTOCOL_LOG, "See logfile of [" + getRtu().toString() + "]"));
+//        journal.add(new AmrJournalEntry(getNow(), AmrJournalEntry.TIMEDIFF, "" + getTimeDifference()));
+//        journal.add(new AmrJournalEntry(AmrJournalEntry.CC_CONFIGURATION));
+//        journal.addAll(getMeterAmrLogging().getJournalEntries());
+//        try {
+//            commSchedule.journal(journal);
+//            commSchedule.logFailure(new Date(), "");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * @return

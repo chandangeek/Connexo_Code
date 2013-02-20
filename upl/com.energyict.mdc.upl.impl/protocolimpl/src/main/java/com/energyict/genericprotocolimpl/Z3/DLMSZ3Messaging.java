@@ -1,31 +1,72 @@
 package com.energyict.genericprotocolimpl.Z3;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.*;
-import com.energyict.dialer.core.Link;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.HDLCConnection;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.*;
-import java.io.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink, RegisterProtocol, Constant {
+public class DLMSZ3Messaging implements Messaging, ProtocolLink, RegisterProtocol, Constant {
 
     /**
      * Properties
@@ -42,7 +83,7 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
     private String password;
 
     private CosemObjectFactory cosemObjectFactory;
-    private CommunicationProfile commProfile;
+//    private CommunicationProfile commProfile;
     private DLMSConnection dlmsConnection;
     private DLMSMeterConfig dlmsMeterConfig;
     private AARQ aarq;
@@ -50,38 +91,38 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
     private Device rtu;
 
 
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-
-        this.commProfile = scheduler.getCommunicationProfile();
-        this.rtu = scheduler.getRtu();
-
-        try {
-            init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-            connect();
-
-            if (commProfile.getSendRtuMessage()) {
-                List messageEntries = rtu.getOldPendingMessages();
-                applyMessages(messageEntries);
-            }
-
-            if (commProfile.getReadDemandValues()) {
-                log(Level.INFO, "Reading demand values is not supported.");
-            }
-
-            if (commProfile.getReadMeterReadings()) {
-                log(Level.INFO, "Reading meter readings is not supported.");
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IOException(e.getMessage());
-        } finally {
-            // means we got a connection
-            if (aarq != null) {
-                disconnect();
-            }
-        }
-    }
+//    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+//
+//        this.commProfile = scheduler.getCommunicationProfile();
+//        this.rtu = scheduler.getRtu();
+//
+//        try {
+//            init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
+//            connect();
+//
+//            if (commProfile.getSendRtuMessage()) {
+//                List messageEntries = rtu.getOldPendingMessages();
+//                applyMessages(messageEntries);
+//            }
+//
+//            if (commProfile.getReadDemandValues()) {
+//                log(Level.INFO, "Reading demand values is not supported.");
+//            }
+//
+//            if (commProfile.getReadMeterReadings()) {
+//                log(Level.INFO, "Reading meter readings is not supported.");
+//            }
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            throw new IOException(e.getMessage());
+//        } finally {
+//            // means we got a connection
+//            if (aarq != null) {
+//                disconnect();
+//            }
+//        }
+//    }
 
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
 
@@ -795,20 +836,20 @@ public class DLMSZ3Messaging implements GenericProtocol, Messaging, ProtocolLink
         return rv;
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
 
     public void addProperties(Properties properties) {
         try {

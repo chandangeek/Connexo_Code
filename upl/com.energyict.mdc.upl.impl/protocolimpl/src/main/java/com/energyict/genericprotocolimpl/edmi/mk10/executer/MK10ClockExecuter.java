@@ -7,13 +7,14 @@
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.CommunicationProfile;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -89,10 +90,10 @@ public class MK10ClockExecuter {
 	private MK10 getMk10Protocol() {
 		return getExecuter().getMk10Protocol();
 	}
-
-	private CommunicationProfile getCommunicationProfile() throws BusinessException {
-		return getExecuter().getCommunicationProfile();
-	}
+//
+//	private CommunicationProfile getCommunicationProfile() throws BusinessException {
+//		return getExecuter().getCommunicationProfile();
+//	}
 
     private boolean isProtocolCorrectTime() {
         return (Integer.parseInt(getExecuter().getProperties().getProperty("CorrectTime", "1").trim()) == 1); // allow time correction
@@ -113,25 +114,25 @@ public class MK10ClockExecuter {
         long signedDiff = meterDate.getTime() - systemDate.getTime();
         log(Level.INFO, "Difference between metertime and systemtime is " + signedDiff + " ms");
 
-        if (getCommunicationProfile().getAdHoc() && getCommunicationProfile().getForceClock()) {
-        	log(Level.WARNING ,"Force time clock ad-hoc action!");
-            getMk10Protocol().setTime();
-        }
-        else {
-	        if ((diff < (getCommunicationProfile().getMaximumClockDifference() * 1000)) && (diff > (getCommunicationProfile().getMinimumClockDifference() * 1000))) { // minimum difference to set time?
-	            if (isCrossBoundary(systemDate, meterDate, getMk10Protocol(), getMk10Protocol().getInfoTypeProfileInterval())) {
-	                setAmrJournalOutOfBoundary(signedDiff);
-	                log(Level.SEVERE , "time difference too close to (within 10 sec) or crosses the intervalboundary, will try again next communication session ");
-	            } else {
-	            	if (isProtocolCorrectTime()) {
-	            		if (!inDSTGreyZone(systemDate, timeZone)) {
-	            			getMk10Protocol().setTime();
-	            			log(Level.SEVERE , "Adjust meter time to system time");
-	            		} else {log(Level.SEVERE , "System time in DST switch 'grey' zone, time will NOT be set");}
-	            	} else {log(Level.WARNING , "used profile has writeclock disabled, time will NOT be set");}
-	            }
-	        }
-        }
+//        if (getCommunicationProfile().getAdHoc() && getCommunicationProfile().getForceClock()) {
+//        	log(Level.WARNING ,"Force time clock ad-hoc action!");
+//            getMk10Protocol().setTime();
+//        }
+//        else {
+//	        if ((diff < (getCommunicationProfile().getMaximumClockDifference() * 1000)) && (diff > (getCommunicationProfile().getMinimumClockDifference() * 1000))) { // minimum difference to set time?
+//	            if (isCrossBoundary(systemDate, meterDate, getMk10Protocol(), getMk10Protocol().getInfoTypeProfileInterval())) {
+//	                setAmrJournalOutOfBoundary(signedDiff);
+//	                log(Level.SEVERE , "time difference too close to (within 10 sec) or crosses the intervalboundary, will try again next communication session ");
+//	            } else {
+//	            	if (isProtocolCorrectTime()) {
+//	            		if (!inDSTGreyZone(systemDate, timeZone)) {
+//	            			getMk10Protocol().setTime();
+//	            			log(Level.SEVERE , "Adjust meter time to system time");
+//	            		} else {log(Level.SEVERE , "System time in DST switch 'grey' zone, time will NOT be set");}
+//	            	} else {log(Level.WARNING , "used profile has writeclock disabled, time will NOT be set");}
+//	            }
+//	        }
+//        }
         return signedDiff;
     }
     
@@ -142,18 +143,18 @@ public class MK10ClockExecuter {
         // get the meter time (roundtrip corrected)
         java.util.Date meterDate = getMk10Protocol().getTime();
         long diff = getDiff(systemDate, meterDate) / 1000;
-        if (diff > getCommunicationProfile().getMaximumClockDifference()) {
-            String msg = "Time difference exceeds configured maximum: (" + diff + " s >" + getCommunicationProfile().getMaximumClockDifference() + " s )";
-            log(Level.SEVERE, msg);
-
-            if (!collectOutsiteMaxTimeDiff) {
-                getExecuter().setCompletionCodeTimeError(null);
-                throw new IOException(msg);
-            } else {
-            	getExecuter().setCompletionCodeTimeError(msg);
-                return true;
-            }
-        }
+//        if (diff > getCommunicationProfile().getMaximumClockDifference()) {
+//            String msg = "Time difference exceeds configured maximum: (" + diff + " s >" + getCommunicationProfile().getMaximumClockDifference() + " s )";
+//            log(Level.SEVERE, msg);
+//
+//            if (!collectOutsiteMaxTimeDiff) {
+//                getExecuter().setCompletionCodeTimeError(null);
+//                throw new IOException(msg);
+//            } else {
+//            	getExecuter().setCompletionCodeTimeError(msg);
+//                return true;
+//            }
+//        }
         return false;
     }
 

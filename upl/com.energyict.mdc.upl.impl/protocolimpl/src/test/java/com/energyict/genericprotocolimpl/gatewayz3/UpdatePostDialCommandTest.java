@@ -1,31 +1,27 @@
 package com.energyict.genericprotocolimpl.gatewayz3;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.sql.SQLException;
-import java.util.logging.Logger;
-
+import com.energyict.cbo.BusinessException;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.DeviceShadow;
+import com.energyict.mdw.testutils.RtuCRUD;
+import com.energyict.mdw.testutils.RtuTypeCRUD;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocolimpl.utils.DummyDLMSConnection;
+import com.energyict.protocolimpl.utils.Utilities;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.ModemPool;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.testutils.RtuCRUD;
-import com.energyict.mdw.testutils.RtuTypeCRUD;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocolimpl.utils.DummyDLMSConnection;
-import com.energyict.protocolimpl.utils.Utilities;
+import java.sql.SQLException;
+import java.util.logging.Logger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 public class UpdatePostDialCommandTest {
@@ -37,8 +33,8 @@ public class UpdatePostDialCommandTest {
 	private static DeviceType rtuType;
 	private static String rtuName = "";
 	private static String rtyTypeName = "";
-	private ModemPool mp;
-	private CommunicationProfile commProfile;
+//	private ModemPool mp;
+//	private CommunicationProfile commProfile;
 	
 	@BeforeClass
 	public static void setUpOnce() throws BusinessException, SQLException {

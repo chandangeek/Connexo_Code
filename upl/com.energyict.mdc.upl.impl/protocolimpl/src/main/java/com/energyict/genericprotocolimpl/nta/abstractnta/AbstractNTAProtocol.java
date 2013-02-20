@@ -2,19 +2,13 @@ package com.energyict.genericprotocolimpl.nta.abstractnta;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
-import com.energyict.cbo.ProcessingException;
 import com.energyict.cbo.Utils;
-import com.energyict.cpo.Environment;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
@@ -38,10 +32,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.IPv4Setup;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.pooling.AbstractGenericPoolingProtocol;
-import com.energyict.genericprotocolimpl.common.pooling.CommunicationSchedulerFullProtocolShadow;
-import com.energyict.genericprotocolimpl.common.pooling.CommunicationSchedulerFullProtocolShadowBuilder;
 import com.energyict.genericprotocolimpl.common.pooling.RtuRegisterFullProtocolShadow;
-import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.nta.messagehandling.MessageExecutor;
 import com.energyict.genericprotocolimpl.nta.profiles.DailyMonthlyProfile;
 import com.energyict.genericprotocolimpl.nta.profiles.ElectricityProfile;
@@ -49,11 +40,10 @@ import com.energyict.genericprotocolimpl.nta.profiles.EventProfile;
 import com.energyict.genericprotocolimpl.webrtu.common.MbusProvider;
 import com.energyict.genericprotocolimpl.webrtu.common.obiscodemappers.ObisCodeMapper;
 import com.energyict.genericprotocolimpl.webrtukp.MeterToolProtocol;
-import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
@@ -68,7 +58,6 @@ import com.energyict.protocolimpl.base.MagicNumberConstants;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -211,39 +200,39 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
     private int cipheringType;
     private int maxRecPduSize;
 
-    /**
-     * Create a shadow object that contains all the necessary information for this communicationSession to complete successfully.
-     *
-     * @return the newly created fullShadow
-     */
-    @Override
-    protected CommunicationSchedulerFullProtocolShadow createFullShadow(CommunicationScheduler scheduler) {
-        return CommunicationSchedulerFullProtocolShadowBuilder.createCommunicationSchedulerFullProtocolShadow(scheduler);
-    }
+//    /**
+//     * Create a shadow object that contains all the necessary information for this communicationSession to complete successfully.
+//     *
+//     * @return the newly created fullShadow
+//     */
+//    @Override
+//    protected CommunicationSchedulerFullProtocolShadow createFullShadow(CommunicationScheduler scheduler) {
+//        return CommunicationSchedulerFullProtocolShadowBuilder.createCommunicationSchedulerFullProtocolShadow(scheduler);
+//    }
 
     /**
      * Check if a wakeUp needs to be called to the meter, and execute what is necessary
      */
     @Override
     protected void executeWakeUpSequence() throws BusinessException, IOException, SQLException {
-        if (wakeup == 1) {
-            String ipAddress = "";
-            getLogger().info("In Wakeup");
-            SmsWakeup smsWakeup = new SmsWakeup(getCommunicationScheduler().getRtu(), getLogger());
-            try {
-                smsWakeup.doWakeUp();
-            } catch (SQLException e) {
-                getLogger().severe("WakeUp failed - " + e.getMessage());
-                Environment.getDefault().closeConnection();
-                throw new ProcessingException("Failed during the WakeUp", e);
-            }
-
-            ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), getPortNumber());
-
-            this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
-            this.link.getStreamConnection().open();
-            getLogger().log(Level.INFO, "Connected to " + ipAddress);
-        }
+//        if (wakeup == 1) {
+//            String ipAddress = "";
+//            getLogger().info("In Wakeup");
+//            SmsWakeup smsWakeup = new SmsWakeup(getCommunicationScheduler().getRtu(), getLogger());
+//            try {
+//                smsWakeup.doWakeUp();
+//            } catch (SQLException e) {
+//                getLogger().severe("WakeUp failed - " + e.getMessage());
+//                Environment.getDefault().closeConnection();
+//                throw new ProcessingException("Failed during the WakeUp", e);
+//            }
+//
+//            ipAddress = ProtocolTools.checkIPAddressForPortNumber(smsWakeup.getIpAddress(), getPortNumber());
+//
+//            this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
+//            this.link.getStreamConnection().open();
+//            getLogger().log(Level.INFO, "Connected to " + ipAddress);
+//        }
     }
 
     /**
@@ -559,59 +548,59 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
      * Handles all the MBus devices like a separate device
      */
     protected void handleMbusMeters() {
-        for (int i = 0; i < this.maxMbusDevices; i++) {
-            try {
-                if (mbusDevices[i] != null) {
-                    mbusDevices[i].setWebRtu(this);
-                    mbusDevices[i].setMbusFullShadow(findMbusFullShadow(mbusDevices[i].getMbusRtu()));
-                    mbusDevices[i].execute(getCommunicationScheduler(), null, getLogger());
-                    getLogger().info("MbusDevice " + (i + 1) + " has finished.");
-                }
-            } catch (BusinessException e) {
-
-                /*
-                     * A single MBusMeter failed: log and try next MBusMeter.
-                     */
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
-
-            } catch (SQLException e) {
-
-                /** Close the connection after an SQL exception, connection will startup again if requested */
-                Environment.getDefault().closeConnection();
-
-                /*
-                     * A single MBusMeter failed: log and try next MBusMeter.
-                     */
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
-
-            } catch (IOException e) {
-
-                /*
-                     * A single MBusMeter failed: log and try next MBusMeter.
-                     */
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed. [" + e.getMessage() + "]");
-
-            }
-        }
+//        for (int i = 0; i < this.maxMbusDevices; i++) {
+//            try {
+//                if (mbusDevices[i] != null) {
+//                    mbusDevices[i].setWebRtu(this);
+//                    mbusDevices[i].setMbusFullShadow(findMbusFullShadow(mbusDevices[i].getMbusRtu()));
+//                    mbusDevices[i].execute(getCommunicationScheduler(), null, getLogger());
+//                    getLogger().info("MbusDevice " + (i + 1) + " has finished.");
+//                }
+//            } catch (BusinessException e) {
+//
+//                /*
+//                     * A single MBusMeter failed: log and try next MBusMeter.
+//                     */
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+//
+//            } catch (SQLException e) {
+//
+//                /** Close the connection after an SQL exception, connection will startup again if requested */
+//                Environment.getDefault().closeConnection();
+//
+//                /*
+//                     * A single MBusMeter failed: log and try next MBusMeter.
+//                     */
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+//
+//            } catch (IOException e) {
+//
+//                /*
+//                     * A single MBusMeter failed: log and try next MBusMeter.
+//                     */
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed. [" + e.getMessage() + "]");
+//
+//            }
+//        }
     }
 
-    /**
-     * Find the mbusFullShadow object or create one if it doesn't exist yet.
-     *
-     * @param mbus the mbus to find
-     * @return the communicationSchedulerFullProtocolShadow for the given Mbus rtu
-     */
-    private CommunicationSchedulerFullProtocolShadow findMbusFullShadow(final Device mbus) {
-        for (CommunicationSchedulerFullProtocolShadow csfps : getFullShadow().getSlaveCommunicationSchedulerFullProtocolShadowsList()) {
-            if (csfps.getRtuShadow().getName().equalsIgnoreCase(mbus.getName())) {
-                return csfps;
-            }
-        }
-        return CommunicationSchedulerFullProtocolShadowBuilder.createCommunicationSchedulerFullProtocolShadow(mbus, getCommunicationScheduler());
-    }
+//    /**
+//     * Find the mbusFullShadow object or create one if it doesn't exist yet.
+//     *
+//     * @param mbus the mbus to find
+//     * @return the communicationSchedulerFullProtocolShadow for the given Mbus rtu
+//     */
+//    private CommunicationSchedulerFullProtocolShadow findMbusFullShadow(final Device mbus) {
+//        for (CommunicationSchedulerFullProtocolShadow csfps : getFullShadow().getSlaveCommunicationSchedulerFullProtocolShadowsList()) {
+//            if (csfps.getRtuShadow().getName().equalsIgnoreCase(mbus.getName())) {
+//                return csfps;
+//            }
+//        }
+//        return CommunicationSchedulerFullProtocolShadowBuilder.createCommunicationSchedulerFullProtocolShadow(mbus, getCommunicationScheduler());
+//    }
 
     /**
      * Reading all the registers configured on the RTU
@@ -930,39 +919,39 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         Map<String, Integer> mbusMap = getMbusMapper();
 
         // check if the current mbus slaves are still on the meter disappeared
-        checkForDisappearedMbusMeters(mbusMap);
+//        checkForDisappearedMbusMeters(mbusMap);
         // check if all the mbus devices are configured in EIServer
         checkToUpdateMbusMeters(mbusMap);
     }
 
-    private void checkForDisappearedMbusMeters(Map<String, Integer> mbusMap) {
-
-        List<Device> mbusSlaves = getCommunicationScheduler().getRtu().getDownstreamDevices();
-        Iterator<Device> it = mbusSlaves.iterator();
-        while (it.hasNext()) {
-            Device mbus = it.next();
-            Class device = null;
-            try {
-                device = Class.forName(mbus.getDeviceType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
-                if ((device != null) && (device.newInstance() instanceof AbstractMbusDevice)) {        // we check to see if it's an Mbus device and no TIC device
-                    if (!mbusMap.containsKey(mbus.getSerialNumber())) {
-                        getLogger().log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device.");
-                        ghostMbusDevices.put(mbus.getSerialNumber(), mbusMap.get(mbus.getSerialNumber()));
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                log(Level.FINEST, e.getMessage());
-                // should never come here because if the rtuType has the className, then you should be able to create a class for it...
-            } catch (InstantiationException e) {
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
-            } catch (IllegalAccessException e) {
-                log(Level.FINEST, e.getMessage());
-                getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
-            }
-        }
-
-    }
+//    private void checkForDisappearedMbusMeters(Map<String, Integer> mbusMap) {
+//
+//        List<Device> mbusSlaves = getCommunicationScheduler().getRtu().getDownstreamDevices();
+//        Iterator<Device> it = mbusSlaves.iterator();
+//        while (it.hasNext()) {
+//            Device mbus = it.next();
+//            Class device = null;
+//            try {
+//                device = Class.forName(mbus.getDeviceType().getShadow().getCommunicationProtocolShadow().getJavaClassName());
+//                if ((device != null) && (device.newInstance() instanceof AbstractMbusDevice)) {        // we check to see if it's an Mbus device and no TIC device
+//                    if (!mbusMap.containsKey(mbus.getSerialNumber())) {
+//                        getLogger().log(Level.INFO, "MbusDevice " + mbus.getSerialNumber() + " is not installed on the physical device.");
+//                        ghostMbusDevices.put(mbus.getSerialNumber(), mbusMap.get(mbus.getSerialNumber()));
+//                    }
+//                }
+//            } catch (ClassNotFoundException e) {
+//                log(Level.FINEST, e.getMessage());
+//                // should never come here because if the rtuType has the className, then you should be able to create a class for it...
+//            } catch (InstantiationException e) {
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
+//            } catch (IllegalAccessException e) {
+//                log(Level.FINEST, e.getMessage());
+//                getLogger().log(Level.INFO, "Could not check if the mbusDevice " + mbus.getSerialNumber() + " exists.");
+//            }
+//        }
+//
+//    }
 
     /**
      * Check the ghostMbusDevices and create the mbusDevices.
@@ -978,11 +967,11 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
         while (mbusIt.hasNext()) {
             Map.Entry<String, Integer> entry = mbusIt.next();
             if (!ghostMbusDevices.containsKey(entry.getKey()) && !ignoreIskraGostMbusDevice.equals(entry.getKey())) { // ghostMeters don't need to be read because they are not on the meter anymore
-                Device mbus = findOrCreateMbusDevice(entry.getKey());
-                if (mbus != null) {
-//					this.mbusDevices[count++] = new AbstractMbusDevice(entry.getKey(), entry.getValue(), mbus, getLogger());
-                    addMbusDevice(count++, entry.getKey(), entry.getValue(), mbus, getLogger());
-                }
+//                Device mbus = findOrCreateMbusDevice(entry.getKey());
+//                if (mbus != null) {
+////					this.mbusDevices[count++] = new AbstractMbusDevice(entry.getKey(), entry.getValue(), mbus, getLogger());
+//                    addMbusDevice(count++, entry.getKey(), entry.getValue(), mbus, getLogger());
+//                }
             }
         }
     }
@@ -1002,29 +991,29 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
 
     //TODO we should prevent using directly the rtu
 
-    private Device findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
-        List<Device> mbusList = mw().getDeviceFactory().findBySerialNumber(key);
-        if (mbusList.size() == 1) {
-            Device mbusRtu = (Device) mbusList.get(0);
-            // Check if gateway has changed, and update if it has
-            if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getCommunicationScheduler().getRtu().getId())) {
-                mbusRtu.updateGateway(getCommunicationScheduler().getRtu());
-            }
-            return mbusRtu;
-        } else if (mbusList.size() > 1) {
-            getLogger().log(Level.SEVERE, "Multiple meters where found with serial: " + key + ". Meter will not be handled.");
-            return null;
-        }
-
-        DeviceType rtuType = getRtuType();
-        if (rtuType == null) {
-            return null;
-        } else {
-            // we are not creating devices anymore!
-            return null;
-//            return createMeter(rtuType, key);
-        }
-    }
+//    private Device findOrCreateMbusDevice(String key) throws SQLException, BusinessException {
+//        List<Device> mbusList = mw().getDeviceFactory().findBySerialNumber(key);
+//        if (mbusList.size() == 1) {
+//            Device mbusRtu = (Device) mbusList.get(0);
+//            // Check if gateway has changed, and update if it has
+//            if ((mbusRtu.getGateway() == null) || (mbusRtu.getGateway().getId() != getCommunicationScheduler().getRtu().getId())) {
+//                mbusRtu.updateGateway(getCommunicationScheduler().getRtu());
+//            }
+//            return mbusRtu;
+//        } else if (mbusList.size() > 1) {
+//            getLogger().log(Level.SEVERE, "Multiple meters where found with serial: " + key + ". Meter will not be handled.");
+//            return null;
+//        }
+//
+//        DeviceType rtuType = getRtuType();
+//        if (rtuType == null) {
+//            return null;
+//        } else {
+//            // we are not creating devices anymore!
+//            return null;
+////            return createMeter(rtuType, key);
+//        }
+//    }
 //
 //    private Device createMeter(DeviceType rtuType, String key) throws SQLException, BusinessException {
 //        DeviceShadow shadow = rtuType.getConfigurations().get(0).newDeviceShadow();
@@ -1192,21 +1181,21 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
 
         doValidateProperties();
     }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
+//
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
 
     public void addProperties(Properties properties) {
         this.properties = properties;

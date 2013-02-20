@@ -1,14 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.csd;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Date;
 
 /**
  * Copyrights EnergyICT
@@ -19,7 +16,7 @@ import java.util.*;
 
 public class CSDCaller {
 
-    private CommunicationScheduler csdCaller = null;
+//    private CommunicationScheduler csdCaller = null;
     private Device rtu;
     private int timeOut;
     private int pollFreq;
@@ -55,53 +52,54 @@ public class CSDCaller {
      * @throws SQLException
      */
     public String doWakeUp() throws IOException, BusinessException, SQLException {
-        try {
-
-            findCSDSchedule();
-
-            if (csdCaller != null) {
-
-
-                this.lastStart = this.csdCaller.getLastCommunicationStart();
-                this.lastEnd = this.csdCaller.getLastCommunicationEnd();
-                this.nextComm = this.csdCaller.getNextCommunication();
-
-                this.csdCaller.startReadingNow();
-
-                if (checkForSuccessfulCSDCall()) {    // if the csdCall is successful then poll the radius server
-                    if (fixedIp) {
-//                        String ip = this.rtu.getIpAddress();
-//                        if (!ip.equalsIgnoreCase("")) {
-//                            return ip;
-//                        } else {
-                            throw new ConnectionException("There is no fixed IP address filled in.");
-//                        }
-                    } else {
-                        IpUpdater ipUpdater = new IpUpdater(this.timeOut, this.pollFreq);
-                        return ipUpdater.poll(this.phone, this.csdCaller.getLastCommunicationStart());
-                    }
-                } else {
-                    return "";
-                }
-
-            } else {
-                throw new IOException("Didn't find a CSD communication schedule.");
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new IOException("Error connecting to the database." + e.getMessage());
-        } catch (BusinessException e) {
-            e.printStackTrace();
-            throw new BusinessException(e.getMessage());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            throw new IOException(e.getMessage());
-        } finally {
-            if (!itsNotClean) {
-                makeCleanCSDSchedule();
-            }
-        }
+        return "";
+//        try {
+//
+//            findCSDSchedule();
+//
+//            if (csdCaller != null) {
+//
+//
+//                this.lastStart = this.csdCaller.getLastCommunicationStart();
+//                this.lastEnd = this.csdCaller.getLastCommunicationEnd();
+//                this.nextComm = this.csdCaller.getNextCommunication();
+//
+//                this.csdCaller.startReadingNow();
+//
+//                if (checkForSuccessfulCSDCall()) {    // if the csdCall is successful then poll the radius server
+//                    if (fixedIp) {
+////                        String ip = this.rtu.getIpAddress();
+////                        if (!ip.equalsIgnoreCase("")) {
+////                            return ip;
+////                        } else {
+//                            throw new ConnectionException("There is no fixed IP address filled in.");
+////                        }
+//                    } else {
+//                        IpUpdater ipUpdater = new IpUpdater(this.timeOut, this.pollFreq);
+//                        return ipUpdater.poll(this.phone, this.csdCaller.getLastCommunicationStart());
+//                    }
+//                } else {
+//                    return "";
+//                }
+//
+//            } else {
+//                throw new IOException("Didn't find a CSD communication schedule.");
+//            }
+//
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            throw new IOException("Error connecting to the database." + e.getMessage());
+//        } catch (BusinessException e) {
+//            e.printStackTrace();
+//            throw new BusinessException(e.getMessage());
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//            throw new IOException(e.getMessage());
+//        } finally {
+//            if (!itsNotClean) {
+//                makeCleanCSDSchedule();
+//            }
+//        }
     }
 
     /**
@@ -133,38 +131,38 @@ public class CSDCaller {
      * @throws SQLException
      * @throws BusinessException
      */
-    private boolean checkForSuccessfulCSDCall() throws IOException, SQLException, BusinessException {
-        long waitTimeout = System.currentTimeMillis() + this.csdCallTimeout;
-        Date newLastStart = this.csdCaller.getLastCommunicationStart();
-        try {
-            while (!isChanged(this.lastStart, newLastStart)) {
-                Thread.sleep(20000);
-                findCSDSchedule();
-                newLastStart = this.csdCaller.getLastCommunicationStart();
-                if (System.currentTimeMillis() > waitTimeout) {
-                    throw new IOException("Waited more then " + this.csdCallTimeout / 60000 + " minutes before the WakeUp call started.");
-                }
-            }
-            Date newLastEnd = this.csdCaller.getLastCommunicationEnd();
-            Date newNextComm = this.csdCaller.getNextCommunication();
-
-            while (!isCommunicationEnd(newLastStart, this.lastEnd, newLastEnd, this.nextComm, newNextComm)) {
-                Thread.sleep(20000);
-                findCSDSchedule();
-                newLastEnd = this.csdCaller.getLastCommunicationEnd();
-                newNextComm = this.csdCaller.getNextCommunication();
-                if (System.currentTimeMillis() > waitTimeout) {
-                    throw new IOException("Waited more then " + this.csdCallTimeout / 60000 + " minutes before the WakeUp call started.");
-                }
-            }
-
-            makeCleanCSDSchedule();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return this.csdCaller.getLastCompletionCode() == 0;        //CC_OK
-    }
+//    private boolean checkForSuccessfulCSDCall() throws IOException, SQLException, BusinessException {
+//        long waitTimeout = System.currentTimeMillis() + this.csdCallTimeout;
+//        Date newLastStart = this.csdCaller.getLastCommunicationStart();
+//        try {
+//            while (!isChanged(this.lastStart, newLastStart)) {
+//                Thread.sleep(20000);
+//                findCSDSchedule();
+//                newLastStart = this.csdCaller.getLastCommunicationStart();
+//                if (System.currentTimeMillis() > waitTimeout) {
+//                    throw new IOException("Waited more then " + this.csdCallTimeout / 60000 + " minutes before the WakeUp call started.");
+//                }
+//            }
+//            Date newLastEnd = this.csdCaller.getLastCommunicationEnd();
+//            Date newNextComm = this.csdCaller.getNextCommunication();
+//
+//            while (!isCommunicationEnd(newLastStart, this.lastEnd, newLastEnd, this.nextComm, newNextComm)) {
+//                Thread.sleep(20000);
+//                findCSDSchedule();
+//                newLastEnd = this.csdCaller.getLastCommunicationEnd();
+//                newNextComm = this.csdCaller.getNextCommunication();
+//                if (System.currentTimeMillis() > waitTimeout) {
+//                    throw new IOException("Waited more then " + this.csdCallTimeout / 60000 + " minutes before the WakeUp call started.");
+//                }
+//            }
+//
+//            makeCleanCSDSchedule();
+//
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        return this.csdCaller.getLastCompletionCode() == 0;        //CC_OK
+//    }
 
     /**
      * Update the csdCaller with a clear communicationScheduler.
@@ -173,15 +171,15 @@ public class CSDCaller {
      * @throws SQLException
      * @throws BusinessException
      */
-    private void makeCleanCSDSchedule() throws SQLException, BusinessException {
-        if (this.csdCaller != null) {
-            CommunicationSchedulerShadow cs = this.csdCaller.getShadow();
-            cs.setNextCommunication(null);
-            cs.setRetrials(0);
-            this.csdCaller.update(cs);
-            this.itsNotClean = true;
-        }
-    }
+//    private void makeCleanCSDSchedule() throws SQLException, BusinessException {
+//        if (this.csdCaller != null) {
+//            CommunicationSchedulerShadow cs = this.csdCaller.getShadow();
+//            cs.setNextCommunication(null);
+//            cs.setRetrials(0);
+//            this.csdCaller.update(cs);
+//            this.itsNotClean = true;
+//        }
+//    }
 
     private boolean isChanged(Date oldDate, Date newDate) {
         if (oldDate == null) {

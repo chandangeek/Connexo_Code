@@ -37,7 +37,7 @@ public class ACE4000 extends AbstractGenericProtocol {
 
     private int oneTimer = 0;
     private long connectTime = 0;
-    private List<CommunicationScheduler> schedulers = new ArrayList<CommunicationScheduler>();
+    private List schedulers = new ArrayList();
     private boolean success = false;
     private int retry = -1;
 
@@ -76,63 +76,63 @@ public class ACE4000 extends AbstractGenericProtocol {
 
         try {
             masterMeter = null;
-            if (super.getCommunicationScheduler() == null) {    // we got a message from the COMMSERVER UDP Listener
-
-                log("** A new UDP session is started **");
-                setConnectTime(System.currentTimeMillis());
-
-                this.inputStream = getLink().getInputStream();
-                this.outputStream = getLink().getOutputStream();
-                setObjectFactory(new ObjectFactory(this));
-
-                // keep reading until you get no data for [timeout] period
-                long interMessageTimeout = System.currentTimeMillis() + getTimeOut();
-
-                while (true) {    // this loop controls the responses that we get from our own requests
-                    while (true) {    // this loop controls the UDP packets pushed from the meter
-                        int kar;
-                        StringBuilder msg = new StringBuilder();
-                        if (inputStream.available() > 0) {
-                            while (inputStream.available() > 0) {
-                                kar = inputStream.read();
-                                msg.append((char) kar);
-                            }
-                            interMessageTimeout = System.currentTimeMillis() + getTimeOut();
-                        } else {
-                            try {
-                                Thread.sleep(100);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                                throw new InterruptedException(e + "(Interrupted while waiting for next message.)");
-                            }
-                        }
-                        String xml = msg.toString();
-                        if (!"".equals(xml)) {
-                            String[] messages = xml.split(START);              //Split concatenated messages
-                            for (String message : messages) {
-                                if (!"".equals(message)) {
-                                    getObjectFactory().parseXML(START + message);
-                                }
-                            }
-                        }
-                        if (System.currentTimeMillis() - interMessageTimeout > 0) {
-                            break; // we can leave the loop cause we did not receive a message within the defined timeout interval
-                        }
-                    }    // end of UDP listen loop - check if we want to do something
-
-                    interMessageTimeout = doRequestsOnce(interMessageTimeout);    //Do extra requests if the schedule needs extra data, keep the session alive
-
-                    if (System.currentTimeMillis() - interMessageTimeout > 0) {
-                        oneTimer = 0;       //retry
-                        interMessageTimeout = doRequestsOnce(interMessageTimeout);
-                        if (System.currentTimeMillis() - interMessageTimeout > 0) {
-                            break; // we can leave the loop cause we did not receive a message within the defined interval
-                        }
-                    }
-                }
-                storeData();
-                success = true;
-            }
+//            if (super.getCommunicationScheduler() == null) {    // we got a message from the COMMSERVER UDP Listener
+//
+//                log("** A new UDP session is started **");
+//                setConnectTime(System.currentTimeMillis());
+//
+//                this.inputStream = getLink().getInputStream();
+//                this.outputStream = getLink().getOutputStream();
+//                setObjectFactory(new ObjectFactory(this));
+//
+//                // keep reading until you get no data for [timeout] period
+//                long interMessageTimeout = System.currentTimeMillis() + getTimeOut();
+//
+//                while (true) {    // this loop controls the responses that we get from our own requests
+//                    while (true) {    // this loop controls the UDP packets pushed from the meter
+//                        int kar;
+//                        StringBuilder msg = new StringBuilder();
+//                        if (inputStream.available() > 0) {
+//                            while (inputStream.available() > 0) {
+//                                kar = inputStream.read();
+//                                msg.append((char) kar);
+//                            }
+//                            interMessageTimeout = System.currentTimeMillis() + getTimeOut();
+//                        } else {
+//                            try {
+//                                Thread.sleep(100);
+//                            } catch (InterruptedException e) {
+//                                e.printStackTrace();
+//                                throw new InterruptedException(e + "(Interrupted while waiting for next message.)");
+//                            }
+//                        }
+//                        String xml = msg.toString();
+//                        if (!"".equals(xml)) {
+//                            String[] messages = xml.split(START);              //Split concatenated messages
+//                            for (String message : messages) {
+//                                if (!"".equals(message)) {
+//                                    getObjectFactory().parseXML(START + message);
+//                                }
+//                            }
+//                        }
+//                        if (System.currentTimeMillis() - interMessageTimeout > 0) {
+//                            break; // we can leave the loop cause we did not receive a message within the defined timeout interval
+//                        }
+//                    }    // end of UDP listen loop - check if we want to do something
+//
+//                    interMessageTimeout = doRequestsOnce(interMessageTimeout);    //Do extra requests if the schedule needs extra data, keep the session alive
+//
+//                    if (System.currentTimeMillis() - interMessageTimeout > 0) {
+//                        oneTimer = 0;       //retry
+//                        interMessageTimeout = doRequestsOnce(interMessageTimeout);
+//                        if (System.currentTimeMillis() - interMessageTimeout > 0) {
+//                            break; // we can leave the loop cause we did not receive a message within the defined interval
+//                        }
+//                    }
+//                }
+//                storeData();
+//                success = true;
+//            }
 
         } catch (Exception e) {
             getErrorString().append(e.toString());
@@ -204,159 +204,160 @@ public class ACE4000 extends AbstractGenericProtocol {
      * @throws java.sql.SQLException  when data storage fails
      */
     private long doRequestsOnce(long interSessionTimeOut) throws IOException, ConfigurationException, BusinessException, SQLException {
-        if (oneTimer == 0 && (schedulers.size() != 0)) {
-            boolean newRequest = false;
-            getObjectFactory().resetTrackingIDs();
-            for (CommunicationScheduler scheduler : schedulers) {
-
-                Date fromDate = scheduler.getRtu().getLastReading();
-                List<OldDeviceMessage> messages = scheduler.getRtu().getOldPendingMessages();
-                if (getACE4000Messages().shouldRetry(messages) && scheduler.getCommunicationProfile().getSendRtuMessage()) {
-                    if (retry < getProtocolProperties().getRetries()) {
-                        for (OldDeviceMessage message : messages) {
-                            getACE4000Messages().doMessage(message);
-                            newRequest = getACE4000Messages().isNewRequest();
-                        }
-                    } else {
-                        getACE4000Messages().logTimeoutMessages(messages, retry);
-                    }
-                }
-                if (scheduler.getCommunicationProfile().getReadDemandValues()) {
-                    if (getObjectFactory().shouldRetryLoadProfile()) {
-                        if (retry < getProtocolProperties().getRetries()) {
-                            if (fromDate == null) {
-                                getObjectFactory().sendLoadProfileRequest();
-                            } else {
-                                getObjectFactory().sendLoadProfileRequest(fromDate);
-                            }
-                            newRequest = true;
-                        } else {
-                            log(Level.SEVERE, "Sent request to read load profile " + (retry + 1) + " times, meter didn't reply");
-                        }
-                    }
-                }
-                if (scheduler.getCommunicationProfile().getReadMeterEvents()) {
-                    if (getObjectFactory().shouldRetryEvents()) {
-                        if (retry < getProtocolProperties().getRetries()) {
-                            getObjectFactory().sendEventRequest();
-                            newRequest = true;
-                        } else {
-                            log(Level.SEVERE, "Sent request to read events " + (retry + 1) + " times, meter didn't reply");
-                        }
-                    }
-                }
-                if (scheduler.getCommunicationProfile().getReadMeterReadings()) {
-                    if (retry < getProtocolProperties().getRetries()) {
-                        if (!getObjectFactory().requestAllMasterRegisters(fromDate, getMasterMeter().getRegisters())) {
-                            newRequest = true;
-                        }
-                    } else {
-                        log(Level.SEVERE, "Sent request to read registers " + (retry + 1) + " times, meter didn't reply");
-                    }
-                    if (!getMBusMetersMap().isEmpty()) {
-                        if (retry < getProtocolProperties().getRetries()) {
-                            if (!getObjectFactory().requestAllSlaveRegisters(fromDate, getMBusMetersMap())) {
-                                newRequest = true;
-                            }
-                        } else {
-                            log(Level.SEVERE, "Sent request to read registers " + (retry + 1) + " times, meter didn't reply");
-                        }
-                    }
-                }
-
-                if (scheduler.getCommunicationProfile().getForceClock() || scheduler.getCommunicationProfile().getWriteClock()) {
-                    if (!getObjectFactory().isClockWasSet()) {
-                        if (retry < getProtocolProperties().getRetries()) {
-                            getObjectFactory().sendForceTime();
-                            newRequest = true;
-                        } else {
-                            log(Level.SEVERE, "Sent request to read events " + (retry + 1) + " times, meter didn't reply");
-                        }
-                    }
-                }
+        return interSessionTimeOut;
+//        if (oneTimer == 0 && (schedulers.size() != 0)) {
+//            boolean newRequest = false;
+//            getObjectFactory().resetTrackingIDs();
+//            for (CommunicationScheduler scheduler : schedulers) {
+//
+//                Date fromDate = scheduler.getRtu().getLastReading();
+//                List<OldDeviceMessage> messages = scheduler.getRtu().getOldPendingMessages();
+//                if (getACE4000Messages().shouldRetry(messages) && scheduler.getCommunicationProfile().getSendRtuMessage()) {
+//                    if (retry < getProtocolProperties().getRetries()) {
+//                        for (OldDeviceMessage message : messages) {
+//                            getACE4000Messages().doMessage(message);
+//                            newRequest = getACE4000Messages().isNewRequest();
+//                        }
+//                    } else {
+//                        getACE4000Messages().logTimeoutMessages(messages, retry);
+//                    }
+//                }
+//                if (scheduler.getCommunicationProfile().getReadDemandValues()) {
+//                    if (getObjectFactory().shouldRetryLoadProfile()) {
+//                        if (retry < getProtocolProperties().getRetries()) {
+//                            if (fromDate == null) {
+//                                getObjectFactory().sendLoadProfileRequest();
+//                            } else {
+//                                getObjectFactory().sendLoadProfileRequest(fromDate);
+//                            }
+//                            newRequest = true;
+//                        } else {
+//                            log(Level.SEVERE, "Sent request to read load profile " + (retry + 1) + " times, meter didn't reply");
+//                        }
+//                    }
+//                }
+//                if (scheduler.getCommunicationProfile().getReadMeterEvents()) {
+//                    if (getObjectFactory().shouldRetryEvents()) {
+//                        if (retry < getProtocolProperties().getRetries()) {
+//                            getObjectFactory().sendEventRequest();
+//                            newRequest = true;
+//                        } else {
+//                            log(Level.SEVERE, "Sent request to read events " + (retry + 1) + " times, meter didn't reply");
+//                        }
+//                    }
+//                }
+//                if (scheduler.getCommunicationProfile().getReadMeterReadings()) {
+//                    if (retry < getProtocolProperties().getRetries()) {
+//                        if (!getObjectFactory().requestAllMasterRegisters(fromDate, getMasterMeter().getRegisters())) {
+//                            newRequest = true;
+//                        }
+//                    } else {
+//                        log(Level.SEVERE, "Sent request to read registers " + (retry + 1) + " times, meter didn't reply");
+//                    }
+//                    if (!getMBusMetersMap().isEmpty()) {
+//                        if (retry < getProtocolProperties().getRetries()) {
+//                            if (!getObjectFactory().requestAllSlaveRegisters(fromDate, getMBusMetersMap())) {
+//                                newRequest = true;
+//                            }
+//                        } else {
+//                            log(Level.SEVERE, "Sent request to read registers " + (retry + 1) + " times, meter didn't reply");
+//                        }
+//                    }
+//                }
+//
+//                if (scheduler.getCommunicationProfile().getForceClock() || scheduler.getCommunicationProfile().getWriteClock()) {
+//                    if (!getObjectFactory().isClockWasSet()) {
+//                        if (retry < getProtocolProperties().getRetries()) {
+//                            getObjectFactory().sendForceTime();
+//                            newRequest = true;
+//                        } else {
+//                            log(Level.SEVERE, "Sent request to read events " + (retry + 1) + " times, meter didn't reply");
+//                        }
+//                    }
+//                }
 
 //			getObjectFactory().setAutoPushConfig(1, 655, 665, false, 10);
 //			getObjectFactory().sendBDConfig(1, 1, 15);
 //			getObjectFactory().sendFullMeterConfigRequest();
 //			getObjectFactory().sendTimeConfig(4800, 120, 3);
-            }
-            oneTimer++;
-            if (newRequest) {
-                retry++;
-            }
-            return newRequest ? System.currentTimeMillis() + getTimeOut() : interSessionTimeOut;
-        }
-        return interSessionTimeOut;
+//            }
+//            oneTimer++;
+//            if (newRequest) {
+//                retry++;
+//            }
+//            return newRequest ? System.currentTimeMillis() + getTimeOut() : interSessionTimeOut;
+//        }
+//        return interSessionTimeOut;
     }
 
     private void storeData() throws SQLException, BusinessException, ConfigurationException {
-        boolean storedEvents = false;
-        boolean storedRegisters = false;
-        boolean storedProfileDate = false;
-
-        for (CommunicationScheduler scheduler : schedulers) {
-            if (scheduler.getCommunicationProfile().getSendRtuMessage()) {
-                setMessageResults(true);
-            }
-
-            if (!storedProfileDate && (scheduler.getCommunicationProfile().getReadDemandValues() || getACE4000Messages().isProfileDataRequested())) {
-                ProfileData profileData = getObjectFactory().getLoadProfile().getProfileData();
-                int size = profileData.getIntervalDatas().size();
-                if (size > 0) {
-                    log("Storing profile data, received " + size + " intervals");
-                    profileData.sort();
-                    if (getACE4000Messages().isProfileDataRequested()) {
-                        ProfileData result = new ProfileData();
-                        result.setChannelInfos(profileData.getChannelInfos());
-                        for (Object intervalObject : profileData.getIntervalDatas()) {
-                            IntervalData intervalData = (IntervalData) intervalObject;
-                            Date endTime = intervalData.getEndTime();
-                            Date toDate = getObjectFactory().getLoadProfile().getToDate();
-                            Date fromDate = getObjectFactory().getLoadProfile().getFrom();
-                            if ((endTime.before(toDate) && endTime.after(fromDate)) || endTime.equals(toDate) || endTime.equals(fromDate)) {
-                                result.addInterval(intervalData);
-                            }
-                        }
-                        profileData = result;
-                    }
-                    getMasterMeter().store(profileData);
-                }
-                storedProfileDate = true;
-            }
-
-            if (!storedEvents && (scheduler.getCommunicationProfile().getReadMeterEvents() || getACE4000Messages().isEventsRequested())) {
-                storeEvents();
-                storedEvents = true;
-            }
-
-            if (!storedRegisters && (scheduler.getCommunicationProfile().getReadMeterReadings())) {
-                MeterReadingData allMasterRegisters = getObjectFactory().getAllMasterRegisters();
-                storeMasterRegisters(allMasterRegisters);
-                for (String serialNumber : mBusMeters.keySet()) {
-                    MeterReadingData slaveRegisters = getObjectFactory().getAllMBusRegisters(serialNumber);
-                    storeSlaveRegisters(slaveRegisters, mBusMeters.get(serialNumber));
-                }
-                storedRegisters = true;
-            }
-        }
-
-        if ((getObjectFactory().getLoadProfile().getProfileData().getIntervalDatas().size() > 0) && !storedProfileDate) {
-            log("Received profile data, but none are stored because of the communication profile settings");
-        }
-        if ((getObjectFactory().getMeterEvents().size() > 0) && (!storedEvents)) {
-            log("Received " + getObjectFactory().getMeterEvents().size() + " event(s), but none are stored because of the communication profile settings");
-        }
-        if (!storedRegisters && ((getObjectFactory().getAllMasterRegisters().getRegisterValues().size() > 0) || getObjectFactory().getAllMBusRegisters().getRegisterValues().size() > 0)) {
-            log("Received register data, but none are stored because of the communication profile settings");
-        }
+//        boolean storedEvents = false;
+//        boolean storedRegisters = false;
+//        boolean storedProfileDate = false;
+//
+//        for (CommunicationScheduler scheduler : schedulers) {
+//            if (scheduler.getCommunicationProfile().getSendRtuMessage()) {
+//                setMessageResults(true);
+//            }
+//
+//            if (!storedProfileDate && (scheduler.getCommunicationProfile().getReadDemandValues() || getACE4000Messages().isProfileDataRequested())) {
+//                ProfileData profileData = getObjectFactory().getLoadProfile().getProfileData();
+//                int size = profileData.getIntervalDatas().size();
+//                if (size > 0) {
+//                    log("Storing profile data, received " + size + " intervals");
+//                    profileData.sort();
+//                    if (getACE4000Messages().isProfileDataRequested()) {
+//                        ProfileData result = new ProfileData();
+//                        result.setChannelInfos(profileData.getChannelInfos());
+//                        for (Object intervalObject : profileData.getIntervalDatas()) {
+//                            IntervalData intervalData = (IntervalData) intervalObject;
+//                            Date endTime = intervalData.getEndTime();
+//                            Date toDate = getObjectFactory().getLoadProfile().getToDate();
+//                            Date fromDate = getObjectFactory().getLoadProfile().getFrom();
+//                            if ((endTime.before(toDate) && endTime.after(fromDate)) || endTime.equals(toDate) || endTime.equals(fromDate)) {
+//                                result.addInterval(intervalData);
+//                            }
+//                        }
+//                        profileData = result;
+//                    }
+//                    getMasterMeter().store(profileData);
+//                }
+//                storedProfileDate = true;
+//            }
+//
+//            if (!storedEvents && (scheduler.getCommunicationProfile().getReadMeterEvents() || getACE4000Messages().isEventsRequested())) {
+//                storeEvents();
+//                storedEvents = true;
+//            }
+//
+//            if (!storedRegisters && (scheduler.getCommunicationProfile().getReadMeterReadings())) {
+//                MeterReadingData allMasterRegisters = getObjectFactory().getAllMasterRegisters();
+//                storeMasterRegisters(allMasterRegisters);
+//                for (String serialNumber : mBusMeters.keySet()) {
+//                    MeterReadingData slaveRegisters = getObjectFactory().getAllMBusRegisters(serialNumber);
+//                    storeSlaveRegisters(slaveRegisters, mBusMeters.get(serialNumber));
+//                }
+//                storedRegisters = true;
+//            }
+//        }
+//
+//        if ((getObjectFactory().getLoadProfile().getProfileData().getIntervalDatas().size() > 0) && !storedProfileDate) {
+//            log("Received profile data, but none are stored because of the communication profile settings");
+//        }
+//        if ((getObjectFactory().getMeterEvents().size() > 0) && (!storedEvents)) {
+//            log("Received " + getObjectFactory().getMeterEvents().size() + " event(s), but none are stored because of the communication profile settings");
+//        }
+//        if (!storedRegisters && ((getObjectFactory().getAllMasterRegisters().getRegisterValues().size() > 0) || getObjectFactory().getAllMBusRegisters().getRegisterValues().size() > 0)) {
+//            log("Received register data, but none are stored because of the communication profile settings");
+//        }
     }
 
     public void setMessageResults(boolean end) throws BusinessException, SQLException {
-        if (getObjectFactory().isRequestsAllowed()) {
-            for (CommunicationScheduler scheduler : getCommSchedulers()) {
-                getACE4000Messages().setMessageResult(end, scheduler.getRtu().getOldPendingMessages());
-            }
-        }
+//        if (getObjectFactory().isRequestsAllowed()) {
+//            for (CommunicationScheduler scheduler : getCommSchedulers()) {
+//                getACE4000Messages().setMessageResult(end, scheduler.getRtu().getOldPendingMessages());
+//            }
+//        }
     }
 
     private void storeEvents() throws SQLException, BusinessException {
@@ -439,11 +440,11 @@ public class ACE4000 extends AbstractGenericProtocol {
     }
 
     public TimeZone getDeviceTimeZone() {
-        if (getCommSchedulers().size() == 0 || getCommSchedulers().get(0).getRtu() == null || TimeZone.getDefault() == null) {
-            TimeZone timeZone = TimeZone.getDefault();
-            log(Level.WARNING, "No device time zone found, using system time zone: " + timeZone.getDisplayName());
-            return timeZone;
-        }
+//        if (getCommSchedulers().size() == 0 || getCommSchedulers().get(0).getRtu() == null || TimeZone.getDefault() == null) {
+//            TimeZone timeZone = TimeZone.getDefault();
+//            log(Level.WARNING, "No device time zone found, using system time zone: " + timeZone.getDisplayName());
+//            return timeZone;
+//        }
         return TimeZone.getDefault();
     }
 
@@ -502,15 +503,15 @@ public class ACE4000 extends AbstractGenericProtocol {
         return properties.getRequiredKeys();
     }
 
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
 
     public void initProperties(Properties properties) {
         this.properties.addProperties(properties);
@@ -669,9 +670,9 @@ public class ACE4000 extends AbstractGenericProtocol {
         return masterMeter;
     }
 
-    public List<CommunicationScheduler> getCommSchedulers() {
-        return schedulers;
-    }
+//    public List<CommunicationScheduler> getCommSchedulers() {
+//        return schedulers;
+//    }
 
     public void setMasterMeter(Device meter) {
         this.masterMeter = meter;

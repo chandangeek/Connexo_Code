@@ -28,46 +28,46 @@ public class OutboundSmsHandler {
      *
      * @throws java.sql.SQLException
      */
-    public void doExecute(CommunicationScheduler cs) throws BusinessException, SQLException, CTRConfigurationException, CTRConnectionException {
+//    public void doExecute(CommunicationScheduler cs) throws BusinessException, SQLException, CTRConfigurationException, CTRConnectionException {
+//
+//        meterProtocol.setRtu(cs.getRtu());
+//        meterProtocol.getProtocolProperties().addProperties(meterProtocol.getRtu().getProperties().toStringProperties());
+//
+////        String phoneNumber = meterProtocol.getRtu().getPhoneNumber();
+//        String phoneNumber = "";
+//        if ((phoneNumber == null) || ("".compareTo(phoneNumber) == 0)) {
+//            throw new CTRConfigurationException("The Phone Number cannot be left empty, correct first!");
+//        }
+//
+//        meterProtocol.getLogger().info("Executing the outbound SMS CommunicationScheduler.");
+//        meterProtocol.storeStartTime();
+//
+//        cs.startCommunication();
+//        cs.startReadingNow();
+//        executeCommunicationSchedule(cs);
+//        updateWriteDataBlockID(((SmsRequestFactory) meterProtocol.getRequestFactory()).getWriteDataBlockID());
+//        meterProtocol.logSuccess(cs);
+//    }
 
-        meterProtocol.setRtu(cs.getRtu());
-        meterProtocol.getProtocolProperties().addProperties(meterProtocol.getRtu().getProperties().toStringProperties());
-
-//        String phoneNumber = meterProtocol.getRtu().getPhoneNumber();
-        String phoneNumber = "";
-        if ((phoneNumber == null) || ("".compareTo(phoneNumber) == 0)) {
-            throw new CTRConfigurationException("The Phone Number cannot be left empty, correct first!");
-        }
-
-        meterProtocol.getLogger().info("Executing the outbound SMS CommunicationScheduler.");
-        meterProtocol.storeStartTime();
-
-        cs.startCommunication();
-        cs.startReadingNow();
-        executeCommunicationSchedule(cs);
-        updateWriteDataBlockID(((SmsRequestFactory) meterProtocol.getRequestFactory()).getWriteDataBlockID());
-        meterProtocol.logSuccess(cs);
-    }
-
-    /**
-     * Executes the SMS communication schedule. Only the messages will be executed.
-     *
-     * @param communicationScheduler: the device's communication schedule
-     * @throws IOException
-     */
-    private void executeCommunicationSchedule(CommunicationScheduler communicationScheduler) throws CTRConfigurationException, CTRConnectionException {
-        CommunicationProfile communicationProfile = communicationScheduler.getCommunicationProfile();
-        String csName = communicationScheduler.displayString();
-        if (communicationProfile == null) {
-            throw new CTRConfigurationException("CommunicationScheduler '" + csName + "' has no communication profile.");
-        }
-
-        //Send the meter messages
-        if (communicationProfile.getSendRtuMessage()) {
-            meterProtocol.log("Parsing messages for meter with serial number: " + meterProtocol.getMeterSerialNumberFromRtu());
-            sendMeterMessages();
-        }
-    }
+//    /**
+//     * Executes the SMS communication schedule. Only the messages will be executed.
+//     *
+//     * @param communicationScheduler: the device's communication schedule
+//     * @throws IOException
+//     */
+//    private void executeCommunicationSchedule(CommunicationScheduler communicationScheduler) throws CTRConfigurationException, CTRConnectionException {
+//        CommunicationProfile communicationProfile = communicationScheduler.getCommunicationProfile();
+//        String csName = communicationScheduler.displayString();
+//        if (communicationProfile == null) {
+//            throw new CTRConfigurationException("CommunicationScheduler '" + csName + "' has no communication profile.");
+//        }
+//
+//        //Send the meter messages
+//        if (communicationProfile.getSendRtuMessage()) {
+//            meterProtocol.log("Parsing messages for meter with serial number: " + meterProtocol.getMeterSerialNumberFromRtu());
+//            sendMeterMessages();
+//        }
+//    }
 
     private void sendMeterMessages() {
         MTU155MessageExecutor messageExecutor = getMessageExecuter();
@@ -96,8 +96,8 @@ public class OutboundSmsHandler {
         return new MTU155MessageExecutor(meterProtocol.getLogger(), meterProtocol.getRequestFactory(), meterProtocol.getRtu(), meterProtocol.getStoreObject());
     }
 
-    public boolean isOutboundSmsProfile(CommunicationScheduler cs) {
-        String displayName = cs != null ? cs.displayString() : null;
-        return ((displayName != null) && displayName.contains(SMS) && !cs.getModemPool().getInbound());
-    }
+//    public boolean isOutboundSmsProfile(CommunicationScheduler cs) {
+//        String displayName = cs != null ? cs.displayString() : null;
+//        return ((displayName != null) && displayName.contains(SMS) && !cs.getModemPool().getInbound());
+//    }
 }

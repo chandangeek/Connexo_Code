@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  *         Changed all messageEntrys in date-form to a UnixTime entry;
  */
 
-public class MbusDevice extends MbusMessages implements GenericProtocol {
+public class MbusDevice extends MbusMessages {
 
     /**
      * Property names
@@ -68,7 +68,7 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     private boolean valid;
 
     public Device mbus;
-    public CommunicationProfile commProfile;
+//    public CommunicationProfile commProfile;
     private WebRTUZ3 webRtu;
     private Logger logger;
     private Unit mbusUnit;
@@ -148,62 +148,62 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
         this.runTestMethod = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD) == 1) ? true : false;
     }
 
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        this.commProfile = scheduler.getCommunicationProfile();
-        validateProperties();
-
-        testMethod();
-
-        // Before reading data, check the serialnumber
-        verifySerialNumber();
-
-        // import profile
-        if (commProfile.getReadDemandValues() && isReadRegular()) {
-            getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
-            MbusProfile mp = new MbusProfile(this);
-            ProfileData pd = mp.getProfile(getProfileObisCode());
-            if (this.webRtu.isBadTime()) {
-                pd.markIntervalsAsBadTime();
-            }
-            this.webRtu.getStoreObject().add(pd, getMbus());
-        }
-
-        if (commProfile.getReadMeterEvents()) {
-            getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getMbus().getSerialNumber());
-            MbusEventProfile mep = new MbusEventProfile(this);
-            ProfileData eventPd = mep.getEvents();
-            this.webRtu.getStoreObject().add(eventPd, getMbus());
-        }
-
-        // import daily/monthly
-        if (commProfile.getReadDemandValues()) {
-            MbusDailyMonthly mdm = new MbusDailyMonthly(this);
-
-            if (isReadDaily()) {
-                getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
-                ProfileData dailyPd = mdm.getDailyProfile(getCorrectedObisCode(DAILY_PROFILE_OBIS));
-                this.webRtu.getStoreObject().add(dailyPd, getMbus());
-            }
-
-            if (isReadMonthly()) {
-                getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
-                ProfileData montProfileData = mdm.getMonthlyProfile(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
-                this.webRtu.getStoreObject().add(montProfileData, getMbus());
-
-            }
-        }
-
-        // Read register readings
-        if (commProfile.getReadMeterReadings()) {
-            getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress()));
-            doReadRegisters();
-        }
-
-        //send rtuMessages
-        if (commProfile.getSendRtuMessage()) {
-            sendMeterMessages();
-        }
-    }
+//    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+//        this.commProfile = scheduler.getCommunicationProfile();
+//        validateProperties();
+//
+//        testMethod();
+//
+//        // Before reading data, check the serialnumber
+//        verifySerialNumber();
+//
+//        // import profile
+//        if (commProfile.getReadDemandValues() && isReadRegular()) {
+//            getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + getMbus().getSerialNumber());
+//            MbusProfile mp = new MbusProfile(this);
+//            ProfileData pd = mp.getProfile(getProfileObisCode());
+//            if (this.webRtu.isBadTime()) {
+//                pd.markIntervalsAsBadTime();
+//            }
+//            this.webRtu.getStoreObject().add(pd, getMbus());
+//        }
+//
+//        if (commProfile.getReadMeterEvents()) {
+//            getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + getMbus().getSerialNumber());
+//            MbusEventProfile mep = new MbusEventProfile(this);
+//            ProfileData eventPd = mep.getEvents();
+//            this.webRtu.getStoreObject().add(eventPd, getMbus());
+//        }
+//
+//        // import daily/monthly
+//        if (commProfile.getReadDemandValues()) {
+//            MbusDailyMonthly mdm = new MbusDailyMonthly(this);
+//
+//            if (isReadDaily()) {
+//                getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + getMbus().getSerialNumber());
+//                ProfileData dailyPd = mdm.getDailyProfile(getCorrectedObisCode(DAILY_PROFILE_OBIS));
+//                this.webRtu.getStoreObject().add(dailyPd, getMbus());
+//            }
+//
+//            if (isReadMonthly()) {
+//                getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + getMbus().getSerialNumber());
+//                ProfileData montProfileData = mdm.getMonthlyProfile(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
+//                this.webRtu.getStoreObject().add(montProfileData, getMbus());
+//
+//            }
+//        }
+//
+//        // Read register readings
+//        if (commProfile.getReadMeterReadings()) {
+//            getLogger().log(Level.INFO, "Getting registers from Mbus meter " + (getPhysicalAddress()));
+//            doReadRegisters();
+//        }
+//
+//        //send rtuMessages
+//        if (commProfile.getSendRtuMessage()) {
+//            sendMeterMessages();
+//        }
+//    }
 
     private void testMethod() {
         if (isRunTestMethod()) {
@@ -228,37 +228,37 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     /**
      * We don't use the {@link DLMSProtocol#doReadRegisters()} method because we need to adjust the mbusChannel
      */
-    private void doReadRegisters() {
-        Iterator registerIterator = getMbus().getRegisters().iterator();
-        List rtuRegisterGroups = this.commProfile.getRtuRegisterGroups();
-
-        while (registerIterator.hasNext()) {
-            ObisCode obisCode = null;
-            try {
-                com.energyict.mdw.amr.Register rtuRegister = (Register) registerIterator.next();
-                if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
-                    obisCode = rtuRegister.getRegisterSpec().getObisCode();
-                    try {
-                        RegisterValue registerValue = readRegister(obisCode);
-                        if (registerValue != null) {
-                            registerValue.setRtuRegisterId(rtuRegister.getId());
-                            if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
-                                getWebRTU().getStoreObject().add(rtuRegister, registerValue);
-                            }
-                        } else {
-                            throw new NoSuchRegisterException("Register returned null");
-                        }
-                    } catch (NoSuchRegisterException e) {
-                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
-                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter. [" + e.getMessage() + "]");
-                    }
-                }
-            } catch (IOException e) {
-                getMeterAmrLogging().logRegisterFailure(e, obisCode);
-                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED. [" + e.getMessage() + "]");
-            }
-        }
-    }
+//    private void doReadRegisters() {
+//        Iterator registerIterator = getMbus().getRegisters().iterator();
+//        List rtuRegisterGroups = this.commProfile.getRtuRegisterGroups();
+//
+//        while (registerIterator.hasNext()) {
+//            ObisCode obisCode = null;
+//            try {
+//                com.energyict.mdw.amr.Register rtuRegister = (Register) registerIterator.next();
+//                if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
+//                    obisCode = rtuRegister.getRegisterSpec().getObisCode();
+//                    try {
+//                        RegisterValue registerValue = readRegister(obisCode);
+//                        if (registerValue != null) {
+//                            registerValue.setRtuRegisterId(rtuRegister.getId());
+//                            if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
+//                                getWebRTU().getStoreObject().add(rtuRegister, registerValue);
+//                            }
+//                        } else {
+//                            throw new NoSuchRegisterException("Register returned null");
+//                        }
+//                    } catch (NoSuchRegisterException e) {
+//                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
+//                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter. [" + e.getMessage() + "]");
+//                    }
+//                }
+//            } catch (IOException e) {
+//                getMeterAmrLogging().logRegisterFailure(e, obisCode);
+//                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED. [" + e.getMessage() + "]");
+//            }
+//        }
+//    }
 
     private void sendMeterMessages() throws BusinessException, SQLException {
         MbusMessageExecutor messageExecutor = new MbusMessageExecutor(this);
@@ -303,21 +303,21 @@ public class MbusDevice extends MbusMessages implements GenericProtocol {
     public int getPhysicalAddress() {
         return this.physicalAddress;
     }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
+//
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
 
     public void addProperties(Properties properties) {
         if (properties != null) {

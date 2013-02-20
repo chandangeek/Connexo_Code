@@ -7,17 +7,12 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Unit;
 import com.energyict.cbo.Utils;
-import com.energyict.cpo.Environment;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.DialerMarker;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
@@ -45,26 +40,19 @@ import com.energyict.dlms.cosem.PPPSetup.PPPAuthenticationType;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.cosem.TCPUDPSetup;
-import com.energyict.genericprotocolimpl.common.AMRJournalManager;
 import com.energyict.genericprotocolimpl.common.GenericCache;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.tou.ActivityCalendarReader;
 import com.energyict.genericprotocolimpl.common.tou.CosemActivityCalendarBuilder;
-import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCall;
-import com.energyict.genericprotocolimpl.iskragprs.csd.CSDCaller;
 import com.energyict.genericprotocolimpl.iskragprs.imagetransfer.ImageTransfer;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterSpec;
-import com.energyict.mdw.core.AmrJournalEntry;
 import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.CommunicationProfile;
-import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
@@ -98,7 +86,6 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -123,7 +110,7 @@ import java.util.logging.Logger;
 
 @Deprecated
 /** Deprecated as of jan 2012 - please use the new SmartMeter protocol (com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372) instead. **/
-public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism, Messaging, HHUEnabler {
+public class IskraMx37x implements ProtocolLink, CacheMechanism, Messaging, HHUEnabler {
 
     private static final String DUPLICATE_SERIALS =
             "Multiple meters where found with serial: {0}.  Data will not be read.";
@@ -155,7 +142,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
 
     private Logger logger;
     private Properties properties;
-    private CommunicationProfile communicationProfile;
+//    private CommunicationProfile communicationProfile;
     private Link link;
     private DLMSConnection dlmsConnection;
     private CosemObjectFactory cosemObjectFactory;
@@ -166,7 +153,7 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     private DLMSMeterConfig meterConfig;
     private ObisCodeMapper ocm = null;
     private MbusDevice[] mbusDevices = {null, null, null, null};                // max. 4 MBus meters
-    private CommunicationScheduler scheduler;
+//    private CommunicationScheduler scheduler;
 
     private int iHDLCTimeoutProperty;
     private int iProtocolRetriesProperty;
@@ -250,152 +237,152 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
      */
     public IskraMx37x() {
     }
-
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-
-        String ipAddress = null;
-
-        rtu = scheduler.getRtu();
-        validateProperties();
-
-
-        // if it is a CSD scheduler, we just have to make a call
-        if (scheduler.displayString().toLowerCase().indexOf("csd") > 0) {
-
-            if (!scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
-                throw new IOException("Only NoDialer is allowed as csd dialers.");
-            }
-
-            if (this.csdCall != 0) {
-                CSDCall call = new CSDCall(link);
-//                call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
-                logger.log(Level.INFO, "Made a successful call.");
-
-            } else {
-                throw new IOException("CSDCall can not be executed if the csdProperty is not enabled");
-            }
-
-
-        } else {    // else we do a regular data readout
-
-            this.logger = logger;
-            this.communicationProfile = scheduler.getCommunicationProfile();
-            this.link = link;
-            this.scheduler = scheduler;
-            if (this.csdCall != 0) {
-
-                if (!this.scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
-                    throw new IOException("Only NoDialer is allowed for csd calls.");
-                }
-
-                CSDCaller caller = new CSDCaller(rtu);
-                ipAddress = caller.doWakeUp();
-                if (!ipAddress.equalsIgnoreCase("")) {
-//                    this.rtu.updateIpAddress(ipAddress);
-                    ipAddress = checkIPAddressForPortNumber(ipAddress);
-                    getLogger().log(Level.INFO, "IPAddress " + ipAddress + " found for meter with serialnumber " + this.serialNumber);
-
-                    this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
-                    this.link.getStreamConnection().open();
-                    getLogger().log(Level.INFO, "Connected to " + ipAddress);
-                } else {
-                    throw new ConnectionException("CSD Wakeup call failed.");
-                }
-            } else if (scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
-                throw new IOException("NoDialer is only allowed for CSD calls (CsdCall property should be set to 1)");
-            }
-
-            init(this.link.getInputStream(), this.link.getOutputStream());
-
-            try {
-                connect();
-                checkTimeDifference(communicationProfile.getCollectOutsideBoundary());
-
-                // Set clock or Force clock... if necessary
-                if (communicationProfile.getForceClock()) {
-                    Date cTime = getTime();
-                    Date now = Calendar.getInstance(getTimeZone()).getTime();
-                    this.timeDifference = (now.getTime() - cTime.getTime());
-                    getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + now);
-                    setTimeClock();
-                } else if (communicationProfile.getWriteClock()) {
-                    setTime();
-                }
-
-                // Read profiles and events ... if necessary
-                if (communicationProfile.getReadDemandValues()) {
-                    doTheCheckMethods();
-                    getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
-                    ElectricityProfile ep = new ElectricityProfile(this);
-                    ep.getProfile(loadProfileObisCode, communicationProfile.getReadMeterEvents());
-                }
-
-                // Read registers ... if necessary
-                /**
-                 * Here we are assuming that the daily and monthly values should be read.
-                 * In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to indicate whether you
-                 * want to read the actual registers or the daily/monthly registers ...
-                 */
-                if (communicationProfile.getReadMeterReadings()) {
-                    doTheCheckMethods();
-
-                    getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + rtu.getSerialNumber());
-                    DailyMonthly dm = new DailyMonthly(this);
-                    if (dailyObisCode != null) {
-                        dm.getDailyValues(dailyObisCode);
-                    }
-                    if (monthlyObisCode != null) {
-                        dm.getMonthlyValues(monthlyObisCode);
-                    }
-                }
-
-                // Send messages ... if there are messages
-                if (communicationProfile.getSendRtuMessage()) {
-                    sendMeterMessages();
-                }
-
-                // Handle the MBus meters
-                if (mbusCheck()) {
-                    getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
-                    handleMbusMeters();
-                }
-
-                if (TESTLOGGING >= 1) {
-                    getLogger().log(Level.INFO, "GN - TESTLOG: Stopping the cache mechanism, saving to disk.");
-                }
-                GenericCache.stopCacheMechanism(rtu, dlmsCache);
-                disConnect();
-
-                getLogger().log(Level.INFO, "Meter with serialnumber " + rtu.getSerialNumber() + " has completely finished.");
-            } catch (DLMSConnectionException e) {
-                disConnect();
-                e.printStackTrace();
-                throw new BusinessException(e);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                disConnect();
-                throw new BusinessException(e);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                disConnect();
-
-                /** Close the connection after an SQL exception, connection will startup again if requested */
-                Environment.getDefault().closeConnection();
-                throw new BusinessException(e);
-            } catch (BusinessException e) {
-                e.printStackTrace();
-                disConnect();
-                throw new BusinessException(e);
-            } catch (TimeDifferenceException e) {
-                disConnect();
-                throw new IOException(e.getMessage());
-            } finally {
-                if (dlmsCache.getObjectList() != null) {
-                    GenericCache.stopCacheMechanism(rtu, dlmsCache);
-                }
-            }
-        }
-    }
+//
+//    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+//
+//        String ipAddress = null;
+//
+//        rtu = scheduler.getRtu();
+//        validateProperties();
+//
+//
+//        // if it is a CSD scheduler, we just have to make a call
+//        if (scheduler.displayString().toLowerCase().indexOf("csd") > 0) {
+//
+//            if (!scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
+//                throw new IOException("Only NoDialer is allowed as csd dialers.");
+//            }
+//
+//            if (this.csdCall != 0) {
+//                CSDCall call = new CSDCall(link);
+////                call.doCall(rtu.getPhoneNumber(), rtu.getPostDialCommand());
+//                logger.log(Level.INFO, "Made a successful call.");
+//
+//            } else {
+//                throw new IOException("CSDCall can not be executed if the csdProperty is not enabled");
+//            }
+//
+//
+//        } else {    // else we do a regular data readout
+//
+//            this.logger = logger;
+//            this.communicationProfile = scheduler.getCommunicationProfile();
+//            this.link = link;
+//            this.scheduler = scheduler;
+//            if (this.csdCall != 0) {
+//
+//                if (!this.scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
+//                    throw new IOException("Only NoDialer is allowed for csd calls.");
+//                }
+//
+//                CSDCaller caller = new CSDCaller(rtu);
+//                ipAddress = caller.doWakeUp();
+//                if (!ipAddress.equalsIgnoreCase("")) {
+////                    this.rtu.updateIpAddress(ipAddress);
+//                    ipAddress = checkIPAddressForPortNumber(ipAddress);
+//                    getLogger().log(Level.INFO, "IPAddress " + ipAddress + " found for meter with serialnumber " + this.serialNumber);
+//
+//                    this.link.setStreamConnection(new SocketStreamConnection(ipAddress));
+//                    this.link.getStreamConnection().open();
+//                    getLogger().log(Level.INFO, "Connected to " + ipAddress);
+//                } else {
+//                    throw new ConnectionException("CSD Wakeup call failed.");
+//                }
+//            } else if (scheduler.getDialerFactory().getName().equalsIgnoreCase("nulldialer")) {
+//                throw new IOException("NoDialer is only allowed for CSD calls (CsdCall property should be set to 1)");
+//            }
+//
+//            init(this.link.getInputStream(), this.link.getOutputStream());
+//
+//            try {
+//                connect();
+//                checkTimeDifference(communicationProfile.getCollectOutsideBoundary());
+//
+//                // Set clock or Force clock... if necessary
+//                if (communicationProfile.getForceClock()) {
+//                    Date cTime = getTime();
+//                    Date now = Calendar.getInstance(getTimeZone()).getTime();
+//                    this.timeDifference = (now.getTime() - cTime.getTime());
+//                    getLogger().log(Level.INFO, "Forced to set meterClock to systemTime: " + now);
+//                    setTimeClock();
+//                } else if (communicationProfile.getWriteClock()) {
+//                    setTime();
+//                }
+//
+//                // Read profiles and events ... if necessary
+//                if (communicationProfile.getReadDemandValues()) {
+//                    doTheCheckMethods();
+//                    getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + rtu.getSerialNumber());
+//                    ElectricityProfile ep = new ElectricityProfile(this);
+//                    ep.getProfile(loadProfileObisCode, communicationProfile.getReadMeterEvents());
+//                }
+//
+//                // Read registers ... if necessary
+//                /**
+//                 * Here we are assuming that the daily and monthly values should be read.
+//                 * In future it can be that this doesn't work for all customers, then we should implement a SmartMeterProperty to indicate whether you
+//                 * want to read the actual registers or the daily/monthly registers ...
+//                 */
+//                if (communicationProfile.getReadMeterReadings()) {
+//                    doTheCheckMethods();
+//
+//                    getLogger().log(Level.INFO, "Getting daily and monthly values for meter with serialnumber: " + rtu.getSerialNumber());
+//                    DailyMonthly dm = new DailyMonthly(this);
+//                    if (dailyObisCode != null) {
+//                        dm.getDailyValues(dailyObisCode);
+//                    }
+//                    if (monthlyObisCode != null) {
+//                        dm.getMonthlyValues(monthlyObisCode);
+//                    }
+//                }
+//
+//                // Send messages ... if there are messages
+//                if (communicationProfile.getSendRtuMessage()) {
+//                    sendMeterMessages();
+//                }
+//
+//                // Handle the MBus meters
+//                if (mbusCheck()) {
+//                    getLogger().log(Level.INFO, "Starting to handle the MBus meters.");
+//                    handleMbusMeters();
+//                }
+//
+//                if (TESTLOGGING >= 1) {
+//                    getLogger().log(Level.INFO, "GN - TESTLOG: Stopping the cache mechanism, saving to disk.");
+//                }
+//                GenericCache.stopCacheMechanism(rtu, dlmsCache);
+//                disConnect();
+//
+//                getLogger().log(Level.INFO, "Meter with serialnumber " + rtu.getSerialNumber() + " has completely finished.");
+//            } catch (DLMSConnectionException e) {
+//                disConnect();
+//                e.printStackTrace();
+//                throw new BusinessException(e);
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//                disConnect();
+//                throw new BusinessException(e);
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//                disConnect();
+//
+//                /** Close the connection after an SQL exception, connection will startup again if requested */
+//                Environment.getDefault().closeConnection();
+//                throw new BusinessException(e);
+//            } catch (BusinessException e) {
+//                e.printStackTrace();
+//                disConnect();
+//                throw new BusinessException(e);
+//            } catch (TimeDifferenceException e) {
+//                disConnect();
+//                throw new IOException(e.getMessage());
+//            } finally {
+//                if (dlmsCache.getObjectList() != null) {
+//                    GenericCache.stopCacheMechanism(rtu, dlmsCache);
+//                }
+//            }
+//        }
+//    }
 
     /**
      * If the received IP address doesn't contain a portnumber, then put one in it
@@ -455,42 +442,42 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return false;
 
     }
-
-    private void handleMbusMeters() {
-        for (int i = 0; i < MBUS_MAX; i++) {
-            if (mbusDevices[i] != null) {
-                try {
-                    mbusDevices[i].setIskraDevice(this);
-                    mbusDevices[i].execute(scheduler, null, null);
-                } catch (BusinessException e) {
-                    /*
-                          * A single MBusMeter failed: log and try next MBusMeter.
-                          */
-                    e.printStackTrace();
-                    getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
-
-                } catch (SQLException e) {
-
-                    /** Close the connection after an SQL exception, connection will startup again if requested */
-                    Environment.getDefault().closeConnection();
-
-                    /*
-                          * A single MBusMeter failed: log and try next MBusMeter.
-                          */
-                    e.printStackTrace();
-                    getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
-
-                } catch (IOException e) {
-                    /*
-                          * A single MBusMeter failed: log and try next MBusMeter.
-                          */
-                    e.printStackTrace();
-                    getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
-
-                }
-            }
-        }
-    }
+//
+//    private void handleMbusMeters() {
+//        for (int i = 0; i < MBUS_MAX; i++) {
+//            if (mbusDevices[i] != null) {
+//                try {
+//                    mbusDevices[i].setIskraDevice(this);
+//                    mbusDevices[i].execute(scheduler, null, null);
+//                } catch (BusinessException e) {
+//                    /*
+//                          * A single MBusMeter failed: log and try next MBusMeter.
+//                          */
+//                    e.printStackTrace();
+//                    getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+//
+//                } catch (SQLException e) {
+//
+//                    /** Close the connection after an SQL exception, connection will startup again if requested */
+//                    Environment.getDefault().closeConnection();
+//
+//                    /*
+//                          * A single MBusMeter failed: log and try next MBusMeter.
+//                          */
+//                    e.printStackTrace();
+//                    getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+//
+//                } catch (IOException e) {
+//                    /*
+//                          * A single MBusMeter failed: log and try next MBusMeter.
+//                          */
+//                    e.printStackTrace();
+//                    getLogger().log(Level.SEVERE, "MBusMeter with serial: " + mbusDevices[i].getCustomerID() + " has failed.");
+//
+//                }
+//            }
+//        }
+//    }
 
     private void doTheCheckMethods() throws IOException, SQLException, BusinessException {
         if (!initCheck) {
@@ -833,43 +820,43 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
         return getClock().getDateTime();
     }
 
-    private void setTime() throws ParseException, IOException {
+//    private void setTime() throws ParseException, IOException {
+//
+//        /* Don't worry about clock sets over interval boundaries, Iskra
+//        * will (probably) handle this.
+//        */
+//        Date cTime = getTime();
+//
+//        Date now = new Date();
+//
+//        this.timeDifference = (now.getTime() - cTime.getTime());
+//        long sAbsDiff = Math.abs(this.timeDifference) / 1000;
+//
+//        long max = communicationProfile.getMaximumClockDifference();
+//        long min = communicationProfile.getMinimumClockDifference();
+//
+//        if ((sAbsDiff < max) && (sAbsDiff > min)) {
+//            getLogger().log(Level.INFO, "Setting meterTime");
+//            setTimeClock();
+//        }
+//    }
 
-        /* Don't worry about clock sets over interval boundaries, Iskra
-        * will (probably) handle this.
-        */
-        Date cTime = getTime();
-
-        Date now = new Date();
-
-        this.timeDifference = (now.getTime() - cTime.getTime());
-        long sAbsDiff = Math.abs(this.timeDifference) / 1000;
-
-        long max = communicationProfile.getMaximumClockDifference();
-        long min = communicationProfile.getMinimumClockDifference();
-
-        if ((sAbsDiff < max) && (sAbsDiff > min)) {
-            getLogger().log(Level.INFO, "Setting meterTime");
-            setTimeClock();
-        }
-    }
-
-    private void checkTimeDifference(boolean collectOutsideBoundary) throws IOException {
-        Date cTime = getTime();
-        Date now = new Date();
-
-        this.timeDifference = (now.getTime() - cTime.getTime());
-        long sAbsDiff = Math.abs(this.timeDifference);
-
-        getLogger().info("Difference between metertime and systemtime is " + this.timeDifference + " ms");
-        long max = communicationProfile.getMaximumClockDifference();
-
-        if ((!collectOutsideBoundary) && (sAbsDiff > (max * 1000))) {
-            String msg = "Time difference exceeds configured maximum: (" + Math.abs(sAbsDiff / 1000) + " s > " + max + " s )";
-            getLogger().log(Level.INFO, msg);
-            throw new TimeDifferenceException(msg);
-        }
-    }
+//    private void checkTimeDifference(boolean collectOutsideBoundary) throws IOException {
+//        Date cTime = getTime();
+//        Date now = new Date();
+//
+//        this.timeDifference = (now.getTime() - cTime.getTime());
+//        long sAbsDiff = Math.abs(this.timeDifference);
+//
+//        getLogger().info("Difference between metertime and systemtime is " + this.timeDifference + " ms");
+//        long max = communicationProfile.getMaximumClockDifference();
+//
+//        if ((!collectOutsideBoundary) && (sAbsDiff > (max * 1000))) {
+//            String msg = "Time difference exceeds configured maximum: (" + Math.abs(sAbsDiff / 1000) + " s > " + max + " s )";
+//            getLogger().log(Level.INFO, msg);
+//            throw new TimeDifferenceException(msg);
+//        }
+//    }
 
     public void setTimeClock() throws IOException {
         doSetTime(Calendar.getInstance(getTimeZone()));
@@ -1057,21 +1044,21 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     public void addProperties(Properties properties) {
         this.properties = properties;
     }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
+//
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
 
     private void validateProperties() throws MissingPropertyException, InvalidPropertyException {
         try {
@@ -1285,14 +1272,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
             boolean changeConMode = contents.equalsIgnoreCase(RtuMessageConstant.CONNECT_MODE);
 
             if (falsemsg) {
-                msg.setFailed();
-                AMRJournalManager amrJournalManager =
-                        new AMRJournalManager(rtu, scheduler);
-                amrJournalManager.journal(
-                        new AmrJournalEntry(AmrJournalEntry.DETAIL, "No groupID was entered."));
-                amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
-                amrJournalManager.updateRetrials();
-                getLogger().severe("No groupID was entered.");
+//                msg.setFailed();
+//                AMRJournalManager amrJournalManager =
+//                        new AMRJournalManager(rtu, scheduler);
+//                amrJournalManager.journal(
+//                        new AmrJournalEntry(AmrJournalEntry.DETAIL, "No groupID was entered."));
+//                amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+//                amrJournalManager.updateRetrials();
+//                getLogger().severe("No groupID was entered.");
             }
 
             if (connect || disconnect) {
@@ -1901,14 +1888,14 @@ public class IskraMx37x implements GenericProtocol, ProtocolLink, CacheMechanism
     }
 
     protected void fail(Exception e, OldDeviceMessage msg, String description) throws BusinessException, SQLException {
-        msg.setFailed();
-        AMRJournalManager amrJournalManager =
-                new AMRJournalManager(rtu, scheduler);
-        amrJournalManager.journal(
-                new AmrJournalEntry(AmrJournalEntry.DETAIL, description + ": " + e.toString()));
-        amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
-        amrJournalManager.updateRetrials();
-        getLogger().severe(e.toString());
+//        msg.setFailed();
+//        AMRJournalManager amrJournalManager =
+//                new AMRJournalManager(rtu, scheduler);
+//        amrJournalManager.journal(
+//                new AmrJournalEntry(AmrJournalEntry.DETAIL, description + ": " + e.toString()));
+//        amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+//        amrJournalManager.updateRetrials();
+//        getLogger().severe(e.toString());
     }
 
     public void sendActivityCalendar(String contents, OldDeviceMessage msg) throws SQLException, BusinessException, IOException {

@@ -19,9 +19,9 @@ import java.util.List;
  */
 public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
 
-    ACTIVITY_CALENDER_SEND(PropertySpecFactory.codeTableReferencePropertySpec("activitycalendar.codetable")),
-    ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.codeTableReferencePropertySpec("activitycalendar.codetable"),
-            PropertySpecFactory.dateTimePropertySpec("activitycalendar.activationdate"));
+    ACTIVITY_CALENDER_SEND(PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable")),
+    ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable"),
+            PropertySpecFactory.dateTimePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.activationdate"));
 
     private static final DeviceMessageCategory activityCalendarCategory = StandardDeviceMessageCategory.ACTIVITY_CALENDAR;
 

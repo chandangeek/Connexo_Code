@@ -406,7 +406,7 @@ public final class ComServerTCPAM100Demo {
         connectionMethodShadow.set(TcpIpConnectionType.PORT_PROPERTY_NAME, PORT);
         connectionMethodShadow.set(TcpIpConnectionType.CONNECTION_TIMEOUT_PROPERTY_NAME, TIMEOUT);
 
-        shadow.setConnectionMethodShadow(connectionMethodShadow);
+//        shadow.setConnectionMethodShadow(connectionMethodShadow);
         NextExecutionSpecsShadow nextExecutionSpecsShadow = new NextExecutionSpecsShadow();
         nextExecutionSpecsShadow.setFrequency(EVERY_MINUTE);
         shadow.setNextExecutionSpecs(nextExecutionSpecsShadow);

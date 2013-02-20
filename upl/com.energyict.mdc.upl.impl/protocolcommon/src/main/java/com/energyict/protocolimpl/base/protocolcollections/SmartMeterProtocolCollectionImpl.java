@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.base.protocolcollections;
 
-import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.protocol.*;
 
 import java.io.IOException;
@@ -86,9 +85,9 @@ public class SmartMeterProtocolCollectionImpl implements ProtocolCollection {
         return this.protocolNames;
     }
 
-    private GenericProtocol getSmartMeterProtocolInstance(String className) throws IOException {
+    private SmartMeterProtocol getSmartMeterProtocolInstance(String className) throws IOException {
         try {
-            return (GenericProtocol) Class.forName(className).newInstance();
+            return (SmartMeterProtocol) Class.forName(className).newInstance();
         }
         catch(ClassNotFoundException e) {
             throw new IOException("instantiateProtocol(), ClassNotFoundException, "+e.getMessage());

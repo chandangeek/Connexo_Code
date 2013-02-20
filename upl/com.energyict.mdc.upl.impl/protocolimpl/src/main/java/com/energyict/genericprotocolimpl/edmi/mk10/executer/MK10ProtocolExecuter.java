@@ -208,128 +208,128 @@ public class MK10ProtocolExecuter {
     /*
       * Public methods
       */
-
-    public void doMeterProtocol() throws IOException, BusinessException {
-
-        // Let the MK10 protocol know that it's been used as generic Push protocol
-        getMk10Protocol().setPushProtocol(true);
-
-        // Read the properties from the Device and the Protocol in EIServer and apply them to the MK10Protocol.
-        readMeterProperties();
-        getMk10Protocol().setProperties(this.properties);
-        if (DEBUG >= 2) {
-            properties.list(System.out);
-        }
-
-        // Create new streams and pass them to the MK10 protocol
-        getMk10Protocol().init(
-                new MK10PushInputStream(getLink().getInputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
-                new MK10PushOutputStream(getLink().getOutputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
-                getMeter().getTimeZone(),
-                getLogger()
-        );
-
-        // Try to connect to the meter ...
-        getMk10Protocol().connect();
-
-        // Before continuing with reading the meter's data, check some basic
-        // things to be sure that we can continue...
-        if (getCommunicationProfile().getReadDemandValues()) {
-            verifyMeterProfileInterval();
-        }
-
-        MK10ClockExecuter clockExec = new MK10ClockExecuter(this);
-        boolean markAsBadTime = clockExec.verifyMeterMaxTimeDiff(getCommunicationProfile().getCollectOutsideBoundary());
-
-        if (getCommunicationProfile().getReadDemandValues()) {
-            MK10DemandValuesExecuter demandValuesExec = new MK10DemandValuesExecuter(this);
-            demandValuesExec.validateChannels();
-        }
-
-        if (getCommunicationProfile().getReadMeterReadings()) {
-            MK10MeterReadingExecuter meterReadingExec = new MK10MeterReadingExecuter(this);
-            meterReadingData = meterReadingExec.getMeterReadings();
-        }
-
-        // Get the version of the meterfirmware
-        try {
-            String strVersion = getMk10Protocol().getFirmwareVersion();
-            log(Level.FINE, "meter firmware: " + strVersion);
-        } catch (UnsupportedException e) {
-        }
-
-        // Get the version of the MK10 protocol
-        String strVersion = getMk10Protocol().getProtocolVersion();
-        log(Level.FINE, "MK10: protocol version: " + strVersion);
-
-
-        // Get the meter profile
-        MK10DemandValuesExecuter demandValuesExec = new MK10DemandValuesExecuter(this);
-        if (getCommunicationProfile().getReadDemandValues()) {
-            meterProfileData = demandValuesExec.getReadDemandValues();
-        } else if (getCommunicationProfile().getReadAllDemandValues()) {
-            meterProfileData = demandValuesExec.getReadAllDemandValues();
-        }
-
-        // Sort the received profile
-        if (meterProfileData != null) {
-            meterProfileData = demandValuesExec.validateProfileData(meterProfileData, demandValuesExec.getNow());
-            meterProfileData.sort();
-            if (markAsBadTime) {
-                meterProfileData.markIntervalsAsBadTime();
-            }
-        }
-
-        // Try to read or set the clock in the meter
-        long timeDiff = clockExec.verifyAndSetMeterTime(getMeter().getTimeZone());
-        journal(new AmrJournalEntry(AmrJournalEntry.TIMEDIFF, timeDiff));
-
-
-        // Disconnect the meter ...
-        getMk10Protocol().disconnect();
-
-        meterUsageData = new MeterUsageData(meterReadingData, meterProfileData);
-
-        // Show data from meter in loggings
-        doLogMeterDataCollection(meterProfileData);
-        doLogMeterDataCollection(meterReadingData);
-
-    }
-
-    /*
-      * Public getters and setters
-      */
-
-    public CommunicationProfile getCommunicationProfile() throws BusinessException {
-        CommunicationProfile cp = getInboundCommunicationScheduler().getCommunicationProfile();
-        if (cp == null) {
-            throw new BusinessException("No CommunicationProfile found for Device.");
-        }
-        return cp;
-    }
-
-    public CommunicationScheduler getInboundCommunicationScheduler() throws BusinessException {
-//        List<CommunicationScheduler> schedulerList = getInboundSchedulers(getMeter().getCommunicationSchedulers());
-//        if (schedulerList.size() != 1) {
-//            throw new BusinessException(
-//                    "Device MUST have one and only one CommunicationScheduler with an INBOUND modem pool when using push protocol. " +
-//                            "CommunicationSchedulers found for Device: " + schedulerList.size()
-//            );
+//
+//    public void doMeterProtocol() throws IOException, BusinessException {
+//
+//        // Let the MK10 protocol know that it's been used as generic Push protocol
+//        getMk10Protocol().setPushProtocol(true);
+//
+//        // Read the properties from the Device and the Protocol in EIServer and apply them to the MK10Protocol.
+//        readMeterProperties();
+//        getMk10Protocol().setProperties(this.properties);
+//        if (DEBUG >= 2) {
+//            properties.list(System.out);
 //        }
-//        return schedulerList.get(0);
-        return null;
-    }
-
-    private List<CommunicationScheduler> getInboundSchedulers(List<CommunicationScheduler> schedulers) {
-        List<CommunicationScheduler> inboundSchedulers = new ArrayList<CommunicationScheduler>();
-        for (CommunicationScheduler scheduler : schedulers) {
-            ModemPool modemPool = scheduler.getModemPool();
-            if ((modemPool != null) && (modemPool.getInbound())) {
-                inboundSchedulers.add(scheduler);
-            }
-        }
-        return inboundSchedulers;
-    }
+//
+//        // Create new streams and pass them to the MK10 protocol
+//        getMk10Protocol().init(
+//                new MK10PushInputStream(getLink().getInputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
+//                new MK10PushOutputStream(getLink().getOutputStream(), getMk10Push().isFullDebugLogging() ? getLogger() : null),
+//                getMeter().getTimeZone(),
+//                getLogger()
+//        );
+//
+//        // Try to connect to the meter ...
+//        getMk10Protocol().connect();
+//
+//        // Before continuing with reading the meter's data, check some basic
+//        // things to be sure that we can continue...
+//        if (getCommunicationProfile().getReadDemandValues()) {
+//            verifyMeterProfileInterval();
+//        }
+//
+//        MK10ClockExecuter clockExec = new MK10ClockExecuter(this);
+//        boolean markAsBadTime = clockExec.verifyMeterMaxTimeDiff(getCommunicationProfile().getCollectOutsideBoundary());
+//
+//        if (getCommunicationProfile().getReadDemandValues()) {
+//            MK10DemandValuesExecuter demandValuesExec = new MK10DemandValuesExecuter(this);
+//            demandValuesExec.validateChannels();
+//        }
+//
+//        if (getCommunicationProfile().getReadMeterReadings()) {
+//            MK10MeterReadingExecuter meterReadingExec = new MK10MeterReadingExecuter(this);
+//            meterReadingData = meterReadingExec.getMeterReadings();
+//        }
+//
+//        // Get the version of the meterfirmware
+//        try {
+//            String strVersion = getMk10Protocol().getFirmwareVersion();
+//            log(Level.FINE, "meter firmware: " + strVersion);
+//        } catch (UnsupportedException e) {
+//        }
+//
+//        // Get the version of the MK10 protocol
+//        String strVersion = getMk10Protocol().getProtocolVersion();
+//        log(Level.FINE, "MK10: protocol version: " + strVersion);
+//
+//
+//        // Get the meter profile
+//        MK10DemandValuesExecuter demandValuesExec = new MK10DemandValuesExecuter(this);
+//        if (getCommunicationProfile().getReadDemandValues()) {
+//            meterProfileData = demandValuesExec.getReadDemandValues();
+//        } else if (getCommunicationProfile().getReadAllDemandValues()) {
+//            meterProfileData = demandValuesExec.getReadAllDemandValues();
+//        }
+//
+//        // Sort the received profile
+//        if (meterProfileData != null) {
+//            meterProfileData = demandValuesExec.validateProfileData(meterProfileData, demandValuesExec.getNow());
+//            meterProfileData.sort();
+//            if (markAsBadTime) {
+//                meterProfileData.markIntervalsAsBadTime();
+//            }
+//        }
+//
+//        // Try to read or set the clock in the meter
+//        long timeDiff = clockExec.verifyAndSetMeterTime(getMeter().getTimeZone());
+//        journal(new AmrJournalEntry(AmrJournalEntry.TIMEDIFF, timeDiff));
+//
+//
+//        // Disconnect the meter ...
+//        getMk10Protocol().disconnect();
+//
+//        meterUsageData = new MeterUsageData(meterReadingData, meterProfileData);
+//
+//        // Show data from meter in loggings
+//        doLogMeterDataCollection(meterProfileData);
+//        doLogMeterDataCollection(meterReadingData);
+//
+//    }
+//
+//    /*
+//      * Public getters and setters
+//      */
+//
+//    public CommunicationProfile getCommunicationProfile() throws BusinessException {
+//        CommunicationProfile cp = getInboundCommunicationScheduler().getCommunicationProfile();
+//        if (cp == null) {
+//            throw new BusinessException("No CommunicationProfile found for Device.");
+//        }
+//        return cp;
+//    }
+//
+//    public CommunicationScheduler getInboundCommunicationScheduler() throws BusinessException {
+////        List<CommunicationScheduler> schedulerList = getInboundSchedulers(getMeter().getCommunicationSchedulers());
+////        if (schedulerList.size() != 1) {
+////            throw new BusinessException(
+////                    "Device MUST have one and only one CommunicationScheduler with an INBOUND modem pool when using push protocol. " +
+////                            "CommunicationSchedulers found for Device: " + schedulerList.size()
+////            );
+////        }
+////        return schedulerList.get(0);
+//        return null;
+//    }
+//
+//    private List<CommunicationScheduler> getInboundSchedulers(List<CommunicationScheduler> schedulers) {
+//        List<CommunicationScheduler> inboundSchedulers = new ArrayList<CommunicationScheduler>();
+//        for (CommunicationScheduler scheduler : schedulers) {
+//            ModemPool modemPool = scheduler.getModemPool();
+//            if ((modemPool != null) && (modemPool.getInbound())) {
+//                inboundSchedulers.add(scheduler);
+//            }
+//        }
+//        return inboundSchedulers;
+//    }
 
     public Device getMeter() {
         return meter;

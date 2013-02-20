@@ -1,28 +1,35 @@
 package com.energyict.genericprotocolimpl.webrtuz3;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.*;
-import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
-import com.energyict.genericprotocolimpl.common.CommonUtils;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.genericprotocolimpl.webrtuz3.historical.HistoricalRegisterReadings;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.EMeterMessageExecutor;
 import com.energyict.genericprotocolimpl.webrtuz3.messagehandling.EmeterMessages;
-import com.energyict.genericprotocolimpl.webrtuz3.profiles.*;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.*;
+import com.energyict.genericprotocolimpl.webrtuz3.profiles.EDevice;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -31,7 +38,7 @@ import java.util.logging.Logger;
  * @author jme
  * @since 9-apr-2010 13:51:14
  */
-public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
+public class EMeter extends EmeterMessages implements EDevice {
 
     /**
      * Property names
@@ -79,7 +86,7 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
 
 
     private final Properties properties = new Properties();
-    private CommunicationProfile commProfile;
+//    private CommunicationProfile commProfile;
     private WebRTUZ3 webRtu;
     private String serialNumber;
     private int physicalAddress;
@@ -113,62 +120,62 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
         this.runTestMethod = (ProtocolTools.getPropertyAsInt(getProperties(), PROPERTY_RUNTESTMETHOD, DEFAULT_RUNTESTMETHOD) == 1) ? true : false;
     }
 
-    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        this.commProfile = scheduler.getCommunicationProfile();
-        validateProperties();
-
-        testMethod();
-
-        // Before reading data, check the serialnumber
-        verifySerialNumber();
-
-        // import profile
-        if (commProfile.getReadDemandValues() && isReadRegular()) {
-            getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-            EMeterProfile mp = new EMeterProfile(this);
-            ProfileData pd = mp.getProfile(getCorrectedObisCode(PROFILE_OBISCODE));
-            if (this.webRtu.isBadTime()) {
-                pd.markIntervalsAsBadTime();
-            }
-            this.webRtu.getStoreObject().add(pd, geteMeterRtu());
-        }
-
-        if (commProfile.getReadMeterEvents()) {
-            getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-            EMeterEventProfile mep = new EMeterEventProfile(this);
-            ProfileData eventPd = mep.getEvents();
-            this.webRtu.getStoreObject().add(eventPd, geteMeterRtu());
-        }
-
-        // import daily/monthly
-        if (commProfile.getReadDemandValues()) {
-            DailyMonthly mdm = new DailyMonthly(this);
-
-            if (isReadDaily()) {
-                getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-                ProfileData dailyPd = mdm.getDailyValues(getCorrectedObisCode(DAILY_PROFILE_OBIS));
-                this.webRtu.getStoreObject().add(dailyPd, geteMeterRtu());
-            }
-
-            if (isReadMonthly()) {
-                getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-                ProfileData montProfileData = mdm.getMonthlyValues(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
-                this.webRtu.getStoreObject().add(montProfileData, geteMeterRtu());
-
-            }
-        }
-
-        // Read registers
-        if (commProfile.getReadMeterReadings()) {
-            getLogger().log(Level.INFO, "Getting register values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
-            doReadRegisters();
-        }
-
-        // send rtuMessages
-        if (commProfile.getSendRtuMessage()) {
-            sendMeterMessages();
-        }
-    }
+//    public void execute(CommunicationScheduler scheduler, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+//        this.commProfile = scheduler.getCommunicationProfile();
+//        validateProperties();
+//
+//        testMethod();
+//
+//        // Before reading data, check the serialnumber
+//        verifySerialNumber();
+//
+//        // import profile
+//        if (commProfile.getReadDemandValues() && isReadRegular()) {
+//            getLogger().log(Level.INFO, "Getting loadProfile for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
+//            EMeterProfile mp = new EMeterProfile(this);
+//            ProfileData pd = mp.getProfile(getCorrectedObisCode(PROFILE_OBISCODE));
+//            if (this.webRtu.isBadTime()) {
+//                pd.markIntervalsAsBadTime();
+//            }
+//            this.webRtu.getStoreObject().add(pd, geteMeterRtu());
+//        }
+//
+//        if (commProfile.getReadMeterEvents()) {
+//            getLogger().log(Level.INFO, "Getting events for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
+//            EMeterEventProfile mep = new EMeterEventProfile(this);
+//            ProfileData eventPd = mep.getEvents();
+//            this.webRtu.getStoreObject().add(eventPd, geteMeterRtu());
+//        }
+//
+//        // import daily/monthly
+//        if (commProfile.getReadDemandValues()) {
+//            DailyMonthly mdm = new DailyMonthly(this);
+//
+//            if (isReadDaily()) {
+//                getLogger().log(Level.INFO, "Getting Daily values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
+//                ProfileData dailyPd = mdm.getDailyValues(getCorrectedObisCode(DAILY_PROFILE_OBIS));
+//                this.webRtu.getStoreObject().add(dailyPd, geteMeterRtu());
+//            }
+//
+//            if (isReadMonthly()) {
+//                getLogger().log(Level.INFO, "Getting Monthly values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
+//                ProfileData montProfileData = mdm.getMonthlyValues(getCorrectedObisCode(MONTHLY_PROFILE_OBIS));
+//                this.webRtu.getStoreObject().add(montProfileData, geteMeterRtu());
+//
+//            }
+//        }
+//
+//        // Read registers
+//        if (commProfile.getReadMeterReadings()) {
+//            getLogger().log(Level.INFO, "Getting register values for meter with serialnumber: " + geteMeterRtu().getSerialNumber());
+//            doReadRegisters();
+//        }
+//
+//        // send rtuMessages
+//        if (commProfile.getSendRtuMessage()) {
+//            sendMeterMessages();
+//        }
+//    }
 
     private void testMethod() {
         if (isRunTestMethod()) {
@@ -207,37 +214,37 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
     /**
      *
      */
-    private void doReadRegisters() {
-        Iterator registerIterator = geteMeterRtu().getRegisters().iterator();
-        List rtuRegisterGroups = this.commProfile.getRtuRegisterGroups();
-
-        while (registerIterator.hasNext()) {
-            ObisCode obisCode = null;
-            try {
-                Register rtuRegister = (Register) registerIterator.next();
-                if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
-                    obisCode = rtuRegister.getRegisterSpec().getObisCode();
-                    try {
-                        RegisterValue registerValue = readRegister(obisCode);
-                        if (registerValue != null) {
-                            registerValue.setRtuRegisterId(rtuRegister.getId());
-                            if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
-                                getWebRTU().getStoreObject().add(rtuRegister, registerValue);
-                            }
-                        } else {
-                            throw new NoSuchRegisterException("Register returned null");
-                        }
-                    } catch (NoSuchRegisterException e) {
-                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
-                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter. [" + e.getMessage() + "]");
-                    }
-                }
-            } catch (IOException e) {
-                getMeterAmrLogging().logRegisterFailure(e, obisCode);
-                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED. [" + e.getMessage() + "]");
-            }
-        }
-    }
+//    private void doReadRegisters() {
+//        Iterator registerIterator = geteMeterRtu().getRegisters().iterator();
+//        List rtuRegisterGroups = this.commProfile.getRtuRegisterGroups();
+//
+//        while (registerIterator.hasNext()) {
+//            ObisCode obisCode = null;
+//            try {
+//                Register rtuRegister = (Register) registerIterator.next();
+//                if (CommonUtils.isInRegisterGroup(rtuRegisterGroups, rtuRegister)) {
+//                    obisCode = rtuRegister.getRegisterSpec().getObisCode();
+//                    try {
+//                        RegisterValue registerValue = readRegister(obisCode);
+//                        if (registerValue != null) {
+//                            registerValue.setRtuRegisterId(rtuRegister.getId());
+//                            if (rtuRegister.getReadingAt(registerValue.getReadTime()) == null) {
+//                                getWebRTU().getStoreObject().add(rtuRegister, registerValue);
+//                            }
+//                        } else {
+//                            throw new NoSuchRegisterException("Register returned null");
+//                        }
+//                    } catch (NoSuchRegisterException e) {
+//                        getMeterAmrLogging().logRegisterFailure(e, obisCode);
+//                        getLogger().log(Level.INFO, "ObisCode " + obisCode + " is not supported by the meter. [" + e.getMessage() + "]");
+//                    }
+//                }
+//            } catch (IOException e) {
+//                getMeterAmrLogging().logRegisterFailure(e, obisCode);
+//                getLogger().log(Level.INFO, "Reading register with obisCode " + obisCode + " FAILED. [" + e.getMessage() + "]");
+//            }
+//        }
+//    }
 
 
     /**
@@ -324,20 +331,20 @@ public class EMeter extends EmeterMessages implements GenericProtocol, EDevice {
         }
     }
 
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
 
     /**
      * @return

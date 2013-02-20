@@ -119,47 +119,47 @@ public class ApolloMeter extends DLMSProtocol {
      */
     @Override
     protected void doExecute() throws BusinessException, SQLException, IOException {
-
-        //TODO to complete
-
-        try {
-            // Set clock or Force clock... if necessary
-            if (getCommunicationProfile().getForceClock()) {
-                doForceClock();
-            } else {
-                verifyAndWriteClock();
-            }
-
-            if (getCommunicationProfile().getReadDemandValues()) {
-                getLogger().log(Level.INFO, "Getting Default ProfileData[" + this.obisCodeProvider.getDefaultLoadProfileObisCode() + "] for meter with serialnumber: " + this.serialNumber);
-                ProfileData profile = getDefaultProfileData();
-                storeObject.add(profile, getMeter());
-            }
-
-            if (getCommunicationProfile().getReadMeterEvents()) {
-                getLogger().log(Level.INFO, "Getting Events for meter with serialnumber: " + this.serialNumber);
-                ProfileData eProfile = getMeterEvents();
-                storeObject.add(eProfile, getMeter());
-            }
-
-            if (getCommunicationProfile().getReadMeterReadings()) {
-                getLogger().log(Level.INFO, "Getting Daily ProfileData[" + this.obisCodeProvider.getDailyLoadProfileObisCode() + "] for meter with serialnumber: " + this.serialNumber);
-                ProfileData profile = getDailyProfileData();
-                storeObject.add(profile, getMeter());
-
-                getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
-                Map<com.energyict.mdw.amr.Register, RegisterValue> registerMap = getRegisterReader().readRegisters();
-                storeObject.addAll(registerMap);
-            }
-
-            if (getCommunicationProfile().getSendRtuMessage()) {
-                sendMeterMessages();
-            }
-        } finally {
-            if (storeObject != null) {
-                Environment.getDefault().execute(storeObject);
-            }
-        }
+//
+//        //TODO to complete
+//
+//        try {
+//            // Set clock or Force clock... if necessary
+//            if (getCommunicationProfile().getForceClock()) {
+//                doForceClock();
+//            } else {
+//                verifyAndWriteClock();
+//            }
+//
+//            if (getCommunicationProfile().getReadDemandValues()) {
+//                getLogger().log(Level.INFO, "Getting Default ProfileData[" + this.obisCodeProvider.getDefaultLoadProfileObisCode() + "] for meter with serialnumber: " + this.serialNumber);
+//                ProfileData profile = getDefaultProfileData();
+//                storeObject.add(profile, getMeter());
+//            }
+//
+//            if (getCommunicationProfile().getReadMeterEvents()) {
+//                getLogger().log(Level.INFO, "Getting Events for meter with serialnumber: " + this.serialNumber);
+//                ProfileData eProfile = getMeterEvents();
+//                storeObject.add(eProfile, getMeter());
+//            }
+//
+//            if (getCommunicationProfile().getReadMeterReadings()) {
+//                getLogger().log(Level.INFO, "Getting Daily ProfileData[" + this.obisCodeProvider.getDailyLoadProfileObisCode() + "] for meter with serialnumber: " + this.serialNumber);
+//                ProfileData profile = getDailyProfileData();
+//                storeObject.add(profile, getMeter());
+//
+//                getLogger().log(Level.INFO, "Getting registers for meter with serialnumber: " + this.serialNumber);
+//                Map<com.energyict.mdw.amr.Register, RegisterValue> registerMap = getRegisterReader().readRegisters();
+//                storeObject.addAll(registerMap);
+//            }
+//
+//            if (getCommunicationProfile().getSendRtuMessage()) {
+//                sendMeterMessages();
+//            }
+//        } finally {
+//            if (storeObject != null) {
+//                Environment.getDefault().execute(storeObject);
+//            }
+//        }
 
     }
 

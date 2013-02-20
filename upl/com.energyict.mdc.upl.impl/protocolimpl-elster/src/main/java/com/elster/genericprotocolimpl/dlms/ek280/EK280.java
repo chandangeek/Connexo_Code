@@ -4,31 +4,42 @@ import com.elster.genericprotocolimpl.dlms.ek280.deployment.DeploymentDataFetche
 import com.elster.genericprotocolimpl.dlms.ek280.deployment.DeviceDeployment;
 import com.elster.genericprotocolimpl.dlms.ek280.discovery.DeviceDiscover;
 import com.elster.genericprotocolimpl.dlms.ek280.discovery.DeviceDiscoverInfo;
-import com.elster.genericprotocolimpl.dlms.ek280.executors.CommunicationScheduleExecutor;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.*;
+import com.energyict.cpo.Environment;
+import com.energyict.cpo.ShadowList;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.StreamConnection;
-import com.energyict.mdw.amr.GenericProtocol;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.DeviceShadow;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.RtuDiscoveredEvent;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Logger;
+
+//import com.energyict.mdw.amr.GenericProtocol;
 
 /**
  * Copyrights
  * Date: 6/06/11
  * Time: 14:53
  */
-public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMessaging {
+public class EK280 implements MessageProtocol, FirmwareUpdateMessaging {
 
     private static final String REQUEST_INVALIDDATA = "<REQUEST>INVALIDDATA</REQUEST>";
     private static final String REQUEST_OK = "<REQUEST>OK</REQUEST>";
@@ -43,53 +54,53 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
     private EK280Properties properties = null;
     private RtuDiscoveredEvent discoveredEvent = null;
 
-    /**
-     * The main execute method, called by the commserver
-     *
-     * @param cs     The scheduller should be null for an inbound connection
-     * @param link   The link to our incoming device (containing the InputStream and the OutputStream)
-     * @param logger The protocol logger
-     * @throws BusinessException If there was an error different from an communication or protocol error
-     * @throws SQLException      If there was an error when we read/write data to the MeteringWarehouse
-     * @throws IOException       If there was a communication or protocol error
-     */
-    public void execute(CommunicationScheduler cs, Link link, Logger logger) throws BusinessException, SQLException, IOException {
-        this.link = link;
-        this.logger = logger;
-        this.startTime = new Date().getTime();
-
-        initMdw();
-
-        getLogger().info("Incoming TCP connection from: [" + getLinkSource() + "]. Starting discovery.");
-        doDiscoverAndDeploy();
-
-        if (rtu != null) {
-            getLogger().info("Device [" + rtu + "] connected with serial number [" + rtu.getSerialNumber() + "]");
-
-            try {
-                initProtocol();
-                readDiscoveryData();
-                getProtocolVersions();
-                verifyClockDifference();
-                readBasicDeviceInfo();
-                readDevice();
-            } catch (IOException e) {
-                getLogger().log(Level.SEVERE, e.getMessage(), e);
-                failAllPendingSchedules(e.getMessage());
-            } finally {
-                disconnect();
-            }
-
-            getLogger().info("Session with device [" + rtu + "] with serial number [" + rtu.getSerialNumber() + "] ended. Storing data.");
-            storeData();
-            sendDiscoveredEvent();
-        } else {
-            getLogger().severe("Device is 'null'. Unable to start dlms session.");
-        }
-
-        getLogger().info("Done.\n");
-
-    }
+//    /**
+//     * The main execute method, called by the commserver
+//     *
+//     * @param cs     The scheduller should be null for an inbound connection
+//     * @param link   The link to our incoming device (containing the InputStream and the OutputStream)
+//     * @param logger The protocol logger
+//     * @throws BusinessException If there was an error different from an communication or protocol error
+//     * @throws SQLException      If there was an error when we read/write data to the MeteringWarehouse
+//     * @throws IOException       If there was a communication or protocol error
+//     */
+//    public void execute(CommunicationScheduler cs, Link link, Logger logger) throws BusinessException, SQLException, IOException {
+//        this.link = link;
+//        this.logger = logger;
+//        this.startTime = new Date().getTime();
+//
+//        initMdw();
+//
+//        getLogger().info("Incoming TCP connection from: [" + getLinkSource() + "]. Starting discovery.");
+//        doDiscoverAndDeploy();
+//
+//        if (rtu != null) {
+//            getLogger().info("Device [" + rtu + "] connected with serial number [" + rtu.getSerialNumber() + "]");
+//
+//            try {
+//                initProtocol();
+//                readDiscoveryData();
+//                getProtocolVersions();
+//                verifyClockDifference();
+//                readBasicDeviceInfo();
+//                readDevice();
+//            } catch (IOException e) {
+//                getLogger().log(Level.SEVERE, e.getMessage(), e);
+//                failAllPendingSchedules(e.getMessage());
+//            } finally {
+//                disconnect();
+//            }
+//
+//            getLogger().info("Session with device [" + rtu + "] with serial number [" + rtu.getSerialNumber() + "] ended. Storing data.");
+//            storeData();
+//            sendDiscoveredEvent();
+//        } else {
+//            getLogger().severe("Device is 'null'. Unable to start dlms session.");
+//        }
+//
+//        getLogger().info("Done.\n");
+//
+//    }
 
     /**
      * In this method we should read all the data that's available in the device and
@@ -366,21 +377,21 @@ public class EK280 implements GenericProtocol, MessageProtocol, FirmwareUpdateMe
     public String getVersion() {
         return "$Date: 2011-12-14 14:17:02 +0100 (wo, 14 dec 2011) $";
     }
-
-    @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-    }
-
-    @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-    }
-
-    @Override
-    public void addProperties(TypedProperties properties) {
-        addProperties(properties.toStringProperties());
-    }
+//
+//    @Override
+//    public List<PropertySpec> getRequiredProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
+//    }
+//
+//    @Override
+//    public List<PropertySpec> getOptionalProperties() {
+//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
+//    }
+//
+//    @Override
+//    public void addProperties(TypedProperties properties) {
+//        addProperties(properties.toStringProperties());
+//    }
 
     public void addProperties(Properties properties) {
         getProperties().addProperties(properties);

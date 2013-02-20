@@ -214,7 +214,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedStandardMessages() {
+    public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.<DeviceMessageSpec>asList(
                 ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND,
                 ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE);
