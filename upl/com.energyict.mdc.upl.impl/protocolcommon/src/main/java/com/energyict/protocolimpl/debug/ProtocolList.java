@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.debug;
 
 import com.energyict.protocol.ProtocolCollection;
-import com.energyict.protocolimpl.base.protocolcollections.GenericProtocolCollectionImpl;
 import com.energyict.protocolimpl.base.protocolcollections.ProtocolCollectionImpl;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * @author jme
@@ -20,7 +21,7 @@ public class ProtocolList {
 
         StringBuilder sb = new StringBuilder();
         sb.append("Standard protocols: \r\n").append(getProtocolInfo(new ProtocolCollectionImpl()));
-        sb.append("Generic protocols: \r\n").append(getProtocolInfo(new GenericProtocolCollectionImpl()));
+//        sb.append("Generic protocols: \r\n").append(getProtocolInfo(new GenericProtocolCollectionImpl()));
 
 		System.out.println(sb.toString());
 		if ((args != null) && (args.length != 0) && (args[0] != null) && (args[0].length() != 0)) {
