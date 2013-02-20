@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocolimpl.base.protocolcollections.GenericProtocolCollectionImpl;
 import com.energyict.protocolimpl.base.protocolcollections.ProtocolCollectionImpl;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -64,27 +63,6 @@ public class ProtocolCollectionCreationTest {
                 row.createCell(2).setCellValue((String)pci.getProtocolName(i));
                 try{
                     row.createCell(3).setCellValue((String)pci.getProtocolRevision(i));
-                } catch (IOException e){
-                    row.createCell(3).setCellValue("Temporary Unavailable");
-                }
-
-            }
-
-            GenericProtocolCollectionImpl gpci = new GenericProtocolCollectionImpl();
-            for(int i = 0; i < gpci.getProtocolClasses().size(); i++){
-
-                HSSFRow row;
-                if(gpci.getProtocolClassName(i).indexOf("genericprotocolimpl") > 0 || gpci.getProtocolClassName(i).indexOf("smartmeterprotocolimpl") > 0  ){
-                    row = sheetSm.createRow(smCounter++);
-                } else {
-                    row = sheet.createRow(counter++);
-                }
-
-                row.createCell(0).setCellValue(i);
-                row.createCell(1).setCellValue((String)gpci.getProtocolClassName(i));
-                row.createCell(2).setCellValue((String)gpci.getProtocolName(i));
-                try{
-                    row.createCell(3).setCellValue((String)gpci.getProtocolRevision(i));
                 } catch (IOException e){
                     row.createCell(3).setCellValue("Temporary Unavailable");
                 }
