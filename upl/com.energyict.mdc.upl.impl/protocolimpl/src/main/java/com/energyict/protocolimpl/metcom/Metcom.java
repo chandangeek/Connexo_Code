@@ -225,10 +225,14 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
 
             // (OUTDATED) If timeSet is method 3, then first readout the Maximum set in seconds, otherwise timecalculation will be incorrect
             // 26/02/2013 - the maximum set should always be read out, cause the device is forcing it! (e.g.: MSYNC timesets > maximum set are silently ignored).
-            byte[] delayRequest = new byte[]{0x37, 0x30, 0x34, 0x30, 0x30};
-            byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ1, delayRequest);
-            if (data != null) {
-                maxDelay = Integer.parseInt(new String(data).trim());
+            if (!getTesting()) {
+                byte[] delayRequest = new byte[]{0x37, 0x30, 0x34, 0x30, 0x30};
+                byte[] data = siemensSCTM.sendRequest(siemensSCTM.TABENQ1, delayRequest);
+                if (data != null) {
+                    maxDelay = Integer.parseInt(new String(data).trim());
+                } else {
+                    maxDelay = 30;
+                }
             } else {
                 maxDelay = 30;
             }

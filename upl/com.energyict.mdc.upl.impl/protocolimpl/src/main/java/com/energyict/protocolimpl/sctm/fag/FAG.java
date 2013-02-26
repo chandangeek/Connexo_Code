@@ -6,18 +6,15 @@
 
 package com.energyict.protocolimpl.sctm.fag;
 
-import com.energyict.protocolimpl.siemens7ED62.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.metcom.Metcom3FAG;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.customerconfig.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -37,6 +34,9 @@ public class FAG extends Metcom3FAG implements RegisterProtocol {
         fagRegisters = new FAGRegisters(this);
     }
 
+    /**
+     * The Protocol version
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }    
