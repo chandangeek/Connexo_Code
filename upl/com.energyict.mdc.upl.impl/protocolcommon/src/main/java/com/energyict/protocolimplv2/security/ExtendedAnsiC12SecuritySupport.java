@@ -52,6 +52,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setProperty("SecurityKey", deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
             typedProperties.setProperty("SecurityMode", String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
+            typedProperties.setProperty("CalledAPTitle", String.valueOf(deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), "")));
         }
         return typedProperties;
     }
