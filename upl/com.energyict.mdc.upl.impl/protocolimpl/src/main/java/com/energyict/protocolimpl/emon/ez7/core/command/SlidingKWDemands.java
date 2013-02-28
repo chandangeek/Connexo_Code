@@ -6,16 +6,14 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.math.BigDecimal;
-
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -61,7 +59,9 @@ public class SlidingKWDemands extends AbstractCommand {
         CommandParser cp = new CommandParser(data);
         
         for (int interval=0;interval<NR_OF_5_MINUTE_INTERVALS;interval++) {
-            List values = cp.getValues("LINE-"+(interval+1));
+            // Generation 1: tag = LINE-1, LINE-2, ...
+            // Generation 2: tag contains timestamp: 0440-1 (04h:40m, line 1), 0435-2 (04h 35m, line 2), ...
+            List values = cp.getValuesForTagEndingWith("-"+(interval+1));
             for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
                 BigDecimal bd = ez7CommandFactory.getMeterInformation().calculateValue(channel, Long.parseLong((String)values.get(channel),16));
                 quantities[channel][interval] = new Quantity(bd,UNIT);

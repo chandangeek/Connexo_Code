@@ -6,14 +6,16 @@
 
 package com.energyict.protocolimpl.emon.ez7.core;
 
-import java.io.*;
-import java.util.*;
-
 import com.energyict.cbo.Unit;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.emon.ez7.EZ7;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -32,8 +34,6 @@ public class EZ7Profile {
         ProfileData profileData = new ProfileData();
         List intervalDatas=new ArrayList();
         
-//System.out.println(ez7.getEz7CommandFactory().getMeterInformation());
-        
         int dayBlockNr=0;
         for (int i=0;i<ez7.getEz7CommandFactory().getProfileStatus().getNrOfDayBlocks();i++) {
             if (ez7.getEz7CommandFactory().getProfileHeader().getBlockDate(i)!= null) {
@@ -45,7 +45,7 @@ public class EZ7Profile {
                 }
             }
         }
-        
+
         //if ((dayBlockNr > 0) && (dayBlockNr != (ez7.getEz7CommandFactory().getProfileStatus().getCurrentDayBlock()-1)))
         //   dayBlockNr--;
 
@@ -80,7 +80,7 @@ public class EZ7Profile {
         if (includeEvents) {
             List meterEvents = new ArrayList();
             meterEvents.addAll(ez7.getEz7CommandFactory().getEventGeneral().toMeterEvents());
-            meterEvents.addAll(ez7.getEz7CommandFactory().getFlagsStatus().toMeterEvents());
+            meterEvents.addAll(ez7.getEz7CommandFactory().getFlagsStatus().toMeterEvents(from, to));
             profileData.setMeterEvents(meterEvents);
             profileData.applyEvents(ez7.getProfileInterval()/60);
         }

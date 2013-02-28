@@ -7,19 +7,37 @@
 package com.energyict.protocolimpl.emon.ez7;
 
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
-
-import com.energyict.protocol.HalfDuplexEnabler;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
-import com.energyict.protocolimpl.emon.ez7.core.command.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.DialerMarker;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolChannel;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.SecurityLevelException;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7Connection;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7Profile;
+import com.energyict.protocolimpl.emon.ez7.core.ObisCodeMapper;
+import com.energyict.protocolimpl.emon.ez7.core.command.SetKey;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  *
@@ -39,13 +57,16 @@ public class EZ7 extends AbstractProtocol {
     /** Creates a new instance of EZ7 */
     public EZ7() {
     }
-    
+
+    /**
+     * The protocol version
+     */
     public String getProtocolVersion() {
         return "$Date$";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {
-        return ez7CommandFactory.getVersion().getVersion();
+        return ez7CommandFactory.getVersion().getCompleteVersionString();
     }
     
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {

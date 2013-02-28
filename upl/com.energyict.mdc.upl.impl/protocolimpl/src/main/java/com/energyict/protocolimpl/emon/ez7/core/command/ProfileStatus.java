@@ -6,15 +6,15 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-
-import com.energyict.cbo.NestedIOException;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 /**
  *
@@ -95,6 +95,9 @@ public class ProfileStatus extends AbstractCommand {
         cal.set(Calendar.MONTH,(baseVal/100)-1);
         cal.set(Calendar.DAY_OF_MONTH,(baseVal%100));
         if (baseVal!=0)
+            // 28/02/2013 - Email from Kantol "The 1st line of data in the block represents usage from 23:45 to 00:00; so the timestamp for the 1st line is 00:00 which represents the end-of-interval."
+            // Calendar represents current block end-of-interval timestamp, so we should subtract the profileInterval to get the start-of-interval timestamp
+            cal.add(Calendar.SECOND,- getProfileInterval());
             setCurrentBlockStart(cal.getTime());
         
         values =cp.getValues("LINE-2:");

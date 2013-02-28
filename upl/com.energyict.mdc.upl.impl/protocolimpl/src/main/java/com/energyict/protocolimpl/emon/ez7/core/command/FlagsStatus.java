@@ -6,15 +6,16 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -26,7 +27,8 @@ public class FlagsStatus extends AbstractCommand {
     private static final int NR_OF_STATUS_REGISTERS=8;
     private static final int NR_OF_LINES=4;
     
-    int[][] values = new int[NR_OF_STATUS_REGISTERS][NR_OF_LINES];
+    private int[][] values = new int[NR_OF_STATUS_REGISTERS][NR_OF_LINES];
+    private Date lastPowerFailure;
     
     /** Creates a new instance of FlagsStatus */
     public FlagsStatus(EZ7CommandFactory ez7CommandFactory) {
@@ -47,7 +49,7 @@ public class FlagsStatus extends AbstractCommand {
         return strBuff.toString();
     }    
     
-    public List toMeterEvents() {
+    public List toMeterEvents(Date from, Date to) {
         List meterEvents = new ArrayList();
         int temp;
         Date date = ProtocolUtils.getCalendar(ez7CommandFactory.getEz7().getTimeZone()).getTime();
@@ -63,6 +65,10 @@ public class FlagsStatus extends AbstractCommand {
         temp=getValue(7,0);
         if (temp != 0x0000) meterEvents.add(new MeterEvent(date,MeterEvent.OTHER,"LINE-1, status 8/8 (0x"+Integer.toHexString(temp)+"), Checksum error"));
 
+        // Power failure information
+        if (lastPowerFailure != null && lastPowerFailure.after(from) && lastPowerFailure.before(to)) {
+            meterEvents.add(new MeterEvent(lastPowerFailure, MeterEvent.OTHER, "Power failure at " + lastPowerFailure));
+        }
         return meterEvents;
     }
     
@@ -75,6 +81,7 @@ public class FlagsStatus extends AbstractCommand {
     private void parse(byte[] data) {
         if (DEBUG>=1)
             System.out.println(new String(data));
+        Calendar calCurrent = ProtocolUtils.getCalendar(ez7CommandFactory.getEz7().getTimeZone());
         CommandParser cp = new CommandParser(data);  
         
         for (int line = 0; line < NR_OF_LINES; line++) {
@@ -82,6 +89,25 @@ public class FlagsStatus extends AbstractCommand {
            for (int status=0;status<NR_OF_STATUS_REGISTERS;status++) {
                values[status][line] = Integer.parseInt((String)vals.get(status),16);
            }
+        }
+
+        // Parse power failure info
+        int valueMMDD = values[2][1];
+        int valueHHMM = values[3][1];
+        if (valueMMDD != 0 || valueHHMM != 0) {
+            Calendar cal = ProtocolUtils.getCalendar(ez7CommandFactory.getEz7().getTimeZone());
+            cal.set(Calendar.MONTH, (valueMMDD / 100) - 1);
+            cal.set(Calendar.DAY_OF_MONTH, (valueMMDD % 100));
+            cal.set(Calendar.HOUR_OF_DAY, valueHHMM / 100);
+            cal.set(Calendar.MINUTE, valueHHMM % 100);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            // no year indication is given in the timestamp information...
+            // so, if cal > currentCal, year=year-1
+            if (cal.getTime().after(calCurrent.getTime())) {
+                cal.add(Calendar.YEAR, -1);
+            }
+            lastPowerFailure = cal.getTime();
         }
     }
     

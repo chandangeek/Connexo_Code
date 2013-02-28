@@ -6,15 +6,11 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -181,9 +177,9 @@ public class RGLInfo extends AbstractCommand {
         this.idrIdCode = idrIdCode;
     }
     
-    public int getValue(int row, int col) {
+    public int getValue(int col, int row) {
         try {
-            return vals[row][col]; 
+            return vals[row][col];
         }
         catch(ArrayIndexOutOfBoundsException e) {
             return -1;

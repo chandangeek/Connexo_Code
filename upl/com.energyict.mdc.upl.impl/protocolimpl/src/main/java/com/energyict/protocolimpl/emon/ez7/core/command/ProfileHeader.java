@@ -6,15 +6,14 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-
-import com.energyict.cbo.NestedIOException;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -54,24 +53,29 @@ public class ProfileHeader extends AbstractCommand {
         
         if (DEBUG>=1) 
            System.out.println(new String(data)); 
-        CommandParser cp = new CommandParser(data); 
-        for (int dayBlockNr=0;dayBlockNr<nrOfBlocks;dayBlockNr++) {
-            List values = cp.getValues(ProtocolUtils.buildStringDecimal((dayBlockNr+1), 2));
-            int valueHHMM = Integer.parseInt((String)values.get(0));
-            int valueMMDD = Integer.parseInt((String)values.get(1));
-            int valueYY = Integer.parseInt((String)values.get(2));
-            Calendar cal = ProtocolUtils.getCalendar(ez7CommandFactory.getEz7().getTimeZone());
-            cal.set(Calendar.YEAR,(valueYY>50)?valueYY+1900:valueYY+2000);
-            cal.set(Calendar.MONTH,(valueMMDD/100)-1);
-            cal.set(Calendar.DAY_OF_MONTH,(valueMMDD%100));
-            cal.set(Calendar.HOUR_OF_DAY,valueHHMM/100);
-            cal.set(Calendar.MINUTE,valueHHMM%100);
-            cal.set(Calendar.SECOND,0);
-            cal.set(Calendar.MILLISECOND,0);
-            if ((valueYY!=0) || (valueMMDD!=0) || (valueHHMM!=0))
-                blockDate[dayBlockNr] = cal.getTime();
-            else
+        CommandParser cp = new CommandParser(data);
+        for (int dayBlockNr = 0; dayBlockNr < nrOfBlocks; dayBlockNr++) {
+            List values = cp.getValues(ProtocolUtils.buildStringDecimal((dayBlockNr + 1), 2));
+            if (values != null) {   // Generation 2 devices do not have all entries filled up - some can be left empty if not used
+                int valueHHMM = Integer.parseInt((String) values.get(0));
+                int valueMMDD = Integer.parseInt((String) values.get(1));
+                int valueYY = Integer.parseInt((String) values.get(2));
+                Calendar cal = ProtocolUtils.getCalendar(ez7CommandFactory.getEz7().getTimeZone());
+                cal.set(Calendar.YEAR, (valueYY > 50) ? valueYY + 1900 : valueYY + 2000);
+                cal.set(Calendar.MONTH, (valueMMDD / 100) - 1);
+                cal.set(Calendar.DAY_OF_MONTH, (valueMMDD % 100));
+                cal.set(Calendar.HOUR_OF_DAY, valueHHMM / 100);
+                cal.set(Calendar.MINUTE, valueHHMM % 100);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                if ((valueYY != 0) || (valueMMDD != 0) || (valueHHMM != 0)) {
+                    blockDate[dayBlockNr] = cal.getTime();
+                } else {
+                    blockDate[dayBlockNr] = null;
+                }
+            } else {
                 blockDate[dayBlockNr] = null;
+            }
         }
         
     }

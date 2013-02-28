@@ -6,32 +6,37 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 /**
  *
  * @author  Koen
  */
 public class EventGeneral extends AbstractCommand {
     
-    private static final int DEBUG=0;
-    private static final String COMMAND="REG";
-    private static final int NR_OF_CHANNELS=8;
-    private static final int NR_OF_LINES=12;
-    
-    Date[] meterUnpluggedDates = new Date[NR_OF_CHANNELS];
-    int[][] values = new int[NR_OF_CHANNELS][NR_OF_LINES];
-    
+    protected static final int DEBUG=0;
+    protected static final String COMMAND="REG";
+
+    protected int NR_OF_CHANNELS;
+    protected int NR_OF_LINES;
+    protected Date[] meterUnpluggedDates;
+    protected int[][] values;
+
     /** Creates a new instance of EventGeneral */
     public EventGeneral(EZ7CommandFactory ez7CommandFactory) {
         super(ez7CommandFactory);
+        NR_OF_CHANNELS=8;
+        NR_OF_LINES=12;
+        values = new int[NR_OF_CHANNELS][NR_OF_LINES];
+        meterUnpluggedDates = new Date[NR_OF_CHANNELS];
     }
     
     public String toString() {
@@ -76,7 +81,7 @@ public class EventGeneral extends AbstractCommand {
         CommandParser cp = new CommandParser(data);
         
         for (int line = 0; line < NR_OF_LINES; line++) {
-           List vals = cp.getValues("FLAG-"+(line+1)); 
+           List vals = cp.getValues("FLAG-"+(line+1));
            for (int channel=0;channel<NR_OF_CHANNELS;channel++) {
                values[channel][line] = Integer.parseInt((String)vals.get(channel),16);
            }
@@ -112,7 +117,7 @@ public class EventGeneral extends AbstractCommand {
      * Getter for property meterUnpluggedDate.
      * @return Value of property meterUnpluggedDate.
      */
-    public java.util.Date getMeterUnpluggedDate(int channel) {
+    private java.util.Date getMeterUnpluggedDate(int channel) {
         return this.meterUnpluggedDates[channel];
     }
     

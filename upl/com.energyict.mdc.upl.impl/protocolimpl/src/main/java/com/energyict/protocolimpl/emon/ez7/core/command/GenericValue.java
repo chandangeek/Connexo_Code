@@ -12,6 +12,6 @@ package com.energyict.protocolimpl.emon.ez7.core.command;
  */
 public interface GenericValue {
 
-	int getValue(int row, int col) throws com.energyict.protocol.UnsupportedException;
+	int getValue(int col, int row) throws com.energyict.protocol.UnsupportedException;
 
 }

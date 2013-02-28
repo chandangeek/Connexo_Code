@@ -6,16 +6,19 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-import java.math.BigDecimal;
-
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.List;
+
 /**
  *
  * @author  Koen
@@ -77,12 +80,23 @@ public class PowerQuality extends AbstractCommand {
     }
 
     private void fillValues(int phase, List values) {
-        frequency[phase] = new Quantity(BigDecimal.valueOf((long)Short.parseShort((String)values.get(0),16),2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()),Unit.get(BaseUnit.HERTZ));
-        voltage[phase] = new Quantity(BigDecimal.valueOf((long)Short.parseShort((String)values.get(1),16),2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()),Unit.get(BaseUnit.VOLT));
-        phaseAngle[phase] = new Quantity(BigDecimal.valueOf((long)Short.parseShort((String)values.get(2),16),2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()),Unit.get(BaseUnit.DEGREE));
-        powerFactor[phase] = new Quantity(BigDecimal.valueOf((long)Short.parseShort((String)values.get(3),16),2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()),Unit.get(""));
-        amperage[phase] = new Quantity(BigDecimal.valueOf((long)Short.parseShort((String)values.get(4),16),2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()),Unit.get(BaseUnit.AMPERE));
-        kwLoad[phase] = new Quantity(BigDecimal.valueOf((long)Short.parseShort((String)values.get(5),16),2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()),Unit.get("kW"));
+        frequency[phase] = new Quantity(BigDecimal.valueOf((long) getSignedShort((String) values.get(0)), 2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()), Unit.get(BaseUnit.HERTZ));
+        voltage[phase] = new Quantity(BigDecimal.valueOf((long) getSignedShort((String) values.get(1)), 2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()), Unit.get(BaseUnit.VOLT));
+        phaseAngle[phase] = new Quantity(BigDecimal.valueOf((long) getSignedShort((String) values.get(2)), 2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()), Unit.get(BaseUnit.DEGREE));
+        powerFactor[phase] = new Quantity(BigDecimal.valueOf((long) getSignedShort((String) values.get(3)), 2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()), Unit.get(""));
+        amperage[phase] = new Quantity(BigDecimal.valueOf((long) getSignedShort((String) values.get(4)), 2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()), Unit.get(BaseUnit.AMPERE));
+        kwLoad[phase] = new Quantity(BigDecimal.valueOf((long) getSignedShort((String) values.get(5)), 2).multiply(getEz7CommandFactory().getEz7().getAdjustRegisterMultiplier()), Unit.get("kW"));
+    }
+
+    /**
+     * Extract the signed short value, out of the given ASCII-HEX string.
+     * We should use this method, cause the signed short can be negative!
+     *
+     * @param hexString
+     * @return
+     */
+    private short getSignedShort(String hexString) {
+        return ProtocolUtils.getShort(ProtocolTools.getBytesFromHexString(hexString, ""), 0);
     }
     
     /**

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE attributes PUBLIC "-//NetBeans//DTD DefaultAttributes 1.0//EN" "http://www.netbeans.org/dtds/attributes-1_0.dtd">
-<attributes version="1.0">
-    <fileobject name="EZ7Connection.java">
-        <attr name="class_dependency_com.energyict.dialer.connection.Connection" stringvalue="EZ7Connection"/>
-        <attr name="class_dependency_com.energyict.protocolimpl.base.ProtocolConnection" stringvalue="EZ7Connection"/>
-    </fileobject>
-</attributes>

@@ -6,15 +6,12 @@
 
 package com.energyict.protocolimpl.emon.ez7.core.command;
 
-import java.io.*;
-import java.util.*;
-import java.text.*;
-
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.emon.ez7.core.*;
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+
+import java.io.IOException;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -24,7 +21,8 @@ public class Version extends AbstractCommand {
     private static final int DEBUG=0;
     private static final String COMMAND="RV";
     
-    String version;
+    String completeVersionString;
+    String versionString;
     
     /** Creates a new instance of Version */
     public Version(EZ7CommandFactory ez7CommandFactory) {
@@ -32,7 +30,7 @@ public class Version extends AbstractCommand {
     }
     
     public String toString() {
-        return "Version: "+getVersion();
+        return "Version: "+ getCompleteVersionString();
     }
     
     public void build() throws ConnectionException, IOException {
@@ -43,29 +41,42 @@ public class Version extends AbstractCommand {
 
     private void parse(byte[] data) throws NestedIOException {
         
-        List values=null;
-        int baseVal;
-        
+        List values;
+
         if (DEBUG>=1) 
            System.out.println(new String(data)); 
         String dataStr = new String(data);
-        setVersion(dataStr.trim().replaceAll("\r\n",", "));
+        setCompleteVersionString(dataStr.trim().replaceAll("\r\n", ", "));
+
+        CommandParser commandParser = new CommandParser(data);
+        values = commandParser.getValues("VER:");
+        if (values != null && !values.isEmpty()) {
+            setVersionString(((String) values.get(0)).trim());
+        }
     }
-    
+
+    public String getVersionString() {
+        return versionString;
+    }
+
+    public void setVersionString(String versionString) {
+        this.versionString = versionString;
+    }
+
     /**
      * Getter for property version.
      * @return Value of property version.
      */
-    public java.lang.String getVersion() {
-        return version;
+    public java.lang.String getCompleteVersionString() {
+        return completeVersionString;
     }
     
     /**
      * Setter for property version.
-     * @param version New value of property version.
+     * @param completeVersionString New value of property version.
      */
-    public void setVersion(java.lang.String version) {
-        this.version = version;
+    public void setCompleteVersionString(java.lang.String completeVersionString) {
+        this.completeVersionString = completeVersionString;
     }
     
 }
