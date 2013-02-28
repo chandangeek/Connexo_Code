@@ -11,29 +11,34 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides a summary of all <i>ActivityCalendar</i> related messages
+ * Provides a summary of all <i>Firmware</i> related messages
  *
  * Copyrights EnergyICT
- * Date: 7/02/13
- * Time: 12:01
+ * Date: 28/02/13
+ * Time: 9:10
  */
-public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
+public enum FirmwareDeviceMessage implements DeviceMessageSpec {
 
-    ACTIVITY_CALENDER_SEND(PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable")),
-    ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable"),
-            PropertySpecFactory.dateTimePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.activationdate"));
+    UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec("FirmwareDeviceMessage.upgrade.userfile")),
+    UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec("FirmwareDeviceMessage.upgrade.userfile"),
+            PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
+    UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec("FirmwareDeviceMessage.upgrade.url")),
+    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(PropertySpecFactory.stringPropertySpec("FirmwareDeviceMessage.upgrade.url"),
+            PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
+    ;
 
-    private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;
+    private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private ActivityCalendarDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private FirmwareDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return activityCalendarCategory;
+        return firmwareCategory;
     }
 
     @Override
@@ -48,12 +53,12 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return ActivityCalendarDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return FirmwareDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return deviceMessagePropertySpecs;
+        return this.deviceMessagePropertySpecs;
     }
 
     @Override

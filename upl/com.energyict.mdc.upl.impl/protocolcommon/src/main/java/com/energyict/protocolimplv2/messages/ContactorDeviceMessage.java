@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
@@ -11,29 +10,29 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides a summary of all <i>ActivityCalendar</i> related messages
- *
+ * Provides a summary of all <i>Contactor</i> related messages
+ * <p/>
  * Copyrights EnergyICT
- * Date: 7/02/13
- * Time: 12:01
+ * Date: 28/02/13
+ * Time: 9:00
  */
-public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
+public enum ContactorDeviceMessage implements DeviceMessageSpec {
 
-    ACTIVITY_CALENDER_SEND(PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable")),
-    ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable"),
-            PropertySpecFactory.dateTimePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.activationdate"));
+    CONTACTOR_OPEN,
+    CONTACTOR_ARM,
+    CONTACTOR_CLOSE;
 
-    private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;
+    private static final DeviceMessageCategory contactorCategory = DeviceMessageCategories.CONTACTOR;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private ActivityCalendarDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private ContactorDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return activityCalendarCategory;
+        return contactorCategory;
     }
 
     @Override
@@ -48,7 +47,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return ActivityCalendarDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return ContactorDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override

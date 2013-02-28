@@ -16,7 +16,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-15 (16:12)
  */
-public enum StandardDeviceMessageCategory implements DeviceMessageCategory {
+public enum DeviceMessageCategories implements DeviceMessageCategory {
 
     /**
      * The category for all messages that relate to the Activity Calendar
@@ -33,7 +33,7 @@ public enum StandardDeviceMessageCategory implements DeviceMessageCategory {
     CONTACTOR {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Collections.emptyList();
+            return Arrays.<DeviceMessageSpec>asList(ContactorDeviceMessage.values());
         }
     },
     /**
@@ -71,7 +71,7 @@ public enum StandardDeviceMessageCategory implements DeviceMessageCategory {
     FIRMWARE {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Collections.emptyList();
+            return Arrays.<DeviceMessageSpec>asList(FirmwareDeviceMessage.values());
         }
     };
 
@@ -88,7 +88,7 @@ public enum StandardDeviceMessageCategory implements DeviceMessageCategory {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return StandardDeviceMessageCategory.class.getSimpleName() + "." + this.toString();
+        return DeviceMessageCategories.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
