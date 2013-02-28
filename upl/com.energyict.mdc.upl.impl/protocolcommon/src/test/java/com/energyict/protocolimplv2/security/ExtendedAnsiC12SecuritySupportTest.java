@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import org.fest.assertions.core.Condition;
@@ -61,7 +60,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {
-                return propertySpec.equals(DeviceSecurityProperty.CALLED_AP_TITLE.getPropertySpec());
+                return propertySpec.equals(DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec());
             }
         });
         // check for the ANSI binary password property
@@ -148,7 +147,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
         String encryptionKey = "MyPrivateEncryptionKey";
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKey);
         String calledApTitle = "MyPersonalAPTitle";
-        securityProperties.setProperty(SecurityPropertySpecName.CALLED_AP_TITLE.toString(), calledApTitle);
+        securityProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), calledApTitle);
         DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
                 new DeviceProtocolSecurityPropertySetImpl(1, 2, securityProperties);
 

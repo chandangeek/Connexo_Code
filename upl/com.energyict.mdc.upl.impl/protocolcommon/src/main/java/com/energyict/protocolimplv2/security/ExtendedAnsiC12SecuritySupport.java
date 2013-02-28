@@ -27,7 +27,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
                 DeviceSecurityProperty.PASSWORD.getPropertySpec(),
                 DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(),
                 DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(),
-                DeviceSecurityProperty.CALLED_AP_TITLE.getPropertySpec(),
+                DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(),
                 DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(),
                 DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec()
         );
@@ -97,7 +97,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
                     DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.CALLED_AP_TITLE.getPropertySpec());
+                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec());
         }
     }
 
@@ -120,7 +120,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
                     DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.CALLED_AP_TITLE.getPropertySpec());
+                    DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec());
         }
     }
 }
