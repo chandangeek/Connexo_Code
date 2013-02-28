@@ -19,9 +19,9 @@ import java.util.List;
  */
 public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
 
-    ACTIVITY_CALENDER_SEND(PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable")),
-    ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable"),
-            PropertySpecFactory.dateTimePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.activationdate"));
+    ACTIVITY_CALENDER_SEND(PropertySpecFactory.codeTableReferencePropertySpec(translate("ActivityCalendarDeviceMessage.activitycalendar.codetable"))),
+    ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.codeTableReferencePropertySpec(translate("ActivityCalendarDeviceMessage.activitycalendar.codetable")),
+            PropertySpecFactory.dateTimePropertySpec(translate("ActivityCalendarDeviceMessage.activitycalendar.activationdate")));
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;
 
@@ -31,6 +31,10 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
+    private static String translate(final String key){
+        return UserEnvironment.getDefault().getTranslation(key);
+    }
+
     @Override
     public DeviceMessageCategory getCategory() {
         return activityCalendarCategory;
@@ -38,7 +42,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
 
     @Override
     public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+        return translate(this.getNameResourceKey());
     }
 
     /**
