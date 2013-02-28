@@ -28,6 +28,8 @@ import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 
 import java.util.ArrayList;
@@ -217,7 +219,14 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.<DeviceMessageSpec>asList(
                 ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND,
-                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE);
+                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE,
+                ContactorDeviceMessage.CONTACTOR_ARM,
+                ContactorDeviceMessage.CONTACTOR_CLOSE,
+                ContactorDeviceMessage.CONTACTOR_OPEN,
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE,
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE,
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_ACTIVATE,
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL_AND_ACTIVATE);
     }
 
     @Override
