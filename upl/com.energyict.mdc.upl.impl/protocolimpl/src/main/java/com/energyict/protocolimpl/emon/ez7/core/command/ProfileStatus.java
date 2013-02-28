@@ -95,9 +95,6 @@ public class ProfileStatus extends AbstractCommand {
         cal.set(Calendar.MONTH,(baseVal/100)-1);
         cal.set(Calendar.DAY_OF_MONTH,(baseVal%100));
         if (baseVal!=0)
-            // 28/02/2013 - Email from Kantol "The 1st line of data in the block represents usage from 23:45 to 00:00; so the timestamp for the 1st line is 00:00 which represents the end-of-interval."
-            // Calendar represents current block end-of-interval timestamp, so we should subtract the profileInterval to get the start-of-interval timestamp
-            cal.add(Calendar.SECOND,- getProfileInterval());
             setCurrentBlockStart(cal.getTime());
         
         values =cp.getValues("LINE-2:");
