@@ -721,8 +721,8 @@ public final class ComServerOpticalMTU155Demo {
 
     private boolean findOrCreateComTask() {
         ComTaskFactory factory = getComTaskFactory();
-        List<ComTask> comTasks = factory.find(COM_TASK_NAME);
-        if (comTasks.isEmpty()) {
+        ComTask comTask = factory.find(COM_TASK_NAME);
+        if (comTask == null) {
             System.out.println("Creating ComTask with BasicCheck task " +
                     "[#BasicCheckTask -> verifySerialNumber, verifyTimeDifference]");
             try {
@@ -733,7 +733,7 @@ public final class ComServerOpticalMTU155Demo {
                 comTaskShadow.addProtocolTask(getBasicCheckTaskShadow());
                 comTaskShadow.addProtocolTask(getRegistersTaskShadow());
                 comTaskShadow.addProtocolTask(getLoadProfilesTaskShadow());
-                this.comTask = getComTaskFactory().createComTask(comTaskShadow);
+                this.comTask = getComTaskFactory().create(comTaskShadow);
             } catch (BusinessException e) {
                 e.printStackTrace(System.err);
                 System.out.println("Failed to create the Demo ComTask, see stacktrace above");
@@ -744,14 +744,11 @@ public final class ComServerOpticalMTU155Demo {
                 return false;
             }
             return true;
-        } else if (comTasks.size() == 1) {
-            System.out.println("ComTask with BasicCheck task. [BasicCheckTask -> verifySerialNumber, verifyTimeDifference] already existed.");
-            this.comTask = comTasks.get(0);
-            return true;
         } else {
-            return false;
+            System.out.println("ComTask with BasicCheck task. [BasicCheckTask -> verifySerialNumber, verifyTimeDifference] already existed.");
+            this.comTask = comTask;
+            return true;
         }
-
     }
 
     private BasicCheckTaskShadow getBasicCheckTaskShadow() {
