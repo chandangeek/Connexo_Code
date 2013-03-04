@@ -6,11 +6,24 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import static com.energyict.dlms.DLMSCOSEMGlobals.*;
 
@@ -242,7 +255,7 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new IOException("Could not calculate the number of channgels");
+            throw new IOException("Could not calculate the number of channels");
         }
         return count;
     }
