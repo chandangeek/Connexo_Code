@@ -1,6 +1,5 @@
 package test.com.energyict.protocolimplV2.nta.elster;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -13,6 +12,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
+import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import test.com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
 import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
@@ -21,7 +21,6 @@ import test.com.energyict.protocolimplV2.nta.dsmr23.Dsmr23RegisterFactory;
 import test.com.energyict.protocolimplV2.nta.dsmr23.profiles.LoadProfileBuilder;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -176,5 +175,10 @@ public class AM100 extends AbstractNtaProtocol {
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
         return null;  //TODO return proper functionality
+    }
+
+    @Override
+    public List<ConnectionType> getSupportedConnectionTypes() {
+        return new ArrayList<>();
     }
 }

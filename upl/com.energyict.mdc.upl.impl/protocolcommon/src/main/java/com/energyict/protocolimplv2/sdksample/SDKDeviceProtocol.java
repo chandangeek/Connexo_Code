@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
+import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -317,5 +318,10 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     private TimeDuration getTimeDeviationPropertyForWrite() {
         return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToWritePropertyName, new TimeDuration(0));
+    }
+
+    @Override
+    public List<ConnectionType> getSupportedConnectionTypes() {
+        return new ArrayList<>();
     }
 }

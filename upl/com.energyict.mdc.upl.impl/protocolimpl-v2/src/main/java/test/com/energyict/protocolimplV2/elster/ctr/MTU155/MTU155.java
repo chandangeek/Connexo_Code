@@ -1,6 +1,5 @@
 package test.com.energyict.protocolimplV2.elster.ctr.MTU155;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.comserver.adapters.common.ComChannelInputStreamAdapter;
 import com.energyict.comserver.adapters.common.ComChannelOutputStreamAdapter;
 import com.energyict.comserver.exceptions.LegacyProtocolException;
@@ -34,6 +33,7 @@ import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
+import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.offline.OfflineDevice;
@@ -50,7 +50,6 @@ import test.com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.events.CTRMeterEvent;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRException;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -444,5 +443,10 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         //TODO provide proper functionality so your protocol can make proper use of the security properties
+    }
+
+    @Override
+    public List<ConnectionType> getSupportedConnectionTypes() {
+        return new ArrayList<>();
     }
 }
