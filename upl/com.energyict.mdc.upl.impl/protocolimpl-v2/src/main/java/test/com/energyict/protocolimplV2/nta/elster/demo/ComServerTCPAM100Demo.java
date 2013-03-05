@@ -42,7 +42,6 @@ import com.energyict.mdc.tasks.ComTaskExecution;
 import com.energyict.mdc.tasks.ComTaskFactory;
 import com.energyict.mdc.tasks.ConnectionStrategy;
 import com.energyict.mdc.tasks.ConnectionTypePluggableClass;
-import com.energyict.mdc.tasks.ConnectionTypePluggableClassImpl;
 import com.energyict.mdc.tasks.ConnectionTypeRelationTypeCreator;
 import com.energyict.mdc.tasks.DeviceProtocolDialectRelationTypeCreator;
 import com.energyict.mdc.tasks.OutboundConnectionTask;
@@ -436,7 +435,7 @@ public final class ComServerTCPAM100Demo {
             } else {
                 System.out.println("The Demo ConnectionType that uses TCP already existed.");
             }
-            this.connectionTypePluggableClass = ConnectionTypePluggableClassImpl.newForPluggableClass(pc);
+            this.connectionTypePluggableClass = ManagerFactory.getCurrent().getConnectionTypePluggableClassFactory().newForPluggableClass(pc);
         } catch (BusinessException e) {
             e.printStackTrace(System.err);
             System.out.println("Failed to create ConnectionType, see stacktrace above");
