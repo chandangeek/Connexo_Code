@@ -232,6 +232,11 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
+    public <T> String format(PropertySpec<T> propertySpec, T messageAttribute) {
+        return "";  //Todo change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> dialects = new ArrayList<DeviceProtocolDialect>(1);
         dialects.add(new CtrDeviceProtocolDialect());

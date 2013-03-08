@@ -1,6 +1,7 @@
 package test.com.energyict.protocolimplV2.ace4000;
 
 import com.energyict.comserver.issues.Problem;
+import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedData;
@@ -161,6 +162,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     @Override
     public CollectedData updateSentMessages(List<DeviceMessageShadow> sentMessages) {
         return null;
+    }
+
+    @Override
+    public <T> String format(PropertySpec<T> propertySpec, T messageAttribute) {
+        return "";  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
