@@ -1,14 +1,14 @@
 package com.energyict.protocolimpl.metcom;
 
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.Calendar;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class MetcomTest {
 	
@@ -70,7 +70,7 @@ public class MetcomTest {
 			e.printStackTrace();
 			fail();
 		}
-		assertEquals(1, JUnitTestCode.checkMethod());
+		assertEquals(0, JUnitTestCode.checkMethod());
 	}
 
 }

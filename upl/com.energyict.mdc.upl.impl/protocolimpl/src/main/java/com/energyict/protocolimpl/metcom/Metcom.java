@@ -244,7 +244,9 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
             roundTripTime = System.currentTimeMillis() - roundTripTime;
 
             long timeDifference = Math.abs(systemDate.getTime() - meterDate.getTime());
-            if ((getTimeSetMethod() == 0) || ((getTimeSetMethod() == 1) && (timeDifference > 30000))) {
+            if ((getTimeSetMethod() == 0) ||
+                    ((getTimeSetMethod() == 1) && (timeDifference > 30000)) ||
+                    ((getTimeSetMethod() == 2) && (timeDifference > (maxDelay * 1000)))) {
                 getLogger().info("SSYNC timeset method applied.");
                 if ((getTimeSetMethod() == 1) && (timeDifference > 30000)) {
                     getLogger().info("MSYNC method is not applied because the timedifference is larger than 30s (" + timeDifference / 1000 + ").");
@@ -257,7 +259,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
                     waitForMinute(calendar);
                     siemensSCTM.sendRequest(siemensSCTM.SSYNC, null);
                 }
-            } else if ((getTimeSetMethod() == 1) || (getTimeSetMethod() == 2) || (getTimeSetMethod() == 3)) {    // the MSYNC method -> not shown in statusBits
+            } else if ((getTimeSetMethod() == 1) || (getTimeSetMethod() == 2) || (getTimeSetMethod() == 3) || (getTimeSetMethod() == 4)) {    // the MSYNC method -> not shown in statusBits
                 if ((getTimeSetMethod() == 3) && (timeDifference > (maxDelay * 1000))) {
                     getLogger().info("MSYNC method is not applied because the timedifference (" + timeDifference / 1000 + ") is larger than the configured maximum (" + maxDelay + ").");
                     return;
