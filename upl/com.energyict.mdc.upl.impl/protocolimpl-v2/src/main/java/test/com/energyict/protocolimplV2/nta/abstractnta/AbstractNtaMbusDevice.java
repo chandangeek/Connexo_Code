@@ -8,6 +8,7 @@ import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdw.core.Pluggable;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import test.com.energyict.protocolimplV2.nta.elster.AM100;
 
@@ -91,12 +92,12 @@ public abstract class AbstractNtaMbusDevice implements Pluggable, SimpleMeter, D
     }
 
     @Override
-    public CollectedMessage executePendingMessages(List<DeviceMessageShadow> pendingMessages) {
+    public CollectedMessage executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         return getMessageProtocol().executePendingMessages(pendingMessages);
     }
 
     @Override
-    public CollectedData updateSentMessages(List<DeviceMessageShadow> sentMessages) {
+    public CollectedData updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         return getMessageProtocol().updateSentMessages(sentMessages);
     }
 }

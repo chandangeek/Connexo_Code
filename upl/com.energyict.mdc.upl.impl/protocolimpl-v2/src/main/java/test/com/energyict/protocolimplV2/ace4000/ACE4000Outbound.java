@@ -26,6 +26,7 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.LoadProfileTypeFactory;
 import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -149,8 +150,8 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public CollectedMessage executePendingMessages(List<DeviceMessageShadow> pendingMessages) {
-        for (DeviceMessageShadow pendingMessage : pendingMessages) {
+    public CollectedMessage executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
 
             //TODO how to get message entry and content from DeviceMessageShadow?
             MessageResult messageResult = messageExecutor.executeMessage(new MessageEntry("", ""));
@@ -160,12 +161,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public CollectedData updateSentMessages(List<DeviceMessageShadow> sentMessages) {
+    public CollectedData updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         return null;
     }
 
     @Override
-    public <T> String format(PropertySpec<T> propertySpec, T messageAttribute) {
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
         return "";  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 

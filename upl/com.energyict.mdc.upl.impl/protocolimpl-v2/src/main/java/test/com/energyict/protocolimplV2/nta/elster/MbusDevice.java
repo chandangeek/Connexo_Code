@@ -1,11 +1,9 @@
 package test.com.energyict.protocolimplV2.nta.elster;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaMbusDevice;
 import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
-
-import java.sql.SQLException;
 
 /**
  * @author: sva
@@ -34,5 +32,10 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public String getVersion() {
         return "$Date$";
+    }
+
+    @Override
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
+        return null;  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 }

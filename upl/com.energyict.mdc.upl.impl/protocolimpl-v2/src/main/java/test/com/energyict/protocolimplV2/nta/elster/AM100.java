@@ -183,7 +183,7 @@ public class AM100 extends AbstractNtaProtocol {
     }
 
     @Override
-    public <T> String format(PropertySpec<T> propertySpec, T messageAttribute) {
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
         return "";  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 }

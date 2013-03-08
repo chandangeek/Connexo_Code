@@ -19,10 +19,10 @@ import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -231,19 +231,19 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public CollectedMessage executePendingMessages(List<DeviceMessageShadow> pendingMessages) {
+    public CollectedMessage executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         //TODO
         return null;
     }
 
     @Override
-    public CollectedData updateSentMessages(List<DeviceMessageShadow> sentMessages) {
+    public CollectedData updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         //TODO
         return null;
     }
 
     @Override
-    public <T> String format(PropertySpec<T> propertySpec, T messageAttribute) {
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
         return "";  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 

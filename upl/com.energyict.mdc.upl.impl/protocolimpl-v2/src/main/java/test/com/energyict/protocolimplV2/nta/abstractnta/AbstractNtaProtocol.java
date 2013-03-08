@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdw.core.LogBook;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -224,12 +225,12 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
     }
 
     @Override
-    public CollectedMessage executePendingMessages(List<DeviceMessageShadow> pendingMessages) {
+    public CollectedMessage executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         return getMessageProtocol().executePendingMessages(pendingMessages);
     }
 
     @Override
-    public CollectedData updateSentMessages(List<DeviceMessageShadow> sentMessages) {
+    public CollectedData updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         return getMessageProtocol().updateSentMessages(sentMessages);
     }
 

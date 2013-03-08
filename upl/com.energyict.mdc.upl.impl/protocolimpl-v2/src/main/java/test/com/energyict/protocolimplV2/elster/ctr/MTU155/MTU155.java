@@ -32,11 +32,11 @@ import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -222,17 +222,17 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public CollectedMessage executePendingMessages(List<DeviceMessageShadow> pendingMessages) {
+    public CollectedMessage executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         return null;  //ToDo
     }
 
     @Override
-    public CollectedData updateSentMessages(List<DeviceMessageShadow> sentMessages) {
+    public CollectedData updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         return null;  //ToDo
     }
 
     @Override
-    public <T> String format(PropertySpec<T> propertySpec, T messageAttribute) {
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
         return "";  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 
