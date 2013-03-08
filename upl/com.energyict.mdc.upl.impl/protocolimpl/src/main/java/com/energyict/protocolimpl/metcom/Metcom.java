@@ -243,10 +243,11 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
             Date meterDate = getTesting() ? JUnitTestCode.getMeterTime() : getTime();
             roundTripTime = System.currentTimeMillis() - roundTripTime;
 
-            if ((getTimeSetMethod() == 0) || ((getTimeSetMethod() == 1) && (Math.abs(systemDate.getTime() - meterDate.getTime()) > 30000))) {
+            long timeDifference = Math.abs(systemDate.getTime() - meterDate.getTime());
+            if ((getTimeSetMethod() == 0) || ((getTimeSetMethod() == 1) && (timeDifference > 30000))) {
                 getLogger().info("SSYNC timeset method applied.");
-                if ((getTimeSetMethod() == 1) && (Math.abs(systemDate.getTime() - meterDate.getTime()) > 30000)) {
-                    getLogger().info("MSYNC method is not applied because the timedifference is larger than 30s (" + Math.abs(systemDate.getTime() - meterDate.getTime()) / 1000 + ").");
+                if ((getTimeSetMethod() == 1) && (timeDifference > 30000)) {
+                    getLogger().info("MSYNC method is not applied because the timedifference is larger than 30s (" + timeDifference / 1000 + ").");
                 }
                 if (getTesting()) {
                     JUnitTestCode.sendRequest(0);
@@ -257,15 +258,20 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
                     siemensSCTM.sendRequest(siemensSCTM.SSYNC, null);
                 }
             } else if ((getTimeSetMethod() == 1) || (getTimeSetMethod() == 2) || (getTimeSetMethod() == 3)) {    // the MSYNC method -> not shown in statusBits
+                if ((getTimeSetMethod() == 3) && (timeDifference > (maxDelay * 1000))) {
+                    getLogger().info("MSYNC method is not applied because the timedifference (" + timeDifference / 1000 + ") is larger than the configured maximum (" + maxDelay + ").");
+                    return;
+                }
 
                 getLogger().info("MSYNC timeset method " + getTimeSetMethod() + " applied.");
-
                 if (DEBUG == 1) {
                     System.out.println("RoundTripTime: " + roundTripTime);
                 }
 
                 calendar.setTime(systemDate);
-                System.out.println("Difference = " + Math.abs(systemDate.getTime() - meterDate.getTime()));
+                if (DEBUG == 1) {
+                    System.out.println("Difference = " + timeDifference);
+                }
 
                 if (getTesting()) {
                     JUnitTestCode.sendRequest(1);
