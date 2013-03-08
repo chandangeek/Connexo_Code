@@ -243,6 +243,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
+    public <T> String format(PropertySpec<T> propertySpec, T messageAttribute) {
+        return "";  //Todo change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Arrays.<DeviceProtocolDialect>asList(new SDKLoadProfileProtocolDialectProperties(),
                 new SDKStandardDeviceProtocolDialectProperties(), new SDKTimeDeviceProtocolDialectProperties());
