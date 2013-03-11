@@ -73,6 +73,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(FirmwareDeviceMessage.values());
         }
+    },
+    /**
+     * The category for all messages that relate to a device action
+     */
+    DEVICE_ACTIONS {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(DeviceActionMessage.values());
+        }
     };
 
 
