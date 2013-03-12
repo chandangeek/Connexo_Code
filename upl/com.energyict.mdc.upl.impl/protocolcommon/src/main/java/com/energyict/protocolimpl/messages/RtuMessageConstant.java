@@ -337,4 +337,7 @@ public class RtuMessageConstant {
     public static final String ELSTER_SPECIFIC_LOGBOOK = "Elster_Specific_Logbook";
     public static final String LOGBOOK_FROM = "From_date";
     public static final String LOGBOOK_TO = "To_date";
+
+    public static String BILLINGRESET = "BillingReset";
+
 }

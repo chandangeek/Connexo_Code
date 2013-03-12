@@ -29,6 +29,7 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.*;
 import java.util.*;
@@ -66,7 +67,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private static final String ARM = "ArmMeter";
     private static final String TARIFFPROGRAM = "UploadMeterScheme";
     private static final String FIRMWAREPROGRAM = "UpgradeMeterFirmware";
-    private static final String BILLINGRESET = "BillingReset";
+    private static final String BILLINGRESET = RtuMessageConstant.BILLINGRESET;
 
     private static final String CONNECT_DISPLAY = "Connect Load";
     private static final String DISCONNECT_DISPLAY = "Disconnect Load";

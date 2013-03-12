@@ -19,6 +19,7 @@ import com.energyict.protocolimpl.iec1107.ChannelMap;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,7 +84,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
     private static final String PK_ECHO_CANCELING = "EchoCancelling";
     private static final String PK_DELAY_BEFORE_CONNECT = "DelayBeforeConnect";
 
-    private static String BILLINGRESET = "BillingReset";
+    private static String BILLINGRESET = RtuMessageConstant.BILLINGRESET;
     private static String BILLINGRESET_DISPLAY = "Billing reset";
 
     /**

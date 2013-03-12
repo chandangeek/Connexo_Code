@@ -6,11 +6,7 @@ import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocol.messaging.MessageValueSpec;
 
 /**
  * Provides convenient methods to help process the conversion of
@@ -75,30 +71,12 @@ public class MessageConverterTools {
                 return offlineDeviceMessageAttribute;
             }
         }
-        return null;
+        return emptyOfflineDeviceMessageAttribute;
     }
 
-    public static MessageEntry createConnectLoadMessageEntry(final Messaging messagingProtocol, final OfflineDeviceMessage offlineDeviceMessage) {
-        MessageTag messageTag = new MessageTag(RtuMessageConstant.CONNECT_LOAD);
-        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
-    }
-
-    static MessageEntry createDisconnectLoadWithDateMessageEntry(final Messaging messagingProtocol, final OfflineDeviceMessage offlineDeviceMessage, final String activationDateAttributeName) {
-        OfflineDeviceMessageAttribute activationDateAttribute = getDeviceMessageAttribute(offlineDeviceMessage, activationDateAttributeName);
-        MessageTag messageTag = new MessageTag(RtuMessageConstant.DISCONNECT_LOAD);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, activationDateAttribute.getDeviceMessageAttributeValue()));
-        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
-    }
-
-    static MessageEntry createConnectLoadWithDateMessageEntry(final Messaging messagingProtocol, final OfflineDeviceMessage offlineDeviceMessage, final String activationDateAttributeName) {
-        OfflineDeviceMessageAttribute activationDateAttribute = getDeviceMessageAttribute(offlineDeviceMessage, activationDateAttributeName);
-        MessageTag messageTag = new MessageTag(RtuMessageConstant.CONNECT_LOAD);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, activationDateAttribute.getDeviceMessageAttributeValue()));
-        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
-    }
-
-    static MessageEntry createDisconnectLoadMessageEntry(final Messaging messagingProtocol, final OfflineDeviceMessage offlineDeviceMessage) {
-        MessageTag messageTag = new MessageTag(RtuMessageConstant.DISCONNECT_LOAD);
-        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
+    static MessageValueSpec getEmptyMessageValueSpec(){
+        final MessageValueSpec messageValueSpec = new MessageValueSpec();
+        messageValueSpec.setValue(" ");
+        return messageValueSpec;
     }
 }
