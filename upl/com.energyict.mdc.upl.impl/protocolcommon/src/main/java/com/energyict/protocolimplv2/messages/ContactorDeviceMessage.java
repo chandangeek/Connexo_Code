@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,8 +21,18 @@ import java.util.List;
 public enum ContactorDeviceMessage implements DeviceMessageSpec {
 
     CONTACTOR_OPEN,
+    CONTACTOR_OPEN_WITH_ACTIVATION_DATE(
+            PropertySpecFactory.dateTimePropertySpec("ContactorDeviceMessage.activationdate")),
     CONTACTOR_ARM,
-    CONTACTOR_CLOSE;
+    CONTACTOR_ARM_WITH_ACTIVATION_DATE(
+            PropertySpecFactory.dateTimePropertySpec("ContactorDeviceMessage.activationdate")),
+    CONTACTOR_CLOSE,
+    CONTACTOR_CLOSE_WITH_ACTIVATION_DATE(
+            PropertySpecFactory.dateTimePropertySpec("ContactorDeviceMessage.activationdate")),
+    CHANGE_CONNECT_CONTROL_MODE(
+            PropertySpecFactory.bigDecimalPropertySpecWithValues("ContactorDeviceMessage.changemode.mode",
+                    new BigDecimal("0"), new BigDecimal("1"), new BigDecimal("2"), new BigDecimal("3"),
+                    new BigDecimal("4"), new BigDecimal("5"), new BigDecimal("6")));
 
     private static final DeviceMessageCategory contactorCategory = DeviceMessageCategories.CONTACTOR;
 
@@ -35,9 +47,13 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
         return contactorCategory;
     }
 
+    private static String translate(final String key) {
+        return UserEnvironment.getDefault().getTranslation(key);
+    }
+
     @Override
     public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+        return translate(this.getNameResourceKey());
     }
 
     /**

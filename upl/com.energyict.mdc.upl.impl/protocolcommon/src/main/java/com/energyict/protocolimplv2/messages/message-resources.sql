@@ -16,11 +16,6 @@
 -- Use the following template to insert your keys:
 -- insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('your key', 'english translation', 'L', 'Y', 'N', 'MDW', sysdate);
 
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE', 'Firware upgrade via user file', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('FirmwareDeviceMessage.UPGRADE_FIRMWARE_ACTIVATE', 'Active last uploaded firmware', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE', 'Firware upgrade via user file with activation date', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL', 'Firware upgrade via url', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL_AND_ACTIVATE', 'Firware upgrade via url with activation date', 'L', 'Y', 'N', 'MDW', sysdate);
 
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceMessageCategories.FIRMWARE', 'Device actions', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceActionMessage.BILLING_RESET', 'Billing reset', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE', 'Change the connect control mode', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ContactorDeviceMessage.changemode.mode', 'Connect control mode', 'L', 'Y', 'N', 'MDW', sysdate);

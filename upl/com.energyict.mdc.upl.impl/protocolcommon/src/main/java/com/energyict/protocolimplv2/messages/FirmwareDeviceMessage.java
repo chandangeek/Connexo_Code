@@ -19,13 +19,13 @@ import java.util.List;
  */
 public enum FirmwareDeviceMessage implements DeviceMessageSpec {
 
-    UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec(translate("FirmwareDeviceMessage.upgrade.userfile"))),
-    UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec(translate("FirmwareDeviceMessage.upgrade.activationdate"))),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec(translate("FirmwareDeviceMessage.upgrade.userfile")),
-            PropertySpecFactory.datePropertySpec(translate("FirmwareDeviceMessage.upgrade.activationdate"))),
-    UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec(translate("FirmwareDeviceMessage.upgrade.url"))),
-    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(PropertySpecFactory.stringPropertySpec(translate("FirmwareDeviceMessage.upgrade.url")),
-            PropertySpecFactory.datePropertySpec(translate("FirmwareDeviceMessage.upgrade.activationdate"))),
+    UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec("FirmwareDeviceMessage.upgrade.userfile")),
+    UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec("FirmwareDeviceMessage.upgrade.userfile"),
+            PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
+    UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec("FirmwareDeviceMessage.upgrade.url")),
+    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(PropertySpecFactory.stringPropertySpec("FirmwareDeviceMessage.upgrade.url"),
+            PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
     ;
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
@@ -36,10 +36,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
-    private static String translate(final String key){
-        return UserEnvironment.getDefault().getTranslation(key);
-    }
-
     @Override
     public DeviceMessageCategory getCategory() {
         return firmwareCategory;
@@ -47,7 +43,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
 
     @Override
     public String getName() {
-        return translate(this.getNameResourceKey());
+        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
     }
 
     /**
