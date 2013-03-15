@@ -28,16 +28,14 @@ import java.util.List;
 public class DisconnectLoadWithActivationDateMessageEntry implements MessageEntryCreator {
 
     private final String activationDateAttributeName;
-    private final List<MessageValueSpec> messageValueSpecs;
 
     /**
      * Default constructor
      *
      * @param activationDateAttributeName the name of the OfflineDeviceMessageAttribute representing the activationDate
      */
-    public DisconnectLoadWithActivationDateMessageEntry(String activationDateAttributeName, MessageValueSpec... messageValueSpecs) {
+    public DisconnectLoadWithActivationDateMessageEntry(String activationDateAttributeName) {
         this.activationDateAttributeName = activationDateAttributeName;
-        this.messageValueSpecs = Arrays.asList(messageValueSpecs);
     }
 
     @Override
@@ -45,9 +43,7 @@ public class DisconnectLoadWithActivationDateMessageEntry implements MessageEntr
         OfflineDeviceMessageAttribute activationDateAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activationDateAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.DISCONNECT_LOAD);
         messageTag.add(new MessageAttribute(RtuMessageConstant.DISCONNECT_CONTROL_ACTIVATE_DATE, activationDateAttribute.getDeviceMessageAttributeValue()));
-        for (MessageValueSpec messageValueSpec : messageValueSpecs) {
-            messageTag.add(new MessageValue(messageValueSpec.getValue()));
-        }
+        messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

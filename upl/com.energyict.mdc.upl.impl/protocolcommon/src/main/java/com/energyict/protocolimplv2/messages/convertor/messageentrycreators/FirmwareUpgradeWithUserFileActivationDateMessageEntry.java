@@ -28,13 +28,11 @@ public class FirmwareUpgradeWithUserFileActivationDateMessageEntry implements Me
 
     private final String userFileIdAttributeName;
     private final String activationDateAttributeName;
-    private final List<MessageValueSpec> messageValueSpecs;
 
 
-    public FirmwareUpgradeWithUserFileActivationDateMessageEntry(String userFileIdAttributeName, String activationDateAttributeName, MessageValueSpec... messageValueSpecs) {
+    public FirmwareUpgradeWithUserFileActivationDateMessageEntry(String userFileIdAttributeName, String activationDateAttributeName) {
         this.userFileIdAttributeName = userFileIdAttributeName;
         this.activationDateAttributeName = activationDateAttributeName;
-        this.messageValueSpecs = Arrays.asList(messageValueSpecs);
 
     }
 
@@ -45,9 +43,7 @@ public class FirmwareUpgradeWithUserFileActivationDateMessageEntry implements Me
         MessageTag messageTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPGRADE);
         messageTag.add(new MessageAttribute(RtuMessageConstant.FIRMWARE, userFileAttribute.getDeviceMessageAttributeValue()));
         messageTag.add(new MessageAttribute(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, activationDateAttribute.getDeviceMessageAttributeValue()));
-        for (MessageValueSpec messageValueSpec : messageValueSpecs) {
-            messageTag.add(new MessageValue(messageValueSpec.getValue()));
-        }
+        messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

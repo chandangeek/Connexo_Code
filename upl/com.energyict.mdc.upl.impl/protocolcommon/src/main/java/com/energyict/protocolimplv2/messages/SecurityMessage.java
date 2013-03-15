@@ -10,34 +10,29 @@ import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import java.util.Arrays;
 import java.util.List;
 
+
 /**
- * Provides a summary of all <i>Firmware</i> related messages
+ * Provides a summary of all <i>Security</i> related messages
  * <p/>
  * Copyrights EnergyICT
- * Date: 28/02/13
- * Time: 9:10
+ * Date: 13/03/13
+ * Time: 15:18
  */
-public enum FirmwareDeviceMessage implements DeviceMessageSpec {
+public enum SecurityMessage implements DeviceMessageSpec {
+    ACTIVATE_DLMS_ENCRYPTION(PropertySpecFactory.stringPropertySpecWithValues("SecurityMessage.dlmsencryption.encryptionlevel",
+            "No encryption", "Data authentication", "Data encryption", "Data authentication and encryption"));
 
-    UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec("FirmwareDeviceMessage.upgrade.userfile")),
-    UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec("FirmwareDeviceMessage.upgrade.userfile"),
-            PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
-    UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec("FirmwareDeviceMessage.upgrade.url")),
-    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(PropertySpecFactory.stringPropertySpec("FirmwareDeviceMessage.upgrade.url"),
-            PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),;
-
-    private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
+    private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private FirmwareDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private SecurityMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return firmwareCategory;
+        return  securityCategory;
     }
 
     @Override
@@ -52,7 +47,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return FirmwareDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return SecurityMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override

@@ -17,5 +17,5 @@
 -- insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('your key', 'english translation', 'L', 'Y', 'N', 'MDW', sysdate);
 
 
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE', 'Change the connect control mode', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ContactorDeviceMessage.changemode.mode', 'Connect control mode', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ActivityCalendarDeviceMessage.activitycalendar.name', 'Activity calendar name', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND', 'Send Special day calendar via CodeTable', 'L', 'Y', 'N', 'MDW', sysdate);

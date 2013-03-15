@@ -6,38 +6,32 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
- * Creates a MessageEntry based on the
- * {@link com.energyict.protocolimpl.messages.RtuMessageConstant#FIRMWARE}
- * xml tag with an additional userFile
+ * Creates a MessageEntry based on the {@link com.energyict.protocolimpl.messages.RtuMessageConstant#TOU_SPECIAL_DAYS}
+ * xml tag with an additional {@link com.energyict.protocolimpl.messages.RtuMessageConstant#TOU_SPECIAL_DAYS_CODE_TABLE}
  * <p/>
  * Copyrights EnergyICT
- * Date: 12/03/13
- * Time: 16:54
+ * Date: 13/03/13
+ * Time: 14:28
  */
-public class FirmwareUpgradeWithUserFileMessageEntry implements MessageEntryCreator {
+public class SpecialDayTableMessageEntry implements MessageEntryCreator {
 
-    private final String userFileIdAttributeName;
+    private final String codeTableAttributeName;
 
-
-    public FirmwareUpgradeWithUserFileMessageEntry(String userFileIdAttributeName) {
-        this.userFileIdAttributeName = userFileIdAttributeName;
+    public SpecialDayTableMessageEntry(String codeTableAttributeName) {
+        this.codeTableAttributeName = codeTableAttributeName;
     }
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileIdAttributeName);
-        MessageTag messageTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPGRADE);
-        messageTag.add(new MessageAttribute(RtuMessageConstant.FIRMWARE, userFileAttribute.getDeviceMessageAttributeValue()));
+        OfflineDeviceMessageAttribute codeTableAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, codeTableAttributeName);
+        MessageTag messageTag = new MessageTag(RtuMessageConstant.TOU_SPECIAL_DAYS);
+        messageTag.add(new MessageAttribute(RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, codeTableAttribute.getDeviceMessageAttributeValue()));
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

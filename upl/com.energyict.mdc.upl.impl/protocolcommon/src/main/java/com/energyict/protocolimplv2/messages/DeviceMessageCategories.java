@@ -61,7 +61,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     SECURITY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Collections.emptyList();
+            return Arrays.<DeviceMessageSpec>asList(SecurityMessage.values());
         }
     },
 

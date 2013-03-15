@@ -23,18 +23,13 @@ import java.util.List;
  */
 public class ConnectLoadMessageEntry implements MessageEntryCreator {
 
-    private final List<MessageValueSpec> messageValueSpecs;
-
-    public ConnectLoadMessageEntry(MessageValueSpec... messageValueSpecs) {
-        this.messageValueSpecs = Arrays.asList(messageValueSpecs);
+    public ConnectLoadMessageEntry() {
     }
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageTag = new MessageTag(RtuMessageConstant.CONNECT_LOAD);
-        for (MessageValueSpec messageValueSpec : messageValueSpecs) {
-            messageTag.add(new MessageValue(messageValueSpec.getValue()));
-        }
+        messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

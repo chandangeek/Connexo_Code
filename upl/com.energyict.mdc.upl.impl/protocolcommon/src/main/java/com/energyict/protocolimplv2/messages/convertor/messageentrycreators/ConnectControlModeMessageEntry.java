@@ -28,16 +28,14 @@ import java.util.List;
 public class ConnectControlModeMessageEntry implements MessageEntryCreator {
 
     private final String connectModeAttributeName;
-    private final List<MessageValueSpec> messageValueSpecs;
 
     /**
      * Default constructor
      *
      * @param connectModeAttributeName the name of the OfflineDeviceMessageAttribute representing the connect mode
      */
-    public ConnectControlModeMessageEntry(String connectModeAttributeName, MessageValueSpec... messageValueSpecs) {
+    public ConnectControlModeMessageEntry(String connectModeAttributeName) {
         this.connectModeAttributeName = connectModeAttributeName;
-        this.messageValueSpecs = Arrays.asList(messageValueSpecs);
     }
 
     @Override
@@ -45,9 +43,7 @@ public class ConnectControlModeMessageEntry implements MessageEntryCreator {
         OfflineDeviceMessageAttribute connectModeAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, connectModeAttributeName);
         MessageTag messageTag = new MessageTag(RtuMessageConstant.CONNECT_CONTROL_MODE);
         messageTag.add(new MessageAttribute(RtuMessageConstant.CONNECT_MODE, connectModeAttribute.getDeviceMessageAttributeValue()));
-        for (MessageValueSpec messageValueSpec : messageValueSpecs) {
-            messageTag.add(new MessageValue(messageValueSpec.getValue()));
-        }
+        messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }
