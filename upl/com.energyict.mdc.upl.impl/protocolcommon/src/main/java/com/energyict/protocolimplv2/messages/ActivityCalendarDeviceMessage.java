@@ -10,6 +10,8 @@ import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+
 /**
  * Provides a summary of all <i>ActivityCalendar</i> related messages
  *
@@ -19,12 +21,12 @@ import java.util.List;
  */
 public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
 
-    ACTIVITY_CALENDER_SEND(PropertySpecFactory.stringPropertySpec("ActivityCalendarDeviceMessage.activitycalendar.name"),
-            PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable")),
-    ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.stringPropertySpec("ActivityCalendarDeviceMessage.activitycalendar.name"),
-            PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable"),
-            PropertySpecFactory.dateTimePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.activationdate")),
-    SPECIAL_DAY_CALENDAR_SEND(PropertySpecFactory.codeTableReferencePropertySpec("ActivityCalendarDeviceMessage.activitycalendar.codetable"));
+    ACTIVITY_CALENDER_SEND(PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
+            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName)),
+    ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
+            PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName)),
+    SPECIAL_DAY_CALENDAR_SEND(PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName));
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;
 

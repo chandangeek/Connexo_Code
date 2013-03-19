@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+
 /**
  * Provides a summary of all <i>Contactor</i> related messages
  * <p/>
@@ -22,15 +24,15 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
 
     CONTACTOR_OPEN,
     CONTACTOR_OPEN_WITH_ACTIVATION_DATE(
-            PropertySpecFactory.dateTimePropertySpec("ContactorDeviceMessage.activationdate")),
+            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
     CONTACTOR_ARM,
     CONTACTOR_ARM_WITH_ACTIVATION_DATE(
-            PropertySpecFactory.dateTimePropertySpec("ContactorDeviceMessage.activationdate")),
+            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
     CONTACTOR_CLOSE,
     CONTACTOR_CLOSE_WITH_ACTIVATION_DATE(
-            PropertySpecFactory.dateTimePropertySpec("ContactorDeviceMessage.activationdate")),
+            PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
     CHANGE_CONNECT_CONTROL_MODE(
-            PropertySpecFactory.bigDecimalPropertySpecWithValues("ContactorDeviceMessage.changemode.mode",
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(contactorModeAttributeName,
                     new BigDecimal("0"), new BigDecimal("1"), new BigDecimal("2"), new BigDecimal("3"),
                     new BigDecimal("4"), new BigDecimal("5"), new BigDecimal("6")));
 

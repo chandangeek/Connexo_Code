@@ -399,7 +399,7 @@ public final class ComServerTCPAM100Demo {
         shadow.setDeviceId(this.rtu.getId());
         shadow.setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         shadow.setDefault(true);
-        ConnectionMethodShadow connectionMethodShadow = new ConnectionMethodShadow(this.connectionTypePluggableClass);
+        ConnectionMethodShadow connectionMethodShadow = new ConnectionMethodShadow(null);
         connectionMethodShadow.setComPortPoolId(this.outboundComPortPool.getId());
         connectionMethodShadow.set(TcpIpConnectionType.HOST_PROPERTY_NAME, HOST);
         connectionMethodShadow.set(TcpIpConnectionType.PORT_PROPERTY_NAME, PORT);

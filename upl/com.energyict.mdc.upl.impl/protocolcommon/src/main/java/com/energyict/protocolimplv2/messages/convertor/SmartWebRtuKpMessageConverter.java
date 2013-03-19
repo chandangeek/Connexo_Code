@@ -6,11 +6,14 @@ import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DlmsAuthenticationLevelMessageValues;
+import com.energyict.protocolimplv2.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivateDlmsEncryptionMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarConfigMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarConfigWithActivationDateMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ChangeDlmsAuthenticationLevelMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectControlModeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadWithActivationDateMessageEntry;
@@ -42,6 +45,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
     private static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
     private static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
     private static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
+    private static final String authenticationLevelAttributeName = "SecurityMessage.dlmsauthentication.authenticationlevel";
 
     /**
      * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
@@ -49,14 +53,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
      */
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
 
-    private static Map<String, Integer> encryptionLevels = new HashMap<>(4);
-
     static {
-        encryptionLevels.put("No encryption", 0);
-        encryptionLevels.put("Data authentication", 1);
-        encryptionLevels.put("Data encryption", 2);
-        encryptionLevels.put("Data authentication and encryption", 3);
-
         // contactor related
         registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new ConnectLoadMessageEntry());
         registry.put(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
@@ -75,6 +72,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
 
         // security related
         registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new ActivateDlmsEncryptionMessageEntry(encryptionLevelAttributeName));
+        registry.put(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL, new ChangeDlmsAuthenticationLevelMessageEntry(authenticationLevelAttributeName));
     }
 
     /**
@@ -98,8 +96,10 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
             return String.valueOf(((Code) messageAttribute).getId());
-        } else if (propertySpec.getName().equals(encryptionLevelAttributeName)){
-            return String.valueOf(encryptionLevels.get(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
+            return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
+        } else if (propertySpec.getName().equals(authenticationLevelAttributeName)) {
+            return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
         }
         return null;
     }

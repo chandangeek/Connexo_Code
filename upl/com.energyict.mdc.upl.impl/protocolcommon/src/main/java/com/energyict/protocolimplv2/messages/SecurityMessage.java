@@ -19,8 +19,11 @@ import java.util.List;
  * Time: 15:18
  */
 public enum SecurityMessage implements DeviceMessageSpec {
-    ACTIVATE_DLMS_ENCRYPTION(PropertySpecFactory.stringPropertySpecWithValues("SecurityMessage.dlmsencryption.encryptionlevel",
-            "No encryption", "Data authentication", "Data encryption", "Data authentication and encryption"));
+
+    ACTIVATE_DLMS_ENCRYPTION(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.encryptionLevelAttributeName,
+            DlmsEncryptionLevelMessageValues.getNames())),
+    CHANGE_DLMS_AUTHENTICATION_LEVEL(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.authenticationLevelAttributeName,
+            DlmsAuthenticationLevelMessageValues.getNames()));
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 
@@ -32,7 +35,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return  securityCategory;
+        return securityCategory;
     }
 
     @Override

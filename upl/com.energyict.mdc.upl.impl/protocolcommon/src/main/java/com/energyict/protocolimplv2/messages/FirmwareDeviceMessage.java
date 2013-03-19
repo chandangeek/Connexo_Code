@@ -10,6 +10,8 @@ import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+
 /**
  * Provides a summary of all <i>Firmware</i> related messages
  * <p/>
@@ -19,13 +21,13 @@ import java.util.List;
  */
 public enum FirmwareDeviceMessage implements DeviceMessageSpec {
 
-    UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec("FirmwareDeviceMessage.upgrade.userfile")),
-    UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec("FirmwareDeviceMessage.upgrade.userfile"),
-            PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),
-    UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec("FirmwareDeviceMessage.upgrade.url")),
-    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(PropertySpecFactory.stringPropertySpec("FirmwareDeviceMessage.upgrade.url"),
-            PropertySpecFactory.datePropertySpec("FirmwareDeviceMessage.upgrade.activationdate")),;
+    UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName)),
+    UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
+    UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName)),
+    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName),
+            PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),;
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;
 

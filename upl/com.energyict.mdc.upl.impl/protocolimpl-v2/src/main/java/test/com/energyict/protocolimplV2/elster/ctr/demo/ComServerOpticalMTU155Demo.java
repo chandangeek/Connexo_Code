@@ -397,7 +397,7 @@ public final class ComServerOpticalMTU155Demo {
         shadow.setDeviceId(this.rtu.getId());
         shadow.setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         shadow.setDefault(true);
-        ConnectionMethodShadow connectionMethodShadow = new ConnectionMethodShadow(this.connectionTypePluggableClass);
+        ConnectionMethodShadow connectionMethodShadow = new ConnectionMethodShadow(null);
         connectionMethodShadow.setComPortPoolId(this.outboundComPortPool.getId());
 
         connectionMethodShadow.set(SerialPortConfiguration.BAUDRATE_NAME, SerialPortConfiguration.BAUDRATE_NAME);

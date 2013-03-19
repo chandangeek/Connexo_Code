@@ -12,6 +12,8 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
@@ -25,6 +27,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
@@ -38,17 +41,7 @@ import static org.mockito.Mockito.when;
  * Time: 15:19
  */
 @RunWith(MockitoJUnitRunner.class)
-public class
-        SmartWebRtuKpMessageConverterTest {
-
-    private static final String activationDateAttributeName = "ContactorDeviceMessage.activationdate";
-    private static final String contactorModeAttributeName = "ContactorDeviceMessage.changemode.mode";
-    private static final String firmwareUpdateActivationDateAttributeName = "FirmwareDeviceMessage.upgrade.activationdate";
-    private static final String firmwareUpdateUserFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
-    private static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
-    private static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
-    private static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
-    private static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
+public class SmartWebRtuKpMessageConverterTest {
 
     @Mock
     private ServerManager serverManager;
@@ -77,7 +70,7 @@ public class
     public void formatActivationDateTest() {
         final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(activationDateAttributeName);
+        when(propertySpec.getName()).thenReturn(contactorActivationDateAttributeName);
         long millis = 1363101865123L;
         Date currentDate = new Date(millis);
 
@@ -167,20 +160,43 @@ public class
     @Test
     public void formatEncryptionLevelTest() {
         final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
-        PropertySpec noEncryption = mock(PropertySpec.class);
-        when(noEncryption.getName()).thenReturn(encryptionLevelAttributeName);
+        PropertySpec encryptionAttribute = mock(PropertySpec.class);
+        when(encryptionAttribute.getName()).thenReturn(encryptionLevelAttributeName);
 
         // business method
-        final String noEncryptionFormatting = smartWebRtuKpMessageConverter.format(noEncryption, "No encryption");
-        final String authenticationFormatting = smartWebRtuKpMessageConverter.format(noEncryption, "Data authentication");
-        final String encryptionFormatting = smartWebRtuKpMessageConverter.format(noEncryption, "Data encryption");
-        final String authenticationAndEncryptionFormatting = smartWebRtuKpMessageConverter.format(noEncryption, "Data authentication and encryption");
+        final String noEncryptionFormatting = smartWebRtuKpMessageConverter.format(encryptionAttribute, "No encryption");
+        final String authenticationFormatting = smartWebRtuKpMessageConverter.format(encryptionAttribute, "Data authentication");
+        final String encryptionFormatting = smartWebRtuKpMessageConverter.format(encryptionAttribute, "Data encryption");
+        final String authenticationAndEncryptionFormatting = smartWebRtuKpMessageConverter.format(encryptionAttribute, "Data authentication and encryption");
 
         // asserts
         assertThat(noEncryptionFormatting).isEqualTo("0");
         assertThat(authenticationFormatting).isEqualTo("1");
         assertThat(encryptionFormatting).isEqualTo("2");
         assertThat(authenticationAndEncryptionFormatting).isEqualTo("3");
+    }
+
+    @Test
+    public void formatAuthenticationLevelTest(){
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        PropertySpec authenticationAttribute = mock(PropertySpec.class);
+        when(authenticationAttribute.getName()).thenReturn(authenticationLevelAttributeName);
+
+        // business method
+        final String noAuthentication = smartWebRtuKpMessageConverter.format(authenticationAttribute, "No authentiction");
+        final String lowLevelAuthentication = smartWebRtuKpMessageConverter.format(authenticationAttribute, "Low level authentication");
+        final String manufacturerAuthentication = smartWebRtuKpMessageConverter.format(authenticationAttribute, "Manufacturer specific");
+        final String highLevelMd5 = smartWebRtuKpMessageConverter.format(authenticationAttribute, "High level authentication - MD5");
+        final String highLevelSha1 = smartWebRtuKpMessageConverter.format(authenticationAttribute, "High level authentication - SHA-1");
+        final String highLevelGmac = smartWebRtuKpMessageConverter.format(authenticationAttribute, "High level authentication - GMAC");
+
+        // asserts
+        assertThat(noAuthentication).isEqualTo("0");
+        assertThat(lowLevelAuthentication).isEqualTo("1");
+        assertThat(manufacturerAuthentication).isEqualTo("2");
+        assertThat(highLevelMd5).isEqualTo("3");
+        assertThat(highLevelSha1).isEqualTo("4");
+        assertThat(highLevelGmac).isEqualTo("5");
     }
 
     @Test
@@ -207,7 +223,7 @@ public class
         smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(offlineDeviceMessageAttribute.getName()).thenReturn(activationDateAttributeName);
+        when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorActivationDateAttributeName);
         when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
         when(contactorOpen.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.getPrimaryKey());
@@ -244,7 +260,7 @@ public class
         smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(offlineDeviceMessageAttribute.getName()).thenReturn(activationDateAttributeName);
+        when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorActivationDateAttributeName);
         when(offlineDeviceMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
         when(contactorOpen.getDeviceMessageAttributes()).thenReturn(Arrays.asList(offlineDeviceMessageAttribute));
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.getPrimaryKey());
@@ -429,5 +445,27 @@ public class
         // asserts
         assertNotNull(messageEntry);
         assertThat(messageEntry.getContent()).isEqualTo("<Activate_dataTransport_Security SecurityLevel=\"" + encryptionLevel + "\"> </Activate_dataTransport_Security>");
+    }
+
+    @Test
+    public void changeAuthenticationLevelTest(){
+        String authenticationLevel = "3";
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage changeAuthenticationLevel = mock(OfflineDeviceMessage.class);
+        OfflineDeviceMessageAttribute authenticationLevelAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(authenticationLevelAttribute.getName()).thenReturn(authenticationLevelAttributeName);
+        when(authenticationLevelAttribute.getDeviceMessageAttributeValue()).thenReturn(authenticationLevel);
+        when(changeAuthenticationLevel.getDeviceMessageAttributes()).thenReturn(Arrays.asList(authenticationLevelAttribute));
+        when(changeAuthenticationLevel.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.getPrimaryKey());
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(changeAuthenticationLevel);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Change_authentication_level AuthenticationLevel=\"" + authenticationLevel + "\"> </Change_authentication_level>");
+
     }
 }
