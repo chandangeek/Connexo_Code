@@ -428,6 +428,8 @@
 
 -keepnames class com.energyict.protocolimpl.dlms.elster.as300d.AS300D
 
+-keepnames class com.energyict.genericprotocolimpl.iskragprs.MbusDevice
+
 -keepnames class com.energyict.protocolimpl.EMCO.FP93
 
 -keepnames class com.energyict.protocolimpl.modbus.multilin.epm2200.EPM2200
