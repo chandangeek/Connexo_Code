@@ -47,3 +47,4 @@
 -keepnames class test.com.energyict.protocolimplV2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol
 -keepnames class test.com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
 -keepnames class test.com.energyict.protocolimplV2.ace4000.ACE4000Inbound
+-keepnames class test.com.energyict.protocolimplV2.ace4000.ACE4000Outbound
