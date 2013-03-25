@@ -4,18 +4,15 @@ import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
-import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
@@ -225,12 +222,12 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
     }
 
     @Override
-    public CollectedMessage executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         return getMessageProtocol().executePendingMessages(pendingMessages);
     }
 
     @Override
-    public CollectedData updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         return getMessageProtocol().updateSentMessages(sentMessages);
     }
 

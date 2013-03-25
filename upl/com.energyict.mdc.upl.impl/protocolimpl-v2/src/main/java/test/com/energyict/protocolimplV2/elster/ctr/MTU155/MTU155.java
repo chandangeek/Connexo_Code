@@ -8,10 +8,9 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.meterdata.DefaultDeviceRegister;
@@ -222,12 +221,12 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public CollectedMessage executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         return null;  //ToDo
     }
 
     @Override
-    public CollectedData updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         return null;  //ToDo
     }
 

@@ -4,10 +4,9 @@ import com.energyict.comserver.issues.Problem;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.meterdata.DeviceLoadProfile;
@@ -21,7 +20,6 @@ import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.shadow.messages.DeviceMessageShadow;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.core.LoadProfileTypeFactory;
@@ -150,7 +148,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public CollectedMessage executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
 
             //TODO how to get message entry and content from DeviceMessageShadow?
@@ -161,7 +159,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public CollectedData updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         return null;
     }
 

@@ -5,10 +5,9 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.ComChannel;
@@ -78,7 +77,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     /**
      * Keeps track of all the protocol properties <b>AND</b> the current deviceProtocolDialectProperties
      */
-    private TypedProperties typedProperties = new TypedProperties();
+    private TypedProperties typedProperties = TypedProperties.empty();
     /**
      * The securityPropertySet that will be used for this session
      */
@@ -231,13 +230,13 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public CollectedMessage executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         //TODO
         return null;
     }
 
     @Override
-    public CollectedData updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
         //TODO
         return null;
     }
