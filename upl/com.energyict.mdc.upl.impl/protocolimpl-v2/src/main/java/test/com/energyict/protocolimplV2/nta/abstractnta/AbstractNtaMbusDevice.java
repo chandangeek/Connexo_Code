@@ -51,6 +51,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     public abstract DeviceMessageSupport getMessageProtocol();
 
+
+    // TODO Implement me
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
     }
