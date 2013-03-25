@@ -1,112 +1,165 @@
 package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
-import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
-import com.energyict.protocolimpl.coronis.waveflow.core.messages.HydrekaMessages;
-import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
-import com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter.ParameterFactoryHydreka;
-import com.energyict.protocolimpl.coronis.waveflow.hydreka.radiocommand.RadioCommandFactoryHydreka;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
-import java.util.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
  * Date: 12/04/12
  * Time: 17:19
  */
-public class Hydreka extends WaveFlow implements MessageProtocol {
+public class Hydreka implements MeterProtocol {
 
-    private ObisCodeMapperHydreka obisCodeMapperHydreka;
-    private ParameterFactoryHydreka parameterFactory = null;
-    private RadioCommandFactoryHydreka radioCommandFactory;
-    private ProfileDataReader profileDataReader = null;
-
-    public List map2MeterEvent(String event) throws IOException {
-        List statusAndEvents = new ArrayList();
-        AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
-        alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()));
-        statusAndEvents.add(alarmFrame.getResponseACK());
-        statusAndEvents.add(alarmFrame.getMeterEvents());
-        return statusAndEvents;
-    }
-
-    public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return ObisCodeMapperHydreka.getRegisterInfo(obisCode);
+    @Override
+    public void setProperties(Properties properties) throws InvalidPropertyException, MissingPropertyException {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    protected void doTheInit() throws IOException {
-        obisCodeMapperHydreka = new ObisCodeMapperHydreka(this);
-        commonObisCodeMapper = new CommonObisCodeMapper(this);
-        profileDataReader = new ProfileDataReader(this);
-        parameterFactory = new ParameterFactoryHydreka(this);
-        radioCommandFactory = new RadioCommandFactoryHydreka(this);
-        setIsV1(false);
-        waveFlowMessages = new HydrekaMessages(this);
-        verifyProfileInterval = false;  //Don't read out the profile interval, it is not supported
+    public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    protected void doConnect() throws IOException {
-        if ((getInitialRFCommand() == 0x27)) {
-            getRadioCommandFactory().readDailyHydrekaDataReading();
-        }
+    public void connect() throws IOException {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public RadioCommandFactoryHydreka getRadioCommandFactory() {
-        if (radioCommandFactory == null) {
-            radioCommandFactory = new RadioCommandFactoryHydreka(this);
-        }
-        return radioCommandFactory;
-    }
-
-    @Override
-    public int getNumberOfChannels() throws UnsupportedException, IOException {
-        return 0;       //Fixed
+    public void disconnect() throws IOException {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2013-01-11 11:48:08 +0100 (vr, 11 jan 2013) $";
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    /**
-     * The Hydreka module doesn't support load profiles, so just return the interval that is configured in EiServer
-     */
+    @Override
+    public String getFirmwareVersion() throws IOException, UnsupportedException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public ProfileData getProfileData(boolean includeEvents) throws IOException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Quantity getMeterReading(int channelId) throws UnsupportedException, IOException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Quantity getMeterReading(String name) throws UnsupportedException, IOException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
     public int getProfileInterval() throws UnsupportedException, IOException {
-        return super.getProfileInterval();
-    }
-
-    public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapperHydreka.getRegisterValue(obisCode);
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException {
-        return profileDataReader.readProfileData(lastReading, toDate, includeEvents);
+    public Date getTime() throws IOException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    protected WaveFlowMessageParser getWaveFlowMessages() {
-        if (waveFlowMessages == null) {
-            waveFlowMessages = new HydrekaMessages(this);
-        }
-        return waveFlowMessages;
+    public String getRegister(String name) throws IOException, UnsupportedException, NoSuchRegisterException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public ParameterFactoryHydreka getParameterFactory() {
-        if (parameterFactory == null) {
-            parameterFactory = new ParameterFactoryHydreka(this);
-        }
-        return parameterFactory;
+    public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
-        return BubbleUpFrameParser.parseFrame(data, this);
+    @Override
+    public void setTime() throws IOException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void initializeDevice() throws IOException, UnsupportedException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void release() throws IOException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setCache(Object cacheObject) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Object getCache() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public Object fetchCache(int rtuId) throws SQLException, BusinessException {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void updateCache(int rtuId, Object cacheObject) throws SQLException, BusinessException {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public String getVersion() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }
