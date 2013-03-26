@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -155,11 +156,11 @@ public class Hydreka implements MeterProtocol {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return Collections.emptyList();
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return Collections.emptyList();
     }
 }
