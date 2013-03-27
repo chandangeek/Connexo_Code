@@ -64,6 +64,9 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
             typedProperties.setProperty("SecurityLevel", String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
             typedProperties.setProperty("WavenisEncryptionKey",
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
+            // override the password (as it is provided as a Password object instead of a String
+            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(),
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), ""));
         }
         return typedProperties;
     }

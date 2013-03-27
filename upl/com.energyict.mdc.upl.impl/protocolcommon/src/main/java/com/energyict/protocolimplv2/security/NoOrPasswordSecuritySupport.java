@@ -57,9 +57,12 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
 
     @Override
     public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        TypedProperties typedProperties = new TypedProperties();
+        TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+            // override the password (as it is provided as a Password object instead of a String
+            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(),
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), ""));
         }
         return typedProperties;
     }

@@ -80,9 +80,12 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     @Override
     public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        TypedProperties typedProperties = new TypedProperties();
+        TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
+            // override the password (as it is provided as a Password object instead of a String
+            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(),
+                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), ""));
             typedProperties.setProperty("SecurityLevel", String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
         }
         return typedProperties;
