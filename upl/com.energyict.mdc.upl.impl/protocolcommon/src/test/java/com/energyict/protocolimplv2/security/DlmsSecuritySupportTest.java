@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
@@ -268,5 +269,23 @@ public class DlmsSecuritySupportTest {
         assertThat(legacyProperties.getProperty("DataTransportAuthenticationKey")).isEqualTo(authenticationKeyValue);
         assertThat(legacyProperties.getProperty("ClientMacAddress")).isEqualTo(clientMacAddressValue);
         assertThat(legacyProperties.getProperty("Password")).isEqualTo(passwordValue);
+    }
+
+    @Test
+    public void testPasswordConversion(){
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        TypedProperties securityProperties = TypedProperties.empty();
+        String passwordValue = "MyPassword";
+        Password password = new Password(passwordValue);
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), password);
+        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySetImpl(DlmsSecuritySupport.AccessLevelIds.GMAC_AUTHENTICATION.getAccessLevel(),
+                        DlmsSecuritySupport.AccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel(), securityProperties);
+
+        // business method
+        TypedProperties legacyProperties = dlmsSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+
+        assertThat(legacyProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString())).isEqualTo(passwordValue);
+
     }
 }

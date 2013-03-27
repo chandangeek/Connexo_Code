@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.cbo.Password;
 import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -65,8 +66,12 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
             typedProperties.setProperty("WavenisEncryptionKey",
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
             // override the password (as it is provided as a Password object instead of a String
-            typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(),
-                    deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), ""));
+            final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            if (Password.class.isAssignableFrom(property.getClass())) {
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
+            } else {
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+            }
         }
         return typedProperties;
     }
