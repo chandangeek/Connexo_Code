@@ -5,6 +5,7 @@ import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
@@ -22,6 +23,7 @@ import java.util.List;
  */
 public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
+    public static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private final String translationKeyConstant = "IEC1107SecuritySupport.authenticationlevel.";
 
     /**
@@ -91,9 +93,34 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
             } else {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
             }
-            typedProperties.setProperty("SecurityLevel", String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
         }
         return typedProperties;
+    }
+
+    @Override
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+        String securityLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
+        if (securityLevelProperty==null) {
+            throw new IllegalStateException("Cannot convert TypedProperties without "+ SECURITY_LEVEL_PROPERTY_NAME +"-property");
+        }
+        final int authenticationLevel = Integer.valueOf(securityLevelProperty);
+        return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public int getAuthenticationDeviceAccessLevel() {
+                return authenticationLevel;
+            }
+
+            @Override
+            public int getEncryptionDeviceAccessLevel() {
+                return DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+            }
+
+            @Override
+            public TypedProperties getSecurityProperties() {
+                return null;
+            }
+        };
     }
 
     /**

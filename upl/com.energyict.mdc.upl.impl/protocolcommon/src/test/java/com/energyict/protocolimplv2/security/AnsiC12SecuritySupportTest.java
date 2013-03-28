@@ -4,11 +4,10 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -114,5 +113,24 @@ public class AnsiC12SecuritySupportTest {
         assertThat(legacyProperties.getProperty("C12UserId")).isEqualTo(ansiC12UserIdValue);
         assertThat(legacyProperties.getProperty("C12User")).isEqualTo(ansiC12UserValue);
         assertThat(legacyProperties.getProperty("Password")).isEqualTo(passwordValue);
+    }
+
+    @Test
+    public void testConvertToSecurityPropertySet() throws Exception {
+        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        securityProperties.setProperty("SecurityLevel", "1");
+
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = ansiC12SecuritySupport.convertFromTypedProperties(securityProperties);
+        assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);
+        assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testConvertToSecurityPropertySetMissingSecurityLevel() throws Exception {
+        AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+
+        ansiC12SecuritySupport.convertFromTypedProperties(securityProperties);
     }
 }

@@ -5,6 +5,7 @@ import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
@@ -70,6 +71,32 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
             }
         }
         return typedProperties;
+    }
+
+
+    @Override
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+        String passwordProperty = typedProperties.getStringProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName());
+        final AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel =
+                passwordProperty==null?
+                new NoAuthenticationAccessLevel() :
+                new StandardAuthenticationAccessLevel();
+        return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public int getAuthenticationDeviceAccessLevel() {
+                return authenticationDeviceAccessLevel.getId();
+            }
+
+            @Override
+            public int getEncryptionDeviceAccessLevel() {
+                return DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+            }
+
+            @Override
+            public TypedProperties getSecurityProperties() {
+                return null;
+            }
+        };
     }
 
     /**

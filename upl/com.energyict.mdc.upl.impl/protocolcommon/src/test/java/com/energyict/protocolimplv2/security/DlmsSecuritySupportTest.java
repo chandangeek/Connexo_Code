@@ -4,6 +4,7 @@ import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import org.fest.assertions.core.Condition;
@@ -272,6 +273,57 @@ public class DlmsSecuritySupportTest {
     }
 
     @Test
+    public void testConvertTypedPropertiesToSecuritySet() throws Exception {
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        securityProperties.setProperty("SecurityLevel", "12:21");
+
+        DeviceProtocolSecurityPropertySet securityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
+
+        assertThat(securityPropertySet).isNotNull();
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(21);
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(12);
+    }
+
+    @Test (expected = IllegalStateException.class)
+    public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalFormat() throws Exception {
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        securityProperties.setProperty("SecurityLevel", "12;21"); // illegal format
+
+        dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalAuthenticationLevel() throws Exception {
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        securityProperties.setProperty("SecurityLevel", "1A2:21"); // illegal int value
+
+        DeviceProtocolSecurityPropertySet securityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
+        securityPropertySet.getAuthenticationDeviceAccessLevel();
+
+    }
+
+    @Test (expected = IllegalArgumentException.class)
+    public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalEncryptionLevel() throws Exception {
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        securityProperties.setProperty("SecurityLevel", "12:2A1"); // illegal int value
+
+        DeviceProtocolSecurityPropertySet securityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
+        securityPropertySet.getEncryptionDeviceAccessLevel();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testConvertTypedPropertiesToSecuritySetMissingSecurityProperty() throws Exception {
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+
+        dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
+    }
+    
+    @Test
     public void testPasswordConversion(){
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
         TypedProperties securityProperties = TypedProperties.empty();
@@ -288,4 +340,5 @@ public class DlmsSecuritySupportTest {
         assertThat(legacyProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString())).isEqualTo(passwordValue);
 
     }
+    
 }

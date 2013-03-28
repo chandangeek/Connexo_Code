@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
@@ -108,5 +109,31 @@ public class IEC1107SecuritySupportTest {
         assertNotNull(legacyProperties);
         assertThat(legacyProperties.getProperty("SecurityLevel")).isEqualTo("2");
         assertThat(legacyProperties.getProperty("Password")).isEqualTo(passwordValue);
+    }
+
+    @Test
+    public void testConvertFromTypedProperties() throws Exception {
+        IEC1107SecuritySupport iec1107SecuritySupport = new IEC1107SecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "MyPassword");
+        securityProperties.setProperty("SecurityLevel", "17");
+
+        DeviceProtocolSecurityPropertySet securityPropertySet = iec1107SecuritySupport.convertFromTypedProperties(securityProperties);
+
+        assertThat(securityPropertySet).isNotNull();
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(17);
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(-1);
+        assertThat(securityPropertySet.getSecurityProperties()).isNull();
+
+
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testCanNotConvertTypedPropertiesWithMissingSecurityLevel() throws Exception {
+        IEC1107SecuritySupport iec1107SecuritySupport = new IEC1107SecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "MyPassword");
+
+        iec1107SecuritySupport.convertFromTypedProperties(securityProperties);
     }
 }

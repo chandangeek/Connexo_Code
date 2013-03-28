@@ -5,10 +5,9 @@ import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,6 +21,8 @@ import java.util.List;
  */
 public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
+    private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
+    public static final String ENCRYPTION_KEY_PROPERTY_NAME = "WavenisEncryptionKey";
     private final String authenticationTranslationKeyConstant = "WavenisSecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "WavenisSecuritySupport.encryptionlevel.";
 
@@ -62,8 +63,8 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
         TypedProperties typedProperties = new TypedProperties();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            typedProperties.setProperty("SecurityLevel", String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
-            typedProperties.setProperty("WavenisEncryptionKey",
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
+            typedProperties.setProperty(ENCRYPTION_KEY_PROPERTY_NAME,
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), ""));
             // override the password (as it is provided as a Password object instead of a String
             final Object property = deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
@@ -74,6 +75,38 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
             }
         }
         return typedProperties;
+    }
+
+    @Override
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+        String authenticationDeviceAccessLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
+        if (authenticationDeviceAccessLevelProperty==null) {
+            throw new IllegalStateException("Cannot convert TypedProperties without "+ SECURITY_LEVEL_PROPERTY_NAME +"-property");
+        }
+        final int authenticationDeviceAccessLevel=Integer.valueOf(authenticationDeviceAccessLevelProperty);
+
+        String encryptionKeyProperty = typedProperties.getStringProperty(ENCRYPTION_KEY_PROPERTY_NAME);
+        if (encryptionKeyProperty==null) {
+            throw new IllegalStateException("Cannot convert TypedProperties without "+ ENCRYPTION_KEY_PROPERTY_NAME +"-property");
+        }
+        final int encryptionDeviceAccessLevel = Integer.valueOf(encryptionKeyProperty);
+
+        return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public int getAuthenticationDeviceAccessLevel() {
+                return authenticationDeviceAccessLevel;
+            }
+
+            @Override
+            public int getEncryptionDeviceAccessLevel() {
+                return encryptionDeviceAccessLevel;
+            }
+
+            @Override
+            public TypedProperties getSecurityProperties() {
+                return null;
+            }
+        };
     }
 
     /**

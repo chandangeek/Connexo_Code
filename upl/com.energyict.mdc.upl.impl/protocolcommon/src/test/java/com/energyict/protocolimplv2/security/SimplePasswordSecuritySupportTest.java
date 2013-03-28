@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
@@ -91,5 +92,19 @@ public class SimplePasswordSecuritySupportTest {
         // asserts
         assertNotNull(legacyProperties);
         assertThat(legacyProperties.getProperty("Password")).isEqualTo(passwordValue);
+    }
+
+    @Test
+    public void testConvertFromTypedProperties() throws Exception {
+        SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        String passwordValue = "MyPassword";
+        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+
+        DeviceProtocolSecurityPropertySet securityPropertySet = simplePasswordSecuritySupport.convertFromTypedProperties(securityProperties);
+        assertThat(securityPropertySet).isNotNull();
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(0);
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(-1);
+        assertThat(securityPropertySet.getSecurityProperties()).isNull();
     }
 }

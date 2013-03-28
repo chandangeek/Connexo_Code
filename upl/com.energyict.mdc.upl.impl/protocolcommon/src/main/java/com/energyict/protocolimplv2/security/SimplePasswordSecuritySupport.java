@@ -5,6 +5,7 @@ import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
@@ -22,6 +23,8 @@ import java.util.List;
  * Time: 14:47
  */
 public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+
+    private static final int AUTH_DEVICE_ACCESS_LEVEL = 0;
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
@@ -68,6 +71,26 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
         return typedProperties;
     }
 
+    @Override
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+        return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public int getAuthenticationDeviceAccessLevel() {
+                return AUTH_DEVICE_ACCESS_LEVEL;
+            }
+
+            @Override
+            public int getEncryptionDeviceAccessLevel() {
+                return DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+            }
+
+            @Override
+            public TypedProperties getSecurityProperties() {
+                return null;
+            }
+        };
+    }
+
     /**
      * A simple authentication level that requires a single password
      */
@@ -75,7 +98,7 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
 
         @Override
         public int getId() {
-            return 0;
+            return AUTH_DEVICE_ACCESS_LEVEL;
         }
 
         @Override

@@ -5,10 +5,9 @@ import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +23,7 @@ import java.util.List;
  */
 public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
+    private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private final String authenticationTranslationKeyConstant = "DlmsSecuritySupport.authenticationlevel.";
     private final String encryptionTranslationKeyConstant = "DlmsSecuritySupport.encryptionlevel.";
 
@@ -111,7 +111,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
             } else {
                 typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
             }
-            typedProperties.setProperty("SecurityLevel",
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME,
                     deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel() +
                             ":" +
                             deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel());
@@ -121,6 +121,46 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.AUTHENTICATION_KEY.toString(), ""));
         }
         return typedProperties;
+    }
+
+    @Override
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+        final String securityLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
+        if (securityLevelProperty==null) {
+            throw new IllegalStateException("Cannot convert TypedProperties without "+ SECURITY_LEVEL_PROPERTY_NAME +"-property");
+        }
+        if (!securityLevelProperty.contains(":")) {
+            throw new IllegalStateException("Cannot convert TypedProperties: expected property "+ SECURITY_LEVEL_PROPERTY_NAME +" to have format '<auth>:<encryption>', but found "+securityLevelProperty);
+        }
+        final String authenticationLevel = securityLevelProperty.substring(0, securityLevelProperty.indexOf(':'));
+        final String encryptionLevel = securityLevelProperty.substring(securityLevelProperty.indexOf(':')+1);
+
+        return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public int getAuthenticationDeviceAccessLevel() {
+                try {
+                    return Integer.parseInt(authenticationLevel);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException(String.format("Failed to extract AuthenticationDeviceAccessLevel from SecurityProperty '%s': %s could not be converted to int",
+                            securityLevelProperty, authenticationLevel));
+                }
+            }
+
+            @Override
+            public int getEncryptionDeviceAccessLevel() {
+                try {
+                    return Integer.parseInt(encryptionLevel);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException(String.format("Failed to extract EncryptionDeviceAccessLevel from SecurityProperty '%s': %s could not be converted to int",
+                            securityLevelProperty, encryptionLevel));
+                }
+            }
+
+            @Override
+            public TypedProperties getSecurityProperties() {
+                return null;
+            }
+        };
     }
 
     /**
