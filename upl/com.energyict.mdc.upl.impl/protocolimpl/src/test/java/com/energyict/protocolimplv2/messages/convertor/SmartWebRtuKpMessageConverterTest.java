@@ -12,8 +12,6 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
@@ -212,7 +210,7 @@ public class SmartWebRtuKpMessageConverterTest {
 
         // asserts
         assertNotNull(messageEntry);
-        assertThat(messageEntry.getContent()).isEqualTo("<connectLoad> </connectLoad>");
+        assertThat(messageEntry.getContent()).isEqualTo("<disconnectLoad> </disconnectLoad>");
     }
 
     @Test
@@ -233,7 +231,7 @@ public class SmartWebRtuKpMessageConverterTest {
 
         // asserts
         assertNotNull(messageEntry);
-        assertThat(messageEntry.getContent()).isEqualTo("<connectLoad Activation_date=\"1234567890321\"> </connectLoad>");
+        assertThat(messageEntry.getContent()).isEqualTo("<disconnectLoad Activation_date=\"1234567890321\"> </disconnectLoad>");
     }
 
     @Test
@@ -249,7 +247,7 @@ public class SmartWebRtuKpMessageConverterTest {
 
         // asserts
         assertNotNull(messageEntry);
-        assertThat(messageEntry.getContent()).isEqualTo("<disconnectLoad> </disconnectLoad>");
+        assertThat(messageEntry.getContent()).isEqualTo("<connectLoad> </connectLoad>");
     }
 
     @Test
@@ -270,7 +268,7 @@ public class SmartWebRtuKpMessageConverterTest {
 
         // asserts
         assertNotNull(messageEntry);
-        assertThat(messageEntry.getContent()).isEqualTo("<disconnectLoad Activation_date=\"1234567890321\"> </disconnectLoad>");
+        assertThat(messageEntry.getContent()).isEqualTo("<connectLoad Activation_date=\"1234567890321\"> </connectLoad>");
     }
 
     @Test
