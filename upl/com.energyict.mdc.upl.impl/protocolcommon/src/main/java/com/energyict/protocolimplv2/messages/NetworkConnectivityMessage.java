@@ -10,38 +10,36 @@ import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import java.util.Arrays;
 import java.util.List;
 
-
 /**
- * Provides a summary of all <i>Security</i> related messages
+ * Provides a summary of all messages related to <i>Network</i> and <i>Connectivity</i>
  * <p/>
  * Copyrights EnergyICT
- * Date: 13/03/13
- * Time: 15:18
+ * Date: 2/04/13
+ * Time: 10:11
  */
-public enum SecurityMessage implements DeviceMessageSpec {
+public enum NetworkConnectivityMessage implements DeviceMessageSpec {
 
-    ACTIVATE_DLMS_ENCRYPTION(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.encryptionLevelAttributeName,
-            DlmsEncryptionLevelMessageValues.getNames())),
-    CHANGE_DLMS_AUTHENTICATION_LEVEL(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.authenticationLevelAttributeName,
-            DlmsAuthenticationLevelMessageValues.getNames())),
-    CHANGE_ENCRYPTION_KEY,
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyName)),
-    CHANGE_AUTHENTICATION_KEY,
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyName)),
-    CHANGE_PASSWORD,
-    CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordName));
+    ACTIVATE_SMS_WAKEUP,
+    DEACTIVATE_SMS_WAKEUP,
+    CHANGE_GPRS_USER_CREDENTIALS(
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.username),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.password)),
+    CHANGE_GPRS_APN_CREDENTIALS(
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.apn),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.username),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.password));
 
-    private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
+    private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private SecurityMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private NetworkConnectivityMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return securityCategory;
+        return networkAndConnectivityCategory;
     }
 
     @Override

@@ -48,7 +48,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     /**
      * The category for all messages that will change the connectivity setup of a device.
      */
-    CHANGE_CONNECTIVITY_SETUP {
+    NETWORK_AND_CONNECTIVITY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Collections.emptyList();

@@ -17,5 +17,3 @@
 -- insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('your key', 'english translation', 'L', 'Y', 'N', 'MDW', sysdate);
 
 
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('SecurityMessage.ACTIVATE_DLMS_ENCRYPTION', 'Activate encryption', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL', 'Change authentication level', 'L', 'Y', 'N', 'MDW', sysdate);

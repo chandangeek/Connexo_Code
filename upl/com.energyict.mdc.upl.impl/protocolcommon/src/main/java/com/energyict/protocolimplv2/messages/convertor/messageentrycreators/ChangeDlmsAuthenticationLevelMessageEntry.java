@@ -33,5 +33,6 @@ public class ChangeDlmsAuthenticationLevelMessageEntry implements MessageEntryCr
         MessageTag messageTag = new MessageTag(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
         messageTag.add(new MessageAttribute(RtuMessageConstant.AEE_AUTHENTICATIONLEVEL, authenticationLevelAttribute.getDeviceMessageAttributeValue()));
         messageTag.add(new MessageValue(" "));
-        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());    }
+        return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
+    }
 }

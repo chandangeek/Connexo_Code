@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.ServerManager;
@@ -13,6 +14,7 @@ import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import org.junit.Before;
@@ -195,6 +197,49 @@ public class SmartWebRtuKpMessageConverterTest {
         assertThat(highLevelMd5).isEqualTo("3");
         assertThat(highLevelSha1).isEqualTo("4");
         assertThat(highLevelGmac).isEqualTo("5");
+    }
+
+    @Test
+    public void formatApnTest(){
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(apn);
+        final String myApn = "com.test.energyict.apn";
+
+        // business method
+        final String formattedApn = smartWebRtuKpMessageConverter.format(propertySpec, myApn);
+
+        // asserts
+        assertThat(formattedApn).isEqualTo(myApn);
+    }
+
+    @Test
+    public void formatUserNameTest(){
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(username);
+        final String myUserName = "MyUser_N@me";
+
+        // business method
+        final String formattedUserName = smartWebRtuKpMessageConverter.format(propertySpec, myUserName);
+
+        // asserts
+        assertThat(formattedUserName).isEqualTo(myUserName);
+    }
+
+    @Test
+    public void formatPasswordTest(){
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(password);
+        final String myPassword = "MyPr1v@t€P@55wd";
+        final Password gprsPassword = new Password(myPassword);
+
+        // business method
+        final String formattedPassword = smartWebRtuKpMessageConverter.format(propertySpec, gprsPassword);
+
+        // asserts
+        assertThat(formattedPassword).isEqualTo(myPassword);
     }
 
     @Test
@@ -464,6 +509,142 @@ public class SmartWebRtuKpMessageConverterTest {
         // asserts
         assertNotNull(messageEntry);
         assertThat(messageEntry.getContent()).isEqualTo("<Change_authentication_level AuthenticationLevel=\"" + authenticationLevel + "\"> </Change_authentication_level>");
-
     }
+
+    @Test
+    public void changeDataTransportEncryptionKeyTest(){
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage changeDataTransportEncryptionKey = mock(OfflineDeviceMessage.class);
+        when(changeDataTransportEncryptionKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_ENCRYPTION_KEY.getPrimaryKey());
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(changeDataTransportEncryptionKey);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Change_DataTransportEncryptionKey/>");
+    }
+
+    @Test
+    public void changeDataTransportAuthenticationKeyTest(){
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage changeDataTransportAuthenticationKey = mock(OfflineDeviceMessage.class);
+        when(changeDataTransportAuthenticationKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_AUTHENTICATION_KEY.getPrimaryKey());
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(changeDataTransportAuthenticationKey);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Change_DataTransportAuthenticationKey/>");
+    }
+    
+    @Test
+    public void changeHlsSecretTest(){
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage changeHlsSecret = mock(OfflineDeviceMessage.class);
+        when(changeHlsSecret.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_PASSWORD.getPrimaryKey());
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(changeHlsSecret);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Change_HLS_Secret/>");
+    }
+
+    @Test
+    public void activateSmsWakeUpMechanismTest(){
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage activateSmsWakeUp = mock(OfflineDeviceMessage.class);
+        when(activateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ACTIVATE_SMS_WAKEUP.getPrimaryKey());
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(activateSmsWakeUp);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Activate_the_wakeup_mechanism/>");
+    }
+
+    @Test
+    public void deActivateSmsWakeUpMechanismTest(){
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage deActivateSmsWakeUp = mock(OfflineDeviceMessage.class);
+        when(deActivateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP.getPrimaryKey());
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(deActivateSmsWakeUp);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<Deactive_the_wakeup_mechanism/>");
+    }
+
+    @Test
+    public void gprsUserCredentialsMessageEntryTest(){
+        final String myUserName = "MyTestUserN@me";
+        final String myPassword = "MyDumm£T€stP@sswd";
+
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage gprsUserCredentials = mock(OfflineDeviceMessage.class);
+        OfflineDeviceMessageAttribute userNameAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(userNameAttribute.getName()).thenReturn(username);
+        when(userNameAttribute.getDeviceMessageAttributeValue()).thenReturn(myUserName);
+        OfflineDeviceMessageAttribute passwordAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(passwordAttribute.getName()).thenReturn(password);
+        when(passwordAttribute.getDeviceMessageAttributeValue()).thenReturn(myPassword);
+        when(gprsUserCredentials.getDeviceMessageAttributes()).thenReturn(Arrays.asList(userNameAttribute, passwordAttribute));
+        when(gprsUserCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS.getPrimaryKey());
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(gprsUserCredentials);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<GPRS_modem_credentials Username=\"MyTestUserN@me\" Password=\"MyDumm£T€stP@sswd\"> </GPRS_modem_credentials>");
+    }
+
+    @Test
+    public void apnCredentialsMessageEntryTest(){
+        final String myUserName = "MyTestUserN@me";
+        final String myPassword = "MyDumm£T€stP@sswd";
+        final String myApn = "com.test.energyict.apn";
+
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage gprsApnCredentials = mock(OfflineDeviceMessage.class);
+        OfflineDeviceMessageAttribute userNameAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(userNameAttribute.getName()).thenReturn(username);
+        when(userNameAttribute.getDeviceMessageAttributeValue()).thenReturn(myUserName);
+        OfflineDeviceMessageAttribute passwordAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(passwordAttribute.getName()).thenReturn(password);
+        when(passwordAttribute.getDeviceMessageAttributeValue()).thenReturn(myPassword);
+        OfflineDeviceMessageAttribute apnAttribute =mock(OfflineDeviceMessageAttribute.class);
+        when(apnAttribute.getName()).thenReturn(apn);
+        when(apnAttribute.getDeviceMessageAttributeValue()).thenReturn(myApn);
+        when(gprsApnCredentials.getDeviceMessageAttributes()).thenReturn(Arrays.asList(userNameAttribute, passwordAttribute, apnAttribute));
+        when(gprsApnCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.getPrimaryKey());
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(gprsApnCredentials);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<GPRS_modem_setup APN=\"com.test.energyict.apn\" Username=\"MyTestUserN@me\" Password=\"MyDumm£T€stP@sswd\"> </GPRS_modem_setup>");
+    }
+
 }
