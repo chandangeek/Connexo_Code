@@ -135,8 +135,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
         final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
         final TypedProperties securityRelatedTypedProperties = new TypedProperties();
-        getSecurityRelatedPropertiesForAuthentication(securityRelatedTypedProperties, typedProperties, authenticationLevel);
-        getSecurityRelatedPropertiesForEncryption(securityRelatedTypedProperties, typedProperties, encryptionLevel);
+        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(securityRelatedTypedProperties, typedProperties, authenticationLevel, this);
+        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForEncryption(securityRelatedTypedProperties, typedProperties, encryptionLevel, this);
 
 
         return new DeviceProtocolSecurityPropertySet() {
@@ -155,26 +155,6 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
                 return securityRelatedTypedProperties;
             }
         };
-    }
-
-    private void getSecurityRelatedPropertiesForAuthentication(TypedProperties securityRelatedTypedProperties, TypedProperties typedProperties, int currentAuthenticationDeviceAccessLevel) {
-        for (AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel : getAuthenticationAccessLevels()) {
-            if (authenticationDeviceAccessLevel.getId()==currentAuthenticationDeviceAccessLevel) {
-                for (PropertySpec propertySpec : authenticationDeviceAccessLevel.getSecurityProperties()) {
-                    securityRelatedTypedProperties.setProperty(propertySpec.getName(), typedProperties.getProperty(propertySpec.getName()));
-                }
-            }
-        }
-    }
-
-    private void getSecurityRelatedPropertiesForEncryption(TypedProperties securityRelatedTypedProperties, TypedProperties typedProperties, int currentEncryptionDeviceAccessLevel) {
-        for (EncryptionDeviceAccessLevel encryptionDeviceAccessLevel : getEncryptionAccessLevels()) {
-            if (encryptionDeviceAccessLevel.getId()==currentEncryptionDeviceAccessLevel) {
-                for (PropertySpec propertySpec : encryptionDeviceAccessLevel.getSecurityProperties()) {
-                    securityRelatedTypedProperties.setProperty(propertySpec.getName(), typedProperties.getProperty(propertySpec.getName()));
-                }
-            }
-        }
     }
 
     private int getEncryptionLevel(String securityLevelProperty) {

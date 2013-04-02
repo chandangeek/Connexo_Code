@@ -99,12 +99,14 @@ public class SimplePasswordSecuritySupportTest {
         SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
         TypedProperties securityProperties = new TypedProperties();
         String passwordValue = "MyPassword";
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
+        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), passwordValue);
 
         DeviceProtocolSecurityPropertySet securityPropertySet = simplePasswordSecuritySupport.convertFromTypedProperties(securityProperties);
         assertThat(securityPropertySet).isNotNull();
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(0);
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(-1);
-        assertThat(securityPropertySet.getSecurityProperties()).isNull();
+        assertThat(securityPropertySet.getSecurityProperties()).isNotNull();
+        assertThat(securityPropertySet.getSecurityProperties().size()).isEqualTo(1);
+        assertThat(securityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName())).isEqualTo("MyPassword");
     }
 }

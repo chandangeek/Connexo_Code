@@ -6,10 +6,9 @@ import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
+import java.util.List;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -115,15 +114,17 @@ public class IEC1107SecuritySupportTest {
     public void testConvertFromTypedProperties() throws Exception {
         IEC1107SecuritySupport iec1107SecuritySupport = new IEC1107SecuritySupport();
         TypedProperties securityProperties = new TypedProperties();
-        securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "MyPassword");
-        securityProperties.setProperty("SecurityLevel", "17");
+        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), "MyPassword");
+        securityProperties.setProperty("SecurityLevel", ""+IEC1107SecuritySupport.AccessLevelIds.LEVEL_ONE.getAccessLevel());
 
         DeviceProtocolSecurityPropertySet securityPropertySet = iec1107SecuritySupport.convertFromTypedProperties(securityProperties);
 
         assertThat(securityPropertySet).isNotNull();
-        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(17);
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);
         assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(-1);
-        assertThat(securityPropertySet.getSecurityProperties()).isNull();
+        assertThat(securityPropertySet.getSecurityProperties()).isNotNull();
+        assertThat(securityPropertySet.getSecurityProperties().size()).isEqualTo(1);
+        assertThat(securityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName())).isEqualTo("MyPassword");
 
 
     }

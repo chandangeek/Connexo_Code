@@ -90,6 +90,9 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
             throw new IllegalStateException("Cannot convert TypedProperties without "+ ENCRYPTION_KEY_PROPERTY_NAME +"-property");
         }
         final int encryptionDeviceAccessLevel = Integer.valueOf(encryptionKeyProperty);
+        final TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(securityRelatedTypedProperties, typedProperties, authenticationDeviceAccessLevel, this);
+        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForEncryption(securityRelatedTypedProperties, typedProperties, encryptionDeviceAccessLevel, this);
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
@@ -104,7 +107,7 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
 
             @Override
             public TypedProperties getSecurityProperties() {
-                return null;
+                return securityRelatedTypedProperties;
             }
         };
     }

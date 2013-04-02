@@ -105,6 +105,8 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
             throw new IllegalStateException("Cannot convert TypedProperties without "+ SECURITY_LEVEL_PROPERTY_NAME +"-property");
         }
         final int authenticationLevel = Integer.valueOf(securityLevelProperty);
+        final TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(securityRelatedTypedProperties, typedProperties, authenticationLevel, this);
         return new DeviceProtocolSecurityPropertySet() {
             @Override
             public int getAuthenticationDeviceAccessLevel() {
@@ -118,7 +120,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
             @Override
             public TypedProperties getSecurityProperties() {
-                return null;
+                return securityRelatedTypedProperties;
             }
         };
     }

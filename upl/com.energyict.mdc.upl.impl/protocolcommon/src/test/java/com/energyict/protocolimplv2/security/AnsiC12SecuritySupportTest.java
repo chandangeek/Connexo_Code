@@ -120,6 +120,7 @@ public class AnsiC12SecuritySupportTest {
         AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
         TypedProperties securityProperties = new TypedProperties();
         securityProperties.setProperty("SecurityLevel", "1");
+        securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), "1pwd2");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = ansiC12SecuritySupport.convertFromTypedProperties(securityProperties);
         assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);

@@ -81,6 +81,10 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
                 passwordProperty==null?
                 new NoAuthenticationAccessLevel() :
                 new StandardAuthenticationAccessLevel();
+
+        final TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(securityRelatedTypedProperties, typedProperties, authenticationDeviceAccessLevel.getId(), this);
+
         return new DeviceProtocolSecurityPropertySet() {
             @Override
             public int getAuthenticationDeviceAccessLevel() {
@@ -94,7 +98,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
 
             @Override
             public TypedProperties getSecurityProperties() {
-                return null;
+                return securityRelatedTypedProperties;
             }
         };
     }
