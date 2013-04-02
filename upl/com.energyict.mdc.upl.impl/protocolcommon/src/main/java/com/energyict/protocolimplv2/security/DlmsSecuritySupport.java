@@ -124,7 +124,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
     }
 
     @Override
-    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(final TypedProperties typedProperties) {
         final String securityLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
         if (securityLevelProperty==null) {
             throw new IllegalStateException("Cannot convert TypedProperties without "+ SECURITY_LEVEL_PROPERTY_NAME +"-property");
@@ -132,35 +132,69 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         if (!securityLevelProperty.contains(":")) {
             throw new IllegalStateException("Cannot convert TypedProperties: expected property "+ SECURITY_LEVEL_PROPERTY_NAME +" to have format '<auth>:<encryption>', but found "+securityLevelProperty);
         }
-        final String authenticationLevel = securityLevelProperty.substring(0, securityLevelProperty.indexOf(':'));
-        final String encryptionLevel = securityLevelProperty.substring(securityLevelProperty.indexOf(':')+1);
+        final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
+        final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
+        final TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        getSecurityRelatedPropertiesForAuthentication(securityRelatedTypedProperties, typedProperties, authenticationLevel);
+        getSecurityRelatedPropertiesForEncryption(securityRelatedTypedProperties, typedProperties, encryptionLevel);
+
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
             public int getAuthenticationDeviceAccessLevel() {
-                try {
-                    return Integer.parseInt(authenticationLevel);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException(String.format("Failed to extract AuthenticationDeviceAccessLevel from SecurityProperty '%s': %s could not be converted to int",
-                            securityLevelProperty, authenticationLevel));
-                }
+                return authenticationLevel;
             }
 
             @Override
             public int getEncryptionDeviceAccessLevel() {
-                try {
-                    return Integer.parseInt(encryptionLevel);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException(String.format("Failed to extract EncryptionDeviceAccessLevel from SecurityProperty '%s': %s could not be converted to int",
-                            securityLevelProperty, encryptionLevel));
-                }
+                return encryptionLevel;
             }
 
             @Override
             public TypedProperties getSecurityProperties() {
-                return null;
+                return securityRelatedTypedProperties;
             }
         };
+    }
+
+    private void getSecurityRelatedPropertiesForAuthentication(TypedProperties securityRelatedTypedProperties, TypedProperties typedProperties, int currentAuthenticationDeviceAccessLevel) {
+        for (AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel : getAuthenticationAccessLevels()) {
+            if (authenticationDeviceAccessLevel.getId()==currentAuthenticationDeviceAccessLevel) {
+                for (PropertySpec propertySpec : authenticationDeviceAccessLevel.getSecurityProperties()) {
+                    securityRelatedTypedProperties.setProperty(propertySpec.getName(), typedProperties.getProperty(propertySpec.getName()));
+                }
+            }
+        }
+    }
+
+    private void getSecurityRelatedPropertiesForEncryption(TypedProperties securityRelatedTypedProperties, TypedProperties typedProperties, int currentEncryptionDeviceAccessLevel) {
+        for (EncryptionDeviceAccessLevel encryptionDeviceAccessLevel : getEncryptionAccessLevels()) {
+            if (encryptionDeviceAccessLevel.getId()==currentEncryptionDeviceAccessLevel) {
+                for (PropertySpec propertySpec : encryptionDeviceAccessLevel.getSecurityProperties()) {
+                    securityRelatedTypedProperties.setProperty(propertySpec.getName(), typedProperties.getProperty(propertySpec.getName()));
+                }
+            }
+        }
+    }
+
+    private int getEncryptionLevel(String securityLevelProperty) {
+        String encryptionLevel = securityLevelProperty.substring(securityLevelProperty.indexOf(':') + 1);
+        try {
+            return Integer.parseInt(encryptionLevel);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(String.format("Failed to extract EncryptionDeviceAccessLevel from SecurityProperty '%s': %s could not be converted to int",
+                    securityLevelProperty, encryptionLevel));
+        }
+    }
+
+    private int getAuthenticationLevel(String securityLevelProperty) {
+        String authLevel = securityLevelProperty.substring(0, securityLevelProperty.indexOf(':'));
+        try {
+            return Integer.parseInt(authLevel);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(String.format("Failed to extract AuthenticationDeviceAccessLevel from SecurityProperty '%s': %s could not be converted to int",
+                    securityLevelProperty, authLevel));
+        }
     }
 
     /**
