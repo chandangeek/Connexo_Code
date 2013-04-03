@@ -51,7 +51,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
     NETWORK_AND_CONNECTIVITY {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Collections.emptyList();
+            return Arrays.<DeviceMessageSpec>asList(NetworkConnectivityMessage.values());
         }
     },
 
@@ -81,6 +81,24 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(DeviceActionMessage.values());
+        }
+    },
+    /**
+     * The category for all messages that relate to <i>a</i> display (InHomeDisplay, Display of E-meter, ...)
+     */
+    DISPLAY {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(DisplayDeviceMessage.values());
+        }
+    },
+    /**
+     * The category for all messages that relate to load limiting
+     */
+    LOAD_BALANCE {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(LoadBalanceDeviceMessage.values());
         }
     };
 

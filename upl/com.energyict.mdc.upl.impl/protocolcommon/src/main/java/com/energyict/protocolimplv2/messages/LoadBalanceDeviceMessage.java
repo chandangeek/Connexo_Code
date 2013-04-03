@@ -10,38 +10,41 @@ import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+
 /**
- * Provides a summary of all messages related to <i>Network</i> and <i>Connectivity</i>
+ * Provides a summary of all messages related to
+ * <ul>
+ * <li>Load limiting</li>
+ * <li>Energy balance</li>
+ * <li>Grid stability</li>
+ * </ul>
  * <p/>
  * Copyrights EnergyICT
- * Date: 2/04/13
- * Time: 10:11
+ * Date: 3/04/13
+ * Time: 9:43
  */
-public enum NetworkConnectivityMessage implements DeviceMessageSpec {
+public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
 
-    ACTIVATE_SMS_WAKEUP,
-    DEACTIVATE_SMS_WAKEUP,
-    CHANGE_GPRS_USER_CREDENTIALS(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
-    CHANGE_GPRS_APN_CREDENTIALS(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.apnAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
-    // will be a semicolon separated string (maybe in the future this will be a StringListAspectEditor ...
-    ADD_PHONENUMBERS_TO_WHITE_LIST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName));
+    CONFIGURE_LOAD_LIMIT_PARAMETERS(
+            PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(emergencyThresholdAttributeName),
+            PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName)),
+    SET_EMERGENCY_PROFILE_GROUP_IDS(PropertySpecFactory.lookupPropertySpec(emergencyProfileIdLookupAttributeName)),
+    CLEAR_LOAD_LIMIT_CONFIGURATION();
 
-    private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
+    private static final DeviceMessageCategory LOAD_BALANCE_CATEGORY = DeviceMessageCategories.LOAD_BALANCE;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private NetworkConnectivityMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private LoadBalanceDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return networkAndConnectivityCategory;
+        return LOAD_BALANCE_CATEGORY;
     }
 
     @Override
@@ -56,7 +59,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return SecurityMessage.class.getSimpleName() + "." + this.toString();
+        return FirmwareDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override

@@ -11,37 +11,28 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides a summary of all messages related to <i>Network</i> and <i>Connectivity</i>
+ * Provides a summary of all messages related to a <i>Display</i>
  * <p/>
  * Copyrights EnergyICT
- * Date: 2/04/13
- * Time: 10:11
+ * Date: 3/04/13
+ * Time: 8:38
  */
-public enum NetworkConnectivityMessage implements DeviceMessageSpec {
+public enum DisplayDeviceMessage implements DeviceMessageSpec {
 
-    ACTIVATE_SMS_WAKEUP,
-    DEACTIVATE_SMS_WAKEUP,
-    CHANGE_GPRS_USER_CREDENTIALS(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
-    CHANGE_GPRS_APN_CREDENTIALS(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.apnAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
-            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
-    // will be a semicolon separated string (maybe in the future this will be a StringListAspectEditor ...
-    ADD_PHONENUMBERS_TO_WHITE_LIST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName));
+    CONSUMER_MESSAGE_CODE_TO_PORT_P1(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName)),
+    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName));
 
-    private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
+    private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.DISPLAY;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private NetworkConnectivityMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private DisplayDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return networkAndConnectivityCategory;
+        return displayCategory;
     }
 
     @Override

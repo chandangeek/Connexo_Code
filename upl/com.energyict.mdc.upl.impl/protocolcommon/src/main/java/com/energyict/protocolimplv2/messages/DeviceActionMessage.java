@@ -10,13 +10,16 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Provides a summary of all messages related to general Device Actions
+ * <p/>
  * Copyrights EnergyICT
  * Date: 11/03/13
  * Time: 11:59
  */
 public enum DeviceActionMessage implements DeviceMessageSpec {
 
-    BILLING_RESET;
+    BILLING_RESET,
+    GLOBAL_METER_RESET;
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
 

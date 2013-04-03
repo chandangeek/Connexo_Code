@@ -25,11 +25,11 @@ public enum SecurityMessage implements DeviceMessageSpec {
     CHANGE_DLMS_AUTHENTICATION_LEVEL(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.authenticationLevelAttributeName,
             DlmsAuthenticationLevelMessageValues.getNames())),
     CHANGE_ENCRYPTION_KEY,
-    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyName)),
+    CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
     CHANGE_AUTHENTICATION_KEY,
-    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyName)),
+    CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)),
     CHANGE_PASSWORD,
-    CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordName));
+    CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName));
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 

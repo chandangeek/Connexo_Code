@@ -17,3 +17,22 @@
 -- insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('your key', 'english translation', 'L', 'Y', 'N', 'MDW', sysdate);
 
 
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST', 'Add phonenumbers to white list', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.whitelist.phonenumbers', 'Phonenumbers', 'L', 'Y', 'N', 'MDW', sysdate);
+
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DisplayDeviceMessage.consumer.CONSUMER_MESSAGE_CODE_TO_PORT_P1', 'Send a code message to the P1 port', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DisplayDeviceMessage.consumer.CONSUMER_MESSAGE_TEXT_TO_PORT_P1', 'Send a text message to the P1 port', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DisplayDeviceMessage.consumer.p1', 'P1 message', 'L', 'Y', 'N', 'MDW', sysdate);
+
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceActionMessage.GLOBAL_METER_RESET', 'Global meter reset', 'L', 'Y', 'N', 'MDW', sysdate);
+
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS', 'Configure the load limit parameters', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS', 'Set the load limit emergency profiles', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION', 'Clear the load limit configuration', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.normalthreshold', 'Normal threshold', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.emergencythreshold', 'Emergency threshold', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.overthresholdduration', 'Threshold exceed duration', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.emergencyprofileid', 'Emergency profile ID', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.emergencyProfileActivationDate', 'Emergency profile activation date', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.emergencyProfileDuration', 'Emergency profile duration', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.emergencyprofileidlookup', 'Emergency profile group IDs', 'L', 'Y', 'N', 'MDW', sysdate);
