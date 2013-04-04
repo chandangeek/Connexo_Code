@@ -2,33 +2,57 @@ package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.Transaction;
-import com.energyict.cpo.TypedProperties;
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
-import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.genericprotocolimpl.common.wakeup.SmsWakeup;
 import com.energyict.genericprotocolimpl.webrtuz3.Z3MeterToolProtocol;
-import com.energyict.mdw.amr.*;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -529,6 +553,10 @@ public abstract class DLMSProtocol extends GenericMessaging implements ProtocolL
 //        doInit();
 //    }
 
+    protected InvokeIdAndPriorityHandler buildInvokeIdAndPriorityHandler() throws IOException {
+        return new NonIncrementalInvokeIdAndPriorityHandler(this.invokeIdAndPriority);
+    }
+
     /**
      * Return the SystemTitle to be used in the DLMS association request.
      * Override this method to give a custom value
@@ -605,7 +633,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements ProtocolL
                     this.lowerHDLCAddress, this.upperHDLCAddress, this.addressingMode, this.informationFieldSize, 5);
         } else if (this.connectionMode == 1) {
             transportConnection = new TCPIPConnection(this.link.getInputStream(), this.link.getOutputStream(), this.timeOut, this.forceDelay, this.retries, this.clientMacAddress,
-                    this.destinationWPortNumber);
+                    this.destinationWPortNumber, getLogger());
         } else {
             throw new IOException("Unknown connectionMode: " + this.connectionMode + " - Only 0(HDLC) and 1(TCP) are allowed");
         }
@@ -732,8 +760,8 @@ public abstract class DLMSProtocol extends GenericMessaging implements ProtocolL
      */
     protected InvokeIdAndPriority buildDefaultInvokeIdAndPriority() throws DLMSConnectionException {
         InvokeIdAndPriority iiap = new InvokeIdAndPriority();
-        iiap.setPriority(0);
-        iiap.setServiceClass(1);
+        iiap.setPriority(InvokeIdAndPriority.Priority.NORMAL);
+        iiap.setServiceClass(InvokeIdAndPriority.ServiceClass.CONFIRMED);
         iiap.setTheInvokeId(1);
         return iiap;
     }
@@ -842,21 +870,6 @@ public abstract class DLMSProtocol extends GenericMessaging implements ProtocolL
     public void addProperties(Properties properties) {
         this.properties = properties;
     }
-//
-//    @Override
-//    public void addProperties(TypedProperties properties) {
-//        addProperties(properties.toStringProperties());
-//    }
-//
-//    @Override
-//    public List<PropertySpec> getRequiredProperties() {
-//        return PropertySpecFactory.toPropertySpecs(getRequiredKeys());
-//    }
-//
-//    @Override
-//    public List<PropertySpec> getOptionalProperties() {
-//        return PropertySpecFactory.toPropertySpecs(getOptionalKeys());
-//    }
 
     /**
      * Getter for the Properties object

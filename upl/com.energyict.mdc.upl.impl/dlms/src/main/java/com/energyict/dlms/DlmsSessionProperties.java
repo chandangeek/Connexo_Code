@@ -58,7 +58,7 @@ public interface DlmsSessionProperties {
 
     String getSystemIdentifier();
 
-    InvokeIdAndPriority getInvokeIdAndPriority();
+    InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler();
 
     int getMaxRecPDUSize();
 

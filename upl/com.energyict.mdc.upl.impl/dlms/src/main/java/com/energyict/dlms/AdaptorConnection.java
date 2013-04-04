@@ -8,15 +8,45 @@ import java.io.IOException;
 
 public class AdaptorConnection implements DLMSConnection {
 
-    ByteArrayOutputStream baos = null;
-    private InvokeIdAndPriority invokeIdAndPriority = new InvokeIdAndPriority();
+    ByteArrayOutputStream baos;
+    private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
+
+    public AdaptorConnection() {
+        invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
+    }
+
+    public byte[] readResponseWithRetries(byte[] retryRequest) throws IOException {
+        throw new IOException("AdaptorConnection, readResponseWithRetries method not supported");
+    }
+
+    public byte[] readResponseWithRetries(byte[] retryRequest, boolean isAlreadyEncrypted) throws IOException {
+        throw new IOException("AdaptorConnection, readResponseWithRetries method not supported");
+    }
 
     public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
         if (baos == null) {
             baos = new ByteArrayOutputStream();
         }
-        baos.write(byteRequestBuffer, 3, byteRequestBuffer.length - 3); // skip HDLS LLC
+        baos.write(byteRequestBuffer, 3, byteRequestBuffer.length - 3); // skip HDLC LLC
         return null;
+    }
+
+    public byte[] sendRequest(final byte[] encryptedRequest, boolean isAlreadyEncrypted) throws IOException {
+        return sendRequest(encryptedRequest);
+    }
+
+    public void setTimeout(int timeout) {
+    }
+
+    public int getTimeout() {
+        return 0;
+    }
+
+    public void sendUnconfirmedRequest(final byte[] byteRequestBuffer) throws IOException {
+        if (baos == null) {
+            baos = new ByteArrayOutputStream();
+        }
+        baos.write(byteRequestBuffer, 3, byteRequestBuffer.length - 3); // skip HDLC LLC
     }
 
     public void reset() {
@@ -43,6 +73,10 @@ public class AdaptorConnection implements DLMSConnection {
         return 0;
     }
 
+    public byte[] sendRawBytes(byte[] data) throws IOException {
+        return new byte[0];
+    }
+
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
         // Nothing to do
     }
@@ -55,12 +89,12 @@ public class AdaptorConnection implements DLMSConnection {
         // Nothing to do
     }
 
-    public void setInvokeIdAndPriority(InvokeIdAndPriority iiap) {
-        this.invokeIdAndPriority = iiap;
+    public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
+        return this.invokeIdAndPriorityHandler;
     }
 
-    public InvokeIdAndPriority getInvokeIdAndPriority() {
-        return this.invokeIdAndPriority;
+    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
+        this.invokeIdAndPriorityHandler = iiapHandler;
     }
 
     public int getMaxRetries() {

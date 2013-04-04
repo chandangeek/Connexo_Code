@@ -3,7 +3,9 @@ package com.energyict.dlms;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,9 +32,9 @@ public class IF2Connection implements DLMSConnection {
     public static final int HIGH_BAUDRATE = 115200;
 
     /**
-     * The configured or default invokeIdAndPriority
+     * The configured or default invokeIdAndPriorityHandler
      */
-    private InvokeIdAndPriority invokeIdAndPriority;
+    private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
 
     /**
      * The HHUSignOn object used during the connect and disconnect
@@ -55,9 +57,14 @@ public class IF2Connection implements DLMSConnection {
     private final int maxRetries;
 
     /**
+     * The current try count, 0-based
+     */
+    protected int currentTryCount;
+
+    /**
      * The timeout in milli seconds to wait for a valid response
      */
-    private final int timeout;
+    private int timeout;
 
     /**
      * The address used to identify the client
@@ -110,15 +117,15 @@ public class IF2Connection implements DLMSConnection {
      * @param logger       The logger to use during the connection.
      *                     The IF2Connection will create a new logger if the given logger was null
      */
-    public IF2Connection(InputStream in, OutputStream out, int timeout, int retries, int forcedDelay, int clientAddr, int serverAddr, int connectionId, Logger logger) {
+    public IF2Connection(InputStream in, OutputStream out, int timeout, int retries, int forcedDelay, int deviceBufferSize, int clientAddr, int serverAddr, int connectionId, Logger logger) {
         this.maxRetries = retries;
         this.timeout = timeout;
         this.clientAddress = clientAddr;
         this.serverAddress = serverAddr;
         this.connectionId = connectionId;
         this.logger = logger != null ? logger : Logger.getLogger(getClass().getName());
-        this.invokeIdAndPriority = new InvokeIdAndPriority();
-        this.if2LinkLayer = new IF2LinkLayer(in, out, timeout, IF2LinkLayer.DEFAULT_DEVICE_BUFFER_SIZE, forcedDelay, logger);
+        this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
+        this.if2LinkLayer = new IF2LinkLayer(in, out, timeout, deviceBufferSize <= 0 ? IF2LinkLayer.DEFAULT_DEVICE_BUFFER_SIZE : deviceBufferSize, forcedDelay, logger);
         this.if2LinkLayer.setDebug(true);
         this.connected = false;
     }
@@ -153,6 +160,10 @@ public class IF2Connection implements DLMSConnection {
         return ConnectionMode.IF2.getMode();
     }
 
+    public byte[] sendRawBytes(byte[] data) throws IOException {
+        return new byte[0];
+    }
+
     /**
      * This method is not required for IF2, so it's not implemented and does nothing
      *
@@ -170,20 +181,12 @@ public class IF2Connection implements DLMSConnection {
         this.switchAddresses = iskraWrapper == 1;
     }
 
-    /**
-     * Configure the InvokeIdAndPriority for this dlms connection
-     *
-     * @param iiap The new InvokeIdAndPriority
-     */
-    public void setInvokeIdAndPriority(InvokeIdAndPriority iiap) {
-        this.invokeIdAndPriority = iiap;
+    public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
+        return this.invokeIdAndPriorityHandler;
     }
 
-    /**
-     * @return The configured or default InvokeIdAndPriority
-     */
-    public InvokeIdAndPriority getInvokeIdAndPriority() {
-        return this.invokeIdAndPriority;
+    public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
+        this.invokeIdAndPriorityHandler = iiapHandler;
     }
 
     /**
@@ -203,7 +206,7 @@ public class IF2Connection implements DLMSConnection {
     /**
      * Do the HHUSignOn if required, send an ack-power-up and connect request message to the IF2 interface.
      *
-     * @throws java.io.IOException             If the ack-power-up or connect message fails for some reason
+     * @throws IOException             If the ack-power-up or connect message fails for some reason
      * @throws DLMSConnectionException This implementation does not use the DLMSConnectionException
      */
     public void connectMAC() throws IOException, DLMSConnectionException {
@@ -250,17 +253,48 @@ public class IF2Connection implements DLMSConnection {
     /**
      * Notify the IF2 interface of a disconnect of the reserved CID and mark the connection as disconnected.
      *
-     * @throws java.io.IOException             If the disconnect message fails for some reason
+     * @throws IOException             If the disconnect message fails for some reason
      * @throws DLMSConnectionException This implementation does not use the DLMSConnectionException
      */
     public void disconnectMAC() throws IOException, DLMSConnectionException {
         if2LinkLayer.write(IF2Packet.createDisconnectRequest(this.connectionId));
 
+        delay(500);
+
         if (this.hhuSignOn != null) {
             this.hhuSignOn.signOn("", this.meterId, 9600);
         }
 
+        delay(500);
+
         this.connected = false;
+    }
+
+    public byte[] readResponseWithRetries(byte[] retryRequest) throws IOException {
+        boolean firstRead = true;
+        // this.currentTryCount contains the current try number - we should not start again from 0, but continue from current try number
+
+        // Strip the first 3 bytes of the request to get the plain cosem APDU
+        final byte[] cosemApdu = DLMSUtils.getSubArray(retryRequest, 3);
+
+        do {
+            try {
+                if (firstRead) {
+                    firstRead = false;      // In the first iteration, do not send a retry, but start directly reading
+                } else {
+                    if2LinkLayer.write(IF2Packet.createDataIndication(this.connectionId, clientAddress, serverAddress, cosemApdu));     // Do send out retry request
+                }
+                return doReadResponse();
+            } catch (IOException e) {
+                this.logger.log(Level.WARNING, "Unable to send and/or receive IF2 packet after [" + this.currentTryCount + "/" + getMaxRetries() + "] retries: " + e.getMessage(), e);
+                this.currentTryCount++;
+            }
+        } while (this.currentTryCount <= getMaxRetries());
+        throw new IOException("Unable to send and/or receive IF2 packet after [" + getMaxRetries() + "] retries.");
+    }
+
+    public byte[] readResponseWithRetries(byte[] retryRequest, boolean isAlreadyEncrypted) throws IOException {
+        return this.readResponseWithRetries(retryRequest);
     }
 
     /**
@@ -270,22 +304,66 @@ public class IF2Connection implements DLMSConnection {
      *
      * @param request The APDU request (+3 legacy prefix bytes)
      * @return The response from the device (cosem apdu + 3 legacy bytes)
-     * @throws java.io.IOException If there was an error while reading or writing the IF2 packet after ... retries
+     * @throws IOException If there was an error while reading or writing the IF2 packet after ... retries
      */
     public byte[] sendRequest(byte[] request) throws IOException {
         // Strip the first 3 bytes of the request to get the plain cosem APDU
         final byte[] cosemApdu = DLMSUtils.getSubArray(request, 3);
 
-        int retries = 0;
+        resetCurrentTryCount();
         do {
             try {
                 return doSendRequest(cosemApdu);
             } catch (IOException e) {
-                this.logger.log(Level.WARNING, "Unable to send and/or receive IF2 packet after [" + retries + "/" + getMaxRetries() + "] retries: " + e.getMessage(), e);
-                retries++;
+                this.logger.log(Level.WARNING, "Unable to send and/or receive IF2 packet after [" + this.currentTryCount + "/" + getMaxRetries() + "] retries: " + e.getMessage(), e);
+                this.currentTryCount++;
             }
-        } while (retries <= getMaxRetries());
+        } while (this.currentTryCount <= getMaxRetries());
         throw new IOException("Unable to send and/or receive IF2 packet after [" + getMaxRetries() + "] retries.");
+    }
+
+    public byte[] sendRequest(final byte[] encryptedRequest, boolean isAlreadyEncrypted) throws IOException {
+        return sendRequest(encryptedRequest);
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    /**
+     * Write a given request to the IF2 interface, using the correct IF2 command
+     * and wait for the response. This is a blocking call and only returns if an
+     * answer was received or if the (timeout * retries) was reached.
+     *
+     * @param request The unconfirmed request to send
+     * @throws IOException If there occurred an error while sending the request
+     */
+    public void sendUnconfirmedRequest(final byte[] request) throws IOException {
+        // Strip the first 3 bytes of the request to get the plain cosem APDU
+        final byte[] cosemApdu = DLMSUtils.getSubArray(request, 3);
+
+        resetCurrentTryCount();
+        do {
+            try {
+                // Wrap the COSEM apdu in an IF2 data indication packet, and send it to the IF2 interface
+                if2LinkLayer.write(IF2Packet.createDataIndication(this.connectionId, clientAddress, serverAddress, cosemApdu));
+                return;
+            } catch (IOException e) {
+                this.logger.log(Level.WARNING, "Unable to send and/or receive IF2 packet after [" + this.currentTryCount + "/" + getMaxRetries() + "] retries: " + e.getMessage(), e);
+                this.currentTryCount++;
+
+                if (this.currentTryCount <= getMaxRetries()) {
+                    this.logger.log(Level.WARNING, "Sleeping for [" + timeout + " ms] until next try ...");
+                    delay(timeout);
+                }
+            }
+
+        } while (this.currentTryCount <= getMaxRetries());
+        throw new IOException("Unable to send unconfirmed IF2 packet after [" + getMaxRetries() + "] retries.");
     }
 
     /**
@@ -295,12 +373,15 @@ public class IF2Connection implements DLMSConnection {
      *
      * @param cosemApdu The cosem APDU
      * @return The response from the device (cosem apdu + 3 legacy bytes)
-     * @throws java.io.IOException If there was an error while reading or writing the IF2 packet
+     * @throws IOException If there was an error while reading or writing the IF2 packet
      */
     private byte[] doSendRequest(byte[] cosemApdu) throws IOException {
         // Wrap the COSEM apdu in an IF2 data indication packet, and send it to the IF2 interface
         if2LinkLayer.write(IF2Packet.createDataIndication(this.connectionId, clientAddress, serverAddress, cosemApdu));
+        return doReadResponse();
+    }
 
+    private byte[] doReadResponse() throws IOException {
         // Wait for the data request packet, and answer some other IF2 requests if required (power-up, ping, ...)
         long replyTimeout = System.currentTimeMillis() + this.timeout;
         do {
@@ -324,12 +405,16 @@ public class IF2Connection implements DLMSConnection {
         throw new IOException("Timeout while waiting for IF2 reply.");
     }
 
+    private void resetCurrentTryCount() {
+        this.currentTryCount = 0;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("IF2Connection");
         sb.append("{clientAddress=").append(clientAddress);
-        sb.append(", invokeIdAndPriority=").append(invokeIdAndPriority);
+        sb.append(", invokeIdAndPriorityHandler=").append(invokeIdAndPriorityHandler);
         sb.append(", hhuSignOn=").append(hhuSignOn);
         sb.append(", meterId='").append(meterId).append('\'');
         sb.append(", connected=").append(connected);

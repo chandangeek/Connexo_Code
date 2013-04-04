@@ -3,21 +3,51 @@ package com.energyict.protocolimpl.dlms.idis;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -34,6 +64,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     private static final String CALLING_AP_TITLE = "CallingAPTitle";
     private static final String LOAD_PROFILE_OBIS_CODE_PROPERTY = "LoadProfileObisCode";
     public static final String OBISCODE_LOAD_PROFILE1 = "1.0.99.1.0.255";   //Quarterly
+    public static final String VALIDATE_INVOKE_ID = "ValidateInvokeId";
+    public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
 
     private ProfileDataReader profileDataReader = null;
     private IDISMessageHandler messageHandler = null;
@@ -151,6 +183,28 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     }
 
     @Override
+    protected InvokeIdAndPriorityHandler buildInvokeIdAndPriorityHandler() throws IOException {
+        try {
+            InvokeIdAndPriority iiap = new InvokeIdAndPriority();
+            iiap.setPriority(this.iiapPriority);
+            iiap.setServiceClass(this.iiapServiceClass);
+            iiap.setTheInvokeId(this.iiapInvokeId);
+            if (validateInvokeId()) {
+                return new IncrementalInvokeIdAndPriorityHandler(iiap);
+            } else {
+                return new NonIncrementalInvokeIdAndPriorityHandler(iiap);
+            }
+        } catch (DLMSConnectionException e) {
+            getLogger().info("Some configured properties are invalid. " + e.getMessage());
+            throw new IOException(e.getMessage());
+        }
+    }
+
+    protected boolean validateInvokeId() {
+        return Integer.parseInt(properties.getProperty(this.VALIDATE_INVOKE_ID, this.DEFAULT_VALIDATE_INVOKE_ID)) == 1;
+    }
+
+    @Override
     public void validateSerialNumber() throws IOException {
         //Not used.
     }
@@ -217,6 +271,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
         optional.add(READCACHE_PROPERTY);
         optional.add(LOAD_PROFILE_OBIS_CODE_PROPERTY);
         optional.add(CALLING_AP_TITLE);
+        optional.add(DlmsProtocolProperties.ISKRA_WRAPPER);
         return optional;
     }
 
@@ -227,6 +282,9 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
         return required;
     }
 
+    /**
+     * The protocol version
+     */
     @Override
     public String getProtocolVersion() {
         return "$Date$";

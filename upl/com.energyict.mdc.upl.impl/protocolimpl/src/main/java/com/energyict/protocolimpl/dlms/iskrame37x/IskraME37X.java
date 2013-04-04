@@ -252,16 +252,19 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     ObisCode breakerObisCode = ObisCode.fromString("0.0.128.30.21.255");
     ObisCode eventLogObisCode = ObisCode.fromString("1.0.99.98.0.255");
 
-    /** Creates a new instance of IskraME37X, empty constructor*/
-    public IskraME37X()
-    {
+    /**
+     * Creates a new instance of IskraME37X, empty constructor
+     */
+    public IskraME37X() {
     } // public IskraME37X(...)
 
     public DLMSConnection getDLMSConnection() {
         return dlmsConnection;
     }
 
-    /** initializes the receiver
+    /**
+     * initializes the receiver
+     *
      * @param inputStream  <br>
      * @param outputStream <br>
      * @param timeZone     <br>
@@ -283,7 +286,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             if (connectionMode == 0) {
                 dlmsConnection = new HDLCConnection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress, iServerUpperMacAddress, addressingMode);
             } else {
-                dlmsConnection = new TCPIPConnection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerUpperMacAddress);
+                dlmsConnection = new TCPIPConnection(inputStream, outputStream, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerUpperMacAddress, getLogger());
             }
             dlmsConnection.setIskraWrapper(1);
 
@@ -344,7 +347,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     /**
      * Method to request the Application Association Establishment for a DLMS session.
-     * @exception IOException
+     *
+     * @throws IOException
      */
     public void requestApplAssoc() throws IOException {
         byte[] aarq;
@@ -610,8 +614,9 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     /**
      * Method that requests the recorder interval in min.
+     *
      * @return Remote meter 'recorder interval' in min.
-     * @exception IOException
+     * @throws IOException
      */
     public int getProfileInterval() throws IOException {
         if (iInterval == 0) {
@@ -940,7 +945,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     /**
      * This method sets the time/date in the remote meter equal to the system time/date of the machine where this object resides.
-     * @exception IOException
+     *
+     * @throws IOException
      */
     public void setTime() throws IOException {
         Calendar calendar = null;
@@ -1021,7 +1027,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     /**
      * This method requests for the COSEM object SAP.
-     * @exception IOException
+     *
+     * @throws IOException
      */
     public void requestSAP() throws IOException {
         String devID = (String) getCosemObjectFactory().getSAPAssignment().getLogicalDeviceNames().get(0);
@@ -1194,7 +1201,8 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     /**
      * This method requests for the COSEM object list in the remote meter. A list is byuild with LN and SN references.
      * This method must be executed before other request methods.
-     * @exception IOException
+     *
+     * @throws IOException
      */
     private void requestObjectList() throws IOException {
         meterConfig.setInstantiatedObjectList(getCosemObjectFactory().getAssociationLN().getBuffer());
@@ -1239,8 +1247,10 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         return "UNAVAILABLE";
     }
 
-    /** this implementation calls <code> validateProperties </code>
+    /**
+     * this implementation calls <code> validateProperties </code>
      * and assigns the argument to the properties field
+     *
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
@@ -1250,9 +1260,11 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         //this.properties = properties;
     }
 
-    /** <p>validates the properties.</p><p>
+    /**
+     * <p>validates the properties.</p><p>
      * The default implementation checks that all required parameters are present.
      * </p>
+     *
      * @param properties <br>
      * @throws MissingPropertyException <br>
      * @throws InvalidPropertyException <br>
@@ -1310,7 +1322,9 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
 
     }
 
-    /** this implementation throws UnsupportedException. Subclasses may override
+    /**
+     * this implementation throws UnsupportedException. Subclasses may override
+     *
      * @param name <br>
      * @return the register value
      * @throws IOException             <br>
@@ -1339,7 +1353,9 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         }
     }
 
-    /** this implementation throws UnsupportedException. Subclasses may override
+    /**
+     * this implementation throws UnsupportedException. Subclasses may override
+     *
      * @param name  <br>
      * @param value <br>
      * @throws IOException             <br>
@@ -1350,7 +1366,9 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         throw new UnsupportedException();
     }
 
-    /** this implementation throws UnsupportedException. Subclasses may override
+    /**
+     * this implementation throws UnsupportedException. Subclasses may override
+     *
      * @throws IOException          <br>
      * @throws UnsupportedException <br>
      */
@@ -1379,7 +1397,9 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         return result;
     }
 
-    /** this implementation returns an empty list
+    /**
+     * this implementation returns an empty list
+     *
      * @return a list of strings
      */
     public List getOptionalKeys() {
@@ -1512,7 +1532,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             if (ocm == null) {
-				ocm = new ObisCodeMapper(this);
+                ocm = new ObisCodeMapper(this);
             }
             return ocm.getRegisterValue(obisCode);
         } catch (Exception e) {
@@ -1524,12 +1544,12 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-    /*******************************************************************************************
-    M e s s a g e P r o t o c o l  i n t e r f a c e
+    /**
+     * ****************************************************************************************
+     * M e s s a g e P r o t o c o l  i n t e r f a c e
      * *****************************************************************************************
      */
     // message protocol
-
     public void applyMessages(List messageEntries) throws IOException {
         Iterator it = messageEntries.iterator();
         while (it.hasNext()) {
@@ -1590,12 +1610,12 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     }
 
     /**
-    * Checks if the given MessageEntry contains the corresponding MessageTag
-    *
-    * @param messageEntry the given messageEntry
-    * @param messageTag   the tag to check
-    * @return true if this is the message, false otherwise
-    */
+     * Checks if the given MessageEntry contains the corresponding MessageTag
+     *
+     * @param messageEntry the given messageEntry
+     * @param messageTag   the tag to check
+     * @return true if this is the message, false otherwise
+     */
     protected boolean isItThisMessage(MessageEntry messageEntry, String messageTag) {
         return messageEntry.getContent().indexOf(messageTag) >= 0;
     }

@@ -6,21 +6,42 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CapturedObjectsHelper;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 
 /**
@@ -32,7 +53,7 @@ import java.util.logging.Level;
 public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
 
     private static final ObisCode OBISCODE_ACTIVE_FIRMWARE = ObisCode.fromString("0.0.128.0.1.255");
-    private static final ObisCode OBISCODE_SERIAL_NUMBER =  ObisCode.fromString("0.0.96.1.0.255");
+    private static final ObisCode OBISCODE_SERIAL_NUMBER = ObisCode.fromString("0.0.96.1.0.255");
 
     private static final int DEFAULT_FORCED_TO_READ_CACHE = 0;
     private static final int DEFAULT_MAX_PDU_SIZE = 512;
@@ -54,11 +75,15 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     private boolean forcedToReadCache;
     private ProfileDataReader profileDataReader = null;
 
-    /** The captured objects helper. */
-	private CapturedObjectsHelper capturedObjectsHelper;
+    /**
+     * The captured objects helper.
+     */
+    private CapturedObjectsHelper capturedObjectsHelper;
 
-    /** Array containing all load profile OBIS codes. */
-	private ObisCode[] loadProfileObisCodes;
+    /**
+     * Array containing all load profile OBIS codes.
+     */
+    private ObisCode[] loadProfileObisCodes;
 
     private JanzStoredValues storedValues;
 
@@ -84,6 +109,20 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
         this.clientMacAddress = Integer.parseInt(properties.getProperty(PROPNAME_CLIENT_MAC_ADDRESS, Integer.toString(DEFAULT_CLIENT_MAC_ADDRESS)));
         this.informationFieldSize = Integer.parseInt(properties.getProperty(PROPNAME_INFORMATION_FIELD_SIZE, Integer.toString(DEFAULT_INFORMATION_FIELD_SIZE)));
         this.connectionMode = Integer.parseInt(properties.getProperty(PROPNAME_CONNECTION, Integer.toString(DEFAULT_CONNECTION_MODE)));
+    }
+
+    @Override
+    protected InvokeIdAndPriorityHandler buildInvokeIdAndPriorityHandler() throws IOException {
+        try {
+            InvokeIdAndPriority iiap = new InvokeIdAndPriority();
+            iiap.setPriority(this.iiapPriority);
+            iiap.setServiceClass(this.iiapServiceClass);
+            iiap.setTheInvokeId(this.iiapInvokeId);
+            return new IncrementalInvokeIdAndPriorityHandler(iiap);
+        } catch (DLMSConnectionException e) {
+            getLogger().info("Some configured properties are invalid. " + e.getMessage());
+            throw new IOException(e.getMessage());
+        }
     }
 
     /**
@@ -204,7 +243,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             if (obisCode.getF() != 255) {
-                logger.info("Requesting historic register "+obisCode.toString());
+                logger.info("Requesting historic register " + obisCode.toString());
                 HistoricalValue historicalValue = getStoredValues().getHistoricalValue(obisCode);
                 return new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
             }
@@ -216,13 +255,13 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
              *  4. Search for obiscode A.B.1.D.E.F
              *  5. Throw noSuchRegister exception
              *
-            **/
+             **/
 
             UniversalObject uo;
             try {
                 //1. Search exact obiscode
                 uo = getMeterConfig().findObject(obisCode);
-            } catch (NoSuchRegisterException e){
+            } catch (NoSuchRegisterException e) {
                 //2. Search for obiscode A.B.C.D.0.F
                 try {
                     ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 4, (byte) 1);
@@ -240,28 +279,29 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
                 }
             }
 
-			if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
-				final Register register = getCosemObjectFactory().getRegister(obisCode);
-				return new RegisterValue(obisCode, register.getQuantityValue());
-			} else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
-				final DemandRegister register = getCosemObjectFactory().getDemandRegister(obisCode);
-				return new RegisterValue(obisCode, register.getQuantityValue());
-			} else if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-				final ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
-				return new RegisterValue(obisCode, register.getQuantityValue());
-			} else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
-				final Disconnector register = getCosemObjectFactory().getDisconnector(obisCode);
-				return new RegisterValue(obisCode, "" + register.getState());
-			}
+            if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
+                final Register register = getCosemObjectFactory().getRegister(obisCode);
+                return new RegisterValue(obisCode, register.getQuantityValue());
+            } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+                final DemandRegister register = getCosemObjectFactory().getDemandRegister(obisCode);
+                return new RegisterValue(obisCode, register.getQuantityValue());
+            } else if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
+                final ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
+                return new RegisterValue(obisCode, register.getQuantityValue());
+            } else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
+                final Disconnector register = getCosemObjectFactory().getDisconnector(obisCode);
+                return new RegisterValue(obisCode, "" + register.getState());
+            }
 
             throw new NoSuchRegisterException();
-		} catch (final Exception e) {
-			throw new NoSuchRegisterException();
-		}
+        } catch (final Exception e) {
+            throw new NoSuchRegisterException();
+        }
     }
 
     /**
      * Getter for the {@link com.energyict.dlms.cosem.StoredValues} object
+     *
      * @return the {@link com.energyict.dlms.cosem.StoredValues} object
      */
     public JanzStoredValues getStoredValues() {
@@ -301,7 +341,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
     public int getProfileInterval() throws UnsupportedException, IOException {
         Quantity interval = readRegister(ObisCode.fromString("1.0.0.8.4.255")).getQuantity();
 
-        return interval.intValue()*60;   //The profile interval can be 1,2,3,4,5,6,10,12,15,20,30 or 60 minutes.
+        return interval.intValue() * 60;   //The profile interval can be 1,2,3,4,5,6,10,12,15,20,30 or 60 minutes.
     }
 
     /**
@@ -329,12 +369,12 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
 
             for (int i = 1; i < 7; i++) {
                 try {
-                ObisCode obisCode = ObisCode.fromString("1.0.99.128." + i + ".255");
+                    ObisCode obisCode = ObisCode.fromString("1.0.99.128." + i + ".255");
                     RegisterValue registerValue = readRegister(obisCode);
                     if (registerValue.getQuantity().getAmount().equals(new BigDecimal(0))) {
-                    this.numberOfChannels = i - 1;
-                    break;
-                }
+                        this.numberOfChannels = i - 1;
+                        break;
+                    }
                 } catch (DataAccessResultException e) {
                     this.numberOfChannels = i - 1;
                     break;
@@ -432,7 +472,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      */
     @Override
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return new RegisterInfo("Contar Janz C280 register "+obisCode.toString());
+        return new RegisterInfo("Contar Janz C280 register " + obisCode.toString());
     }
 
     /**
@@ -442,6 +482,6 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      */
     public String getFileName() {
         final Calendar calendar = Calendar.getInstance();
-        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId  + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_JanzC280.cache";
+        return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_JanzC280.cache";
     }
 }

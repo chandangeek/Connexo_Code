@@ -1,9 +1,13 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AssociationSN;
+import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -26,7 +30,7 @@ public class ApplicationServiceObject {
     protected SecurityContext securityContext;
     protected ProtocolLink protocolLink;
 
-    private int associationStatus;
+    protected int associationStatus;
     public static final int ASSOCIATION_DISCONNECTED = 0;
     public static final int ASSOCIATION_PENDING = 1;
     public static final int ASSOCIATION_CONNECTED = 2;
@@ -66,6 +70,13 @@ public class ApplicationServiceObject {
         this.associationStatus = ASSOCIATION_DISCONNECTED;
     }
 
+    public ApplicationServiceObject(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext) {
+        this.xDlmsAse = xDlmsAse;
+        this.protocolLink = protocolLink;
+        this.securityContext = securityContext;
+        this.associationStatus = ASSOCIATION_DISCONNECTED;
+    }
+
     public SecurityContext getSecurityContext() {
         return this.securityContext;
     }
@@ -88,25 +99,46 @@ public class ApplicationServiceObject {
     /**
      * Create an ApplicationAssociation.
      * Depending on the securityLevel encrypted challenges will be used to authenticate the client and server
+     * If aarqTimeout is not 0, use it to receive the AARE. Else, use the 'normal' timeout.
      */
-    public void createAssociation() throws IOException, DLMSConnectionException {
+    public void createAssociation(int aarqTimeout) throws IOException, DLMSConnectionException {
         byte[] request = this.acse.createAssociationRequest();
-        byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
-        this.acse.analyzeAARE(response);
-        getSecurityContext().setResponseSystemTitle(this.acse.getRespondingAPTtitle());
-        if (this.acse.hlsChallengeMatch()) {
-            releaseAssociation();
-            throw new ConnectionException("Invalid responding authenticationValue.");
-        }
-        if (!DLMSMeterConfig.OLD2.equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())) {
+        int normalTimeout = this.protocolLink.getDLMSConnection().getTimeout();
+        if (isConfirmedAssociation()) {
+            if (aarqTimeout != 0) {      //Use this timeout only for receiving the AARE
+                this.protocolLink.getDLMSConnection().setTimeout(aarqTimeout);
+            }
+            byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
+            if (aarqTimeout != 0) {      //Use the normal timeout for further communication
+                this.protocolLink.getDLMSConnection().setTimeout(normalTimeout);
+            }
+            this.acse.analyzeAARE(response);
+            getSecurityContext().setResponseSystemTitle(this.acse.getRespondingAPTtitle());
+            if (this.acse.hlsChallengeMatch()) {
+                releaseAssociation();
+                throw new ConnectionException("Invalid responding authenticationValue.");
+            }
+            if (!DLMSMeterConfig.OLD2.equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())) {
+                this.associationStatus = ASSOCIATION_CONNECTED;
+            }
+
+            if (getSecurityContext().isDedicatedCiphering()) {
+                // if dedicated ciphering is used, then a new FrameCounter is used for each session
+                getSecurityContext().setFrameCounterInitialized(false);
+            }
+            handleHighLevelSecurityAuthentication();
+        } else {
+            this.protocolLink.getDLMSConnection().sendUnconfirmedRequest(request);
             this.associationStatus = ASSOCIATION_CONNECTED;
         }
+    }
 
-        if(getSecurityContext().isDedicatedCiphering()){
-            // if dedicated ciphering is used, then a new FrameCounter is used for each session
-            getSecurityContext().setFrameCounterInitialized(false);
-        }
-        handleHighLevelSecurityAuthentication();
+    public void createAssociation() throws IOException, DLMSConnectionException {
+        createAssociation(0);
+    }
+
+    private final boolean isConfirmedAssociation() {
+        return this.protocolLink.getDLMSConnection().getInvokeIdAndPriorityHandler().getCurrentInvokeIdAndPriorityObject().needsResponse();
     }
 
     /**
@@ -205,7 +237,7 @@ public class ApplicationServiceObject {
      * @return the encrypted response, which should contain the cToS authenticationValue
      * @throws IOException
      */
-    private byte[] replyToHLSAuthentication(byte[] digest) throws IOException {
+    protected byte[] replyToHLSAuthentication(byte[] digest) throws IOException {
         OctetString decryptedResponse = null;
 
         if ((this.acse.getContextId() == AssociationControlServiceElement.LOGICAL_NAME_REFERENCING_NO_CIPHERING)
@@ -216,7 +248,7 @@ public class ApplicationServiceObject {
                 || (this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING)) {    // reply with AssociationSN
             AssociationSN asn = new CosemObjectFactory(this.protocolLink).getAssociationSN();
             byte[] response = asn.replyToHLSAuthentication(digest);
-            if(response.length == 0){
+            if (response.length == 0) {
                 return new byte[0];
             }
             decryptedResponse = new OctetString(response, 0);
@@ -246,9 +278,14 @@ public class ApplicationServiceObject {
     public void releaseAssociation() throws IOException {
         this.associationStatus = ASSOCIATION_READY_FOR_DISCONNECTION;
         byte[] request = this.acse.releaseAssociationRequest();
-        byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
-        this.acse.analyzeRLRE(response);
-        this.associationStatus = ASSOCIATION_DISCONNECTED;
+        if (isConfirmedAssociation()) {
+            byte[] response = this.protocolLink.getDLMSConnection().sendRequest(request);
+            this.acse.analyzeRLRE(response);
+            this.associationStatus = ASSOCIATION_DISCONNECTED;
+        } else {
+            this.protocolLink.getDLMSConnection().sendUnconfirmedRequest(request);
+            this.associationStatus = ASSOCIATION_DISCONNECTED;
+        }
     }
 
     @Override

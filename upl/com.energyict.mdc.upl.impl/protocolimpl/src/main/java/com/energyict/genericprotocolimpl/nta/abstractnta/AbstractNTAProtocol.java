@@ -15,6 +15,8 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.HDLC2Connection;
 import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.SecureConnection;
 import com.energyict.dlms.TCPIPConnection;
@@ -342,8 +344,8 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
 
         this.dlmsConnection = new SecureConnection(this.aso, getTransportDLMSConnection());
 
-        InvokeIdAndPriority iiap = buildInvokeIdAndPriority();
-        this.dlmsConnection.setInvokeIdAndPriority(iiap);
+        InvokeIdAndPriorityHandler iiapHandler = buildInvokeIdAndPriorityHandler();
+        this.dlmsConnection.setInvokeIdAndPriorityHandler(iiapHandler);
 
         if (DialerMarker.hasOpticalMarker(this.link)) {
             ((HHUEnabler) this).enableHHUSignOn(this.link.getSerialCommunicationChannel());
@@ -398,19 +400,19 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
                     this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode, this.informationFieldSize, 5);
         } else if (this.connectionMode == 1) {
             transportConnection = new TCPIPConnection(this.link.getInputStream(), this.link.getOutputStream(), this.timeout, this.forceDelay, this.retries, this.clientMacAddress,
-                    this.serverLowerMacAddress);
+                    this.serverLowerMacAddress, getLogger());
         } else {
             throw new IOException("Unknown connectionMode: " + this.connectionMode + " - Only 0(HDLC) and 1(TCP) are allowed");
         }
         return transportConnection;
     }
 
-    private InvokeIdAndPriority buildInvokeIdAndPriority() throws DLMSConnectionException {
+    protected InvokeIdAndPriorityHandler buildInvokeIdAndPriorityHandler() throws DLMSConnectionException {
         InvokeIdAndPriority iiap = new InvokeIdAndPriority();
         iiap.setPriority(this.iiapPriority);
         iiap.setServiceClass(this.iiapServiceClass);
         iiap.setTheInvokeId(this.iiapInvokeId);
-        return iiap;
+        return new NonIncrementalInvokeIdAndPriorityHandler(iiap);
     }
 
     /**

@@ -10,17 +10,91 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.HDLC2Connection;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.LocalSecurityProvider;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.CapturedObjectsHelper;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
-import com.energyict.genericprotocolimpl.nta.eventhandling.*;
+import com.energyict.genericprotocolimpl.nta.eventhandling.DisconnectControlLog;
+import com.energyict.genericprotocolimpl.nta.eventhandling.EventsLog;
+import com.energyict.genericprotocolimpl.nta.eventhandling.FraudDetectionLog;
+import com.energyict.genericprotocolimpl.nta.eventhandling.MbusLog;
+import com.energyict.genericprotocolimpl.nta.eventhandling.PowerFailureLog;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.CacheMechanism;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
+import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
@@ -38,7 +112,13 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -465,7 +545,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
             } else {
                 logger.info("Using DLMS/IP...");
 
-                this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, this.hdlcTimeout, this.forceDelay, this.protocolRetries, this.clientMacAddress, this.serverLowerMacAddress);
+                this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, this.hdlcTimeout, this.forceDelay, this.protocolRetries, this.clientMacAddress, this.serverLowerMacAddress, getLogger());
             }
 
             this.dlmsConnection.setIskraWrapper(1);
@@ -556,7 +636,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * Returns the load profile obis code.
      *
      * @return The load profile obis code.
-     * @throws IOException    If an IO error occurs during the load profile determination.
+     * @throws IOException If an IO error occurs during the load profile determination.
      */
     private final ObisCode getLoadprofileObisCode() throws IOException {
         if (this.loadProfileObisCode == null) {
@@ -1950,7 +2030,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * Indicates whether the message concerns an EpIO upgrade message.
      *
      * @param messageContents The contents of the message.
-     * @return        <code>true</code> if the message contents concern a firmware upgrade.
+     * @return <code>true</code> if the message contents concern a firmware upgrade.
      */
     private final boolean isEpIOFirmwareUpgrade(final String messageContents) {
         return (messageContents != null) && messageContents.contains("<FirmwareUpdate>");
@@ -1960,7 +2040,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * Upgrades the remote device using the image specified.
      *
      * @param image The new image to push to the remote device.
-     * @throws IOException        If an IO error occurs during the upgrade.
+     * @throws IOException If an IO error occurs during the upgrade.
      */
     private final void upgradeDevice(final byte[] image) throws IOException {
         logger.info("Upgrading EpIO with new firmware image of size [" + image.length + "] bytes");
@@ -2221,7 +2301,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * RF topology is stored).
      *
      * @return The CyNet RF network topology. The string has one line per node in the topology, and each line is manufacturerID and routing address,
-     * separated by a comma.
+     *         separated by a comma.
      */
     public final String getRFNetworkTopology() throws IOException {
         if (logger.isLoggable(Level.FINE)) {

@@ -142,7 +142,7 @@ public class IskraMx37x implements ProtocolLink, CacheMechanism, Messaging, HHUE
 
     private Logger logger;
     private Properties properties;
-//    private CommunicationProfile communicationProfile;
+    //    private CommunicationProfile communicationProfile;
     private Link link;
     private DLMSConnection dlmsConnection;
     private CosemObjectFactory cosemObjectFactory;
@@ -654,7 +654,7 @@ public class IskraMx37x implements ProtocolLink, CacheMechanism, Messaging, HHUE
             if (connectionMode == 0) {
                 dlmsConnection = new HDLCConnection(is, os, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress, iServerUpperMacAddress, addressingMode);
             } else {
-                dlmsConnection = new TCPIPConnection(is, os, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress);
+                dlmsConnection = new TCPIPConnection(is, os, iHDLCTimeoutProperty, 100, iProtocolRetriesProperty, iClientMacAddress, iServerLowerMacAddress, getLogger());
             }
 
 
@@ -1441,7 +1441,7 @@ public class IskraMx37x implements ProtocolLink, CacheMechanism, Messaging, HHUE
         Iterator it = slaves.iterator();
         while (it.hasNext()) {
             Device slave = (Device) it.next();
-			slave.updateGateway(null);
+            slave.updateGateway(null);
         }
     }
 

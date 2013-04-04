@@ -1,7 +1,13 @@
 package test.com.energyict.dlms.common;
 
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dlms.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.ConnectionMode;
+import com.energyict.dlms.DLMSReference;
+import com.energyict.dlms.DlmsSessionProperties;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.LocalSecurityProvider;
 import com.energyict.dlms.aso.SecurityProvider;
@@ -38,6 +44,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String CONFORMANCE_BLOCK_VALUE = "ConformanceBlockValue";
     public static final String SYSTEM_IDENTIFIER = "SystemIdentifier";
     public static final String INVOKE_ID_AND_PRIORITY = "InvokeIdAndPriority";
+    public static final String VALIDATE_INVOKE_ID = "ValidateInvokeId";
     public static final String MAX_REC_PDU_SIZE = "MaxRecPDUSize";
     public static final String PROPOSED_DLMS_VERSION = "ProposedDlmsVersion";
     public static final String PROPOSED_QOS = "ProposedQOS";
@@ -73,6 +80,7 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final BigDecimal DEFAULT_CONFORMANCE_BLOCK_VALUE_SN = new BigDecimal(ConformanceBlock.DEFAULT_SN_CONFORMANCE_BLOCK);
     public static final String DEFAULT_SYSTEM_IDENTIFIER = "EICTCOMM";
     public static final BigDecimal DEFAULT_INVOKE_ID_AND_PRIORITY = new BigDecimal(66); // 0x42, 0b01000010 -> [invoke-id = 1, service_class = 1 (confirmed), priority = 0 (normal)]
+    public static final Boolean DEFAULT_VALIDATE_INVOKE_ID = false;
     public static final BigDecimal DEFAULT_MAX_REC_PDU_SIZE = new BigDecimal(4096);
     public static final BigDecimal DEFAULT_PROPOSED_DLMS_VERSION = new BigDecimal(6);
     public static final BigDecimal DEFAULT_PROPOSED_QOS = new BigDecimal(-1);
@@ -305,9 +313,17 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     }
 
     @ProtocolProperty
-    public InvokeIdAndPriority getInvokeIdAndPriority() {
+    public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
         byte invokeIdAndPriority = (byte) (getIntProperty(INVOKE_ID_AND_PRIORITY, DEFAULT_INVOKE_ID_AND_PRIORITY) & 0x0FF);
-        return new InvokeIdAndPriority(invokeIdAndPriority);
+        if (validateInvokeId()) {
+            return new IncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
+        } else {
+            return new NonIncrementalInvokeIdAndPriorityHandler(invokeIdAndPriority);
+        }
+    }
+
+    protected boolean validateInvokeId() {
+        return getBooleanProperty(VALIDATE_INVOKE_ID, DEFAULT_VALIDATE_INVOKE_ID);
     }
 
     @ProtocolProperty

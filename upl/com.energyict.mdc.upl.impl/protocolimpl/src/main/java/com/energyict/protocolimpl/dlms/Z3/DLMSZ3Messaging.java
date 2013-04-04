@@ -104,7 +104,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
     private String password;
 
     private CosemObjectFactory cosemObjectFactory;
-//    private CommunicationProfile commProfile;
+    //    private CommunicationProfile commProfile;
     private DLMSConnection dlmsConnection;
     private DLMSMeterConfig dlmsMeterConfig;
     private AARQ aarq;
@@ -124,7 +124,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
             if (this.connectionMode == 0) {
                 this.dlmsConnection = new HDLCConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, this.serverUpperMacAddress, this.addressingMode);
             } else {
-                this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress);
+                this.dlmsConnection = new TCPIPConnection(inputStream, outputStream, this.timeout, this.forceDelay, this.retries, this.clientMacAddress, this.serverLowerMacAddress, getLogger());
             }
 
             this.dlmsMeterConfig = DLMSMeterConfig.getInstance("EZ3");
