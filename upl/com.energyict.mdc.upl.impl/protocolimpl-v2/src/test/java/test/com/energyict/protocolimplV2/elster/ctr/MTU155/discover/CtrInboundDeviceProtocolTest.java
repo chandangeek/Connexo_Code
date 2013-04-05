@@ -2,12 +2,11 @@ package test.com.energyict.protocolimplV2.elster.ctr.MTU155.discover;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.inbound.DialHomeIdDeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -56,7 +55,7 @@ public class CtrInboundDeviceProtocolTest {
         DeviceIdentifier deviceIdentifier = inboundDeviceProtocol.getDeviceIdentifier();
 
         assertEquals(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER, discoverResultType);
-        assertTrue(deviceIdentifier instanceof SerialNumberDeviceIdentifier);
-        assertEquals("device with serial number 66554433221100", deviceIdentifier.toString());
+        assertTrue(deviceIdentifier instanceof DialHomeIdDeviceIdentifier);
+        assertEquals("device with call home id 66554433221100", deviceIdentifier.toString());
     }
 }
