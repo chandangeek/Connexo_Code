@@ -6,8 +6,7 @@ import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.AbstractDiscover;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
-import com.energyict.mdw.core.Device;
+import com.energyict.mdc.protocol.inbound.DialHomeIdDeviceIdentifier;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.GprsRequestFactory;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155Properties;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.RequestFactory;
@@ -23,6 +22,7 @@ import java.util.TimeZone;
  * We should send an unencrypted request for identification to know which RTU and schedule has to be executed.
  * Extra requests are sent in the normal protocol session (e.g. fetch meter data).
  * <p/>
+ *
  * @author: sva
  * @since: 26/10/12 (11:40)
  */
@@ -65,7 +65,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     protected void setCallHomeID(String callHomeID) {
-        this.deviceIdentifier = new SerialNumberDeviceIdentifier(callHomeID);
+        this.deviceIdentifier = new DialHomeIdDeviceIdentifier(callHomeID);
     }
 
     private RequestFactory getRequestFactory() {
@@ -84,7 +84,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     @Override
-      public String getVersion() {
-          return "$Date$";
-      }
+    public String getVersion() {
+        return "$Date$";
+    }
 }
