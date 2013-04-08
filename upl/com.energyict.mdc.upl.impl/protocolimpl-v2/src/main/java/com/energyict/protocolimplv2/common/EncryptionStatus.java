@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.common;
+package com.energyict.protocolimplv2.common;
 
 import java.util.HashMap;
 import java.util.Map;

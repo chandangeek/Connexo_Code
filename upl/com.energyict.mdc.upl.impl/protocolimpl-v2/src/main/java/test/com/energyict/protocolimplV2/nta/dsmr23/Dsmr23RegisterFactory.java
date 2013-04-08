@@ -35,8 +35,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
-import test.com.energyict.protocolimplV2.common.EncryptionStatus;
-import test.com.energyict.protocolimplV2.common.composedobjects.ComposedRegister;
+import com.energyict.protocolimplv2.common.EncryptionStatus;
+import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
 
 import java.io.IOException;

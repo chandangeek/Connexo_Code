@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.common.composedobjects;
+package com.energyict.protocolimplv2.common.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
 
