@@ -31,7 +31,7 @@
 -keep interface *
 -keep class * implements com.energyict.protocol.SmartMeterProtocol
 -keep class * implements com.energyict.protocol.MeterProtocol
--keep class * implements com.energyict.mdw.amr.GenericProtocol
+-keep class * implements com.energyict.mdc.protocol.DeviceProtocol
 
 # Keep names - Native method names. Keep all native class/method names.
 -keepclasseswithmembernames class * {
@@ -41,11 +41,11 @@
 -keep class test.com.*{
  public *;
 }
--keepnames class com.energyict.protocolimplV2.elster.ctr.MTU155.MTU155
--keepnames class com.energyict.protocolimplV2.nta.elster.AM100
--keepnames class com.energyict.protocolimplV2.nta.elster.MbusDevice
--keepnames class com.energyict.protocolimplV2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol
+-keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155
+-keepnames class com.energyict.protocolimplv2.nta.elster.AM100
+-keepnames class com.energyict.protocolimplv2.nta.elster.MbusDevice
+-keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol
 -keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
--keepnames class com.energyict.protocolimplV2.ace4000.ACE4000Inbound
--keepnames class com.energyict.protocolimplV2.ace4000.ACE4000Outbound
+-keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Inbound
+-keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Outbound
 -keepnames class com.energyict.protocolimplv2.elster.am100r.apollo.ApolloMeter
