@@ -21,7 +21,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
-import test.com.energyict.protocolimplV2.dlms.DLMSProfileIntervals;
+import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
 import test.com.energyict.protocolimplV2.nta.abstractnta.DSMRProfileIntervalStatusBits;
 

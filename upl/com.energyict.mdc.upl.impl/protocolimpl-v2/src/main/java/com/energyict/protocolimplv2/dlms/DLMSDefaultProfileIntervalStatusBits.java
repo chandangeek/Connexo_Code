@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.dlms;
+package com.energyict.protocolimplv2.dlms;
 
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
