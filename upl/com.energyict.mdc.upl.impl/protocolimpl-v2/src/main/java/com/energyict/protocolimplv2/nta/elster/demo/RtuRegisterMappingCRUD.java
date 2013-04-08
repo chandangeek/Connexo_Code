@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.elster.demo;
+package com.energyict.protocolimplv2.nta.elster.demo;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.amr.RegisterMapping;

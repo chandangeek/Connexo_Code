@@ -1,9 +1,9 @@
-package test.com.energyict.protocolimplV2.nta.elster;
+package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaMbusDevice;
-import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 
 /**
  * @author: sva

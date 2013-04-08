@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.elster;
+package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.cpo.PropertySpec;
@@ -15,10 +15,10 @@ import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
-import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
-import test.com.energyict.protocolimplV2.nta.dsmr23.Dsmr23LogBookFactory;
-import test.com.energyict.protocolimplV2.nta.dsmr23.Dsmr23RegisterFactory;
-import test.com.energyict.protocolimplV2.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23LogBookFactory;
+import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23RegisterFactory;
+import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;

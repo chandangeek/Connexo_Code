@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.dsmr23.profiles;
+package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
 import com.energyict.comserver.exceptions.LegacyProtocolException;
@@ -22,8 +22,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
-import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
-import test.com.energyict.protocolimplV2.nta.abstractnta.DSMRProfileIntervalStatusBits;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
 import java.util.*;

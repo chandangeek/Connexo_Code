@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.dsmr23.topology;
+package com.energyict.protocolimplv2.nta.dsmr23.topology;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSAttribute;
@@ -16,9 +16,9 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
-import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
-import test.com.energyict.protocolimplV2.nta.dsmr23.Dsmr23Properties;
-import test.com.energyict.protocolimplV2.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
+import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
 import java.io.IOException;
 import java.util.ArrayList;

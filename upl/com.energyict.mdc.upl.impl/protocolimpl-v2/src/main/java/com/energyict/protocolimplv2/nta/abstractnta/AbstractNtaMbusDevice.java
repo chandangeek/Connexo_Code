@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.abstractnta;
+package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
@@ -30,7 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
-import test.com.energyict.protocolimplV2.nta.elster.AM100;
+import com.energyict.protocolimplv2.nta.elster.AM100;
 
 /**
  * @author: sva

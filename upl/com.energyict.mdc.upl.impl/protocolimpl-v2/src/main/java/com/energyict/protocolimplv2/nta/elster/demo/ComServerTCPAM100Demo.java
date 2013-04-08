@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.elster.demo;
+package com.energyict.protocolimplv2.nta.elster.demo;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimeConstants;
@@ -76,7 +76,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
-import test.com.energyict.protocolimplV2.nta.elster.AM100;
+import com.energyict.protocolimplv2.nta.elster.AM100;
 
 import java.io.BufferedReader;
 import java.io.IOException;

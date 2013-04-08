@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.abstractnta;
+package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.dialer.connection.ConnectionException;
@@ -24,9 +24,9 @@ import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import test.com.energyict.protocolimplV2.nta.dsmr23.Dsmr23Properties;
-import test.com.energyict.protocolimplV2.nta.dsmr23.composedobjects.ComposedMeterInfo;
-import test.com.energyict.protocolimplV2.nta.dsmr23.topology.MeterTopology;
+import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
+import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
+import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 
 import java.io.IOException;
 import java.util.List;

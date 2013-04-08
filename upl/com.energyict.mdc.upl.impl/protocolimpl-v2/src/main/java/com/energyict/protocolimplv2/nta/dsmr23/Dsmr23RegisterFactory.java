@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.dsmr23;
+package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -37,7 +37,7 @@ import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
-import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;

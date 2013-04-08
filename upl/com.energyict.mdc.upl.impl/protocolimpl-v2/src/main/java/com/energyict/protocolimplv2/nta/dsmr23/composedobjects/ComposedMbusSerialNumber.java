@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.dsmr23.composedobjects;
+package com.energyict.protocolimplv2.nta.dsmr23.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
 

@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.dsmr23.profiles;
+package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.DLMSClassId;

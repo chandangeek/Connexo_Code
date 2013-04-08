@@ -1,4 +1,4 @@
-package test.com.energyict.protocolimplV2.nta.abstractnta;
+package com.energyict.protocolimplv2.nta.abstractnta;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.aso.SecurityProvider;
