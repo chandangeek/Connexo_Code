@@ -32,7 +32,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import test.com.energyict.mdc.tasks.ACE4000DeviceProtocolDialect;
+import com.energyict.mdc.tasks.ACE4000DeviceProtocolDialect;
 import test.com.energyict.protocolimplV2.ace4000.objects.ObjectFactory;
 import test.com.energyict.protocolimplV2.ace4000.requests.ReadLoadProfile;
 import test.com.energyict.protocolimplV2.ace4000.requests.ReadMBusRegisters;

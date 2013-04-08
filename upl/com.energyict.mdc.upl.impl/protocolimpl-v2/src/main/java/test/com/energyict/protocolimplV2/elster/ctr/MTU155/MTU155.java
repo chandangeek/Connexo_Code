@@ -45,7 +45,7 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
-import test.com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
+import com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.events.CTRMeterEvent;
 import test.com.energyict.protocolimplV2.elster.ctr.MTU155.exception.CTRException;
 

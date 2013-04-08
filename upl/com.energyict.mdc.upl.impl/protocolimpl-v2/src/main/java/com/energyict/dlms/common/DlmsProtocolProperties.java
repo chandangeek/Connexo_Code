@@ -1,4 +1,4 @@
-package test.com.energyict.dlms.common;
+package com.energyict.dlms.common;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.CipheringType;

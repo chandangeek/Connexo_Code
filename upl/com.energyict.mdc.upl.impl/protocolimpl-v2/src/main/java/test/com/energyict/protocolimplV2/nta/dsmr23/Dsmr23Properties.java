@@ -3,7 +3,7 @@ package test.com.energyict.protocolimplV2.nta.dsmr23;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.protocolimpl.base.ProtocolProperty;
-import test.com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import test.com.energyict.protocolimplV2.nta.abstractnta.NTASecurityProvider;
 
 import java.math.BigDecimal;

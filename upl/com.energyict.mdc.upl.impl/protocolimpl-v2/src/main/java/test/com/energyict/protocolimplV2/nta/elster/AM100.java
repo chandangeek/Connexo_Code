@@ -14,7 +14,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import test.com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
+import com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
 import test.com.energyict.protocolimplV2.nta.abstractnta.AbstractNtaProtocol;
 import test.com.energyict.protocolimplV2.nta.dsmr23.Dsmr23LogBookFactory;
 import test.com.energyict.protocolimplV2.nta.dsmr23.Dsmr23RegisterFactory;

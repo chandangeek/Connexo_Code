@@ -1,4 +1,4 @@
-package test.com.energyict.dlms.common;
+package com.energyict.dlms.common;
 
 import com.energyict.comserver.adapters.common.ComChannelInputStreamAdapter;
 import com.energyict.comserver.adapters.common.ComChannelOutputStreamAdapter;

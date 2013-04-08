@@ -1,4 +1,4 @@
-package test.com.energyict.mdc.tasks;
+package com.energyict.mdc.tasks;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
