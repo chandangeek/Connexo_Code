@@ -1,8 +1,14 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.comserver.adapters.common.LegacySecurityPropertyConverter;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.protocol.security.*;
-import com.energyict.mdc.protocol.tasks.support.DeviceSecuritySupport;
+import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +19,7 @@ import java.util.List;
  * Time: 10:42
  * Author: khe
  */
-public class NoSecuritySupport implements DeviceSecuritySupport {
+public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
@@ -41,7 +47,12 @@ public class NoSecuritySupport implements DeviceSecuritySupport {
     }
 
     @Override
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        //This instance doesn't have any security or authentication
+    public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        return TypedProperties.empty();
+    }
+
+    @Override
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+        return new DeviceProtocolSecurityPropertySetImpl(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, TypedProperties.empty());
     }
 }

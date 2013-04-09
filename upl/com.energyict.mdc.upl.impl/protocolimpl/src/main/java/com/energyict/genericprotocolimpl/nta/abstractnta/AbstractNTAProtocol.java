@@ -1049,7 +1049,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
             if (rtuType == null) {
                 getLogger().log(Level.INFO, "No rtutype defined with name '" + type + "'");
                 return null;
-            } else if (rtuType.getPrototypeDevice() == null) {
+            } else if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
                 getLogger().log(Level.INFO, "Rtutype '" + type + "' has not prototype rtu");
                 return null;
             }

@@ -626,7 +626,7 @@ public class IskraMx37x implements ProtocolLink, CacheMechanism, Messaging, HHUE
             if (rtuType == null) {
                 throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
             }
-            if (rtuType.getPrototypeDevice() == null) {
+            if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
                 throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
             }
             return rtuType;

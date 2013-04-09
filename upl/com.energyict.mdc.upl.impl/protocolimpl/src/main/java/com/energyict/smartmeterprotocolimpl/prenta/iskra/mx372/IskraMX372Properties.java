@@ -170,7 +170,7 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
                 if (rtuType == null) {
                     throw new IOException("Iskra Mx37x, No rtutype defined with name '" + type + "'");
                 }
-                if (rtuType.getPrototypeDevice() == null) {
+                if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
                     throw new IOException("Iskra Mx37x, rtutype '" + type + "' has no prototype rtu");
                 }
             }

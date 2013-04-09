@@ -1,12 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.cpo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.mdw.core.Pluggable;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -14,7 +18,7 @@ import java.util.logging.Logger;
  * Date: 3-mrt-2011
  * Time: 16:32:09
  */
-public class SlaveMeter implements SimpleMeter, Pluggable {
+public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
 
     private final WebRTUZ3 meterProtocol;
     private final String serialNumber;

@@ -13,8 +13,6 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceType;
-import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
@@ -321,7 +319,7 @@ public class MeterTopology implements MasterMeter {
             if (rtuType == null) {
                 log(Level.INFO, "No rtutype defined with name '" + type + "'");
                 return null;
-            } else if (rtuType.getPrototypeDevice() == null) {
+            } else if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
                 log(Level.INFO, "Rtutype '" + type + "' has not prototype rtu");
                 return null;
             }
