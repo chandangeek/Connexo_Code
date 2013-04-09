@@ -1,7 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.dynamicattributes.BigDecimalFactory;
+
+import java.math.BigDecimal;
 
 /**
  * Summarizes all used DeviceSecurityProperty
@@ -27,7 +31,11 @@ public enum DeviceSecurityProperty {
     /**
      * A DLMS clientMacAddress
      */
-    CLIENT_MAC_ADDRESS(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString())),
+    CLIENT_MAC_ADDRESS(PropertySpecBuilder.
+            forClass(BigDecimal.class, new BigDecimalFactory()).
+            name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()).
+            setDefaultValue(new BigDecimal(1)).
+            finish()),
     /**
      * A character identification of the accessing client
      */
