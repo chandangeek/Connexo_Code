@@ -437,3 +437,15 @@
 -keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
 
 -keepnames class com.energyict.genericprotocolimpl.gatewayz3.GateWayZ3
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.Kaifa
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.MBusDevice
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.REMIDatalogger
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.MbusDevice
