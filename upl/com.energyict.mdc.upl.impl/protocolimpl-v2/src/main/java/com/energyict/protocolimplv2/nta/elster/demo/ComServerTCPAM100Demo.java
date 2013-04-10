@@ -571,9 +571,9 @@ public final class ComServerTCPAM100Demo {
     private void findOrCreateLoadProfiles() {
         if (this.rtu.getLoadProfiles().isEmpty()) {
             try {
-                this.rtu.addLoadProfile(createLoadProfile(LOAD_PROFILE_TYPE_ELECTRICITY));
-                this.rtu.addLoadProfile(createLoadProfile(LOAD_PROFILE_TYPE_DAILY));
-                this.rtu.addLoadProfile(createLoadProfile(LOAD_PROFILE_TYPE_MBUS_PROFILE));
+//                this.rtu.addLoadProfile(createLoadProfile(LOAD_PROFILE_TYPE_ELECTRICITY));
+//                this.rtu.addLoadProfile(createLoadProfile(LOAD_PROFILE_TYPE_DAILY));
+//                this.rtu.addLoadProfile(createLoadProfile(LOAD_PROFILE_TYPE_MBUS_PROFILE));
                 //ToDo: add other load profiles here
 
                 // Add the channels of the rtu to the loadProfiles

@@ -557,7 +557,7 @@ public final class ComServerOpticalMTU155Demo {
                     Calendar calendar = Calendar.getInstance();
                     calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR) - 2);
                     loadProfileShadow.setLastReading(calendar.getTime());
-                    this.rtu.addLoadProfile(loadProfileShadow);
+//                    this.rtu.addLoadProfile(loadProfileShadow);
 
                     LoadProfile loadProfile = this.rtu.getLoadProfiles().get(0);
 
