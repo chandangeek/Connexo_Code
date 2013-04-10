@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.rtuplusserver.g3;
+package com.energyict.protocolimplv2.eict.gatewayz3;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
@@ -26,23 +26,23 @@ import java.util.List;
 /**
  * Copyrights EnergyICT
  * Date: 9/04/13
- * Time: 16:00
+ * Time: 13:54
  */
-public class RtuPlusServer extends AbstractDlmsProtocol {
+public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     protected String getFirmwareVersion() {
-        return null;  // nothing to do yet
+        return null;  // nothing to do
     }
 
     @Override
     protected DlmsProtocolProperties getProtocolProperties() {
-        return null;  // nothing to do yet
+        return null;  // nothing to do
     }
 
     @Override
     protected void initAfterConnect() {
-        // nothing to do yet
+        // nothing to do
     }
 
     @Override
@@ -67,7 +67,7 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
 
     @Override
     public String getSerialNumber() {
-        return null;  // nothing to do yet
+        return null;  // nothing to do
     }
 
     @Override
@@ -92,17 +92,17 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;  // nothing to do yet
+        return null;  // nothing to do
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;  // nothing to do yet
+        return null;  // nothing to do
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return null;  // nothing to do yet
+        return null;  // nothing to do
     }
 
     @Override
@@ -117,7 +117,7 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
 
     @Override
     public String getSecurityRelationTypeName() {
-        return this.getClass().getSimpleName();
+        return null;  // nothing to do
     }
 
     @Override
@@ -132,7 +132,7 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        return null;  // nothing to do yet
+        return null;  // nothing to do
     }
 
     @Override
@@ -142,11 +142,11 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return null;  // nothing to do yet
+        return null;  // nothing to do
     }
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Data$";
     }
 }

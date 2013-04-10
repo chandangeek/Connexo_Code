@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.gatewayz3;
+package com.energyict.protocolimplv2.eict.webrtu;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
@@ -25,24 +25,24 @@ import java.util.List;
 
 /**
  * Copyrights EnergyICT
- * Date: 9/04/13
- * Time: 13:54
+ * Date: 10/04/13
+ * Time: 10:02
  */
-public class GateWayZ3 extends AbstractDlmsProtocol {
+public class WebRtuGenericGateway extends AbstractDlmsProtocol {
 
     @Override
     protected String getFirmwareVersion() {
-        return null;  // nothing to do
+        return null;  // nothing to do yet
     }
 
     @Override
     protected DlmsProtocolProperties getProtocolProperties() {
-        return null;  // nothing to do
+        return null;  // nothing to do yet
     }
 
     @Override
     protected void initAfterConnect() {
-        // nothing to do
+        // nothing to do yet
     }
 
     @Override
@@ -67,7 +67,7 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public String getSerialNumber() {
-        return null;  // nothing to do
+        return null;  // nothing to do yet
     }
 
     @Override
@@ -92,17 +92,17 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;  // nothing to do
+        return null;  // nothing to do yet
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;  // nothing to do
+        return null;  // nothing to do yet
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return null;  // nothing to do
+        return null;  // nothing to do yet
     }
 
     @Override
@@ -117,7 +117,7 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public String getSecurityRelationTypeName() {
-        return null;  // nothing to do
+        return null;  // nothing to do yet
     }
 
     @Override
@@ -132,7 +132,7 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        return null;  // nothing to do
+        return null;  // nothing to do yet
     }
 
     @Override
@@ -142,11 +142,11 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        return null;  // nothing to do
+        return null;  // nothing to do yet
     }
 
     @Override
     public String getVersion() {
-        return "$Data$";
+        return "$Date$";
     }
 }

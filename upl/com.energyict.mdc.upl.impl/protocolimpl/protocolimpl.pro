@@ -40,6 +40,8 @@
 
 -keepnames class com.energyict.protocolimpl.base.*
 
+-keepnames class com.energyict.genericprotocolimpl.common.*
+
 -keepnames class com.energyict.protocolimpl.meteridentification.*
 
 -keepnames class com.energyict.protocolimpl.iec1107identification.*
@@ -49,6 +51,53 @@
 -keepnames class com.energyict.protocolimpl.metcom.Metcom2
 
 -keepnames class com.energyict.protocolimpl.rtuplusbus.rtuplusbus
+
+# For usage in the cryptoserver project
+-keepnames class com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties
+-keepnames class com.energyict.protocol.MessageProtocol
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging
+-keepnames class com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessageExecutor
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RespondingFrameCounterHandler
+-keep public class com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350 {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382 {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessageExecutor {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.genericprotocolimpl.common.messages.MessageHandler {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MessageExecutor {
+	public *;
+	protected *;
+}
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor {
+	public *;
+	protected *;
+}
 
 -keepnames class com.energyict.protocolimpl.iec1107.iskraemeco.IskraEmeco
 
@@ -218,6 +267,16 @@
 
 -keepnames class com.energyict.protocolimpl.iec1107.abba230.ABBA230
 
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.Kaifa
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.MBusDevice
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice
+
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice
+
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDIS
 
 -keepnames class com.energyict.protocolimpl.dlms.idis.IDISMBus
@@ -313,9 +372,16 @@
 
 -keepnames class com.energyict.protocolimpl.iec1107.a1440.A1440
 
+-keep public class com.energyict.genericprotocolimpl.webrtu.common.*{
+	*;
+}
+
 -keep public class com.energyict.smartmeterprotocolimpl.eict.ukhub.* {
 	*;
 }
+
+
+-keep public class com.energyict.genericprotocolimpl.common.messages.MessageHandler
 
 -keep public class com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.* {
 	*;
@@ -419,6 +485,10 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice
 
 -keepnames class com.energyict.protocolimpl.base.RtuDiscoveredEvent
+
+-keep public class com.energyict.genericprotocolimpl.common.DLMSProtocol{
+    public *;
+}
 
 -keepnames class com.energyict.protocolimpl.dlms.JanzC280.JanzC280
 
