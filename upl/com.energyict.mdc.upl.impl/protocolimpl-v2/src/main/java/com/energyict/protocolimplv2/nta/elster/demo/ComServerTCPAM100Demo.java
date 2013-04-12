@@ -5,6 +5,7 @@ import com.energyict.cbo.TimeConstants;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.comserver.core.impl.online.ComServerDAOImpl;
+import com.energyict.comserver.main.ComServerLauncher;
 import com.energyict.comserver.tools.Strings;
 import com.energyict.cpo.CreateEvent;
 import com.energyict.cpo.Environment;
@@ -13,7 +14,7 @@ import com.energyict.cpo.ShadowList;
 import com.energyict.cpo.Transaction;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.channels.ip.socket.TcpIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortPool;
 import com.energyict.mdc.ports.ComPortPoolFactory;
@@ -76,7 +77,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.nta.elster.AM100;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -167,7 +167,8 @@ public final class ComServerTCPAM100Demo {
     }
 
     private void startComServer() {
-        System.out.println("Demo initialized, now is the time to start the ComServer with the ComServerLauncher class");
+        System.out.println("Starting the online comserver...");
+        ComServerLauncher.main(new String[0]);
     }
 
     private void startDemo() {
@@ -400,9 +401,9 @@ public final class ComServerTCPAM100Demo {
         shadow.setDefault(true);
         ConnectionMethodShadow connectionMethodShadow = new ConnectionMethodShadow(null);
         connectionMethodShadow.setComPortPoolId(this.outboundComPortPool.getId());
-        connectionMethodShadow.set(TcpIpConnectionType.HOST_PROPERTY_NAME, HOST);
-        connectionMethodShadow.set(TcpIpConnectionType.PORT_PROPERTY_NAME, PORT);
-        connectionMethodShadow.set(TcpIpConnectionType.CONNECTION_TIMEOUT_PROPERTY_NAME, TIMEOUT);
+        connectionMethodShadow.set(OutboundTcpIpConnectionType.HOST_PROPERTY_NAME, HOST);
+        connectionMethodShadow.set(OutboundTcpIpConnectionType.PORT_PROPERTY_NAME, PORT);
+        connectionMethodShadow.set(OutboundTcpIpConnectionType.CONNECTION_TIMEOUT_PROPERTY_NAME, TIMEOUT);
 
 //        shadow.setConnectionMethodShadow(connectionMethodShadow);
         NextExecutionSpecsShadow nextExecutionSpecsShadow = new NextExecutionSpecsShadow();
@@ -419,7 +420,7 @@ public final class ComServerTCPAM100Demo {
                 System.out.println("Creating the Demo ConnectionType that uses TCP.");
                 PluggableClassShadow pluggableClassShadow = new PluggableClassShadow();
                 pluggableClassShadow.setName(connectionTypeName);
-                pluggableClassShadow.setJavaClassName(TcpIpConnectionType.class.getName());
+                pluggableClassShadow.setJavaClassName(OutboundTcpIpConnectionType.class.getName());
                 pluggableClassShadow.setPluggableType(PluggableClassType.CONNECTIONTYPE);
                 pc = MeteringWarehouse.getCurrent().getPluggableClassFactory().create(pluggableClassShadow);
                 final PluggableClass pluggableClass = pc;
@@ -430,7 +431,7 @@ public final class ComServerTCPAM100Demo {
                         return null;
                     }
                 });
-                this.tcpConnectionTypeRelationType = MeteringWarehouse.getCurrent().getRelationTypeFactory().find(TcpIpConnectionType.class.getSimpleName());
+                this.tcpConnectionTypeRelationType = MeteringWarehouse.getCurrent().getRelationTypeFactory().find(OutboundTcpIpConnectionType.class.getSimpleName());
             } else {
                 System.out.println("The Demo ConnectionType that uses TCP already existed.");
             }

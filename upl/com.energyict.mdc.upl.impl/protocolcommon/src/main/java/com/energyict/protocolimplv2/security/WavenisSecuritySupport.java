@@ -91,8 +91,8 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
         }
         final int encryptionDeviceAccessLevel = Integer.valueOf(encryptionKeyProperty);
         final TypedProperties securityRelatedTypedProperties = new TypedProperties();
-        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(securityRelatedTypedProperties, typedProperties, authenticationDeviceAccessLevel, this);
-        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForEncryption(securityRelatedTypedProperties, typedProperties, encryptionDeviceAccessLevel, this);
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(typedProperties, authenticationDeviceAccessLevel, this));
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForEncryption(typedProperties, encryptionDeviceAccessLevel, this));
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override

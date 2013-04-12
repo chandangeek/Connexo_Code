@@ -28,6 +28,11 @@
             <artifactId>comserver-online</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-launcher</artifactId>
+        </dependency>
+
         <!-- EIServer dependencies -->
         <dependency>
             <groupId>com.energyict</groupId>

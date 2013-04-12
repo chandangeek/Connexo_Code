@@ -12,7 +12,8 @@ import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
  * @since 4/2/13 12:46 PM
  */
 public class LegacyPropertiesExtractor {
-    static public void getSecurityRelatedPropertiesForAuthentication(TypedProperties securityRelatedTypedProperties, TypedProperties typedProperties, int currentAuthenticationDeviceAccessLevel, DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities) {
+    static public TypedProperties getSecurityRelatedPropertiesForAuthentication(TypedProperties typedProperties, int currentAuthenticationDeviceAccessLevel, DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities) {
+        TypedProperties securityRelatedTypedProperties = new TypedProperties();
         for (AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel : deviceProtocolSecurityCapabilities.getAuthenticationAccessLevels()) {
             if (authenticationDeviceAccessLevel.getId()==currentAuthenticationDeviceAccessLevel) {
                 for (PropertySpec propertySpec : authenticationDeviceAccessLevel.getSecurityProperties()) {
@@ -22,9 +23,11 @@ public class LegacyPropertiesExtractor {
                 }
             }
         }
+        return securityRelatedTypedProperties;
     }
 
-    static public void getSecurityRelatedPropertiesForEncryption(TypedProperties securityRelatedTypedProperties, TypedProperties typedProperties, int currentEncryptionDeviceAccessLevel, DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities) {
+    static public TypedProperties getSecurityRelatedPropertiesForEncryption(TypedProperties typedProperties, int currentEncryptionDeviceAccessLevel, DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities) {
+        TypedProperties securityRelatedTypedProperties = new TypedProperties();
         for (EncryptionDeviceAccessLevel encryptionDeviceAccessLevel : deviceProtocolSecurityCapabilities.getEncryptionAccessLevels()) {
             if (encryptionDeviceAccessLevel.getId()==currentEncryptionDeviceAccessLevel) {
                 for (PropertySpec propertySpec : encryptionDeviceAccessLevel.getSecurityProperties()) {
@@ -34,6 +37,7 @@ public class LegacyPropertiesExtractor {
                 }
             }
         }
+        return securityRelatedTypedProperties;
     }
 
 

@@ -125,9 +125,9 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(final TypedProperties typedProperties) {
-        final String securityLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
+        String securityLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
         if (securityLevelProperty==null) {
-            throw new IllegalStateException("Cannot convert TypedProperties without "+ SECURITY_LEVEL_PROPERTY_NAME +"-property");
+            securityLevelProperty="0:0";
         }
         if (!securityLevelProperty.contains(":")) {
             throw new IllegalStateException("Cannot convert TypedProperties: expected property "+ SECURITY_LEVEL_PROPERTY_NAME +" to have format '<auth>:<encryption>', but found "+securityLevelProperty);
@@ -135,8 +135,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
         final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
         final TypedProperties securityRelatedTypedProperties = new TypedProperties();
-        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(securityRelatedTypedProperties, typedProperties, authenticationLevel, this);
-        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForEncryption(securityRelatedTypedProperties, typedProperties, encryptionLevel, this);
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(typedProperties, authenticationLevel, this));
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForEncryption(typedProperties, encryptionLevel, this));
 
 
         return new DeviceProtocolSecurityPropertySet() {

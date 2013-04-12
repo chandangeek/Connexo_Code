@@ -89,7 +89,7 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
         final int authenticationDeviceAccessLevel=Integer.valueOf(authenticationDeviceAccessLevelProperty);
 
         final TypedProperties securityRelatedTypedProperties = new TypedProperties();
-        LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(securityRelatedTypedProperties, typedProperties, authenticationDeviceAccessLevel, this);
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(typedProperties, authenticationDeviceAccessLevel, this));
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override

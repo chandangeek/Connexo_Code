@@ -315,12 +315,14 @@ public class DlmsSecuritySupportTest {
         securityPropertySet.getEncryptionDeviceAccessLevel();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testConvertTypedPropertiesToSecuritySetMissingSecurityProperty() throws Exception {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
         TypedProperties securityProperties = new TypedProperties();
 
-        dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
+        DeviceProtocolSecurityPropertySet securityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(0);
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(0);
     }
     
     @Test
