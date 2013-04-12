@@ -5,7 +5,8 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 public class EventsLog extends AbstractEvent {
 
@@ -42,7 +43,7 @@ public class EventsLog extends AbstractEvent {
         if (!ExtraEvents.extraEvents.containsKey(new Integer(eventId))) {
             switch (eventId) {
                 case EVENT_EVENT_LOG_CLEARED: {
-                    meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Event log profile cleared."));
+                    meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.EVENT_LOG_CLEARED, eventId, "Event log profile cleared"));
                 }
                 break;
                 case EVENT_POWER_DOWN: {
@@ -102,7 +103,7 @@ public class EventsLog extends AbstractEvent {
                 }
                 break;
                 case EVENT_WATCHDOG_ERROR: {
-                    meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.WATCHDOG_ERROR, eventId, "Watchdog reset or a hardware reset o the microcontroller"));
+                    meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.WATCHDOG_ERROR, eventId, "Watchdog reset or a hardware reset of the microcontroller"));
                 }
                 break;
                 case EVENT_MEASUREMENT_SYSTEM_ERROR: {

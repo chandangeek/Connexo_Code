@@ -44,10 +44,12 @@
 -keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155
 -keepnames class com.energyict.protocolimplv2.nta.elster.AM100
 -keepnames class com.energyict.protocolimplv2.nta.elster.MbusDevice
--keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol
--keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
 -keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Inbound
 -keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Outbound
 -keepnames class com.energyict.protocolimplv2.elster.am100r.apollo.ApolloMeter
 -keepnames class com.energyict.protocolimplv2.gatewayz3.GateWayZ3
 -keepnames class com.energyict.protocolimplv2.rtuplusserver.g3.RtuPlusServer
+
+-keepnames class com.energyict.mdc.protocol.inbound.DlmsSerialNumberDiscover
+-keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
+-keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol

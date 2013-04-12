@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eict;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice;
 

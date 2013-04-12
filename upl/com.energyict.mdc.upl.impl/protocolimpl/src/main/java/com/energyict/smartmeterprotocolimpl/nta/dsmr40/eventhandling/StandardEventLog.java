@@ -5,15 +5,16 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.EventsLog;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Extends the original DSMR2.3 EventsLog with additional events for DSMR4.0
  */
-public class StandardEventLog extends EventsLog{
+public class StandardEventLog extends EventsLog {
 
-	private static final int EVENT_TARIFF_SHIFT_TIME = 19;
-	private static final int EVENT_SELF_CHECK_AFTER_FIRMWARE = 20;
+    private static final int EVENT_TARIFF_SHIFT_TIME = 19;
+    private static final int EVENT_SELF_CHECK_AFTER_FIRMWARE = 20;
 
     public StandardEventLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
@@ -24,10 +25,17 @@ public class StandardEventLog extends EventsLog{
      */
     @Override
     protected void buildMeterEvent(final List<MeterEvent> meterEvents, final Date eventTimeStamp, final int eventId) {
-        switch(eventId){
-            case EVENT_TARIFF_SHIFT_TIME : {meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Change of tariff shift times has occurred."));}break;
-            case EVENT_SELF_CHECK_AFTER_FIRMWARE : {meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Indicates that the first selfcheck after a firmwareupdate was performed successfully."));}break; 
-            default: super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);
+        switch (eventId) {
+            case EVENT_TARIFF_SHIFT_TIME: {
+                meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Tariff shift time (TOU)"));
+            }
+            break;
+            case EVENT_SELF_CHECK_AFTER_FIRMWARE: {
+                meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Successful selfcheck after firmwareupdate"));
+            }
+            break;
+            default:
+                super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);
         }
     }
 }

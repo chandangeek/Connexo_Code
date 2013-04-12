@@ -1,17 +1,25 @@
 package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.protocol.LoadProfileReader;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.*;
-import java.io.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author gna
@@ -100,9 +108,13 @@ public abstract class GenericMessageExecutor {
      * @throws IOException when the entered time could not be parsed to a long value
      */
     public AXDRDateTime convertUnixToGMTDateTime(String time) throws IOException {
+        return convertUnixToDateTime(time, TimeZone.getTimeZone("GMT"));
+    }
+
+    public AXDRDateTime convertUnixToDateTime(String time, TimeZone timeZone) throws IOException {
         try {
             AXDRDateTime dateTime = null;
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(Long.parseLong(time) * 1000);
             dateTime = new AXDRDateTime(cal);
             return dateTime;

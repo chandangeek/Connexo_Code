@@ -7,7 +7,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Handles the parsing of the NTA changeKey implementation. The content of the XML-tags has changed as from 19-05-2011 and because allot of protocols used them
- * we need to define them directly for the NTA protocols 
+ * we need to define them directly for the NTA protocols
  */
 public class NTAMessageHandler extends MessageHandler {
 
@@ -19,10 +19,12 @@ public class NTAMessageHandler extends MessageHandler {
 
         if (RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY.equals(qName)) {
             setType(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY);
-        } else if(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY.equals(qName)) {
+        } else if (RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY.equals(qName)) {
             setType(RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_ENCRYPTION_KEY);
         } else if (RtuMessageConstant.RESET_ALARM_REGISTER.equals(qName)) {
             setType(RtuMessageConstant.RESET_ALARM_REGISTER);
+        } else if (RtuMessageConstant.RESET_ERROR_REGISTER.equals(qName)) {
+            setType(RtuMessageConstant.RESET_ERROR_REGISTER);
         } else if (RtuMessageConstant.WEBSERVER_DISABLE.equals(qName)) {
             setType(RtuMessageConstant.WEBSERVER_DISABLE);
         } else if (RtuMessageConstant.WEBSERVER_ENABLE.equals(qName)) {

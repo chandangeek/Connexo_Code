@@ -4,24 +4,48 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterData;
+import com.energyict.protocol.MeterDataMessageResult;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
 import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -52,6 +76,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             boolean connectMode = messageHandler.getType().equals(RtuMessageConstant.CONNECT_CONTROL_MODE);
             boolean decommission = messageHandler.getType().equals(RtuMessageConstant.MBUS_DECOMMISSION);
             boolean mbusEncryption = messageHandler.getType().equals(RtuMessageConstant.MBUS_ENCRYPTION_KEYS);
+            boolean mbusCryptoserverEncryption = messageHandler.getType().equals(RtuMessageConstant.CRYPTOSERVER_MBUS_ENCRYPTION_KEYS);
             boolean mbusCorrected = messageHandler.getType().equals(RtuMessageConstant.MBUS_CORRECTED_VALUES);
             boolean mbusUnCorrected = messageHandler.getType().equals(RtuMessageConstant.MBUS_UNCORRECTED_VALUES);
             boolean partialLoadProfile = messageHandler.getType().equals(PartialLoadProfileMessageBuilder.getMessageNodeTag());
@@ -66,7 +91,9 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
             } else if (decommission) {
                 doDecommission(messageHandler, serialNumber);
             } else if (mbusEncryption) {
-                setMbusEncrytpionKeys(messageHandler, serialNumber);
+                setMbusEncryptionKeys(messageHandler, serialNumber);
+            } else if (mbusCryptoserverEncryption) {
+                setCryptoserverMbusEncryptionKeys(msgEntry, messageHandler, serialNumber);
             } else if (mbusCorrected) {
                 setMbusCorrected(messageHandler, serialNumber);
             } else if (mbusUnCorrected) {
@@ -102,7 +129,6 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
 
     private void setMbusUncorrected(final MessageHandler messageHandler, final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage Set loadprofile to unCorrected values");
-        MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
         Array capDef = new Array();
         Structure struct = new Structure();
         OctetString dib = OctetString.fromByteArray(new byte[]{(byte) 0x0C});
@@ -110,12 +136,19 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         OctetString vib = OctetString.fromByteArray(new byte[]{(byte) 0x93, (byte) 0x3A});
         struct.addDataType(vib);
         capDef.addDataType(struct);
-        mc.writeCaptureDefinition(capDef);
+        getMBusClient(serialNumber).writeCaptureDefinition(capDef);
+    }
+
+    protected MBusClient getMBusClient(String serialNumber) throws IOException {
+        return getCosemObjectFactory().getMbusClient(getMbusClientObisCode(serialNumber), MbusClientAttributes.VERSION9);
+    }
+
+    protected ObisCode getMbusClientObisCode(String serialNumber) throws IOException {
+        return getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode();
     }
 
     private void setMbusCorrected(final MessageHandler messageHandler, final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage  Set loadprofile to corrected values");
-        MBusClient mc = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
         Array capDef = new Array();
         Structure struct = new Structure();
         OctetString dib = OctetString.fromByteArray(new byte[]{0x0C});
@@ -123,16 +156,19 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         OctetString vib = OctetString.fromByteArray(new byte[]{0x13});
         struct.addDataType(vib);
         capDef.addDataType(struct);
-        mc.writeCaptureDefinition(capDef);
+        getMBusClient(serialNumber).writeCaptureDefinition(capDef);
     }
 
-    private void setMbusEncrytpionKeys(final MessageHandler messageHandler, final String serialNumber) throws IOException {
+    protected void setCryptoserverMbusEncryptionKeys(MessageEntry msgEntry, final MessageHandler messageHandler, final String serialNumber) throws IOException {
+        throw new IOException("Received message to renew MBus keys using the Cryptoserver, but Cryptoserver usage is disabled");
+    }
+
+    protected void setMbusEncryptionKeys(final MessageHandler messageHandler, final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage Set encryption keys");
 
         String openKey = messageHandler.getOpenKey();
         String transferKey = messageHandler.getTransferKey();
-
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
+        MBusClient mbusClient = getMBusClient(serialNumber);
 
         if (openKey == null) {
             mbusClient.setEncryptionKey("");
@@ -147,8 +183,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     private void doDecommission(final MessageHandler messageHandler, final String serialNumber) throws IOException, BusinessException, SQLException {
         log(Level.INFO, "Handling MbusMessage Decommission MBus device");
 
-        MBusClient mbusClient = getCosemObjectFactory().getMbusClient(getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode(), MbusClientAttributes.VERSION9);
-        mbusClient.deinstallSlave();
+        getMBusClient(serialNumber).deinstallSlave();
 
         //Need to clear the gateWay
         //TODO this is not fully compliant with the HTTP comserver ...
@@ -229,7 +264,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private byte[] convertStringToByte(String string) throws IOException {
+    protected byte[] convertStringToByte(String string) throws IOException {
         try {
             byte[] b = new byte[string.length() / 2];
             int offset = 0;
@@ -352,6 +387,10 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         return this.dlmsSession.getCosemObjectFactory();
     }
 
+    protected DlmsSession getDlmsSession() {
+        return dlmsSession;
+    }
+
     @Override
     public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
         //nothing to do
@@ -362,7 +401,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         return this.dlmsSession.getTimeZone();
     }
 
-    private void log(final Level level, final String msg) {
+    protected void log(final Level level, final String msg) {
         this.dlmsSession.getLogger().log(level, msg);
     }
 
@@ -370,23 +409,18 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         return this.protocol.getPhysicalAddressFromSerialNumber(serialNumber) - 1;
     }
 
-    /*****************************************************************************/
+    /**
+     * *************************************************************************
+     */
     /* These methods require database access ...  TODO we should do this using the framework ...
     /*****************************************************************************/
-
-    /**
-     * Short notation for MeteringWarehouse.getCurrent()
-     */
-    public MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        if (result == null) {
-            return new MeteringWarehouseFactory().getBatch(false);
-        } else {
-            return result;
-        }
+    protected Device getRtuFromDatabaseBySerialNumber(String serialNumber) {
+        Device rtu = mw().getDeviceFactory().findBySerialNumber(serialNumber).get(0);
+        ProtocolTools.closeConnection();
+        return rtu;
     }
 
-    private Device getRtuFromDatabaseBySerialNumber(String serialNumber) {
-        return mw().getDeviceFactory().findBySerialNumber(serialNumber).get(0);
+    protected MeteringWarehouse mw() {
+        return ProtocolTools.mw();
     }
 }

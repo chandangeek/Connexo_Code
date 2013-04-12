@@ -5,14 +5,51 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnection;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.SecureConnection;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer64;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.NullData;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ActivityCalendar;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AssociationSN;
+import com.energyict.dlms.cosem.AutoConnect;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ScriptTable;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.StoreObject;
@@ -21,10 +58,28 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.CodeCalendar;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.Lookup;
+import com.energyict.mdw.core.LookupEntry;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.OldDeviceMessage;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.OldDeviceMessageShadow;
+import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterData;
+import com.energyict.protocol.MeterDataMessageResult;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
 import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -32,9 +87,18 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -44,8 +108,8 @@ import java.util.logging.Level;
  */
 public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
-    private final DlmsSession dlmsSession;
-    private final AbstractSmartNtaProtocol protocol;
+    protected final DlmsSession dlmsSession;
+    protected final AbstractSmartNtaProtocol protocol;
 
     private final StoreObject storeObject = new StoreObject();
 
@@ -59,6 +123,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
 
         if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
+            //Execute messages for MBus device
             Dsmr23MbusMessageExecutor mbusMessageExecutor = new Dsmr23MbusMessageExecutor(protocol);
             return mbusMessageExecutor.executeMessageEntry(msgEntry);
         } else {
@@ -88,7 +153,9 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 boolean gprsParameters = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_SETUP);
                 boolean gprsCredentials = messageHandler.getType().equals(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
                 boolean testMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_MESSAGE);
+                boolean testSecurityMessage = messageHandler.getType().equals(RtuMessageConstant.TEST_SECURITY_MESSAGE);
                 boolean globalReset = messageHandler.getType().equals(RtuMessageConstant.GLOBAL_METER_RESET);
+                boolean factorySettings = messageHandler.getType().equals(RtuMessageConstant.RESTORE_FACTORY_SETTINGS);
                 boolean wakeUpWhiteList = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
                 boolean changeHLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_HLS_SECRET);
                 boolean changeLLSSecret = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
@@ -98,6 +165,10 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 boolean deActivateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
                 boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
                 boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
+                boolean enableAuthLevelP0 = messageHandler.getType().equals(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0);
+                boolean disableAuthLevelP0 = messageHandler.getType().equals(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0);
+                boolean enableAuthLevelP3 = messageHandler.getType().equals(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3);
+                boolean disableAuthLevelP3 = messageHandler.getType().equals(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3);
                 boolean partialLoadProfile = messageHandler.getType().equals(PartialLoadProfileMessageBuilder.getMessageNodeTag());
                 boolean loadProfileRegisterRequest = messageHandler.getType().equals(LoadProfileRegisterMessageBuilder.getMessageNodeTag());
                 boolean resetAlarmRegisterRequest = messageHandler.getType().equals(RtuMessageConstant.RESET_ALARM_REGISTER);
@@ -140,8 +211,12 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     setGPRSCredentials(messageHandler);
                 } else if (testMessage) {
                     testMessage(messageHandler);
+                } else if (testSecurityMessage) {
+                    msgResult = testSecurityMessage(messageHandler, msgEntry);
                 } else if (globalReset) {
                     doGlobalReset();
+                } else if (factorySettings) {
+                    restoreFactorySettings();
                 } else if (wakeUpWhiteList) {
                     setWakeUpWhiteList(messageHandler);
                 } else if (changeHLSSecret) {
@@ -153,20 +228,28 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 } else if (changeLLSSecret) {
                     changeLLSSecret();
                 } else if (activateSMS) {
-                    getCosemObjectFactory().getAutoConnect().writeMode(4);
+                    activateSms();
                 } else if (deActivateSMS) {
-                    getCosemObjectFactory().getAutoConnect().writeMode(1);
+                    deactivateSms();
                 } else if (actSecuritLevel) {
                     getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
                 } else if (changeAuthLevel) {
                     msgResult = changeAuthenticationLevel(msgEntry, messageHandler);
+                } else if (enableAuthLevelP0) {
+                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, true);
+                } else if (disableAuthLevelP0) {
+                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 0, false);
+                } else if (enableAuthLevelP3) {
+                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, true);
+                } else if (disableAuthLevelP3) {
+                    msgResult = changeAuthenticationLevel(msgEntry, messageHandler, 3, false);
                 } else if (partialLoadProfile) {
                     msgResult = doReadPartialLoadProfile(msgEntry);
                 } else if (loadProfileRegisterRequest) {
                     msgResult = doReadLoadProfileRegisters(msgEntry);
                 } else if (resetAlarmRegisterRequest) {
                     resetAlarmRegister();
-                } else if(isChangeDefaultResetWindow) {
+                } else if (isChangeDefaultResetWindow) {
                     changeDefaultResetWindow(messageHandler);
                 } else {
                     msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
@@ -188,7 +271,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 if (rootCause.getClass().equals(ConnectionException.class)) {
                     throw new NestedIOException(rootCause);
                 }
-                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
+                msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
             } catch (BusinessException e) {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
@@ -205,6 +288,14 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
             }
             return msgResult;
         }
+    }
+
+    protected void deactivateSms() throws IOException {
+        getCosemObjectFactory().getAutoConnect().writeMode(1);
+    }
+
+    protected void activateSms() throws IOException {
+        getCosemObjectFactory().getAutoConnect().writeMode(4);
     }
 
     private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
@@ -305,6 +396,13 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         } else {
             return lpr;
         }
+    }
+
+    /**
+     * Override in DMSR 4.0 implementation
+     */
+    protected MessageResult changeAuthenticationLevel(MessageEntry msgEntry, MessageHandler messageHandler, int type, boolean enable) throws IOException {
+        return MessageResult.createFailed(msgEntry, "Authentication level change specifically for P0 or P3 is not supported in DSMR 2.3");
     }
 
     private MessageResult changeAuthenticationLevel(MessageEntry msgEntry, MessageHandler messageHandler) throws IOException {
@@ -415,7 +513,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void setWakeUpWhiteList(MessageHandler messageHandler) throws IOException {
+    protected void setWakeUpWhiteList(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Setting whitelist.");
         AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
 
@@ -433,6 +531,68 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "Handling message Global Meter Reset.");
         ScriptTable globalResetST = getCosemObjectFactory().getGlobalMeterResetScriptTable();
         globalResetST.invoke(1);    // execute script one
+    }
+
+    protected void restoreFactorySettings() throws IOException {
+        doGlobalReset();
+    }
+
+    private MessageResult testSecurityMessage(MessageHandler messageHandler, MessageEntry messageEntry) throws IOException, BusinessException, SQLException {
+        log(Level.INFO, "Handling message TestSecurityMessage");
+        String userFileId = messageHandler.getTestUserFileId();
+
+        UserFile uf;
+        try {
+            int id = Integer.parseInt(userFileId);
+            uf = mw().getUserFileFactory().find(id);
+        } catch (NumberFormatException e) {
+            log(Level.INFO, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
+            return MessageResult.createFailed(messageEntry, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
+        }
+        if (uf == null) {
+            log(Level.INFO, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
+            return MessageResult.createFailed(messageEntry, "Cannot find userfile with ID '" + userFileId + "' in the database... aborting.");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        try {
+            FileInputStream fstream = new FileInputStream(uf.getShadow().getFile());
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strLine;
+            //Read File Line By Line
+            while ((strLine = br.readLine()) != null) {
+                String trim = strLine.trim();
+                String line = trim.replaceAll(" ", "");
+                byte[] frame = ProtocolTools.getBytesFromHexString(line, "");
+                DLMSConnection dlmsConnection = dlmsSession.getDLMSConnection();
+                if (dlmsConnection instanceof TCPIPConnection || dlmsConnection instanceof SecureConnection) {
+                    try {
+                        byte[] bytes = dlmsConnection.sendRawBytes(frame);
+                        sb.append(ProtocolTools.getHexStringFromBytes(bytes, " ").trim());
+                    } catch (IOException e) {
+                        String msg = "Error while sending [" + strLine + "]:" + e.getMessage();
+                        log(Level.WARNING, msg);
+                        sb.append(msg);
+                    }
+                    sb.append("\n");
+                } else {
+                    log(Level.SEVERE, "Error while sending bytes to meter, expected a TCP/IP connection, but was " + dlmsConnection.getClass().getSimpleName());
+                    in.close();
+                    return MessageResult.createFailed(messageEntry, "Error while sending bytes to meter, expected a TCP/IP connection, but was " + dlmsConnection.getClass().getSimpleName());
+                }
+            }
+            //Close the input stream
+            in.close();
+        } catch (Exception e) {
+            log(Level.SEVERE, "Error while parsing or sending user file: " + e.getMessage());
+            return MessageResult.createFailed(messageEntry, "Error while parsing or sending user file: " + e.getMessage());
+        }
+
+        UserFileShadow userFileShadow = ProtocolTools.createUserFileShadow(uf.getName() + "_results_" + String.valueOf(new Date().getTime()), sb.toString().getBytes(), uf.getFolderId(), "txt");
+        mw().getUserFileFactory().create(userFileShadow);
+
+        return MessageResult.createSuccess(messageEntry);
     }
 
     private void testMessage(MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
@@ -691,7 +851,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void upgradeCalendar(MessageHandler messageHandler) throws IOException {
+    protected void upgradeCalendar(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Set Activity calendar");
 
         String name = messageHandler.getTOUCalendarName();
@@ -761,7 +921,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void loadLimitConfiguration(MessageHandler messageHandler) throws IOException {
+    protected void loadLimitConfiguration(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Set LoadLimit configuration");
 
         byte theMonitoredAttributeType = -1;
@@ -842,7 +1002,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void clearLoadLimiting(MessageHandler messageHandler) throws IOException {
+    protected void clearLoadLimiting(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Clear LoadLimit configuration");
 
         Limiter clearLLimiter = getCosemObjectFactory().getLimiter();
@@ -958,7 +1118,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         getCosemObjectFactory().getData(getMeterConfig().getXMLConfig().getObisCode()).setValueAttr(OctetString.fromString(xmlConfigStr));
     }
 
-    private void doFirmwareUpgrade(MessageHandler messageHandler) throws IOException, InterruptedException {
+    protected void doFirmwareUpgrade(MessageHandler messageHandler) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 
         String userFileID = messageHandler.getUserFileId();
@@ -1007,7 +1167,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(messageHandler.getDefaultResetWindow()));
     }
 
-    private void log(final Level level, final String msg) {
+    protected void log(final Level level, final String msg) {
         this.dlmsSession.getLogger().log(level, msg);
     }
 
@@ -1030,7 +1190,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         return this.dlmsSession.getMeterConfig();
     }
 
-    private void setMonitoredValue(Limiter loadLimiter) throws IOException {
+    protected void setMonitoredValue(Limiter loadLimiter) throws IOException {
         Limiter.ValueDefinitionType vdt = loadLimiter.new ValueDefinitionType();
         vdt.addDataType(new Unsigned16(3));
         OctetString os = OctetString.fromByteArray(defaultMonitoredAttribute);
@@ -1046,7 +1206,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
      * @return the abstractDataType of the monitored attribute
      * @throws IOException
      */
-    private byte getMonitoredAttributeType(Limiter.ValueDefinitionType vdt) throws IOException {
+    protected byte getMonitoredAttributeType(Limiter.ValueDefinitionType vdt) throws IOException {
 
         if (getMeterConfig().getClassId(vdt.getObisCode()) == Register.CLASSID) {
             return getCosemObjectFactory().getRegister(vdt.getObisCode()).getAttrbAbstractDataType(vdt.getAttributeIndex().getValue()).getBEREncodedByteArray()[0];
@@ -1069,7 +1229,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
      * @return
      * @throws IOException
      */
-    private AbstractDataType convertToMonitoredType(byte theMonitoredAttributeType, String value) throws IOException {
+    protected AbstractDataType convertToMonitoredType(byte theMonitoredAttributeType, String value) throws IOException {
 
         final AxdrType axdrType = AxdrType.fromTag(theMonitoredAttributeType);
         switch (axdrType) {
@@ -1214,7 +1374,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private Throwable getRootCause(NestedIOException e) {
+    protected Throwable getRootCause(NestedIOException e) {
         Throwable throwable = e.getCause();
         while (throwable.getClass().equals(NestedIOException.class)) {
             throwable = throwable.getCause();
@@ -1227,7 +1387,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
      */
     /* These methods require database access ...
     /*****************************************************************************/
-
     private Device getRtuFromDatabaseBySerialNumber() {
         String serial = this.protocol.getSerialNumber();
         Device rtu = mw().getDeviceFactory().findBySerialNumber(serial).get(0);
@@ -1235,7 +1394,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         return rtu;
     }
 
-    private MeteringWarehouse mw() {
+    protected MeteringWarehouse mw() {
         return ProtocolTools.mw();
     }
 }

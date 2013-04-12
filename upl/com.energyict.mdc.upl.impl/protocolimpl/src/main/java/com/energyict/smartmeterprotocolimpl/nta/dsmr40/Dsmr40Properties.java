@@ -13,14 +13,14 @@ import java.util.List;
  */
 public class Dsmr40Properties extends Dsmr23Properties {
 
-    public static final String Dsmr40HexPassword = "HexPassword";
-    public static final String PropertyForcedToReadCache = "ForcedToReadCache";
+    public static final String DSMR_40_HEX_PASSWORD = "HexPassword";
+    public static final String PROPERTY_FORCED_TO_READ_CACHE = "ForcedToReadCache";
 
     @Override
     public List<String> getOptionalKeys() {
         List<String> optionals = super.getOptionalKeys();
-        optionals.add(Dsmr40HexPassword);
-        optionals.add(PropertyForcedToReadCache);
+        optionals.add(DSMR_40_HEX_PASSWORD);
+        optionals.add(PROPERTY_FORCED_TO_READ_CACHE);
         return optionals;
     }
 
@@ -30,12 +30,12 @@ public class Dsmr40Properties extends Dsmr23Properties {
     }
 
     @ProtocolProperty
-    public String getHexPassword(){
-        return getStringValue(Dsmr40HexPassword, "");
+    public String getHexPassword() {
+        return getStringValue(DSMR_40_HEX_PASSWORD, "");
     }
 
     @ProtocolProperty
-    public boolean getForcedToReadCache(){
-        return getBooleanProperty(PropertyForcedToReadCache, "0");
+    public boolean getForcedToReadCache() {
+        return getBooleanProperty(PROPERTY_FORCED_TO_READ_CACHE, "0");
     }
 }

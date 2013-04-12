@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.eventhandling;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DataContainer;
@@ -8,10 +8,10 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.MbusControlLog;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.DSMR40EventProfile;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.MbusEventLog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,11 +21,11 @@ import java.util.List;
 import java.util.logging.Level;
 
 /**
- * Extends functionality from the DSMR 2.3 EventProfile, but uses the specific DSMR4.0 EventLogbooks
+ * Extends functionality from the DSMR 4.0 EventProfile, but uses the specific Xemex DSMR4.0 EventLogbooks
  */
-public class DSMR40EventProfile extends EventProfile {
+public class XemexEventProfile extends DSMR40EventProfile {
 
-    public DSMR40EventProfile(AbstractSmartNtaProtocol protocol) {
+    public XemexEventProfile(AbstractSmartNtaProtocol protocol) {
         super(protocol);
     }
 
@@ -40,20 +40,17 @@ public class DSMR40EventProfile extends EventProfile {
         fromCal.setTime(fromDate);
         protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + ".");
         DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
-        DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
         DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
         DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
         DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
 
-        StandardEventLog standardEvents = new StandardEventLog(dcEvent, this.protocol.getDateTimeDeviationType());
-        FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(dcFraudDetection, this.protocol.getDateTimeDeviationType());
-        DisconnectControlLog disconnectControl = new DisconnectControlLog(dcControlLog, this.protocol.getDateTimeDeviationType());
+        XemexStandardEventLog standardEvents = new XemexStandardEventLog(dcEvent, this.protocol.getDateTimeDeviationType());
+        XemexFraudDetectionLog fraudDetectionEvents = new XemexFraudDetectionLog(dcFraudDetection, this.protocol.getDateTimeDeviationType());
         MbusEventLog mbusLogs = new MbusEventLog(dcMbusEventLog, this.protocol.getDateTimeDeviationType());
         PowerFailureLog powerFailure = new PowerFailureLog(dcPowerFailure, this.protocol.getDateTimeDeviationType());
 
         eventList.addAll(standardEvents.getMeterEvents());
         eventList.addAll(fraudDetectionEvents.getMeterEvents());
-        eventList.addAll(disconnectControl.getMeterEvents());
         eventList.addAll(mbusLogs.getMeterEvents());
         eventList.addAll(powerFailure.getMeterEvents());
 

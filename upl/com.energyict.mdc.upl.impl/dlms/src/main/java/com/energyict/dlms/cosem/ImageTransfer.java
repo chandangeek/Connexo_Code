@@ -21,16 +21,16 @@ import java.util.logging.Level;
 
 /**
  * @author gna
- * <pre>
- * The Image transfer takes place in several steps:
- * Step 1:   The client gets the ImageBlockSize from each server individually;
- * Step 2:   The client initiates the Image transfer process individually or using broadcast;
- * Step 3:   The client transfers ImageBlocks to (a group of) server(s) individually or using  broadcast;
- * Step 4:   The client checks the completeness of the Image in each server individually and transfers any ImageBlocks not (yet) transferred;
- * Step 5:   The Image is verified;
- * Step 6:   Before activation, the Image is checked;
- * Step 7:   The Image(s) is(/are) activated.
- * </pre>
+ *         <pre>
+ *                                 The Image transfer takes place in several steps:
+ *                                 Step 1:   The client gets the ImageBlockSize from each server individually;
+ *                                 Step 2:   The client initiates the Image transfer process individually or using broadcast;
+ *                                 Step 3:   The client transfers ImageBlocks to (a group of) server(s) individually or using  broadcast;
+ *                                 Step 4:   The client checks the completeness of the Image in each server individually and transfers any ImageBlocks not (yet) transferred;
+ *                                 Step 5:   The Image is verified;
+ *                                 Step 6:   Before activation, the Image is checked;
+ *                                 Step 7:   The Image(s) is(/are) activated.
+ *                                 </pre>
  */
 
 public class ImageTransfer extends AbstractCosemObject {
@@ -86,6 +86,7 @@ public class ImageTransfer extends AbstractCosemObject {
     static final byte[] LN = new byte[]{0, 0, 44, 0, 0, (byte) 255};
 
     private int startIndex = 0;
+    private long delayBeforeSendingBlocks = 0;
 
     /**
      * The number of the first block that should be transferred.
@@ -94,6 +95,10 @@ public class ImageTransfer extends AbstractCosemObject {
      */
     public void setStartIndex(int startIndex) {
         this.startIndex = startIndex;
+    }
+
+    public void setDelayBeforeSendingBlocks(long delayBeforeSendingBlocks) {
+        this.delayBeforeSendingBlocks = delayBeforeSendingBlocks;
     }
 
     public ImageTransfer(ProtocolLink protocolLink) {
@@ -182,8 +187,6 @@ public class ImageTransfer extends AbstractCosemObject {
      * @throws InterruptedException when interrupted while sleeping
      */
     public void upgrade(byte[] data, boolean additionalZeros, String imageIdentifier, boolean checkForMissingBlocks) throws IOException, InterruptedException {
-        this.data = data;
-        this.size = new Unsigned32(data.length);
 
         // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
         updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, data.length, 0);
@@ -192,39 +195,7 @@ public class ImageTransfer extends AbstractCosemObject {
         }
 
         if (getImageTransferEnabledState().getState()) {
-
-            // Step1: Get the maximum image block size
-            // and calculate the amount of blocks in one step
-            final long blockSize = readImageBlockSize().getValue();
-            getLogger().info("ImageTransfer block size = [" + blockSize + "] bytes");
-
-            this.blockCount = (int) (this.size.getValue() / blockSize) + (((this.size.getValue() % blockSize) == 0) ? 0 : 1);
-            getLogger().info("ImageTransfer block count = [" + blockCount + "] blocks");
-
-            if (isResume()) {
-                readImageTransferStatus();
-                if (imageTransferStatus.getValue() < 1 || imageTransferStatus.getValue() > 3) {
-                    getLogger().warning("Cannot resume the image transfer. The current transfer state (" + imageTransferStatus.getValue() + ") should be 'Image transfer initiated (1)', 'Image verification initiated (2)' or 'Image verification successful (3)'. Will start from block 0.");
-                    startIndex = 0;
-                }
-                if (getImageTransferBlocksStatus().getNrOfBits() != blockCount) {
-                    getLogger().warning("Cannot resume the image transfer. The number of blocks is different since the last image transfer session. Will start from block 0.");
-                    startIndex = 0;
-                }
-            }
-
-            // Step2: Initiate the image transfer
-            updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
-            Structure imageInitiateStructure = new Structure();
-            imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
-            imageInitiateStructure.addDataType(this.size);
-            if (!isResume()) {
-                imageTransferInitiate(imageInitiateStructure);
-            }
-
-            // Step3: Transfer image blocks
-            transferImageBlocks(additionalZeros);
-            this.protocolLink.getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
+            initializeAndTransferBlocks(data, additionalZeros, imageIdentifier);
 
             // Step4: Check completeness of the image and transfer missing blocks
             // Every block is confirmed by the meter
@@ -256,11 +227,52 @@ public class ImageTransfer extends AbstractCosemObject {
 
     }
 
+    public void initializeAndTransferBlocks(byte[] data, boolean additionalZeros, String imageIdentifier) throws IOException {
+        this.data = data;
+        this.size = new Unsigned32(data.length);
+
+        // Step1: Get the maximum image block size
+        // and calculate the amount of blocks in one step
+        final long blockSize = readImageBlockSize().getValue();
+        getLogger().info("ImageTransfer block size = [" + blockSize + "] bytes");
+
+        this.blockCount = (int) (this.size.getValue() / blockSize) + (((this.size.getValue() % blockSize) == 0) ? 0 : 1);
+        getLogger().info("ImageTransfer block count = [" + blockCount + "] blocks");
+
+        if (isResume()) {
+            readImageTransferStatus();
+            if (imageTransferStatus.getValue() < 1 || imageTransferStatus.getValue() > 3) {
+                getLogger().warning("Cannot resume the image transfer. The current transfer state (" + imageTransferStatus.getValue() + ") should be 'Image transfer initiated (1)', 'Image verification initiated (2)' or 'Image verification successful (3)'. Will start from block 0.");
+                startIndex = 0;
+            } else if (getNumberOfBlocksInPreviousSession() != blockCount) {
+                getLogger().warning("Cannot resume the image transfer. The number of blocks is different since the last image transfer session. Will start from block 0.");
+                startIndex = 0;
+            }
+        }
+
+        // Step2: Initiate the image transfer
+        updateState(ImageTransferCallBack.ImageTransferState.INITIATE, imageIdentifier, blockCount, size != null ? size.intValue() : 0, 0);
+        Structure imageInitiateStructure = new Structure();
+        imageInitiateStructure.addDataType(OctetString.fromString(imageIdentifier));
+        imageInitiateStructure.addDataType(this.size);
+        if (!isResume()) {
+            imageTransferInitiate(imageInitiateStructure);
+        }
+
+        if (delayBeforeSendingBlocks > 0) {
+            DLMSUtils.delay(delayBeforeSendingBlocks);  //Wait a bit before sending the blocks
+        }
+
+        // Step3: Transfer image blocks
+        transferImageBlocks(additionalZeros);
+        this.protocolLink.getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
+    }
+
     /**
      * Indicates if this is a 'resume' session (sending the remaining blocks) or a normal session (send all blocks)
      * If it's a resume session, there's no need to set the enabled state and to do the initiate.
      */
-    private boolean isResume() {
+    public boolean isResume() {
         return startIndex > 0;
     }
 
@@ -416,6 +428,8 @@ public class ImageTransfer extends AbstractCosemObject {
         long previousMissingBlock = -1;
         int retryBlock = 0;
         int totalRetry = 0;
+        protocolLink.getLogger().info("Checking for missing blocks...");
+        protocolLink.getLogger().info("First not transferred block is: " + readFirstNotTransferedBlockNumber().getValue() + ", block count is " + blockCount);
         while (readFirstNotTransferedBlockNumber().getValue() < this.blockCount) {
 
             if (previousMissingBlock == this.getImageFirstNotTransferedBlockNumber().getValue()) {
@@ -444,6 +458,7 @@ public class ImageTransfer extends AbstractCosemObject {
             imageBlockTransfer = new Structure();
             imageBlockTransfer.addDataType(new Unsigned32((int) this.getImageFirstNotTransferedBlockNumber().getValue()));
             imageBlockTransfer.addDataType(os);
+            protocolLink.getLogger().info("Resending block " + this.getImageFirstNotTransferedBlockNumber().getValue());
             imageBlockTransfer(imageBlockTransfer);
 
         }
@@ -486,7 +501,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * @throws IOException
      * @throws InterruptedException
      */
-    public void verifyAndPollForSuccess() throws IOException, InterruptedException {
+    public void verifyAndPollForSuccess() throws IOException {
         try {
             imageVerification();
         } catch (DataAccessResultException e) {
@@ -694,6 +709,11 @@ public class ImageTransfer extends AbstractCosemObject {
         final TypeEnum typeEnum = AXDRDecoder.decode(berEncodedData, TypeEnum.class);
         this.imageTransferStatus = ImageTransferStatus.fromValue(typeEnum.getValue());
         return this.imageTransferStatus;
+    }
+
+    public int getNumberOfBlocksInPreviousSession() throws IOException {
+        final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_TRANSFER_BLOCK_STATUS);
+        return AXDRDecoder.decode(berEncodedData, BitString.class).getNrOfBits();
     }
 
     /**

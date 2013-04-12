@@ -2,13 +2,18 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -20,7 +25,7 @@ import java.util.logging.Level;
  * Time: 11:55:59
  * </pre>
  */
-public class LGLoadProfileBuilder extends LoadProfileBuilder {
+public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
 
     /**
      * Default constructor

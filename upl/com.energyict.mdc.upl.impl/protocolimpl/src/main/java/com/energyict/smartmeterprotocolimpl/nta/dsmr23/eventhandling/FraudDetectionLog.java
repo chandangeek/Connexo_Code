@@ -5,7 +5,8 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 public class FraudDetectionLog extends AbstractEvent {
 
@@ -28,7 +29,7 @@ public class FraudDetectionLog extends AbstractEvent {
         if (!ExtraEvents.extraEvents.containsKey(new Integer(eventId))) {
             switch (eventId) {
                 case EVENT_EVENT_LOG_CLEARED: {
-                    meterEvents.add(createNewFraudDetectionLogbookEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Fraud detection event log profile cleared."));
+                    meterEvents.add(createNewFraudDetectionLogbookEvent(eventTimeStamp, MeterEvent.EVENT_LOG_CLEARED, eventId, "Fraud detection event log profile cleared"));
                 }
                 break;
                 case EVENT_TERMINAL_COVER_REMOVED: {

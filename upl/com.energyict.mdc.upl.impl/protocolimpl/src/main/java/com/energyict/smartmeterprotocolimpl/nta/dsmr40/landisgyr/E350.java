@@ -38,6 +38,9 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
      */
     @Override
     protected void checkCacheObjects() throws IOException {
+        if (getCache() == null) {
+            setCache(new DLMSCache());
+        }
         if ((((DLMSCache) getCache()).getObjectList() == null) || ((Dsmr40Properties) getProperties()).getForcedToReadCache()) {
             getLogger().info(((Dsmr40Properties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
             requestConfiguration();
@@ -58,7 +61,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
 
     @Override
     public void searchForSlaveDevices() throws ConnectionException {
-        //TODO don't search slaves during current TESTING
+        getMeterTopology().searchForSlaveDevices();
     }
 
     /**

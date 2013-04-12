@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eict;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common;
 
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -40,7 +40,7 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
 
     @Override
     public void setTime(Date newMeterTime) throws IOException {
-         try {
+        try {
             this.dlmsSession.getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(newMeterTime, getTimeZone()));
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
@@ -88,6 +88,9 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
      */
     @Override
     protected void checkCacheObjects() throws IOException {
+        if (getCache() == null) {
+            setCache(new DLMSCache());
+        }
         if ((((DLMSCache) getCache()).getObjectList() == null) || ((Dsmr40Properties) getProperties()).getForcedToReadCache()) {
             getLogger().info(((Dsmr40Properties) getProperties()).getForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
             requestConfiguration();

@@ -19,7 +19,7 @@ public abstract class AbstractSmartDSMR40NtaProtocol extends AbstractSmartNtaPro
     /**
      * The used {@link com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.DSMR40EventProfile}
      */
-    private DSMR40EventProfile eventProfile;
+    protected DSMR40EventProfile eventProfile;
 
     @Override
     public MessageProtocol getMessageProtocol() {

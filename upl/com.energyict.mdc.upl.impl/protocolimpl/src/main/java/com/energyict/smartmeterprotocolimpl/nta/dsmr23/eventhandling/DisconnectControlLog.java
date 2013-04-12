@@ -8,7 +8,9 @@ import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class DisconnectControlLog extends AbstractEvent {
 
@@ -63,7 +65,7 @@ public class DisconnectControlLog extends AbstractEvent {
         if (!ExtraEvents.extraEvents.containsKey(new Integer(eventId))) {
             switch (eventId) {
                 case EVENT_EVENT_LOG_CLEARED: {
-                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Disconnect control event log profile cleared."));
+                    meterEvents.add(createNewDisconnectControlLogbookEvent(eventTimeStamp, MeterEvent.EVENT_LOG_CLEARED, eventId, "Disconnect control event log profile cleared"));
                 }
                 break;
                 case EVENT_MANUAL_DISCONNECTION: {

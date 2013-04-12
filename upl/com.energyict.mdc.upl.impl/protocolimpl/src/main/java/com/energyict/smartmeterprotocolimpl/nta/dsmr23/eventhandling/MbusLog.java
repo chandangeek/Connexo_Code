@@ -50,7 +50,7 @@ public class MbusLog extends AbstractEvent {
         if (!ExtraEvents.extraEvents.containsKey(new Integer(eventId))) {
             switch (eventId) {
                 case EVENT_EVENT_LOG_CLEARED: {
-                    meterEvents.add(createNewMbusEventLogbookEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Event log profile cleared."));
+                    meterEvents.add(createNewMbusEventLogbookEvent(eventTimeStamp, MeterEvent.EVENT_LOG_CLEARED, eventId, "Mbus event log profile cleared"));
                 }
                 break;
                 case EVENT_COMM_ERROR_MBUS_CHANNEL1: {
@@ -168,7 +168,7 @@ public class MbusLog extends AbstractEvent {
     }
 
     public MeterEvent createNewMbusEventLogbookEvent(Date eventTimeStamp, int eventId) {
-        List<MeterEvent > meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         buildMeterEvent(meterEvents, eventTimeStamp, eventId);
         return meterEvents.get(0);
     }

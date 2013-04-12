@@ -3,40 +3,66 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
+import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
+import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
+import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMbusMessaging;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
- * Date: 9/04/13
- * Time: 16:36
+ * @author sva
+ * @since 30/01/13 - 10:18
  */
-public class MbusDevice extends AbstractNtaMbusDevice {
+public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProfileMessaging, LoadProfileRegisterMessaging {
 
-    @Override
-    public MessageProtocol getMessageProtocol() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public MbusDevice() {
+        super();
+    }
+
+    public MbusDevice(final AbstractSmartNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
+        super(meterProtocol, serialNumber, physicalAddress);
     }
 
     @Override
+    public MessageProtocol getMessageProtocol() {
+        return new XemexMbusMessaging();
+    }
+
+    /**
+     * Returns the implementation version
+     *
+     * @return a version string
+     */
     public String getVersion() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return "$Date: 2012-08-06 14:46:33 +0200 (ma, 06 aug 2012) $";
     }
 
     @Override
     public void addProperties(TypedProperties properties) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return Collections.emptyList();
+        List<PropertySpec> required = new ArrayList<>();
+        return required;
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return Collections.emptyList();
+        List<PropertySpec> optional = new ArrayList<>();
+        return optional;
+    }
+
+    public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return new LoadProfileRegisterMessageBuilder();
+    }
+
+    public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return new PartialLoadProfileMessageBuilder();
     }
 }

@@ -1,20 +1,22 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling;
+package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.eventhandling;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling.FraudDetectionLog;
 
 import java.util.Date;
 import java.util.List;
 
 /**
- * Extends the original DSMR2.3 FraudDetectionLog with additional events for DSMR4.0
+ * @author sva
+ * @since 25/02/13 - 15:12
  */
-public class FraudDetectionLog extends com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.FraudDetectionLog {
+public class XemexFraudDetectionLog extends FraudDetectionLog {
 
     private static final int EVENT_CONFIGURATION_CHANGE = 47;
 
-    public FraudDetectionLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
+    public XemexFraudDetectionLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
     }
 
@@ -25,7 +27,7 @@ public class FraudDetectionLog extends com.energyict.smartmeterprotocolimpl.nta.
     protected void buildMeterEvent(final List<MeterEvent> meterEvents, final Date eventTimeStamp, final int eventId) {
         switch (eventId) {
             case EVENT_CONFIGURATION_CHANGE: {
-                meterEvents.add(createNewFraudDetectionLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Configuration is activated or de-activated after the meter was installed"));
+                meterEvents.add(createNewFraudDetectionLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Configuration changed during P3 communication"));
             }
             break;
             default:

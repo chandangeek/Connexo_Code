@@ -171,6 +171,8 @@ public class RtuMessageConstant {
      */
     public static final String MBUS_DECOMMISSION = "Decommission";
     public static final String MBUS_ENCRYPTION_KEYS = "Set_Encryption_keys";
+    public static final String CRYPTOSERVER_MBUS_ENCRYPTION_KEYS = "Set_Encryption_keys_using_Cryptoserver";
+    public static final String MBUS_DEFAULT_KEY = "MBus_Default_Key";
     public static final String MBUS_OPEN_KEY = "Open_Key_Value";
     public static final String MBUS_TRANSFER_KEY = "Transfer_Key_Value";
     public static final String MBUS_DEFAULT_ENCRYPTION_KEY = "Default_Encryption_Key";
@@ -218,12 +220,14 @@ public class RtuMessageConstant {
      * DeviceMessage tags for ReadingTestFile
      */
     public static final String TEST_MESSAGE = "Test_Message";
+    public static final String TEST_SECURITY_MESSAGE = "Test_Security_Message";
     public static final String TEST_FILE = "Test_File";
 
     /**
      * DeviceMessage tags for GlobalMeterReset
      */
     public static final String GLOBAL_METER_RESET = "Global_Meter_Reset";
+    public static final String RESTORE_FACTORY_SETTINGS = "Restore_Factory_Settings";
 
     /**
      * DeviceMessage tags for Webserver activate/deactivate
@@ -252,6 +256,10 @@ public class RtuMessageConstant {
     public static final String AEE_CHANGE_AUTHENTICATION_KEY = "AuthenticationKey";
     public static final String AEE_ACTIVATE_SECURITY = "Activate_dataTransport_Security";
     public static final String AEE_CHANGE_AUTHENTICATION_LEVEL = "Change_authentication_level";
+    public static final String AEE_ENABLE_AUTHENTICATION_LEVEL_P0 = "Enable_authentication_level_P0";
+    public static final String AEE_DISABLE_AUTHENTICATION_LEVEL_P0 = "Disable_authentication_level_P0";
+    public static final String AEE_ENABLE_AUTHENTICATION_LEVEL_P3 = "Enable_authentication_level_P3";
+    public static final String AEE_DISABLE_AUTHENTICATION_LEVEL_P3 = "Disable_authentication_level_P3";
     public static final String AEE_SECURITYLEVEL = "SecurityLevel";
     public static final String AEE_AUTHENTICATIONLEVEL = "AuthenticationLevel";
 
@@ -330,7 +338,9 @@ public class RtuMessageConstant {
     public static final String CHANGE_OF_SUPPLIER_ACTIATION_DATE = "Change_Of_Supplier_ActivationDate";
     public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change_Administrative_Status";
 
+    public static final String ALARM_FILTER = "Alarm_Filter";
     public static final String RESET_ALARM_REGISTER = "Reset_Alarm_Register";
+    public static final String RESET_ERROR_REGISTER = "Reset_Error_Register";
     public static final String CHANGE_DEFAULT_RESET_WINDOW = "Default_Reset_Window";
 
     public static final String DEBUG_LOGBOOK = "Debug_Logbook";

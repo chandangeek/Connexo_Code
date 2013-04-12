@@ -5,7 +5,8 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
 public class MbusControlLog extends AbstractEvent {
 
@@ -45,7 +46,7 @@ public class MbusControlLog extends AbstractEvent {
         if (!ExtraEvents.extraEvents.containsKey(new Integer(eventId))) {
             switch (eventId) {
                 case EVENT_EVENT_LOG_CLEARED: {
-                    meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.CLEAR_DATA, eventId, "Mbus control event log profile cleared."));
+                    meterEvents.add(createNewMbusControlLogbookEvent(eventTimeStamp, MeterEvent.EVENT_LOG_CLEARED, eventId, "Mbus control event log profile cleared"));
                 }
                 break;
 
