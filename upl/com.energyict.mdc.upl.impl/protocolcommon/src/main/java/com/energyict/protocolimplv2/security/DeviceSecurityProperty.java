@@ -1,9 +1,11 @@
 package com.energyict.protocolimplv2.security;
 
+import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dynamicattributes.BigDecimalFactory;
+import com.energyict.dynamicattributes.PasswordFactory;
 
 import java.math.BigDecimal;
 
@@ -19,7 +21,10 @@ public enum DeviceSecurityProperty {
     /**
      * A plain old password, can be a high- or low level password
      */
-    PASSWORD(PropertySpecFactory.passwordPropertySpec(SecurityPropertySpecName.PASSWORD.toString())),
+    PASSWORD(PropertySpecBuilder
+            .forClass(Password.class, new PasswordFactory()).
+                    name(SecurityPropertySpecName.PASSWORD.toString()).
+                    setDefaultValue(new Password("")).finish()),
     /**
      * A key used for encryption of bytes
      */
