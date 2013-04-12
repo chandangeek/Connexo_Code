@@ -5,7 +5,6 @@ import com.energyict.cbo.TimeConstants;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.comserver.core.ComServerDAO;
 import com.energyict.comserver.core.impl.online.ComServerDAOImpl;
-import com.energyict.comserver.main.online.ComServerLauncher;
 import com.energyict.comserver.tools.Strings;
 import com.energyict.cpo.CreateEvent;
 import com.energyict.cpo.Environment;
@@ -44,6 +43,7 @@ import com.energyict.mdc.tasks.ConnectionStrategy;
 import com.energyict.mdc.tasks.ConnectionTypePluggableClass;
 import com.energyict.mdc.tasks.ConnectionTypeRelationTypeCreator;
 import com.energyict.mdc.tasks.DeviceProtocolDialectRelationTypeCreator;
+import com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
 import com.energyict.mdc.tasks.OutboundConnectionTask;
 import com.energyict.mdc.tasks.ProtocolDialectProperties;
 import com.energyict.mdc.tasks.ScheduledComTask;
@@ -75,7 +75,6 @@ import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
-import com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.elster.AM100;
 
 import java.io.BufferedReader;
@@ -93,6 +92,7 @@ import java.util.Properties;
  *
  * @author: sva
  * @since: 19/10/12 (13:43)
+ * @deprecated: for testing purposes only
  */
 public final class ComServerTCPAM100Demo {
 
@@ -167,8 +167,7 @@ public final class ComServerTCPAM100Demo {
     }
 
     private void startComServer() {
-        System.out.println("Starting the online comserver...");
-        ComServerLauncher.main(new String[0]);
+        System.out.println("Demo initialized, now is the time to start the ComServer with the ComServerLauncher class");
     }
 
     private void startDemo() {
