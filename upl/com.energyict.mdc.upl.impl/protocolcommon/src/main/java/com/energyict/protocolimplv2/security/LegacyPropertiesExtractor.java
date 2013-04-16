@@ -13,7 +13,7 @@ import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
  */
 public class LegacyPropertiesExtractor {
     static public TypedProperties getSecurityRelatedPropertiesForAuthentication(TypedProperties typedProperties, int currentAuthenticationDeviceAccessLevel, DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities) {
-        TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         for (AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel : deviceProtocolSecurityCapabilities.getAuthenticationAccessLevels()) {
             if (authenticationDeviceAccessLevel.getId()==currentAuthenticationDeviceAccessLevel) {
                 for (PropertySpec propertySpec : authenticationDeviceAccessLevel.getSecurityProperties()) {
@@ -27,7 +27,7 @@ public class LegacyPropertiesExtractor {
     }
 
     static public TypedProperties getSecurityRelatedPropertiesForEncryption(TypedProperties typedProperties, int currentEncryptionDeviceAccessLevel, DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities) {
-        TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         for (EncryptionDeviceAccessLevel encryptionDeviceAccessLevel : deviceProtocolSecurityCapabilities.getEncryptionAccessLevels()) {
             if (encryptionDeviceAccessLevel.getId()==currentEncryptionDeviceAccessLevel) {
                 for (PropertySpec propertySpec : encryptionDeviceAccessLevel.getSecurityProperties()) {
