@@ -6,9 +6,10 @@ import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
-import java.util.List;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -94,7 +95,7 @@ public class IEC1107SecuritySupportTest {
     @Test
     public void convertToTypedPropertiesTest() {
         IEC1107SecuritySupport iec1107SecuritySupport = new IEC1107SecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
         DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
@@ -113,9 +114,9 @@ public class IEC1107SecuritySupportTest {
     @Test
     public void testConvertFromTypedProperties() throws Exception {
         IEC1107SecuritySupport iec1107SecuritySupport = new IEC1107SecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), "MyPassword");
-        securityProperties.setProperty("SecurityLevel", ""+IEC1107SecuritySupport.AccessLevelIds.LEVEL_ONE.getAccessLevel());
+        securityProperties.setProperty("SecurityLevel", "" + IEC1107SecuritySupport.AccessLevelIds.LEVEL_ONE.getAccessLevel());
 
         DeviceProtocolSecurityPropertySet securityPropertySet = iec1107SecuritySupport.convertFromTypedProperties(securityProperties);
 
@@ -129,12 +130,20 @@ public class IEC1107SecuritySupportTest {
 
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testCanNotConvertTypedPropertiesWithMissingSecurityLevel() throws Exception {
+    @Test
+    public void testConvertTypedPropertiesWithMissingSecurityLevel() throws Exception {
         IEC1107SecuritySupport iec1107SecuritySupport = new IEC1107SecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), "MyPassword");
 
-        iec1107SecuritySupport.convertFromTypedProperties(securityProperties);
+        final DeviceProtocolSecurityPropertySet securityPropertySet = iec1107SecuritySupport.convertFromTypedProperties(securityProperties);
+
+        // asserts
+        assertThat(securityPropertySet).isNotNull();
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(-1);
+        assertThat(securityPropertySet.getSecurityProperties()).isNotNull();
+        assertThat(securityPropertySet.getSecurityProperties().size()).isEqualTo(1);
+        assertThat(securityPropertySet.getSecurityProperties().getProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName())).isEqualTo("MyPassword");
     }
 }
