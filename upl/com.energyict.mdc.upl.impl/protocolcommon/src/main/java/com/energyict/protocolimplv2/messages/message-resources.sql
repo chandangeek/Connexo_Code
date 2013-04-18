@@ -19,6 +19,9 @@
 
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST', 'Add phonenumbers to white list', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.whitelist.phonenumbers', 'Phonenumbers', 'L', 'Y', 'N', 'MDW', sysdate);
+-- GDE: Missing (don't know the translation):
+-- NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS
+-- NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS
 
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DisplayDeviceMessage.consumer.CONSUMER_MESSAGE_CODE_TO_PORT_P1', 'Send a code message to the P1 port', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DisplayDeviceMessage.consumer.CONSUMER_MESSAGE_TEXT_TO_PORT_P1', 'Send a text message to the P1 port', 'L', 'Y', 'N', 'MDW', sysdate);
