@@ -24,13 +24,14 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.nta.elster.AM100;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
-import com.energyict.protocolimplv2.nta.elster.AM100;
 
 /**
  * @author: sva
@@ -63,12 +64,12 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -102,12 +103,12 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     @Override
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -117,7 +118,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -127,7 +128,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -140,7 +141,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -150,12 +151,12 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -165,7 +166,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
