@@ -10,6 +10,90 @@
     <packaging>pom</packaging>
     <name>Jupiter parent pom</name>
 
+    <organization>
+        <name>Elster</name>
+        <url>www.elster.com</url>
+    </organization>
+
+    <!-- Repositories specification. -->
+    <repositories>
+        <repository>
+            <id>eict-public-snapshots</id>
+            <name>EnergyICT snapshots repository group</name>
+            <url>http://source.eict.vpdc/nexus/content/groups/public-snapshots/
+            </url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>eict-public</id>
+            <name>EnergyICT public repository group</name>
+            <url>http://source.eict.vpdc/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>maven-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven 1</name>
+            <url>http://download.java.net/maven/1/</url>
+            <layout>legacy</layout>
+        </repository>
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net Repository for Maven 2</name>
+            <url>http://download.java.net/maven/2/</url>
+        </repository>
+        <repository>
+            <id>JBoss</id>
+            <name>JBoss repository</name>
+            <url>http://repository.jboss.com/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!-- Plugin repository specification -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>eict-plugins</id>
+            <name>EnergyICT plugin repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/plugins/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <!-- Distribution management. -->
+    <distributionManagement>
+        <repository>
+            <id>eict-releases</id>
+            <name>EnergyICT releases repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>eict-snapshots</id>
+            <name>EnergyICT snapshots repository</name>
+            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
 
     <build>
         <finalName>${groupId}.${artifactId}-${version}</finalName>
