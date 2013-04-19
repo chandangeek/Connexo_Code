@@ -3,10 +3,10 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dynamicattributes.BigDecimalFactory;
+import com.energyict.dynamicattributes.BooleanFactory;
 import com.energyict.dynamicattributes.PasswordFactory;
-
+import com.energyict.dynamicattributes.StringFactory;
 import java.math.BigDecimal;
 
 /**
@@ -28,11 +28,19 @@ public enum DeviceSecurityProperty {
     /**
      * A key used for encryption of bytes
      */
-    ENCRYPTION_KEY(PropertySpecFactory.passwordPropertySpec(SecurityPropertySpecName.ENCRYPTION_KEY.toString())),
+    ENCRYPTION_KEY(PropertySpecBuilder
+            .forClass(Password.class, new PasswordFactory())
+            .name(SecurityPropertySpecName.ENCRYPTION_KEY.toString())
+            .setDefaultValue(new Password(""))
+        .finish()),
     /**
      * A key used for authentication to a device
      */
-    AUTHENTICATION_KEY(PropertySpecFactory.passwordPropertySpec(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())),
+    AUTHENTICATION_KEY(PropertySpecBuilder
+            .forClass(Password.class, new PasswordFactory())
+            .name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
+            .setDefaultValue(new Password(""))
+        .finish()),
     /**
      * A DLMS clientMacAddress
      */
@@ -44,23 +52,43 @@ public enum DeviceSecurityProperty {
     /**
      * A character identification of the accessing client
      */
-    DEVICE_ACCESS_IDENTIFIER(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString())),
+    DEVICE_ACCESS_IDENTIFIER(PropertySpecBuilder
+            .forClass(Password.class, new PasswordFactory())
+            .name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString())
+            .setDefaultValue(new Password(""))
+        .finish()),
     /**
      * A username for ANSI C12 protocols
      */
-    ANSI_C12_USER(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.ANSI_C12_USER.toString())),
+    ANSI_C12_USER(PropertySpecBuilder
+                .forClass(Password.class, new PasswordFactory())
+                .name(SecurityPropertySpecName.ANSI_C12_USER.toString())
+                .setDefaultValue(new Password(""))
+        .finish()),
     /**
      * A UserId for ANSI C12 protocols
      */
-    ANSI_C12_USER_ID(PropertySpecFactory.bigDecimalPropertySpec(SecurityPropertySpecName.ANSI_C12_USER_ID.toString())),
+    ANSI_C12_USER_ID(PropertySpecBuilder
+                    .forClass(BigDecimal.class, new BigDecimalFactory())
+                    .name(SecurityPropertySpecName.ANSI_C12_USER_ID.toString())
+                    .setDefaultValue(new BigDecimal(1))
+            .finish()),
     /**
      * Indication for ansi protocols to use a binary password
      */
-    BINARY_PASSWORD(PropertySpecFactory.booleanPropertySpec(SecurityPropertySpecName.BINARY_PASSWORD.toString())),
+    BINARY_PASSWORD(PropertySpecBuilder
+            .forClass(Boolean.class, new BooleanFactory())
+            .name(SecurityPropertySpecName.BINARY_PASSWORD.toString())
+            .setDefaultValue(Boolean.FALSE)
+        .finish()),
     /**
      * ANSI ap title
      */
-    ANSI_CALLED_AP_TITLE(PropertySpecFactory.stringPropertySpec(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString()));
+    ANSI_CALLED_AP_TITLE(PropertySpecBuilder
+            .forClass(String.class, new StringFactory())
+            .name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString())
+            .setDefaultValue("")
+        .finish());
 
     private final PropertySpec propertySpec;
 
