@@ -1,0 +1,109 @@
+package com.elster.jupiter.orm.impl;
+
+import java.util.*;
+import java.sql.*;
+
+import com.elster.jupiter.orm.*;
+
+class OrmServiceImpl implements OrmService  {
+	
+	private Map<String,Component> components = Collections.synchronizedMap(new HashMap<String,Component>());
+	
+	OrmServiceImpl() {				 
+	}
+	
+	@Override
+	synchronized public boolean add(Component component) {
+		if (components.containsKey(component.getName())) {
+			return false;			
+		}
+		components.put(component.getName(), component);
+		return true;
+	}
+
+	@Override
+	public <T,S extends T> DataMapper<T> getDataMapper(Class<T> api, Class<S> implementation , String componentName , String tableName ) {
+		return getTable(componentName,tableName).getDataMapper(api,implementation);
+	}
+	
+	@Override
+	public Connection getConnection(boolean transactionRequired) throws SQLException {
+		return Bus.getConnection(transactionRequired);
+	}
+	
+	@Override
+	public Component getComponent(String name) {
+		Component result = components.get(name);
+		if (result == null) {
+			result = getOrmClient().getComponentFactory().get(name);
+			if (result != null) {
+				components.put(name, result);
+			}
+		}
+		return result;
+	}
+	
+	@Override
+	public Table getTable(String componentName , String tableName) {
+		Component component = getComponent(componentName);
+		return (component == null) ? null : component.getTable(tableName);
+	}
+	
+	// install time api
+	
+	@Override
+	public Component newComponent(String name,String description) {
+		// performs check only on component cache , not in database. 
+		if (components.containsKey(name)) {
+			throw new IllegalArgumentException("Component " + name + " exists already");
+		}
+		return new ComponentImpl(name, description);
+	}
+
+	@Override
+	public void install(Component component, boolean executeDdl, boolean storeMappings) {
+		if (executeDdl) {
+			executeDdl(component);
+		}
+		if (storeMappings) {
+			((ComponentImpl) component).persist();
+		}
+	}
+	
+	 @Override
+	public void install(boolean executeDdl,boolean storeMappings) {
+		 install(components.get(Bus.COMPONENTNAME) , executeDdl,storeMappings);
+	}
+	 
+	private void executeDdl(Component component) {
+		try {
+			doExecuteDdl(component);
+		} catch (SQLException ex) {
+			throw new PersistenceException(ex);
+		}
+	}
+	
+	private void doExecuteDdl(Component component) throws SQLException {
+		Connection connection = Bus.getConnection(false);
+		try {
+			Statement statement = connection.createStatement();
+			try {
+				for (Table table : component.getTables()) {
+					for (String each : ((TableImpl) table).getDdl()) {
+						System.out.println(each);
+						statement.execute(each);
+					}
+				}
+			} finally {
+				statement.close();
+			}
+		} finally {
+			connection.close();
+		}
+	}
+			
+	private OrmClient getOrmClient() {
+		return Bus.getOrmClient();
+	}
+
+}
