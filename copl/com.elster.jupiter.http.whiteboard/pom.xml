@@ -25,10 +25,10 @@
                 <configuration>
                     <instructions>
                         <Export-Package>com.elster.jupiter.http.whiteboard</Export-Package>
-                        <Import-Package>javax.servlet.http;version="2.6.0",
+                        <Import-Package>javax.servlet.http;version="2.5.0",
                             org.osgi.framework;version="1.3.0",
-                            org.osgi.service.http;version="1.2.1",
-                            org.osgi.util.tracker;version="1.5.1"
+                            org.osgi.service.http;version="1.2",
+                            org.osgi.util.tracker;version="1.5.0"
                         </Import-Package>
                         <Bundle-Activator>com.elster.jupiter.http.whiteboard.impl.Activator</Bundle-Activator>
                     </instructions>
