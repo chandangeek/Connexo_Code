@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.FieldLengthValidator;
-import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import org.junit.Test;
 
 import java.util.ArrayList;

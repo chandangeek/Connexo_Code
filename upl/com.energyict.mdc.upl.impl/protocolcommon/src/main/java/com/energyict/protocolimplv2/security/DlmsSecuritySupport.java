@@ -8,6 +8,8 @@ import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -134,7 +136,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         }
         final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
         final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
-        final TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        checkForCorrectClientMacAddressPropertySpecType(typedProperties);
+        final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(typedProperties, authenticationLevel, this));
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForEncryption(typedProperties, encryptionLevel, this));
 
@@ -155,6 +158,19 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
                 return securityRelatedTypedProperties;
             }
         };
+    }
+
+    private void checkForCorrectClientMacAddressPropertySpecType(TypedProperties typedProperties) {
+        final Object clientMacAddress = typedProperties.getProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+        if(clientMacAddress != null && String.class.isAssignableFrom(clientMacAddress.getClass())){
+            typedProperties.removeProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString());
+            try {
+                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal((String) clientMacAddress));
+            } catch (NumberFormatException e) {
+                typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), new BigDecimal("1"));
+
+            }
+        }
     }
 
     private int getEncryptionLevel(String securityLevelProperty) {
