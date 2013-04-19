@@ -2,7 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.conditions.Club;
 import com.elster.jupiter.conditions.Condition;
-import com.elster.jupiter.sql.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlBuilder;
 
 class SubQueryExecutor implements Club {
 	private final QueryExecutorImpl<?> base;

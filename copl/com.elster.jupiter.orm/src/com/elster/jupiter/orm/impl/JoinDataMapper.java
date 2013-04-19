@@ -8,7 +8,7 @@ import java.util.Map;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.sql.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlBuilder;
 
 abstract public class JoinDataMapper<T> {
 	private final DataMapperImpl<T,? extends T> dataMapper;
@@ -96,7 +96,7 @@ abstract public class JoinDataMapper<T> {
 		return cache.get(key);
 	}
 
-	// overrideables start here
+	// overrides start here
 	
 	String reduce(String fieldName) {
 		String constraintField = getName();

@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.TableConstraint;
-import com.elster.jupiter.sql.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlBuilder;
 
 public class ParentDataMapper<T> extends JoinDataMapper<T> {
 	private TableConstraint constraint;

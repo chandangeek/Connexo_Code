@@ -3,7 +3,7 @@ package com.elster.jupiter.orm.impl;
 import java.util.List;
 
 import com.elster.jupiter.conditions.*;
-import com.elster.jupiter.sql.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlBuilder;
 
 public class WhereClauseBuilder implements Visitor {
 	

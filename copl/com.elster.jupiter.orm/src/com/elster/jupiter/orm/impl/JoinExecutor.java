@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.*;
 
 import com.elster.jupiter.conditions.Condition;
-import com.elster.jupiter.sql.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlBuilder;
 
 final class JoinExecutor<T> {
 	private final JoinTreeNode<T> root;
