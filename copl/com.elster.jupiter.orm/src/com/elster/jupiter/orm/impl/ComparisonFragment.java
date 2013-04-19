@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 import com.elster.jupiter.conditions.Comparison;
 import com.elster.jupiter.conditions.Operator;
-import com.elster.jupiter.sql.SqlFragment;
+import com.elster.jupiter.sql.util.SqlFragment;
 
 class ComparisonFragment implements SqlFragment {
 

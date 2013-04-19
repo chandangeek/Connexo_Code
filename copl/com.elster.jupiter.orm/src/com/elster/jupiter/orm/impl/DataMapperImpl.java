@@ -6,7 +6,7 @@ import java.security.Principal;
 import java.sql.*;
 
 import com.elster.jupiter.orm.*;
-import com.elster.jupiter.sql.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlBuilder;
 import com.elster.jupiter.time.UtcInstant;
 
 class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataMapper<T> {

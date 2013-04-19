@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.elster.jupiter.sql.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlBuilder;
 
 final class JoinTreeNode<T>  {
 	

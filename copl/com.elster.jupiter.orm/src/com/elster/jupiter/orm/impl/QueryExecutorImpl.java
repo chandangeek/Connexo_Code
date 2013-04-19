@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 import com.elster.jupiter.conditions.*;
 import com.elster.jupiter.orm.*;
-import com.elster.jupiter.sql.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlBuilder;
 
 
 public class QueryExecutorImpl<T> implements QueryExecutor<T> {	
