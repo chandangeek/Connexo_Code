@@ -96,7 +96,7 @@ abstract public class JoinDataMapper<T> {
 		return cache.get(key);
 	}
 
-	// overrideables start here
+	// overrides start here
 	
 	String reduce(String fieldName) {
 		String constraintField = getName();
