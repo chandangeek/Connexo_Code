@@ -15,23 +15,23 @@ class QueryImpl<T> implements Query<T> {
 	}
 	
 	@Override
-	public List<T> where(Condition condition,String ... includes) {	
-		return queryExecutor.where(condition,includes);
+	public List<T> select(Condition condition,String ... includes) {	
+		return queryExecutor.select(condition,includes);
 	}
 
 	@Override
-	public List<T> where(Condition condition,int from , int to , String ... includes) {	
-		return queryExecutor.where(condition,from, to,includes);
+	public List<T> select(Condition condition,int from , int to , String ... includes) {	
+		return queryExecutor.select(condition,from, to,includes);
 	}
 
 	@Override
-	public List<T> eagerWhere(Condition condition,String ... excludes) {	
-		return queryExecutor.eagerWhere(condition,excludes);
+	public List<T> eagerSelect(Condition condition,String ... excludes) {	
+		return queryExecutor.eagerSelect(condition,excludes);
 	}
 	
 	@Override
-	public List<T> eagerWhere(Condition condition,int from , int to , String ... excludes) {	
-		return queryExecutor.eagerWhere(condition,from, to, excludes);
+	public List<T> eagerSelect(Condition condition,int from , int to , String ... excludes) {	
+		return queryExecutor.eagerSelect(condition,from, to, excludes);
 	}
 	
 	@Override
