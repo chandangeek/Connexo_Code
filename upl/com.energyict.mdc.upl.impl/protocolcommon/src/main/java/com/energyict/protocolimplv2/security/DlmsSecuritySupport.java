@@ -138,8 +138,8 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
         final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
         checkForCorrectClientMacAddressPropertySpecType(typedProperties);
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
-        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(typedProperties, authenticationLevel, this));
-        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForEncryption(typedProperties, encryptionLevel, this));
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationLevel, getAuthenticationAccessLevels()));
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionLevel, getEncryptionAccessLevels()));
 
 
         return new DeviceProtocolSecurityPropertySet() {

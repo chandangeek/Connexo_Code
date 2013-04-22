@@ -74,7 +74,7 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         final TypedProperties securityRelatedTypedProperties = new TypedProperties();
-        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(typedProperties, AUTH_DEVICE_ACCESS_LEVEL, this));
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, AUTH_DEVICE_ACCESS_LEVEL, getAuthenticationAccessLevels()));
         return new DeviceProtocolSecurityPropertySet() {
             @Override
             public int getAuthenticationDeviceAccessLevel() {

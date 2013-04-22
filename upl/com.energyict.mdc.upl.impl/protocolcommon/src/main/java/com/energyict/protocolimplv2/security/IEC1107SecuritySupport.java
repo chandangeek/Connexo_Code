@@ -104,7 +104,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
         String securityLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME, DEFAULT_SECURITY_LEVEL_VALUE);
         final int authenticationLevel = Integer.valueOf(securityLevelProperty);
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
-        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(typedProperties, authenticationLevel, this));
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationLevel, getAuthenticationAccessLevels()));
         return new DeviceProtocolSecurityPropertySet() {
             @Override
             public int getAuthenticationDeviceAccessLevel() {

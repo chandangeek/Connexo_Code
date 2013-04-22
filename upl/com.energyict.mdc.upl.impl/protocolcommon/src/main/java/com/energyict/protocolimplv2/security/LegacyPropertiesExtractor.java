@@ -2,9 +2,8 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceAccessLevel;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -12,25 +11,12 @@ import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
  * @since 4/2/13 12:46 PM
  */
 public class LegacyPropertiesExtractor {
-    static public TypedProperties getSecurityRelatedPropertiesForAuthentication(TypedProperties typedProperties, int currentAuthenticationDeviceAccessLevel, DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities) {
-        TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
-        for (AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel : deviceProtocolSecurityCapabilities.getAuthenticationAccessLevels()) {
-            if (authenticationDeviceAccessLevel.getId()==currentAuthenticationDeviceAccessLevel) {
-                for (PropertySpec propertySpec : authenticationDeviceAccessLevel.getSecurityProperties()) {
-                    if (typedProperties.hasValueFor(propertySpec.getName())) {
-                        securityRelatedTypedProperties.setProperty(propertySpec.getName(), typedProperties.getProperty(propertySpec.getName()));
-                    }
-                }
-            }
-        }
-        return securityRelatedTypedProperties;
-    }
 
-    static public TypedProperties getSecurityRelatedPropertiesForEncryption(TypedProperties typedProperties, int currentEncryptionDeviceAccessLevel, DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities) {
+    static public TypedProperties getSecurityRelatedProperties(TypedProperties typedProperties, int currentEncryptionDeviceAccessLevel, List<? extends DeviceAccessLevel> deviceAccessLevels) {
         TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
-        for (EncryptionDeviceAccessLevel encryptionDeviceAccessLevel : deviceProtocolSecurityCapabilities.getEncryptionAccessLevels()) {
-            if (encryptionDeviceAccessLevel.getId()==currentEncryptionDeviceAccessLevel) {
-                for (PropertySpec propertySpec : encryptionDeviceAccessLevel.getSecurityProperties()) {
+        for (DeviceAccessLevel deviceAccessLevel : deviceAccessLevels) {
+            if (deviceAccessLevel.getId()==currentEncryptionDeviceAccessLevel) {
+                for (PropertySpec propertySpec : deviceAccessLevel.getSecurityProperties()) {
                     if (typedProperties.hasValueFor(propertySpec.getName())) {
                         securityRelatedTypedProperties.setProperty(propertySpec.getName(), typedProperties.getProperty(propertySpec.getName()));
                     }

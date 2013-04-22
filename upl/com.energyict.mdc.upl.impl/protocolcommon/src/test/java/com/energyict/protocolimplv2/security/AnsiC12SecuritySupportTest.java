@@ -119,19 +119,21 @@ public class AnsiC12SecuritySupportTest {
     public void testConvertToSecurityPropertySet() throws Exception {
         AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
         TypedProperties securityProperties = new TypedProperties();
-        securityProperties.setProperty("SecurityLevel", "1");
+        securityProperties.setProperty("SecurityLevel", "6");
         securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), "1pwd2");
 
         DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = ansiC12SecuritySupport.convertFromTypedProperties(securityProperties);
-        assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);
+        assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(6);
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testConvertToSecurityPropertySetMissingSecurityLevel() throws Exception {
         AnsiC12SecuritySupport ansiC12SecuritySupport = new AnsiC12SecuritySupport();
         TypedProperties securityProperties = new TypedProperties();
 
-        ansiC12SecuritySupport.convertFromTypedProperties(securityProperties);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = ansiC12SecuritySupport.convertFromTypedProperties(securityProperties);
+        assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);
+        assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID);
     }
 }

@@ -83,13 +83,19 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         String authenticationDeviceAccessLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
-        if (authenticationDeviceAccessLevelProperty==null) {
-            throw new IllegalStateException("Cannot convert TypedProperties without "+ SECURITY_LEVEL_PROPERTY_NAME +"-property");
-        }
-        final int authenticationDeviceAccessLevel=Integer.valueOf(authenticationDeviceAccessLevelProperty);
+        final int authenticationDeviceAccessLevel=authenticationDeviceAccessLevelProperty!=null?
+                Integer.valueOf(authenticationDeviceAccessLevelProperty):
+                new RestrictedAuthentication().getId();
 
         final TypedProperties securityRelatedTypedProperties = new TypedProperties();
-        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(typedProperties, authenticationDeviceAccessLevel, this));
+
+        if (authenticationDeviceAccessLevelProperty==null) {
+            securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.name(), "");
+            securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER_ID.name(), 0);
+        } else {
+            securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationDeviceAccessLevel, getAuthenticationAccessLevels()));
+        }
+
 
         return new DeviceProtocolSecurityPropertySet() {
             @Override
