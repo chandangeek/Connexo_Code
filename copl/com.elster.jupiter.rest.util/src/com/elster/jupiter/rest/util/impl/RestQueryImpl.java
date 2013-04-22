@@ -17,8 +17,8 @@ class RestQueryImpl<T> implements RestQuery<T> {
 	}
 
 	@Override
-	public List<T> where(MultivaluedMap<String, String> map) {
-		return query.where(convert(map));
+	public List<T> select(MultivaluedMap<String, String> map) {
+		return query.select(convert(map));
 	}
 	
 	private Condition convert(MultivaluedMap<String, String> map) {

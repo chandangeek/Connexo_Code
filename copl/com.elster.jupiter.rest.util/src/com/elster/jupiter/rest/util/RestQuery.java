@@ -5,5 +5,5 @@ import java.util.List;
 import javax.ws.rs.core.MultivaluedMap;
 
 public interface RestQuery<T> {
-	List<T> where(MultivaluedMap<String,String> map);
+	List<T> select(MultivaluedMap<String,String> map);
 }
