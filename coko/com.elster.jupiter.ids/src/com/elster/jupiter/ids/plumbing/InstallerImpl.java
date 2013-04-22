@@ -6,9 +6,9 @@ import com.elster.jupiter.ids.*;
 import com.elster.jupiter.ids.impl.RecordSpecImpl;
 import com.elster.jupiter.ids.impl.VaultImpl;
 
-class InstallerImpl {	
+public class InstallerImpl {	
 	
-	void install(boolean executeDdl , boolean updateOrm , boolean createMasterData) {
+	public void install(boolean executeDdl , boolean updateOrm , boolean createMasterData) {
 		Bus.getOrmClient().install(executeDdl,updateOrm);
 		if (createMasterData)
 			createMasterData();

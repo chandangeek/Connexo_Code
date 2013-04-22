@@ -4,6 +4,7 @@ import org.osgi.framework.*;
 import org.osgi.util.tracker.*;
 
 import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.impl.IdsServiceImpl;
 import com.elster.jupiter.orm.OrmService;
 
 public class Activator implements BundleActivator , ServiceLocator {

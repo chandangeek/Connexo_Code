@@ -1,9 +1,9 @@
-package com.elster.jupiter.ids.plumbing;
+package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.ids.*;
-import com.elster.jupiter.ids.impl.RecordSpecImpl;
-import com.elster.jupiter.ids.impl.TimeSeriesDataStorerImpl;
-import com.elster.jupiter.ids.impl.VaultImpl;
+import com.elster.jupiter.ids.plumbing.Bus;
+import com.elster.jupiter.ids.plumbing.InstallerImpl;
+import com.elster.jupiter.ids.plumbing.OrmClient;
 
 public class IdsServiceImpl implements IdsService {
 	
