@@ -4,7 +4,6 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -57,6 +56,34 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         return typedProperties;
     }
 
+    @Override
+    public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
+        final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = super.convertFromTypedProperties(typedProperties);
+        String encryptionDeviceAccessLevelProperty = typedProperties.getStringProperty("SecurityKey");
+        final int encryptionDeviceAccessLevel=encryptionDeviceAccessLevelProperty!=null?
+                Integer.valueOf(encryptionDeviceAccessLevelProperty):
+                new NoMessageEncryption().getId();
+        final TypedProperties securityRelatedTypedProperties = deviceProtocolSecurityPropertySet.getSecurityProperties();
+        securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));
+
+        return new DeviceProtocolSecurityPropertySet() {
+            @Override
+            public int getAuthenticationDeviceAccessLevel() {
+                return deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel();
+            }
+
+            @Override
+            public int getEncryptionDeviceAccessLevel() {
+                return encryptionDeviceAccessLevel;
+            }
+
+            @Override
+            public TypedProperties getSecurityProperties() {
+                return securityRelatedTypedProperties;
+            }
+        };
+
+    }
 
     /**
      * An encryption level where no encryption is done, no properties must be set

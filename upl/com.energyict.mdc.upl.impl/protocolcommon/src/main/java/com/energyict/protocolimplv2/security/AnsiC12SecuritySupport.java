@@ -87,7 +87,7 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
                 Integer.valueOf(authenticationDeviceAccessLevelProperty):
                 new RestrictedAuthentication().getId();
 
-        final TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
 
         if (authenticationDeviceAccessLevelProperty==null) {
             securityRelatedTypedProperties.setProperty(DeviceSecurityProperty.ANSI_C12_USER.name(), "");

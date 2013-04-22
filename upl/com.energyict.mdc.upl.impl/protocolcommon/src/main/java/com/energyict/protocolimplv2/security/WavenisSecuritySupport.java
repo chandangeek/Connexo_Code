@@ -60,7 +60,7 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     @Override
     public TypedProperties convertToTypedProperties(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        TypedProperties typedProperties = new TypedProperties();
+        TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
             typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
@@ -89,7 +89,7 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
                 Integer.valueOf(encryptionKeyProperty):
                 new StandardEncryptionAccessLevel().getId();
 
-        final TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         if (authenticationDeviceAccessLevelProperty!=null) {
             securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, authenticationDeviceAccessLevel, getAuthenticationAccessLevels()));
         } else {
