@@ -21,7 +21,7 @@ public class MeteringResource {
 	@Path("/usagepoints")
 	@Produces(MediaType.APPLICATION_JSON) 
 	public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo) {
-		UsagePointInfos infos = new UsagePointInfos(getQueryService().wrap(getMeteringService().getUsagePointQuery()).where(uriInfo.getQueryParameters()));
+		UsagePointInfos infos = new UsagePointInfos(getQueryService().wrap(getMeteringService().getUsagePointQuery()).select(uriInfo.getQueryParameters()));
 		infos.addServiceLocationInfo();
 		return infos;
 	  }
