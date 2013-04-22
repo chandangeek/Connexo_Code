@@ -140,21 +140,25 @@ public class WavenisSecuritySupportTest {
         assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(2);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testConvertToSecurityPropertySetMissingSecurityLevel() throws Exception {
         WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport();
         TypedProperties securityProperties = new TypedProperties();
         securityProperties.setProperty("WavenisEncryptionKey", "2");
 
-        wavenisSecuritySupport.convertFromTypedProperties(securityProperties);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = wavenisSecuritySupport.convertFromTypedProperties(securityProperties);
+        assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(0);
+        assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(2);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testConvertToSecurityPropertySetMissingEncryptionKey() throws Exception {
         WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport();
         TypedProperties securityProperties = new TypedProperties();
         securityProperties.setProperty("SecurityLevel", "1");
 
-        wavenisSecuritySupport.convertFromTypedProperties(securityProperties);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = wavenisSecuritySupport.convertFromTypedProperties(securityProperties);
+        assertThat(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(1);
+        assertThat(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(0);
     }
 }

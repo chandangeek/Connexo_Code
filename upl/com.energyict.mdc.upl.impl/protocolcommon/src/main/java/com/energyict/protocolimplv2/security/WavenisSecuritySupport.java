@@ -79,17 +79,16 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
-        String authenticationDeviceAccessLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
-        if (authenticationDeviceAccessLevelProperty==null) {
-            throw new IllegalStateException("Cannot convert TypedProperties without "+ SECURITY_LEVEL_PROPERTY_NAME +"-property");
-        }
-        final int authenticationDeviceAccessLevel=Integer.valueOf(authenticationDeviceAccessLevelProperty);
+        String authenticationDeviceAccessLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME);
+        final int authenticationDeviceAccessLevel=authenticationDeviceAccessLevelProperty!=null?
+                Integer.valueOf(authenticationDeviceAccessLevelProperty):
+                new StandardAuthenticationAccessLevel().getId();
 
         String encryptionKeyProperty = typedProperties.getStringProperty(ENCRYPTION_KEY_PROPERTY_NAME);
-        if (encryptionKeyProperty==null) {
-            throw new IllegalStateException("Cannot convert TypedProperties without "+ ENCRYPTION_KEY_PROPERTY_NAME +"-property");
-        }
-        final int encryptionDeviceAccessLevel = Integer.valueOf(encryptionKeyProperty);
+        final int encryptionDeviceAccessLevel = encryptionKeyProperty!=null?
+                Integer.valueOf(encryptionKeyProperty):
+                new StandardEncryptionAccessLevel().getId();
+
         final TypedProperties securityRelatedTypedProperties = new TypedProperties();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForAuthentication(typedProperties, authenticationDeviceAccessLevel, this));
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedPropertiesForEncryption(typedProperties, encryptionDeviceAccessLevel, this));
