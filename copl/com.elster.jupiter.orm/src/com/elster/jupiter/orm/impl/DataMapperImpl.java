@@ -6,10 +6,14 @@ import java.security.Principal;
 import java.sql.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.sql.util.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlFragment;
 import com.elster.jupiter.time.UtcInstant;
 
 class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataMapper<T> {
+	
+	private final static String ALIAS = "a";
 	
 	final private TableSqlGenerator sqlGenerator;
 	final private FieldMapper mapper = new FieldMapper();
@@ -41,21 +45,21 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		return Bus.getConnection(transactionRequired);
 	}
 	
-	private ColumnFragment[] getPrimaryKeyHolders(Object[] values) {
+	private List<SqlFragment> getPrimaryKeyFragments(Object[] values) {
 		Column[] pkColumns = getPrimaryKeyColumns();
 		if (pkColumns.length != values.length) {
 			throw new IllegalArgumentException("Argument array length does not match Primary Key Field count of " + pkColumns.length);
 		}
-		ColumnFragment[] holders = new ColumnFragment[pkColumns.length];
-		for (int i = 0 ; i < holders.length ; i++) {
-			holders[i] = new ColumnFragment(pkColumns[i] , values[i]);
+		List<SqlFragment> fragments = new ArrayList<>(pkColumns.length);
+		for (int i = 0 ; i < values.length ; i++) {
+			fragments.add(new ColumnFragment(pkColumns[i] , values[i] , ALIAS));
 		}
-		return holders;		
+		return fragments;		
 	}
 	
 	@Override
 	List<T> findByPrimaryKey (Object[] values) {
-		return find(getPrimaryKeyHolders(values),null,false);		
+		return find(getPrimaryKeyFragments(values),null,false);		
 	}
 	
 	@Override
@@ -65,39 +69,37 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 	
 	@Override
 	public T lock(Object... values)  {
-		List<T> candidates = find(getPrimaryKeyHolders(values) , null , true);
+		List<T> candidates = find(getPrimaryKeyFragments(values) , null , true);
 		return candidates.isEmpty() ? null : candidates.get(0);
 	}
 	
 	@Override
 	public List<T> find(String[] fieldNames , Object[] values , String... orderColumns) {
-		if (fieldNames == null) {
-			fieldNames = new String[0];
-		}		
-		ColumnFragment[] holders = new ColumnFragment[fieldNames.length];
-		for (int i = 0 ; i < fieldNames.length ; i++) {
-			holders[i] = new ColumnFragment(getColumnForField(fieldNames[i]), values[i]);
+		List<SqlFragment> fragments = new ArrayList<>();
+		if (fieldNames != null) {
+			for (int i = 0 ; i < fieldNames.length ; i++) {
+				addFragments(fragments,fieldNames[i], values[i]);
+			}
 		}
-		return find(holders, orderColumns, false);		
+		return find(fragments, orderColumns, false);		
 	}
 			
-	public List<T> find(ColumnFragment[] holders , String[] orderColumns , boolean lock) {
+	public List<T> find(List<SqlFragment> fragments , String[] orderColumns , boolean lock) {
 		try {
-			return doFind(holders, orderColumns,lock);
+			return doFind(fragments, orderColumns,lock);
 		} catch(SQLException ex) {
 			throw new PersistenceException(ex);
 		}
 	}
 	
-	private SqlBuilder selectSql(ColumnFragment[] holders, String[] orderColumns , boolean lock) {
-		String alias = "a";
-		SqlBuilder builder = new SqlBuilder(sqlGenerator.getSelectFromClause(alias));
-		if (holders.length > 0) {
+	private SqlBuilder selectSql(List<SqlFragment> fragments, String[] orderColumns , boolean lock) {
+		SqlBuilder builder = new SqlBuilder(sqlGenerator.getSelectFromClause(ALIAS));
+		if (fragments.size() > 0) {
 			builder.append(" where ");
 			String separator = "";
-			for (ColumnFragment each : holders) {
+			for (SqlFragment each : fragments) {
 				builder.append(separator);
-				each.appendEqualsOn(builder,alias);
+				builder.add(each);
 				separator = " AND ";
 			}
 		}
@@ -107,7 +109,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 			for (String each : orderColumns) {
 				builder.append(separator);
 				Column column = getColumnForField(each);
-				builder.append(column == null ? each : column.getName(alias));
+				builder.append(column == null ? each : column.getName(ALIAS));
 				separator = ", ";
 			}
 		}
@@ -117,15 +119,21 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		return builder;
 	}
 	
-	private List<T> doFind(ColumnFragment[] holders, String[] orderColumns,boolean lock) throws SQLException {
+	private List<T> doFind(List<SqlFragment> fragments, String[] orderColumns,boolean lock) throws SQLException {
+		List<Setter> setters = new ArrayList<>();
+		for (SqlFragment each : fragments) {
+			if (each instanceof Setter) {
+				setters.add((Setter) each);
+			}
+		}
 		List<T> result = new ArrayList<>();	
-		SqlBuilder builder = selectSql(holders, orderColumns,lock);
+		SqlBuilder builder = selectSql(fragments, orderColumns,lock);
 		System.out.println(builder);
 		try (Connection connection = getConnection(false)) {
 			try(PreparedStatement statement = builder.prepare(connection)) {
 				try (ResultSet resultSet = statement.executeQuery()) {
 					while(resultSet.next()) {
-						result.add(construct(resultSet));
+						result.add(construct(resultSet,setters));
 					}
 				}				
 			} 
@@ -147,14 +155,18 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		for (Column column : sqlGenerator.getColumns()) {						
 			setValue(result,column,rs,columnIndex++);
 		}					
+		return result;
+	}
+	
+	T construct(ResultSet rs, List<Setter> setters) throws SQLException {
+		T result = construct(rs,1);
+		for (Setter setter : setters) {
+			setter.set(result);
+		}
 		if (result instanceof PersistenceAware) {
 			((PersistenceAware) result).postLoad();
 		}
 		return result;
-	}
-	
-	T construct(ResultSet rs) throws SQLException {
-		return construct(rs,1);
 	}
 	
 	@Override
@@ -485,22 +497,6 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 	private void setValue(Object target , Column column , ResultSet rs, int index) throws SQLException {
 		mapper.set(target, column.getFieldName() , ((ColumnImpl) column).convertFromDb(rs, index));
 	}	
-
-	@Override
-	public List<T> findLenient(Map<String, String> map) {		
-		return find(convert(map));
-	}
-	
-	private Map<String,Object> convert(Map<String,String> map) {
-		Map<String,Object> result = new HashMap<>();
-		for (Column column : getColumns()) {
-			String key = column.getFieldName();
-			if (map.containsKey(key)) {
-				result.put(key,convert(column,map.get(key)));
-			}
-		}
-		return result;
-	}
 	
 	Object convert(Column column , String value) {
 		if (column.isEnum()) {
@@ -567,5 +563,27 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 			}
 		}
 		return new CompositePrimaryKey(values);
+	}
+	
+	TableConstraint getForeignKeyConstraintFor(String name) {
+		for (TableConstraint each : getTable().getForeignKeyConstraints()) {
+			if (each.getFieldName().equals(name))
+				return each;
+		}
+		return null;
+	}
+	
+	void addFragments(List<SqlFragment> fragments, String fieldName , Object value) {
+		Column column = getColumnForField(fieldName);
+		if (column != null) {
+			fragments.add(new ColumnFragment(column, value,ALIAS));
+			return;
+		}
+		TableConstraint constraint = getForeignKeyConstraintFor(fieldName);
+		if (constraint != null) {			
+			fragments.add(new ConstraintFragment(constraint, value , ALIAS));
+			return;
+		}
+		throw new IllegalArgumentException("Invalid field " + fieldName);
 	}
 }

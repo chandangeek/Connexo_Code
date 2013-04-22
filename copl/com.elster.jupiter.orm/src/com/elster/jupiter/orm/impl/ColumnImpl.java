@@ -3,9 +3,10 @@ package com.elster.jupiter.orm.impl;
 import java.sql.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.plumbing.OrmClient;
 
-
-class ColumnImpl implements Column  {
+public class ColumnImpl implements Column  {
 	// persistent fields
 	private String componentName;
 	private String tableName;
@@ -85,11 +86,7 @@ class ColumnImpl implements Column  {
 			"column " + position + " in table " + getTable().getQualifiedName();
 	}
 
-	void doSetTable(Table table) {
-		this.table = table;		
-	}
-
-	void doSetPosition(int position) {
+	void setPosition(int position) {
 		this.position = position;
 	}
 

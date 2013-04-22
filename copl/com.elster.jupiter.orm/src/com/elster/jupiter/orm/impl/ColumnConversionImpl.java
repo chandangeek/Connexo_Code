@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import java.sql.*;
 import java.util.Currency;
 
+import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.time.UtcInstant;
 import com.elster.jupiter.units.Unit;
 

@@ -38,7 +38,7 @@ class FieldMapper {
 		}
 	}
 	
-	public void set(Object target , String  fieldPath, Object value) {		
+	void set(Object target , String  fieldPath, Object value) {		
 		String[] fieldNames = fieldPath.split("\\.");
 		if (fieldNames.length > 1) {
 			if (value != null) {
@@ -56,7 +56,7 @@ class FieldMapper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void basicSet(Object target , String fieldName , Object value) {
+	private void basicSet(Object target , String fieldName , Object value) {
 		Field field = getField(target.getClass(), fieldName);
 		if (value != null && field.getType().isEnum()) {
 			value = getEnum((Class<? extends Enum<?>>) field.getType(),value);
@@ -68,7 +68,7 @@ class FieldMapper {
 		}		
 	}
 		
-	Object getEnum(Class<? extends Enum<?>> clazz, Object value) {
+	private Object getEnum(Class<? extends Enum<?>> clazz, Object value) {
 		Enum<?>[] enumConstants = clazz.getEnumConstants();
 		if (value instanceof Integer) {
 			return enumConstants[(Integer) value];
@@ -88,7 +88,7 @@ class FieldMapper {
 		return getEnum(enumClass,value);
 	}
 	
-	Field getField(Class<?> clazz, String fieldName) {	
+	private Field getField(Class<?> clazz, String fieldName) {	
 		Class<?> current = clazz;
 	    do {
 	        for ( Field field : current.getDeclaredFields() ) {

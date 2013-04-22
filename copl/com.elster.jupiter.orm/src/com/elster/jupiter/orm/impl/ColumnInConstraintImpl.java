@@ -1,8 +1,10 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.plumbing.OrmClient;
 
-class ColumnInConstraintImpl {
+public class ColumnInConstraintImpl {
 	// persistent fields	
 	private String componentName;
 	private String tableName;

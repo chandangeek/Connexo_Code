@@ -1,9 +1,11 @@
-package com.elster.jupiter.orm.impl;
+package com.elster.jupiter.orm.plumbing;
 
 import java.util.*;
 import java.sql.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.impl.ComponentImpl;
+import com.elster.jupiter.orm.impl.TableImpl;
 
 class OrmServiceImpl implements OrmService  {
 	
@@ -35,6 +37,7 @@ class OrmServiceImpl implements OrmService  {
 	public Component getComponent(String name) {
 		Component result = components.get(name);
 		if (result == null) {
+			System.out.println("Retrieving component " + name);
 			result = getOrmClient().getComponentFactory().get(name);
 			if (result != null) {
 				components.put(name, result);

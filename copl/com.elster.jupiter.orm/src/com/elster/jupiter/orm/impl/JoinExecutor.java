@@ -4,31 +4,35 @@ import java.sql.*;
 import java.util.*;
 
 import com.elster.jupiter.conditions.Condition;
+import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.sql.util.SqlBuilder;
 
 final class JoinExecutor<T> {
+		
 	private final JoinTreeNode<T> root;
 	private SqlBuilder builder = new SqlBuilder();
 	private final int from;
 	private final int to;
 	
 	JoinExecutor(JoinTreeNode<T> root) {
-		this(root,0,0);
-		root.mark();		 
+		this(root,0,0);		 
 	}
  	
 	JoinExecutor(JoinTreeNode<T> root, int from , int to) {
 		this.root = root;
-		root.mark();
 		this.from = from;
 		this.to = to;
 	}
 	
 	SqlBuilder getSqlBuilder(Condition condition , String[] fieldNames) {
 		new JoinTreeMarker(root).visit(condition);
-		root.sweep();
+		ColumnAndAlias[] columnAndAliases = new ColumnAndAlias[fieldNames.length];
+		for (int i = 0 ; i < fieldNames.length ; i++) {
+			columnAndAliases[i] = root.getColumnAndAliasForField(fieldNames[i]);
+		}
+		root.prune();
 		new JoinTreeMarker(root).visit(condition);
-		appendSelectClause(fieldNames);
+		appendSelectClause(columnAndAliases);
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder, null);
 		printSql(builder.toString());
@@ -58,15 +62,15 @@ final class JoinExecutor<T> {
 		root.appendFromClause(builder,null,false);		
 	}
 	
-	private void appendSelectClause(String[] fieldNames) {
+	private void appendSelectClause(ColumnAndAlias[] columnAndAliases) {
 		builder.append("select ");
-		if (fieldNames.length == 0) {
+		if (columnAndAliases.length == 0) {
 			builder.append(" NULL ");
 		} else {
 			String separator = "";
-			for (String each : fieldNames) {
+			for (ColumnAndAlias columnAndAlias : columnAndAliases) {
 				builder.append(separator);
-				builder.append(root.getColumnAndAliasForField(each).toString());
+				builder.append(columnAndAlias.toString());
 				separator = ", ";
 			}
 		}
@@ -98,7 +102,7 @@ final class JoinExecutor<T> {
 		return columnAndAlias == null ? fieldName : columnAndAlias.toString();		
 	}
 
-	List<T> where(Condition condition,boolean eager, String[] exceptions) throws SQLException {
+	List<T> select(Condition condition,boolean eager, String[] exceptions) throws SQLException {
 		if (eager) {
 			root.markAll();
 			clear(exceptions);
@@ -109,7 +113,7 @@ final class JoinExecutor<T> {
 			root.clearChildMappers();
 		}
 		new JoinTreeMarker(root).visit(condition);
-		root.sweep();
+		root.prune();
 		root.clearCache();		
 		new JoinTreeMarker(root).visit(condition);
 		appendSql(condition, null);
@@ -133,13 +137,13 @@ final class JoinExecutor<T> {
 
 	void mark(String[] exceptions) {
 		for (String each : exceptions) {
-			root.mark(each);
+			root.mark(each + ".");
 		}
 	}
 	
 	void clear(String[] exceptions) {
 		for (String each : exceptions) {
-			root.clear(each);
+			root.clear(each + ".");
 		}
 	}
 	

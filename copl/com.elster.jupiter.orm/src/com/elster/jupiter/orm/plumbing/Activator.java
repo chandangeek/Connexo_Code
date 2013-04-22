@@ -1,4 +1,4 @@
-package com.elster.jupiter.orm.impl;
+package com.elster.jupiter.orm.plumbing;
 
 import org.osgi.framework.*;
 import org.osgi.util.tracker.ServiceTracker;

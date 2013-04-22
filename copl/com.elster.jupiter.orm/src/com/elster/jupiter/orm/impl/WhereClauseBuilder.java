@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.elster.jupiter.conditions.*;
 import com.elster.jupiter.sql.util.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlFragment;
 
 public class WhereClauseBuilder implements Visitor {
 	
@@ -41,13 +42,20 @@ public class WhereClauseBuilder implements Visitor {
 		visitAll(or.getConditions()," OR ");
 	}
 	
-	public void visitComparison(Comparison comparison) {		
-		ColumnAndAlias columnAndAlias = root.getColumnAndAliasForField(comparison.getFieldName());
-		if (columnAndAlias == null) {
-			throw new IllegalArgumentException("Invalid field name " + comparison.getFieldName()); 
-		} 
-		ComparisonFragment holder = new ComparisonFragment(columnAndAlias, comparison);
-		builder.add(holder);
+	public void visitComparison(Comparison comparison) {
+		SqlFragment fragment = root.getFragment(comparison, comparison.getFieldName());
+		if (fragment == null) {
+			throw new IllegalArgumentException("Invalid field name " + comparison.getFieldName());
+		}
+		builder.add(fragment);
+	}
+	
+	public void visitContains(Contains contains) {
+		SqlFragment fragment = root.getFragment(contains, contains.getFieldName());
+		if (fragment == null) {
+			throw new IllegalArgumentException("Invalid field name " + contains.getFieldName());
+		}
+		builder.add(fragment);
 	}
 
 	public void visitNot(Not not) {
@@ -86,7 +94,7 @@ public class WhereClauseBuilder implements Visitor {
 	}
 
 	@Override
-	public void visitEmpty(Exists empty) {
+	public void visitExists(Exists empty) {
 		builder.append(" EXISTS ");
 		builder.openBracket();
 		builder.add(((SubQueryExecutor) empty.getClub()).getSqlBuilder());

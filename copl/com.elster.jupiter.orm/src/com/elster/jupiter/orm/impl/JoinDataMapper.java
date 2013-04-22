@@ -5,10 +5,14 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.elster.jupiter.conditions.Comparison;
+import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.PersistenceAware;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.sql.util.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlFragment;
 
 abstract public class JoinDataMapper<T> {
 	private final DataMapperImpl<T,? extends T> dataMapper;
@@ -54,8 +58,34 @@ abstract public class JoinDataMapper<T> {
 		return column == null ? null : new ColumnAndAlias(column,getAlias());	
 	}
 	
+	final SqlFragment getFragment(Comparison comparison , String fieldName)   {
+		Column column = getTable().getColumnForField(fieldName);
+		if (column != null) {
+			return new ColumnComparisonFragment(column, comparison , getAlias());
+		}
+		TableConstraint constraint = getTable().getConstraintForField(fieldName); 
+		if (constraint == null) {
+			return null;
+		} else {
+			return new ConstraintComparisonFragment(constraint, comparison , getAlias());
+		}
+	}
+	
+	final SqlFragment getFragment(Contains contains, String fieldName)   {
+		Column column = getTable().getColumnForField(fieldName);
+		if (column != null) {
+			return new ColumnContainsFragment(column , contains , getAlias());
+		}
+		TableConstraint constraint = getTable().getConstraintForField(fieldName); 
+		if (constraint == null) {
+			return null;
+		} else {
+			return new ConstraintContainsFragment(constraint, contains , getAlias());
+		}
+	}
+	
 	final boolean hasField(String fieldName)  {
-		return getTable().getColumnForField(fieldName) != null;
+		return getTable().getColumnForField(fieldName) != null || getTable().getConstraintForField(fieldName) != null;
 	}
 	
 	
@@ -110,7 +140,13 @@ abstract public class JoinDataMapper<T> {
 	}
 
 	void completeFind() {
-		// do nothing by default
+		for (T each : cache.values()) {
+			if (each instanceof PersistenceAware) {
+				((PersistenceAware) each).postLoad();
+			} else {
+				return;
+			}
+		}
 	}
 	
 	boolean isChild() {
@@ -121,4 +157,8 @@ abstract public class JoinDataMapper<T> {
 	abstract T set(Object value , ResultSet rs , int index) throws SQLException;
 	abstract boolean canRestrict();
 	abstract boolean appendFromClause(SqlBuilder builder , String parentAlias , boolean isMarked , boolean forceOuterJoin);
+
+	final public Boolean hasWhereField(String fieldName) {
+		return canRestrict() && hasField(fieldName);
+	}
 }

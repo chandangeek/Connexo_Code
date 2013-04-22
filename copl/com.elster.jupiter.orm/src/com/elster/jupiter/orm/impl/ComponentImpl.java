@@ -3,9 +3,11 @@ package com.elster.jupiter.orm.impl;
 import java.util.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.plumbing.OrmClient;
 
 
-class ComponentImpl implements Component , PersistenceAware {
+public class ComponentImpl implements Component , PersistenceAware {
 	// persistent fields
 	private String name;
 	private String description;
@@ -17,16 +19,11 @@ class ComponentImpl implements Component , PersistenceAware {
 	private ComponentImpl() {
 	}
 	
-	ComponentImpl(String name , String description) {
+	public ComponentImpl(String name , String description) {
 		this.name = name;
 		this.description = description;
 		this.tables = new ArrayList<>();
 	}
-	
-	ComponentImpl(String name) {
-		this.name = name;
-		this.tables = new ArrayList<>();
-	}	
 
 	@Override
 	public String getName() {		
@@ -45,10 +42,7 @@ class ComponentImpl implements Component , PersistenceAware {
 	
 	public List<Table> getTables(boolean protect) {
 		if (tables == null) {
-			tables = getOrmClient().getTableFactory().find("componentName", getName(),"name");
-			for (Table table : tables) {
-				((TableImpl) table).doSetComponent(this);		
-			}
+			tables = getOrmClient().getTableFactory().find("component", this);			
 		}
 		return protect ? Collections.unmodifiableList(tables) : tables;
 	}
@@ -92,7 +86,7 @@ class ComponentImpl implements Component , PersistenceAware {
 		getTables(false).add(table);
 	}
 
-	void persist() {
+	public void persist() {
 		getOrmClient().getComponentFactory().persist(this);
 		for ( Table table: getTables(false)) {
 			((TableImpl) table).persist();

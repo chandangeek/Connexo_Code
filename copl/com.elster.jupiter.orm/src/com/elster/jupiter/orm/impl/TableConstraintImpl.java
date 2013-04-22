@@ -3,9 +3,10 @@ package com.elster.jupiter.orm.impl;
 import java.util.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.plumbing.OrmClient;
 
-
-class TableConstraintImpl implements TableConstraint  {
+public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	// persistent fields
 	private String componentName;
 	private String tableName;	
@@ -64,7 +65,7 @@ class TableConstraintImpl implements TableConstraint  {
 			List<ColumnInConstraintImpl> columnsInConstraint = getOrmClient().getColumnInConstraintFactory().find(
 					new String[] {"componentName","tableName","constraintName"} ,
 					new Object[] { getComponentName(), getTableName() , getName() } ,
-					new String[] { "position" });
+					"position");
 			columns = new ArrayList<>();
 			for (ColumnInConstraintImpl columnInConstraint : columnsInConstraint) {
 				columnInConstraint.doSetConstraint(this);
@@ -88,9 +89,13 @@ class TableConstraintImpl implements TableConstraint  {
 
 	@Override
 	public Table getReferencedTable() {
-		if (referencedTableName == null)
+		if (referencedTableName == null || referencedComponentName == null) {
 			return null;
+		}
 		if (referencedTable == null) {
+			if (referencedComponentName.equals(componentName)) {
+				referencedTable = getTable().getComponent().getTable(referencedTableName);
+			}
 			referencedTable = getOrmClient().getTableFactory().get(referencedComponentName, referencedTableName);						
 		}
 		return referencedTable;
@@ -130,10 +135,13 @@ class TableConstraintImpl implements TableConstraint  {
 		return sb.toString();
 	}
 
-	void doSetTable(Table table) {	
-		this.table = table;
+	@Override
+	public void postLoad() {	
 		// do eager initialization in order to be thread safe
 		getColumns(false);
+		if (referencedComponentName != null && !referencedComponentName.equals(componentName)) {
+			getReferencedTable();
+		}
 	}
 	
 	void add(Column column) {
@@ -241,5 +249,20 @@ class TableConstraintImpl implements TableConstraint  {
 				return false;
 		}
 		return true;
+	}
+
+	@Override
+	public <T> Object getColumnValues(T value) {
+		int columnCount = getColumns().size();
+		FieldMapper fieldMapper = new FieldMapper();
+		if (columnCount == 1) {
+			return fieldMapper.get(value, getColumns().get(0).getFieldName());
+		} else {
+			Object[] result = new Object[columnCount]; 
+			for (int i = 0 ; i < columnCount ; i++) {
+				result[i] = fieldMapper.get(value, getColumns().get(i).getFieldName());
+			}
+			return result;
+		}
 	}
 }

@@ -1,4 +1,4 @@
-package com.elster.jupiter.orm.impl;
+package com.elster.jupiter.orm.plumbing;
 
 import java.security.Principal;
 import java.sql.Connection;

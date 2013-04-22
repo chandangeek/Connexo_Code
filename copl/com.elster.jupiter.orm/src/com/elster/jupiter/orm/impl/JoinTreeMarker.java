@@ -30,13 +30,20 @@ public class JoinTreeMarker implements Visitor {
 		visitAll(or.getConditions()," OR ");
 	}
 	
-	public void visitComparison(Comparison comparison) {		
-		ColumnAndAlias columnAndAlias = root.getColumnAndAliasForField(comparison.getFieldName());
-		if (columnAndAlias == null) {
-			throw new IllegalArgumentException("Invalid field name " + comparison.getFieldName()); 
-		} 		
+	public void visitComparison(Comparison comparison) {
+		markAndTest(comparison.getFieldName());		 		
 	}
 
+	public void visitContains(Contains contains) {
+		markAndTest(contains.getFieldName());		 		
+	}
+	
+	private void markAndTest(String fieldName) {
+		boolean markAndTest = root.hasWhereField(fieldName);
+		if (!markAndTest) {
+			throw new IllegalArgumentException("Invalid field name " + fieldName); 
+		} 		
+	}
 	public void visitNot(Not not) {
 		not.getNegated().visit(this);
 	}
@@ -58,7 +65,7 @@ public class JoinTreeMarker implements Visitor {
 	}
 
 	@Override
-	public void visitEmpty(Exists empty) {
+	public void visitExists(Exists empty) {
 	}
 	
 }

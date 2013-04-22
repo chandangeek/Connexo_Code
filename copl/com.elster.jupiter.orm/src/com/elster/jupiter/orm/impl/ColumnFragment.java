@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.sql.util.SqlBuilder;
 import com.elster.jupiter.sql.util.SqlFragment;
 
 class ColumnFragment implements SqlFragment {
@@ -13,11 +12,7 @@ class ColumnFragment implements SqlFragment {
 	private final Object value;
 	private final String alias;
 	
-	public ColumnFragment(Column column , Object value) {
-		this(column,value,null);	
-	}
-	
-	public ColumnFragment(Column column , Object value , String alias) {
+	ColumnFragment(Column column , Object value , String alias) {
 		this.value = value;
 		this.column = (ColumnImpl) column;
 		this.alias = alias;
@@ -31,20 +26,14 @@ class ColumnFragment implements SqlFragment {
 	
 	@Override
 	public String getText() {
-		return "?";
+		StringBuilder builder = new StringBuilder(" ");
+		builder.append(column.getName(alias));
+		builder.append(" = ? " );
+		return builder.toString();
 	}
 	
 	ColumnImpl getColumn() {
 		return column;
 	}
 	
-	void appendEqualsOn(SqlBuilder sqlBuilder) {		
-		appendEqualsOn(sqlBuilder,alias);
-	}
-
-	void appendEqualsOn(SqlBuilder sqlBuilder , String aliasName) {		
-		sqlBuilder.append(column.getName(aliasName));
-		sqlBuilder.append(" = ");
-		sqlBuilder.add(this);
-	}
 }

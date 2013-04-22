@@ -1,12 +1,13 @@
-package com.elster.jupiter.orm.impl;
+package com.elster.jupiter.orm.plumbing;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Component;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.impl.ColumnInConstraintImpl;
 
-interface OrmClient {
+public interface OrmClient {
 	DataMapper<Component> getComponentFactory();
 	DataMapper<Table> getTableFactory();
 	DataMapper<Column> getColumnFactory();

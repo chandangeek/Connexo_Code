@@ -1,4 +1,4 @@
-package com.elster.jupiter.orm.impl;
+package com.elster.jupiter.orm.plumbing;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.*;
@@ -22,7 +22,7 @@ public enum TableSpecs {
 			table.addColumn("JOURNALTABLENAME",CATALOGDBTYPE,false,NOCONVERSION,"journalTableName");
 			table.addPrimaryKeyConstraint("ORM_PK_TABLES", componentName , nameColumn);
 			table.addUniqueConstraint("ORM_U_TABLES", schemaColumn , nameColumn);
-			table.addForeignKeyConstraint("ORM_FK_TABLESCOMPONENTS", ORM_COMPONENT.name(),CASCADE, null , null ,  componentName);
+			table.addForeignKeyConstraint("ORM_FK_TABLESCOMPONENTS", ORM_COMPONENT.name(),CASCADE, "component" , "tables" ,  componentName);
 		}
 	},
 	ORM_COLUMN {	
@@ -43,7 +43,7 @@ public enum TableSpecs {
 			table.addPrimaryKeyConstraint("ORM_PK_COLUMNS", new Column[] { componentName , tableName , nameColumn });
 			table.addUniqueConstraint("ORM_U_COLUMNSPOSITION", componentName , tableName , positionColumn);
 			table.addUniqueConstraint("ORM_U_COLUMNSFIELDNAME", componentName , tableName , fieldNameColumn);
-			table.addForeignKeyConstraint("ORM_FK_COLUMNSTABLES", ORM_TABLE.name() , CASCADE, null ,  null , componentName , tableName );
+			table.addForeignKeyConstraint("ORM_FK_COLUMNSTABLES", ORM_TABLE.name() , CASCADE, "table" , "columns" , componentName , tableName );
 		}
 	},
 	ORM_TABLECONSTRAINT {	
@@ -59,8 +59,8 @@ public enum TableSpecs {
 			table.addColumn("REVERSEFIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseFieldName");
 			table.addPrimaryKeyConstraint("ORM_PK_CONSTRAINTS", componentName , tableName , nameColumn);
 			table.addUniqueConstraint("ORM_U_CONSTRAINTS", nameColumn);
-			table.addForeignKeyConstraint("ORM_FK_CONSTRAINTSTABLES", ORM_TABLE.name() , CASCADE, null , null , componentName , tableName);		
-			table.addForeignKeyConstraint("ORM_FK_CONSTRAINTSTABLES2", ORM_TABLE.name() , RESTRICT, null , null , referencedComponentName , referencedTableName );
+			table.addForeignKeyConstraint("ORM_FK_CONSTRAINTSTABLES", ORM_TABLE.name() , CASCADE, "table" , "constraints" , componentName , tableName);		
+			table.addForeignKeyConstraint("ORM_FK_CONSTRAINTSTABLES2", ORM_TABLE.name() , RESTRICT, "referencedTable" , null , referencedComponentName , referencedTableName );
 		}
 	},
 	ORM_COLUMNINCONSTRAINT {
@@ -72,8 +72,8 @@ public enum TableSpecs {
 			Column positionColumn = table.addColumn("POSITION", "number" , true , NUMBER2INT , "position");
 			table.addPrimaryKeyConstraint("ORM_PK_COLUMNINCONSTRAINT", componentName , tableName , constraintNameColumn , columnNameColumn);
 			table.addUniqueConstraint("ORM_U_COLUMNINCONSTRAINT", componentName , tableName , constraintNameColumn , positionColumn);
-			table.addForeignKeyConstraint("ORM_FK_COLUMNINCONSTRAINT1", ORM_TABLECONSTRAINT.name() , CASCADE, null , null, componentName , tableName , constraintNameColumn);		
-			table.addForeignKeyConstraint("ORM_FK_COLUMNINCONSTRAINT2", ORM_COLUMN.name() , RESTRICT, null, null ,componentName , tableName , columnNameColumn );
+			table.addForeignKeyConstraint("ORM_FK_COLUMNINCONSTRAINT1", ORM_TABLECONSTRAINT.name() , CASCADE, "constraint" , null, componentName , tableName , constraintNameColumn);		
+			table.addForeignKeyConstraint("ORM_FK_COLUMNINCONSTRAINT2", ORM_COLUMN.name() , RESTRICT, "column", null ,componentName , tableName , columnNameColumn );
 		}
 	};
 	

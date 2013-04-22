@@ -27,33 +27,33 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}	
 	
 	@Override
-	public List<T> where(Condition condition,String[] includes) {
-		return where(condition,0,0,includes);
+	public List<T> select(Condition condition,String[] includes) {
+		return select(condition,0,0,includes);
 	}
 
 	@Override
-	public List<T> where(Condition condition, int from , int to , String[] includes) {
+	public List<T> select(Condition condition, int from , int to , String[] includes) {
 		try {
-			return new JoinExecutor<>(root.copy(),from,to).where(condition,false,includes);
+			return new JoinExecutor<>(root.copy(),from,to).select(condition,false,includes);
 		} catch (SQLException ex) {
 			throw new PersistenceException(ex);
 		}
 	}
 	@Override
-	public List<T> eagerWhere(Condition condition, String[] excludes) {
-		return eagerWhere(condition, 0 , 0 , excludes);
+	public List<T> eagerSelect(Condition condition, String[] excludes) {
+		return eagerSelect(condition, 0 , 0 , excludes);
 	}
 
-	public List<T> eagerWhere(Condition condition, int from , int to,  String[] excludes) {
+	public List<T> eagerSelect(Condition condition, int from , int to,  String[] excludes) {
 		try {
-			return new JoinExecutor<>(root.copy(),from,to).where(condition,true, excludes);
+			return new JoinExecutor<>(root.copy(),from,to).select(condition,true, excludes);
 		} catch (SQLException ex) {
 			throw new PersistenceException(ex);
 		}
 	}
 	@Override
 	public boolean hasField(String fieldName) {
-		return root.getColumnAndAliasForField(fieldName) != null;
+		return root.hasWhereField(fieldName);
 	}
 
 	@Override
@@ -63,11 +63,13 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	
 	public Object convert(String fieldName, String value) {
 		DataMapperImpl<?,?>  mapper = root.getDataMapperForField(fieldName);
-		ColumnAndAlias columnAndAlias = root.getColumnAndAliasForField(fieldName);
-		if (mapper == null || columnAndAlias == null) {
-			throw new IllegalArgumentException("No mapper or column for " + fieldName);
+		if (mapper != null) {
+			Column column = root.getColumnForField(fieldName);
+				if (column != null) {
+					return mapper.convert(column,value);
+				}
 		}
-		return mapper.convert(columnAndAlias.getColumn(),value);
+		throw new IllegalArgumentException("No mapper or column for " + fieldName);
 	}
 
 	public SqlBuilder getSqlBuilder(Condition condition, String[] fieldNames) {

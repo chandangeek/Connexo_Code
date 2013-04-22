@@ -3,10 +3,11 @@ package com.elster.jupiter.orm.impl;
 import java.util.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.plumbing.Bus;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 
-class TableImpl implements Table  {
+public class TableImpl implements Table , PersistenceAware  {
 	
 	static final String JOURNALTIMECOLUMNNAME = "JOURNALTIME";
 	
@@ -63,10 +64,7 @@ class TableImpl implements Table  {
 	
 	private List<Column> getColumns(boolean protect) {
 		if (columns ==  null) {
-			columns = Bus.getOrmClient().getColumnFactory().find("componentName",getComponentName(),"tableName",getName(),"position");
-			for (Column column : columns) {
-				((ColumnImpl) column).doSetTable(this);
-			}			
+			columns = Bus.getOrmClient().getColumnFactory().find("table",this,"position");				
 		}
 		return protect ? Collections.unmodifiableList(columns) : columns;
 	}
@@ -78,10 +76,7 @@ class TableImpl implements Table  {
 	
 	private List<TableConstraint> getConstraints(boolean protect) {
 		if (constraints ==  null) {
-			constraints = Bus.getOrmClient().getTableConstraintFactory().find("componentName", getComponentName() , "tableName" , getName());
-			for (TableConstraint each : constraints) {
-				((TableConstraintImpl) each).doSetTable(this);
-			}
+			constraints = Bus.getOrmClient().getTableConstraintFactory().find("table",this);			
 		}
 		return protect ? Collections.unmodifiableList(constraints) : constraints;
 	}
@@ -104,8 +99,8 @@ class TableImpl implements Table  {
 		return componentName;
 	}
 
-	void doSetComponent(Component component) {
-		this.component = component;
+	@Override
+	public void postLoad() {
 		// do eager initialization in order to be thread safe
 		getColumns(false);
 		getConstraints(false);
@@ -113,7 +108,7 @@ class TableImpl implements Table  {
 	
 	Column add(ColumnImpl column) {
 		getColumns(false).add(column);
-		column.doSetPosition(getColumns(false).size());
+		column.setPosition(getColumns(false).size());
 		return column;
 	}
 
@@ -127,26 +122,47 @@ class TableImpl implements Table  {
 		return null;
 	}
 
+	@Override 
+	public TableConstraint getPrimaryKeyConstraint() {
+		for (TableConstraint each : getConstraints(false)) {
+			if (each.isPrimaryKeyConstraint()) {	
+				return each;
+			}				
+		}
+		return null;
+	}
+	
+	@Override
+	public List<TableConstraint> getForeignKeyConstraints() {
+		List<TableConstraint> result = new ArrayList<>();
+		for (TableConstraint each : getConstraints(false)) {
+			if (each.isForeignKeyConstraint()) {
+				result.add(each);
+			}				
+		}
+		return result;
+	}
+	
+	@Override
+	public TableConstraint getConstraintForField(String fieldName) {
+		for (TableConstraint each : getConstraints(false)) {
+			if (fieldName.equals(each.getFieldName()))  {
+				return each;
+			}
+		}
+		return null;
+	}
 	
 	@Override
 	public Column[] getPrimaryKeyColumns() {		
-		List<Column> result = null;
-		for (TableConstraint each : getConstraints(false)) {
-			if (each.isPrimaryKeyConstraint()) {					
-				result = each.getColumns();
-				break;
-			}				
-		}
+		TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
+		List<Column> result = primaryKeyConstraint == null ? null : primaryKeyConstraint.getColumns();		
 		return (result == null) ? new Column[0] : result.toArray(new Column[result.size()]);
 	}
 	
 	boolean isPrimaryKeyColumn(Column column) {
-		for (TableConstraint tableConstraint : getConstraints(false)) {
-			if (tableConstraint.isPrimaryKeyConstraint()) {
-				return tableConstraint.getColumns().contains(column);
-			}							
-		}
-		return false;
+		TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
+		return primaryKeyConstraint == null ? false : primaryKeyConstraint.getColumns().contains(column);	
 	}
 	
 	Column[] getVersionColumns() {
@@ -346,9 +362,9 @@ class TableImpl implements Table  {
 	}
 	
 	@Override
-	public TableConstraint addForeignKeyConstraint(String name, String component , String referencedTableName, DeleteRule deleteRule , String fieldName , String reverseFieldName , Column... columns) {
+	public TableConstraint addForeignKeyConstraint(String name, String component , String referencedTableName, DeleteRule deleteRule , String fieldName, Column... columns) {
 		Table referencedTable = Bus.getOrmClient().getTable(component, referencedTableName);		
-		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName, reverseFieldName, columns); 					
+		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName, null, columns); 					
 	}
 
 
@@ -426,6 +442,11 @@ class TableImpl implements Table  {
 	@Override
 	public int hashCode() {
 		return component.hashCode() ^ name.hashCode();
+	}
+
+	@Override
+	public <T> Object getPrimaryKey(T value) {
+		return getPrimaryKeyConstraint().getColumnValues(value);		
 	}
 
 }
