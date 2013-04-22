@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.*;
 enum TableSpecs {
 	MTR_SERVICECATEGORY {
 		void describeTable(Table table) {
+			table.setJournalTableName("MTR_SERVICECATEGORYJRNL");
 			Column idColumn = table.addColumn("ID","number", true,NUMBER2ENUMPLUSONE,"kind");
 			table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
 			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
@@ -17,6 +18,7 @@ enum TableSpecs {
 	},
 	MTR_SERVICELOCATION {
 		void describeTable(Table table) {
+			table.setJournalTableName("MTR_SERVICELOCATIONJRNL");
 			Column idColumn = table.addAutoIdColumn();
 			Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION , "mRID");
 			table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
@@ -183,11 +185,13 @@ enum TableSpecs {
 	MTR_CHANNEL {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
+			Column meterActivationIdColumn = table.addColumn("METERACTIVATIONID","number",true,NUMBER2LONG,"meterActivationId");
 			Column timeSeriesIdColumn = table.addColumn("TIMESERIESID","number",true,NUMBER2LONG,"timeSeriesId");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_CHANNEL", idColumn);
+			table.addForeignKeyConstraint("MTR_FK_CHANNELACTIVATION", MTR_METERACTIVATION.name(), RESTRICT, "meterActivation" , "channels" , meterActivationIdColumn);
 			// TODO: How to document dependency on id of IDS TIMESERIES table)
-			table.addForeignKeyConstraint("MTR_FK_CHANNELTIMESERIES","IDS","IDS_TIMESERIES",DeleteRule.RESTRICT,"timeSeries",null,timeSeriesIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_CHANNELTIMESERIES","IDS","IDS_TIMESERIES",DeleteRule.RESTRICT,"timeSeries",timeSeriesIdColumn);
 		}
 	},		
 	MTR_READINGTYPEINCHANNEL {
