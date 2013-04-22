@@ -10,6 +10,7 @@ import java.security.Principal;
 import java.sql.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
 

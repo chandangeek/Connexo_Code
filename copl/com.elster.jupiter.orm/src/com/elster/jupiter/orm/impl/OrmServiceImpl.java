@@ -1,17 +1,17 @@
-package com.elster.jupiter.orm.plumbing;
+package com.elster.jupiter.orm.impl;
 
 import java.util.*;
 import java.sql.*;
 
 import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.impl.ComponentImpl;
-import com.elster.jupiter.orm.impl.TableImpl;
+import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.plumbing.OrmClient;
 
-class OrmServiceImpl implements OrmService  {
+public class OrmServiceImpl implements OrmService  {
 	
 	private Map<String,Component> components = Collections.synchronizedMap(new HashMap<String,Component>());
 	
-	OrmServiceImpl() {				 
+	public OrmServiceImpl() {				 
 	}
 	
 	@Override
