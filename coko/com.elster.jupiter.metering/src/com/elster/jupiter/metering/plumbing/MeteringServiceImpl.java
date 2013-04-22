@@ -1,10 +1,11 @@
-package com.elster.jupiter.metering.impl;
+package com.elster.jupiter.metering.plumbing;
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.impl.ReadingStorerImpl;
+import com.elster.jupiter.metering.impl.ServiceLocationImpl;
 
-import static com.elster.jupiter.metering.impl.Bus.*;
+import static com.elster.jupiter.metering.plumbing.Bus.*;
 
 public class MeteringServiceImpl implements MeteringService {
 	
@@ -48,41 +49,32 @@ public class MeteringServiceImpl implements MeteringService {
 		return new ReadingStorerImpl(overrules);
 	}
 
-	@Override
-	public Finder<UsagePoint> getUsagePointFinder() {
-		return getServiceLocator().getFinderService().wrap(getOrmClient().getUsagePointFactory());
-	}
-	
 	@Override 
 	public Query<UsagePoint> getUsagePointQuery() {
-		return getServiceLocator().getQueryService().wrap(
+		return getQueryService().wrap(
 			getOrmClient().getUsagePointFactory().with(
 				getOrmClient().getServiceLocationFactory(),
-				getOrmClient().getServiceCategoryFactory()));		
+				getOrmClient().getMeterActivationFactory(),
+				getOrmClient().getMeterFactory()));		
 	}
 
 	@Override
 	public Query<MeterActivation> getMeterActivationQuery() {
-		return getServiceLocator().getQueryService().wrap(
+		return getQueryService().wrap(
 			getOrmClient().getMeterActivationFactory().with(
 				getOrmClient().getUsagePointFactory(),
 				getOrmClient().getMeterFactory(),
-				getOrmClient().getServiceLocationFactory(),
-				getOrmClient().getServiceCategoryFactory()));					
+				getOrmClient().getServiceLocationFactory()));					
 	}
 	
 	@Override
 	public Query<ServiceLocation> getServiceLocationQuery() {
-		return getServiceLocator().getQueryService().wrap(
+		return getQueryService().wrap(
 			getOrmClient().getServiceLocationFactory().with(
 				getOrmClient().getUsagePointFactory(),
 				getOrmClient().getMeterActivationFactory(),
 				//getOrmClient().getChannelFactory(),
-				getOrmClient().getMeterFactory(),
-				getOrmClient().getServiceCategoryFactory()
-			)
-		);						
-				
+				getOrmClient().getMeterFactory()));										
 	}
 	
 }

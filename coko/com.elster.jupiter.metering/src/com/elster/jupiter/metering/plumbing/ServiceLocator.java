@@ -1,13 +1,14 @@
-package com.elster.jupiter.metering.impl;
+package com.elster.jupiter.metering.plumbing;
 
-import com.elster.jupiter.domain.util.FinderService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.orm.cache.CacheService;
 
 interface ServiceLocator {
 	OrmClient getOrmClient();
+	CacheService getCacheService();
 	IdsService getIdsService();
-	FinderService getFinderService();
 	QueryService getQueryService();
+	
 }
 

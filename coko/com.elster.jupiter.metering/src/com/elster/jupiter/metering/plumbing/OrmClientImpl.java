@@ -1,10 +1,20 @@
-package com.elster.jupiter.metering.impl;
+package com.elster.jupiter.metering.plumbing;
 
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.impl.AmrSystemImpl;
+import com.elster.jupiter.metering.impl.ChannelImpl;
+import com.elster.jupiter.metering.impl.MeterActivationImpl;
+import com.elster.jupiter.metering.impl.MeterImpl;
+import com.elster.jupiter.metering.impl.ReadingTypeImpl;
+import com.elster.jupiter.metering.impl.ReadingTypeInChannel;
+import com.elster.jupiter.metering.impl.ServiceCategoryImpl;
+import com.elster.jupiter.metering.impl.ServiceLocationImpl;
+import com.elster.jupiter.metering.impl.UsagePointImpl;
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.cache.TypeCache;
 
-import static com.elster.jupiter.metering.impl.Bus.*;
-import static com.elster.jupiter.metering.impl.TableSpecs.*;
+import static com.elster.jupiter.metering.plumbing.Bus.*;
+import static com.elster.jupiter.metering.plumbing.TableSpecs.*;
 
 class OrmClientImpl implements OrmClient {
 	
@@ -15,8 +25,8 @@ class OrmClientImpl implements OrmClient {
 	}
 	
 	@Override
-	public DataMapper<ServiceCategory> getServiceCategoryFactory() {
-		return service.getDataMapper(ServiceCategory.class, ServiceCategoryImpl.class , COMPONENTNAME , MTR_SERVICECATEGORY.name());
+	public TypeCache<ServiceCategory> getServiceCategoryFactory() {
+		return Bus.getCacheService().getTypeCache(ServiceCategory.class, ServiceCategoryImpl.class , COMPONENTNAME , MTR_SERVICECATEGORY.name());
 	}
 	
 	@Override
@@ -25,13 +35,13 @@ class OrmClientImpl implements OrmClient {
 	}
 	
 	@Override
-	public DataMapper<AmrSystem> getAmrSystemFactory() {
-		return service.getDataMapper(AmrSystem.class, AmrSystemImpl.class , COMPONENTNAME , MTR_AMRSYSTEM.name());
+	public TypeCache<AmrSystem> getAmrSystemFactory() {
+		return Bus.getCacheService().getTypeCache(AmrSystem.class, AmrSystemImpl.class, COMPONENTNAME , MTR_AMRSYSTEM.name());
 	}
 	
 	@Override
-	public DataMapper<ReadingType> getReadingTypeFactory() {
-		return service.getDataMapper(ReadingType.class, ReadingTypeImpl.class , COMPONENTNAME , MTR_READINGTYPE.name());
+	public TypeCache<ReadingType> getReadingTypeFactory() {
+		return Bus.getCacheService().getTypeCache(ReadingType.class, ReadingTypeImpl.class , COMPONENTNAME , MTR_READINGTYPE.name());
 	}
 	
 	@Override

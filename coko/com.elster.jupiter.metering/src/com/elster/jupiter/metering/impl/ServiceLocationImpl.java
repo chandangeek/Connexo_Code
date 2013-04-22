@@ -6,9 +6,10 @@ import java.util.List;
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.time.UtcInstant;
 
-class ServiceLocationImpl implements ServiceLocation {
+public class ServiceLocationImpl implements ServiceLocation {
 	// persistent fields
 	private long id;
 	private String aliasName;
@@ -35,7 +36,7 @@ class ServiceLocationImpl implements ServiceLocation {
 	// associations
 	private List<UsagePoint> usagePoints;
 	
-	ServiceLocationImpl() {
+	public ServiceLocationImpl() {
 	}
 	
 	@Override
@@ -214,7 +215,7 @@ class ServiceLocationImpl implements ServiceLocation {
 	@Override
 	public List<UsagePoint> getUsagePoints() {
 		if (usagePoints == null) {
-			usagePoints = Bus.getOrmClient().getUsagePointFactory().find("serviceLocationId",getId());
+			usagePoints = Bus.getOrmClient().getUsagePointFactory().find("serviceLocation",this);
 		}
 		return usagePoints;
 	}

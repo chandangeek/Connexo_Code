@@ -4,12 +4,13 @@ import java.util.*;
 
 import com.elster.jupiter.ids.*;
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.time.UtcInstant;
 
-import static com.elster.jupiter.metering.impl.Bus.*;
+import static com.elster.jupiter.metering.plumbing.Bus.*;
 
-class ChannelImpl implements Channel {
+public class ChannelImpl implements Channel {
 	
 	private static final int REGULARVAULTID = 1;
 	private static final int IRREGULARVAULTID = 2;
@@ -57,7 +58,7 @@ class ChannelImpl implements Channel {
 	@Override
 	public TimeSeries getTimeSeries() {
 		if (timeSeries == null) {
-			timeSeries = Bus.getServiceLocator().getIdsService().getTimeSeries(timeSeriesId);
+			timeSeries = Bus.getIdsService().getTimeSeries(timeSeriesId);
 		}
 		return timeSeries;
 	}
@@ -91,8 +92,8 @@ class ChannelImpl implements Channel {
 	
 	TimeSeries createTimeSeries() {
 		IntervalLength intervalLength = getIntervalLength();
-		Vault vault = getServiceLocator().getIdsService().getVault(COMPONENTNAME, intervalLength == null ? IRREGULARVAULTID : REGULARVAULTID);
-		RecordSpec recordSpec = getServiceLocator().getIdsService().getRecordSpec(COMPONENTNAME, intervalLength == null ? IRREGULARRECORDSPECID : REGULARRECORDSPECID);
+		Vault vault = getIdsService().getVault(COMPONENTNAME, intervalLength == null ? IRREGULARVAULTID : REGULARVAULTID);
+		RecordSpec recordSpec = getIdsService().getRecordSpec(COMPONENTNAME, intervalLength == null ? IRREGULARRECORDSPECID : REGULARRECORDSPECID);
 		TimeZone timeZone = TimeZone.getDefault();
 		return intervalLength == null ? 
 				vault.createIrregularTiemSeries(recordSpec, timeZone) :
@@ -116,7 +117,7 @@ class ChannelImpl implements Channel {
 	}
 	
 	private List<ReadingType> doGetReadingTypes() {
-		List<ReadingTypeInChannel> helpers = Bus.getOrmClient().getReadingTypeInChannelFactory().find("channelId",getId(),"position");
+		List<ReadingTypeInChannel> helpers = Bus.getOrmClient().getReadingTypeInChannelFactory().find("channel",this,"position");
 		List<ReadingType> result = new ArrayList<>(helpers.size());
 		for (ReadingTypeInChannel each : helpers) {
 			result.add(each.getReadingType());

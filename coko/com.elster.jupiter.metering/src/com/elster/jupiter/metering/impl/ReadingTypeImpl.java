@@ -1,11 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.PersistenceAware;
 import com.elster.jupiter.time.UtcInstant;
 import com.elster.jupiter.cbo.*;
 
-class ReadingTypeImpl implements ReadingType , PersistenceAware {
+public class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	// persistent fields
 	private String mRID;
 	private String aliasName;
@@ -33,7 +34,7 @@ class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private ReadingTypeImpl() {		
 	}
 	
-	ReadingTypeImpl(String mRID, String aliasName) {
+	public ReadingTypeImpl(String mRID, String aliasName) {
 		this.mRID = mRID;
 		this.aliasName = aliasName;
 		setTransientFields();
@@ -121,7 +122,7 @@ class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		return builder.toString();
 	}
 	
-	void persist() {
+	public void persist() {
 		Bus.getOrmClient().getReadingTypeFactory().persist(this);
 	}
 

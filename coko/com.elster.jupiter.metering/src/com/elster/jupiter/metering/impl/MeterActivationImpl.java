@@ -11,9 +11,10 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.time.UtcInstant;
 
-class MeterActivationImpl implements MeterActivation {
+public class MeterActivationImpl implements MeterActivation {
 	//persistent fields
 	private long id;
 	private long usagePointId;
@@ -78,7 +79,7 @@ class MeterActivationImpl implements MeterActivation {
 
 	private List<Channel> getChannels(boolean protect) {
 		if (channels == null) {
-			channels = Bus.getOrmClient().getChannelFactory().find("meterActivationId",id);
+			channels = Bus.getOrmClient().getChannelFactory().find("meterActivation",this);
 		}
 		return protect ? Collections.unmodifiableList(channels) : channels;
 	}

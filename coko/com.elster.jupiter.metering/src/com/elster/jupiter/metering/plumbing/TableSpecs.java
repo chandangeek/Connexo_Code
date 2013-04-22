@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl;
+package com.elster.jupiter.metering.plumbing;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.*;

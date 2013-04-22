@@ -1,20 +1,19 @@
-package com.elster.jupiter.metering.impl;
+package com.elster.jupiter.metering.plumbing;
 
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.impl.ReadingTypeInChannel;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.cache.TypeCache;
 
-interface OrmClient {
-	DataMapper<ServiceCategory> getServiceCategoryFactory();
+public interface OrmClient {
+	TypeCache<ServiceCategory> getServiceCategoryFactory();
 	DataMapper<ServiceLocation> getServiceLocationFactory();
-	DataMapper<AmrSystem> getAmrSystemFactory();
-	DataMapper<ReadingType> getReadingTypeFactory();
+	TypeCache<AmrSystem> getAmrSystemFactory();
+	TypeCache<ReadingType> getReadingTypeFactory();
 	DataMapper<UsagePoint> getUsagePointFactory();
 	DataMapper<Meter> getMeterFactory();
 	DataMapper<MeterActivation> getMeterActivationFactory();
-
 	DataMapper<Channel> getChannelFactory();
 	DataMapper<ReadingTypeInChannel> getReadingTypeInChannelFactory();
-	
-	void install(boolean executeDdl , boolean storeMappings);
-	
+	void install(boolean executeDdl , boolean storeMappings);	
 }

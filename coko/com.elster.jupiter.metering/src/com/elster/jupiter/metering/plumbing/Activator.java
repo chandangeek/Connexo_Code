@@ -1,20 +1,20 @@
-package com.elster.jupiter.metering.impl;
+package com.elster.jupiter.metering.plumbing;
 
 import org.osgi.framework.*;
 import org.osgi.util.tracker.*;
 
-import com.elster.jupiter.domain.util.FinderService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.cache.CacheService;
 
 public class Activator implements BundleActivator , ServiceLocator {
 
 	private volatile BundleContext bundleContext;
 	private volatile ServiceTracker<OrmService,OrmClient> ormTracker;
+	private volatile ServiceTracker<CacheService,CacheService> cacheTracker;
 	private volatile ServiceTracker<IdsService,IdsService> idsTracker;
-	private volatile ServiceTracker<FinderService, FinderService> finderTracker;
 	private volatile ServiceTracker<QueryService, QueryService> queryTracker;
 	private volatile ServiceRegistration<MeteringService> meteringServiceRegistration;
 	
@@ -23,10 +23,10 @@ public class Activator implements BundleActivator , ServiceLocator {
 		this.bundleContext = bundleContext;
 		ormTracker = new ServiceTracker<>(bundleContext, OrmService.class, new OrmTransformer());
 		ormTracker.open();
+		cacheTracker = new ServiceTracker<>(bundleContext, CacheService.class, null);
+		cacheTracker.open();		
 		idsTracker = new ServiceTracker<>(bundleContext, IdsService.class, null);
 		idsTracker.open();
-		finderTracker = new ServiceTracker<>(bundleContext, FinderService.class, null);
-		finderTracker.open();
 		queryTracker = new ServiceTracker<>(bundleContext, QueryService.class, null);
 		queryTracker.open();
 		meteringServiceRegistration = bundleContext.registerService(MeteringService.class , new MeteringServiceImpl(), null);
@@ -36,8 +36,8 @@ public class Activator implements BundleActivator , ServiceLocator {
 	public void stop(BundleContext bundleContext)  {
 		meteringServiceRegistration.unregister();
 		ormTracker.close();
+		cacheTracker.close();
 		idsTracker.close();
-		finderTracker.close();
 		queryTracker.close();
 		Bus.setServiceLocator(null);
 	}
@@ -51,10 +51,9 @@ public class Activator implements BundleActivator , ServiceLocator {
 	public OrmClient getOrmClient() {
 		return ormTracker.getService();
 	}
-	
-	@Override
-	public FinderService getFinderService() {
-		return finderTracker.getService();
+
+	public CacheService getCacheService() {
+		return cacheTracker.getService();
 	}
 	
 	@Override

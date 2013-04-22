@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import java.util.Date;
+import java.util.List;
 
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.units.Quantity;
@@ -62,5 +63,6 @@ public interface UsagePoint {
 	Date getCreateDate();
 	Date getModificationDate();
 	long getVersion();
+	List<MeterActivation> getMeterActivations();
 		
 }

@@ -1,9 +1,10 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.time.UtcInstant;
 
-class ServiceCategoryImpl implements ServiceCategory {
+public class ServiceCategoryImpl implements ServiceCategory {
 	//persistent fields
 	private ServiceKind kind;
 	private String aliasName;
@@ -21,7 +22,7 @@ class ServiceCategoryImpl implements ServiceCategory {
 	private ServiceCategoryImpl() {	
 	}
 	
-	ServiceCategoryImpl(ServiceKind kind) {
+	public ServiceCategoryImpl(ServiceKind kind) {
 		this.kind = kind;		
 	}
 	
@@ -48,7 +49,7 @@ class ServiceCategoryImpl implements ServiceCategory {
 		return description;
 	}
 	
-	void persist() {
+	public void persist() {
 		Bus.getOrmClient().getServiceCategoryFactory().persist(this);
 	}
 	

@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
 import java.util.Date;
+import java.util.List;
 
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.time.UtcInstant;
 import com.elster.jupiter.units.*;
 
@@ -42,6 +44,7 @@ public class UsagePointImpl implements UsagePoint {
     // associations
 	private ServiceCategory serviceCategory;
 	private ServiceLocation serviceLocation;
+	private List<MeterActivation> meterActivations;
 	
 	@SuppressWarnings("unused")
 	private UsagePointImpl() {
@@ -310,6 +313,19 @@ public class UsagePointImpl implements UsagePoint {
 	}
 
 
+	@Override
+	public List<MeterActivation> getMeterActivations() {
+		return getMeterActivations(true);
+	}
+	
+	private  List<MeterActivation> getMeterActivations(boolean protect) {
+		if (meterActivations == null) {
+			meterActivations = Bus.getOrmClient().getMeterActivationFactory().find("usagePoint",this,"fromTime");
+		}
+		return meterActivations;
+	}
+	
+	
 	public Date getCreateDate() {
 		return createTime.toDate();
 	}

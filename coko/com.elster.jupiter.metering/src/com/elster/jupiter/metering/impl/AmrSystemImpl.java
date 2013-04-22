@@ -2,9 +2,10 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.time.UtcInstant;
 
-class AmrSystemImpl implements AmrSystem {
+public class AmrSystemImpl implements AmrSystem {
 	//persistent fields
 	private int id;
 	private String name;

@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl;
+package com.elster.jupiter.metering.plumbing;
 
 import java.util.Calendar;
 
@@ -7,8 +7,10 @@ import com.elster.jupiter.ids.*;
 import static com.elster.jupiter.ids.FieldType.*;
 
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.impl.ReadingTypeImpl;
+import com.elster.jupiter.metering.impl.ServiceCategoryImpl;
 
-import static com.elster.jupiter.metering.impl.Bus.*;
+import static com.elster.jupiter.metering.plumbing.Bus.*;
 
 
 class InstallerImpl {	
@@ -20,7 +22,7 @@ class InstallerImpl {
 	}
 	
 	private void createMasterData() {
-		IdsService idsService = Bus.getServiceLocator().getIdsService();
+		IdsService idsService = Bus.getIdsService();
 		createVaults(idsService);
 		createRecordSpecs(idsService);
 		createServiceCategories();

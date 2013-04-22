@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.plumbing.Bus;
 
 public class ReadingTypeInChannel {
 	// Persistent fields
