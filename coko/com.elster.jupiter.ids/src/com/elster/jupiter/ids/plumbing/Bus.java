@@ -1,27 +1,23 @@
-package com.elster.jupiter.ids.impl;
+package com.elster.jupiter.ids.plumbing;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-class Bus {
+public class Bus {
 	
-	static final String COMPONENTNAME = "IDS";
+	public static final String COMPONENTNAME = "IDS";
 	
 	private static volatile ServiceLocator locator;
-	
-	static ServiceLocator getServiceLocator() {
-		return locator;
-	}
 	
 	static void setServiceLocator(ServiceLocator locator) {
 		Bus.locator = locator;
 	}
 	
-	static OrmClient getOrmClient() {
-		return getServiceLocator().getOrmClient();
+	public static OrmClient getOrmClient() {
+		return locator.getOrmClient();
 	}
 	
-	static Connection getConnection(boolean transactionRequired) throws SQLException {
+	public static Connection getConnection(boolean transactionRequired) throws SQLException {
 		return getOrmClient().getConnection(transactionRequired);
 	}
 

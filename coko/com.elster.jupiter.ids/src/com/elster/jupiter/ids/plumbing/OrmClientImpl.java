@@ -1,11 +1,15 @@
-package com.elster.jupiter.ids.impl;
+package com.elster.jupiter.ids.plumbing;
 
 import java.sql.*;
 
 import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.impl.FieldSpecImpl;
+import com.elster.jupiter.ids.impl.RecordSpecImpl;
+import com.elster.jupiter.ids.impl.TimeSeriesImpl;
+import com.elster.jupiter.ids.impl.VaultImpl;
 import com.elster.jupiter.orm.*;
 
-import static com.elster.jupiter.ids.impl.TableSpecs.*;
+import static com.elster.jupiter.ids.plumbing.TableSpecs.*;
 
 class OrmClientImpl implements OrmClient {
 	

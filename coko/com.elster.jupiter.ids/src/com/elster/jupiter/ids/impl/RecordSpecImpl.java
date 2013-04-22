@@ -3,10 +3,11 @@ package com.elster.jupiter.ids.impl;
 import java.util.*;
 
 import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.time.UtcInstant;
 
-class RecordSpecImpl implements RecordSpec {
+public class RecordSpecImpl implements RecordSpec {
 	// persistent fields
 	private String componentName;
 	private long id;
@@ -27,7 +28,7 @@ class RecordSpecImpl implements RecordSpec {
 	private RecordSpecImpl() {		
 	}
 	
-	RecordSpecImpl(String componentName , long id , String name) {
+	public RecordSpecImpl(String componentName , long id , String name) {
 		this.componentName = componentName;
 		this.id = id;
 		this.name = name;
@@ -56,7 +57,7 @@ class RecordSpecImpl implements RecordSpec {
 	
 	private List<FieldSpec> getFieldSpecs(boolean protect) {
 		if (fieldSpecs == null) {
-			fieldSpecs = Bus.getOrmClient().getFieldSpecFactory().find("componentName",componentName,"recordSpecId",id,"position");
+			fieldSpecs = Bus.getOrmClient().getFieldSpecFactory().find("recordSpec",this,"position");
 			for (FieldSpec each : fieldSpecs) {
 				((FieldSpecImpl) each).doSetRecordSpec(this);
 			}

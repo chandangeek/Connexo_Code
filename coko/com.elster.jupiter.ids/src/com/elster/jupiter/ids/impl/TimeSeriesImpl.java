@@ -3,6 +3,7 @@ package com.elster.jupiter.ids.impl;
 import java.util.*;
 
 import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.time.UtcInstant;
 

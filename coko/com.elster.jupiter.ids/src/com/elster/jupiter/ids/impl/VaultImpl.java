@@ -11,11 +11,12 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.time.UtcInstant;
 
-class VaultImpl implements Vault {
+public class VaultImpl implements Vault {
 	//persistent fields
 	private String componentName;
 	private long id;

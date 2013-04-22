@@ -1,8 +1,10 @@
-package com.elster.jupiter.ids.impl;
+package com.elster.jupiter.ids.plumbing;
 
 import java.util.*;
 
 import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.impl.RecordSpecImpl;
+import com.elster.jupiter.ids.impl.VaultImpl;
 
 class InstallerImpl {	
 	

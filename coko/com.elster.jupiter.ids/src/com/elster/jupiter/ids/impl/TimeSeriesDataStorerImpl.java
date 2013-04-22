@@ -5,9 +5,10 @@ import java.util.*;
 import java.sql.*;
 
 import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.PersistenceException;
 
-class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
+public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	final private boolean overrules;
 	final private Map<RecordSpecInVault,SlaveTimeSeriesDataStorer> storerMap = new HashMap<>();
 	final StorerStatsImpl stats = new StorerStatsImpl();

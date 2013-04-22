@@ -1,4 +1,4 @@
-package com.elster.jupiter.ids.impl;
+package com.elster.jupiter.ids.plumbing;
 
 import org.osgi.framework.*;
 import org.osgi.util.tracker.*;

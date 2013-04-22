@@ -1,11 +1,11 @@
-package com.elster.jupiter.ids.impl;
+package com.elster.jupiter.ids.plumbing;
 
 import java.sql.*;
 
 import com.elster.jupiter.ids.*;
 import com.elster.jupiter.orm.DataMapper;
 
-interface OrmClient {
+public interface OrmClient {
 	DataMapper<Vault> getVaultFactory();
 	DataMapper<RecordSpec> getRecordSpecFactory();
 	DataMapper<FieldSpec> getFieldSpecFactory();
