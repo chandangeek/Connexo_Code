@@ -2,9 +2,29 @@ package com.elster.jupiter.orm.impl;
 
 enum TableConstraintType {
 
-	PRIMARYKEY ("primary key") { boolean isPrimaryKey() {return true;}},
-	UNIQUE ("unique") { boolean isUnique() {return true;}},
-	FOREIGNKEY ("foreign key") { boolean isForeignKey() {return true;}};
+	PRIMARYKEY ("primary key") {
+		@Override
+		boolean isPrimaryKey() {
+			return true;
+		}
+	},
+	UNIQUE ("unique") {
+		@Override
+		boolean isUnique() {
+			return true;
+		}
+	},
+	FOREIGNKEY ("foreign key") {
+		@Override
+		boolean isForeignKey() {
+			return true;
+		}
+		
+		@Override
+		boolean hasAutoIndex() {
+			return false;
+		}
+	};
 	
 	final private String ddl;
 	
@@ -26,6 +46,10 @@ enum TableConstraintType {
 	
 	String getDdl() {
 		return ddl;
+	}
+	
+	boolean hasAutoIndex() {
+		return true;
 	}
 
 }

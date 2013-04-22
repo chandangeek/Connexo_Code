@@ -183,7 +183,8 @@ class TableSqlGenerator {
 	}
 	
 	Column[] getPrimaryKeyColumns() {
-		return table.getPrimaryKeyColumns();
+		List<Column> primaryKeyColumns = table.getPrimaryKeyColumns();
+		return primaryKeyColumns.toArray(new Column[primaryKeyColumns.size()]);
 	}
 	
 	

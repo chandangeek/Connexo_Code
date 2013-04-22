@@ -22,7 +22,7 @@ class ConstraintFragment implements SqlFragment , Setter {
 	public int bind(PreparedStatement statement, int position) throws SQLException {
 		FieldMapper mapper = new FieldMapper();
 		for (int i = 0 ; i < constraint.getColumns().size(); i++) {
-			Object columnValue = value == null ? null : mapper.get(value, constraint.getReferencedTable().getPrimaryKeyColumns()[i].getFieldName());
+			Object columnValue = value == null ? null : mapper.get(value, constraint.getReferencedTable().getPrimaryKeyColumns().get(i).getFieldName());
 			statement.setObject(position++ , ((ColumnImpl) constraint.getColumns().get(i)).convertToDb(columnValue));
 		}
 		return position;

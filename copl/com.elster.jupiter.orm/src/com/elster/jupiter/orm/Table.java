@@ -15,7 +15,7 @@ public interface Table {
 	String getComponentName();
 	Column getColumn(String name);	
 	Column getColumnForField(String fieldName);
-	Column[] getPrimaryKeyColumns();
+	List<Column> getPrimaryKeyColumns();
 	<T> Object getPrimaryKey(T value);
 	<T, S extends T> DataMapper<T> getDataMapper(Class<T> api , Class<S> implementation);
 	

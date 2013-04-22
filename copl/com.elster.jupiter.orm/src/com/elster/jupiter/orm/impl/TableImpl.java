@@ -154,10 +154,9 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 	
 	@Override
-	public Column[] getPrimaryKeyColumns() {		
+	public List<Column> getPrimaryKeyColumns() {		
 		TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
-		List<Column> result = primaryKeyConstraint == null ? null : primaryKeyConstraint.getColumns();		
-		return (result == null) ? new Column[0] : result.toArray(new Column[result.size()]);
+		return primaryKeyConstraint == null ? null : primaryKeyConstraint.getColumns();				
 	}
 	
 	boolean isPrimaryKeyColumn(Column column) {
@@ -216,66 +215,10 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 	
 	public List<String> getDdl() {
-		List<String> result = new ArrayList<>();
-		result.add(getTableDdl());
-		if (journalTableName != null) {
-			result.add(getJournalTableDdl());
-		}
-		Set<String> sequenceNames = new HashSet<String>();
-		for (Column column : getColumns(false)) {
-			if (column.isAutoIncrement()) {
-				sequenceNames.add(column.getSequenceName());
-			}
-		}
-		for (String sequenceName : sequenceNames) {
-			// cache 1000 for performance in RAC environments
-			result.add("create sequence " + sequenceName + " cache 1000");
-		}
-		return result;
+		return new TableDdlGenerator(this).getDdl();
 	}
 	
-	public String getTableDdl() {
-		StringBuilder sb = new StringBuilder("create table ");
-		sb.append(getQualifiedName());
-		sb.append(" (");
-		String separator = "";
-		for (Column column : getColumns(false)) {
-			sb.append(separator);
-			sb.append(((ColumnImpl) column).getDdl());
-			separator = ", ";
-		}
-		for (TableConstraint constraint : getConstraints(false)) {
-			sb.append(separator);
-			sb.append(((TableConstraintImpl) constraint).getDdl());			
-		}
-		sb.append(")");
-		return sb.toString();
-	}
 	
-	public String getJournalTableDdl() {
-		StringBuilder sb = new StringBuilder("create table ");
-		sb.append(getQualifiedName(journalTableName));
-		sb.append(" (");
-		String separator = "";
-		for (Column column : getColumns(false)) {
-			sb.append(separator);
-			sb.append(((ColumnImpl) column).getDdl());
-			separator = ", ";
-		}
-		sb.append(separator);
-		sb.append(JOURNALTIMECOLUMNNAME);
-		sb.append(" NUMBER NOT NULL");				
-		for (TableConstraint constraint : getConstraints(false)) {
-			if (constraint.isPrimaryKeyConstraint()) {
-				TableConstraintImpl pkConstraint = (TableConstraintImpl) constraint;
-				sb.append(separator);
-				sb.append(pkConstraint.getJournalDdl(getExtraJournalPrimaryKeyColumnName()));			
-			}
-		}
-		sb.append(")");
-		return sb.toString();
-	}
-
 	String getExtraJournalPrimaryKeyColumnName() {		
 		Column[] versionColumns = getVersionColumns();
 		return versionColumns.length > 0 ? versionColumns[0].getName() : JOURNALTIMECOLUMNNAME;			

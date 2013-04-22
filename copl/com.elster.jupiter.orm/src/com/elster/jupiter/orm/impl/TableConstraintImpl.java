@@ -83,7 +83,7 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 		return table;
 	}
 
-	private TableConstraintType getType() {
+	TableConstraintType getType() {
 		return type;
 	}
 
@@ -179,57 +179,6 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 		return getType().isForeignKey();
 	}
 
-	
-	public String getDdl() {
-		StringBuilder base = new StringBuilder("constraint ");
-		base.append(name);
-		base.append(" ");
-		base.append(getType().getDdl());
-		base.append("(");
-		String separator = "";
-		for (Column column : getColumns(false)) {
-			base.append(separator);
-			base.append(column.getName());
-			separator = ", ";
-		}
-		base.append(")");
-		if (isForeignKeyConstraint()) {
-			base.append(" references ");
-			base.append(getReferencedTable().getQualifiedName());
-			base.append("(");
-			separator = "";
-			for (Column column : getReferencedTable().getPrimaryKeyColumns()) {
-				base.append(separator);
-				base.append(column.getName());
-				separator = ", ";
-			}
-			base.append(")");
-			DeleteRule deleteRule = getDeleteRule();
-			if (deleteRule != null) {
-				base.append(deleteRule.getDdl());
-			}
-		}
-		return base.toString();
-	}
-	
-	String getJournalDdl(String extra) {
-		StringBuilder base = new StringBuilder("constraint ");
-		base.append(name + "_JRNL");
-		base.append(" ");
-		base.append(getType().getDdl());
-		base.append("(");
-		String separator = "";
-		for (Column column : getColumns(false)) {
-			base.append(separator);
-			base.append(column.getName());
-			separator = ", ";
-		}
-		base.append(separator);
-		base.append(extra);
-		base.append(")");	
-		return base.toString();
-	}
-
 	void persist() {
 		getOrmClient().getTableConstraintFactory().persist(this);		
 		int position = 1;
@@ -264,5 +213,30 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 			}
 			return result;
 		}
+	}
+	
+	boolean needsIndex() {
+		if (type.hasAutoIndex())
+			return false;
+		for (TableConstraint constraint : getTable().getConstraints()) {
+			if (constraint.isPrimaryKeyConstraint() || constraint.isUniqueConstraint()) {
+				if (this.isSubset(constraint)) {
+					return false;
+				}
+ 			}
+		}
+		return true;
+	}
+	
+	private boolean isSubset(TableConstraint other) {
+		if (other.getColumns().size() < this.getColumns().size()) {
+			return false;
+		}
+		for (int i = 0 ; i < getColumns().size() ; i++) {
+			if (!this.getColumns().get(i).equals(other.getColumns().get(i))) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

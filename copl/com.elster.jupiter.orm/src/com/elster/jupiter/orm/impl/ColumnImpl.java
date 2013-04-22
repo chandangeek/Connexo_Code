@@ -95,8 +95,8 @@ public class ColumnImpl implements Column  {
 		return ((TableImpl) getTable()).isPrimaryKeyColumn(this);		
 	}
 
-	public String getDdl() {		
-		return name + " " + dbType + (notNull ? " not null" : "");		
+	public String getDbType() {		
+		return dbType;		
 	}
 
 	@Override

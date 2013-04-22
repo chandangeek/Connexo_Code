@@ -91,7 +91,7 @@ public class OrmServiceImpl implements OrmService  {
 		try {
 			Statement statement = connection.createStatement();
 			try {
-				for (Table table : component.getTables()) {
+				for (Table table : component.getTables()) {									
 					for (String each : ((TableImpl) table).getDdl()) {
 						System.out.println(each);
 						statement.execute(each);

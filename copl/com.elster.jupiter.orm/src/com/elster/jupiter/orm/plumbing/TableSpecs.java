@@ -11,14 +11,14 @@ public enum TableSpecs {
 		void describeTable(Table table) {
 			Column nameColumn = table.addColumn("NAME", COMPONENTDBTYPE , true , NOCONVERSION , "name");
 			table.addColumn("DESCRIPTION", "varchar2(80)" , false , NOCONVERSION , "description");
-			table.addPrimaryKeyConstraint("ORM_PK_COMPONENTS", nameColumn);
+			table.addPrimaryKeyConstraint("ORM_PK_COMPONENT", nameColumn);
 		}
 	},
 	ORM_TABLE {
 		void describeTable(Table table) {
 			Column componentName = table.addColumn("COMPONENT", COMPONENTDBTYPE , true , NOCONVERSION , "componentName");
-			Column schemaColumn = table.addColumn("SCHEMAOWNER",CATALOGDBTYPE, false , NOCONVERSION,"schema");
 			Column nameColumn = table.addColumn("NAME", CATALOGDBTYPE , true , NOCONVERSION , "name");
+			Column schemaColumn = table.addColumn("SCHEMAOWNER",CATALOGDBTYPE, false , NOCONVERSION,"schema");
 			table.addColumn("JOURNALTABLENAME",CATALOGDBTYPE,false,NOCONVERSION,"journalTableName");
 			table.addPrimaryKeyConstraint("ORM_PK_TABLES", componentName , nameColumn);
 			table.addUniqueConstraint("ORM_U_TABLES", schemaColumn , nameColumn);
