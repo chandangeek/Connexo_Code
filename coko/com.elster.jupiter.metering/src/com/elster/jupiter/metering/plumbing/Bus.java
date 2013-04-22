@@ -22,7 +22,7 @@ public class Bus {
 		return locator.getIdsService();
 	}
 	
-	static QueryService getQueryService() {
+	public static QueryService getQueryService() {
 		return locator.getQueryService();
 	}
 	

@@ -6,6 +6,7 @@ import org.osgi.util.tracker.*;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.impl.MeteringServiceImpl;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 

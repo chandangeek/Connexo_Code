@@ -1,9 +1,8 @@
-package com.elster.jupiter.metering.plumbing;
+package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.impl.ReadingStorerImpl;
-import com.elster.jupiter.metering.impl.ServiceLocationImpl;
+import com.elster.jupiter.metering.plumbing.InstallerImpl;
 
 import static com.elster.jupiter.metering.plumbing.Bus.*;
 
