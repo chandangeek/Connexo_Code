@@ -14,4 +14,5 @@ public interface QueryExecutor<T> {
 	boolean hasField(String fieldName);
 	Object convert(String fieldName , String value);
 	Club toClub(Condition condition, String[] fieldNames);
+	T get(Object[] key);
 }

@@ -37,17 +37,15 @@ abstract public class JoinDataMapper<T> {
 	}
 	
 	
-	final <R> JoinDataMapper<R> wrap(DataMapperImpl<R,? extends R> newMapper , int index) {
+	final <R> JoinDataMapper<R> wrap(DataMapperImpl<R,? extends R> newMapper , String alias) {
 		for (TableConstraint constraint : getTable().getConstraints()) {
-			if (newMapper.getTable().equals(constraint.getReferencedTable())) {
-				char aliasSuffix = (char) ('a' + index);
-				return new ParentDataMapper<R>(newMapper , constraint , getAlias() + aliasSuffix);
+			if (newMapper.getTable().equals(constraint.getReferencedTable())) {				
+				return new ParentDataMapper<R>(newMapper , constraint , alias);
 			}
 		}
 		for (TableConstraint constraint : newMapper.getTable().getConstraints()) {		
 			if (getTable().equals(constraint.getReferencedTable())) {
-				char aliasSuffix = (char) ('z' - index);
-				return new ChildDataMapper<R>(newMapper , constraint , getAlias() + aliasSuffix);				
+				return new ChildDataMapper<R>(newMapper , constraint , alias);				
 			}
 		}
 		return null;

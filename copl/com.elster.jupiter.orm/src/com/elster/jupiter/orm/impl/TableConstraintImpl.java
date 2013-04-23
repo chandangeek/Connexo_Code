@@ -95,8 +95,9 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 		if (referencedTable == null) {
 			if (referencedComponentName.equals(componentName)) {
 				referencedTable = getTable().getComponent().getTable(referencedTableName);
+			} else {
+				referencedTable = getOrmClient().getTableFactory().get(referencedComponentName, referencedTableName);
 			}
-			referencedTable = getOrmClient().getTableFactory().get(referencedComponentName, referencedTableName);						
 		}
 		return referencedTable;
 	}

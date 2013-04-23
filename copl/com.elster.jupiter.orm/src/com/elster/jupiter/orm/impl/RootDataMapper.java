@@ -8,7 +8,7 @@ import com.elster.jupiter.sql.util.SqlBuilder;
 class RootDataMapper<T> extends JoinDataMapper<T> {
 	
 	RootDataMapper(DataMapperImpl<T,? extends T> mapper) {
-		super(mapper,"a");
+		super(mapper,mapper.getAlias());
 	}
 	
 	@SuppressWarnings("unchecked")

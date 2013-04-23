@@ -9,6 +9,7 @@ import java.util.List;
 import com.elster.jupiter.conditions.Comparison;
 import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.sql.util.SqlBuilder;
 import com.elster.jupiter.sql.util.SqlFragment;
 
@@ -21,6 +22,10 @@ final class JoinTreeNode<T>  {
 	public JoinTreeNode (JoinDataMapper<T> value) {
 		this.value = value;
 	}
+
+	Table getTable() {		
+		return value.getTable();
+	}
 	
 	void clearCache() {
 		value.clearCache();
@@ -29,11 +34,11 @@ final class JoinTreeNode<T>  {
 		}
 	}
 	
-	final <R> boolean addMapper(DataMapperImpl<R,? extends R> newMapper) {		
-		JoinDataMapper<R> newNodeValue = value.wrap(newMapper , children.size());
+	final <R> boolean addMapper(DataMapperImpl<R,? extends R> newMapper , String alias) {		
+		JoinDataMapper<R> newNodeValue = value.wrap(newMapper , alias);
 		if (newNodeValue == null) {
 			for (JoinTreeNode<?> each : children) {
-				if (each.addMapper(newMapper))
+				if (each.addMapper(newMapper,alias))
 					return true;
 			}
 		} else {

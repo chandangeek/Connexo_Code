@@ -13,15 +13,15 @@ import com.elster.jupiter.time.UtcInstant;
 
 class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataMapper<T> {
 	
-	private final static String ALIAS = "a";
-	
 	final private TableSqlGenerator sqlGenerator;
 	final private FieldMapper mapper = new FieldMapper();
 	final private Constructor<S> constructor;
 	final private Class<S> implementation;
+	final private String alias;
 	
 	DataMapperImpl(Class<T> api, Class<S> implementation ,  Table table) {
 		this.sqlGenerator = new TableSqlGenerator((TableImpl) table);
+		this.alias = createAlias(api.getName());
 		try {
 			this.implementation = implementation;
 			this.constructor = implementation.getDeclaredConstructor();
@@ -30,6 +30,21 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 			throw new PersistenceException(ex);
 		}
 	}	
+	
+	private String createAlias(String apiName) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0 ; i < apiName.length() ; i++) {
+			char next = apiName.charAt(i);
+			if (Character.isUpperCase(next)) {
+				builder.append(next);
+			}
+		}
+		return builder.length() == 0 ? "a" : builder.toString().toLowerCase();
+	}
+	
+	String getAlias() {
+		return alias;
+	}
 	
 	@Override 
 	public Table getTable() {
@@ -52,7 +67,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		}
 		List<SqlFragment> fragments = new ArrayList<>(pkColumns.length);
 		for (int i = 0 ; i < values.length ; i++) {
-			fragments.add(new ColumnFragment(pkColumns[i] , values[i] , ALIAS));
+			fragments.add(new ColumnFragment(pkColumns[i] , values[i] , alias));
 		}
 		return fragments;		
 	}
@@ -93,7 +108,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 	}
 	
 	private SqlBuilder selectSql(List<SqlFragment> fragments, String[] orderColumns , boolean lock) {
-		SqlBuilder builder = new SqlBuilder(sqlGenerator.getSelectFromClause(ALIAS));
+		SqlBuilder builder = new SqlBuilder(sqlGenerator.getSelectFromClause(alias));
 		if (fragments.size() > 0) {
 			builder.append(" where ");
 			String separator = "";
@@ -109,7 +124,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 			for (String each : orderColumns) {
 				builder.append(separator);
 				Column column = getColumnForField(each);
-				builder.append(column == null ? each : column.getName(ALIAS));
+				builder.append(column == null ? each : column.getName(alias));
 				separator = ", ";
 			}
 		}
@@ -576,12 +591,12 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 	void addFragments(List<SqlFragment> fragments, String fieldName , Object value) {
 		Column column = getColumnForField(fieldName);
 		if (column != null) {
-			fragments.add(new ColumnFragment(column, value,ALIAS));
+			fragments.add(new ColumnFragment(column, value,alias));
 			return;
 		}
 		TableConstraint constraint = getForeignKeyConstraintFor(fieldName);
 		if (constraint != null) {			
-			fragments.add(new ConstraintFragment(constraint, value , ALIAS));
+			fragments.add(new ConstraintFragment(constraint, value , alias));
 			return;
 		}
 		throw new IllegalArgumentException("Invalid field " + fieldName);
