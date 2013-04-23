@@ -9,31 +9,33 @@ import com.elster.jupiter.orm.QueryExecutor;
 
 class QueryImpl<T> implements Query<T> {
 	private final QueryExecutor<T> queryExecutor;
+	private boolean eager = false;
+	private String[] exceptions;
 	
 	QueryImpl(QueryExecutor<T> queryExecutor) {
 		this.queryExecutor = queryExecutor;
 	}
 	
 	@Override
-	public List<T> select(Condition condition,String ... includes) {	
-		return queryExecutor.select(condition,includes);
-	}
-
-	@Override
-	public List<T> select(Condition condition,int from , int to , String ... includes) {	
-		return queryExecutor.select(condition,from, to,includes);
-	}
-
-	@Override
-	public List<T> eagerSelect(Condition condition,String ... excludes) {	
-		return queryExecutor.eagerSelect(condition,excludes);
+	public List<T> select(Condition condition,String ... orderBy) {	
+		return queryExecutor.select(condition,orderBy,eager, exceptions);
 	}
 	
 	@Override
-	public List<T> eagerSelect(Condition condition,int from , int to , String ... excludes) {	
-		return queryExecutor.eagerSelect(condition,from, to, excludes);
+	public List<T> select(Condition condition, int from, int to,String... orderBy) {
+		return queryExecutor.select(condition,orderBy,eager,exceptions,from,to);
 	}
 	
+	@Override
+	public T get(Object... key) {
+		return queryExecutor.get(key);
+	}
+
+	@Override
+	public Club toClub(Condition condition, String ... fieldNames) {
+		return queryExecutor.toClub(condition,fieldNames);
+	}
+
 	@Override
 	public boolean hasField(String key) {
 		return queryExecutor.hasField(key);
@@ -43,15 +45,19 @@ class QueryImpl<T> implements Query<T> {
 	public Object convert(String fieldName, String value) {
 		return queryExecutor.convert(fieldName, value);
 	}
-	
+			
 	@Override
-	public Club toClub(Condition condition, String ... fieldNames) {
-		return queryExecutor.toClub(condition,fieldNames);
+	public void setLazy(String... includes) {
+		this.eager = false;
+		this.exceptions = includes;
+		
 	}
 
 	@Override
-	public T get(Object... key) {
-		return queryExecutor.get(key);
+	public void setEager(String... excludes) {
+		this.eager = true;
+		this.exceptions = excludes;
 	}
+
 
 }
