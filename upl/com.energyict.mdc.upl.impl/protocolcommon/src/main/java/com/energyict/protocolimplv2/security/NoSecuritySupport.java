@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +21,8 @@ import java.util.List;
  * Author: khe
  */
 public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
+
+    private final String authenticationTranslationKeyConstant = "NoSecuritySupport.authenticationlevel.";
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
@@ -33,7 +36,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Collections.emptyList();
+        return Arrays.<AuthenticationDeviceAccessLevel>asList(new NoAuthenticationAccessLevel());
     }
 
     @Override
@@ -54,5 +57,26 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         return new DeviceProtocolSecurityPropertySetImpl(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, TypedProperties.empty());
+    }
+
+    /**
+     * No authentication level that requires nothing
+     */
+    protected class NoAuthenticationAccessLevel implements AuthenticationDeviceAccessLevel {
+
+        @Override
+        public int getId() {
+            return 0;
+        }
+
+        @Override
+        public String getTranslationKey() {
+            return authenticationTranslationKeyConstant + getId();
+        }
+
+        @Override
+        public List<PropertySpec> getSecurityProperties() {
+            return Collections.emptyList();
+        }
     }
 }
