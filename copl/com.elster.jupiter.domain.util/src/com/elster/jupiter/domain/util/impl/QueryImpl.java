@@ -49,4 +49,9 @@ class QueryImpl<T> implements Query<T> {
 		return queryExecutor.toClub(condition,fieldNames);
 	}
 
+	@Override
+	public T get(Object... key) {
+		return queryExecutor.get(key);
+	}
+
 }
