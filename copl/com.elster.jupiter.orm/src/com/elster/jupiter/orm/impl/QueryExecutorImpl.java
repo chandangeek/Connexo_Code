@@ -39,30 +39,20 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}	
 	
 	@Override
-	public List<T> select(Condition condition,String[] includes) {
-		return select(condition,0,0,includes);
+	public List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions) {
+		return select(condition, orderBy, eager, exceptions, 0,0);
 	}
-
+	
 	@Override
-	public List<T> select(Condition condition, int from , int to , String[] includes) {
+	public List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions , int from , int to) {
 		try {
-			return new JoinExecutor<>(root.copy(),from,to).select(condition,false,includes);
+			return new JoinExecutor<>(root.copy(),from,to).select(condition,orderBy , eager, exceptions);
 		} catch (SQLException ex) {
 			throw new PersistenceException(ex);
 		}
 	}
-	@Override
-	public List<T> eagerSelect(Condition condition, String[] excludes) {
-		return eagerSelect(condition, 0 , 0 , excludes);
-	}
+	
 
-	public List<T> eagerSelect(Condition condition, int from , int to,  String[] excludes) {
-		try {
-			return new JoinExecutor<>(root.copy(),from,to).select(condition,true, excludes);
-		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
-		}
-	}
 	@Override
 	public boolean hasField(String fieldName) {
 		return root.hasWhereField(fieldName);
@@ -89,7 +79,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 
 	@Override
-	public T get(Object[] key) {
+	public T get(Object[] key , boolean eager , String[] exceptions) {
 		List<Column> primaryKeyColumns = this.root.getTable().getPrimaryKeyColumns();
 		if (primaryKeyColumns.size() != key.length) {
 			throw new IllegalArgumentException("Key mismatch");
@@ -99,7 +89,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		for (Column column : primaryKeyColumns) {
 			condition = condition.and(Operator.EQUAL.compare(column.getFieldName(),key[i++]));
 		}
-		List<T> result = this.eagerSelect(condition, new String[0]);
+		List<T> result = this.select(condition, null , eager , exceptions);
 		return result.isEmpty() ? null : result.get(0);
 	}
 }

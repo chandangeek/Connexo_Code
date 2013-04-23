@@ -102,7 +102,7 @@ final class JoinExecutor<T> {
 		return columnAndAlias == null ? fieldName : columnAndAlias.toString();		
 	}
 
-	List<T> select(Condition condition,boolean eager, String[] exceptions) throws SQLException {
+	List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {
 		if (eager) {
 			root.markAll();
 			clear(exceptions);
@@ -116,7 +116,7 @@ final class JoinExecutor<T> {
 		root.prune();
 		root.clearCache();		
 		new JoinTreeMarker(root).visit(condition);
-		appendSql(condition, null);
+		appendSql(condition, orderBy);
 		List<T> result = new ArrayList<>();	
 		try (Connection connection = Bus.getConnection(false)) {				
 			try(PreparedStatement statement = builder.prepare(connection)) {
@@ -136,14 +136,18 @@ final class JoinExecutor<T> {
 	}
 
 	void mark(String[] exceptions) {
-		for (String each : exceptions) {
-			root.mark(each + ".");
+		if (exceptions != null) {
+			for (String each : exceptions) {
+				root.mark(each + ".");
+			}
 		}
 	}
 	
 	void clear(String[] exceptions) {
-		for (String each : exceptions) {
-			root.clear(each + ".");
+		if (exceptions != null) {
+			for (String each : exceptions) {
+				root.clear(each + ".");
+			}
 		}
 	}
 	
