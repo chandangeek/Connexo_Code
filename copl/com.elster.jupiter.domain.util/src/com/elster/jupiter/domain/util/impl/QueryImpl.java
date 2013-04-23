@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 
 class QueryImpl<T> implements Query<T> {
 	private final QueryExecutor<T> queryExecutor;
-	private boolean eager = false;
+	private Boolean eager;
 	private String[] exceptions;
 	
 	QueryImpl(QueryExecutor<T> queryExecutor) {
@@ -18,17 +18,18 @@ class QueryImpl<T> implements Query<T> {
 	
 	@Override
 	public List<T> select(Condition condition,String ... orderBy) {	
-		return queryExecutor.select(condition,orderBy,eager, exceptions);
+		return queryExecutor.select(condition,orderBy,isEager(), exceptions);
 	}
 	
 	@Override
 	public List<T> select(Condition condition, int from, int to,String... orderBy) {
-		return queryExecutor.select(condition,orderBy,eager,exceptions,from,to);
+		return queryExecutor.select(condition,orderBy,isEager(),exceptions,from,to);
 	}
 	
 	@Override
 	public T get(Object... key) {
-		return queryExecutor.get(key);
+		// override default eager behavior
+		return queryExecutor.get(key, eager == null ? true : eager.booleanValue() ,exceptions);
 	}
 
 	@Override
@@ -57,6 +58,10 @@ class QueryImpl<T> implements Query<T> {
 	public void setEager(String... excludes) {
 		this.eager = true;
 		this.exceptions = excludes;
+	}
+	
+	private boolean isEager() {
+		return eager == null ? false : eager.booleanValue();
 	}
 
 
