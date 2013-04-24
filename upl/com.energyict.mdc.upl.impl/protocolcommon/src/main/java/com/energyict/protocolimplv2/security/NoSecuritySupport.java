@@ -22,6 +22,7 @@ import java.util.List;
  */
 public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
+    public static final int NO_SECURITY_SUPPORT_ID = 0;
     private final String authenticationTranslationKeyConstant = "NoSecuritySupport.authenticationlevel.";
 
     @Override
@@ -56,7 +57,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
 
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
-        return new DeviceProtocolSecurityPropertySetImpl(DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, TypedProperties.empty());
+        return new DeviceProtocolSecurityPropertySetImpl(NO_SECURITY_SUPPORT_ID, DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, TypedProperties.empty());
     }
 
     /**
@@ -66,7 +67,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
 
         @Override
         public int getId() {
-            return 0;
+            return NO_SECURITY_SUPPORT_ID;
         }
 
         @Override
