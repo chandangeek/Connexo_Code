@@ -124,7 +124,7 @@ enum TableSpecs {
 			table.addColumn("MINIMALUSAGEEXPECTED", "char(1)", true, CHAR2BOOLEAN, "minimalUsageExpected");
 			table.addQuantityColumns("NOMINALVOLTAGE",false, "nominalServiceVoltage");
 			table.addColumn("OUTAGEREGION", "varchar2(80)", false, NOCONVERSION , "outageRegion");
-			table.addColumn("PHASECODE", "varchar2(4)", false, NOCONVERSION , "phaseCodeName");
+			table.addColumn("PHASECODE", "varchar2(4)", false,CHAR2ENUM , "phaseCode");
 			table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
 			table.addQuantityColumns("RATEDPOWER", false , "ratedPower");
 			table.addColumn("READCYCLE", "varchar2(80)", false, NOCONVERSION , "readCycle");

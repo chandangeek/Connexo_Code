@@ -28,7 +28,7 @@ public class UsagePointImpl implements UsagePoint {
 	private boolean minimalUsageExpected;
 	private Quantity nominalServiceVoltage;
 	private String outageRegion;
-	private String phaseCodeName;
+	private PhaseCode phaseCode;
 	private Quantity ratedCurrent;	
 	private Quantity ratedPower;
 	private String readCycle;
@@ -140,7 +140,7 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public PhaseCode getPhaseCode() {
-		return phaseCodeName == null ? null : PhaseCode.get(phaseCodeName);
+		return phaseCode;
 	}
 
 	@Override
@@ -214,7 +214,7 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public void setPhaseCode(PhaseCode phaseCode) {
-		this.phaseCodeName = phaseCode == null ? null : phaseCode.getValue();
+		this.phaseCode = phaseCode;
 	}
 
 	@Override
