@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
+import java.util.Date;
 import java.sql.*;
 import java.util.Currency;
 
@@ -127,7 +128,7 @@ public enum ColumnConversionImpl {
 	NUMBER2UTCINSTANT { // 7
 		@Override
 		public Object convertToDb(Object value) {
-			return value == null ? null : ((UtcInstant) value).getTime();
+			return getTime(value);
 		}	
 		
 		@Override
@@ -145,7 +146,7 @@ public enum ColumnConversionImpl {
 	NUMBER2NOW { // 8
 		@Override
 		public Object convertToDb(Object value) {
-			return ((UtcInstant) value).getTime();
+			return getTime(value);
 		}	
 		
 		@Override
@@ -286,5 +287,18 @@ public enum ColumnConversionImpl {
 	abstract public Object convertToDb(Object value);
 	abstract public Object convertFromDb(ResultSet rs, int index) throws SQLException;
 	abstract public Object convert(String in);
+	
+	Long getTime(Object value) {	
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Date) {
+			return ((Date) value).getTime();
+		} else if (value instanceof Long) {
+			return (Long) value;			
+		} else {
+			return ((UtcInstant) value).getTime();
+		}
+	}
 
 }

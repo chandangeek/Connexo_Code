@@ -26,13 +26,13 @@ final class JoinExecutor<T> {
 	
 	SqlBuilder getSqlBuilder(Condition condition , String[] fieldNames) {
 		builder = new SqlBuilder();
-		new JoinTreeMarker(root,1).visit(condition);
+		new JoinTreeMarker(root).visit(condition);
 		ColumnAndAlias[] columnAndAliases = new ColumnAndAlias[fieldNames.length];
 		for (int i = 0 ; i < fieldNames.length ; i++) {
 			columnAndAliases[i] = root.getColumnAndAliasForField(fieldNames[i]);
 		}
 		root.prune();
-		new JoinTreeMarker(root,2).visit(condition);
+		new JoinTreeMarker(root).visit(condition);
 		appendSelectClause(columnAndAliases);
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder, null);
@@ -111,13 +111,13 @@ final class JoinExecutor<T> {
 		} else {
 			mark(exceptions);
 		}
-		new JoinTreeMarker(root,1).visit(condition);
+		new JoinTreeMarker(root).visit(condition);
 		if (from > 0) {
 			root.clearChildMappers();
 		}
 		root.prune();
 		root.clearCache();		
-		new JoinTreeMarker(root,2).visit(condition);
+		new JoinTreeMarker(root).visit(condition);
 		appendSql(condition, orderBy);
 		List<T> result = new ArrayList<>();	
 		try (Connection connection = Bus.getConnection(false)) {				

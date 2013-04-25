@@ -100,5 +100,15 @@ public class WhereClauseBuilder implements Visitor {
 		builder.add(empty.getSubquery().toFragment());
 		builder.closeBracket();		
 	}
+
+	@Override
+	public void visitStringExpression(StringExpression expression) {
+		builder.append(expression.getText());
+	}
+
+	@Override
+	public void visitFragmentExpression(FragmentExpression expression) {
+		builder.add(expression.getFragment());
+	}
 	
 }

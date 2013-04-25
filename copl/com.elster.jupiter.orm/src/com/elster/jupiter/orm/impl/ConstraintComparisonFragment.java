@@ -42,27 +42,12 @@ class ConstraintComparisonFragment extends ConstraintFragment {
 		String separator = "";
 		for (int i = 0 ; i < keyParts; i++) {
 			builder.append(separator);
-			builder.append(getConstraint().getColumns().get(i).getName(getAlias()));
-			builder.append(" ");
-			builder.append(comparison.getOperator().getSymbol());
-			builder.append("  ");
-			switch (comparison.getValues().length) {
-				case 0:				
-					break;
-				case 1:
-					builder.append("? ");
-					break;					
-				default: {
-					throw new IllegalArgumentException(" Too many arguments ");
-				}
-			}
+			builder.append(comparison.getText(getConstraint().getColumns().get(i).getName(getAlias())));
 			separator = keySeparator;
 		}
 		builder.append(")");
 		return builder.toString();
 	}
-
-
 }
 
 

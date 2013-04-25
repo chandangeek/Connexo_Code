@@ -4,7 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.conditions.Comparison;
-import com.elster.jupiter.conditions.Operator;
 import com.elster.jupiter.orm.Column;
 
 class ColumnComparisonFragment extends ColumnFragment {
@@ -26,25 +25,7 @@ class ColumnComparisonFragment extends ColumnFragment {
 	
 	@Override
 	public String getText() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(getColumn().getName(getAlias()));
-		builder.append(" ");
-		builder.append(comparison.getOperator().getSymbol());
-		builder.append("  ");
-		switch (comparison.getValues().length) {
-			case 0:
-				return builder.toString();
-			case 1:
-				builder.append("? ");
-				return builder.toString();
-			case 2:
-				if (comparison.getOperator() == Operator.BETWEEN) {
-					builder.append(" ? and ? ");
-					return builder.toString();
-				}
-			default:
-				throw new IllegalArgumentException("Operator has too many arguments");
-		}
+		return comparison.getText(getColumn().getName(getAlias()));		
 	}
 
 }

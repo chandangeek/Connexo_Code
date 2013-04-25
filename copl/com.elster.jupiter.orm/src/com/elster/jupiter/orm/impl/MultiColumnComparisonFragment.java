@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.conditions.Comparison;
+
 import com.elster.jupiter.orm.Column;
 
 
@@ -26,13 +27,15 @@ class MultiColumnComparisonFragment extends MultiColumnFragment {
 	}
 	
 	public String getText() {
-		switch (comparison.getOperator()) {
+		switch (comparison.getOperator()) {		
 			case EQUAL:
-			case ISNOTNULL:
-				return getText(" AND ");
+			case EQUALORBOTHNULL:
 			case ISNULL:
+				return getText(" AND " );
 			case NOTEQUAL:
-				return getText(" OR ");			
+			case NOTEQUALANDNOTBOTHNULL:
+			case ISNOTNULL:
+				return getText(" OR " );	
 			default:
 				throw new IllegalArgumentException("Can not generate SQL on complex objects for " + comparison.getOperator());
 		}
@@ -43,22 +46,9 @@ class MultiColumnComparisonFragment extends MultiColumnFragment {
 		String separator = "";
 		for (Column each : getFieldMapping().getColumns()) {
 			builder.append(separator);
-			builder.append(each.getName(getAlias()));
-			builder.append(" ");
-			builder.append(comparison.getOperator().getSymbol());
-			builder.append("  ");
-			switch (comparison.getValues().length) {
-				case 0:				
-					break;
-				case 1:
-					builder.append("? ");
-					break;					
-				default: {
-					throw new IllegalArgumentException(" Too many arguments ");
-				}
-			}
+			builder.append(comparison.getText(each.getName(getAlias())));
 			separator = keySeparator;
-		}
+		} 
 		builder.append(")");
 		return builder.toString();
 	}

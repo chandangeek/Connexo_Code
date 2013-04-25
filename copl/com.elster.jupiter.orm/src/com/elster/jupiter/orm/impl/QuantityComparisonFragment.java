@@ -73,10 +73,10 @@ class QuantityComparisonFragment extends MultiColumnFragment {
 	public String getText(String keySeparator , String unitTest) {
 		StringBuilder builder = new StringBuilder("(");
 		builder.append(valueColumn.getName(getAlias()));
-		builder.append(" * power(");
+		builder.append(" * power(10,");
 		builder.append(multiplierColumn.getName(getAlias()));
 		builder.append(") ");
-		builder.append(comparison.getOperator());
+		builder.append(comparison.getOperator().getSymbol());
 		builder.append(" ? * power(10,?) "); 
 		if (comparison.getOperator() == Operator.BETWEEN) {
 			builder.append(" and ? * power(10,?) ");
