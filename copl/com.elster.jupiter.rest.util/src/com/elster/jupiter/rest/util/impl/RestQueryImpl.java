@@ -18,7 +18,15 @@ class RestQueryImpl<T> implements RestQuery<T> {
 
 	@Override
 	public List<T> select(MultivaluedMap<String, String> map) {
-		return query.select(convert(map));
+		String startString = map.getFirst("start");
+		String limitString = map.getFirst("limit");
+		if (startString != null && limitString != null) {
+			int start = Integer.valueOf(startString);
+			int limit = Integer.valueOf(limitString);
+			return query.select(convert(map),start+1,limit+1);
+		} else {
+			return query.select(convert(map));
+		}
 	}
 	
 	private Condition convert(MultivaluedMap<String, String> map) {
