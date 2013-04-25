@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ids
+Bundle-SymbolicName: com.elster.jupiter.ids
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ELSTER
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Activator: com.elster.jupiter.ids.plumbing.Activator
+Import-Package: com.elster.jupiter.orm,
+ com.elster.jupiter.time,
+ org.osgi.framework;version="1.7.0",
+ org.osgi.util.tracker;version="1.5.1"
+Export-Package: com.elster.jupiter.ids
