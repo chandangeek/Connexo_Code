@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Transaction
+Bundle-SymbolicName: com.elster.jupiter.transaction
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ELSTER
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Activator: com.elster.jupiter.transaction.impl.Activator
+Export-Package: com.elster.jupiter.transaction
+Import-Package: com.elster.jupiter.bootstrap,
+ com.elster.jupiter.transaction,
+ org.osgi.framework;version="1.7.0",
+ org.osgi.util.tracker;version="1.5.1"
