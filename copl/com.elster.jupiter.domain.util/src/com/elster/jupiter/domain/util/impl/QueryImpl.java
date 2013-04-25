@@ -2,8 +2,8 @@ package com.elster.jupiter.domain.util.impl;
 
 import java.util.List;
 
-import com.elster.jupiter.conditions.Club;
 import com.elster.jupiter.conditions.Condition;
+import com.elster.jupiter.conditions.Subquery;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.orm.QueryExecutor;
 
@@ -33,8 +33,8 @@ class QueryImpl<T> implements Query<T> {
 	}
 
 	@Override
-	public Club toClub(Condition condition, String ... fieldNames) {
-		return queryExecutor.toClub(condition,fieldNames);
+	public Subquery asSubquery(Condition condition, String ... fieldNames) {
+		return  new SubqueryImpl(queryExecutor.asFragment(condition,fieldNames));
 	}
 
 	@Override
@@ -62,6 +62,16 @@ class QueryImpl<T> implements Query<T> {
 	
 	private boolean isEager() {
 		return eager == null ? false : eager.booleanValue();
+	}
+
+	@Override
+	public List<String> getQueryFieldNames() {
+		return queryExecutor.getQueryFieldNames();
+	}
+
+	@Override
+	public Class<?> getType(String fieldName) {
+		return queryExecutor.getType(fieldName);
 	}
 
 

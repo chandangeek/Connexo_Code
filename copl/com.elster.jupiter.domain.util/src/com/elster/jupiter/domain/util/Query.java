@@ -2,8 +2,8 @@ package com.elster.jupiter.domain.util;
 
 import java.util.List;
 
-import com.elster.jupiter.conditions.Club;
 import com.elster.jupiter.conditions.Condition;
+import com.elster.jupiter.conditions.Subquery;
 
 public interface Query<T> {
 	void setLazy(String... includes);
@@ -13,5 +13,7 @@ public interface Query<T> {
 	T get(Object ... key);
 	boolean hasField(String fieldName);
 	Object convert(String fieldName , String value);
-	Club toClub(Condition condition, String ... fieldNames);
+	Subquery asSubquery(Condition condition, String ... fieldNames);
+	List<String> getQueryFieldNames();
+	Class<?> getType(String fieldName);
 }
