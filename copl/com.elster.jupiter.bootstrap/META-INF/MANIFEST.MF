@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bootstrap
+Bundle-SymbolicName: com.elster.jupiter.bootstrap
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ELSTER
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: oracle.jdbc.pool,
+ org.osgi.framework;version="1.7.0"
+Bundle-Activator: com.elster.jupiter.bootstrap.impl.Activator
+Export-Package: com.elster.jupiter.bootstrap
