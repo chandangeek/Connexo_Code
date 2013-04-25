@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Goodies
+Bundle-SymbolicName: com.elster.jupiter.osgi.goodies
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ELSTER
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-Activator: com.elster.jupiter.osgi.goodies.Activator
+Import-Package: org.osgi.framework;version="1.7.0",
+ org.osgi.service.packageadmin;version="1.2.0"

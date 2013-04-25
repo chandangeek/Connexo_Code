@@ -33,9 +33,11 @@ public class Analyzer {
 	}
 	
 	private boolean include(String name) {
-		for ( String each : excludeFilters) {
-			if (name.matches(each))
-				return false;
+		if (excludeFilters != null) {
+			for ( String each : excludeFilters) {
+				if (name.matches(each))
+					return false;
+			}
 		}
 		if (includeFilters == null || includeFilters.length == 0) {
 			return true;
