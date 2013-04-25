@@ -4,22 +4,24 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.conditions.Comparison;
-import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.Column;
 
-class ConstraintComparisonFragment extends ConstraintFragment {
+
+class MultiColumnComparisonFragment extends MultiColumnFragment {
 	
 	private final Comparison comparison;
 	
-	ConstraintComparisonFragment(TableConstraint constraint , Comparison comparison , String alias) {
-		super(constraint,alias);
+	MultiColumnComparisonFragment(MultiColumnMapping fieldMapping , Comparison comparison , String alias) {
+		super(fieldMapping, alias);
 		this.comparison = comparison;
 	}
 	
 	@Override
-	public int bind(PreparedStatement statement, int position) throws SQLException {
-		for (Object value : comparison.getValues()) {
-			position = bind(statement , position , value);
-		}		
+	public int bind(PreparedStatement statement, int position) throws SQLException {	
+		Object[] values = comparison.getValues();
+		if (values.length == 1) {
+			position = bind(statement, position , values[0]);
+		}
 		return position;
 	}
 	
@@ -32,17 +34,16 @@ class ConstraintComparisonFragment extends ConstraintFragment {
 			case NOTEQUAL:
 				return getText(" OR ");			
 			default:
-				throw new IllegalArgumentException("Can not generate SQL on object references for " + comparison.getOperator());
+				throw new IllegalArgumentException("Can not generate SQL on complex objects for " + comparison.getOperator());
 		}
 	}
 	
 	public String getText(String keySeparator) {
-		int keyParts = getConstraint().getColumns().size();
 		StringBuilder builder = new StringBuilder("(");
 		String separator = "";
-		for (int i = 0 ; i < keyParts; i++) {
+		for (Column each : getFieldMapping().getColumns()) {
 			builder.append(separator);
-			builder.append(getConstraint().getColumns().get(i).getName(getAlias()));
+			builder.append(each.getName(getAlias()));
 			builder.append(" ");
 			builder.append(comparison.getOperator().getSymbol());
 			builder.append("  ");

@@ -4,36 +4,23 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.sql.util.SqlFragment;
 
-class ColumnFragment implements SqlFragment {
+abstract class ColumnFragment extends AliasFragment {
 
-	private final ColumnImpl column;
-	private final Object value;
-	private final String alias;
-	
-	ColumnFragment(Column column , Object value , String alias) {
-		this.value = value;
-		this.column = (ColumnImpl) column;
-		this.alias = alias;
+	private final Column column;
+
+	public ColumnFragment(Column column , String alias) {
+		super(alias);
+		this.column = column;
 	}
 	
-	@Override
-	public int bind(PreparedStatement statement, int position) throws SQLException {		
-		statement.setObject(position++ , column.convertToDb(value));
-		return position;
-	}
-	
-	@Override
-	public String getText() {
-		StringBuilder builder = new StringBuilder(" ");
-		builder.append(column.getName(alias));
-		builder.append(" = ? " );
-		return builder.toString();
-	}
-	
-	ColumnImpl getColumn() {
+	Column getColumn() {
 		return column;
 	}
 	
+	int bind(PreparedStatement statement, int position , Object value) throws SQLException {		
+		statement.setObject(position++ , ((ColumnImpl) column).convertToDb(value));
+		return position;
+	}
+
 }

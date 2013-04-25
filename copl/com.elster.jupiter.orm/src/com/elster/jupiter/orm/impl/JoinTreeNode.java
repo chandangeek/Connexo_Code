@@ -90,6 +90,14 @@ final class JoinTreeNode<T>  {
 		}));
 	}
 	
+	final Class<?> getType(String fieldName) {
+		return execute(fieldName , new JoinTreeAction<Class<?>>(false,false) {			
+			@Override
+			Class<?> invoke(String fieldName , JoinDataMapper<?> value) {
+				return value.getType(fieldName);
+			}
+		});
+	}
 	
 	final Column getColumnForField(String fieldName) {
 		ColumnAndAlias columnAndAlias = getColumnAndAliasForField(fieldName);
@@ -134,7 +142,7 @@ final class JoinTreeNode<T>  {
 	}
 		
 	final int set(Object target , ResultSet rs, int index)  throws SQLException {
-		target = (target == null) ? null : value.set(target,rs,index);
+		target = target == null  ? null : value.set(target,rs,index);
 		index += value.getTable().getColumns().size();
 		for (JoinTreeNode<?> each : children) {
 			index = each.set(target, rs, index);
@@ -143,8 +151,10 @@ final class JoinTreeNode<T>  {
 	}
 	
 	final void completeFind() {
-		value.completeFind();
-		for (JoinTreeNode<?> each : children) {
+		if (!(value.isChild() && isMarked())) {
+			value.completeFind();
+		}
+		for (JoinTreeNode<?> each : children) {			
 			each.completeFind();
 		}
 	}
@@ -250,5 +260,22 @@ final class JoinTreeNode<T>  {
 			each.clear();
 		}			
 	}
-		
+	
+	List<String> getQueryFields() {		
+		List<String> result = new ArrayList<>();
+		if (!value.canRestrict()) {
+			return result;
+		}
+		String localName = value.getName();
+		localName = (localName == null) ? "" : localName + ".";		
+		for (String each : value.getQueryFields()) {
+			result.add(localName+each);
+		}		
+		for (JoinTreeNode<?> each : children) {
+			for (String field : each.getQueryFields()) {
+				result.add(localName + field);
+			}
+		}
+		return result;		
+	}
 }

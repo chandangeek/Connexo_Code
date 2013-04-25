@@ -16,8 +16,9 @@ public interface Table {
 	Column getColumn(String name);	
 	Column getColumnForField(String fieldName);
 	List<Column> getPrimaryKeyColumns();
-	<T> Object getPrimaryKey(T value);
 	<T, S extends T> DataMapper<T> getDataMapper(Class<T> api , Class<S> implementation);
+	<T> Object getPrimaryKey(T value);
+	FieldType getFieldType(String fieldName);
 	
 	// install time api
 	Column addColumn(String name , String dbType , boolean notnull , ColumnConversion conversion , String fieldName);
@@ -40,5 +41,6 @@ public interface Table {
 	boolean hasJournal();
 	void addQuantityColumns(String name, boolean notNull, String fieldName);
 	void addMoneyColumns(String name, boolean notNull, String fieldName);
+	
 	
 }

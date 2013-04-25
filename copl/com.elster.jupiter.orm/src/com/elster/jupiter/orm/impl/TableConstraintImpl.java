@@ -202,18 +202,13 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	}
 
 	@Override
-	public <T> Object getColumnValues(T value) {
-		int columnCount = getColumns().size();
-		FieldMapper fieldMapper = new FieldMapper();
-		if (columnCount == 1) {
-			return fieldMapper.get(value, getColumns().get(0).getFieldName());
-		} else {
-			Object[] result = new Object[columnCount]; 
-			for (int i = 0 ; i < columnCount ; i++) {
-				result[i] = fieldMapper.get(value, getColumns().get(i).getFieldName());
-			}
-			return result;
+	public Object[] getColumnValues(Object value) {
+		int columnCount = getColumns().size();		
+		Object[] result = new Object[columnCount]; 
+		for (int i = 0 ; i < columnCount ; i++) {
+			result[i] = DomainMapper.FIELD.get(value, getColumns().get(i).getFieldName());
 		}
+		return result;		
 	}
 	
 	boolean needsIndex() {

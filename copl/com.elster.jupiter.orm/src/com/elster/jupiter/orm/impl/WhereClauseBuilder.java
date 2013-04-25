@@ -89,7 +89,7 @@ public class WhereClauseBuilder implements Visitor {
 		builder.closeBracketSpace();
 		builder.append(membership.getOperator().getSymbol());
 		builder.spaceOpenBracket();
-		builder.add(((SubQueryExecutor) membership.getClub()).getSqlBuilder());
+		builder.add(membership.getSubquery().toFragment());
 		builder.closeBracket();
 	}
 
@@ -97,7 +97,7 @@ public class WhereClauseBuilder implements Visitor {
 	public void visitExists(Exists empty) {
 		builder.append(" EXISTS ");
 		builder.openBracket();
-		builder.add(((SubQueryExecutor) empty.getClub()).getSqlBuilder());
+		builder.add(empty.getSubquery().toFragment());
 		builder.closeBracket();		
 	}
 	

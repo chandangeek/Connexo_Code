@@ -7,9 +7,11 @@ import com.elster.jupiter.conditions.*;
 public class JoinTreeMarker implements Visitor {
 	
 	final private JoinTreeNode<?> root;
+	final private int pass;
 	
-	JoinTreeMarker(JoinTreeNode<?> root) {
+	JoinTreeMarker(JoinTreeNode<?> root, int pass) {
 		this.root = root;
+		this.pass = pass;
 	}
 	
 	public void visit(Condition condition) {
@@ -31,7 +33,11 @@ public class JoinTreeMarker implements Visitor {
 	}
 	
 	public void visitComparison(Comparison comparison) {
-		markAndTest(comparison.getFieldName());		 		
+		// do not mark for inner join , if operator is null
+		// to allow for anti joins
+		if (!(pass == 2 && comparison.getOperator() == Operator.ISNULL)) {			
+			markAndTest(comparison.getFieldName());
+		}
 	}
 
 	public void visitContains(Contains contains) {

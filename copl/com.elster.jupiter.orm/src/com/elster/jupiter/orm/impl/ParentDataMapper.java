@@ -28,7 +28,7 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 					put(key, value);
 				}
 				if (constraint.getFieldName() != null) {
-					new FieldMapper().set(target,constraint.getFieldName(),value);
+					DomainMapper.FIELD.set(target,constraint.getFieldName(),value);
 				}
 			}
 		}

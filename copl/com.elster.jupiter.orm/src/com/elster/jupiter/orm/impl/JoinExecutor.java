@@ -10,7 +10,7 @@ import com.elster.jupiter.sql.util.SqlBuilder;
 final class JoinExecutor<T> {
 		
 	private final JoinTreeNode<T> root;
-	private SqlBuilder builder = new SqlBuilder();
+	private SqlBuilder builder;
 	private final int from;
 	private final int to;
 	
@@ -25,13 +25,14 @@ final class JoinExecutor<T> {
 	}
 	
 	SqlBuilder getSqlBuilder(Condition condition , String[] fieldNames) {
-		new JoinTreeMarker(root).visit(condition);
+		builder = new SqlBuilder();
+		new JoinTreeMarker(root,1).visit(condition);
 		ColumnAndAlias[] columnAndAliases = new ColumnAndAlias[fieldNames.length];
 		for (int i = 0 ; i < fieldNames.length ; i++) {
 			columnAndAliases[i] = root.getColumnAndAliasForField(fieldNames[i]);
 		}
 		root.prune();
-		new JoinTreeMarker(root).visit(condition);
+		new JoinTreeMarker(root,2).visit(condition);
 		appendSelectClause(columnAndAliases);
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder, null);
@@ -103,19 +104,20 @@ final class JoinExecutor<T> {
 	}
 
 	List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {
+		builder = new SqlBuilder();
 		if (eager) {
 			root.markAll();
 			clear(exceptions);
 		} else {
 			mark(exceptions);
 		}
+		new JoinTreeMarker(root,1).visit(condition);
 		if (from > 0) {
 			root.clearChildMappers();
 		}
-		new JoinTreeMarker(root).visit(condition);
 		root.prune();
 		root.clearCache();		
-		new JoinTreeMarker(root).visit(condition);
+		new JoinTreeMarker(root,2).visit(condition);
 		appendSql(condition, orderBy);
 		List<T> result = new ArrayList<>();	
 		try (Connection connection = Bus.getConnection(false)) {				

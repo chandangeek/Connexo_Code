@@ -4,7 +4,8 @@ import java.lang.reflect.*;
 
 import com.elster.jupiter.orm.PersistenceException;
 
-class FieldMapper {
+enum DomainMapper {
+	FIELD;
 		
 	public Object get(Object target , String  fieldPath) {
 		for (String fieldName : fieldPath.split("\\.")) {
@@ -100,5 +101,14 @@ class FieldMapper {
 	        current = current.getSuperclass();
 	    } while ( current != null );
 	    throw new PersistenceException("Field " + fieldName + " not found in " + clazz);
+	}
+	
+	Class<?> getType(Class<?> implementation , String fieldPath) {
+		Class<?> result = implementation;
+		for (String fieldName : fieldPath.split("\\.")) {
+			Field field = getField(result, fieldName);
+			result = field.getType();
+		}
+		return result;
 	}
 }

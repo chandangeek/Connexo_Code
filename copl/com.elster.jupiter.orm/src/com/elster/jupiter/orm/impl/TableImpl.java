@@ -389,9 +389,73 @@ public class TableImpl implements Table , PersistenceAware  {
 
 	@Override
 	public <T> Object getPrimaryKey(T value) {
-		return getPrimaryKeyConstraint().getColumnValues(value);		
+		TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
+		if (primaryKeyConstraint == null) {
+			throw new IllegalStateException("Table has no primary key");
+		}
+		Object result[] = primaryKeyConstraint.getColumnValues(value);
+		return primaryKeyConstraint.getColumns().size() == 1 ? result[0] : result;
+		
 	}
 
+	@Override
+	public FieldType getFieldType(String fieldName) {
+		if (fieldName == null) {
+			return null;
+		}
+		for (Column each : getColumns(false)) {
+			if (fieldName.equals(each.getFieldName())) {
+				return FieldType.SIMPLE;
+			}
+			if (each.getFieldName().startsWith(fieldName + ".")) {
+				return FieldType.COMPLEX;
+			}
+		}
+		for (TableConstraint each : getConstraints(false)) {
+			if (fieldName.equals(each.getFieldName())) {
+				return FieldType.ASSOCIATION;
+			}
+		}
+		for (Table table : getComponent().getTables()) {
+			if (!table.equals(this)) {
+				for (TableConstraint each : table.getConstraints()) {
+					if (fieldName.equals(each.getFieldName())) {
+						return FieldType.REVERSEASSOCIATION;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	FieldMapping getFieldMapping(String fieldName) {
+		if (fieldName == null) {
+			return null;
+		}
+		for (Column each : getColumns(false)) {
+			if (fieldName.equals(each.getFieldName())) {
+				return new ColumnMapping(each);
+			}
+			if (each.getFieldName().startsWith(fieldName + ".")) {
+				return new MultiColumnMapping(fieldName, getColumns());
+			}
+		}
+		for (TableConstraint each : getConstraints(false)) {
+			if (fieldName.equals(each.getFieldName())) {
+				return new ForwardConstraintMapping(each);
+			}
+		}
+		for (Table table : getComponent().getTables()) {
+			if (!table.equals(this)) {
+				for (TableConstraint each : table.getConstraints()) {
+					if (fieldName.equals(each.getFieldName())) {
+						return new ReverseConstraintMapping(each);
+					}
+				}
+			}
+		}
+		return null;
+	}
 }
 	
 

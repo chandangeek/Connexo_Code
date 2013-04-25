@@ -2,6 +2,11 @@ package com.elster.jupiter.orm;
 
 import java.util.List;
 
+/**
+ * @author kha
+ * Component is a container for a bundle's table objects.
+ *
+ */
 public interface Component {
 	String getName();
 	String getDescription();	

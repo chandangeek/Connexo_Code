@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Orm
+Bundle-SymbolicName: com.elster.jupiter.orm
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ELSTER
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.elster.jupiter.conditions,
+ com.elster.jupiter.security.thread,
+ com.elster.jupiter.sql.util,
+ com.elster.jupiter.time,
+ com.elster.jupiter.units,
+ org.osgi.framework;version="1.7.0",
+ org.osgi.util.tracker;version="1.5.1"
+Export-Package: com.elster.jupiter.orm
+Bundle-Activator: com.elster.jupiter.orm.plumbing.Activator

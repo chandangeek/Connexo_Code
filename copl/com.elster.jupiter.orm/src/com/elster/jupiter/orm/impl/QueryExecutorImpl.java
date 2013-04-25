@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.elster.jupiter.conditions.*;
 import com.elster.jupiter.orm.*;
-import com.elster.jupiter.sql.util.SqlBuilder;
+import com.elster.jupiter.sql.util.SqlFragment;
 
 
 public class QueryExecutorImpl<T> implements QueryExecutor<T> {	
@@ -18,8 +18,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	public QueryExecutorImpl(DataMapperImpl<T, ? extends T> mapper) {
 		RootDataMapper<T> rootDataMapper = new RootDataMapper<>(mapper);
 		this.root = new JoinTreeNode<>(rootDataMapper);
-		this.aliases.add(rootDataMapper.getAlias());
-		
+		this.aliases.add(rootDataMapper.getAlias());		
 	}
     
 	@SuppressWarnings("unchecked")
@@ -57,10 +56,15 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	public boolean hasField(String fieldName) {
 		return root.hasWhereField(fieldName);
 	}
+	
+	@Override
+	public Class<?> getType(String fieldName) {
+		return root.getType(fieldName);
+	}
 
 	@Override
-	public Club toClub(Condition condition, String[] fieldNames) {
-		return new SubQueryExecutor(this,condition,fieldNames);
+	public SqlFragment asFragment(Condition condition, String[] fieldNames) {
+		return new JoinExecutor<>(root.copy()).getSqlBuilder(condition, fieldNames);		
 	}
 	
 	public Object convert(String fieldName, String value) {
@@ -72,10 +76,6 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 				}
 		}
 		throw new IllegalArgumentException("No mapper or column for " + fieldName);
-	}
-
-	public SqlBuilder getSqlBuilder(Condition condition, String[] fieldNames) {
-		return new JoinExecutor<>(root.copy()).getSqlBuilder(condition, fieldNames);		
 	}
 
 	@Override
@@ -91,6 +91,11 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		}
 		List<T> result = this.select(condition, null , eager , exceptions);
 		return result.isEmpty() ? null : result.get(0);
+	}
+
+	@Override
+	public List<String> getQueryFieldNames() {		
+		return root.getQueryFields();	
 	}
 }
 

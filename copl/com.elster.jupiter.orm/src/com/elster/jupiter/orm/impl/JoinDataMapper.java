@@ -2,14 +2,15 @@ package com.elster.jupiter.orm.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.elster.jupiter.conditions.Comparison;
 import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.PersistenceAware;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.sql.util.SqlBuilder;
 import com.elster.jupiter.sql.util.SqlFragment;
@@ -32,8 +33,8 @@ abstract public class JoinDataMapper<T> {
 		return alias;
 	}
 	
-	final Table getTable() {
-		return getMapper().getTable();
+	final TableImpl getTable() {
+		return (TableImpl) getMapper().getTable();
 	}
 	
 	
@@ -57,35 +58,18 @@ abstract public class JoinDataMapper<T> {
 	}
 	
 	final SqlFragment getFragment(Comparison comparison , String fieldName)   {
-		Column column = getTable().getColumnForField(fieldName);
-		if (column != null) {
-			return new ColumnComparisonFragment(column, comparison , getAlias());
-		}
-		TableConstraint constraint = getTable().getConstraintForField(fieldName); 
-		if (constraint == null) {
-			return null;
-		} else {
-			return new ConstraintComparisonFragment(constraint, comparison , getAlias());
-		}
+		FieldMapping mapping = getTable().getFieldMapping(fieldName);
+		return mapping == null ? null : mapping.asComparisonFragment(comparison, getAlias());
 	}
 	
 	final SqlFragment getFragment(Contains contains, String fieldName)   {
-		Column column = getTable().getColumnForField(fieldName);
-		if (column != null) {
-			return new ColumnContainsFragment(column , contains , getAlias());
-		}
-		TableConstraint constraint = getTable().getConstraintForField(fieldName); 
-		if (constraint == null) {
-			return null;
-		} else {
-			return new ConstraintContainsFragment(constraint, contains , getAlias());
-		}
-	}
+		FieldMapping mapping = getTable().getFieldMapping(fieldName);
+		return mapping == null ? null : mapping.asContainsFragment(contains, getAlias());
+	}	
 	
 	final boolean hasField(String fieldName)  {
-		return getTable().getColumnForField(fieldName) != null || getTable().getConstraintForField(fieldName) != null;
+		return getTable().getFieldMapping(fieldName) != null;
 	}
-	
 	
 	final DataMapperImpl<T,? extends T> getDataMapperForField(String fieldName) {
 		Column column = getTable().getColumnForField(fieldName);
@@ -94,7 +78,6 @@ abstract public class JoinDataMapper<T> {
 		}
 		return null;
 	}
-	
 	
 	final String appendColumns(SqlBuilder builder , String separator) {
 		for (Column each : getTable().getColumns()) {
@@ -116,6 +99,14 @@ abstract public class JoinDataMapper<T> {
 	}
 	
 
+	final Class<?> getType(String fieldName) {
+		if (getTable().getFieldType(fieldName) == null) {
+			return null;
+		} else {
+			return dataMapper.getType(fieldName);
+		}
+	}
+	
 	final T put(Object key , T value) {
 		return cache.put(key, value);
 	}
@@ -158,5 +149,29 @@ abstract public class JoinDataMapper<T> {
 
 	final public Boolean hasWhereField(String fieldName) {
 		return canRestrict() && hasField(fieldName);
+	}
+
+	final public List<String> getQueryFields() {
+		List<String> result = new ArrayList<>();
+		for (Column each : getTable().getColumns()) {
+			String fieldName = each.getFieldName();	
+			String[] parts = fieldName.split("\\.");
+			String part = "";
+			for (int i = 0 ; i < parts.length - 1 ; i++) {
+				part += parts[i];
+				if (!result.contains(part)) {
+					result.add(part);
+				}
+				part += ".";
+			}
+			result.add(fieldName);			
+		}
+		for (TableConstraint each : getTable().getForeignKeyConstraints()) {
+			String fieldName = each.getFieldName();
+			if (fieldName != null) {
+				result.add(fieldName);
+			}
+		}
+		return result;
 	}
 }

@@ -5,37 +5,34 @@ import java.sql.SQLException;
 
 import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.sql.util.SqlFragment;
 
-class ColumnContainsFragment implements SqlFragment {
+class ColumnContainsFragment extends ColumnFragment {
 
-	private final Column column;
 	private final Contains contains;
-	private final String alias;
-	
-	public ColumnContainsFragment(Column column , Contains contains, String alias) {
-		this.column = column;
+
+	ColumnContainsFragment(Column column , Contains contains, String alias) {
+		super(column,alias);
 		this.contains = contains;
-		this.alias = alias;
 	}
 	
 	@Override
 	public int bind(PreparedStatement statement, int position) throws SQLException {
 		for (Object value : contains.getCollection()) {
-			statement.setObject(position++ , ((ColumnImpl) column).convertToDb(value));
+			position = bind(statement,position,value);
 		}
 		return position;
 	}
 	
+	@SuppressWarnings("unused")
 	@Override
 	public String getText() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(column.getName(alias));
+		builder.append(getColumn().getName(getAlias()));
 		builder.append(" ");
 		builder.append(contains.getOperator().getSymbol());
 		builder.append("  (");
 		String separator = "";
-		for (@SuppressWarnings("unused") Object each : contains.getCollection()) {
+		for (Object each : contains.getCollection()) {
 			builder.append(separator);
 			builder.append("?");
 			separator = ",";

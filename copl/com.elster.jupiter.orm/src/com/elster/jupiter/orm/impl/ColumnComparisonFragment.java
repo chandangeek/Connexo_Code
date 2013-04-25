@@ -6,24 +6,20 @@ import java.sql.SQLException;
 import com.elster.jupiter.conditions.Comparison;
 import com.elster.jupiter.conditions.Operator;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.sql.util.SqlFragment;
 
-class ColumnComparisonFragment implements SqlFragment {
+class ColumnComparisonFragment extends ColumnFragment {
 
-	private final Column column;
 	private final Comparison comparison;
-	private final String alias;
 	
 	public ColumnComparisonFragment(Column column , Comparison comparison, String alias) {
-		this.column = column;
+		super(column,alias);
 		this.comparison = comparison;
-		this.alias = alias;
 	}
 	
 	@Override
 	public int bind(PreparedStatement statement, int position) throws SQLException {
 		for (Object value : comparison.getValues()) {
-			statement.setObject(position++ , ((ColumnImpl) column).convertToDb(value));
+			position = bind(statement, position ,value);
 		}
 		return position;
 	}
@@ -31,7 +27,7 @@ class ColumnComparisonFragment implements SqlFragment {
 	@Override
 	public String getText() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(column.getName(alias));
+		builder.append(getColumn().getName(getAlias()));
 		builder.append(" ");
 		builder.append(comparison.getOperator().getSymbol());
 		builder.append("  ");

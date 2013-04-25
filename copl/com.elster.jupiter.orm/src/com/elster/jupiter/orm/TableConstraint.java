@@ -16,5 +16,5 @@ public interface TableConstraint {
 	String getFieldName();
 	String getReverseFieldName();
 	boolean isNotNull();
-	<T> Object getColumnValues(T value);
+	Object[] getColumnValues(Object value);
 }

@@ -41,7 +41,7 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 			}
 		}
 		if (constraint.getFieldName() != null) {
-			new FieldMapper().set(value,constraint.getFieldName(),target);
+			DomainMapper.FIELD.set(value,constraint.getFieldName(),target);
 		}		
 		return value;
 	}
@@ -85,10 +85,9 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 	void completeFind() {
 		super.completeFind();
 		String fieldName = constraint.getReverseFieldName();
-		if (fieldName != null) {
-			FieldMapper fieldMapper = new FieldMapper();
+		if (fieldName != null) {		
 			for (Map.Entry<Object,List<?>> entry : targetCache.entrySet()) {
-				fieldMapper.set(entry.getKey(), fieldName , entry.getValue());
+				DomainMapper.FIELD.set(entry.getKey(), fieldName , entry.getValue());
 			}
 		}
 	}
@@ -100,7 +99,7 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 
 	@Override
 	boolean canRestrict() {
-		return false;
+		return true;
 	}
 	
 	@Override
