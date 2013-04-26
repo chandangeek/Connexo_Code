@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.plumbing.Bus;
+import com.elster.jupiter.time.Interval;
 import com.elster.jupiter.time.UtcInstant;
 
 public class MeterActivationImpl implements MeterActivation {
@@ -19,8 +20,7 @@ public class MeterActivationImpl implements MeterActivation {
 	private long id;
 	private long usagePointId;
 	private long meterId;
-	private UtcInstant fromTime;
-	private UtcInstant toTime;
+	private Interval interval;
 	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
@@ -39,14 +39,18 @@ public class MeterActivationImpl implements MeterActivation {
 	private MeterActivationImpl() {	
 	}
 	
-	MeterActivationImpl(UsagePoint usagePoint , Meter meter , Date from) {
+	MeterActivationImpl(UsagePointImpl usagePoint , Date at , Meter meter) {
 		this.usagePointId = usagePoint == null ? 0 : usagePoint.getId();
 		this.usagePoint = usagePoint;
 		this.meterId = meter == null ? 0 : meter.getId();
 		this.meter = meter;
-		this.fromTime = new UtcInstant(from);
+		this.interval = new Interval(at);
 	}
 	
+	public MeterActivationImpl(UsagePointImpl usagePoint, Date at) {
+		this(usagePoint,at,null);
+	}
+
 	@Override
 	public long getId() {	
 		return id;
@@ -85,13 +89,13 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 	
 	@Override
-	public Date getFrom() {
-		return fromTime.toDate();
+	public Date getStart() {
+		return interval.getStart();
 	}
 
 	@Override
-	public Date getTo() {
-		return toTime == null ? null : toTime.toDate();
+	public Date getEnd() {
+		return interval.getEnd();
 	}
 
 	@Override
@@ -114,6 +118,11 @@ public class MeterActivationImpl implements MeterActivation {
 	public List<BaseReading> getReadings(Date from, Date to,ReadingType readingType) {
 		//TODO
 		return null;
+	}
+
+	@Override
+	public boolean isCurrent() {
+		return interval.isCurrent();
 	}
 
 }
