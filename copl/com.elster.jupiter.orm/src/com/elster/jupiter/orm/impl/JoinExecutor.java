@@ -58,6 +58,9 @@ final class JoinExecutor<T> {
 	
 	private void appendSelectClause() {
 		builder.append("select ");
+		if (hasSemiJoin()) {
+			builder.append("distinct ");
+		}
 		root.appendColumns(builder, "");
 		builder.append(" from ");
 		root.appendFromClause(builder,null,false);		
@@ -111,10 +114,10 @@ final class JoinExecutor<T> {
 		} else {
 			mark(exceptions);
 		}
-		new JoinTreeMarker(root).visit(condition);
 		if (from > 0) {
 			root.clearChildMappers();
 		}
+		new JoinTreeMarker(root).visit(condition);
 		root.prune();
 		root.clearCache();		
 		new JoinTreeMarker(root).visit(condition);
@@ -151,6 +154,10 @@ final class JoinExecutor<T> {
 				root.clear(each + ".");
 			}
 		}
+	}
+	
+	boolean hasSemiJoin() {
+		return root.hasSemiJoin();
 	}
 	
 }

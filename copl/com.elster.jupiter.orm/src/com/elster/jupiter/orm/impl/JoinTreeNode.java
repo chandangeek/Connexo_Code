@@ -142,6 +142,9 @@ final class JoinTreeNode<T>  {
 	}
 		
 	final int set(Object target , ResultSet rs, int index)  throws SQLException {
+		if (semiJoin()) {
+			return index;
+		}
 		target = target == null  ? null : value.set(target,rs,index);
 		index += value.getTable().getColumns().size();
 		for (JoinTreeNode<?> each : children) {
@@ -161,6 +164,9 @@ final class JoinTreeNode<T>  {
 	
 	
 	final String appendColumns (SqlBuilder builder , String separator) {
+		if (semiJoin()) {
+			return separator;
+		} 
 		separator = value.appendColumns(builder,separator);
 		for (JoinTreeNode<?> each : children) {
 			separator = each.appendColumns(builder, separator);
@@ -278,4 +284,22 @@ final class JoinTreeNode<T>  {
 		}
 		return result;		
 	}
+	
+	boolean semiJoin() {
+		return value.isChild() && isMarked();
+	}
+	
+	boolean hasSemiJoin() {
+		if (semiJoin()) {
+			return true;
+		}
+		for (JoinTreeNode<?> each : children) {
+			if (each.hasSemiJoin()) {
+				return true;
+			}
+		}
+		return false;
+	}
+			
 }
+
