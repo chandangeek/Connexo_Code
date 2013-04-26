@@ -16,10 +16,15 @@ class RestQueryImpl<T> implements RestQuery<T> {
 		this.query = query;
 	}
 
+	private String getLast(MultivaluedMap<String, String> map, String key) {
+		List<String> values = map.get(key);
+		return values == null || values.isEmpty() ? null : values.get(values.size() - 1);
+	}
+	
 	@Override
 	public List<T> select(MultivaluedMap<String, String> map) {
-		String startString = map.getFirst("start");
-		String limitString = map.getFirst("limit");
+		String startString = getLast(map,"start");
+		String limitString = getLast(map,"limit");
 		if (startString != null && limitString != null) {
 			int start = Integer.valueOf(startString);
 			int limit = Integer.valueOf(limitString);
