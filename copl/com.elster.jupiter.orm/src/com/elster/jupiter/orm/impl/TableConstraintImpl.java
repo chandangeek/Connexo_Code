@@ -17,6 +17,7 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	private String referencedTableName;	
 	private String fieldName;
 	private String reverseFieldName;
+	private String reverseCurrentName;
 	
 	// associations
 	private Table table;
@@ -40,7 +41,7 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 		this.columns = new ArrayList<>();
 	}
 
-	TableConstraintImpl(Table table, String name, Table referencedTable, DeleteRule deleteRule,String fieldName , String reverseFieldName) {
+	TableConstraintImpl(Table table, String name, Table referencedTable, DeleteRule deleteRule,String fieldName , String reverseFieldName, String reverseCurrentName) {
 		this(table,name,TableConstraintType.FOREIGNKEY);
 		this.referencedTable = referencedTable;
 		referencedComponentName = referencedTable.getComponentName();
@@ -48,6 +49,7 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 		this.deleteRule = deleteRule;
 		this.fieldName = fieldName;		
 		this.reverseFieldName = reverseFieldName;
+		this.reverseCurrentName = reverseCurrentName;
 	}
 
 	@Override
@@ -115,6 +117,11 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	@Override 
 	public String getReverseFieldName() {
 		return reverseFieldName;
+	}
+	
+	@Override 
+	public String getReverseCurrentName() {
+		return reverseCurrentName;
 	}
 	
 	@Override

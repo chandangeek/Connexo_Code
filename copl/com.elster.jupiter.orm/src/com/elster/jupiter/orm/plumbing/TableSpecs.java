@@ -57,6 +57,7 @@ public enum TableSpecs {
 			table.addColumn("DELETERULE", CATALOGDBTYPE , false , CHAR2ENUM , "deleteRule");
 			table.addColumn("FIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "fieldName");
 			table.addColumn("REVERSEFIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseFieldName");
+			table.addColumn("REVERSECURRENTNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseCurrentName");
 			table.addPrimaryKeyConstraint("ORM_PK_CONSTRAINTS", componentName , tableName , nameColumn);
 			table.addUniqueConstraint("ORM_U_CONSTRAINTS", nameColumn);
 			table.addForeignKeyConstraint("ORM_FK_CONSTRAINTSTABLES", ORM_TABLE.name() , CASCADE, "table" , "constraints" , componentName , tableName);		

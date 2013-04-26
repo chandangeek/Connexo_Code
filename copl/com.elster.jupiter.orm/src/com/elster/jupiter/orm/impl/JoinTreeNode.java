@@ -34,18 +34,18 @@ final class JoinTreeNode<T>  {
 		}
 	}
 	
-	final <R> boolean addMapper(DataMapperImpl<R,? extends R> newMapper , String alias) {		
-		JoinDataMapper<R> newNodeValue = value.wrap(newMapper , alias);
-		if (newNodeValue == null) {
-			for (JoinTreeNode<?> each : children) {
-				if (each.addMapper(newMapper,alias))
-					return true;
+	final <R> boolean addMapper(DataMapperImpl<R,? extends R> newMapper , AliasFactory aliasFactory) {
+		boolean result = false;
+		for (JoinTreeNode<?> each : children) {
+			if (each.addMapper(newMapper,aliasFactory)){
+				result = true;
 			}
-		} else {
-			add(new JoinTreeNode<R>(newNodeValue));
-			return true;
 		}
-		return false;
+		for (JoinDataMapper<R> newNodeValue : value.wrap(newMapper, aliasFactory)) {				
+			add(new JoinTreeNode<R>(newNodeValue));
+			result = true;
+		}
+		return result;
 	}
 	
 	private <R> void add(JoinTreeNode<R> node) {

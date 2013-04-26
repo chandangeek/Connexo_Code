@@ -67,7 +67,7 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 		appendTable(builder);
 		builder.append(" ON ");
 		builder.openBracket();
-		List<Column> primaryKeyColumns = constraint.getTable().getPrimaryKeyColumns();
+		List<Column> primaryKeyColumns = constraint.getReferencedTable().getPrimaryKeyColumns();
 		List<Column> foreignKeyColumns = constraint.getColumns();
 		String separator = "";
 		for ( int i = 0 ; i < primaryKeyColumns.size() ; i++) {

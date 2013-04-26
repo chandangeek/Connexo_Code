@@ -1,9 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import com.elster.jupiter.conditions.*;
 import com.elster.jupiter.orm.*;
@@ -13,25 +11,21 @@ import com.elster.jupiter.sql.util.SqlFragment;
 public class QueryExecutorImpl<T> implements QueryExecutor<T> {	
 
 	private final JoinTreeNode<T> root;
-	private final Set<String> aliases = new HashSet<>();
+	private final AliasFactory aliasFactory = new AliasFactory();
 	
 	public QueryExecutorImpl(DataMapperImpl<T, ? extends T> mapper) {
 		RootDataMapper<T> rootDataMapper = new RootDataMapper<>(mapper);
-		this.root = new JoinTreeNode<>(rootDataMapper);
-		this.aliases.add(rootDataMapper.getAlias());		
+		aliasFactory.setBase(rootDataMapper.getAlias());
+		aliasFactory.getAlias();
+		this.root = new JoinTreeNode<>(rootDataMapper);				
 	}
     
 	@SuppressWarnings("unchecked")
 	@Override 
 	public <R> void add(DataMapper<R> dataMapper) {
 		DataMapperImpl<R, ? extends R> newMapper = (DataMapperImpl<R,? extends R>) dataMapper;
-		String alias = newMapper.getAlias();
-		String base = alias;
-		for (int i = 2 ;  aliases.contains(alias) ; i++) {
-			alias = base + i;
-		}
-		aliases.add(alias);
-		boolean result = root.addMapper((DataMapperImpl<R,? extends R>) dataMapper , alias);
+		aliasFactory.setBase(newMapper.getAlias());
+		boolean result = root.addMapper((DataMapperImpl<R,? extends R>) dataMapper , aliasFactory);
 		if (!result) {
 			throw new IllegalArgumentException("No referential key match for " + dataMapper.getTable().getName());
 		}
