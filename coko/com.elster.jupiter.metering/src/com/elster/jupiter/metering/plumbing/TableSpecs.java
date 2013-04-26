@@ -175,10 +175,10 @@ enum TableSpecs {
 			Column idColumn = table.addAutoIdColumn();
 			Column usagePointIdColumn = table.addColumn("USAGEPOINTID", "number", false, NUMBER2LONGNULLZERO, "usagePointId");
 			Column meterIdColumn = table.addColumn("METERID", "number", false, NUMBER2LONGNULLZERO, "meterId");
-			table.addColumn("FROMTIME", "number", true, NUMBER2UTCINSTANT , "fromTime");
+			table.addIntervalColumns("interval");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METERACTIVATION", idColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERACTUSAGEPOINT",MTR_USAGEPOINT.name(),RESTRICT,"usagePoint","meterActivations" ,usagePointIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_METERACTUSAGEPOINT",MTR_USAGEPOINT.name(),RESTRICT,"usagePoint","meterActivations" , "currentMeterActivation" , usagePointIdColumn);
 			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_METER.name(),RESTRICT, "meter" , "meterActivations" , meterIdColumn);
 		}
 	},

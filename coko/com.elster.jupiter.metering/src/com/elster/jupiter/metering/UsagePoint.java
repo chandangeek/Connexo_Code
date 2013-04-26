@@ -29,6 +29,8 @@ public interface UsagePoint {
 	String getReadRoute();
 	String getServiceDeliveryRemark();
 	String getServicePriority();
+	List<MeterActivation> getMeterActivations();
+	MeterActivation getCurrentMeterActivation();
 
 	long getServiceLocationId();
 	ServiceLocation getServiceLocation();
@@ -63,6 +65,8 @@ public interface UsagePoint {
 	Date getCreateDate();
 	Date getModificationDate();
 	long getVersion();
-	List<MeterActivation> getMeterActivations();
+	
+	MeterActivation activate(Date start);
+
 		
 }

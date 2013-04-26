@@ -40,6 +40,7 @@ public class UsagePointImpl implements UsagePoint {
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
+	private MeterActivation currentMeterActivation;
 	
     // associations
 	private ServiceCategory serviceCategory;
@@ -320,11 +321,28 @@ public class UsagePointImpl implements UsagePoint {
 	
 	private  List<MeterActivation> getMeterActivations(boolean protect) {
 		if (meterActivations == null) {
-			meterActivations = Bus.getOrmClient().getMeterActivationFactory().find("usagePoint",this,"fromTime");
+			meterActivations = Bus.getOrmClient().getMeterActivationFactory().find("usagePoint",this,"startTime");
 		}
 		return meterActivations;
 	}
 	
+	@Override
+	public MeterActivation getCurrentMeterActivation() {
+		if (currentMeterActivation != null) {
+			if (currentMeterActivation.isCurrent()) {
+				return currentMeterActivation;
+			} else {
+				currentMeterActivation = null;
+			}
+		} else {
+			for (MeterActivation each : getMeterActivations(false)) {
+				if (each.isCurrent()) {
+					return each;
+				}
+			}
+		}
+		return null;
+	}
 	
 	public Date getCreateDate() {
 		return createTime.toDate();
@@ -336,6 +354,13 @@ public class UsagePointImpl implements UsagePoint {
 
 	public long getVersion() {
 		return version;
+	}
+
+	@Override
+	public MeterActivation activate(Date start) {
+		MeterActivation result = new MeterActivationImpl(this, start);
+		Bus.getOrmClient().getMeterActivationFactory().persist(result);
+		return result;
 	}
 	
 }

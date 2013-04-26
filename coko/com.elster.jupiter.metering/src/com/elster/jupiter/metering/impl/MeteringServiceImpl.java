@@ -54,7 +54,7 @@ public class MeteringServiceImpl implements MeteringService {
 			getOrmClient().getUsagePointFactory().with(
 				getOrmClient().getServiceLocationFactory(),
 				getOrmClient().getMeterActivationFactory(),
-				getOrmClient().getChannelFactory(),
+			//	getOrmClient().getChannelFactory(),
 				getOrmClient().getMeterFactory()));		
 	}
 

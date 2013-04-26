@@ -7,10 +7,11 @@ public interface MeterActivation {
 	long getId();
 	UsagePoint getUsagePoint();
 	Meter getMeter();
-	Date getFrom();
-	Date getTo();
+	Date getStart();
+	Date getEnd();
 	Channel createChannel(ReadingType... readingTypes);
 	List<Channel> getChannels();
 	List<ReadingType> getReadingTypes();
 	List<BaseReading> getReadings(Date from , Date to, ReadingType readingType);
+	boolean isCurrent();
 }
