@@ -267,11 +267,13 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 	
 	@Override
-	public void addAuditColumns() {
-		addVersionCountColumn("VERSIONCOUNT", "number" , "version");
-		addCreateTimeColumn("CREATETIME", "createTime");
-		addModTimeColumn("MODTIME", "modTime");
-		addUserNameColumn("USERNAME", "userName");
+	public List<Column> addAuditColumns() {
+		List<Column> result = new ArrayList<>();
+		result.add(addVersionCountColumn("VERSIONCOUNT", "number" , "version"));
+		result.add(addCreateTimeColumn("CREATETIME", "createTime"));
+		result.add(addModTimeColumn("MODTIME", "modTime"));
+		result.add(addUserNameColumn("USERNAME", "userName"));
+		return result;
 	}
 	
 	@Override
@@ -291,23 +293,28 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 
 	@Override
-	public TableConstraint addForeignKeyConstraint(String name, Table referencedTable, DeleteRule deleteRule , String fieldName , String reverseFieldName , Column... columns) {
-		TableConstraintImpl constraint = new TableConstraintImpl(this , name, referencedTable , deleteRule, fieldName , reverseFieldName);
+	public TableConstraint addForeignKeyConstraint(String name, Table referencedTable, DeleteRule deleteRule , String fieldName , String reverseFieldName , String reverseCurrentName , Column... columns) {
+		TableConstraintImpl constraint = new TableConstraintImpl(this , name, referencedTable , deleteRule, fieldName , reverseFieldName ,reverseCurrentName);
 		constraint.add(columns);
 		getConstraints(false).add(constraint);
 		return constraint;	
 	}
 
 	@Override
-	public TableConstraint addForeignKeyConstraint(String name, String referencedTableName, DeleteRule deleteRule , String fieldName , String reverseFieldName , Column... columns) {
+	public TableConstraint addForeignKeyConstraint(String name, String referencedTableName, DeleteRule deleteRule , String fieldName , String reverseFieldName , String reverseCurrentName , Column... columns) {
 		Table referencedTable = getComponent().getTable(referencedTableName);		
-		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName , reverseFieldName ,columns); 					
+		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName , reverseFieldName , reverseCurrentName , columns); 					
+	}
+	
+	@Override
+	public TableConstraint addForeignKeyConstraint(String name, String referencedTableName, DeleteRule deleteRule , String fieldName , String reverseFieldName , Column... columns) {		
+		return addForeignKeyConstraint(name, referencedTableName, deleteRule , fieldName , reverseFieldName , null, columns); 					
 	}
 	
 	@Override
 	public TableConstraint addForeignKeyConstraint(String name, String component , String referencedTableName, DeleteRule deleteRule , String fieldName, Column... columns) {
 		Table referencedTable = Bus.getOrmClient().getTable(component, referencedTableName);		
-		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName, null, columns); 					
+		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName, null, null , columns); 					
 	}
 
 
@@ -357,16 +364,28 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 
 	@Override
-	public void addQuantityColumns(String name , boolean notNull , String fieldName) {		
-		addColumn(name + "VALUE", "number" , notNull , NOCONVERSION , fieldName + ".value");
-		addColumn(name +  "MULTIPLIER", "number" , notNull , NUMBER2INTWRAPPER,  fieldName + ".multiplier");
-		addColumn(name +  "UNIT", "varchar2(8)" , notNull , CHAR2UNIT, fieldName + ".unit");
+	public List<Column> addIntervalColumns(String fieldName) {
+		List<Column> result = new ArrayList<>();
+		result.add(addColumn("STARTTIME", "number",true, NUMBER2LONG , fieldName + ".start"));
+		result.add(addColumn("ENDTIME", "number",true, NUMBER2LONG , fieldName + ".end"));
+		return result;
 	}
 	
 	@Override
-	public void addMoneyColumns(String name , boolean notNull , String fieldName) {		
-		addColumn(name + "VALUE", "number" , notNull , NOCONVERSION , fieldName + ".value");
-		addColumn(name +  "CURRENCY", "number" , notNull , CHAR2CURRENCY,  fieldName + ".currency");		
+	public List<Column> addQuantityColumns(String name , boolean notNull , String fieldName) {
+		List<Column> result = new ArrayList<>();
+		result.add(addColumn(name + "VALUE", "number" , notNull , NOCONVERSION , fieldName + ".value"));
+		result.add(addColumn(name +  "MULTIPLIER", "number" , notNull , NUMBER2INTWRAPPER,  fieldName + ".multiplier"));
+		result.add(addColumn(name +  "UNIT", "varchar2(8)" , notNull , CHAR2UNIT, fieldName + ".unit"));
+		return result;
+	}
+	
+	@Override
+	public List<Column> addMoneyColumns(String name , boolean notNull , String fieldName) {	
+		List<Column> result = new ArrayList<>();
+		result.add(addColumn(name + "VALUE", "number" , notNull , NOCONVERSION , fieldName + ".value"));
+		result.add(addColumn(name +  "CURRENCY", "number" , notNull , CHAR2CURRENCY,  fieldName + ".currency"));		
+		return result;
 	}
 	
 	@Override

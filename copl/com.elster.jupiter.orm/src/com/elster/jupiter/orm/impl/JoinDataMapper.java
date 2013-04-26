@@ -38,18 +38,23 @@ abstract public class JoinDataMapper<T> {
 	}
 	
 	
-	final <R> JoinDataMapper<R> wrap(DataMapperImpl<R,? extends R> newMapper , String alias) {
+	final <R> List<JoinDataMapper<R>> wrap(DataMapperImpl<R,? extends R> newMapper , AliasFactory aliasFactory) {
+		List<JoinDataMapper<R>> result = new ArrayList<>();
 		for (TableConstraint constraint : getTable().getConstraints()) {
-			if (newMapper.getTable().equals(constraint.getReferencedTable())) {				
-				return new ParentDataMapper<R>(newMapper , constraint , alias);
+			if (newMapper.getTable().equals(constraint.getReferencedTable())) {
+				result.add(new ParentDataMapper<R>(newMapper , constraint , aliasFactory.getAlias()));
+				return result;				
 			}
 		}
 		for (TableConstraint constraint : newMapper.getTable().getConstraints()) {		
 			if (getTable().equals(constraint.getReferencedTable())) {
-				return new ChildDataMapper<R>(newMapper , constraint , alias);				
+				if (constraint.getReverseCurrentName() != null) {
+					result.add(new CurrentDataMapper<>(newMapper, constraint, aliasFactory.getAlias(true)));
+				} 
+				result.add(new ChildDataMapper<R>(newMapper , constraint , aliasFactory.getAlias()));				
 			}
 		}
-		return null;
+		return result;
 	}
 	
 	final ColumnAndAlias getColumnAndAlias(String fieldName) {

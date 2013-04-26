@@ -28,19 +28,30 @@ public interface Table {
 	Column addVersionCountColumn(String name , String dbType , String fieldName );
 	TableConstraint addPrimaryKeyConstraint(String name , Column... columns);	
 	TableConstraint addUniqueConstraint(String name , Column... colums);
-	TableConstraint addForeignKeyConstraint(String name , Table referencedTable , DeleteRule deleteRule, String fieldName , String reverseFieldName, Column... columns);
-	TableConstraint addForeignKeyConstraint(String name , String tableName , DeleteRule deleteRule, String fieldName ,String reverseFieldName , Column... columns);
-	TableConstraint addForeignKeyConstraint(String name , String component , String tableName, DeleteRule deleteRule, String fieldName, Column... columns);
+	TableConstraint addForeignKeyConstraint(
+			String name , Table referencedTable , DeleteRule deleteRule, 
+			String fieldName , String reverseFieldName, String reverseCurrentName , 
+			Column... columns);
+	TableConstraint addForeignKeyConstraint(
+			String name,String tableName, DeleteRule deleteRule,
+			String fieldName, String reverseFieldName,String reverseCurrentName, 
+			Column... columns);
+	TableConstraint addForeignKeyConstraint(
+			String name , String tableName , DeleteRule deleteRule, 
+			String fieldName ,String reverseFieldName , Column... columns);
+	TableConstraint addForeignKeyConstraint(
+			String name , String component , String tableName, DeleteRule deleteRule, 
+			String fieldName, 
+			Column... columns);
 	Column addCreateTimeColumn(String name, String fieldName);
 	Column addModTimeColumn(String name, String fieldName);
 	Column addUserNameColumn(String name, String fieldName);
 	Column addAutoIdColumn();
-	void addAuditColumns();
+	List<Column> addAuditColumns();
 	void setJournalTableName(String journalTableName);
 	String getJournalTableName();
 	boolean hasJournal();
-	void addQuantityColumns(String name, boolean notNull, String fieldName);
-	void addMoneyColumns(String name, boolean notNull, String fieldName);
-	
-	
+	List<Column> addQuantityColumns(String name, boolean notNull, String fieldName);
+	List<Column> addMoneyColumns(String name, boolean notNull, String fieldName);
+	List<Column> addIntervalColumns(String fieldName);
 }

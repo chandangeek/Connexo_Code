@@ -15,6 +15,7 @@ public interface TableConstraint {
 	boolean isForeignKeyConstraint();
 	String getFieldName();
 	String getReverseFieldName();
+	String getReverseCurrentName();
 	boolean isNotNull();
 	Object[] getColumnValues(Object value);
 }
