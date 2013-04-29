@@ -11,13 +11,13 @@ import com.elster.jupiter.orm.*;
 
 import static com.elster.jupiter.ids.plumbing.TableSpecs.*;
 
-class OrmClientImpl implements OrmClient {
+public class OrmClientImpl implements OrmClient {
 	
 	private static final String COMPONENTNAME = "IDS";
 	
 	private final OrmService service;
 	
-	OrmClientImpl(OrmService service) {
+	public OrmClientImpl(OrmService service) {
 		this.service = service;
 	}
 

@@ -1,11 +1,13 @@
 package com.elster.jupiter.ids.impl;
 
+import org.osgi.service.component.annotations.*;
 import com.elster.jupiter.ids.*;
-import com.elster.jupiter.ids.plumbing.Bus;
-import com.elster.jupiter.ids.plumbing.InstallerImpl;
-import com.elster.jupiter.ids.plumbing.OrmClient;
+import com.elster.jupiter.ids.plumbing.*;
+import com.elster.jupiter.orm.OrmService;
 
-public class IdsServiceImpl implements IdsService {
+@Component (name = "com.elster.jupiter.ids" , service = IdsService.class)
+public class IdsServiceImpl implements IdsService, ServiceLocator {
+	private volatile OrmClient ormClient;
 	
 	@Override
 	public Vault getVault(String component, long id) {
@@ -32,8 +34,9 @@ public class IdsServiceImpl implements IdsService {
 		new InstallerImpl().install(executeDdl, storeMappings, createMasterData);
 	}
 	
-	private OrmClient getOrmClient() {
-		return Bus.getOrmClient();
+	@Override
+	public OrmClient getOrmClient() {
+		return ormClient;
 	}
 
 	@Override
@@ -46,5 +49,18 @@ public class IdsServiceImpl implements IdsService {
 		return new RecordSpecImpl(component, id, name);
 	}
 
-
+    @Reference 
+    public void setOrmService(OrmService ormService) {
+    	this.ormClient = new OrmClientImpl(ormService);
+    }
+    
+    @Activate
+    public void activate() {
+    	Bus.setServiceLocator(this);
+    }
+    
+    @Deactivate
+    public void deActivate() {
+    	Bus.setServiceLocator(null);
+    }
 }

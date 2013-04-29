@@ -1,5 +1,5 @@
 package com.elster.jupiter.ids.plumbing;
 
-interface ServiceLocator {
+public interface ServiceLocator {
 	OrmClient getOrmClient(); 	
 }

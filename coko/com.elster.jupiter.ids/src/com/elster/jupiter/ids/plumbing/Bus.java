@@ -9,7 +9,7 @@ public class Bus {
 	
 	private static volatile ServiceLocator locator;
 	
-	static void setServiceLocator(ServiceLocator locator) {
+	public static void setServiceLocator(ServiceLocator locator) {
 		Bus.locator = locator;
 	}
 	
