@@ -2,8 +2,11 @@ package com.elster.jupiter.security.thread.impl;
 
 import java.security.Principal;
 
+import org.osgi.service.component.annotations.Component;
+
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
+@Component (name = "com.elster.jupiter.security.thread")
 public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
 	private ThreadLocal<Principal> threadPrincipals = new ThreadLocal<>();
 			

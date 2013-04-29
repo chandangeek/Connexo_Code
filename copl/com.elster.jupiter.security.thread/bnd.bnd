@@ -1,0 +1,4 @@
+Private-Package: com.elster.jupiter.security.thread.impl
+Export-Package: com.elster.jupiter.security.thread
+Bundle-Name: com.elster.jupiter.security.thread
+-dsannotations: *
