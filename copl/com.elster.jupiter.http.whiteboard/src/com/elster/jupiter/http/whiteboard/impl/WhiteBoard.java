@@ -1,30 +1,23 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
 import org.osgi.framework.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.http.*;
 import org.osgi.util.tracker.*;
 
 import com.elster.jupiter.http.whiteboard.HttpResource;
 
-class WhiteBoard {
-	private final HttpService httpService;
-	private final BundleContext bundleContext;
-	private final ServiceTracker<HttpResource, HttpResource> resourceTracker;
+@Component(name = "com.elster.jupiter.http.whiteboard")
+public class WhiteBoard {
+	private volatile HttpService httpService;
+	private volatile ServiceTracker<HttpResource, HttpResource> resourceTracker;
 	
-	WhiteBoard(BundleContext bundleContext , HttpService httpService) {
-		this.httpService = httpService;
-		this.bundleContext = bundleContext;
-		this.resourceTracker = new ServiceTracker<>(bundleContext, HttpResource.class, new ResourceTrackerCustomizer());
+	public WhiteBoard() {
 	}
-	
-	void open() {
-		resourceTracker.open();		
-	}
-	
-	void close() {
-		resourceTracker.close();
-	}
-	
+		
 	void addResource(HttpResource resource) {
 		HttpContext httpContext = new HttpContextImpl(resource.getResolver());
 		try {
@@ -38,8 +31,29 @@ class WhiteBoard {
 	void removeResource(HttpResource resource) {		
 		httpService.unregister(resource.getAlias());
 	}
+
+	@Reference
+	public void setHttpService(HttpService httpService) {
+		this.httpService = httpService;
+	}
+	
+	@Activate
+	public void activate(BundleContext context) {
+		this.resourceTracker = new ServiceTracker<>(context, HttpResource.class, new ResourceTrackerCustomizer(context));
+		this.resourceTracker.open();
+	}
+
+	@Deactivate
+	public void deActivate() {
+		this.resourceTracker.close();
+	}
 	
 	class ResourceTrackerCustomizer implements ServiceTrackerCustomizer<HttpResource,HttpResource> {
+		private final BundleContext bundleContext;
+		
+		public ResourceTrackerCustomizer(BundleContext bundleContext) {
+			this.bundleContext = bundleContext;
+		}
 
 		@Override
 		public HttpResource addingService(ServiceReference<HttpResource> reference) {
