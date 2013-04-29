@@ -1,5 +1,7 @@
 package com.elster.jupiter.rest.whiteboard;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import com.sun.jersey.api.container.filter.ResourceDebuggingFilterFactory;
 import com.sun.jersey.api.container.filter.RolesAllowedResourceFilterFactory;
 import com.sun.jersey.api.core.ApplicationAdapter;
@@ -8,6 +10,10 @@ import com.sun.jersey.spi.container.ContainerRequestFilter;
 import com.sun.jersey.spi.container.ResourceFilterFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
@@ -20,18 +26,17 @@ import javax.ws.rs.core.Application;
 import java.util.ArrayList;
 import java.util.List;
 
-class WhiteBoard {
+@Component (name = "com.elster.jupiter.rest.whiteboard" , service = {})
+public class WhiteBoard implements ServiceLocator {
 
-    private final HttpService httpService;
+    private volatile HttpService httpService;
+    private volatile UserService userService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private final HttpContext httpContext;
-    private final BundleContext bundleContext;
-    private final ServiceTracker<Application, Application> resourceTracker;
+    private volatile ServiceTracker<Application, Application> resourceTracker;
 
-    WhiteBoard(BundleContext bundleContext, HttpService httpService) {
-        this.httpService = httpService;
-        this.bundleContext = bundleContext;
-        this.httpContext = new HttpContextImpl();
-        this.resourceTracker = new ServiceTracker<>(bundleContext, Application.class, new ApplicationTrackerCustomizer());
+    public WhiteBoard() {
+        this.httpContext = new HttpContextImpl();        
     }
 
     void open(final long delay) {
@@ -83,7 +88,50 @@ class WhiteBoard {
         httpService.unregister(alias);
     }
 
-    class ApplicationTrackerCustomizer implements ServiceTrackerCustomizer<Application, Application> {
+    @Reference
+    public void setHttpService(HttpService httpService) {
+    	this.httpService = httpService;
+    }
+    
+    @Activate
+    public void activate(BundleContext context) {    	
+    	resourceTracker = new ServiceTracker<>(context, Application.class,  new ApplicationTrackerCustomizer(context));
+    	Bus.setServiceLocator(this);
+    	open(1000L);
+    }
+    
+    @Deactivate
+    public void deActivate() {
+    	Bus.setServiceLocator(null);
+    	resourceTracker.close();
+    	
+    }
+    @Override
+	public UserService getUserService() {
+		return userService;
+	}
+
+	@Override
+	public ThreadPrincipalService getThreadPrincipalService() {
+		return threadPrincipalService;
+	}
+
+	@Reference
+	public void setUserService(UserService userService) {
+		this.userService = userService;
+	}
+
+	@Reference
+	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+		this.threadPrincipalService = threadPrincipalService;
+	}
+	
+    private class ApplicationTrackerCustomizer implements ServiceTrackerCustomizer<Application, Application> {
+    	private final BundleContext bundleContext;
+    	
+    	ApplicationTrackerCustomizer(BundleContext context) {
+    		this.bundleContext = context;
+		}
 
         private String getAlias(ServiceReference<Application> reference) {
             return (String) reference.getProperty("alias");
@@ -116,4 +164,5 @@ class WhiteBoard {
 
 
     }
+    
 }

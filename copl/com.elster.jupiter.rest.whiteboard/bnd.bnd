@@ -1,0 +1,3 @@
+-dsannotations: *
+Bundle-Name: com.elster.jupiter.rest.whiteboard
+Private-Package: com.elster.jupiter.rest.whiteboard
