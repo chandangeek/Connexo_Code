@@ -10,8 +10,6 @@ import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
@@ -20,7 +18,6 @@ import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -109,31 +106,6 @@ public class ApolloMeter extends AbstractDlmsProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return this.getClass().getSimpleName(); //TODO Change to proper dialect
-    }
-
-    @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

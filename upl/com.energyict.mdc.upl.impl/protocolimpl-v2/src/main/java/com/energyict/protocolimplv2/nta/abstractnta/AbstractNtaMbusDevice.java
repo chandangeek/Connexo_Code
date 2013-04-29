@@ -143,27 +143,27 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
     }
 
     @Override
-    public List<PropertySpec> getSecurityProperties() {
+    public final List<PropertySpec> getSecurityProperties() {
         return securityCapabilities.getSecurityProperties();
     }
 
     @Override
-    public String getSecurityRelationTypeName() {
+    public final String getSecurityRelationTypeName() {
         return securityCapabilities.getSecurityRelationTypeName();
     }
 
     @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+    public final List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         return securityCapabilities.getAuthenticationAccessLevels();
     }
 
     @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+    public final List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return securityCapabilities.getEncryptionAccessLevels();
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public final PropertySpec getSecurityPropertySpec(String name) {
         return securityCapabilities.getSecurityPropertySpec(name);
     }
 
