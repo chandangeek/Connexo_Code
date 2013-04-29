@@ -3,19 +3,28 @@ package com.elster.jupiter.transaction.impl;
 import java.sql.*;
 import javax.sql.DataSource;
 
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
+import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.transaction.*;
 
+@Component(name="com.elster.jupiter.transaction.impl" , immediate = true)
 public class TransactionServiceImpl implements TransactionService {
 	
-	final private DataSource source;
-	final private ThreadLocal<TransactionContextImpl> transactionContexts = new ThreadLocal<TransactionContextImpl>();
+	private volatile DataSource dataSource;
+	private volatile ServiceRegistration<DataSource> dataSourceRegistration;
+	private final ThreadLocal<TransactionContextImpl> transactionContexts = new ThreadLocal<TransactionContextImpl>();
 	
-	TransactionServiceImpl(DataSource source) {
-		this.source = source;
+	public TransactionServiceImpl() {		
 	}
 
 	private Connection newConnection() throws SQLException {
-		Connection result = source.getConnection();
+		Connection result = dataSource.getConnection();
 		result.setAutoCommit(true);
 		return result;
 	}
@@ -35,7 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	
 	private void doExecute(Runnable runnable) throws SQLException {
-		TransactionContextImpl transactionContext = new TransactionContextImpl(source);
+		TransactionContextImpl transactionContext = new TransactionContextImpl(dataSource);
 		transactionContexts.set(transactionContext);
 		boolean commit = false;
 		try {
@@ -53,7 +62,7 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	
 	DataSource getDataSource() {
-		return source;
+		return dataSource;
 	}
 
 	@Override
@@ -65,5 +74,21 @@ public class TransactionServiceImpl implements TransactionService {
 			transactionContext.setRollbackOnly();
 		}
 		
+	}
+	
+	@Reference
+	public void setBootstrapService(BootstrapService bootStrapService) {
+		this.dataSource = bootStrapService.getDataSource();
+	}
+	
+	@Activate	
+	public void activate(BundleContext context) {
+		TransactionalDataSource txSource = new TransactionalDataSource(this);
+		dataSourceRegistration = context.registerService(DataSource.class,txSource,null);				
+	}
+	
+	@Deactivate
+	public void deActivate() {
+		dataSourceRegistration.unregister();
 	}
 }
