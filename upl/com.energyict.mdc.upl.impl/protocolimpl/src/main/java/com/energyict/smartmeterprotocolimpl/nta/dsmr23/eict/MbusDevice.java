@@ -76,7 +76,7 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
      * @return a List of String objects
      */
     public List<String> getRequiredKeys() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     /**
@@ -85,7 +85,7 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
      * @return a List of String objects
      */
     public List<String> getOptionalKeys() {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {

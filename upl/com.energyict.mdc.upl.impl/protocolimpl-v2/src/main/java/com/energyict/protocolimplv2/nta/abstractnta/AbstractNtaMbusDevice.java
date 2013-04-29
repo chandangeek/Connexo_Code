@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
@@ -25,6 +26,7 @@ import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.nta.elster.AM100;
+import com.energyict.protocolimplv2.security.NoSecuritySupport;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +45,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     private final String serialNumber;
     private final int physicalAddress;
+    private final DeviceProtocolSecurityCapabilities securityCapabilities = new NoSecuritySupport();
 
     /**
      * Get the used MessageProtocol
@@ -141,27 +144,27 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMet
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        return Collections.emptyList();
+        return securityCapabilities.getSecurityProperties();
     }
 
     @Override
     public String getSecurityRelationTypeName() {
-        return null;
+        return securityCapabilities.getSecurityRelationTypeName();
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Collections.emptyList();
+        return securityCapabilities.getAuthenticationAccessLevels();
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Collections.emptyList();
+        return securityCapabilities.getEncryptionAccessLevels();
     }
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        return null;
+        return securityCapabilities.getSecurityPropertySpec(name);
     }
 
     @Override

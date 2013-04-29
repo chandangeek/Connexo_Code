@@ -10,9 +10,6 @@ import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
@@ -20,8 +17,6 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-
-import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,8 +26,6 @@ import java.util.List;
  * Time: 10:02
  */
 public class WebRtuGenericGateway extends AbstractDlmsProtocol {
-
-    private final DeviceProtocolSecurityCapabilities securityCapabilities = new DlmsSecuritySupport();
 
     @Override
     protected String getFirmwareVersion() {
@@ -112,31 +105,6 @@ public class WebRtuGenericGateway extends AbstractDlmsProtocol {
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityProperties() {
-        return securityCapabilities.getSecurityProperties();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return securityCapabilities.getSecurityRelationTypeName();
-    }
-
-    @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return securityCapabilities.getAuthenticationAccessLevels();
-    }
-
-    @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return securityCapabilities.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return securityCapabilities.getSecurityPropertySpec(name);
     }
 
     @Override

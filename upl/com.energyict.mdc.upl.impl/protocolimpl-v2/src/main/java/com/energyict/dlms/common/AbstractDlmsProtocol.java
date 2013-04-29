@@ -3,6 +3,7 @@ package com.energyict.dlms.common;
 import com.energyict.comserver.adapters.common.ComChannelInputStreamAdapter;
 import com.energyict.comserver.adapters.common.ComChannelOutputStreamAdapter;
 import com.energyict.comserver.exceptions.LegacyProtocolException;
+import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -15,12 +16,17 @@ import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.HHUEnabler;
 
+import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +38,8 @@ import java.util.logging.Logger;
  * @since: 30/10/12 (10:13)
  */
 public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler {
+
+    private final DeviceProtocolSecurityCapabilities securityCapabilities = new DlmsSecuritySupport();
 
     /**
      * The used {@link com.energyict.dlms.DlmsSession}
@@ -299,4 +307,30 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         //TODO provide proper functionality so your protocol can make proper use of the security properties
     }
+
+    @Override
+    public List<PropertySpec> getSecurityProperties() {
+        return securityCapabilities.getSecurityProperties();
+    }
+
+    @Override
+    public String getSecurityRelationTypeName() {
+        return securityCapabilities.getSecurityRelationTypeName();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return securityCapabilities.getAuthenticationAccessLevels();
+    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        return securityCapabilities.getEncryptionAccessLevels();
+    }
+
+    @Override
+    public PropertySpec getSecurityPropertySpec(String name) {
+        return securityCapabilities.getSecurityPropertySpec(name);
+    }
+
 }
