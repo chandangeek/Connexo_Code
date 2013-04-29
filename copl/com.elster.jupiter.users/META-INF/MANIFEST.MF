@@ -5,10 +5,10 @@ Bundle-SymbolicName: com.elster.jupiter.users
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ELSTER
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-Activator: com.elster.jupiter.users.impl.Activator
 Export-Package: com.elster.jupiter.users
 Import-Package: com.elster.jupiter.orm,
  com.elster.jupiter.time,
  com.elster.jupiter.transaction,
- org.osgi.framework;version="1.7.0",
- org.osgi.util.tracker;version="1.5.1"
+ javax.xml.bind,
+ org.osgi.service.component.annotations;version="1.2.0"
+Service-Component: OSGI-INF/com.elster.jupiter.users.xml

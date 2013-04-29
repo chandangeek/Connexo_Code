@@ -4,5 +4,5 @@ import com.elster.jupiter.transaction.TransactionService;
 
 interface ServiceLocator {
 	OrmClient getOrmClient(); 	
-	TransactionService getTransactionManager();
+	TransactionService getTransactionService();
 }

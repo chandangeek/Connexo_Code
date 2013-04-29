@@ -1,0 +1,4 @@
+Private-Package: com.elster.jupiter.users.impl
+Export-Package: com.elster.jupiter.users
+Bundle-Name: com.elster.jupiter.users
+-dsannotations: *

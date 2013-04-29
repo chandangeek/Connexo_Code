@@ -2,14 +2,55 @@ package com.elster.jupiter.users.impl;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegeDescription;
 import com.elster.jupiter.users.Role;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
-public class UserServiceImpl implements UserService {
+@Component (name = "com.elster.jupiter.users" , service = UserService.class)
+public class UserServiceImpl implements UserService , ServiceLocator {
+	
+	private volatile OrmClient ormClient;
+	private volatile TransactionService transactionService;
+	
+	@Override
+	public OrmClient getOrmClient() {
+		return ormClient;
+	}
 
+	@Reference
+	public void setOrmService(OrmService ormService) {
+		this.ormClient = new OrmClientImpl(ormService);
+	}
+
+	@Override
+	public TransactionService getTransactionService() {
+		return transactionService;
+	}
+
+	@Reference
+	public void setTransactionService(TransactionService transactionService) {
+		this.transactionService = transactionService;
+	}
+
+	@Activate
+	public void activate() {
+		Bus.setServiceLocator(this);
+	}
+	
+	@Deactivate
+	public void deActivate() {
+		Bus.setServiceLocator(null);
+	}
+	
 	@Override
 	public User createUser(String authenticationName, String firstName,String lastName) {
 		UserImpl result = new UserImpl(authenticationName,firstName,lastName);
