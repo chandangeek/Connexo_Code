@@ -1,0 +1,5 @@
+-dsannotations: *
+Private-Package: com.elster.jupiter.orm.impl,\
+	com.elster.jupiter.orm.plumbing
+Export-Package: com.elster.jupiter.orm
+Bundle-Name: com.elster.jupiter.orm

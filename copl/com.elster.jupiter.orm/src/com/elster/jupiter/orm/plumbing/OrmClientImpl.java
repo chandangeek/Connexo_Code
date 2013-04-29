@@ -9,11 +9,11 @@ import com.elster.jupiter.orm.impl.TableImpl;
 
 import static com.elster.jupiter.orm.plumbing.TableSpecs.*;
 
-class OrmClientImpl implements OrmClient  {
+public class OrmClientImpl implements OrmClient  {
 	
 	private final OrmService service;
 	
-	OrmClientImpl(OrmService service) {	
+	public OrmClientImpl(OrmService service) {	
 		this.service = service;
 		service.add(createComponent());
 	}

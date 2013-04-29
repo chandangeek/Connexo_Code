@@ -1,17 +1,31 @@
 package com.elster.jupiter.orm.impl;
 
 import java.util.*;
+import java.security.Principal;
 import java.sql.*;
 
+import javax.sql.DataSource;
+
+import org.osgi.service.component.annotations.*;
+
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Component;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.orm.plumbing.OrmClient;
+import com.elster.jupiter.orm.plumbing.OrmClientImpl;
+import com.elster.jupiter.orm.plumbing.ServiceLocator;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
-public class OrmServiceImpl implements OrmService  {
+@org.osgi.service.component.annotations.Component (name = "com.elster.jupiter.orm" , service = OrmService.class)
+public class OrmServiceImpl implements OrmService , ServiceLocator {
 	
 	private Map<String,Component> components = Collections.synchronizedMap(new HashMap<String,Component>());
+	private volatile OrmClient ormClient;
+	private volatile DataSource dataSource;
+	private volatile ThreadPrincipalService threadPrincipalService;
 	
-	public OrmServiceImpl() {				 
+	public OrmServiceImpl() {
+		System.out.println("Starting component");
 	}
 	
 	@Override
@@ -30,7 +44,12 @@ public class OrmServiceImpl implements OrmService  {
 	
 	@Override
 	public Connection getConnection(boolean transactionRequired) throws SQLException {
-		return Bus.getConnection(transactionRequired);
+		Connection result = dataSource.getConnection();
+		if (transactionRequired && result.getAutoCommit()) {
+			result.close();
+			throw new TransactionRequiredException();
+		}
+		return result;	
 	}
 	
 	@Override
@@ -87,7 +106,7 @@ public class OrmServiceImpl implements OrmService  {
 	}
 	
 	private void doExecuteDdl(Component component) throws SQLException {
-		Connection connection = Bus.getConnection(false);
+		Connection connection = getConnection(false);
 		try {
 			Statement statement = connection.createStatement();
 			try {
@@ -104,9 +123,38 @@ public class OrmServiceImpl implements OrmService  {
 			connection.close();
 		}
 	}
-			
-	private OrmClient getOrmClient() {
-		return Bus.getOrmClient();
+
+	@Override
+	public OrmClient getOrmClient() {
+		return ormClient;
 	}
 
+	@Override
+	public Principal getPrincipal()  {
+		return threadPrincipalService.getPrincipal();
+	}
+
+	@Reference
+	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+		System.out.println("Got thread principal");
+		this.threadPrincipalService = threadPrincipalService;
+	}
+	
+	@Reference
+	public void setDataSource(DataSource dataSource) {
+		System.out.println("Got datasource");
+		this.dataSource = dataSource;
+	}
+	
+	@Activate
+	public void activate() {
+		System.out.println("In activate");
+		this.ormClient = new OrmClientImpl(this);
+		Bus.setServiceLocator(this);
+	}
+	
+	@Deactivate
+	public void deActivate() {
+		Bus.setServiceLocator(null);
+	}
 }
