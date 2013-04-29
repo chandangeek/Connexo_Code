@@ -1,3 +1,5 @@
 Private-Package: com.elster.jupiter.http.whiteboard.impl
 Export-Package: com.elster.jupiter.http.whiteboard
 -dsannotations: *
+Import-Package: javax.servlet.http;version='[2.5,3)',\
+	*

@@ -15,7 +15,7 @@ public final class FileResolver implements Resolver {
 	@Override
 	public URL getResource(String name) {
 		try {			
-			return new URL("file://" + name );
+			return new URL("file:///" + name );
 		} catch (MalformedURLException ex) {
 			ex.printStackTrace();
 			throw new RuntimeException(ex);
