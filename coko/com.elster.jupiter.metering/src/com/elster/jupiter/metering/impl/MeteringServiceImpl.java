@@ -1,12 +1,26 @@
 package com.elster.jupiter.metering.impl;
 
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.plumbing.InstallerImpl;
+import com.elster.jupiter.metering.plumbing.*;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.cache.CacheService;
 
-import static com.elster.jupiter.metering.plumbing.Bus.*;
+@Component (name = "com.elster.jupiter.metering", service=MeteringService.class)
+public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 
-public class MeteringServiceImpl implements MeteringService {
+	private volatile OrmClient ormClient;
+	private volatile CacheService cacheService;
+	private volatile IdsService idsService;
+	private volatile QueryService queryService;
+
 	
 	@Override 
 	public ServiceCategory getServiceCategory(ServiceKind kind) {
@@ -76,6 +90,57 @@ public class MeteringServiceImpl implements MeteringService {
 				//getOrmClient().getChannelFactory(),
 				getOrmClient().getMeterFactory()));										
 	}
+
+	@Override
+	public OrmClient getOrmClient() {
+		return ormClient;
+	}
+
+	@Override
+	public CacheService getCacheService() {
+		return cacheService;
+	}
+
+	@Override
+	public IdsService getIdsService() {
+		return idsService;
+	}
+
+	@Override
+	public QueryService getQueryService() {
+		return queryService;
+	}
+
+	@Reference
+	public void setOrmService(OrmService ormService) {
+		this.ormClient = new OrmClientImpl(ormService);
+	}
+	
+	@Reference
+	public void setCacheService(CacheService cacheService) {
+		this.cacheService = cacheService;
+	}
+	
+	@Reference
+	public void setIdsService(IdsService idsService) {
+		System.out.println("set ids service");
+		this.idsService = idsService;
+	}
+	
+	@Reference
+	public void setQueryService(QueryService queryService) {
+		this.queryService = queryService;
+	}
+
+	@Activate	
+	public void activate() {
+		System.out.println("bundle activated");
+		Bus.setServiceLocator(this);		
+	}
+	
+	@Deactivate
+	public void deactivate() {
+		Bus.setServiceLocator(null);
+	}
 	
 }
-

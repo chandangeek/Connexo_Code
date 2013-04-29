@@ -16,11 +16,11 @@ import com.elster.jupiter.orm.cache.TypeCache;
 import static com.elster.jupiter.metering.plumbing.Bus.*;
 import static com.elster.jupiter.metering.plumbing.TableSpecs.*;
 
-class OrmClientImpl implements OrmClient {
+public class OrmClientImpl implements OrmClient {
 	
 	private final OrmService service;
 	
-	OrmClientImpl(OrmService service) {
+	public OrmClientImpl(OrmService service) {
 		this.service = service;
 	}
 	
