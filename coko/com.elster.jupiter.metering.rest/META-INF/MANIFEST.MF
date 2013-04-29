@@ -5,7 +5,6 @@ Bundle-SymbolicName: com.elster.jupiter.metering.rest
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ELSTER
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Bundle-Activator: com.elster.jupiter.metering.rest.Activator
 Import-Package: com.elster.jupiter.cbo,
  com.elster.jupiter.domain.util,
  com.elster.jupiter.metering,
@@ -14,8 +13,8 @@ Import-Package: com.elster.jupiter.cbo,
  com.elster.jupiter.units,
  javax.annotation.security;version="1.0.0",
  javax.ws.rs;version="1.1.1",
+ javax.ws.rs.core;version="1.1.1",
  javax.ws.rs.ext;version="1.1.1",
  javax.xml.bind.annotation,
- org.osgi.framework;version="1.7.0",
- org.osgi.util.tracker;version="1.5.1"
-Require-Bundle: com.sun.jersey.core
+ org.osgi.service.component.annotations;version="1.2.0"
+Service-Component: OSGI-INF/com.elster.jupiter.metering.rest.xml
