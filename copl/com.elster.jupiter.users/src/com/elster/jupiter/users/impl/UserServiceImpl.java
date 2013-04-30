@@ -15,7 +15,7 @@ import com.elster.jupiter.users.Role;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
-@Component (name = "com.elster.jupiter.users" , service = UserService.class)
+@Component (name = "com.elster.jupiter.users" , service = UserService.class , immediate = true) 
 public class UserServiceImpl implements UserService , ServiceLocator {
 	
 	private volatile OrmClient ormClient;
