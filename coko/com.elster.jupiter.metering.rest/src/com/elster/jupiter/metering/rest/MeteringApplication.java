@@ -20,7 +20,7 @@ public class MeteringApplication extends Application implements ServiceLocator {
 	private volatile RestQueryService restQueryService;
 	
 	public MeteringApplication() {
-		classes.add(MeteringResource.class);
+		classes.add(MeteringResource.class);		
 	}
 
 	public Set<Class<?>> getClasses() {
@@ -64,6 +64,6 @@ public class MeteringApplication extends Application implements ServiceLocator {
 	
 	@Deactivate
 	public void deActivate() {
-		Bus.setServiceLocator(this);
+		Bus.setServiceLocator(null);
 	}
 }
