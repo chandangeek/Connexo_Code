@@ -29,17 +29,18 @@ import java.util.List;
 @Component (name = "com.elster.jupiter.rest.whiteboard" , service = {})
 public class WhiteBoard implements ServiceLocator {
 
+	private final HttpContext httpContext;
+	private volatile BundleContext bundleContext;
     private volatile HttpService httpService;
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private final HttpContext httpContext;
     private volatile ServiceTracker<Application, Application> resourceTracker;
 
     public WhiteBoard() {
-        this.httpContext = new HttpContextImpl();        
+        this.httpContext = new HttpContextImpl();            
     }
 
-    void open(final long delay) {
+    private void open(final long delay) {
         // some jersey code is dependent on bundle activation,
         // but does not register any services that can be tracked
         // to avoid complex bundle management, just delay the white board activation
@@ -57,12 +58,11 @@ public class WhiteBoard implements ServiceLocator {
         new Thread(runnable).start();
     }
 
-    void open() {
-        resourceTracker.open();
-    }
-
-    void close() {
-        resourceTracker.close();
+    private void open() {
+    	if (bundleContext != null) {
+    		resourceTracker = new ServiceTracker<>(bundleContext, Application.class,  new ApplicationTrackerCustomizer(bundleContext));
+    		resourceTracker.open();
+    	}
     }
 
     void addResource(String alias, Application application) {
@@ -95,16 +95,19 @@ public class WhiteBoard implements ServiceLocator {
     
     @Activate
     public void activate(BundleContext context) {    	
-    	resourceTracker = new ServiceTracker<>(context, Application.class,  new ApplicationTrackerCustomizer(context));
+    	this.bundleContext = context;
     	Bus.setServiceLocator(this);
     	open(1000L);
     }
     
     @Deactivate
     public void deActivate() {
+    	this.bundleContext = null;
     	Bus.setServiceLocator(null);
-    	resourceTracker.close();
-    	
+    	if (resourceTracker != null) {
+    		resourceTracker.close();
+    		resourceTracker = null;
+    	}    	
     }
     @Override
 	public UserService getUserService() {
