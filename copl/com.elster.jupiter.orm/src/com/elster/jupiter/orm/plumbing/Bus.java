@@ -4,6 +4,8 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.osgi.service.event.Event;
+
 public class Bus {
 	public final static String COMPONENTNAME = "ORM";
 	public final static int CATALOGNAMELIMIT = 30;
@@ -41,6 +43,10 @@ public class Bus {
 	// pure static class;
 	private Bus() {
 		throw new UnsupportedOperationException();
+	}
+
+	public static void postEvent(Event event) {
+		locator.getEventAdmin().postEvent(event);
 	}	
 	
 }

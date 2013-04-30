@@ -3,9 +3,12 @@ package com.elster.jupiter.orm.impl;
 import java.sql.*;
 import java.util.*;
 
+import org.osgi.service.event.Event;
+
 import com.elster.jupiter.conditions.Condition;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.sql.util.SqlBuilder;
+import com.elster.jupiter.time.StopWatch;
 
 final class JoinExecutor<T> {
 		
@@ -36,7 +39,6 @@ final class JoinExecutor<T> {
 		appendSelectClause(columnAndAliases);
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder, null);
-		printSql(builder.toString());
 		return from == 0 ? builder : builder.asPageBuilder(from, to);
 	}
 	
@@ -46,14 +48,7 @@ final class JoinExecutor<T> {
 		appendOrderByClause(builder,orderBy);
 		if (from != 0) {
 			this.builder = builder.asPageBuilder(from,to);
-		}
-		printSql(builder.toString());		
-	}
-	
-	private void printSql(String sql) {
-		for (int i = 0 ; i < sql.length() ; i += 80) {
-			System.out.println(sql.substring(i, Math.min(sql.length(), i+80)));
-		}
+		}	
 	}
 	
 	private void appendSelectClause() {
@@ -107,6 +102,7 @@ final class JoinExecutor<T> {
 	}
 
 	List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {
+		StopWatch stopWatch = new StopWatch();
 		builder = new SqlBuilder();
 		if (eager) {
 			root.markAll();
@@ -123,16 +119,24 @@ final class JoinExecutor<T> {
 		new JoinTreeMarker(root).visit(condition);
 		appendSql(condition, orderBy);
 		List<T> result = new ArrayList<>();	
+		int fetchCount = 0;
 		try (Connection connection = Bus.getConnection(false)) {				
 			try(PreparedStatement statement = builder.prepare(connection)) {
 				try (ResultSet resultSet = statement.executeQuery()) {
 					while(resultSet.next()) {
 						construct(resultSet,result);
+						fetchCount++;
 					}
 				}				
 			} 
 		}
 		root.completeFind();
+		stopWatch.stop();
+		Map<String,Object> eventMap = stopWatch.toMap();
+		eventMap.put("sql",this.builder.getText());
+		eventMap.put("tuples",fetchCount);
+		Event event = new Event("com/elster/sql",eventMap);
+		Bus.postEvent(event);
 		return result;				
 	}
 	

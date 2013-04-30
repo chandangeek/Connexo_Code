@@ -81,7 +81,6 @@ public class DataMapperReader<T,S extends T> {
 		}
 		List<T> result = new ArrayList<>();	
 		SqlBuilder builder = selectSql(fragments, orderColumns,lock);
-		System.out.println(builder);
 		try (Connection connection = getConnection(false)) {
 			try(PreparedStatement statement = builder.prepare(connection)) {
 				try (ResultSet resultSet = statement.executeQuery()) {

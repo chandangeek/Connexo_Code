@@ -7,6 +7,7 @@ import java.sql.*;
 import javax.sql.DataSource;
 
 import org.osgi.service.component.annotations.*;
+import org.osgi.service.event.EventAdmin;
 
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.Component;
@@ -23,9 +24,9 @@ public class OrmServiceImpl implements OrmService , ServiceLocator {
 	private volatile OrmClient ormClient;
 	private volatile DataSource dataSource;
 	private volatile ThreadPrincipalService threadPrincipalService;
+	private volatile EventAdmin eventAdmin;
 	
 	public OrmServiceImpl() {
-		System.out.println("Starting component");
 	}
 	
 	@Override
@@ -56,7 +57,6 @@ public class OrmServiceImpl implements OrmService , ServiceLocator {
 	public Component getComponent(String name) {
 		Component result = components.get(name);
 		if (result == null) {
-			System.out.println("Retrieving component " + name);
 			result = getOrmClient().getComponentFactory().get(name);
 			if (result != null) {
 				components.put(name, result);
@@ -128,6 +128,11 @@ public class OrmServiceImpl implements OrmService , ServiceLocator {
 	public OrmClient getOrmClient() {
 		return ormClient;
 	}
+	
+	@Override
+	public EventAdmin getEventAdmin() {
+		return eventAdmin;
+	}
 
 	@Override
 	public Principal getPrincipal()  {
@@ -136,19 +141,21 @@ public class OrmServiceImpl implements OrmService , ServiceLocator {
 
 	@Reference
 	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-		System.out.println("Got thread principal");
 		this.threadPrincipalService = threadPrincipalService;
 	}
 	
 	@Reference
 	public void setDataSource(DataSource dataSource) {
-		System.out.println("Got datasource");
 		this.dataSource = dataSource;
+	}
+	
+	@Reference
+	public void setEventAdmin(EventAdmin eventAdmin) {
+		this.eventAdmin = eventAdmin;
 	}
 	
 	@Activate
 	public void activate() {
-		System.out.println("In activate");
 		this.ormClient = new OrmClientImpl(this);
 		Bus.setServiceLocator(this);
 	}
