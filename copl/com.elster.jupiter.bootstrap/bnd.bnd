@@ -1,4 +1,4 @@
 Bundle-Name: com.elster.jupiter.bootstrap
-Bundle-Activator: com.elster.jupiter.bootstrap.impl.Activator
 Private-Package: com.elster.jupiter.bootstrap.impl
 Export-Package: com.elster.jupiter.bootstrap
+-dsannotations: *
