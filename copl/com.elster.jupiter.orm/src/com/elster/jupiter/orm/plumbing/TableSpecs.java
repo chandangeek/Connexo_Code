@@ -7,7 +7,7 @@ import com.elster.jupiter.orm.*;
 
 public enum TableSpecs {
 	
-	ORM_COMPONENT {		
+	ORM_DATAMODEL {		
 		void describeTable(Table table) {
 			Column nameColumn = table.addColumn("NAME", COMPONENTDBTYPE , true , NOCONVERSION , "name");
 			table.addColumn("DESCRIPTION", "varchar2(80)" , false , NOCONVERSION , "description");
@@ -22,7 +22,7 @@ public enum TableSpecs {
 			table.addColumn("JOURNALTABLENAME",CATALOGDBTYPE,false,NOCONVERSION,"journalTableName");
 			table.addPrimaryKeyConstraint("ORM_PK_TABLES", componentName , nameColumn);
 			table.addUniqueConstraint("ORM_U_TABLES", schemaColumn , nameColumn);
-			table.addForeignKeyConstraint("ORM_FK_TABLESCOMPONENTS", ORM_COMPONENT.name(),CASCADE, "component" , "tables" ,  componentName);
+			table.addForeignKeyConstraint("ORM_FK_TABLESCOMPONENTS", ORM_DATAMODEL.name(),CASCADE, "component" , "tables" ,  componentName);
 		}
 	},
 	ORM_COLUMN {	
@@ -81,7 +81,7 @@ public enum TableSpecs {
 	private static final String COMPONENTDBTYPE = "varchar2(3)";
 	private static final String CATALOGDBTYPE = "varchar2(30)";
 
-	void addTo(Component component) {
+	void addTo(DataModel component) {
 		Table table = component.addTable(name());
 		describeTable(table);
 	}
