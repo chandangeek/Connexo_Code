@@ -69,7 +69,7 @@ public enum TableSpecs {
 		}
 	};
 	
-	void addTo(Component component) {
+	public void addTo(DataModel component) {
 		Table table = component.addTable(name());
 		describeTable(table);
 	}

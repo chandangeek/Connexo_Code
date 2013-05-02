@@ -13,51 +13,40 @@ import static com.elster.jupiter.ids.plumbing.TableSpecs.*;
 
 public class OrmClientImpl implements OrmClient {
 	
-	private static final String COMPONENTNAME = "IDS";
+	private final DataModel dataModel;
 	
-	private final OrmService service;
-	
-	public OrmClientImpl(OrmService service) {
-		this.service = service;
+	public OrmClientImpl(DataModel dataModel) {
+		this.dataModel = dataModel;
 	}
 
-	
 	@Override
 	public DataMapper<Vault> getVaultFactory() {
-		return service.getDataMapper(Vault.class, VaultImpl.class , COMPONENTNAME , IDS_VAULT.name());
+		return dataModel.getDataMapper(Vault.class, VaultImpl.class, IDS_VAULT.name());
 	}
 
 	@Override
 	public DataMapper<RecordSpec> getRecordSpecFactory() {
-		return service.getDataMapper(RecordSpec.class, RecordSpecImpl.class , COMPONENTNAME , IDS_RECORDSPEC.name());
+		return dataModel.getDataMapper(RecordSpec.class, RecordSpecImpl.class, IDS_RECORDSPEC.name());
 	}
 	
 	@Override
 	public DataMapper<FieldSpec> getFieldSpecFactory() {
-		return service.getDataMapper(FieldSpec.class, FieldSpecImpl.class , COMPONENTNAME , IDS_FIELDSPEC.name());
+		return dataModel.getDataMapper(FieldSpec.class, FieldSpecImpl.class, IDS_FIELDSPEC.name());
 	}
 	
 	@Override
 	public DataMapper<TimeSeries> getTimeSeriesFactory() {	
-		return service.getDataMapper(TimeSeries.class , TimeSeriesImpl.class, COMPONENTNAME , IDS_TIMESERIES.name());
+		return dataModel.getDataMapper(TimeSeries.class , TimeSeriesImpl.class, IDS_TIMESERIES.name());
 	}
 	
 	@Override
 	public Connection getConnection(boolean transactionRequired) throws SQLException {
-		return this.service.getConnection(transactionRequired);
+		return dataModel.getConnection(transactionRequired);
 	}
 	
 	@Override
 	public void install(boolean executeDdl,boolean saveMappings) {
-		service.install(createComponent(),executeDdl,saveMappings);		
+		dataModel.install(executeDdl,saveMappings);		
 	}
 	
-	private Component createComponent() {
-		Component result = service.newComponent(COMPONENTNAME,"Interval Data Store");
-		for (TableSpecs spec : TableSpecs.values()) {
-			spec.addTo(result);			
-		}
-		return result;
-	}
-				
 }

@@ -3,6 +3,7 @@ package com.elster.jupiter.ids.impl;
 import org.osgi.service.component.annotations.*;
 import com.elster.jupiter.ids.*;
 import com.elster.jupiter.ids.plumbing.*;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 
 @Component (name = "com.elster.jupiter.ids" , service = IdsService.class)
@@ -51,7 +52,15 @@ public class IdsServiceImpl implements IdsService, ServiceLocator {
 
     @Reference 
     public void setOrmService(OrmService ormService) {
-    	this.ormClient = new OrmClientImpl(ormService);
+    	DataModel dataModel = ormService.getDataModel(Bus.COMPONENTNAME);
+    	if (dataModel == null) {
+    		dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "TimeSeries Data Store");
+    		for (TableSpecs spec : TableSpecs.values()) {
+    			spec.addTo(dataModel);			
+    		}	
+    	}
+    	ormClient = new OrmClientImpl(dataModel);
+    		
     }
     
     @Activate
@@ -63,4 +72,5 @@ public class IdsServiceImpl implements IdsService, ServiceLocator {
     public void deActivate() {
     	Bus.setServiceLocator(null);
     }
+    		
 }
