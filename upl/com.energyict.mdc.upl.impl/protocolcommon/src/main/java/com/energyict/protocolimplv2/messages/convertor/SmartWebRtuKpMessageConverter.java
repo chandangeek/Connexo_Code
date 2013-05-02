@@ -8,6 +8,7 @@ import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
@@ -43,6 +44,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.Glob
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GprsUserCredentialsMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEmergencyProfileGroupIds;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDayTableMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfig;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -107,6 +109,9 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
         registry.put(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS, new ConfigureLoadLimitParameters(normalThresholdAttributeName, emergencyThresholdAttributeName, overThresholdDurationAttributeName, emergencyProfileIdAttributeName, emergencyProfileActivationDateAttributeName, emergencyProfileDurationAttributeName));
         registry.put(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS, new SetEmergencyProfileGroupIds(emergencyProfileIdLookupAttributeName));
         registry.put(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION, new ClearLoadLimitConfigurations());
+
+        // Advanced test
+        registry.put(AdvancedTestMessage.XML_CONFIG, new XmlConfig(xmlConfigAttributeName));
     }
 
     /**
@@ -125,6 +130,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(whiteListPhoneNumbersAttributeName)
                 || propertySpec.getName().equals(p1InformationAttributeName)
                 || propertySpec.getName().equals(normalThresholdAttributeName)
+                || propertySpec.getName().equals(xmlConfigAttributeName)
                 || propertySpec.getName().equals(emergencyThresholdAttributeName)
                 || propertySpec.getName().equals(emergencyProfileIdAttributeName)) {
             return messageAttribute.toString();

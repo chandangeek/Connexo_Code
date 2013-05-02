@@ -100,6 +100,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(LoadBalanceDeviceMessage.values());
         }
+    },
+    /**
+     * This category summarizes all advance test messages
+     */
+    ADVANCED_TEST {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(AdvancedTestMessage.values());
+        }
     };
 
 

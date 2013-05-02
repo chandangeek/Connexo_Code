@@ -14,6 +14,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
@@ -379,6 +380,20 @@ public class SmartWebRtuKpMessageConverterTest {
 
         // asserts
         assertThat(formattedLookupId).isEqualTo(String.valueOf(lookupId));
+    }
+
+    @Test
+    public void formatXmlConfigTest() {
+        final String xmlString = "<xml>someXml<t>blabla</t></xml>";
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(xmlConfigAttributeName);
+
+        // business method
+        final String formattedXml = smartWebRtuKpMessageConverter.format(propertySpec, xmlString);
+
+        // asserts
+        assertThat(formattedXml).isEqualTo(xmlString);
     }
 
     @Test
@@ -958,5 +973,27 @@ public class SmartWebRtuKpMessageConverterTest {
         // asserts
         assertNotNull(messageEntry);
         assertThat(messageEntry.getContent()).isEqualTo("<Disable_load_limitng/>");
+    }
+
+    @Test
+    public void sendXmlConfigTest() {
+        final String xmlString = "<SomeXml><></><bla>Tralalala<bla/><></><SomeXml/>";
+
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage xmlConfigDeviceMessage = mock(OfflineDeviceMessage.class);
+        when(xmlConfigDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(AdvancedTestMessage.XML_CONFIG.getPrimaryKey());
+        OfflineDeviceMessageAttribute xmlConfigAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(xmlConfigAttribute.getName()).thenReturn(xmlConfigAttributeName);
+        when(xmlConfigAttribute.getDeviceMessageAttributeValue()).thenReturn(xmlString);
+        when(xmlConfigDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(xmlConfigAttribute));
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(xmlConfigDeviceMessage);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo("<XMLConfig><SomeXml><></><bla>Tralalala<bla/><></><SomeXml/></XMLConfig>");
     }
 }

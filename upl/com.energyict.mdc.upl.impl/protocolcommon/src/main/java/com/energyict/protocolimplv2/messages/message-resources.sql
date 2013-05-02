@@ -19,9 +19,8 @@
 
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST', 'Add phonenumbers to white list', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.whitelist.phonenumbers', 'Phonenumbers', 'L', 'Y', 'N', 'MDW', sysdate);
--- GDE: Missing (don't know the translation):
--- NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS
--- NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS', 'Change the GPRS user credentials', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS', 'Change the GPRS apn credentials', 'L', 'Y', 'N', 'MDW', sysdate);
 
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DisplayDeviceMessage.consumer.CONSUMER_MESSAGE_CODE_TO_PORT_P1', 'Send a code message to the P1 port', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DisplayDeviceMessage.consumer.CONSUMER_MESSAGE_TEXT_TO_PORT_P1', 'Send a text message to the P1 port', 'L', 'Y', 'N', 'MDW', sysdate);
@@ -39,3 +38,7 @@ insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.emergencyProfileActivationDate', 'Emergency profile activation date', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.emergencyProfileDuration', 'Emergency profile duration', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadBalanceDeviceMessage.parameters.emergencyprofileidlookup', 'Emergency profile group IDs', 'L', 'Y', 'N', 'MDW', sysdate);
+
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceMessageCategories.ADVANCED_TEST', 'Advanced test messages', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AdvancedTestMessage.xmlconfig', 'XML', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AdvancedTestMessage.XML_CONFIG', 'XML configuration', 'L', 'Y', 'N', 'MDW', sysdate);

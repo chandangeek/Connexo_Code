@@ -860,8 +860,7 @@ public abstract class GenericMessaging implements Messaging {
      * @param advanced - indicates whether it's an advanced message or not
      * @return the newly created MessageSpec
      */
-    protected MessageSpec addDefaultValueMsg(String keyId, String tagName,
-                                             boolean advanced) {
+    protected MessageSpec addDefaultValueMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();
