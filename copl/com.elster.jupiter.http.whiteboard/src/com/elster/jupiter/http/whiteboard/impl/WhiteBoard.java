@@ -28,7 +28,7 @@ public class WhiteBoard {
 		this.eventAdmin = eventAdmin;
 	}
 	
-	@Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
+	@Reference(name = "ZResource" , cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
 	public void addResource(HttpResource resource) {
 		HttpContext httpContext = new HttpContextImpl(resource.getResolver());
 		try {
