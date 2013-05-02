@@ -10,10 +10,12 @@ import java.util.List;
 
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.PersistenceAware;
 import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
+import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.sql.util.SqlBuilder;
 import com.elster.jupiter.sql.util.SqlFragment;
 import static com.elster.jupiter.orm.plumbing.Bus.getConnection;

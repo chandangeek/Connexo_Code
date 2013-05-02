@@ -4,7 +4,7 @@ import java.lang.reflect.*;
 
 import com.elster.jupiter.orm.PersistenceException;
 
-enum DomainMapper {
+public enum DomainMapper {
 	FIELD;
 		
 	public Object get(Object target , String  fieldPath) {
@@ -39,7 +39,7 @@ enum DomainMapper {
 		}
 	}
 	
-	void set(Object target , String  fieldPath, Object value) {		
+	public void set(Object target , String  fieldPath, Object value) {		
 		String[] fieldNames = fieldPath.split("\\.");
 		if (fieldNames.length > 1) {
 			if (value != null) {

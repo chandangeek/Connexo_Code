@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.elster.jupiter.orm.Column;
 
-class TableSqlGenerator {
+public class TableSqlGenerator {
 	private final TableImpl table;
 	private final ColumnImpl[] allColumns;
 	
@@ -30,7 +30,7 @@ class TableSqlGenerator {
 		}		
 	}
 	
-	void appendTable(StringBuilder sb, String separator , String alias) {
+	public void appendTable(StringBuilder sb, String separator , String alias) {
 		sb.append(separator);
 		sb.append(table.getQualifiedName());
 		if (alias != null ) {

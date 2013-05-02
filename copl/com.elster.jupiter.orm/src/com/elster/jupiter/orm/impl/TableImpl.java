@@ -3,6 +3,11 @@ package com.elster.jupiter.orm.impl;
 import java.util.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.orm.fields.impl.FieldMapping;
+import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
+import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
+import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.plumbing.Bus;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
@@ -18,11 +23,11 @@ public class TableImpl implements Table , PersistenceAware  {
 	private String journalTableName;
 	
 	// associations
-	private Component component;
+	private DataModel component;
 	private List<Column> columns;
 	private List<TableConstraint> constraints;
 		
-	TableImpl(Component component, String schema, String name) {
+	TableImpl(DataModel component, String schema, String name) {
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
@@ -87,9 +92,9 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 
 	@Override
-	public Component getComponent() {
+	public DataModel getDataModel() {
 		if (component == null) {
-			component = Bus.getOrmClient().getComponentFactory().get(componentName);
+			component = Bus.getOrmClient().getDataModelFactory().get(componentName);
 		}
 		return component;
 	}
@@ -302,7 +307,7 @@ public class TableImpl implements Table , PersistenceAware  {
 
 	@Override
 	public TableConstraint addForeignKeyConstraint(String name, String referencedTableName, DeleteRule deleteRule , String fieldName , String reverseFieldName , String reverseCurrentName , Column... columns) {
-		Table referencedTable = getComponent().getTable(referencedTableName);		
+		Table referencedTable = getDataModel().getTable(referencedTableName);		
 		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName , reverseFieldName , reverseCurrentName , columns); 					
 	}
 	
@@ -313,7 +318,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	@Override
 	public TableConstraint addForeignKeyConstraint(String name, String component , String referencedTableName, DeleteRule deleteRule , String fieldName, Column... columns) {
-		Table referencedTable = Bus.getOrmClient().getTable(component, referencedTableName);		
+		Table referencedTable = Bus.getOrmClient().getTableFactory().get(component, referencedTableName);		
 		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName, null, null , columns); 					
 	}
 
@@ -435,11 +440,14 @@ public class TableImpl implements Table , PersistenceAware  {
 				return FieldType.ASSOCIATION;
 			}
 		}
-		for (Table table : getComponent().getTables()) {
+		for (Table table : getDataModel().getTables()) {
 			if (!table.equals(this)) {
 				for (TableConstraint each : table.getConstraints()) {
-					if (fieldName.equals(each.getFieldName())) {
+					if (fieldName.equals(each.getReverseFieldName())) {
 						return FieldType.REVERSEASSOCIATION;
+					} 
+					if (fieldName.equals(each.getReverseCurrentName())) {
+						return FieldType.CURRENTASSOCIATION;
 					}
 				}
 			}
@@ -447,7 +455,7 @@ public class TableImpl implements Table , PersistenceAware  {
 		return null;
 	}
 	
-	FieldMapping getFieldMapping(String fieldName) {
+	public FieldMapping getFieldMapping(String fieldName) {
 		if (fieldName == null) {
 			return null;
 		}
@@ -464,7 +472,7 @@ public class TableImpl implements Table , PersistenceAware  {
 				return new ForwardConstraintMapping(each);
 			}
 		}
-		for (Table table : getComponent().getTables()) {
+		for (Table table : getDataModel().getTables()) {
 			if (!table.equals(this)) {
 				for (TableConstraint each : table.getConstraints()) {
 					if (fieldName.equals(each.getFieldName())) {

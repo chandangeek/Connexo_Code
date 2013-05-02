@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import java.util.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.orm.plumbing.OrmClient;
 
@@ -96,7 +97,7 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 		}
 		if (referencedTable == null) {
 			if (referencedComponentName.equals(componentName)) {
-				referencedTable = getTable().getComponent().getTable(referencedTableName);
+				referencedTable = getTable().getDataModel().getTable(referencedTableName);
 			} else {
 				referencedTable = getOrmClient().getTableFactory().get(referencedComponentName, referencedTableName);
 			}
@@ -162,13 +163,12 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 		}
 	}
 	
-	@Override
-	public String getComponentName() {
+	String getComponentName() {
 		return componentName;
 	}
 
-	@Override
-	public String getTableName() {
+
+	String getTableName() {
 		return tableName;
 	}
 

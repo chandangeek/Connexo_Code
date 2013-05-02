@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import java.sql.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.orm.plumbing.OrmClient;
 
@@ -143,7 +144,7 @@ public class ColumnImpl implements Column  {
 		getOrmClient().getColumnFactory().persist(this);
 	}
 	
-	Object convertToDb(Object value) {
+	public Object convertToDb(Object value) {
 		return conversion.convertToDb(value);		
 	}
 	

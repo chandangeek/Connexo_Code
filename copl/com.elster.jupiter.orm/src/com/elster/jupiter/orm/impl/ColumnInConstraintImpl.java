@@ -19,7 +19,7 @@ public class ColumnInConstraintImpl {
 	private ColumnInConstraintImpl() {		
 	}
 
-	ColumnInConstraintImpl(TableConstraint constraint, Column column, int position) {
+	ColumnInConstraintImpl(TableConstraintImpl constraint, Column column, int position) {
 		this.componentName = constraint.getComponentName();
 		this.tableName = constraint.getTableName();
 		this.constraintName = constraint.getName();

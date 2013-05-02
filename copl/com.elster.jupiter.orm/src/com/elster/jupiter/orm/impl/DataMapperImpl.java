@@ -4,8 +4,9 @@ import java.util.*;
 import java.lang.reflect.Constructor;
 import java.sql.*;
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 
-class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataMapper<T> {
+public class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataMapper<T> {
 	
 	final private TableSqlGenerator sqlGenerator;
 	final private DomainMapper mapper = DomainMapper.FIELD;
@@ -39,7 +40,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		return builder.length() == 0 ? "a" : builder.toString().toLowerCase();
 	}
 	
-	String getAlias() {
+	public String getAlias() {
 		return alias;
 	}
 	
@@ -48,7 +49,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		return sqlGenerator.getTable();
 	}
 	
-	TableSqlGenerator getSqlGenerator() {
+	public TableSqlGenerator getSqlGenerator() {
 		return sqlGenerator;
 	}
 	
@@ -85,7 +86,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		}
 	}
 
-	T construct(ResultSet rs, int startIndex) throws SQLException {						
+	public T construct(ResultSet rs, int startIndex) throws SQLException {						
 		return reader.construct(rs,startIndex);
 	}
 	
@@ -187,7 +188,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		return result;
 	}
 	
-	Object convert(Column column , String value) {
+	public Object convert(Column column , String value) {
 		if (column.isEnum()) {
 			return getEnum(column,value);
 		} else {
@@ -217,7 +218,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		return ((ColumnImpl) column).convertFromDb(rs, startIndex + offset);
 	}
 	
-	Object getPrimaryKey(ResultSet rs , int index) throws SQLException {
+	public Object getPrimaryKey(ResultSet rs , int index) throws SQLException {
 		Column[] primaryKeyColumns = getSqlGenerator().getPrimaryKeyColumns();
 		switch (primaryKeyColumns.length) {
 			case 0:
@@ -249,7 +250,7 @@ class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataM
 		return null;
 	}
 	
-	Class<?> getType(String fieldName) {
+	public Class<?> getType(String fieldName) {
 		return mapper.getType(implementation, fieldName);
 	}
 }

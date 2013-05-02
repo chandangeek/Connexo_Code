@@ -6,16 +6,16 @@ public interface TableConstraint {
 	String getName();
 	List<Column> getColumns();
 	Table getTable();
-	Table getReferencedTable();	
-	DeleteRule getDeleteRule();
-	String getComponentName();
-	String getTableName();
 	boolean isPrimaryKeyConstraint();
 	boolean isUniqueConstraint();
 	boolean isForeignKeyConstraint();
+	boolean isNotNull();
+	Object[] getColumnValues(Object value);
+
+	// following only relevant for FK constraint
+	Table getReferencedTable();	
+	DeleteRule getDeleteRule();
 	String getFieldName();
 	String getReverseFieldName();
 	String getReverseCurrentName();
-	boolean isNotNull();
-	Object[] getColumnValues(Object value);
 }

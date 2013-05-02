@@ -3,7 +3,7 @@ package com.elster.jupiter.orm;
 import java.util.List;
 
 public interface Table {	
-	Component getComponent();
+	DataModel getDataModel();
 	String getSchema();	
 	String getName();
 	String getQualifiedName();
@@ -11,7 +11,7 @@ public interface Table {
 	List<TableConstraint> getConstraints();
 	TableConstraint getPrimaryKeyConstraint();
 	List<TableConstraint> getForeignKeyConstraints();
-	TableConstraint getConstraintForField(String name);
+	TableConstraint getConstraintForField(String fieldName);
 	String getComponentName();
 	Column getColumn(String name);	
 	Column getColumnForField(String fieldName);

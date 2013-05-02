@@ -1,5 +1,8 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.orm.impl,\
-	com.elster.jupiter.orm.plumbing
-Export-Package: com.elster.jupiter.orm
+	com.elster.jupiter.orm.plumbing,\
+	com.elster.jupiter.orm.query.impl,\
+	com.elster.jupiter.orm.fields.impl
+Export-Package: com.elster.jupiter.orm,\
+	com.elster.jupiter.orm.callback
 Bundle-Name: com.elster.jupiter.orm
