@@ -1,85 +1,74 @@
 package com.elster.jupiter.metering.plumbing;
 
 import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.impl.AmrSystemImpl;
-import com.elster.jupiter.metering.impl.ChannelImpl;
-import com.elster.jupiter.metering.impl.MeterActivationImpl;
-import com.elster.jupiter.metering.impl.MeterImpl;
-import com.elster.jupiter.metering.impl.ReadingTypeImpl;
-import com.elster.jupiter.metering.impl.ReadingTypeInChannel;
-import com.elster.jupiter.metering.impl.ServiceCategoryImpl;
-import com.elster.jupiter.metering.impl.ServiceLocationImpl;
-import com.elster.jupiter.metering.impl.UsagePointImpl;
+import com.elster.jupiter.metering.impl.*;
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.cache.TypeCache;
 
-import static com.elster.jupiter.metering.plumbing.Bus.*;
 import static com.elster.jupiter.metering.plumbing.TableSpecs.*;
 
 public class OrmClientImpl implements OrmClient {
 	
-	private final OrmService service;
+	private final DataModel dataModel;
 	
-	public OrmClientImpl(OrmService service) {
-		this.service = service;
+	public OrmClientImpl(DataModel dataModel) {
+		this.dataModel = dataModel;
 	}
 	
 	@Override
 	public TypeCache<ServiceCategory> getServiceCategoryFactory() {
-		return Bus.getCacheService().getTypeCache(ServiceCategory.class, ServiceCategoryImpl.class , COMPONENTNAME , MTR_SERVICECATEGORY.name());
+		return Bus.getComponentCache().getTypeCache(ServiceCategory.class, ServiceCategoryImpl.class, MTR_SERVICECATEGORY.name());
 	}
 	
 	@Override
 	public DataMapper<ServiceLocation> getServiceLocationFactory() {
-		return service.getDataMapper(ServiceLocation.class, ServiceLocationImpl.class , COMPONENTNAME , MTR_SERVICELOCATION.name());
+		return dataModel.getDataMapper(ServiceLocation.class, ServiceLocationImpl.class, MTR_SERVICELOCATION.name());
 	}
 	
 	@Override
 	public TypeCache<AmrSystem> getAmrSystemFactory() {
-		return Bus.getCacheService().getTypeCache(AmrSystem.class, AmrSystemImpl.class, COMPONENTNAME , MTR_AMRSYSTEM.name());
+		return Bus.getComponentCache().getTypeCache(AmrSystem.class, AmrSystemImpl.class , MTR_AMRSYSTEM.name());
 	}
 	
 	@Override
 	public TypeCache<ReadingType> getReadingTypeFactory() {
-		return Bus.getCacheService().getTypeCache(ReadingType.class, ReadingTypeImpl.class , COMPONENTNAME , MTR_READINGTYPE.name());
+		return Bus.getComponentCache().getTypeCache(ReadingType.class, ReadingTypeImpl.class, MTR_READINGTYPE.name());
 	}
 	
 	@Override
 	public DataMapper<UsagePoint> getUsagePointFactory() {
-		return service.getDataMapper(UsagePoint.class, UsagePointImpl.class , COMPONENTNAME , MTR_USAGEPOINT.name());
+		return dataModel.getDataMapper(UsagePoint.class, UsagePointImpl.class, MTR_USAGEPOINT.name());
 	}
 	
 	@Override
 	public DataMapper<Meter> getMeterFactory() {
-		return service.getDataMapper(Meter.class, MeterImpl.class , COMPONENTNAME , MTR_METER.name());
+		return dataModel.getDataMapper(Meter.class, MeterImpl.class, MTR_METER.name());
 	}
 
 	@Override
 	public DataMapper<MeterActivation> getMeterActivationFactory() {
-		return service.getDataMapper(MeterActivation.class, MeterActivationImpl.class , COMPONENTNAME , MTR_METERACTIVATION.name());
+		return dataModel.getDataMapper(MeterActivation.class, MeterActivationImpl.class, MTR_METERACTIVATION.name());
 	}
 	
 	@Override
 	public DataMapper<Channel> getChannelFactory() {
-		return service.getDataMapper(Channel.class, ChannelImpl.class , COMPONENTNAME , MTR_CHANNEL.name());
+		return dataModel.getDataMapper(Channel.class, ChannelImpl.class, MTR_CHANNEL.name());
 	}
 
 	@Override
 	public DataMapper<ReadingTypeInChannel> getReadingTypeInChannelFactory() {
-		return service.getDataMapper(ReadingTypeInChannel.class, ReadingTypeInChannel.class , COMPONENTNAME , MTR_READINGTYPEINCHANNEL.name());
+		return dataModel.getDataMapper(ReadingTypeInChannel.class, ReadingTypeInChannel.class, MTR_READINGTYPEINCHANNEL.name());
 	}
 
 	@Override
 	public void install(boolean executeDdl,boolean saveMappings) {
-		service.install(createComponent(),executeDdl,saveMappings);		
+		dataModel.install(executeDdl,saveMappings);		
 	}
 	
-	private Component createComponent() {
-		Component result = service.newComponent(COMPONENTNAME,"CIM Metering");
-		for (TableSpecs spec : TableSpecs.values()) {
-			spec.addTo(result);			
-		}
-		return result;
+	@Override
+	public DataModel getDataModel() {
+		return dataModel;
 	}
+	
 		
 }

@@ -5,7 +5,7 @@ import static com.elster.jupiter.orm.DeleteRule.*;
 
 import com.elster.jupiter.orm.*;
 
-enum TableSpecs {
+public enum TableSpecs {
 	MTR_SERVICECATEGORY {
 		void describeTable(Table table) {
 			table.setJournalTableName("MTR_SERVICECATEGORYJRNL");
@@ -205,7 +205,7 @@ enum TableSpecs {
 		}
 	};
 		
-	void addTo(Component component) {
+	public void addTo(DataModel component) {
 		Table table = component.addTable(name());
 		describeTable(table);
 	}

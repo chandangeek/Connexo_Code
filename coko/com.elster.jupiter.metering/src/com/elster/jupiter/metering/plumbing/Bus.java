@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.plumbing;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.orm.cache.CacheService;
+import com.elster.jupiter.orm.cache.ComponentCache;
 
 public class Bus {
 	
@@ -26,8 +26,8 @@ public class Bus {
 		return locator.getQueryService();
 	}
 	
-	static CacheService getCacheService() {
-		return locator.getCacheService();		
+	static ComponentCache getComponentCache() {
+		return locator.getComponentCache();		
 	}
 	
 	// pure static class;

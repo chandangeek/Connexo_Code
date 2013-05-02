@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.plumbing.Bus;
-import com.elster.jupiter.orm.PersistenceAware;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.UtcInstant;
 import com.elster.jupiter.cbo.*;
 

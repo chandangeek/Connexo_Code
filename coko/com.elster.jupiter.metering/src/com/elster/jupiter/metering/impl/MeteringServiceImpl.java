@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -10,14 +12,16 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.plumbing.*;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
+import com.elster.jupiter.orm.cache.ComponentCache;
 
 @Component (name = "com.elster.jupiter.metering", service=MeteringService.class)
 public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 
 	private volatile OrmClient ormClient;
-	private volatile CacheService cacheService;
+	private volatile ComponentCache componentCache;
 	private volatile IdsService idsService;
 	private volatile QueryService queryService;
 
@@ -97,8 +101,8 @@ public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 	}
 
 	@Override
-	public CacheService getCacheService() {
-		return cacheService;
+	public ComponentCache getComponentCache() {
+		return componentCache;
 	}
 
 	@Override
@@ -113,17 +117,23 @@ public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 
 	@Reference
 	public void setOrmService(OrmService ormService) {
-		this.ormClient = new OrmClientImpl(ormService);
+		DataModel dataModel = ormService.getDataModel(Bus.COMPONENTNAME);
+		if (dataModel == null) {
+			dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
+			for (TableSpecs spec : TableSpecs.values()) {
+				spec.addTo(dataModel);			
+			}						
+		}
+		this.ormClient = new OrmClientImpl(dataModel);
 	}
 	
-	@Reference
+	@Reference(name = "ZCacheService")
 	public void setCacheService(CacheService cacheService) {
-		this.cacheService = cacheService;
+		this.componentCache = cacheService.getComponentCache(ormClient.getDataModel());
 	}
 	
 	@Reference
 	public void setIdsService(IdsService idsService) {
-		System.out.println("set ids service");
 		this.idsService = idsService;
 	}
 	
