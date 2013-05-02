@@ -1,6 +1,8 @@
 package com.elster.jupiter.users.impl;
 
 class Bus {	
+	public static final String COMPONENTNAME = "USR";
+	
 	private static volatile ServiceLocator locator;
 	
 	static ServiceLocator getServiceLocator() {

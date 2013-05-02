@@ -6,51 +6,41 @@ import com.elster.jupiter.users.*;
 import static com.elster.jupiter.users.impl.TableSpecs.*;
 
 class OrmClientImpl implements OrmClient {
-	
-	private static final String COMPONENTNAME = "USR";
-	
-	private final OrmService service;
-	
-	OrmClientImpl(OrmService service) {
-		this.service = service;
-	}
 
+	private final DataModel dataModel;
+	
+	OrmClientImpl(DataModel dataModel) {
+		this.dataModel = dataModel;
+	}
 	
 	@Override
 	public DataMapper<PrivilegeDescription> getPrivilegeDescriptionFactory() {
-		return service.getDataMapper(PrivilegeDescription.class, PrivilegeDescriptionImpl.class , COMPONENTNAME , USR_PRIVILEGES.name());
+		return dataModel.getDataMapper(PrivilegeDescription.class, PrivilegeDescriptionImpl.class, USR_PRIVILEGES.name());
 	}
 
 	@Override
 	public DataMapper<Role> getRoleFactory() {
-		return service.getDataMapper(Role.class, RoleImpl.class , COMPONENTNAME , USR_ROLES.name());
+		return dataModel.getDataMapper(Role.class, RoleImpl.class, USR_ROLES.name());
 	}
 	
 	@Override
 	public DataMapper<User> getUserFactory() {
-		return service.getDataMapper(User.class, UserImpl.class , COMPONENTNAME , USR_USERS.name());
+		return dataModel.getDataMapper(User.class, UserImpl.class, USR_USERS.name());
 	}
 	
 	@Override
 	public DataMapper<PrivilegeInRole> getPrivilegeInRoleFactory() {
-		return service.getDataMapper(PrivilegeInRole.class, PrivilegeInRole.class , COMPONENTNAME , USR_PRIVILEGEINROLE.name());
+		return dataModel.getDataMapper(PrivilegeInRole.class, PrivilegeInRole.class, USR_PRIVILEGEINROLE.name());
 	}
 
 	@Override
 	public DataMapper<UserInRole> getUserInRoleFactory() {
-		return service.getDataMapper(UserInRole.class, UserInRole.class , COMPONENTNAME , USR_USERINROLE.name());
+		return dataModel.getDataMapper(UserInRole.class, UserInRole.class, USR_USERINROLE.name());
 	}
 
 	@Override
 	public void install(boolean executeDdl,boolean saveMappings) {
-		service.install(createComponent(),executeDdl,saveMappings);		
+		dataModel.install(executeDdl,saveMappings);		
 	}
 	
-	private Component createComponent() {
-		Component result = service.newComponent(COMPONENTNAME,"User admin");
-		for (TableSpecs spec : TableSpecs.values()) {
-			spec.addTo(result);			
-		}
-		return result;
-	}
 }

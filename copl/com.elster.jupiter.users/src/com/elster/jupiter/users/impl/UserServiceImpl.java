@@ -7,6 +7,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Privilege;
@@ -28,7 +29,14 @@ public class UserServiceImpl implements UserService , ServiceLocator {
 
 	@Reference
 	public void setOrmService(OrmService ormService) {
-		this.ormClient = new OrmClientImpl(ormService);
+		DataModel dataModel = ormService.getDataModel(Bus.COMPONENTNAME);
+		if (dataModel == null) {
+			dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "User Management");
+			for (TableSpecs spec : TableSpecs.values()) {
+				spec.addTo(dataModel);			
+			}			
+		}
+		this.ormClient = new OrmClientImpl(dataModel);
 	}
 
 	@Override
