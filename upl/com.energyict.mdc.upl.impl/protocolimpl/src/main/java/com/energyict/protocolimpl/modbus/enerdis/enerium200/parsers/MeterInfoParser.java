@@ -1,14 +1,14 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.TimeZone;
-
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.Parser;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.MeterInfo;
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class MeterInfoParser implements Parser {
 
@@ -54,7 +54,7 @@ public class MeterInfoParser implements Parser {
 		byte[] versionRaw = ProtocolUtils.getSubArray2(rawData, VERSION_OFFSET, VERSION_LENGTH);
 		int major = ((int)versionRaw[0]) & 0x000000FF;
 		int minor = ((int)versionRaw[1]) & 0x000000FF;
-		returnValue = "Main board: " + major + "." + minor;
+        returnValue = "Main board: " + major + "." + (minor < 10 ? "0" + minor : minor);
 		return returnValue;
 	}
 
