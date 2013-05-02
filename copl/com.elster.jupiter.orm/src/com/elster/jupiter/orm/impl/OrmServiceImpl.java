@@ -88,7 +88,7 @@ public class OrmServiceImpl implements OrmService , ServiceLocator {
 	
 	@Activate
 	public void activate() {
-		this.ormClient = new OrmClientImpl(this);
+		this.ormClient = new OrmClientImpl();
 		Bus.setServiceLocator(this);
 	}
 	

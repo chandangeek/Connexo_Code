@@ -13,7 +13,7 @@ public class OrmClientImpl implements OrmClient  {
 	
 	private final DataModel dataModel;
 	
-	public OrmClientImpl(OrmService service) {	
+	public OrmClientImpl() {	
 		this.dataModel = createDataModel();		
 	}
 	
