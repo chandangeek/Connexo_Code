@@ -33,4 +33,7 @@ public class DeviceMessageConstants {
     public static final String emergencyProfileDurationAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyProfileDuration";
     public static final String emergencyProfileIdLookupAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyprofileidlookup";
     public static final String xmlConfigAttributeName = "AdvancedTestMessage.xmlconfig";
+    public static final String loadProfileAttributeName = "loadProfile";
+    public static final String fromDateAttributeName = "from";
+    public static final String toDateAttributeName = "to";
 }

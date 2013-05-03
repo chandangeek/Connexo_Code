@@ -5,6 +5,7 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -16,6 +17,7 @@ import com.energyict.protocolimplv2.messages.DlmsAuthenticationLevelMessageValue
 import com.energyict.protocolimplv2.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivateDlmsEncryptionMessageEntry;
@@ -42,10 +44,14 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.Firm
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.FirmwareUpgradeWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GlobalMeterReset;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GprsUserCredentialsMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.LoadProfileRegisterRequestMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEmergencyProfileGroupIds;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDayTableMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfig;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfigMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +66,10 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Time: 16:26
  */
 public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
+
+    private static final String EMPTY_FORMAT = "";
+
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss z");
 
     /**
      * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
@@ -111,7 +121,11 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
         registry.put(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION, new ClearLoadLimitConfigurations());
 
         // Advanced test
-        registry.put(AdvancedTestMessage.XML_CONFIG, new XmlConfig(xmlConfigAttributeName));
+        registry.put(AdvancedTestMessage.XML_CONFIG, new XmlConfigMessageEntry(xmlConfigAttributeName));
+
+        // LoadProfiles
+        registry.put(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
+        registry.put(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
     }
 
     /**
@@ -154,8 +168,13 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
+        } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
+            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+        } else if (propertySpec.getName().equals(fromDateAttributeName)
+                || propertySpec.getName().equals(toDateAttributeName)) {
+            return dateFormat.format((Date) messageAttribute);
         }
-        return null;
+        return EMPTY_FORMAT;
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {

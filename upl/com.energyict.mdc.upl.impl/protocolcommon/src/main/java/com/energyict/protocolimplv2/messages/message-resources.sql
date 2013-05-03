@@ -42,3 +42,7 @@ insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceMessageCategories.ADVANCED_TEST', 'Advanced test messages', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AdvancedTestMessage.xmlconfig', 'XML', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('AdvancedTestMessage.XML_CONFIG', 'XML configuration', 'L', 'Y', 'N', 'MDW', sysdate);
+
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceMessageCategories.LOAD_PROFILES', 'LoadProfile messages', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST', 'Partial load profile request', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST', 'Load profile register request', 'L', 'Y', 'N', 'MDW', sysdate);

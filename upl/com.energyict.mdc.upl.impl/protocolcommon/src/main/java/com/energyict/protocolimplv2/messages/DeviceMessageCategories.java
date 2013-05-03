@@ -109,6 +109,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(AdvancedTestMessage.values());
         }
+    },
+    /**
+     * This category summarizes all messages related to a LoadProfile
+     */
+    LOAD_PROFILES {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(LoadProfileMessage.values());
+        }
     };
 
 

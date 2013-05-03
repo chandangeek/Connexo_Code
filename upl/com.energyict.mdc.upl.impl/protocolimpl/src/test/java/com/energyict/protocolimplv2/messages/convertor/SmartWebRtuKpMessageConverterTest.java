@@ -2,15 +2,22 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
+import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.messages.DeviceMessageSpecFactoryImpl;
+import com.energyict.mdw.amr.RegisterMapping;
+import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Code;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdw.core.LoadProfileSpec;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -20,6 +27,7 @@ import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
@@ -48,6 +56,12 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SmartWebRtuKpMessageConverterTest {
+
+    private static final String METER_SERIAL_NUMBER = "SomeSerialNumber";
+    private static final ObisCode LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
+    private static final ObisCode OBISCODE1 = ObisCode.fromString("1.0.1.8.0.255");
+    private static final ObisCode OBISCODE2 = ObisCode.fromString("1.0.2.8.0.255");
+    private static final Unit UNIT = Unit.get("kWh");
 
     @Mock
     private ServerManager serverManager;
@@ -394,6 +408,85 @@ public class SmartWebRtuKpMessageConverterTest {
 
         // asserts
         assertThat(formattedXml).isEqualTo(xmlString);
+    }
+
+    @Test
+    public void formatFromDateTest() {
+        Date fromDate = new Date(1367581336000L);
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(fromDateAttributeName);
+
+        // business method
+        final String formattedFromDate = smartWebRtuKpMessageConverter.format(propertySpec, fromDate);
+
+        // asserts
+        assertThat(formattedFromDate).isEqualTo("2013/05/03 - 13:42:16 CEST");
+    }
+
+    @Test
+    public void formatToDateTest() {
+        Date fromDate = new Date(1367581336000L);
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(toDateAttributeName);
+
+        // business method
+        final String formattedFromDate = smartWebRtuKpMessageConverter.format(propertySpec, fromDate);
+
+        // asserts
+        assertThat(formattedFromDate).isEqualTo("2013/05/03 - 13:42:16 CEST");
+    }
+
+    @Test
+    public void formatLoadProfileAttributeTest() {
+        final String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPId=\"0\" LPObisCode=\"1.0.99.1.0.255\" MSerial=\"SomeSerialNumber\"><Channels><Ch ID=\"SomeSerialNumber\" Id=\"0\" Name=\"1.0.1.8.0.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"1\" Name=\"1.0.2.8.0.255\" Unit=\"kWh\"/></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\"/></RtuRegs></LoadProfile>";
+        Device device = createdMockedDevice();
+        Channel channel1 = createdMockedChannel(device, OBISCODE1);
+        Channel channel2 = createdMockedChannel(device, OBISCODE2);
+        LoadProfile loadProfile = createMockedLoadProfile();
+        when(loadProfile.getRtu()).thenReturn(device);
+        when(loadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2));
+
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(loadProfileAttributeName);
+
+        // business method
+        final String formattedLoadProfile = smartWebRtuKpMessageConverter.format(propertySpec, loadProfile);
+
+        // assert
+        assertThat(formattedLoadProfile).isEqualTo(expectedXml);
+    }
+
+
+    private LoadProfile createMockedLoadProfile() {
+        LoadProfile loadProfile = mock(LoadProfile.class);
+        LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
+        when(loadProfileSpec.getObisCode()).thenReturn(LOAD_PROFILE_OBISCODE);
+        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
+        return loadProfile;
+    }
+
+    private Channel createdMockedChannel(Device device, ObisCode obisCode) {
+        Channel channel = mock(Channel.class);
+        RegisterMapping registerMapping = createMockedRegisterMapping(obisCode);
+        when(channel.getRtu()).thenReturn(device);
+        when(channel.getRtuRegisterMapping()).thenReturn(registerMapping);
+        return channel;
+    }
+
+    private RegisterMapping createMockedRegisterMapping(ObisCode obisCode) {
+        RegisterMapping registerMapping = mock(RegisterMapping.class);
+        when(registerMapping.getObisCode()).thenReturn(obisCode);
+        when(registerMapping.getUnit()).thenReturn(UNIT);
+        return registerMapping;
+    }
+
+    private Device createdMockedDevice() {
+        Device device = mock(Device.class);
+        when(device.getSerialNumber()).thenReturn(METER_SERIAL_NUMBER);
+        return device;
     }
 
     @Test
@@ -995,5 +1088,61 @@ public class SmartWebRtuKpMessageConverterTest {
         // asserts
         assertNotNull(messageEntry);
         assertThat(messageEntry.getContent()).isEqualTo("<XMLConfig><SomeXml><></><bla>Tralalala<bla/><></><SomeXml/></XMLConfig>");
+    }
+
+    @Test
+    public void sendPartialLoadProfileTest() {
+        final String expectedMessageContent = "<PartialLoadProfile EndTime=\"13/03/2013 11:32:25\" LPId=\"821\" LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\"><Channels><Ch ID=\"SomeSerialNumber\" Id=\"0\" Name=\"1.0.1.8.1.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"1\" Name=\"1.0.1.8.2.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"2\" Name=\"1.0.2.8.1.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"3\" Name=\"1.0.2.8.2.255\" Unit=\"kWh\"/></Channels></PartialLoadProfile>";
+        final String loadProfileAttributeValue = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\" EndTime=\"13/03/2013 11:32:25\" LPId=\"821\"><Channels><Ch Id=\"0\" Name=\"1.0.1.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"1\" Name=\"1.0.1.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"2\" Name=\"1.0.2.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"3\" Name=\"1.0.2.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\"/></RtuRegs></LoadProfile>";
+
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        OfflineDeviceMessage partialLoadProfileDeviceMessage = mock(OfflineDeviceMessage.class);
+        when(partialLoadProfileDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getPrimaryKey());
+        OfflineDeviceMessageAttribute loadProfileAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(loadProfileAttribute.getName()).thenReturn(loadProfileAttributeName);
+        when(loadProfileAttribute.getDeviceMessageAttributeValue()).thenReturn(loadProfileAttributeValue);
+        OfflineDeviceMessageAttribute fromDateAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(fromDateAttribute.getName()).thenReturn(fromDateAttributeName);
+        when(fromDateAttribute.getDeviceMessageAttributeValue()).thenReturn("06/02/2013 10:00:25");
+        OfflineDeviceMessageAttribute toDateAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(toDateAttribute.getName()).thenReturn(toDateAttributeName);
+        when(toDateAttribute.getDeviceMessageAttributeValue()).thenReturn("13/03/2013 11:32:25");
+        when(partialLoadProfileDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(loadProfileAttribute, fromDateAttribute, toDateAttribute));
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(partialLoadProfileDeviceMessage);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo(expectedMessageContent);
+    }
+
+    @Test
+    public void sendRegisterRequestFromLoadProfilesTest() {
+        final String expectedMessageContent = "<LoadProfileRegister LPId=\"821\" LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\"><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\"/></RtuRegs></LoadProfileRegister>";
+        final String loadProfileAttributeValue = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\" EndTime=\"13/03/2013 11:32:25\" LPId=\"821\"><Channels><Ch Id=\"0\" Name=\"1.0.1.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"1\" Name=\"1.0.1.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"2\" Name=\"1.0.2.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"3\" Name=\"1.0.2.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\"/></RtuRegs></LoadProfile>";
+
+        Messaging smartMeterProtocol = new WebRTUKP();
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
+
+        OfflineDeviceMessage registerRequestDeviceMessage = mock(OfflineDeviceMessage.class);
+        when(registerRequestDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST.getPrimaryKey());
+        OfflineDeviceMessageAttribute loadProfileAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(loadProfileAttribute.getName()).thenReturn(loadProfileAttributeName);
+        when(loadProfileAttribute.getDeviceMessageAttributeValue()).thenReturn(loadProfileAttributeValue);
+        OfflineDeviceMessageAttribute fromDateAttribute = mock(OfflineDeviceMessageAttribute.class);
+        when(fromDateAttribute.getName()).thenReturn(fromDateAttributeName);
+        when(fromDateAttribute.getDeviceMessageAttributeValue()).thenReturn("06/02/2013 10:00:25");
+        when(registerRequestDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(loadProfileAttribute, fromDateAttribute));
+
+        // business method
+        final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(registerRequestDeviceMessage);
+
+        // asserts
+        assertNotNull(messageEntry);
+        assertThat(messageEntry.getContent()).isEqualTo(expectedMessageContent);
     }
 }

@@ -15,11 +15,11 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Date: 2/05/13
  * Time: 10:04
  */
-public class XmlConfig implements MessageEntryCreator {
+public class XmlConfigMessageEntry implements MessageEntryCreator {
 
     private final String xmlConfigAttributeName;
 
-    public XmlConfig(String xmlConfigAttributeName) {
+    public XmlConfigMessageEntry(String xmlConfigAttributeName) {
         this.xmlConfigAttributeName = xmlConfigAttributeName;
     }
 
