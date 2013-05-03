@@ -28,7 +28,7 @@ public class LoadProfileMessageUtilsTest {
     private static final ObisCode OBISCODE2 = ObisCode.fromString("1.0.2.8.0.255");
     private static final Unit UNIT = Unit.get("kWh");
 
-    private static final String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile><LPObisCode>1.0.99.1.0.255</LPObisCode><MSerial>SomeSerialNumber</MSerial><LPId>0</LPId><Channels><Ch><Id>0</Id><Name>1.0.1.8.0.255</Name><Unit>kWh</Unit><ID>SomeSerialNumber</ID></Ch><Ch><Id>1</Id><Name>1.0.2.8.0.255</Name><Unit>kWh</Unit><ID>SomeSerialNumber</ID></Ch></Channels><RtuRegs><Reg><OC>1.0.1.8.0.255</OC><ID>SomeSerialNumber</ID></Reg><Reg><OC>1.0.2.8.0.255</OC><ID>SomeSerialNumber</ID></Reg></RtuRegs></LoadProfile>";
+    private static final String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPId=\"0\" LPObisCode=\"1.0.99.1.0.255\" MSerial=\"SomeSerialNumber\"><Channels><Ch ID=\"SomeSerialNumber\" Id=\"0\" Name=\"1.0.1.8.0.255\" Unit=\"kWh\"/><Ch ID=\"SomeSerialNumber\" Id=\"1\" Name=\"1.0.2.8.0.255\" Unit=\"kWh\"/></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\"/></RtuRegs></LoadProfile>";
 
     @Test
     public void loadProfileFormatTest() {
