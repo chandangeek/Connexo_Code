@@ -10,12 +10,20 @@
 
 package com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.command;
 
-import java.io.*;
-import java.util.*;
-import java.math.BigDecimal;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.util.Equality;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -150,8 +158,8 @@ RXS4 32k 122k
                 intervalDatas.remove(i+1);
                 continue;
             }
-            if (com.energyict.cbo.Utils.areEqual(intervalData.getEndTime(), intervalData2add.getEndTime())) {
-               ParseUtils.addIntervalValues(intervalData, intervalData2add);
+            if (Equality.equalityHoldsFor(intervalData.getEndTime()).and(intervalData2add.getEndTime())) {
+                ParseUtils.addIntervalValues(intervalData, intervalData2add);
                intervalDatas.remove(i);
             }
         } // for (int i=0;i<(intervalDatas.size()-1);i++)

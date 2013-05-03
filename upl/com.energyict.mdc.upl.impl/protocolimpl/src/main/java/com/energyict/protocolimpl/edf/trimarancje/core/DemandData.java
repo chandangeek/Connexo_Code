@@ -10,6 +10,14 @@
 
 package com.energyict.protocolimpl.edf.trimarancje.core;
 
+import com.energyict.cbo.Unit;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.util.Equality;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,13 +27,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
-
-import com.energyict.cbo.Unit;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.IntervalStateBits;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.base.ParseUtils;
 
 /**
  *
@@ -412,10 +413,10 @@ public class DemandData extends AbstractTable {
         for (int i=0;i<(intervalDatas.size()-1);i++) {
             intervalData2add = (IntervalData)intervalDatas.get(i);
             intervalData = (IntervalData)intervalDatas.get(i+1);
-            if (com.energyict.cbo.Utils.areEqual(intervalData.getEndTime(), intervalData2add.getEndTime())) {
-               ParseUtils.addIntervalValues(intervalData, intervalData2add);
-               intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
-               intervalDatas.remove(i);
+            if (Equality.equalityHoldsFor(intervalData.getEndTime()).and(intervalData2add.getEndTime())) {
+                ParseUtils.addIntervalValues(intervalData, intervalData2add);
+                intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
+                intervalDatas.remove(i);
             }
         } // for (int i=0;i<(intervalDatas.size()-1);i++)
     }

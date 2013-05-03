@@ -13,6 +13,8 @@ package com.energyict.protocolimpl.edf.trimaran.core;
 import com.energyict.cbo.*;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.*;
+import com.energyict.util.Equality;
+
 import java.io.*;
 import java.util.*;
 
@@ -403,10 +405,10 @@ public class DemandData extends AbstractTable {
         for (int i=0;i<(intervalDatas.size()-1);i++) {
             intervalData2add = (IntervalData)intervalDatas.get(i);
             intervalData = (IntervalData)intervalDatas.get(i+1);
-            if (com.energyict.cbo.Utils.areEqual(intervalData.getEndTime(), intervalData2add.getEndTime())) {
-               ParseUtils.addIntervalValues(intervalData, intervalData2add);
-               intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
-               intervalDatas.remove(i);
+            if (Equality.equalityHoldsFor(intervalData.getEndTime()).and(intervalData2add.getEndTime())) {
+                ParseUtils.addIntervalValues(intervalData, intervalData2add);
+                intervalData.addEiStatus(IntervalStateBits.SHORTLONG);
+                intervalDatas.remove(i);
             }
         } // for (int i=0;i<(intervalDatas.size()-1);i++)
     }
