@@ -144,7 +144,6 @@ public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 
 	@Activate	
 	public void activate() {
-		System.out.println("bundle activated");
 		Bus.setServiceLocator(this);		
 	}
 	
