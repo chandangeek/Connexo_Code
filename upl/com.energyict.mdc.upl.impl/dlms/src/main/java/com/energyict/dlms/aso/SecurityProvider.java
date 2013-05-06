@@ -60,7 +60,7 @@ public interface SecurityProvider {
      *
      * @throws IOException
      */
-    byte[] getDedicatedKey() throws IOException;
+    byte[] getDedicatedKey();
 
     /**
      * A global key used for additional security in the GMC/GMAC encryption

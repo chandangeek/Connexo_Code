@@ -3,13 +3,29 @@ package com.energyict.smartmeterprotocolimpl.elster.apollo;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
+import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SmartMeterProtocol;
+import com.energyict.protocol.WakeUpProtocolSupport;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocol.messaging.TimeOfUseMessaging;
+import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.eventhandling.ApolloEventProfiles;
@@ -17,7 +33,10 @@ import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Message
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -27,10 +46,10 @@ import java.util.logging.Logger;
  */
 public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, MessageProtocol, TimeOfUseMessaging, WakeUpProtocolSupport {
 
-    private AS300Properties properties;
+    protected AS300Properties properties;
     private AS300ObjectFactory objectFactory;
     private RegisterReader registerReader;
-    private AS300LoadProfileBuilder loadProfileBuilder;
+    protected AS300LoadProfileBuilder loadProfileBuilder;
     protected AS300Messaging messageProtocol;
 
     @Override
@@ -55,7 +74,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return registerReader;
     }
 
-    private AS300LoadProfileBuilder getLoadProfileBuilder() {
+    protected AS300LoadProfileBuilder getLoadProfileBuilder() {
         if (loadProfileBuilder == null) {
             loadProfileBuilder = new AS300LoadProfileBuilder(this);
         }
@@ -149,6 +168,11 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
+    /**
+     * Returns the version
+     *
+     * @return the version string
+     */
     public String getVersion() {
         return "$Date$";
     }
@@ -248,37 +272,33 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         boolean success = true;
 
         init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-        if(getDlmsSession().getProperties().getDataTransportSecurityLevel() != 0 || getDlmsSession().getProperties().getAuthenticationSecurityLevel() == 5){
-            int backupClientId = getDlmsSession().getProperties().getClientMacAddress();
-            String backupSecurityLevel = getDlmsSession().getProperties().getSecurityLevel();
-            String password = getDlmsSession().getProperties().getPassword();
+        if(getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5){
+            int backupClientId = getProperties().getClientMacAddress();
+            String backupSecurityLevel = getProperties().getSecurityLevel();
+            String password = getProperties().getPassword();
 
-            Properties pClientProps = getDlmsSession().getProperties().getProtocolProperties();
-
-            pClientProps.setProperty(AS300Properties.CLIENT_MAC_ADDRESS, "16");
-            pClientProps.setProperty(AS300Properties.SECURITY_LEVEL, "0:0");
-            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(pClientProps);
+            getProperties().getProtocolProperties().setProperty(AS300Properties.CLIENT_MAC_ADDRESS, "16");
+            getProperties().getProtocolProperties().setProperty(AS300Properties.SECURITY_LEVEL, "0:0");
 
             getDlmsSession().connect();
             long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(getObjectFactory().getObisCodeProvider().getFrameCounterObisCode(backupClientId)).getValue();
             getDlmsSession().disconnect();
 
-            Properties restoredProperties = getDlmsSession().getProperties().getProtocolProperties();
-            restoredProperties.setProperty(AS300Properties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
-            restoredProperties.setProperty(AS300Properties.SECURITY_LEVEL, backupSecurityLevel);
-            restoredProperties.setProperty(SmartMeterProtocol.PASSWORD, password);
+            getProperties().getProtocolProperties().setProperty(AS300Properties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
+            getProperties().getProtocolProperties().setProperty(AS300Properties.SECURITY_LEVEL, backupSecurityLevel);
+            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.PASSWORD, password);
 
-            String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
+            if (link instanceof IPDialer) {
+                String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
+                link.getStreamConnection().serverClose();
+                link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
+                link.getStreamConnection().serverOpen();
+            }
 
-            link.getStreamConnection().serverClose();
-            link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
-            link.getStreamConnection().serverOpen();
+            getProperties().setSecurityProvider(new UkHubSecurityProvider(getProperties().getProtocolProperties()));
+            ((UkHubSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+
             reInitDlmsSession(link);
-
-            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(restoredProperties);
-            ((AS300Properties) getDlmsSession().getProperties()).setSecurityProvider(new UkHubSecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
-
-            ((UkHubSecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
             this.objectFactory = null;
         } else {
             this.dlmsSession = null;

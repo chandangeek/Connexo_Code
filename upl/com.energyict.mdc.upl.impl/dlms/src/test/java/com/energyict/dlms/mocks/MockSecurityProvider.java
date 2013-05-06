@@ -1,15 +1,15 @@
 package com.energyict.dlms.mocks;
 
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
+import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
+import com.energyict.protocol.ProtocolUtils;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
-
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
-import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
-import com.energyict.dlms.aso.SecurityProvider;
-import com.energyict.protocol.ProtocolUtils;
 
 public class MockSecurityProvider implements SecurityProvider {
 
@@ -53,7 +53,7 @@ public class MockSecurityProvider implements SecurityProvider {
         this.callingAuthenticationValue = callingAuthenticationValue;
     }
 
-    public byte[] getDedicatedKey() throws IOException {
+    public byte[] getDedicatedKey() {
         return this.dedicatedKey;
     }
 

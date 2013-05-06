@@ -50,7 +50,7 @@ public class MockSecurityProvider implements SecurityProvider{
 		this.callingAuthenticationValue = callingAuthenticationValue;
 	}
 	
-	public byte[] getDedicatedKey() throws IOException {
+	public byte[] getDedicatedKey() {
 		return this.dedicatedKey;
 	}
 	public void setDedicatedKey(byte[] dk){

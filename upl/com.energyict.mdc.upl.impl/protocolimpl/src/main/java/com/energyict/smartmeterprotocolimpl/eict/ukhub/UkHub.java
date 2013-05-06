@@ -6,15 +6,29 @@ import com.energyict.dialer.core.Link;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
-import com.energyict.dlms.*;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.ConnectionMode;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.IF2HHUSignon;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SmartMeterProtocol;
+import com.energyict.protocol.WakeUpProtocolSupport;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.common.SmartMeterToolProtocol;
@@ -26,7 +40,11 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessageExe
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging.UkHubMessaging;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -256,7 +274,8 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
 
     /**
      * Returns the version
-     * @return version string
+     *
+     * @return the version string
      */
     public String getVersion() {
         return "$Date$";
@@ -388,27 +407,24 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
         enableHHUSignOn(link.getSerialCommunicationChannel(), false);
 
-        if(getDlmsSession().getProperties().getDataTransportSecurityLevel() != 0 || getDlmsSession().getProperties().getAuthenticationSecurityLevel() == 5){
-            int backupClientId = getDlmsSession().getProperties().getClientMacAddress();
-            String backupSecurityLevel = getDlmsSession().getProperties().getSecurityLevel();
-            String password = getDlmsSession().getProperties().getPassword();
-            CipheringType backUpCipheringType = getDlmsSession().getProperties().getCipheringType();
-            Properties pClientProps = getDlmsSession().getProperties().getProtocolProperties();
+        if(getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5){
+            int backupClientId = getProperties().getClientMacAddress();
+            String backupSecurityLevel = getProperties().getSecurityLevel();
+            String password = getProperties().getPassword();
+            CipheringType backUpCipheringType = getProperties().getCipheringType();
 
-            pClientProps.setProperty(UkHubProperties.CLIENT_MAC_ADDRESS, "16");
-            pClientProps.setProperty(UkHubProperties.SECURITY_LEVEL, "0:0");
-            pClientProps.setProperty(UkHubProperties.CIPHERING_TYPE, "0");
-            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(pClientProps);
+            getProperties().getProtocolProperties().setProperty(UkHubProperties.CLIENT_MAC_ADDRESS, "16");
+            getProperties().getProtocolProperties().setProperty(UkHubProperties.SECURITY_LEVEL, "0:0");
+            getProperties().getProtocolProperties().setProperty(UkHubProperties.CIPHERING_TYPE, "0");
 
             getDlmsSession().connect();
             long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(MultipleClientRelatedObisCodes.frameCounterForClient(backupClientId)).getValue();
             getDlmsSession().disconnect();
 
-            Properties restoredProperties = getDlmsSession().getProperties().getProtocolProperties();
-            restoredProperties.setProperty(UkHubProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
-            restoredProperties.setProperty(UkHubProperties.SECURITY_LEVEL, backupSecurityLevel);
-            restoredProperties.setProperty(SmartMeterProtocol.PASSWORD, password);
-            restoredProperties.setProperty(UkHubProperties.CIPHERING_TYPE, backUpCipheringType.getTypeString());
+            getProperties().getProtocolProperties().setProperty(UkHubProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
+            getProperties().getProtocolProperties().setProperty(UkHubProperties.SECURITY_LEVEL, backupSecurityLevel);
+            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.PASSWORD, password);
+            getProperties().getProtocolProperties().setProperty(UkHubProperties.CIPHERING_TYPE, backUpCipheringType.getTypeString());
 
             if (link instanceof IPDialer) {
                 String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
@@ -417,12 +433,10 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
                 link.getStreamConnection().serverOpen();
             }
 
+            getProperties().setSecurityProvider(new UkHubSecurityProvider(getProperties().getProtocolProperties()));
+            ((UkHubSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+
             reInitDlmsSession(link);
-
-            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(restoredProperties);
-            ((UkHubProperties) getDlmsSession().getProperties()).setSecurityProvider(new UkHubSecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
-
-            ((UkHubSecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
         } else {
             this.dlmsSession = null;
         }

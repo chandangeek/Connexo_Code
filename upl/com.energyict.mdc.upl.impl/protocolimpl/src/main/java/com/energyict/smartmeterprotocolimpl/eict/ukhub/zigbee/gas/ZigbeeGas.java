@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
+import com.energyict.dialer.coreimpl.IPDialer;
 import com.energyict.dialer.coreimpl.SocketStreamConnection;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.protocol.LoadProfileConfiguration;
@@ -24,7 +25,6 @@ import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocol.messaging.TimeOfUseMessaging;
 import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.MultipleClientRelatedObisCodes;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.common.UkHubSecurityProvider;
@@ -38,7 +38,6 @@ import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.registers.Zigb
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -334,37 +333,33 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
         boolean success = true;
 
         init(link.getInputStream(), link.getOutputStream(), TimeZone.getDefault(), logger);
-        if(getDlmsSession().getProperties().getDataTransportSecurityLevel() != 0 || getDlmsSession().getProperties().getAuthenticationSecurityLevel() == 5){
-            int backupClientId = getDlmsSession().getProperties().getClientMacAddress();
-            String backupSecurityLevel = getDlmsSession().getProperties().getSecurityLevel();
-            String password = getDlmsSession().getProperties().getPassword();
+        if(getProperties().getDataTransportSecurityLevel() != 0 || getProperties().getAuthenticationSecurityLevel() == 5){
+            int backupClientId = getProperties().getClientMacAddress();
+            String backupSecurityLevel = getProperties().getSecurityLevel();
+            String password = getProperties().getPassword();
 
-            Properties pClientProps = getDlmsSession().getProperties().getProtocolProperties();
-
-            pClientProps.setProperty(ZigbeeGasProperties.CLIENT_MAC_ADDRESS, "16");
-            pClientProps.setProperty(ZigbeeGasProperties.SECURITY_LEVEL, "0:0");
-            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(pClientProps);
+            getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.CLIENT_MAC_ADDRESS, "16");
+            getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.SECURITY_LEVEL, "0:0");
 
             getDlmsSession().connect();
             long initialFrameCounter = getDlmsSession().getCosemObjectFactory().getData(MultipleClientRelatedObisCodes.frameCounterForClient(backupClientId)).getValue();
             getDlmsSession().disconnect();
 
-            Properties restoredProperties = getDlmsSession().getProperties().getProtocolProperties();
-            restoredProperties.setProperty(ZigbeeGasProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
-            restoredProperties.setProperty(ZigbeeGasProperties.SECURITY_LEVEL, backupSecurityLevel);
-            restoredProperties.setProperty(SmartMeterProtocol.PASSWORD, password);
+            getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.CLIENT_MAC_ADDRESS, Integer.toString(backupClientId));
+            getProperties().getProtocolProperties().setProperty(ZigbeeGasProperties.SECURITY_LEVEL, backupSecurityLevel);
+            getProperties().getProtocolProperties().setProperty(SmartMeterProtocol.PASSWORD, password);
 
-            String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
+            if (link instanceof IPDialer) {
+                String ipAddress = link.getStreamConnection().getSocket().getInetAddress().getHostAddress();
+                link.getStreamConnection().serverClose();
+                link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
+                link.getStreamConnection().serverOpen();
+            }
 
-            link.getStreamConnection().serverClose();
-            link.setStreamConnection(new SocketStreamConnection(ipAddress + ":4059"));
-            link.getStreamConnection().serverOpen();
+            getProperties().setSecurityProvider(new UkHubSecurityProvider(getProperties().getProtocolProperties()));
+            ((UkHubSecurityProvider) (getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
+
             reInitDlmsSession(link);
-
-            ((DlmsProtocolProperties) getDlmsSession().getProperties()).addProperties(restoredProperties);
-            ((ZigbeeGasProperties) getDlmsSession().getProperties()).setSecurityProvider(new UkHubSecurityProvider(getDlmsSession().getProperties().getProtocolProperties()));
-
-            ((UkHubSecurityProvider) (getDlmsSession().getProperties().getSecurityProvider())).setInitialFrameCounter(initialFrameCounter + 1);
         } else {
             this.dlmsSession = null;
         }

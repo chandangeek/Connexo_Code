@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 public class DlmsSession implements ProtocolLink {
 
     private DlmsSessionProperties properties;
-    protected ApplicationServiceObject aso;
+    protected final ApplicationServiceObject aso;
     protected DLMSMeterConfig dlmsMeterConfig;
     private Logger logger;
     private TimeZone timeZone;
@@ -41,6 +41,7 @@ public class DlmsSession implements ProtocolLink {
         this.logger = logger;
         this.properties = properties;
         this.timeZone = timeZone;
+        aso = buildAso();
     }
 
     public ApplicationServiceObject getAso() {
@@ -53,7 +54,6 @@ public class DlmsSession implements ProtocolLink {
 
     public void init() throws IOException {
         this.cosemObjectFactory = new CosemObjectFactory(this, getProperties().isBulkRequest());
-        this.aso = buildAso();
         if (dlmsConnection == null) {
             this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
             if (hhuSignOn != null) {
@@ -257,7 +257,7 @@ public class DlmsSession implements ProtocolLink {
      *
      * @return
      */
-    protected ApplicationServiceObject buildAso() throws IOException {
+    protected ApplicationServiceObject buildAso() {
         if (getProperties().isNtaSimulationTool()) {
             return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null);
         } else {
@@ -270,7 +270,7 @@ public class DlmsSession implements ProtocolLink {
      *
      * @return
      */
-    protected XdlmsAse buildXDlmsAse() throws IOException {
+    protected XdlmsAse buildXDlmsAse()  {
         return new XdlmsAse(
                 (getProperties().getCipheringType() == CipheringType.DEDICATED) ? getProperties().getSecurityProvider().getDedicatedKey() : null,
                 getProperties().getInvokeIdAndPriorityHandler().getCurrentInvokeIdAndPriorityObject().needsResponse(),
