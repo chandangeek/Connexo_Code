@@ -44,7 +44,7 @@ public enum TableSpecs {
 			table.addModTimeColumn("MODTIME", "modTime");
 			table.addPrimaryKeyConstraint("IDS_PK_FIELDSPECS", componentName, recordSpecIdColumn , positionColumn );
 			table.addUniqueConstraint("IDS_U_FIELDSPECS", componentName, recordSpecIdColumn , nameColumn );	
-			table.addForeignKeyConstraint("IDS_FK_FIELDSPECS", IDS_RECORDSPEC.name(), CASCADE, "recordSpec" ,"fieldSpecs", componentName, recordSpecIdColumn);
+			table.addForeignKeyConstraint("IDS_FK_FIELDSPECS", IDS_RECORDSPEC.name(), CASCADE, new AssociationMapping("recordSpec" ,"fieldSpecs", "position"), componentName, recordSpecIdColumn);
 		}
 	},
 	IDS_TIMESERIES {
@@ -64,8 +64,8 @@ public enum TableSpecs {
 			table.addColumn("HOUROFFSET", "number" , false, NUMBER2INTNULLZERO , "offset");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("IDS_PK_TIMESERIES", idColumn);
-			table.addForeignKeyConstraint("IDS_FK_TIMESERIESVAULT", IDS_VAULT.name() , RESTRICT, "vault" , null , vaultComponent , vaultIdColumn);	
-			table.addForeignKeyConstraint("IDS_FK_TIMESERIESRECORDSPEC", IDS_RECORDSPEC.name(), RESTRICT, "recordSpec" , null , recordSpecComponent, recordSpecIdColumn);
+			table.addForeignKeyConstraint("IDS_FK_TIMESERIESVAULT", IDS_VAULT.name() , RESTRICT, new AssociationMapping("vault") , vaultComponent , vaultIdColumn);	
+			table.addForeignKeyConstraint("IDS_FK_TIMESERIESRECORDSPEC", IDS_RECORDSPEC.name(), RESTRICT, new AssociationMapping("recordSpec") , recordSpecComponent, recordSpecIdColumn);
 		}
 	};
 	

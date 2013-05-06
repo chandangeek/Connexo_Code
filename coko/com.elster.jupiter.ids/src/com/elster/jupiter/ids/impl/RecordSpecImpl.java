@@ -57,7 +57,7 @@ public class RecordSpecImpl implements RecordSpec {
 	
 	private List<FieldSpec> getFieldSpecs(boolean protect) {
 		if (fieldSpecs == null) {
-			fieldSpecs = Bus.getOrmClient().getFieldSpecFactory().find("recordSpec",this,"position");
+			fieldSpecs = Bus.getOrmClient().getFieldSpecFactory().find("recordSpec", this);
 			for (FieldSpec each : fieldSpecs) {
 				((FieldSpecImpl) each).doSetRecordSpec(this);
 			}
