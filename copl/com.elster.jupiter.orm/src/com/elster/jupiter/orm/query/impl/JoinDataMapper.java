@@ -10,7 +10,7 @@ import java.util.Map;
 import com.elster.jupiter.conditions.Comparison;
 import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
@@ -19,16 +19,16 @@ import com.elster.jupiter.sql.util.SqlBuilder;
 import com.elster.jupiter.sql.util.SqlFragment;
 
 abstract public class JoinDataMapper<T> {
-	private final DataMapperImpl<T,? extends T> dataMapper;
+	private final DataMapperImpl<T> dataMapper;
 	private final String alias;
 	private Map<Object,T> cache;
 	
-	JoinDataMapper(DataMapperImpl<T,? extends T> dataMapper, String alias) {
+	JoinDataMapper(DataMapperImpl<T> dataMapper, String alias) {
 		this.dataMapper = dataMapper;
 		this.alias = alias;
 	}
 
-	final DataMapperImpl<T, ? extends T> getMapper() {
+	final DataMapperImpl<T> getMapper() {
 		return dataMapper;
 	}
 	
@@ -41,17 +41,17 @@ abstract public class JoinDataMapper<T> {
 	}
 	
 	
-	final <R> List<JoinDataMapper<R>> wrap(DataMapperImpl<R,? extends R> newMapper , AliasFactory aliasFactory) {
+	final <R> List<JoinDataMapper<R>> wrap(DataMapperImpl<R> newMapper , AliasFactory aliasFactory) {
 		List<JoinDataMapper<R>> result = new ArrayList<>();
-		for (TableConstraint constraint : getTable().getConstraints()) {
+		for (ForeignKeyConstraint constraint : getTable().getForeignKeyConstraints()) {
 			if (newMapper.getTable().equals(constraint.getReferencedTable())) {
 				result.add(new ParentDataMapper<R>(newMapper , constraint , aliasFactory.getAlias()));
 				return result;				
 			}
 		}
-		for (TableConstraint constraint : newMapper.getTable().getConstraints()) {		
+		for (ForeignKeyConstraint constraint : newMapper.getTable().getForeignKeyConstraints()) {		
 			if (getTable().equals(constraint.getReferencedTable())) {
-				if (constraint.getReverseCurrentName() != null) {
+				if (constraint.getReverseCurrentFieldName() != null) {
 					result.add(new CurrentDataMapper<>(newMapper, constraint, aliasFactory.getAlias(true)));
 				} 
 				result.add(new ChildDataMapper<R>(newMapper , constraint , aliasFactory.getAlias()));				
@@ -79,7 +79,7 @@ abstract public class JoinDataMapper<T> {
 		return getTable().getFieldMapping(fieldName) != null;
 	}
 	
-	final DataMapperImpl<T,? extends T> getDataMapperForField(String fieldName) {
+	final DataMapperImpl<T> getDataMapperForField(String fieldName) {
 		Column column = getTable().getColumnForField(fieldName);
 		if (column != null) {
 			return getMapper();
@@ -174,7 +174,7 @@ abstract public class JoinDataMapper<T> {
 			}
 			result.add(fieldName);			
 		}
-		for (TableConstraint each : getTable().getForeignKeyConstraints()) {
+		for (ForeignKeyConstraint each : getTable().getForeignKeyConstraints()) {
 			String fieldName = each.getFieldName();
 			if (fieldName != null) {
 				result.add(fieldName);

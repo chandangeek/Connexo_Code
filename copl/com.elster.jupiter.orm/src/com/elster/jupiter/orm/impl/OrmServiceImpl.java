@@ -6,10 +6,10 @@ import java.sql.*;
 import javax.sql.DataSource;
 
 import org.osgi.service.component.annotations.*;
-import org.osgi.service.event.EventAdmin;
 
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.plumbing.*;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
 @org.osgi.service.component.annotations.Component (name = "com.elster.jupiter.orm" , service = OrmService.class)
@@ -18,7 +18,7 @@ public class OrmServiceImpl implements OrmService , ServiceLocator {
 	private volatile OrmClient ormClient;
 	private volatile DataSource dataSource;
 	private volatile ThreadPrincipalService threadPrincipalService;
-	private volatile EventAdmin eventAdmin;
+	private volatile Publisher publisher;
 	
 	public OrmServiceImpl() {
 	}
@@ -62,8 +62,10 @@ public class OrmServiceImpl implements OrmService , ServiceLocator {
 	}
 	
 	@Override
-	public EventAdmin getEventAdmin() {
-		return eventAdmin;
+	public void publish(Object event) {
+		if (publisher != null) { 
+			publisher.publish(event);
+		}
 	}
 
 	@Override
@@ -81,9 +83,13 @@ public class OrmServiceImpl implements OrmService , ServiceLocator {
 		this.dataSource = dataSource;
 	}
 	
-	@Reference
-	public void setEventAdmin(EventAdmin eventAdmin) {
-		this.eventAdmin = eventAdmin;
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+	public void setPublisher(Publisher publisher) {
+		this.publisher = publisher;
+	}
+	
+	public void unsetPublisher(Publisher publisher) {
+		this.publisher = null;
 	}
 	
 	@Activate

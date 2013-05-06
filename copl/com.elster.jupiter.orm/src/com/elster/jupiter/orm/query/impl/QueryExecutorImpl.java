@@ -14,19 +14,18 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	private final JoinTreeNode<T> root;
 	private final AliasFactory aliasFactory = new AliasFactory();
 	
-	public QueryExecutorImpl(DataMapperImpl<T, ? extends T> mapper) {
+	public QueryExecutorImpl(DataMapperImpl<T> mapper) {
 		RootDataMapper<T> rootDataMapper = new RootDataMapper<>(mapper);
 		aliasFactory.setBase(rootDataMapper.getAlias());
 		aliasFactory.getAlias();
 		this.root = new JoinTreeNode<>(rootDataMapper);				
 	}
     
-	@SuppressWarnings("unchecked")
 	@Override 
 	public <R> void add(DataMapper<R> dataMapper) {
-		DataMapperImpl<R, ? extends R> newMapper = (DataMapperImpl<R,? extends R>) dataMapper;
+		DataMapperImpl<R> newMapper = (DataMapperImpl<R>) dataMapper;
 		aliasFactory.setBase(newMapper.getAlias());
-		boolean result = root.addMapper((DataMapperImpl<R,? extends R>) dataMapper , aliasFactory);
+		boolean result = root.addMapper((DataMapperImpl<R>) dataMapper , aliasFactory);
 		if (!result) {
 			throw new IllegalArgumentException("No referential key match for " + dataMapper.getTable().getName());
 		}
@@ -63,7 +62,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 	
 	public Object convert(String fieldName, String value) {
-		DataMapperImpl<?,?>  mapper = root.getDataMapperForField(fieldName);
+		DataMapperImpl<?>  mapper = root.getDataMapperForField(fieldName);
 		if (mapper != null) {
 			Column column = root.getColumnForField(fieldName);
 				if (column != null) {

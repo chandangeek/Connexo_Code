@@ -5,16 +5,16 @@ import java.sql.SQLException;
 import java.util.*;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.sql.util.SqlBuilder;
 
 public class ChildDataMapper<T> extends JoinDataMapper <T> {
-	final private TableConstraint constraint;
+	final private ForeignKeyConstraint constraint;
 	private Map<Object, List<?>> targetCache;
 	
-	public ChildDataMapper(DataMapperImpl<T,? extends T> dataMapper,TableConstraint constraint, String alias) {
+	public ChildDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraint constraint, String alias) {
 		super(dataMapper, alias);
 		this.constraint = constraint;
 	}
@@ -43,7 +43,7 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 			}
 		}
 		if (constraint.getFieldName() != null) {
-			DomainMapper.FIELD.set(value,constraint.getFieldName(),target);
+			DomainMapper.FIELDSTRICT.set(value,constraint.getFieldName(),target);
 		}		
 		return value;
 	}
@@ -89,11 +89,19 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 		String fieldName = constraint.getReverseFieldName();
 		if (fieldName != null) {		
 			for (Map.Entry<Object,List<?>> entry : targetCache.entrySet()) {
-				DomainMapper.FIELD.set(entry.getKey(), fieldName , entry.getValue());
+				sort(entry.getValue());
+				DomainMapper.FIELDSTRICT.set(entry.getKey(), fieldName , entry.getValue());
 			}
 		}
 	}
 
+	private void sort(List<?> list) {
+		String fieldName = constraint.getReverseOrderFieldName();
+		if (fieldName != null) {
+			Collections.sort(list, new FieldComparator(fieldName));
+		}
+	}
+	
 	@Override
 	String getName() {
 		return constraint.getReverseFieldName();
@@ -109,5 +117,22 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 		return true;
 	}
 
-
+	private static class FieldComparator implements Comparator<Object> {
+		private final String sortField;
+		
+		FieldComparator(String sortField) {
+			this.sortField = sortField;
+		}
+		
+		@Override
+		public int compare(Object o1, Object o2) {
+			return getValue(o1).compareTo(getValue(o2));			
+		}
+		
+		@SuppressWarnings("unchecked")
+		private Comparable<Object> getValue(Object o) {
+			return (Comparable<Object>) DomainMapper.FIELDSTRICT.get(o, sortField);
+		}
+		
+	}
 }

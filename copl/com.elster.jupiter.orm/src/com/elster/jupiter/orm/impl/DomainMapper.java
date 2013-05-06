@@ -2,10 +2,18 @@ package com.elster.jupiter.orm.impl;
 
 import java.lang.reflect.*;
 
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.PersistenceException;
 
 public enum DomainMapper {
-	FIELD;
+	FIELDSTRICT(true),
+	FIELDLENIENT(false);
+	
+	private final boolean strict;
+	
+	private DomainMapper(boolean strict) {
+		this.strict = strict;
+	}
 		
 	public Object get(Object target , String  fieldPath) {
 		for (String fieldName : fieldPath.split("\\.")) {
@@ -16,26 +24,34 @@ public enum DomainMapper {
 					
 	private Object basicGet(Object target, String fieldName) {
 		Field field = getField(target.getClass(), fieldName);
-		try {
-			return field.get(target);
-		} catch (IllegalAccessException e) {
-			throw new PersistenceException(e);
+		if (field == null) {
+			return null;
+		} else {
+			try {
+				return field.get(target);
+			} catch (IllegalAccessException e) {
+				throw new PersistenceException(e);
+			}
 		}
 	}
 
 	private Object getOrCreate(Object target, String fieldName) {
 		Field field = getField(target.getClass(), fieldName);
-		try {
-			Object result = field.get(target);
-			if (result == null) {
-				Constructor<?> constructor = field.getType().getDeclaredConstructor();
-				constructor.setAccessible(true);
-				result = constructor.newInstance();
-				field.set(target, result);
+		if (field == null) {
+			return null;
+		} else {
+			try {
+				Object result = field.get(target);
+				if (result == null) {
+					Constructor<?> constructor = field.getType().getDeclaredConstructor();
+					constructor.setAccessible(true);
+					result = constructor.newInstance();
+					field.set(target, result);
+				}
+				return result;
+			} catch (ReflectiveOperationException e) {
+				throw new PersistenceException(e);
 			}
-			return result;			
-		} catch (ReflectiveOperationException e) {
-			throw new PersistenceException(e);
 		}
 	}
 	
@@ -59,14 +75,16 @@ public enum DomainMapper {
 	@SuppressWarnings("unchecked")
 	private void basicSet(Object target , String fieldName , Object value) {
 		Field field = getField(target.getClass(), fieldName);
-		if (value != null && field.getType().isEnum()) {
-			value = getEnum((Class<? extends Enum<?>>) field.getType(),value);
+		if (field != null) {			
+			if (value != null && field.getType().isEnum()) {
+				value = getEnum((Class<? extends Enum<?>>) field.getType(),value);
+			}
+			try {
+				field.set(target, value);
+			} catch (IllegalAccessException e) {
+				throw new PersistenceException(e);
+			}		
 		}
-		try {
-			field.set(target, value);
-		} catch (IllegalAccessException e) {
-			throw new PersistenceException(e);
-		}		
 	}
 		
 	private Object getEnum(Class<? extends Enum<?>> clazz, Object value) {
@@ -85,8 +103,13 @@ public enum DomainMapper {
 	
 	@SuppressWarnings("unchecked")
 	Object getEnum(Class<?> clazz , String fieldName , String value) {
-		Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) getField(clazz,fieldName).getType();
-		return getEnum(enumClass,value);
+		Field field = getField(clazz, fieldName);
+		if (field == null) {
+			return null;
+		} else {
+			Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) getField(clazz,fieldName).getType();
+			return getEnum(enumClass,value);
+		}
 	}
 	
 	private Field getField(Class<?> clazz, String fieldName) {	
@@ -100,14 +123,26 @@ public enum DomainMapper {
 	        }
 	        current = current.getSuperclass();
 	    } while ( current != null );
-	    throw new PersistenceException("Field " + fieldName + " not found in " + clazz);
+	    if (strict) {
+	    	throw new PersistenceException("Field " + fieldName + " not found in " + clazz);
+	    } else {
+	    	return null;
+	    }
 	}
 	
 	Class<?> getType(Class<?> implementation , String fieldPath) {
 		Class<?> result = implementation;
 		for (String fieldName : fieldPath.split("\\.")) {
-			Field field = getField(result, fieldName);
-			result = field.getType();
+			if (fieldName.equals(Column.TYPEFIELDNAME)) {
+				result = String.class;
+			} else {
+				Field field = getField(result, fieldName);
+				if (field == null) {
+					return null;
+				} else {
+					result = field.getType();
+				}
+			}
 		}
 		return result;
 	}

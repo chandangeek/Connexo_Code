@@ -7,16 +7,16 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.sql.util.SqlBuilder;
 import com.elster.jupiter.sql.util.SqlFragment;
 
 public class CurrentDataMapper<T> extends JoinDataMapper<T> implements SqlFragment {
-	private TableConstraint constraint;
+	private ForeignKeyConstraint constraint;
 	
-	public CurrentDataMapper(DataMapperImpl<T,? extends T> dataMapper,TableConstraint constraint, String alias) {
+	public CurrentDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraint constraint, String alias) {
 		super(dataMapper, alias);	
 		this.constraint = constraint;
 	}
@@ -31,8 +31,8 @@ public class CurrentDataMapper<T> extends JoinDataMapper<T> implements SqlFragme
 					value = getMapper().construct(rs,index);
 					put(key, value);
 				}
-				if (constraint.getReverseCurrentName() != null) {
-					DomainMapper.FIELD.set(target,constraint.getReverseCurrentName(),value);
+				if (constraint.getReverseCurrentFieldName() != null) {
+					DomainMapper.FIELDSTRICT.set(target,constraint.getReverseCurrentFieldName(),value);
 				}
 			}
 		}
@@ -68,7 +68,7 @@ public class CurrentDataMapper<T> extends JoinDataMapper<T> implements SqlFragme
 
 	@Override
 	String getName() {		
-		return constraint.getReverseCurrentName();
+		return constraint.getReverseCurrentFieldName();
 	}
 
 	@Override

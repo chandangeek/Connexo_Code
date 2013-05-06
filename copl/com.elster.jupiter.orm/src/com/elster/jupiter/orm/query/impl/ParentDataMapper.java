@@ -1,20 +1,19 @@
 package com.elster.jupiter.orm.query.impl;
 
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.sql.util.SqlBuilder;
 
 public class ParentDataMapper<T> extends JoinDataMapper<T> {
-	private TableConstraint constraint;
+	private ForeignKeyConstraint constraint;
 	
-	public ParentDataMapper(DataMapperImpl<T,? extends T> dataMapper,TableConstraint constraint, String alias) {
+	public ParentDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraint constraint, String alias) {
 		super(dataMapper, alias);	
 		this.constraint = constraint;
 	}
@@ -30,7 +29,7 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 					put(key, value);
 				}
 				if (constraint.getFieldName() != null) {
-					DomainMapper.FIELD.set(target,constraint.getFieldName(),value);
+					DomainMapper.FIELDSTRICT.set(target,constraint.getFieldName(),value);
 				}
 			}
 		}

@@ -22,7 +22,7 @@ public enum TableSpecs {
 			table.addColumn("JOURNALTABLENAME",CATALOGDBTYPE,false,NOCONVERSION,"journalTableName");
 			table.addPrimaryKeyConstraint("ORM_PK_TABLES", componentName , nameColumn);
 			table.addUniqueConstraint("ORM_U_TABLES", schemaColumn , nameColumn);
-			table.addForeignKeyConstraint("ORM_FK_TABLESCOMPONENTS", ORM_DATAMODEL.name(),CASCADE, "component" , "tables" ,  componentName);
+			table.addForeignKeyConstraint("ORM_FK_TABLESCOMPONENTS", ORM_DATAMODEL.name(),CASCADE, new AssociationMapping("component", "tables") ,  componentName);
 		}
 	},
 	ORM_COLUMN {	
@@ -43,7 +43,7 @@ public enum TableSpecs {
 			table.addPrimaryKeyConstraint("ORM_PK_COLUMNS", new Column[] { componentName , tableName , nameColumn });
 			table.addUniqueConstraint("ORM_U_COLUMNSPOSITION", componentName , tableName , positionColumn);
 			table.addUniqueConstraint("ORM_U_COLUMNSFIELDNAME", componentName , tableName , fieldNameColumn);
-			table.addForeignKeyConstraint("ORM_FK_COLUMNSTABLES", ORM_TABLE.name() , CASCADE, "table" , "columns" , componentName , tableName );
+			table.addForeignKeyConstraint("ORM_FK_COLUMNSTABLES", ORM_TABLE.name() , CASCADE, new AssociationMapping("table" , "columns" ,"position") , componentName , tableName );
 		}
 	},
 	ORM_TABLECONSTRAINT {	
@@ -51,17 +51,18 @@ public enum TableSpecs {
 			Column componentName = table.addColumn("COMPONENT", COMPONENTDBTYPE , true , NOCONVERSION , "componentName");
 			Column tableName = table.addColumn("TABLEID", CATALOGDBTYPE, true , NOCONVERSION , "tableName");
 			Column nameColumn = table.addColumn("NAME", CATALOGDBTYPE , true , NOCONVERSION , "name");
-			table.addColumn("CONSTRAINTTYPE", CATALOGDBTYPE , true , CHAR2ENUM , "type");
+			table.addDiscriminatorColumn("CONSTRAINTTYPE", CATALOGDBTYPE);
 			Column referencedComponentName = table.addColumn("REFERENCEDCOMPONENT", COMPONENTDBTYPE , false , NOCONVERSION , "referencedComponentName");
 			Column referencedTableName = table.addColumn("REFERENCEDTABLENAME", CATALOGDBTYPE , false , NOCONVERSION , "referencedTableName");
 			table.addColumn("DELETERULE", CATALOGDBTYPE , false , CHAR2ENUM , "deleteRule");
 			table.addColumn("FIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "fieldName");
 			table.addColumn("REVERSEFIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseFieldName");
-			table.addColumn("REVERSECURRENTNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseCurrentName");
+			table.addColumn("REVERSEORDERFIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseOrderFieldName");
+			table.addColumn("REVERSECURRENTFIELDNAME","VARCHAR2(80)" , false , NOCONVERSION , "reverseCurrentFieldName");
 			table.addPrimaryKeyConstraint("ORM_PK_CONSTRAINTS", componentName , tableName , nameColumn);
 			table.addUniqueConstraint("ORM_U_CONSTRAINTS", nameColumn);
-			table.addForeignKeyConstraint("ORM_FK_CONSTRAINTSTABLES", ORM_TABLE.name() , CASCADE, "table" , "constraints" , componentName , tableName);		
-			table.addForeignKeyConstraint("ORM_FK_CONSTRAINTSTABLES2", ORM_TABLE.name() , RESTRICT, "referencedTable" , null , referencedComponentName , referencedTableName );
+			table.addForeignKeyConstraint("ORM_FK_CONSTRAINTSTABLES", ORM_TABLE.name() , CASCADE, new AssociationMapping("table" , "constraints") , componentName , tableName);		
+			table.addForeignKeyConstraint("ORM_FK_CONSTRAINTSTABLES2", ORM_TABLE.name() , RESTRICT, new AssociationMapping("referencedTable"), referencedComponentName , referencedTableName );
 		}
 	},
 	ORM_COLUMNINCONSTRAINT {
@@ -73,8 +74,8 @@ public enum TableSpecs {
 			Column positionColumn = table.addColumn("POSITION", "number" , true , NUMBER2INT , "position");
 			table.addPrimaryKeyConstraint("ORM_PK_COLUMNINCONSTRAINT", componentName , tableName , constraintNameColumn , columnNameColumn);
 			table.addUniqueConstraint("ORM_U_COLUMNINCONSTRAINT", componentName , tableName , constraintNameColumn , positionColumn);
-			table.addForeignKeyConstraint("ORM_FK_COLUMNINCONSTRAINT1", ORM_TABLECONSTRAINT.name() , CASCADE, "constraint" , null, componentName , tableName , constraintNameColumn);		
-			table.addForeignKeyConstraint("ORM_FK_COLUMNINCONSTRAINT2", ORM_COLUMN.name() , RESTRICT, "column", null ,componentName , tableName , columnNameColumn );
+			table.addForeignKeyConstraint("ORM_FK_COLUMNINCONSTRAINT1", ORM_TABLECONSTRAINT.name() , CASCADE, new AssociationMapping("constraint"), componentName , tableName , constraintNameColumn);		
+			table.addForeignKeyConstraint("ORM_FK_COLUMNINCONSTRAINT2", ORM_COLUMN.name() , RESTRICT, new AssociationMapping("column"), componentName , tableName , columnNameColumn );
 		}
 	};
 	

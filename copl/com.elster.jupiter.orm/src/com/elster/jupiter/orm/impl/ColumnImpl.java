@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.plumbing.OrmClient;
 
 public class ColumnImpl implements Column  {
 	// persistent fields
+	
 	private String componentName;
 	private String tableName;
 	private String name;
@@ -162,7 +163,8 @@ public class ColumnImpl implements Column  {
 			!isVersion() &&
 			!hasInsertValue() &&
 			!skipOnUpdate() &&
-			!hasAutoValue(true);
+			!hasAutoValue(true) &&
+			!isDiscriminator();
 	}
 	
 	boolean hasAutoValue(boolean update) {
@@ -194,6 +196,11 @@ public class ColumnImpl implements Column  {
 	@Override
 	public boolean isNotNull() {
 		return notNull;
+	}
+
+	@Override
+	public boolean isDiscriminator() {
+		return TYPEFIELDNAME.equals(fieldName);
 	}
 }
 

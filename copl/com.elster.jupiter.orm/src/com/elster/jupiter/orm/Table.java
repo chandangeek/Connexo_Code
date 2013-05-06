@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Table {	
 	DataModel getDataModel();
@@ -10,13 +11,14 @@ public interface Table {
 	List<Column> getColumns();
 	List<TableConstraint> getConstraints();
 	TableConstraint getPrimaryKeyConstraint();
-	List<TableConstraint> getForeignKeyConstraints();
-	TableConstraint getConstraintForField(String fieldName);
+	List<ForeignKeyConstraint> getForeignKeyConstraints();
+	ForeignKeyConstraint getConstraintForField(String fieldName);
 	String getComponentName();
 	Column getColumn(String name);	
 	Column getColumnForField(String fieldName);
 	List<Column> getPrimaryKeyColumns();
-	<T, S extends T> DataMapper<T> getDataMapper(Class<T> api , Class<S> implementation);
+	<T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation);
+	<T> DataMapper<T> getDataMapper(Class<T> api , Map<String,Class<? extends T>> implementations);
 	<T> Object getPrimaryKey(T value);
 	FieldType getFieldType(String fieldName);
 	
@@ -26,23 +28,12 @@ public interface Table {
 	Column addColumn(String name, String dbType, boolean notnull,ColumnConversion conversion, String fieldName, String insertValue,boolean skipOnUpdate);
 	Column addAutoIncrementColumn(String name , String dbType, ColumnConversion conversion , String fieldName , String sequence, boolean skipOnUpdate);
 	Column addVersionCountColumn(String name , String dbType , String fieldName );
+	Column addDiscriminatorColumn(String name, String dbType);
 	TableConstraint addPrimaryKeyConstraint(String name , Column... columns);	
 	TableConstraint addUniqueConstraint(String name , Column... colums);
-	TableConstraint addForeignKeyConstraint(
-			String name , Table referencedTable , DeleteRule deleteRule, 
-			String fieldName , String reverseFieldName, String reverseCurrentName , 
-			Column... columns);
-	TableConstraint addForeignKeyConstraint(
-			String name,String tableName, DeleteRule deleteRule,
-			String fieldName, String reverseFieldName,String reverseCurrentName, 
-			Column... columns);
-	TableConstraint addForeignKeyConstraint(
-			String name , String tableName , DeleteRule deleteRule, 
-			String fieldName ,String reverseFieldName , Column... columns);
-	TableConstraint addForeignKeyConstraint(
-			String name , String component , String tableName, DeleteRule deleteRule, 
-			String fieldName, 
-			Column... columns);
+	TableConstraint addForeignKeyConstraint(String name , Table referencedTable , DeleteRule deleteRule,AssociationMapping mapping , Column ... columns); 			
+	TableConstraint addForeignKeyConstraint(String name, String tableName, DeleteRule deleteRule, AssociationMapping mapping , Column... columns);
+	TableConstraint addForeignKeyConstraint(String name , String component , String tableName, DeleteRule deleteRule, String fieldName, Column... columns);
 	Column addCreateTimeColumn(String name, String fieldName);
 	Column addModTimeColumn(String name, String fieldName);
 	Column addUserNameColumn(String name, String fieldName);

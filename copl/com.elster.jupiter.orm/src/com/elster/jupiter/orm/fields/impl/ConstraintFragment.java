@@ -3,19 +3,19 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.impl.ColumnImpl;
  
 abstract class ConstraintFragment extends AliasFragment {
 
-	private final TableConstraint constraint;
+	private final ForeignKeyConstraint constraint;
 
-	ConstraintFragment(TableConstraint constraint , String alias) {
+	ConstraintFragment(ForeignKeyConstraint constraint , String alias) {
 		super(alias);
 		this.constraint = constraint;
 	}
 	
-	TableConstraint getConstraint() {
+	ForeignKeyConstraint getConstraint() {
 		return constraint;
 	}
 	

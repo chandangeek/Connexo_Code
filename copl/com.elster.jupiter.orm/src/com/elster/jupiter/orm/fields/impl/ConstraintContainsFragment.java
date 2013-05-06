@@ -4,13 +4,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.conditions.Contains;
-import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 
 public class ConstraintContainsFragment extends ConstraintFragment {
 	
 	private final Contains contains;
 	
-	public ConstraintContainsFragment(TableConstraint constraint , Contains contains , String alias) {
+	public ConstraintContainsFragment(ForeignKeyConstraint constraint , Contains contains , String alias) {
 		super(constraint,alias);
 		this.contains = contains;
 	}

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.TableConstraint;
 
 class TableDdlGenerator {
@@ -79,21 +78,7 @@ class TableDdlGenerator {
 	}
 	
 	private String getConstraintFragment(TableConstraint constraint) {
-		StringBuilder sb = new StringBuilder("constraint ");
-		sb.append(constraint.getName());
-		sb.append(" ");
-		sb.append(((TableConstraintImpl) constraint).getType().getDdl());
-		appendColumns(sb, constraint.getColumns(), false);
-		if (constraint.isForeignKeyConstraint()) {
-			sb.append(" references ");
-			sb.append(constraint.getReferencedTable().getQualifiedName());
-			appendColumns(sb, constraint.getReferencedTable().getPrimaryKeyColumns(), false);			
-			DeleteRule deleteRule = constraint.getDeleteRule();
-			if (deleteRule != null) {
-				sb.append(deleteRule.getDdl());
-			}
-		}
-		return sb.toString();
+		return ((TableConstraintImpl) constraint).getDdl();
 	}
 	
 	

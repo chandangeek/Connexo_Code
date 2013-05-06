@@ -17,12 +17,19 @@ import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.time.UtcInstant;
 import static com.elster.jupiter.orm.plumbing.Bus.getConnection;
 
-public class DataMapperWriter<T,S extends T> {
-	private final DomainMapper fieldMapper = DomainMapper.FIELD;
+public class DataMapperWriter<T> {
+	private final DomainMapper fieldMapper;
 	private final TableSqlGenerator sqlGenerator;
+	private final Map<String,Class<? extends T>> implementations;
 	
-	DataMapperWriter(DataMapperImpl<T,S> dataMapper) {
+	DataMapperWriter(DataMapperImpl<T> dataMapper , Map<String,Class<? extends T>> implementations) {
 		this.sqlGenerator = dataMapper.getSqlGenerator();
+		this.implementations = implementations;
+		fieldMapper = implementations == null ? DomainMapper.FIELDSTRICT : DomainMapper.FIELDLENIENT;
+	}
+	
+	DataMapperWriter(DataMapperImpl<T> dataMapper)  {
+		this(dataMapper,null);
 	}
 	
 	private long getNext(Connection connection , String sequence) throws SQLException {
@@ -267,8 +274,17 @@ public class DataMapperWriter<T,S extends T> {
 		return principal == null ? null : principal.getName();
 	}
 
-	private Object getValue(Object target , Column column) {		
-		return ((ColumnImpl) column).convertToDb(fieldMapper.get(target , column.getFieldName()));
+	private Object getValue(Object target , Column column) {
+		if (column.isDiscriminator()) {
+			for (Map.Entry<String,Class<? extends T>> entry : implementations.entrySet()) {
+				if (entry.getValue() == target.getClass()) {
+					return entry.getKey();
+				}
+			}
+			throw new PersistenceException("No mapping for " + target.getClass());
+		} else {			
+			return ((ColumnImpl) column).convertToDb(fieldMapper.get(target , column.getFieldName()));
+		}
 	}
 	
 	private void setValue(Object target , Column column , ResultSet rs, int index) throws SQLException {

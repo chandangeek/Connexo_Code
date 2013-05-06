@@ -32,7 +32,7 @@ public class OrmClientImpl implements OrmClient  {
 	}
 	@Override
 	public DataMapper<TableConstraint> getTableConstraintFactory() {
-		return dataModel.getDataMapper(TableConstraint.class,TableConstraintImpl.class,ORM_TABLECONSTRAINT.name());
+		return dataModel.getDataMapper(TableConstraint.class,TableConstraintImpl.implementers,ORM_TABLECONSTRAINT.name());
 	}
 	
 	@Override

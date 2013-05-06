@@ -1,33 +1,37 @@
 package com.elster.jupiter.orm.impl;
 
 import java.util.*;
-import java.lang.reflect.Constructor;
 import java.sql.*;
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 
-public class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implements DataMapper<T> {
+public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
 	
 	final private TableSqlGenerator sqlGenerator;
-	final private DomainMapper mapper = DomainMapper.FIELD;
-	final private Class<S> implementation;
+	final private DomainMapper mapper;
+	final private Collection<Class<? extends T>> implementations;
 	final private String alias;
-	final private DataMapperReader<T, S> reader;
-	final private DataMapperWriter<T,S> writer;
+	final private DataMapperReader<T> reader;
+	final private DataMapperWriter<T> writer;
 	
-	DataMapperImpl(Class<T> api, Class<S> implementation ,  Table table) {
+	DataMapperImpl(Class<T> api, Class<? extends T> implementation ,  Table table) {
+		this.mapper = DomainMapper.FIELDSTRICT;
 		this.sqlGenerator = new TableSqlGenerator((TableImpl) table);
 		this.alias = createAlias(api.getName());
-		this.implementation = implementation;
-		try {
-			Constructor<S> constructor = implementation.getDeclaredConstructor();
-			constructor.setAccessible(true);
-			this.reader = new DataMapperReader<>(this,constructor);
-		} catch (ReflectiveOperationException ex) {
-			throw new PersistenceException(ex);
-		}
+		this.implementations = new ArrayList<>(1);
+		this.implementations.add(implementation);
+		this.reader = new DataMapperReader<>(this,implementation);
 		this.writer = new DataMapperWriter<>(this);
 	}	
+	
+	DataMapperImpl(Class<T> api , Map<String,Class<? extends T>> implementations , Table table) {
+		this.mapper = DomainMapper.FIELDLENIENT;
+		this.sqlGenerator = new TableSqlGenerator((TableImpl) table);
+		this.alias = createAlias(api.getName());
+		this.implementations = implementations.values(); 
+		this.reader = new DataMapperReader<>(this, implementations);
+		this.writer = new DataMapperWriter<>(this, implementations);
+	}
 	
 	private String createAlias(String apiName) {
 		StringBuilder builder = new StringBuilder();
@@ -125,8 +129,8 @@ public class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implement
 		int i = 0;
 		for (String fieldName : fieldNames) {
 			Column column = getTable().getColumnForField(fieldName);
-			if (column.isPrimaryKeyColumn() || column.isVersion() || column.hasUpdateValue()) {
-				throw new IllegalArgumentException("Cannot update primary key column or version count column or column with update value");
+			if (column.isPrimaryKeyColumn() || column.isVersion() || column.hasUpdateValue() || column.isDiscriminator()) {
+				throw new IllegalArgumentException("Cannot update special column");
 			} else {
 				columns[i++] = column;
 			}
@@ -196,8 +200,14 @@ public class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implement
 		}
 	}
 	
-	private Object getEnum(Column column, String value) {		
-		return mapper.getEnum(implementation, column.getFieldName(),value);		
+	private Object getEnum(Column column, String value) {
+		for (Class<? extends T> implementation : implementations) {
+			Object result = mapper.getEnum(implementation, column.getFieldName(),value);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;			
 	}
 	
 	private ColumnImpl[] getColumns() {
@@ -242,8 +252,8 @@ public class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implement
 		}
 	}
 	
-	TableConstraint getForeignKeyConstraintFor(String name) {
-		for (TableConstraint each : getTable().getForeignKeyConstraints()) {
+	ForeignKeyConstraint getForeignKeyConstraintFor(String name) {
+		for (ForeignKeyConstraint each : getTable().getForeignKeyConstraints()) {
 			if (each.getFieldName().equals(name))
 				return each;
 		}
@@ -251,6 +261,12 @@ public class DataMapperImpl<T , S extends T> extends AbstractFinder<T> implement
 	}
 	
 	public Class<?> getType(String fieldName) {
-		return mapper.getType(implementation, fieldName);
+		for (Class<? extends T> implementation : implementations) {
+			Class<?> result = mapper.getType(implementation, fieldName);
+			if (result != null) {
+				return result;
+			}
+		}
+		return null;
 	}
 }

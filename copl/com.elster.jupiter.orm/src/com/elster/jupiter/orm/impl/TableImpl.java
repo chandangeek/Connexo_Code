@@ -69,7 +69,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	private List<Column> getColumns(boolean protect) {
 		if (columns ==  null) {
-			columns = Bus.getOrmClient().getColumnFactory().find("table",this,"position");				
+			columns = Bus.getOrmClient().getColumnFactory().find("table",this);				
 		}
 		return protect ? Collections.unmodifiableList(columns) : columns;
 	}
@@ -128,29 +128,29 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 
 	@Override 
-	public TableConstraint getPrimaryKeyConstraint() {
+	public PrimaryKeyConstraint getPrimaryKeyConstraint() {
 		for (TableConstraint each : getConstraints(false)) {
-			if (each.isPrimaryKeyConstraint()) {	
-				return each;
+			if (each.isPrimaryKey()) {	
+				return (PrimaryKeyConstraint) each;
 			}				
 		}
 		return null;
 	}
 	
 	@Override
-	public List<TableConstraint> getForeignKeyConstraints() {
-		List<TableConstraint> result = new ArrayList<>();
+	public List<ForeignKeyConstraint> getForeignKeyConstraints() {
+		List<ForeignKeyConstraint> result = new ArrayList<>();
 		for (TableConstraint each : getConstraints(false)) {
-			if (each.isForeignKeyConstraint()) {
-				result.add(each);
+			if (each.isForeignKey()) {
+				result.add((ForeignKeyConstraint) each);
 			}				
 		}
 		return result;
 	}
 	
 	@Override
-	public TableConstraint getConstraintForField(String fieldName) {
-		for (TableConstraint each : getConstraints(false)) {
+	public ForeignKeyConstraint getConstraintForField(String fieldName) {
+		for (ForeignKeyConstraint each : getForeignKeyConstraints()) {
 			if (fieldName.equals(each.getFieldName()))  {
 				return each;
 			}
@@ -255,7 +255,12 @@ public class TableImpl implements Table , PersistenceAware  {
 	public Column addVersionCountColumn(String name, String dbType , String fieldName) {
 		return add(new ColumnImpl(this,name,dbType, true , NUMBER2LONG,fieldName, null, true,null,null,false));
 	}
-	
+
+	@Override
+	public Column addDiscriminatorColumn(String name, String dbType) {		
+		return add(new ColumnImpl(this,name,dbType,true,NOCONVERSION,Column.TYPEFIELDNAME,null,false,null,null,false));
+	}
+
 	@Override
 	public Column addCreateTimeColumn(String name , String fieldName) {
 		return add(new ColumnImpl(this,name,"number", true , NUMBER2NOW, fieldName, null, false, null , null , true));
@@ -283,7 +288,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	@Override
 	public TableConstraint addPrimaryKeyConstraint(String name, Column... columns) {
-		TableConstraintImpl constraint = new TableConstraintImpl(this ,  name , TableConstraintType.PRIMARYKEY );
+		TableConstraintImpl constraint = new PrimaryKeyConstraintImpl(this, name );
 		constraint.add(columns);
 		getConstraints(false).add(constraint);
 		return constraint;
@@ -291,43 +296,43 @@ public class TableImpl implements Table , PersistenceAware  {
 
 	@Override
 	public TableConstraint addUniqueConstraint(String name, Column... columns) {
-		TableConstraintImpl constraint = new TableConstraintImpl(this ,  name , TableConstraintType.UNIQUE);
+		TableConstraintImpl constraint = new UniqueConstraintImpl(this,  name);
 		constraint.add(columns);
 		getConstraints(false).add(constraint);
 		return constraint;	
 	}
 
 	@Override
-	public TableConstraint addForeignKeyConstraint(String name, Table referencedTable, DeleteRule deleteRule , String fieldName , String reverseFieldName , String reverseCurrentName , Column... columns) {
-		TableConstraintImpl constraint = new TableConstraintImpl(this , name, referencedTable , deleteRule, fieldName , reverseFieldName ,reverseCurrentName);
+	public TableConstraint addForeignKeyConstraint(String name, Table referencedTable, DeleteRule deleteRule , AssociationMapping mapping , Column... columns) {
+		TableConstraintImpl constraint = new ForeignKeyConstraintImpl(this , name, referencedTable , deleteRule, mapping );
 		constraint.add(columns);
 		getConstraints(false).add(constraint);
 		return constraint;	
 	}
 
 	@Override
-	public TableConstraint addForeignKeyConstraint(String name, String referencedTableName, DeleteRule deleteRule , String fieldName , String reverseFieldName , String reverseCurrentName , Column... columns) {
+	public TableConstraint addForeignKeyConstraint(String name, String referencedTableName, DeleteRule deleteRule, AssociationMapping mapping, Column... columns) {
 		Table referencedTable = getDataModel().getTable(referencedTableName);		
-		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName , reverseFieldName , reverseCurrentName , columns); 					
-	}
-	
-	@Override
-	public TableConstraint addForeignKeyConstraint(String name, String referencedTableName, DeleteRule deleteRule , String fieldName , String reverseFieldName , Column... columns) {		
-		return addForeignKeyConstraint(name, referencedTableName, deleteRule , fieldName , reverseFieldName , null, columns); 					
+		return addForeignKeyConstraint(name, referencedTable, deleteRule , mapping, columns); 					
 	}
 	
 	@Override
 	public TableConstraint addForeignKeyConstraint(String name, String component , String referencedTableName, DeleteRule deleteRule , String fieldName, Column... columns) {
 		Table referencedTable = Bus.getOrmClient().getTableFactory().get(component, referencedTableName);		
-		return addForeignKeyConstraint(name, referencedTable, deleteRule , fieldName, null, null , columns); 					
+		return addForeignKeyConstraint(name, referencedTable, deleteRule , new AssociationMapping(fieldName), columns); 					
 	}
 
 
 	@Override
-	public <T,S extends T> DataMapper<T> getDataMapper(Class<T> api , Class<S> implementation) {
-		return new DataMapperImpl<T,S>(api, implementation,this);
+	public <T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation) {
+		return new DataMapperImpl<>(api, implementation,this);
 	}
 		
+	@Override
+	public <T> DataMapper<T> getDataMapper(Class<T> api , Map<String, Class<? extends T>> implementations) {
+		return new DataMapperImpl<>(api, implementations,this);
+	}
+	
 	void persist() {
 		Bus.getOrmClient().getTableFactory().persist(this);
 		for (Column column : getColumns(false)) {
@@ -435,18 +440,18 @@ public class TableImpl implements Table , PersistenceAware  {
 				return FieldType.COMPLEX;
 			}
 		}
-		for (TableConstraint each : getConstraints(false)) {
+		for (ForeignKeyConstraint each : getForeignKeyConstraints()) {
 			if (fieldName.equals(each.getFieldName())) {
 				return FieldType.ASSOCIATION;
 			}
 		}
 		for (Table table : getDataModel().getTables()) {
 			if (!table.equals(this)) {
-				for (TableConstraint each : table.getConstraints()) {
+				for (ForeignKeyConstraint each : table.getForeignKeyConstraints()) {
 					if (fieldName.equals(each.getReverseFieldName())) {
 						return FieldType.REVERSEASSOCIATION;
 					} 
-					if (fieldName.equals(each.getReverseCurrentName())) {
+					if (fieldName.equals(each.getReverseCurrentFieldName())) {
 						return FieldType.CURRENTASSOCIATION;
 					}
 				}
@@ -467,14 +472,14 @@ public class TableImpl implements Table , PersistenceAware  {
 				return new MultiColumnMapping(fieldName, getColumns());
 			}
 		}
-		for (TableConstraint each : getConstraints(false)) {
+		for (ForeignKeyConstraint each : getForeignKeyConstraints()) {
 			if (fieldName.equals(each.getFieldName())) {
 				return new ForwardConstraintMapping(each);
 			}
 		}
 		for (Table table : getDataModel().getTables()) {
 			if (!table.equals(this)) {
-				for (TableConstraint each : table.getConstraints()) {
+				for (ForeignKeyConstraint each : table.getForeignKeyConstraints()) {
 					if (fieldName.equals(each.getFieldName())) {
 						return new ReverseConstraintMapping(each);
 					}
@@ -483,6 +488,7 @@ public class TableImpl implements Table , PersistenceAware  {
 		}
 		return null;
 	}
+
 }
 	
 

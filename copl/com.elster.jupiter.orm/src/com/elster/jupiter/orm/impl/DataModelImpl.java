@@ -102,10 +102,15 @@ public class DataModelImpl implements DataModel , PersistenceAware {
 	}
 
 	@Override
-	public <T, S extends T> DataMapper<T> getDataMapper(Class<T> api, Class<S> implementation, String tableName) {		
+	public <T> DataMapper<T> getDataMapper(Class<T> api, Class<? extends T> implementation, String tableName) {		
 		return getTable(tableName).getDataMapper(api, implementation);
 	}
 
+	@Override
+	public <T> DataMapper<T> getDataMapper(Class<T> api, Map<String,Class<? extends T>> implementations, String tableName) {		
+		return getTable(tableName).getDataMapper(api, implementations);
+	}
+	
 	@Override
 	public void install(boolean executeDdl, boolean store) {
 		if (executeDdl) {

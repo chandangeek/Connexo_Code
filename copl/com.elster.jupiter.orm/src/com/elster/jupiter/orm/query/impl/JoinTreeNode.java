@@ -35,7 +35,7 @@ final class JoinTreeNode<T>  {
 		}
 	}
 	
-	final <R> boolean addMapper(DataMapperImpl<R,? extends R> newMapper , AliasFactory aliasFactory) {
+	final <R> boolean addMapper(DataMapperImpl<R> newMapper , AliasFactory aliasFactory) {
 		boolean result = false;
 		for (JoinTreeNode<?> each : children) {
 			if (each.addMapper(newMapper,aliasFactory)){
@@ -133,10 +133,10 @@ final class JoinTreeNode<T>  {
 	
 	}
 	
-	final DataMapperImpl<?,?> getDataMapperForField(String fieldName) {
-		return execute(fieldName , new JoinTreeAction<DataMapperImpl<?,?>> (false,false) {
+	final DataMapperImpl<?> getDataMapperForField(String fieldName) {
+		return execute(fieldName , new JoinTreeAction<DataMapperImpl<?>> (false,false) {
 			@Override
-			DataMapperImpl<?,?> invoke(String fieldName, JoinDataMapper<?> value) {
+			DataMapperImpl<?> invoke(String fieldName, JoinDataMapper<?> value) {
 				return value.getDataMapperForField(fieldName);
 			}		
 		});

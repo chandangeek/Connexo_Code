@@ -2,12 +2,12 @@ package com.elster.jupiter.orm.fields.impl;
 
 import com.elster.jupiter.conditions.Comparison;
 import com.elster.jupiter.conditions.Contains;
-import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.sql.util.SqlFragment;
 
 public class ForwardConstraintMapping extends ConstraintMapping {
 	
-	public ForwardConstraintMapping(TableConstraint constraint) {
+	public ForwardConstraintMapping(ForeignKeyConstraint constraint) {
 		super(constraint);
 	}
 

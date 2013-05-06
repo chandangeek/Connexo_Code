@@ -3,12 +3,10 @@ package com.elster.jupiter.orm.query.impl;
 import java.sql.*;
 import java.util.*;
 
-import org.osgi.service.event.Event;
-
 import com.elster.jupiter.conditions.Condition;
+import com.elster.jupiter.orm.impl.SelectEventImpl;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.sql.util.SqlBuilder;
-import com.elster.jupiter.time.StopWatch;
 
 final class JoinExecutor<T> {
 		
@@ -101,8 +99,7 @@ final class JoinExecutor<T> {
 		return columnAndAlias == null ? fieldName : columnAndAlias.toString();		
 	}
 
-	List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {
-		StopWatch stopWatch = new StopWatch();
+	List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {		
 		builder = new SqlBuilder();
 		if (eager) {
 			root.markAll();
@@ -118,6 +115,7 @@ final class JoinExecutor<T> {
 		root.clearCache();		
 		new JoinTreeMarker(root).visit(condition);
 		appendSql(condition, orderBy);
+		SelectEventImpl selectEvent = new SelectEventImpl(builder.getText());
 		List<T> result = new ArrayList<>();	
 		int fetchCount = 0;
 		try (Connection connection = Bus.getConnection(false)) {				
@@ -131,12 +129,8 @@ final class JoinExecutor<T> {
 			} 
 		}
 		root.completeFind();
-		stopWatch.stop();
-		Map<String,Object> eventMap = stopWatch.toMap();
-		eventMap.put("sql",this.builder.getText());
-		eventMap.put("tuples",fetchCount);
-		Event event = new Event("com/elster/sql",eventMap);
-		Bus.postEvent(event);
+		selectEvent.setRowCount(fetchCount);
+		Bus.publish(selectEvent);
 		return result;				
 	}
 	

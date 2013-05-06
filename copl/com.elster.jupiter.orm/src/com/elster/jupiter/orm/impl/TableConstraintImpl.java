@@ -5,32 +5,30 @@ import java.util.*;
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.orm.plumbing.OrmClient;
 
-public class TableConstraintImpl implements TableConstraint , PersistenceAware {
+abstract public class TableConstraintImpl implements TableConstraint , PersistenceAware {
+	
+	public final static Map<String,Class<? extends TableConstraint>> implementers =  new HashMap<>();
+	
+	{
+		implementers.put("PRIMARYKEY",PrimaryKeyConstraintImpl.class);
+		implementers.put("UNIQUE",  UniqueConstraintImpl.class);
+		implementers.put("FOREIGNKEY" , ForeignKeyConstraintImpl.class);
+	}
+	
 	// persistent fields
 	private String componentName;
 	private String tableName;	
 	private String name;
-	private TableConstraintType type;
-	private DeleteRule deleteRule;
-	private String referencedComponentName;
-	private String referencedTableName;	
-	private String fieldName;
-	private String reverseFieldName;
-	private String reverseCurrentName;
 	
 	// associations
 	private Table table;
 	private List<Column> columns;
-	private Table referencedTable;
 	
-	
-	@SuppressWarnings("unused")
-	private TableConstraintImpl() {	
+	TableConstraintImpl() {	
 	}
 
-	TableConstraintImpl(Table table, String name, TableConstraintType type) {
+	TableConstraintImpl(Table table, String name) {
 		if (name.length() > Bus.CATALOGNAMELIMIT) {
 			throw new IllegalArgumentException("Name " + name + " too long" );
 		}
@@ -38,19 +36,7 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 		this.componentName = table.getComponentName();
 		this.tableName = table.getName();
 		this.name = name;
-		this.type = type;
 		this.columns = new ArrayList<>();
-	}
-
-	TableConstraintImpl(Table table, String name, Table referencedTable, DeleteRule deleteRule,String fieldName , String reverseFieldName, String reverseCurrentName) {
-		this(table,name,TableConstraintType.FOREIGNKEY);
-		this.referencedTable = referencedTable;
-		referencedComponentName = referencedTable.getComponentName();
-		referencedTableName = referencedTable.getName();		
-		this.deleteRule = deleteRule;
-		this.fieldName = fieldName;		
-		this.reverseFieldName = reverseFieldName;
-		this.reverseCurrentName = reverseCurrentName;
 	}
 
 	@Override
@@ -65,7 +51,7 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	
 	private List<Column> getColumns(boolean protect) {
 		if (columns == null) {
-			List<ColumnInConstraintImpl> columnsInConstraint = getOrmClient().getColumnInConstraintFactory().find(
+			List<ColumnInConstraintImpl> columnsInConstraint = Bus.getOrmClient().getColumnInConstraintFactory().find(
 					new String[] {"componentName","tableName","constraintName"} ,
 					new Object[] { getComponentName(), getTableName() , getName() } ,
 					"position");
@@ -81,76 +67,15 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	@Override
 	public Table getTable() {
 		if (table == null) {
-			table = getOrmClient().getTableFactory().get(componentName, tableName);
+			table = Bus.getOrmClient().getTableFactory().get(componentName, tableName);
 		}
 		return table;
-	}
-
-	TableConstraintType getType() {
-		return type;
-	}
-
-	@Override
-	public Table getReferencedTable() {
-		if (referencedTableName == null || referencedComponentName == null) {
-			return null;
-		}
-		if (referencedTable == null) {
-			if (referencedComponentName.equals(componentName)) {
-				referencedTable = getTable().getDataModel().getTable(referencedTableName);
-			} else {
-				referencedTable = getOrmClient().getTableFactory().get(referencedComponentName, referencedTableName);
-			}
-		}
-		return referencedTable;
-	}
-	
-	@Override
-	public DeleteRule getDeleteRule() {
-		return deleteRule;
-	}
-	
-	@Override 
-	public String getFieldName() {
-		return fieldName;
-	}
-	
-	@Override 
-	public String getReverseFieldName() {
-		return reverseFieldName;
-	}
-	
-	@Override 
-	public String getReverseCurrentName() {
-		return reverseCurrentName;
-	}
-	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder("Constraint ");
-		sb.append(name);
-		sb.append(" on ");
-		sb.append(getTable().getQualifiedName());
-		sb.append(" ");
-		sb.append(getType());
-		sb.append(" ("); 
-		String separator = "";
-		for (Column each : getColumns(false)) {
-			sb.append(separator);
-			sb.append(each.getName());
-			separator = ", ";
-		}
-		sb.append(")");
-		return sb.toString();
 	}
 
 	@Override
 	public void postLoad() {	
 		// do eager initialization in order to be thread safe
 		getColumns(false);
-		if (referencedComponentName != null && !referencedComponentName.equals(componentName)) {
-			getReferencedTable();
-		}
 	}
 	
 	void add(Column column) {
@@ -173,30 +98,26 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	}
 
 	@Override
-	public boolean isPrimaryKeyConstraint() {
-		return getType().isPrimaryKey();		
+	public boolean isPrimaryKey() {
+		return false;		
 	}
 
 	@Override
-	public boolean isUniqueConstraint() {
-		return getType().isUnique();
+	public boolean isUnique() {
+		return false;
 	}
 
 	@Override
-	public boolean isForeignKeyConstraint() {
-		return getType().isForeignKey();
+	public boolean isForeignKey() {
+		return false;
 	}
 
 	void persist() {
-		getOrmClient().getTableConstraintFactory().persist(this);		
+		Bus.getOrmClient().getTableConstraintFactory().persist(this);		
 		int position = 1;
 		for (Column column : getColumns(false)) {
 			new ColumnInConstraintImpl(this, column, position++).persist();
 		}
-	}
-
-	private OrmClient getOrmClient() {
-		return Bus.getOrmClient();
 	}
 	
 	@Override
@@ -213,33 +134,36 @@ public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 		int columnCount = getColumns().size();		
 		Object[] result = new Object[columnCount]; 
 		for (int i = 0 ; i < columnCount ; i++) {
-			result[i] = DomainMapper.FIELD.get(value, getColumns().get(i).getFieldName());
+			result[i] = DomainMapper.FIELDSTRICT.get(value, getColumns().get(i).getFieldName());
 		}
 		return result;		
 	}
 	
-	boolean needsIndex() {
-		if (type.hasAutoIndex())
-			return false;
-		for (TableConstraint constraint : getTable().getConstraints()) {
-			if (constraint.isPrimaryKeyConstraint() || constraint.isUniqueConstraint()) {
-				if (this.isSubset(constraint)) {
-					return false;
-				}
- 			}
-		}
-		return true;
+	boolean needsIndex() {		
+		return false;		
 	}
 	
-	private boolean isSubset(TableConstraint other) {
-		if (other.getColumns().size() < this.getColumns().size()) {
-			return false;
-		}
-		for (int i = 0 ; i < getColumns().size() ; i++) {
-			if (!this.getColumns().get(i).equals(other.getColumns().get(i))) {
-				return false;
-			}
-		}
-		return true;
+	abstract String getTypeString();
+	
+	void appendDdlTrailer(StringBuilder builder) {
+		// do nothing by default;
 	}
+	
+	final public String getDdl() {
+		StringBuilder sb = new StringBuilder("constraint ");
+		sb.append(name);
+		sb.append(" ");
+		sb.append(getTypeString());
+		sb.append(" (");
+		String separator = "";
+		for (Column column : getColumns()) {
+			sb.append(separator);
+			sb.append(column.getName());
+			separator = ", ";			
+		}
+		sb.append(") ");
+		appendDdlTrailer(sb);
+		return sb.toString();			
+	}
+	
 }

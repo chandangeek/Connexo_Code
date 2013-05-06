@@ -4,13 +4,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.conditions.Comparison;
-import com.elster.jupiter.orm.TableConstraint;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 
 public class ConstraintComparisonFragment extends ConstraintFragment {
 	
 	private final Comparison comparison;
 	
-	public ConstraintComparisonFragment(TableConstraint constraint , Comparison comparison , String alias) {
+	public ConstraintComparisonFragment(ForeignKeyConstraint constraint , Comparison comparison , String alias) {
 		super(constraint,alias);
 		this.comparison = comparison;
 	}

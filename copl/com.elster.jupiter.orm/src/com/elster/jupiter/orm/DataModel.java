@@ -3,6 +3,7 @@ package com.elster.jupiter.orm;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author kha
@@ -11,7 +12,8 @@ import java.util.List;
  */
 public interface DataModel {
 	// main api
-	<T, S extends T> DataMapper<T> getDataMapper(Class<T> api , Class<S> implementation, String tableName);
+	<T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation, String tableName);
+	<T> DataMapper<T> getDataMapper(Class<T> api , Map<String,Class <? extends T>> implementations, String tableName);
 	
 	// direct jdbc access
 	Connection getConnection(boolean transactionRequired) throws SQLException;
