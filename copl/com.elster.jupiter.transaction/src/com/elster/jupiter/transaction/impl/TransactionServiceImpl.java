@@ -3,21 +3,17 @@ package com.elster.jupiter.transaction.impl;
 import java.sql.*;
 import javax.sql.DataSource;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.annotations.Activate;
+
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.transaction.*;
 
-@Component(name="com.elster.jupiter.transaction.impl" , immediate = true)
+@Component(name="com.elster.jupiter.transaction.impl")
 public class TransactionServiceImpl implements TransactionService {
 	
 	private volatile DataSource dataSource;
-	private volatile ServiceRegistration<DataSource> dataSourceRegistration;
 	private final ThreadLocal<TransactionContextImpl> transactionContexts = new ThreadLocal<TransactionContextImpl>();
 	
 	public TransactionServiceImpl() {		
@@ -81,14 +77,4 @@ public class TransactionServiceImpl implements TransactionService {
 		this.dataSource = bootStrapService.getDataSource();
 	}
 	
-	@Activate	
-	public void activate(BundleContext context) {
-		TransactionalDataSource txSource = new TransactionalDataSource(this);
-		dataSourceRegistration = context.registerService(DataSource.class,txSource,null);				
-	}
-	
-	@Deactivate
-	public void deActivate() {
-		dataSourceRegistration.unregister();
-	}
 }

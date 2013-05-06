@@ -8,12 +8,17 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
-class TransactionalDataSource implements DataSource {
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import com.elster.jupiter.transaction.TransactionService;
+
+@Component (name = "com.elster.jupiter.datasource" )
+public class TransactionalDataSource implements DataSource {
 	
-	private final TransactionServiceImpl transactionManager;
+	private volatile TransactionServiceImpl transactionManager;
 	
-	TransactionalDataSource(TransactionServiceImpl transactionManager) {
-		this.transactionManager  = transactionManager;
+	public TransactionalDataSource() {
 	}
 
 	private DataSource getDataSource() {
@@ -65,6 +70,11 @@ class TransactionalDataSource implements DataSource {
 	@Override
 	public Connection getConnection(String username, String password) throws SQLException {		
 		throw new UnsupportedOperationException();
+	}
+	
+	@Reference
+	public void setTransactionService(TransactionService transactionService) {
+		this.transactionManager = (TransactionServiceImpl) transactionService;
 	}
 
 }
