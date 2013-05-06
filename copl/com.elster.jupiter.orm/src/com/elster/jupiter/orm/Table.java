@@ -19,7 +19,7 @@ public interface Table {
 	List<Column> getPrimaryKeyColumns();
 	<T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation);
 	<T> DataMapper<T> getDataMapper(Class<T> api , Map<String,Class<? extends T>> implementations);
-	<T> Object getPrimaryKey(T value);
+	Object getPrimaryKey(Object value);
 	FieldType getFieldType(String fieldName);
 	
 	// install time api

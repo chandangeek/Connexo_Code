@@ -417,7 +417,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 
 	@Override
-	public <T> Object getPrimaryKey(T value) {
+	public Object getPrimaryKey(Object value) {
 		TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
 		if (primaryKeyConstraint == null) {
 			throw new IllegalStateException("Table has no primary key");
