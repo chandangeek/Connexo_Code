@@ -69,7 +69,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
 
     private static final String EMPTY_FORMAT = "";
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd - HH:mm:ss z");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
 
     /**
      * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}

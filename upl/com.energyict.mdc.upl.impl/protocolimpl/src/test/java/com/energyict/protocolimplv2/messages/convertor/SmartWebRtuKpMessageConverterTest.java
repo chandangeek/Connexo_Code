@@ -421,7 +421,7 @@ public class SmartWebRtuKpMessageConverterTest {
         final String formattedFromDate = smartWebRtuKpMessageConverter.format(propertySpec, fromDate);
 
         // asserts
-        assertThat(formattedFromDate).isEqualTo("2013/05/03 - 13:42:16 CEST");
+        assertThat(formattedFromDate).isEqualTo("2013/05/03 13:42:16 CEST");
     }
 
     @Test
@@ -435,7 +435,7 @@ public class SmartWebRtuKpMessageConverterTest {
         final String formattedFromDate = smartWebRtuKpMessageConverter.format(propertySpec, fromDate);
 
         // asserts
-        assertThat(formattedFromDate).isEqualTo("2013/05/03 - 13:42:16 CEST");
+        assertThat(formattedFromDate).isEqualTo("2013/05/03 13:42:16 CEST");
     }
 
     @Test

@@ -343,7 +343,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         } catch (SAXException e) {
             return MessageResult.createFailed(msgEntry, "Could not parse the content of the xml message, probably incorrect message.");
         } catch (IOException e) {
-            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data.");
+            return MessageResult.createFailed(msgEntry, "Failed while fetching the LoadProfile data. " + e.getMessage());
         }
     }
 
