@@ -47,8 +47,8 @@ public enum TableSpecs {
 			Column privilegeIdColumn = table.addColumn("PRIVILEGEID", "number" , true, NUMBER2LONG , "id");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addPrimaryKeyConstraint("USR_PK_PRIVILEGEINROLE", roleIdColumn , componentName, privilegeIdColumn);		
-			table.addForeignKeyConstraint("FK_PRIVROLE2ROLE", USR_ROLES.name(), CASCADE, "role" , null , roleIdColumn);
-			table.addForeignKeyConstraint("FK_PRIVROLE2PRIV", USR_PRIVILEGES.name(), CASCADE,"privilege" , null ,componentName,privilegeIdColumn);
+			table.addForeignKeyConstraint("FK_PRIVROLE2ROLE", USR_ROLES.name(), CASCADE, new AssociationMapping("role"),roleIdColumn);
+			table.addForeignKeyConstraint("FK_PRIVROLE2PRIV", USR_PRIVILEGES.name(), CASCADE, new AssociationMapping("privilege"), componentName,privilegeIdColumn);
 		}
 	},
 	USR_USERINROLE {
@@ -57,8 +57,8 @@ public enum TableSpecs {
 			Column roleIdColumn = table.addColumn("ROLEID", "number" , true, NUMBER2LONG , "id");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addPrimaryKeyConstraint("USR_PK_USERINROLE", roleIdColumn , userIdColumn);		
-			table.addForeignKeyConstraint("FK_USERROLE2ROLE", USR_ROLES.name(), CASCADE, "role" , null,  roleIdColumn);
-			table.addForeignKeyConstraint("FK_USERROLE2USER", USR_PRIVILEGES.name(), CASCADE," privilege" , null,  userIdColumn);
+			table.addForeignKeyConstraint("FK_USERROLE2ROLE", USR_ROLES.name(), CASCADE, new AssociationMapping("role") , roleIdColumn);
+			table.addForeignKeyConstraint("FK_USERROLE2USER", USR_PRIVILEGES.name(), CASCADE, new AssociationMapping("privilege") , userIdColumn);
 		}
 	};
 	
