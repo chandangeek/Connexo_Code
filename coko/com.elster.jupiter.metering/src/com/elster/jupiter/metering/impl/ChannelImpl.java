@@ -82,7 +82,7 @@ public class ChannelImpl implements Channel {
 			IntervalLength intervalLength = readingType.getIntervalLength();
 			boolean failed = 
 					(result == null && intervalLength != null) ||
-					((result != null && intervalLength == null) || !result.equals(intervalLength));
+					(result != null && !result.equals(intervalLength));
 			if (failed) {
 				throw new IllegalArgumentException();
 			}

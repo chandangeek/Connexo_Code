@@ -321,7 +321,7 @@ public class UsagePointImpl implements UsagePoint {
 	
 	private  List<MeterActivation> getMeterActivations(boolean protect) {
 		if (meterActivations == null) {
-			meterActivations = Bus.getOrmClient().getMeterActivationFactory().find("usagePoint",this,"startTime");
+			meterActivations = Bus.getOrmClient().getMeterActivationFactory().find("usagePoint",this);
 		}
 		return meterActivations;
 	}

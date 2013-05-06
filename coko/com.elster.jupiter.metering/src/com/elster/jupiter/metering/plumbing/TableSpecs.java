@@ -134,8 +134,8 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_USAGEPOINT", idColumn);
 			table.addUniqueConstraint("MTR_U_USAGEPOINT", mRIDColumn);
-			table.addForeignKeyConstraint("MTR_FK_USAGEPOINTSERVICECAT",MTR_SERVICECATEGORY.name(),RESTRICT,"serviceCategory", null , serviceKindColumn);
-			table.addForeignKeyConstraint("MTR_FK_USAGEPOINTSERVICELOC",MTR_SERVICELOCATION.name(),RESTRICT,"serviceLocation", "usagePoints" , serviceLocationIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_USAGEPOINTSERVICECAT",MTR_SERVICECATEGORY.name(),RESTRICT, new AssociationMapping("serviceCategory"), serviceKindColumn);
+			table.addForeignKeyConstraint("MTR_FK_USAGEPOINTSERVICELOC",MTR_SERVICELOCATION.name(),RESTRICT, new AssociationMapping("serviceLocation", "usagePoints") , serviceLocationIdColumn);
 		}
 	},
 	MTR_READINGTYPE {
@@ -167,7 +167,7 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METER", idColumn);
 			table.addUniqueConstraint("MTR_U_METER", mRIDColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERAMRSYSTEM",MTR_AMRSYSTEM.name(),RESTRICT,"amrSystem", null, amrSystemIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_METERAMRSYSTEM",MTR_AMRSYSTEM.name(),RESTRICT,new AssociationMapping("amrSystem"), amrSystemIdColumn);
 		}
 	},	
 	MTR_METERACTIVATION {
@@ -178,8 +178,8 @@ public enum TableSpecs {
 			table.addIntervalColumns("interval");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METERACTIVATION", idColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERACTUSAGEPOINT",MTR_USAGEPOINT.name(),RESTRICT,"usagePoint","meterActivations" , "currentMeterActivation" , usagePointIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_METER.name(),RESTRICT, "meter" , "meterActivations" , meterIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_METERACTUSAGEPOINT",MTR_USAGEPOINT.name(),RESTRICT, new AssociationMapping("usagePoint", "meterActivations", "interval.start", "currentMeterActivation") , usagePointIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_METER.name(),RESTRICT, new AssociationMapping("meter" , "meterActivations", "interval.start", "currentMeterActivatnion") , meterIdColumn);
 		}
 	},
 	MTR_CHANNEL {
@@ -189,7 +189,7 @@ public enum TableSpecs {
 			Column timeSeriesIdColumn = table.addColumn("TIMESERIESID","number",true,NUMBER2LONG,"timeSeriesId");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_CHANNEL", idColumn);
-			table.addForeignKeyConstraint("MTR_FK_CHANNELACTIVATION", MTR_METERACTIVATION.name(), RESTRICT, "meterActivation" , "channels" , meterActivationIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_CHANNELACTIVATION", MTR_METERACTIVATION.name(), RESTRICT, new AssociationMapping("meterActivation" , "channels"), meterActivationIdColumn);
 			// TODO: How to document dependency on id of IDS TIMESERIES table)
 			table.addForeignKeyConstraint("MTR_FK_CHANNELTIMESERIES","IDS","IDS_TIMESERIES",DeleteRule.RESTRICT,"timeSeries",timeSeriesIdColumn);
 		}
@@ -200,8 +200,8 @@ public enum TableSpecs {
 			Column positionColumn = table.addColumn("POSITION","number",true,NUMBER2INT,"position");
 			Column readingTypeMRidColumn = table.addColumn("READINGTYPEMRID","varchar2(80)",true,NOCONVERSION,"readingTypeMRID");
 			table.addPrimaryKeyConstraint("MTR_PK_READINGTYPEINCHANNEL", channelIdColumn , positionColumn);
-			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL1", MTR_CHANNEL.name(),CASCADE,null,null,channelIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL2", MTR_READINGTYPE.name(),RESTRICT,null, null,readingTypeMRidColumn);
+			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL1", MTR_CHANNEL.name(),CASCADE,new AssociationMapping(null),channelIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL2", MTR_READINGTYPE.name(),RESTRICT,new AssociationMapping(null),readingTypeMRidColumn);
 		}
 	};
 		

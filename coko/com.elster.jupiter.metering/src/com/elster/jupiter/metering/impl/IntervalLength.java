@@ -71,9 +71,9 @@ class IntervalLength {
 	long getLengthInSeconds() {
 		switch(unit) {
 			case MONTH:
-				return 30 * 86400 * length;
+				return 30L * 86400L * length;
 			case DAY:
-				return 86400 * length;
+				return 86400L * length;
 			case MINUTE:
 				return 60L * length; 
 		}
@@ -82,6 +82,9 @@ class IntervalLength {
 	
 	@Override
 	public boolean equals(Object other) {
+		if (other == null) {
+			return false;
+		}
 		try {
 			IntervalLength o = (IntervalLength) other;
 			return this.length == o.length && this.unit == o.unit;

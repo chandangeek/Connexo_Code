@@ -132,10 +132,10 @@ public class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	
 	@Override
 	public boolean equals(Object other) {
-		try {
+		if  (other instanceof ReadingTypeImpl) {
 			ReadingTypeImpl o = (ReadingTypeImpl) other;
 			return this.mRID.equals(o.mRID);
-		} catch (ClassCastException ex) {
+		} else {
 			return false;
 		}
 	}
