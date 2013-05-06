@@ -1,16 +1,19 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.BulkRegisterProtocol;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.eventhandling.XemexEventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMessaging;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.profiles.XemexLoadProfileBuilder;
+
+import java.io.IOException;
 
 /**
  * @author sva
@@ -18,12 +21,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMessa
  */
 public class REMIDatalogger extends E350 {
 
-    /**
-     * Search for local slave devices so a general topology can be build up
-     */
-    public void searchForSlaveDevices() throws ConnectionException {
-        getMeterTopology().searchForSlaveDevices();
-    }
+    private LoadProfileBuilder loadProfileBuilder;
 
     @Override
     public String getVersion() {
@@ -39,11 +37,35 @@ public class REMIDatalogger extends E350 {
     }
 
     @Override
+    public LoadProfileBuilder getLoadProfileBuilder() {
+        if (this.loadProfileBuilder == null) {
+            this.loadProfileBuilder = new XemexLoadProfileBuilder(this);
+        }
+        return loadProfileBuilder;
+    }
+
+    @Override
     public EventProfile getEventProfile() {
         if (this.eventProfile == null) {
             this.eventProfile = new XemexEventProfile(this);
         }
         return this.eventProfile;
+    }
+
+    /**
+     * Get the SerialNumber of the device
+     *
+     * @return the serialNumber of the device
+     * @throws java.io.IOException thrown in case of an exception
+     */
+    public String getMeterSerialNumber() throws IOException {
+        try {
+            return getMeterInfo().getSerialNr();
+        } catch (IOException e) {
+            String message = "Could not retrieve the serialnumber of the meter. " + e.getMessage();
+            getLogger().finest(message);
+            throw e;
+        }
     }
 
     @Override
