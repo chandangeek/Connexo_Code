@@ -16,24 +16,40 @@ public final class Interval {
 	}
 	
 	public Interval(Date start, Date end) {
-		this.start = (start == null) ? Long.MIN_VALUE : start.getTime();
-		if (end == null) {
-			this.end = ETERNITY;
+		this.start = getStartValue(start);
+		this.end = getEndValue(end);
+	}
+
+	private long getStartValue(Date startDate) {
+		if (startDate == null) {
+			return -ETERNITY;
 		} else {
-			if (end.getTime() > ETERNITY) {
-				throw new IllegalArgumentException("End date too big " + end);
+			if (startDate.getTime() <= -ETERNITY) {
+				throw new IllegalArgumentException("Start date too early");
 			} else {
-				this.end  = end == null ? ETERNITY : end.getTime();
+				return startDate.getTime();
 			}
 		}
 	}
-
+	
+	private long getEndValue(Date endDate) {
+		if (endDate == null) {
+			return ETERNITY;
+		} else {
+			if (endDate.getTime() >= ETERNITY) {
+				throw new IllegalArgumentException("End date too late");
+			} else {
+				return endDate.getTime();
+			}
+		}
+	}
+		
 	public Interval(Date start) {
 		this(start,null);
 	}
 
 	public Date getStart() {
-		return start == Long.MIN_VALUE ? null : new Date(start);
+		return start == -ETERNITY ? null : new Date(start);
 	}
 	
 	public Date getEnd() {
