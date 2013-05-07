@@ -6,6 +6,8 @@ import java.util.List;
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.plumbing.Bus;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.time.UtcInstant;
 import com.elster.jupiter.units.*;
 
@@ -46,6 +48,7 @@ public class UsagePointImpl implements UsagePoint {
 	private ServiceCategory serviceCategory;
 	private ServiceLocation serviceLocation;
 	private List<MeterActivation> meterActivations;
+	private List<UsagePointAccountability> accountabilities;
 	
 	@SuppressWarnings("unused")
 	private UsagePointImpl() {
@@ -355,6 +358,14 @@ public class UsagePointImpl implements UsagePoint {
 	public long getVersion() {
 		return version;
 	}
+	
+	@Override
+	public List<UsagePointAccountability> getAccountabilities() {
+		if (accountabilities == null) {
+			accountabilities = Bus.getOrmClient().getUsagePointAccountabilityFactory().find("usagePoint",this);
+		}
+		return accountabilities;
+	}
 
 	@Override
 	public MeterActivation activate(Date start) {
@@ -363,4 +374,21 @@ public class UsagePointImpl implements UsagePoint {
 		return result;
 	}
 	
+	@Override
+	public UsagePointAccountability addAccountability(PartyRole role , Party party , Date start) {
+		UsagePointAccountability accountability = new UsagePointAccountabilityImpl(this,party,role,start);		
+		this.accountabilities.add(accountability);
+		Bus.getOrmClient().getUsagePointAccountabilityFactory().persist(accountability);
+		return accountability;
+	}
+	
+	@Override
+	public Party getResponsibleParty(PartyRole role) {
+		for (UsagePointAccountability each : getAccountabilities()) {
+			if (each.isCurrent() && each.getRole().equals(role)) {
+				return each.getParty();
+			}
+		}
+		return null;
+	}
 }

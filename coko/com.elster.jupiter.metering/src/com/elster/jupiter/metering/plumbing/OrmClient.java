@@ -16,6 +16,7 @@ public interface OrmClient {
 	DataMapper<MeterActivation> getMeterActivationFactory();
 	DataMapper<Channel> getChannelFactory();
 	DataMapper<ReadingTypeInChannel> getReadingTypeInChannelFactory();
+	DataMapper<UsagePointAccountability> getUsagePointAccountabilityFactory();
 	void install(boolean executeDdl , boolean storeMappings);	
 	DataModel getDataModel();
 }

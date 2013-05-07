@@ -6,11 +6,14 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ELSTER
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.elster.jupiter.cbo,
+ com.elster.jupiter.conditions,
  com.elster.jupiter.domain.util,
  com.elster.jupiter.ids,
  com.elster.jupiter.orm,
  com.elster.jupiter.orm.cache,
  com.elster.jupiter.orm.callback,
+ com.elster.jupiter.parties,
+ com.elster.jupiter.sql.util,
  com.elster.jupiter.time,
  com.elster.jupiter.units,
  org.osgi.service.component.annotations;version="1.2.0"

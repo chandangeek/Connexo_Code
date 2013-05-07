@@ -69,6 +69,11 @@ public class OrmClientImpl implements OrmClient {
 	public DataModel getDataModel() {
 		return dataModel;
 	}
+
+	@Override
+	public DataMapper<UsagePointAccountability> getUsagePointAccountabilityFactory() {
+		return dataModel.getDataMapper(UsagePointAccountability.class, UsagePointAccountabilityImpl.class, MTR_UPACCOUNTABILITY.name());
+	}
 	
 		
 }

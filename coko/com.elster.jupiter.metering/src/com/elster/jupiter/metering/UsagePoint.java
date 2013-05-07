@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.units.Quantity;
 
 public interface UsagePoint {
@@ -67,6 +69,9 @@ public interface UsagePoint {
 	long getVersion();
 	
 	MeterActivation activate(Date start);
+	List<UsagePointAccountability> getAccountabilities();
+	UsagePointAccountability addAccountability(PartyRole role, Party party, Date start);
+	Party getResponsibleParty(PartyRole role);
 
 		
 }

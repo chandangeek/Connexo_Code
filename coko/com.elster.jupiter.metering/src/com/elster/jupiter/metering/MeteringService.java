@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering;
 
+import java.util.Date;
+
+import com.elster.jupiter.conditions.Condition;
 import com.elster.jupiter.domain.util.Query;
 
 public interface MeteringService {
@@ -14,4 +17,6 @@ public interface MeteringService {
 	Query<UsagePoint> getUsagePointQuery();
 	Query<MeterActivation> getMeterActivationQuery();
 	Query<ServiceLocation> getServiceLocationQuery();
+	Condition hasAccountability();
+	Condition hasAccountability(Date when);
 }

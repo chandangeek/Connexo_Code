@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.plumbing;
 
 import java.util.Calendar;
 
+import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.ids.*;
 
 import static com.elster.jupiter.ids.FieldType.*;
@@ -9,6 +10,7 @@ import static com.elster.jupiter.ids.FieldType.*;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.impl.ReadingTypeImpl;
 import com.elster.jupiter.metering.impl.ServiceCategoryImpl;
+import com.elster.jupiter.parties.PartyService;
 
 import static com.elster.jupiter.metering.plumbing.Bus.*;
 
@@ -26,6 +28,7 @@ public class InstallerImpl {
 		createRecordSpecs(idsService);
 		createServiceCategories();
 		createReadingTypes();		
+		createPartyRoles(Bus.getPartyService());
 	}
 	
 	private void createVaults(IdsService idsService) {
@@ -112,6 +115,12 @@ public class InstallerImpl {
 		new ReadingTypeImpl("2.6.7.5.0.12.0.0.0.3.73", "15m Reactive+ kVArh").persist();
 		new ReadingTypeImpl("2.6.7.13.0.12.0.0.0.3.73", "15m Reactive- kVArh").persist();
 		new ReadingTypeImpl("2.6.7.6.0.12.0.0.0.3.73", "15m Reactive Total kVArh").persist();
+	}
+	
+	private void createPartyRoles(PartyService partyService) {
+		for (MarketRoleKind role : MarketRoleKind.values()) {
+			partyService.createRole(Bus.COMPONENTNAME, role.name(), role.getDisplayName() , null , null);
+		}
 	}
 
 	

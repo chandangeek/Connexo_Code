@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.plumbing;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.orm.cache.ComponentCache;
+import com.elster.jupiter.parties.PartyService;
 
 public class Bus {
 	
@@ -30,9 +31,13 @@ public class Bus {
 		return locator.getComponentCache();		
 	}
 	
+	public static PartyService getPartyService() {
+		return locator.getPartyService();
+	}
+	
 	// pure static class;
 	private Bus() {
 		throw new UnsupportedOperationException();
-	}	
+	}
 
 }

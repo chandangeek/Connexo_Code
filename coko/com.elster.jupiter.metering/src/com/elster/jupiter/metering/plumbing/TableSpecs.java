@@ -3,6 +3,8 @@ package com.elster.jupiter.metering.plumbing;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.*;
 
+import java.util.List;
+
 import com.elster.jupiter.orm.*;
 
 public enum TableSpecs {
@@ -203,8 +205,22 @@ public enum TableSpecs {
 			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL1", MTR_CHANNEL.name(),CASCADE,new AssociationMapping(null),channelIdColumn);
 			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL2", MTR_READINGTYPE.name(),RESTRICT,new AssociationMapping(null),readingTypeMRidColumn);
 		}
+	},
+	MTR_UPACCOUNTABILITY {
+		void describeTable(Table table) {
+			table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
+			Column usagePointIdColumn = table.addColumn("USAGEPOINTID", "number", true , NUMBER2LONG , "usagePointId");
+			Column partyIdColumn = table.addColumn("PARTYID", "number", true , NUMBER2LONG, "partyId");			
+			Column roleMRIDColumn = table.addColumn("ROLEMRID", "varchar2(80)",  true,  NUMBER2INT, "roleMRID");
+			List<Column> intervalColumns = table.addIntervalColumns("interval");
+			table.addAuditColumns();
+			table.addPrimaryKeyConstraint("MTR_PK_UPACCOUNTABILITY", usagePointIdColumn , partyIdColumn , roleMRIDColumn , intervalColumns.get(0));
+			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTUP", MTR_USAGEPOINT.name(),CASCADE,new AssociationMapping("usagePoint","accountabilities"),usagePointIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTPARTY", "PRT" , "PRT_PARTY", RESTRICT , "party" , partyIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTPARTYROLE", "PRT" , "PRT_PARTYROLE", RESTRICT , "role" , roleMRIDColumn);
+ 		}
 	};
-		
+	
 	public void addTo(DataModel component) {
 		Table table = component.addTable(name());
 		describeTable(table);

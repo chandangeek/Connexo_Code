@@ -2,11 +2,15 @@ package com.elster.jupiter.metering.impl;
 
 import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
 
+import java.util.Date;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import com.elster.jupiter.conditions.Condition;
+import com.elster.jupiter.conditions.Expression;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
@@ -16,6 +20,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
+import com.elster.jupiter.parties.PartyService;
 
 @Component (name = "com.elster.jupiter.metering", service=MeteringService.class)
 public class MeteringServiceImpl implements MeteringService , ServiceLocator {
@@ -24,6 +29,7 @@ public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 	private volatile ComponentCache componentCache;
 	private volatile IdsService idsService;
 	private volatile QueryService queryService;
+	private volatile PartyService partyService;
 
 	
 	@Override 
@@ -115,6 +121,11 @@ public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 		return queryService;
 	}
 
+	@Override
+	public PartyService getPartyService() {
+		return partyService;
+	}
+	
 	@Reference
 	public void setOrmService(OrmService ormService) {
 		DataModel dataModel = ormService.getDataModel(Bus.COMPONENTNAME);
@@ -142,6 +153,11 @@ public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 		this.queryService = queryService;
 	}
 
+	@Reference
+	public void setPartyService(PartyService partyService) {
+		this.partyService = partyService;
+	}
+	
 	@Activate	
 	public void activate() {
 		Bus.setServiceLocator(this);		
@@ -150,6 +166,16 @@ public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 	@Deactivate
 	public void deactivate() {
 		Bus.setServiceLocator(null);
+	}
+	
+	@Override
+	public Condition hasAccountability() {
+		return hasAccountability(new Date());
+	}
+
+	@Override
+	public Condition hasAccountability(Date when) {
+		return Expression.create(new HasAccountabilitiyFragment(when));
 	}
 	
 }
