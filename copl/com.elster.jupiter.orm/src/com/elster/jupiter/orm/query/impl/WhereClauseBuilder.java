@@ -102,7 +102,7 @@ public class WhereClauseBuilder implements Visitor {
 	}
 
 	@Override
-	public void visitStringExpression(StringExpression expression) {
+	public void visitText(Text expression) {
 		builder.append(expression.getText());
 	}
 

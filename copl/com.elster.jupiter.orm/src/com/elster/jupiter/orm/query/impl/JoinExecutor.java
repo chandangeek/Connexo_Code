@@ -118,6 +118,7 @@ final class JoinExecutor<T> {
 		SelectEventImpl selectEvent = new SelectEventImpl(builder.getText());
 		List<T> result = new ArrayList<>();	
 		int fetchCount = 0;
+		System.out.println(builder.getText());
 		try (Connection connection = Bus.getConnection(false)) {				
 			try(PreparedStatement statement = builder.prepare(connection)) {
 				try (ResultSet resultSet = statement.executeQuery()) {

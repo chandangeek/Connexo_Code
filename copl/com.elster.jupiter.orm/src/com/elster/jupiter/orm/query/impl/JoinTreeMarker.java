@@ -69,7 +69,7 @@ public class JoinTreeMarker implements Visitor {
 	}
 
 	@Override
-	public void visitStringExpression(StringExpression expression) {
+	public void visitText(Text expression) {
 	}
 
 	@Override

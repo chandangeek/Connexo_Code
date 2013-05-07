@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -152,6 +153,11 @@ public class DataModelImpl implements DataModel , PersistenceAware {
 	@Override
 	public Connection getConnection(boolean transactionRequired) throws SQLException {
 		return Bus.getConnection(transactionRequired);
+	}
+
+	@Override
+	public Principal getPrincipal() {
+		return Bus.getPrincipal();		
 	}
 
 }

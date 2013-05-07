@@ -20,6 +20,7 @@ public enum TableSpecs {
 			Column nameColumn = table.addColumn("NAME", CATALOGDBTYPE , true , NOCONVERSION , "name");
 			Column schemaColumn = table.addColumn("SCHEMAOWNER",CATALOGDBTYPE, false , NOCONVERSION,"schema");
 			table.addColumn("JOURNALTABLENAME",CATALOGDBTYPE,false,NOCONVERSION,"journalTableName");
+			table.addColumn("INDEXORGANIZED", "char(1)", true , CHAR2BOOLEAN , "indexOrganized");
 			table.addPrimaryKeyConstraint("ORM_PK_TABLES", componentName , nameColumn);
 			table.addUniqueConstraint("ORM_U_TABLES", schemaColumn , nameColumn);
 			table.addForeignKeyConstraint("ORM_FK_TABLESCOMPONENTS", ORM_DATAMODEL.name(),CASCADE, new AssociationMapping("component", "tables") ,  componentName);

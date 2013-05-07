@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm;
 
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -17,6 +18,8 @@ public interface DataModel {
 	
 	// direct jdbc access
 	Connection getConnection(boolean transactionRequired) throws SQLException;
+	// courtesy method to avoid binding to threadPrincipal service
+	Principal getPrincipal();
 	
 	// meta data access
 	String getName();

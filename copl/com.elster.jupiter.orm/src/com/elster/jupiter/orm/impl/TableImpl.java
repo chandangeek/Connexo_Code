@@ -21,6 +21,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	private String schema;
 	private String name;
 	private String journalTableName;
+	private boolean indexOrganized;
 	
 	// associations
 	private DataModel component;
@@ -487,6 +488,17 @@ public class TableImpl implements Table , PersistenceAware  {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void makeIndexOrganized() {
+		indexOrganized = true;
+		
+	}
+
+	@Override
+	public boolean isIndexOrganized() {
+		return indexOrganized;
 	}
 
 }

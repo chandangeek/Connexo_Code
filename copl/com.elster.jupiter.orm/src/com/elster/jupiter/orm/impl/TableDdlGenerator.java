@@ -44,6 +44,9 @@ class TableDdlGenerator {
 			sb.append(getConstraintFragment(constraint));			
 		}
 		sb.append(")");
+		if (table.isIndexOrganized()) {
+			sb.append(" index organized ");
+		}
 		return sb.toString();
 	}
 	

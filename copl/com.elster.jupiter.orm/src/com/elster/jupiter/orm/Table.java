@@ -41,6 +41,8 @@ public interface Table {
 	List<Column> addAuditColumns();
 	void setJournalTableName(String journalTableName);
 	String getJournalTableName();
+	void makeIndexOrganized();
+	boolean isIndexOrganized();
 	boolean hasJournal();
 	List<Column> addQuantityColumns(String name, boolean notNull, String fieldName);
 	List<Column> addMoneyColumns(String name, boolean notNull, String fieldName);
