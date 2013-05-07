@@ -4,6 +4,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.*;
 
 import static com.elster.jupiter.metering.rest.Bus.*;
@@ -21,7 +22,9 @@ public class MeteringResource {
 	@Path("/usagepoints")
 	@Produces(MediaType.APPLICATION_JSON) 
 	public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo) {
-		UsagePointInfos infos = new UsagePointInfos(getQueryService().wrap(getMeteringService().getUsagePointQuery()).select(uriInfo.getQueryParameters()));
+		Query<UsagePoint> query = getMeteringService().getUsagePointQuery();
+		query.setLazy("serviceLocation");
+		UsagePointInfos infos = new UsagePointInfos(getQueryService().wrap(query).select(uriInfo.getQueryParameters()));
 		infos.addServiceLocationInfo();
 		return infos;
 	  }

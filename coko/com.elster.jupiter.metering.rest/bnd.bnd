@@ -45,7 +45,8 @@ Bundle-Name: com.elster.jupiter.metering.rest
 	org.apache.felix.shell,\
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.eventadmin,\
-	com.elster.jupiter.events;version=latest
+	com.elster.jupiter.events;version=latest,\
+	com.elster.jupiter.pubsub;version=latest
 \n\
 -runrepos: Workspace,\
 	Local,\
