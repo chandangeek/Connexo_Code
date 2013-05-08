@@ -2,7 +2,7 @@ package com.elster.jupiter.cbo;
 
 import java.util.Date;
 
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public final class Status implements Cloneable {
 	private UtcInstant dateTime;

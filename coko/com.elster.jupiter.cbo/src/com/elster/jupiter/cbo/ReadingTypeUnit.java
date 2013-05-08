@@ -1,6 +1,6 @@
 package com.elster.jupiter.cbo;
 
-import com.elster.jupiter.units.Unit;
+import com.elster.jupiter.util.units.Unit;
 
 public enum ReadingTypeUnit {
 	NOTAPPLICABLE(0,Unit.UNITLESS),
