@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.cbo.Unit;
 import com.energyict.comserver.issues.Problem;
+import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.meterdata.ResultType;
@@ -169,14 +170,14 @@ public class LoadProfileBuilder {
                             channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                             collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
                         } catch (IOException e) {
-                            Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), channel.getName(), e);
+                            Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), channel.getName(), e);
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             collectedIntervalData.clear();
                         } catch (CommunicationException e) {
                             blockingIssueEncountered = true;
                             blockingIssue = e;
                             CTRException cause = (CTRException) e.getMessageArguments()[0];
-                            Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
+                            Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             collectedIntervalData.clear();
                         }
@@ -187,7 +188,7 @@ public class LoadProfileBuilder {
                 } else {
                     LoadProfileIdentifier loadProfileIdentifier = new LoadProfileDataIdentifier(lpc.getObisCode(), new SerialNumberDeviceIdentifier(lpr.getMeterSerialNumber()));
                     CollectedLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
-                    Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                    Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                     collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                     collectedLoadProfileList.add(collectedLoadProfile);
                 }
@@ -195,7 +196,7 @@ public class LoadProfileBuilder {
                 LoadProfileIdentifier loadProfileIdentifier = new LoadProfileDataIdentifier(lpc.getObisCode(), new SerialNumberDeviceIdentifier(lpr.getMeterSerialNumber()));
                 CollectedLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
                 CTRException cause = (CTRException) blockingIssue.getMessageArguments()[0];
-                Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
+                Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
                 collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);
             }

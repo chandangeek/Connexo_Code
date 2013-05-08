@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.comserver.issues.Problem;
+import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
@@ -49,7 +49,7 @@ public class ReadMeterEvents extends AbstractRequest<LogBookIdentifier, List<Col
             if (deviceLogBook.getCollectedMeterEvents().size() == 0) {
                 resultType = ResultType.NotSupported;
             }
-            deviceLogBook.setFailureInformation(resultType, new Problem<>(getInput(), "Requested events, meter returned NACK." + getReasonDescription(), getInput().getLogBook().getLogBookSpec().getDeviceObisCode()));
+            deviceLogBook.setFailureInformation(resultType, new ProblemImpl<>(getInput(), "Requested events, meter returned NACK." + getReasonDescription(), getInput().getLogBook().getLogBookSpec().getDeviceObisCode()));
             result.add(deviceLogBook);
             setResult(result);
         }

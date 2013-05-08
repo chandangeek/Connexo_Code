@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.comserver.issues.Problem;
+import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
@@ -321,9 +321,9 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, new Problem<ObisCode>(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else if (resultType == ResultType.NotSupported) {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, new Problem<ObisCode>(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }

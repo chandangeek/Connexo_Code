@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 import com.energyict.comserver.adapters.common.ComChannelInputStreamAdapter;
 import com.energyict.comserver.adapters.common.ComChannelOutputStreamAdapter;
 import com.energyict.comserver.exceptions.LegacyProtocolException;
-import com.energyict.comserver.issues.Problem;
+import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
@@ -270,11 +270,11 @@ public class MTU155 implements DeviceProtocol {
                     collectedRegisters.add(deviceRegister);
                 } catch (NoSuchRegisterException e) {   // Register with obisCode ... is not supported.
                     DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
-                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, new Problem<ObisCode>(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
                     collectedRegisters.add(defaultDeviceRegister);
                 } catch (CTRException e) {  // See list of possible error messages
                     DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
-                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, new Problem<ObisCode>(register.getObisCode(), "registerXissue", register.getObisCode(), e));
+                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXissue", register.getObisCode(), e));
                     collectedRegisters.add(defaultDeviceRegister);
                 } catch (CommunicationException e) {    // CommunicationException.numberOfRetriesReached or CommunicationException.cipheringException
                     blockingIssueEncountered = true;
@@ -309,7 +309,7 @@ public class MTU155 implements DeviceProtocol {
     private DefaultDeviceRegister createBlockingIssueDeviceRegister(OfflineRegister register, CommunicationException e) {
         DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
         CTRException cause = (CTRException) e.getMessageArguments()[0];
-        defaultDeviceRegister.setFailureInformation(ResultType.Other, new Problem<ObisCode>(register.getObisCode(), "registerXBlockingIssue", register.getObisCode(), cause));
+        defaultDeviceRegister.setFailureInformation(ResultType.Other, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXBlockingIssue", register.getObisCode(), cause));
         return defaultDeviceRegister;
     }
 
@@ -333,7 +333,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         final DeviceTopology deviceTopology = new DeviceTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, new Problem<Device>(getDeviceIdentifier().findDevice(), "devicetopologynotsupported"));
+        deviceTopology.setFailureInformation(ResultType.NotSupported, new ProblemImpl<Device>(getDeviceIdentifier().findDevice(), "devicetopologynotsupported"));
         return deviceTopology;
     }
 
@@ -407,10 +407,10 @@ public class MTU155 implements DeviceProtocol {
             ((DeviceLogBook) collectedLogBook).setMeterEvents(meterProtocolEvents);
         } catch (CTRException e) {
             collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
-            collectedLogBook.setFailureInformation(ResultType.InCompatible, new Problem<>(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+            collectedLogBook.setFailureInformation(ResultType.InCompatible, new ProblemImpl<>(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
         } catch (CommunicationException e) {                                                                                           //ToDO: add DB key to todo-resources.sql
             collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
-            collectedLogBook.setFailureInformation(ResultType.Other, new Problem<>(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+            collectedLogBook.setFailureInformation(ResultType.Other, new ProblemImpl<>(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
         }                                                                                                                               //ToDO: add DB key to todo-resources.sql
 
         collectedLogBooks.add(collectedLogBook);

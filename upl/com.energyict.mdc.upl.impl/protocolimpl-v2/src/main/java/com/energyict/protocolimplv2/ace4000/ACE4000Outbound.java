@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.comserver.issues.Problem;
+import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
@@ -108,7 +108,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
             } else {                                                                                       //Slave device
                 DeviceLoadProfile collectedLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(loadProfileReader.getProfileObisCode(), new SerialNumberDeviceIdentifier(loadProfileReader.getMeterSerialNumber())));
-                collectedLoadProfile.setFailureInformation(ResultType.NotSupported, new Problem("MBus slave device doesn't support load profiles"));
+                collectedLoadProfile.setFailureInformation(ResultType.NotSupported, new ProblemImpl("MBus slave device doesn't support load profiles"));
                 result.add(collectedLoadProfile);
             }
         }
@@ -272,7 +272,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         } else {
             List<CollectedLogBook> result = new ArrayList<CollectedLogBook>();
             DeviceLogBook deviceLogBook = new DeviceLogBook(logBookReader.getLogBookIdentifier());
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, new Problem("MBus slave device doesn't support events"));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, new ProblemImpl("MBus slave device doesn't support events"));
             result.add(deviceLogBook);
             return result;
         }

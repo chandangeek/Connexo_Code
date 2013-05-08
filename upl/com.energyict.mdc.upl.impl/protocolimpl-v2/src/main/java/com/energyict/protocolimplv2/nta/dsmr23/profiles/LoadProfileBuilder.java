@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 import com.energyict.cbo.Unit;
 import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.comserver.issues.Problem;
+import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -422,11 +423,11 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
 
                     ((DeviceLoadProfile) collectedLoadProfile).setCollectedData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
-                    Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                    Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                     collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                 }
             } else {
-                Problem<LoadProfileReader> problem = new Problem<LoadProfileReader>(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);

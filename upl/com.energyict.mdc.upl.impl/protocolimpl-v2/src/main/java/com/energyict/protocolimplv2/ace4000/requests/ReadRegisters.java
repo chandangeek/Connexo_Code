@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.comserver.issues.Problem;
+import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.meterdata.identifiers.RegisterDataIdentifier;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
@@ -158,7 +158,7 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
             }
             if (!receivedRegister) {
                 DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(new RegisterDataIdentifier(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
-                defaultDeviceRegister.setFailureInformation(ResultType.DataIncomplete, new Problem<ObisCode>(rtuRegister.getObisCode(), msg, rtuRegister.getObisCode()));
+                defaultDeviceRegister.setFailureInformation(ResultType.DataIncomplete, new ProblemImpl<ObisCode>(rtuRegister.getObisCode(), msg, rtuRegister.getObisCode()));
                 result.add(defaultDeviceRegister);
             }
         }
