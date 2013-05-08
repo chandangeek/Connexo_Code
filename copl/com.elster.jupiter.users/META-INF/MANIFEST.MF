@@ -7,8 +7,8 @@ Bundle-Vendor: ELSTER
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: com.elster.jupiter.users
 Import-Package: com.elster.jupiter.orm,
- com.elster.jupiter.time,
  com.elster.jupiter.transaction,
+ com.elster.jupiter.util.time,
  javax.xml.bind,
  org.osgi.service.component.annotations;version="1.2.0"
 Service-Component: OSGI-INF/com.elster.jupiter.users.xml

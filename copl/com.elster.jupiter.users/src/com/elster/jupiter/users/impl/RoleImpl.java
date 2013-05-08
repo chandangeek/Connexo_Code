@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.elster.jupiter.time.UtcInstant;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegeDescription;
 import com.elster.jupiter.users.Role;
+import com.elster.jupiter.util.time.UtcInstant;
 
 
 public class RoleImpl implements Role {

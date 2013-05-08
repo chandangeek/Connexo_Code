@@ -2,8 +2,8 @@ package com.elster.jupiter.users.impl;
 
 import java.util.*;
 
-import com.elster.jupiter.time.UtcInstant;
 import com.elster.jupiter.users.*;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public class UserImpl implements User {
 	// persistent fields
