@@ -8,12 +8,13 @@ import javax.sql.DataSource;
 import org.osgi.service.component.annotations.*;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.plumbing.*;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
-@org.osgi.service.component.annotations.Component (name = "com.elster.jupiter.orm" , service = OrmService.class)
-public class OrmServiceImpl implements OrmService , ServiceLocator {
+@Component (name = "com.elster.jupiter.orm" , service = { OrmService.class , InstallService.class } , property="name=" + Bus.COMPONENTNAME)
+public class OrmServiceImpl implements OrmService , InstallService , ServiceLocator {
 	
 	private volatile OrmClient ormClient;
 	private volatile DataSource dataSource;
@@ -51,8 +52,8 @@ public class OrmServiceImpl implements OrmService , ServiceLocator {
 	}
 
 	 @Override
-	public void install(boolean executeDdl,boolean storeMappings) {
-		 getOrmClient().install(executeDdl,storeMappings);
+	public void install() {
+		 getOrmClient().install(true,true);
 	}
 	 
 	
