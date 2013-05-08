@@ -5,7 +5,7 @@ import java.util.Date;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.time.Interval;
+import com.elster.jupiter.util.time.Interval;
 
 public class PartyInRoleImpl implements PartyInRole {
 	

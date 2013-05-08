@@ -3,8 +3,8 @@ package com.elster.jupiter.parties.impl;
 import java.util.Date;
 
 import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.time.Interval;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 
 class PartyRepresentationImpl  {
 	private String delegate;

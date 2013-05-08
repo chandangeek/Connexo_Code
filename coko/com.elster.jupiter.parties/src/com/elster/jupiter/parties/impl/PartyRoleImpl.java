@@ -1,7 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 class PartyRoleImpl implements PartyRole {
 	private String componentName;

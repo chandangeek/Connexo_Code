@@ -11,6 +11,6 @@ Import-Package: com.elster.jupiter.cbo,
  com.elster.jupiter.orm.callback,
  com.elster.jupiter.parties,
  com.elster.jupiter.security.thread,
- com.elster.jupiter.time,
+ com.elster.jupiter.util.time,
  org.osgi.service.component.annotations;version="1.2.0"
 Export-Package: com.elster.jupiter.parties
