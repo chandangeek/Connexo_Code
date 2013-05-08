@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Util
+Bundle-SymbolicName: com.elster.jupiter.util
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ELSTER
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.elster.jupiter.util.conditions,
+ com.elster.jupiter.util.sql,
+ com.elster.jupiter.util.time,
+ com.elster.jupiter.util.units
