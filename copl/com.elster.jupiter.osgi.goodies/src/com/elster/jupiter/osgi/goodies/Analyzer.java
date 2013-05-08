@@ -26,7 +26,9 @@ public class Analyzer {
 		System.out.println("digraph osgi {");
 		for (BundleInfo each : bundleInfos) {
 			if (includeRoot || each.getBundle().getBundleId() != 0) {
-				generate(each);
+				if (include(each.getBundle().getSymbolicName())) {
+					generate(each);
+				}
 			}
 		}
 		System.out.println("}");
