@@ -4,17 +4,13 @@ Bundle-Name: com.elster.jupiter.metering.rest
 -runfw: org.apache.felix.framework;version='[4.2.1,4.2.1]'
 -runbundles: com.elster.jupiter.bootstrap;version=latest,\
 	com.elster.jupiter.cbo;version=latest,\
-	com.elster.jupiter.conditions;version=latest,\
 	com.elster.jupiter.domain.util;version=latest,\
 	com.elster.jupiter.ids;version=latest,\
 	com.elster.jupiter.metering;version=latest,\
 	com.elster.jupiter.orm;version=latest,\
 	com.elster.jupiter.orm.cache;version=latest,\
 	com.elster.jupiter.security.thread;version=latest,\
-	com.elster.jupiter.sql.util;version=latest,\
 	com.elster.jupiter.users;version=latest,\
-	com.elster.jupiter.units;version=latest,\
-	com.elster.jupiter.time;version=latest,\
 	com.elster.jupiter.oracle,\
 	com.elster.jupiter.transaction;version=latest,\
 	org.apache.felix.gogo.shell,\
@@ -46,7 +42,10 @@ Bundle-Name: com.elster.jupiter.metering.rest
 	org.apache.felix.dependencymanager,\
 	org.apache.felix.eventadmin,\
 	com.elster.jupiter.events;version=latest,\
-	com.elster.jupiter.pubsub;version=latest
+	com.elster.jupiter.pubsub;version=latest,\
+	com.elster.jupiter.osgi.goodies;version=latest,\
+	com.elster.jupiter.parties;version=latest,\
+	com.elster.jupiter.util;version=latest
 \n\
 -runrepos: Workspace,\
 	Local,\

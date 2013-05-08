@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.rest;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.elster.jupiter.metering.*;
-import com.elster.jupiter.units.*;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.cbo.PhaseCode;
 
 @XmlRootElement
