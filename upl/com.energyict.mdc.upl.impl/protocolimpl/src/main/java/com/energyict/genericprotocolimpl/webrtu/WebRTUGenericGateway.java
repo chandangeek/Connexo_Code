@@ -1,23 +1,34 @@
 package com.energyict.genericprotocolimpl.webrtu;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.ConfigurationSupport;
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.*;
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModule;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveModuleLinkAdaptor;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackImpl;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
-import com.energyict.mdw.amr.*;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.CommunicationProfileShadow;
+import com.energyict.mdw.amr.RegisterGroup;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -608,7 +619,7 @@ public class WebRTUGenericGateway {
     }
 
     private Properties getProperties(Device slave) {
-        properties = slave.getProperties().toStringProperties();
+        properties = slave.getProtocolProperties().toStringProperties();
         Properties protocolProperties = slave.getOldProtocol().getProperties().toStringProperties();
 
         for (Object keyObject : protocolProperties.keySet()) {

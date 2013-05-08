@@ -618,7 +618,7 @@ public final class ComServerTCPAM100Demo {
             System.out.println("Demo Device with name " + RTU_NAME + " already existed.");
         }
         DeviceShadow shadow = rtu.getShadow();
-        TypedProperties properties = rtu.getProperties();
+        TypedProperties properties = rtu.getProtocolProperties();
         properties.setProperty(MeterProtocol.PASSWORD, "elster");
         shadow.setProperties(properties);
         rtu.update(shadow);

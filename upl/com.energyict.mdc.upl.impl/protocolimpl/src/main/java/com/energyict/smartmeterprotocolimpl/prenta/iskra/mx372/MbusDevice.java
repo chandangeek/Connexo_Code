@@ -44,7 +44,7 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
         this.logger = protocol.getLogger();
         this.iskra = protocol;
         if (mbus != null) {
-            setProperties(mbus.getProperties().toStringProperties());
+            setProperties(mbus.getProtocolProperties().toStringProperties());
         }
     }
 

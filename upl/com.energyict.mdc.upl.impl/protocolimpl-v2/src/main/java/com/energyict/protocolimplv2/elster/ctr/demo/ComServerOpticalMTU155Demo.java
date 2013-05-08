@@ -585,7 +585,7 @@ public final class ComServerOpticalMTU155Demo {
             System.out.println("Demo Device with name " + RTU_NAME + " already existed.");
         }
         DeviceShadow shadow = rtu.getShadow();
-        TypedProperties properties = rtu.getProperties();
+        TypedProperties properties = rtu.getProtocolProperties();
         shadow.setProperties(properties);
         rtu.update(shadow);
         return rtu;

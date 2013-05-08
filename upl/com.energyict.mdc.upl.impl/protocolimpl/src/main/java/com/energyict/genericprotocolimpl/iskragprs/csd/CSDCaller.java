@@ -1,14 +1,13 @@
 package com.energyict.genericprotocolimpl.iskragprs.csd;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.dialer.connection.ConnectionException;
-//import com.energyict.mdw.core.CommunicationScheduler;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.shadow.CommunicationSchedulerShadow;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Date;
+
+//import com.energyict.mdw.core.CommunicationScheduler;
 
 public class CSDCaller {
 
@@ -32,11 +31,11 @@ public class CSDCaller {
      */
     public CSDCaller(Device rtu) {
         this.rtu = rtu;
-        this.timeOut = Integer.parseInt((String) this.rtu.getProperties().getProperty("PollTimeOut", "900000"));
-        this.pollFreq = Integer.parseInt((String) this.rtu.getProperties().getProperty("CsdPollFrequency", "20000"));
-        this.csdCallTimeout = Integer.parseInt((String) this.rtu.getProperties().getProperty("CsdCallTimeOut", "900000"));
+        this.timeOut = Integer.parseInt((String) this.rtu.getProtocolProperties().getProperty("PollTimeOut", "900000"));
+        this.pollFreq = Integer.parseInt((String) this.rtu.getProtocolProperties().getProperty("CsdPollFrequency", "20000"));
+        this.csdCallTimeout = Integer.parseInt((String) this.rtu.getProtocolProperties().getProperty("CsdCallTimeOut", "900000"));
 //        this.phone = this.rtu.getPhoneNumber();
-        this.fixedIp = ((String) this.rtu.getProperties().getProperty("FixedIpAddress", "0")).equalsIgnoreCase("1");
+        this.fixedIp = ((String) this.rtu.getProtocolProperties().getProperty("FixedIpAddress", "0")).equalsIgnoreCase("1");
     }
 
     /**

@@ -407,7 +407,7 @@ public class IskraMx37x implements ProtocolLink, CacheMechanism, Messaging, HHUE
      * @return
      */
     private String getPortNumber() {
-        String port = (String) getMeter().getProperties().getProperty("IpPortNumber");
+        String port = (String) getMeter().getProtocolProperties().getProperty("IpPortNumber");
         if (port != null) {
             return port;
         } else {

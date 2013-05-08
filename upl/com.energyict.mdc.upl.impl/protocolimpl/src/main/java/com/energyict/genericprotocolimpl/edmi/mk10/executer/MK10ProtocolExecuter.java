@@ -6,17 +6,25 @@
  */
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.edmi.mk10.MK10Push;
-import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushInputStream;
-import com.energyict.genericprotocolimpl.edmi.mk10.streamfilters.MK10PushOutputStream;
-import com.energyict.mdw.core.*;
-import com.energyict.protocol.*;
+import com.energyict.mdw.core.AmrJournalEntry;
+import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.MeterUsageData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -116,8 +124,8 @@ public class MK10ProtocolExecuter {
                 this.properties.putAll(protocol.getProperties().toStringProperties());
             }
         }
-        if (getMeter().getProperties() != null) {
-            this.properties.putAll(getMeter().getProperties().toStringProperties());
+        if (getMeter().getProtocolProperties() != null) {
+            this.properties.putAll(getMeter().getProtocolProperties().toStringProperties());
         }
 
         if (getMeter().getSerialNumber() != null) {

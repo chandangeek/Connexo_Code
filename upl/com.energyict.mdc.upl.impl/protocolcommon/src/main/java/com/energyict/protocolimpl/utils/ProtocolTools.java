@@ -989,7 +989,7 @@ public final class ProtocolTools {
             if (protocol != null) {
                 properties.putAll(protocol.getProperties().toStringProperties());
             }
-            properties.putAll(rtu.getProperties().toStringProperties());
+            properties.putAll(rtu.getProtocolProperties().toStringProperties());
         }
         return properties;
     }

@@ -7,31 +7,28 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.LinkException;
 import com.energyict.genericprotocolimpl.common.CommonUtils;
 import com.energyict.genericprotocolimpl.elster.ctr.encryption.CTREncryption;
-import com.energyict.genericprotocolimpl.elster.ctr.events.CTRMeterEvent;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRParsingException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CtrCipheringException;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.Frame;
 import com.energyict.genericprotocolimpl.elster.ctr.frame.SMSFrame;
-import com.energyict.genericprotocolimpl.elster.ctr.frame.field.Function;
-import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
-import com.energyict.genericprotocolimpl.elster.ctr.profile.ProfileChannelForSms;
-import com.energyict.genericprotocolimpl.elster.ctr.structure.*;
-import com.energyict.genericprotocolimpl.elster.ctr.util.CTRObjectInfo;
+import com.energyict.genericprotocolimpl.elster.ctr.structure.Trace_CQueryResponseStructure;
 import com.energyict.genericprotocolimpl.webrtuz3.MeterAmrLogging;
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Channel;
+import com.energyict.mdw.core.Device;
 import com.energyict.mdw.messaging.MessageHandler;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
 
-import javax.jms.*;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -680,7 +677,7 @@ public class SmsHandler implements MessageHandler {
 
         if (rtu != null) {
             getProtocolProperties().addProperties(rtu.getOldProtocol().getProperties().toStringProperties());
-            getProtocolProperties().addProperties(rtu.getProperties().toStringProperties());
+            getProtocolProperties().addProperties(rtu.getProtocolProperties().toStringProperties());
 
             try {
                 if (!processSmsFrame(parseAndDecryptSms(this.sms))) {

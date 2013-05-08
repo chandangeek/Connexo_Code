@@ -1,7 +1,8 @@
 package com.elster.genericprotocolimpl.dlms.ek280;
 
-import com.energyict.mdw.core.*;
-import com.energyict.protocol.MeterProtocol;
+import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
 
 import java.util.List;
 import java.util.Properties;
@@ -30,7 +31,7 @@ public class PropertiesFetcher {
     }
 
     private Properties getPropertiesFromRtu(Device rtu) {
-        Properties properties = rtu.getProperties().toStringProperties();
+        Properties properties = rtu.getProtocolProperties().toStringProperties();
 
 //        properties.setProperty(MeterProtocol.PROFILEINTERVAL, replaceNullValue("" + rtu.getIntervalInSeconds()));
 //        properties.setProperty(MeterProtocol.NODEID, replaceNullValue(rtu.getNodeAddress()));

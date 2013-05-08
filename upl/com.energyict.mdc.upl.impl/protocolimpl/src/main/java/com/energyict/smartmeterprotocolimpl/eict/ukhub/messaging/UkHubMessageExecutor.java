@@ -775,7 +775,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         String serial = this.protocol.getDlmsSession().getProperties().getSerialNumber();
         List<Device> rtusWithSameSerialNumber = mw().getDeviceFactory().findBySerialNumber(serial);
         for (Device each : rtusWithSameSerialNumber) {
-            if (((String) each.getProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
+            if (((String) each.getProtocolProperties().getProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS)).equalsIgnoreCase("" + this.protocol.getDlmsSession().getProperties().getClientMacAddress())) {
                 return each;
             }
         }

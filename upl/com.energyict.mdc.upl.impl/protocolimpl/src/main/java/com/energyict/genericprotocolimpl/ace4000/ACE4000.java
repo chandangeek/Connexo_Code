@@ -548,10 +548,10 @@ public class ACE4000 extends AbstractGenericProtocol {
             if (masterMeter == null) {    // Find the concerning RTU in the database, load the properties
 
                 if (isMasterMeter(getPushedSerialNumber())) {
-                    initProperties(getMasterMeter().getProperties().toStringProperties());
+                    initProperties(getMasterMeter().getProtocolProperties().toStringProperties());
                     findAllSlaveMeters();
                 } else if (isSlaveMeter(getPushedSerialNumber())) {
-                    initProperties(getMBusMetersMap().get(getPushedSerialNumber()).getProperties().toStringProperties());
+                    initProperties(getMBusMetersMap().get(getPushedSerialNumber()).getProtocolProperties().toStringProperties());
                     findMasterMeter();
                     findAllSlaveMeters();
                 } else {
