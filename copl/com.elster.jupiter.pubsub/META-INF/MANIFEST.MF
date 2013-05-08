@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pubsub
+Bundle-SymbolicName: com.elster.jupiter.pubsub
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: ELSTER
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.osgi.service.component.annotations;version="1.2.0"
+Export-Package: com.elster.jupiter.pubsub
