@@ -6,6 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ELSTER
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.elster.jupiter.orm,
+ com.elster.jupiter.orm.callback,
  com.elster.jupiter.time,
  org.osgi.service.component.annotations;version="1.2.0"
 Export-Package: com.elster.jupiter.ids

@@ -5,9 +5,10 @@ import com.elster.jupiter.ids.*;
 import com.elster.jupiter.ids.plumbing.*;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
 
-@Component (name = "com.elster.jupiter.ids" , service = IdsService.class)
-public class IdsServiceImpl implements IdsService, ServiceLocator {
+@Component (name="com.elster.jupiter.ids", service={IdsService.class,InstallService.class}, property="name="+Bus.COMPONENTNAME)
+public class IdsServiceImpl implements IdsService, InstallService, ServiceLocator {
 	private volatile OrmClient ormClient;
 	
 	@Override
@@ -31,8 +32,8 @@ public class IdsServiceImpl implements IdsService, ServiceLocator {
 	}
 	
 	@Override
-	public void install(boolean executeDdl,boolean storeMappings , boolean createMasterData) {
-		new InstallerImpl().install(executeDdl, storeMappings, createMasterData);
+	public void install() {
+		new InstallerImpl().install(true,true,true);
 	}
 	
 	@Override
@@ -59,8 +60,7 @@ public class IdsServiceImpl implements IdsService, ServiceLocator {
     			spec.addTo(dataModel);			
     		}	
     	}
-    	ormClient = new OrmClientImpl(dataModel);
-    		
+    	ormClient = new OrmClientImpl(dataModel);    		
     }
     
     @Activate

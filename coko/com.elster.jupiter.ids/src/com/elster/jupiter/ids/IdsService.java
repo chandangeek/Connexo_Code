@@ -6,7 +6,5 @@ public interface IdsService {
 	TimeSeries getTimeSeries(long id);
 	TimeSeriesDataStorer createStorer(boolean overrules);
 	Vault newVault(String component, long id, String name, int slotCount,boolean regular);	
-	RecordSpec newRecordSpec(String component , long id,String name);
-	// install api
-	void install(boolean executeDdl, boolean storeMappings , boolean createMasterData);	
+	RecordSpec newRecordSpec(String component , long id,String name);	
 }
