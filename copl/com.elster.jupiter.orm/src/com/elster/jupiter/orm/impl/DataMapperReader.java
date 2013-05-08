@@ -19,8 +19,9 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.sql.util.SqlBuilder;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
+
 import static com.elster.jupiter.orm.plumbing.Bus.getConnection;
 
 public class DataMapperReader<T> {

@@ -1,13 +1,13 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.conditions.Comparison;
-import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.fields.impl.ColumnComparisonFragment;
 import com.elster.jupiter.orm.fields.impl.ColumnContainsFragment;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.sql.SqlFragment;
  
 class ColumnMapping extends FieldMapping {
 	private final Column column;

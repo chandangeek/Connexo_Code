@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.orm.impl.Setter;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 public class ConstraintEqualFragment extends ConstraintFragment implements SqlFragment , Setter {
 

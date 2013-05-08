@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.elster.jupiter.conditions.Comparison;
-import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
-import com.elster.jupiter.sql.util.SqlBuilder;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 final class JoinTreeNode<T>  {
 	

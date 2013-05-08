@@ -3,8 +3,8 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.util.conditions.Contains;
 
 public class ColumnContainsFragment extends ColumnFragment {
 

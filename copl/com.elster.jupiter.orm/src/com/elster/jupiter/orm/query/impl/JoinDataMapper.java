@@ -7,16 +7,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.elster.jupiter.conditions.Comparison;
-import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
-import com.elster.jupiter.sql.util.SqlBuilder;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 abstract public class JoinDataMapper<T> {
 	private final DataMapperImpl<T> dataMapper;

@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.*;
 
 import com.elster.jupiter.orm.impl.DataMapperImpl;
-import com.elster.jupiter.sql.util.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 class RootDataMapper<T> extends JoinDataMapper<T> {
 	

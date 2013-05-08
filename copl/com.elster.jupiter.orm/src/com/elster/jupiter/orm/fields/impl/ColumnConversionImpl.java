@@ -5,8 +5,8 @@ import java.sql.*;
 import java.util.Currency;
 
 import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.time.UtcInstant;
-import com.elster.jupiter.units.Unit;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.util.units.Unit;
 
 // naming convention is DATABASE TYPE 2 JAVATYPE 
 public enum ColumnConversionImpl {

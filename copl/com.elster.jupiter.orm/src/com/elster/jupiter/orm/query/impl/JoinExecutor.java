@@ -3,10 +3,10 @@ package com.elster.jupiter.orm.query.impl;
 import java.sql.*;
 import java.util.*;
 
-import com.elster.jupiter.conditions.Condition;
 import com.elster.jupiter.orm.impl.SelectEventImpl;
 import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.sql.util.SqlBuilder;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 final class JoinExecutor<T> {
 		

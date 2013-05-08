@@ -1,6 +1,6 @@
 package com.elster.jupiter.orm.fields.impl;
 
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 abstract class AliasFragment implements SqlFragment {
 	

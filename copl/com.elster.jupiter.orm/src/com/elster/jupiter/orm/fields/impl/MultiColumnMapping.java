@@ -3,11 +3,11 @@ package com.elster.jupiter.orm.fields.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.elster.jupiter.conditions.Comparison;
-import com.elster.jupiter.conditions.Contains;
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.sql.util.SqlFragment;
-import com.elster.jupiter.units.Quantity;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.units.Quantity;
 
 public class MultiColumnMapping extends FieldMapping {
 	private final String fieldName;

@@ -2,9 +2,8 @@ package com.elster.jupiter.orm.query.impl;
 
 import java.util.List;
 
-import com.elster.jupiter.conditions.*;
-import com.elster.jupiter.sql.util.SqlBuilder;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.conditions.*;
+import com.elster.jupiter.util.sql.*;
 
 public class WhereClauseBuilder implements Visitor {
 	

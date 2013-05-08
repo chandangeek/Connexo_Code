@@ -3,8 +3,8 @@ package com.elster.jupiter.orm.fields.impl;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import com.elster.jupiter.conditions.Comparison;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.util.conditions.Comparison;
 
 public class ConstraintComparisonFragment extends ConstraintFragment {
 	

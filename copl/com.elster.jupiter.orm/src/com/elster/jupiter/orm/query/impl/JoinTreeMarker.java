@@ -2,7 +2,7 @@ package com.elster.jupiter.orm.query.impl;
 
 import java.util.List;
 
-import com.elster.jupiter.conditions.*;
+import com.elster.jupiter.util.conditions.*;
 
 public class JoinTreeMarker implements Visitor {
 	

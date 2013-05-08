@@ -4,7 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 public class ColumnEqualsFragment extends ColumnFragment implements SqlFragment {
 

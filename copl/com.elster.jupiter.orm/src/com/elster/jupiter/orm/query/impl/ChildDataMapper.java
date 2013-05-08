@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
-import com.elster.jupiter.sql.util.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
 public class ChildDataMapper<T> extends JoinDataMapper <T> {
 	final private ForeignKeyConstraint constraint;

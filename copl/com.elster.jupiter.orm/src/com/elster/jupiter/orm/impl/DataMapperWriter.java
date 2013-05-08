@@ -14,7 +14,8 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.UtcInstant;
+
 import static com.elster.jupiter.orm.plumbing.Bus.getConnection;
 
 public class DataMapperWriter<T> {

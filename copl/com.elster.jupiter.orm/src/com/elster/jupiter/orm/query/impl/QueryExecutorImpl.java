@@ -3,10 +3,11 @@ package com.elster.jupiter.orm.query.impl;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.elster.jupiter.conditions.*;
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 
 public class QueryExecutorImpl<T> implements QueryExecutor<T> {	

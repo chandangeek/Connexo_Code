@@ -2,8 +2,8 @@ package com.elster.jupiter.orm;
 
 import java.util.List;
 
-import com.elster.jupiter.conditions.Condition;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 public interface QueryExecutor<T> {
 	<R> void add(DataMapper<R> dataMapper);	

@@ -1,7 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.SelectEvent;
-import com.elster.jupiter.time.StopWatch;
+import com.elster.jupiter.util.time.StopWatch;
 
 public class SelectEventImpl implements SelectEvent {
 	final private StopWatch stopWatch;
