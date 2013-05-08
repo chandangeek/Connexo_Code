@@ -4,10 +4,10 @@ import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
 
-import com.elster.jupiter.conditions.Condition;
-import com.elster.jupiter.conditions.Operator;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 
 class RestQueryImpl<T> implements RestQuery<T> {
 	private final Query<T> query;
