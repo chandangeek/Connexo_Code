@@ -15,7 +15,7 @@ import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 @LiteralSql
 public class VaultImpl implements Vault {

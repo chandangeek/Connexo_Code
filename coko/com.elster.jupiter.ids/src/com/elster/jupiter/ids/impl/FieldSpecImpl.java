@@ -5,7 +5,7 @@ import java.sql.*;
 import com.elster.jupiter.ids.*;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public class FieldSpecImpl implements FieldSpec {
 	// persistent fields
