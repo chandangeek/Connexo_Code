@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.plumbing.Bus;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public class ServiceCategoryImpl implements ServiceCategory {
 	//persistent fields

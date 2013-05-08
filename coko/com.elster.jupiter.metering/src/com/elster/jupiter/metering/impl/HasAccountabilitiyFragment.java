@@ -6,7 +6,7 @@ import java.util.Date;
 
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 @LiteralSql
 public class HasAccountabilitiyFragment implements SqlFragment {

@@ -8,8 +8,8 @@ import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.time.UtcInstant;
-import com.elster.jupiter.units.*;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.util.units.Quantity;
 
 public class UsagePointImpl implements UsagePoint {
 	// persistent fields

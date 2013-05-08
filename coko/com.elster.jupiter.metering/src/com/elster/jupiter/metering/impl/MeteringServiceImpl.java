@@ -9,8 +9,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.jupiter.conditions.Condition;
-import com.elster.jupiter.conditions.Expression;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
@@ -22,6 +20,8 @@ import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Expression;
 
 @Component (name = "com.elster.jupiter.metering", service={MeteringService.class,InstallService.class} , property="name="+Bus.COMPONENTNAME)
 public class MeteringServiceImpl implements MeteringService , InstallService, ServiceLocator {

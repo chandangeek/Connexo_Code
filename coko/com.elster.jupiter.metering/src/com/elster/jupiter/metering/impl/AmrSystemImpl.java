@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.plumbing.Bus;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public class AmrSystemImpl implements AmrSystem {
 	//persistent fields

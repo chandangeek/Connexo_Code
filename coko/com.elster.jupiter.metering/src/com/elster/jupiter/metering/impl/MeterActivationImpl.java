@@ -12,8 +12,8 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.plumbing.Bus;
-import com.elster.jupiter.time.Interval;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public class MeterActivationImpl implements MeterActivation {
 	//persistent fields

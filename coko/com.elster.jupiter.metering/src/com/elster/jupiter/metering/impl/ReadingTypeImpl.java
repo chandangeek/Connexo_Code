@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.cbo.*;
 
 public class ReadingTypeImpl implements ReadingType , PersistenceAware {

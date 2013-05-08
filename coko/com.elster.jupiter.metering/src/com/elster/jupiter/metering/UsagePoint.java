@@ -6,7 +6,7 @@ import java.util.List;
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.units.Quantity;
+import com.elster.jupiter.util.units.Quantity;
 
 public interface UsagePoint {
 	long getId();

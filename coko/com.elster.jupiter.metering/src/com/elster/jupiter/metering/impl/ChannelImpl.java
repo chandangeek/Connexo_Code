@@ -6,7 +6,7 @@ import com.elster.jupiter.ids.*;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.time.UtcInstant;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import static com.elster.jupiter.metering.plumbing.Bus.*;
 
