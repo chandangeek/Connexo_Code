@@ -12,4 +12,6 @@ public interface Channel {
 	List<ReadingType> getReadingTypes();
 	List<IntervalReading> getIntervalReadings(Date from , Date to);
 	List<Reading> getRegisterReadings(Date from, Date to);
+	ReadingType getMainReadingType();
+	ReadingType getCumulativeReadingType();
 }

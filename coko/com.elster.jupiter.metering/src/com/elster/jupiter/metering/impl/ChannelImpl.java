@@ -21,6 +21,8 @@ public class ChannelImpl implements Channel {
 	private long id;
 	private long meterActivationId;
 	private long timeSeriesId;
+	private String mainReadingTypeMRID;
+	private String cumulativeReadingTypeMRID;
 	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
@@ -29,11 +31,14 @@ public class ChannelImpl implements Channel {
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
+
 	
 	// associations
 	private MeterActivation meterActivation;
 	private TimeSeries timeSeries;
-	private List<ReadingType> readingTypes;
+	private ReadingType mainReadingType;
+	private ReadingType cumulativeReadingType;
+	private List<ReadingType> additionalReadingTypes;
 	
 	@SuppressWarnings("unused")
 	private ChannelImpl() {	
@@ -64,18 +69,27 @@ public class ChannelImpl implements Channel {
 	}
 
 	void init(ReadingType[] readingTypes) {
-		this.readingTypes = Arrays.asList(readingTypes);
+		this.mainReadingType = readingTypes[0];
+		this.mainReadingTypeMRID = mainReadingType.getMRID();
+		int index = 1;
+		if (readingTypes.length > 1) {
+			if (mainReadingType.isCumulativeReadingType(readingTypes[index])) {
+				cumulativeReadingType = readingTypes[index++];
+				cumulativeReadingTypeMRID = cumulativeReadingType.getMRID();
+			} 
+		}
+		this.additionalReadingTypes = new ArrayList<ReadingType>();
+		for (; index < readingTypes.length ; index++) {
+			this.additionalReadingTypes.add(readingTypes[index]);
+		}
 		this.timeSeries = createTimeSeries();
 		this.timeSeriesId = timeSeries.getId();
 		Bus.getOrmClient().getChannelFactory().persist(this);
 		persistReadingTypes();
 	}
 	
-	IntervalLength getIntervalLength() {
-		if (readingTypes.isEmpty()) {
-			throw new IllegalArgumentException();
-		}
-		Iterator<ReadingType> it = readingTypes.iterator();
+	IntervalLength getIntervalLength() {		
+		Iterator<ReadingType> it = getReadingTypes().iterator();
 		IntervalLength result = ((ReadingTypeImpl) it.next()).getIntervalLength();
 		while (it.hasNext()) {
 			ReadingTypeImpl readingType = (ReadingTypeImpl) it.next();
@@ -103,31 +117,31 @@ public class ChannelImpl implements Channel {
 	void persistReadingTypes() {
 		int offset = 1;
 		DataMapper<ReadingTypeInChannel> factory = Bus.getOrmClient().getReadingTypeInChannelFactory();
-		for (ReadingType readingType : readingTypes) {
+		for (ReadingType readingType : getAdditionalReadingTypes()) {
 			factory.persist(new ReadingTypeInChannel(this, readingType, offset++));
 		}
 	}
 	
-	private List<ReadingType> getReadingTypes(boolean protect) {
-		if (readingTypes == null) {
-			readingTypes = doGetReadingTypes();
+	private List<ReadingType> getAdditionalReadingTypes() {
+		if (additionalReadingTypes == null) {
+			additionalReadingTypes = new ArrayList<>();
+			for (ReadingTypeInChannel each : Bus.getOrmClient().getReadingTypeInChannelFactory().find("channel",this)) {
+				additionalReadingTypes.add(each.getReadingType());
+			}
 		}
-		return protect ? Collections.unmodifiableList(readingTypes) : readingTypes;
-		
-	}
-	
-	private List<ReadingType> doGetReadingTypes() {
-		List<ReadingTypeInChannel> helpers = Bus.getOrmClient().getReadingTypeInChannelFactory().find("channel",this,"position");
-		List<ReadingType> result = new ArrayList<>(helpers.size());
-		for (ReadingTypeInChannel each : helpers) {
-			result.add(each.getReadingType());
-		}
-		return result;
+		return additionalReadingTypes;
 	}
 	
 	@Override
 	public List<ReadingType> getReadingTypes() {
-		return getReadingTypes(true);
+		List<ReadingType> result = new ArrayList<>();
+		result.add(getMainReadingType());
+		ReadingType next = getCumulativeReadingType();
+		if (next != null) {
+			result.add(next);
+		}
+		result.addAll(getAdditionalReadingTypes());
+		return result;
 	}
 
 	@Override
@@ -148,5 +162,24 @@ public class ChannelImpl implements Channel {
 			result.add(new ReadingImpl(this, entry));
 		}
 		return result;	
+	}
+	
+	@Override
+	public ReadingType getMainReadingType() {
+		if (mainReadingType == null) {
+			mainReadingType = Bus.getOrmClient().getReadingTypeFactory().get(mainReadingTypeMRID);
+		}
+		return mainReadingType;
+	}
+	
+	@Override
+	public ReadingType getCumulativeReadingType() {
+		if (cumulativeReadingTypeMRID == null) {
+			return null;
+		}
+		if (cumulativeReadingType == null) {
+			cumulativeReadingType = Bus.getOrmClient().getReadingTypeFactory().get(cumulativeReadingTypeMRID);
+		}
+		return cumulativeReadingType;
 	}
 }

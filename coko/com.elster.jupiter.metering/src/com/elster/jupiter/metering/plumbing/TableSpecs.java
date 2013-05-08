@@ -189,9 +189,13 @@ public enum TableSpecs {
 			Column idColumn = table.addAutoIdColumn();
 			Column meterActivationIdColumn = table.addColumn("METERACTIVATIONID","number",true,NUMBER2LONG,"meterActivationId");
 			Column timeSeriesIdColumn = table.addColumn("TIMESERIESID","number",true,NUMBER2LONG,"timeSeriesId");
+			Column mainReadingTypeMRIDColumn = table.addColumn("MAINREADINGTYPEMRID","varchar2(80)",true,NOCONVERSION,"mainReadingTypeMRID");
+			Column cumulativeReadingTypeMRIDColumn = table.addColumn("CUMULATIVEREADINGTYPEMRID","varchar2(80)",false,NOCONVERSION,"cumulativeReadingTypeMRID");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_CHANNEL", idColumn);
 			table.addForeignKeyConstraint("MTR_FK_CHANNELACTIVATION", MTR_METERACTIVATION.name(), RESTRICT, new AssociationMapping("meterActivation" , "channels"), meterActivationIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_CHANNELMAINTYPE", MTR_READINGTYPE.name(), RESTRICT, new AssociationMapping("mainReadingType"), mainReadingTypeMRIDColumn);
+			table.addForeignKeyConstraint("MTR_FK_CHANNELCUMULATIVETYPE", MTR_READINGTYPE.name(), RESTRICT, new AssociationMapping("cumulativeReadingType"), cumulativeReadingTypeMRIDColumn);
 			// TODO: How to document dependency on id of IDS TIMESERIES table)
 			table.addForeignKeyConstraint("MTR_FK_CHANNELTIMESERIES","IDS","IDS_TIMESERIES",DeleteRule.RESTRICT,"timeSeries",timeSeriesIdColumn);
 		}

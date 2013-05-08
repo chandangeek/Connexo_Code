@@ -4,4 +4,5 @@ public interface ReadingType {
 	String getMRID();
 	String getName();
 	String getAliasName();
+	boolean isCumulativeReadingType(ReadingType readingType);
 }

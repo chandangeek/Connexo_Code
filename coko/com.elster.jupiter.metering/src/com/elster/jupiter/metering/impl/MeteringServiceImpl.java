@@ -20,10 +20,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.PartyService;
 
-@Component (name = "com.elster.jupiter.metering", service=MeteringService.class)
-public class MeteringServiceImpl implements MeteringService , ServiceLocator {
+@Component (name = "com.elster.jupiter.metering", service={MeteringService.class,InstallService.class} , property="name="+Bus.COMPONENTNAME)
+public class MeteringServiceImpl implements MeteringService , InstallService, ServiceLocator {
 
 	private volatile OrmClient ormClient;
 	private volatile ComponentCache componentCache;
@@ -43,8 +44,8 @@ public class MeteringServiceImpl implements MeteringService , ServiceLocator {
 	}
 	
 	@Override
-	public void install(boolean executeDdl,boolean storeMappings , boolean createMasterData) {
-		new InstallerImpl().install(executeDdl, storeMappings, createMasterData);
+	public void install() {
+		new InstallerImpl().install(true, true, true);
 	}
 	
 	@Override

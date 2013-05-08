@@ -13,7 +13,6 @@ public interface MeteringService {
 	ServiceCategory getServiceCategory(ServiceKind kind);
 	UsagePoint findUsagePoint(long id);
 	ReadingStorer createStorer(boolean overrules);
-	void install(boolean executeDdl, boolean storeMappings,boolean createMasterData);	
 	Query<UsagePoint> getUsagePointQuery();
 	Query<MeterActivation> getMeterActivationQuery();
 	Query<ServiceLocation> getServiceLocationQuery();

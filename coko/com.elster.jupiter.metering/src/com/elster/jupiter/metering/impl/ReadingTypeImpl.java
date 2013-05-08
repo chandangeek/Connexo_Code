@@ -144,4 +144,13 @@ public class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	public int hashCode() {
 		return mRID.hashCode();
 	}
+
+	@Override
+	public boolean isCumulativeReadingType(ReadingType readingType) {
+		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
+		return 
+			this.timeAttribute == other.timeAttribute &&			
+			this.accumulation == Accumulation.INTERVALDATA &&
+			other.accumulation == Accumulation.CUMULATIVE;
+	}
 }
