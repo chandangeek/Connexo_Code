@@ -2,11 +2,11 @@ package com.elster.jupiter.domain.util.impl;
 
 import org.osgi.service.component.annotations.Component;
 
-import com.elster.jupiter.conditions.Condition;
-import com.elster.jupiter.conditions.Operator;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 
 @Component(name = "com.elster.jupiter.domain")
 public class QueryServiceImpl implements QueryService {

@@ -2,10 +2,10 @@ package com.elster.jupiter.domain.util.impl;
 
 import java.util.List;
 
-import com.elster.jupiter.conditions.Condition;
-import com.elster.jupiter.conditions.Subquery;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Subquery;
 
 class QueryImpl<T> implements Query<T> {
 	private final QueryExecutor<T> queryExecutor;

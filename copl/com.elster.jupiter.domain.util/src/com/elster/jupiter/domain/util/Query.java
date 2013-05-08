@@ -2,8 +2,8 @@ package com.elster.jupiter.domain.util;
 
 import java.util.List;
 
-import com.elster.jupiter.conditions.Condition;
-import com.elster.jupiter.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Subquery;
 
 public interface Query<T> {
 	void setLazy(String... includes);

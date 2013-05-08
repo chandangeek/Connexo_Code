@@ -1,7 +1,7 @@
 package com.elster.jupiter.domain.util.impl;
 
-import com.elster.jupiter.conditions.Subquery;
-import com.elster.jupiter.sql.util.SqlFragment;
+import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 public class SubqueryImpl implements Subquery {
 	

@@ -5,9 +5,9 @@ Bundle-SymbolicName: com.elster.jupiter.domain.util
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: ELSTER
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.elster.jupiter.conditions,
- com.elster.jupiter.orm,
- com.elster.jupiter.sql.util,
+Import-Package: com.elster.jupiter.orm,
+ com.elster.jupiter.util.conditions,
+ com.elster.jupiter.util.sql,
  org.osgi.service.component.annotations;version="1.2.0"
 Export-Package: com.elster.jupiter.domain.util
 Service-Component: OSGI-INF/com.elster.jupiter.orm.xml
