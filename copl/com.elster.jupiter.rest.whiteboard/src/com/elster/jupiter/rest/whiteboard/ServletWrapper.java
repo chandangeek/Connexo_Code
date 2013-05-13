@@ -30,11 +30,11 @@ public class ServletWrapper extends HttpServlet  {
 	protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		request = new RequestWrapper(request);
 		ThreadPrincipalService service = Bus.getThreadPrincipalService();
-		service.setPrincipal(request.getUserPrincipal());
+		service.set(request.getUserPrincipal());
 		try {
 			servlet.service(request,response);
 		} finally {
-			service.clearPrincipal();
+			service.clear();
 		}
 	}
 

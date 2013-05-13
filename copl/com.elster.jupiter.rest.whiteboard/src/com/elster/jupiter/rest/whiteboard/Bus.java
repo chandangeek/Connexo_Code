@@ -4,6 +4,9 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 
 class Bus {
+	
+	static final String PID = "com.elster.jupiter.rest.whiteboard";
+	
 	private static ServiceLocator locator;
 	
 	static ServiceLocator getServiceLocator() {

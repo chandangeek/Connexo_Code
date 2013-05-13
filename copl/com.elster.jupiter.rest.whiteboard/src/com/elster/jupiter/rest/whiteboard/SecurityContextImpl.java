@@ -18,7 +18,7 @@ public class SecurityContextImpl implements SecurityContext {
 			case HttpServletRequest.BASIC_AUTH:
 				return BASIC_AUTH;
 			case HttpServletRequest.CLIENT_CERT_AUTH:
-				return SecurityContextImpl.CLIENT_CERT_AUTH;
+				return SecurityContext.CLIENT_CERT_AUTH;
 			case HttpServletRequest.DIGEST_AUTH:
 				return SecurityContext.DIGEST_AUTH;
 			case HttpServletRequest.FORM_AUTH:
