@@ -2,22 +2,19 @@ package com.elster.jupiter.transaction.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import javax.sql.DataSource;
  
 class TransactionContextImpl {	
-	private final DataSource source;
+	private final TransactionServiceImpl  transactionService;
 	private Connection connection;
 	private boolean rollback = false;
 	
-	TransactionContextImpl(DataSource source) {
-		this.source = source;
+	TransactionContextImpl(TransactionServiceImpl transactionService) {
+		this.transactionService = transactionService;
 	}
 
 	Connection getConnection() throws SQLException {
 		if (connection == null) {
-			connection = source.getConnection();
-			connection.setAutoCommit(false);
+			connection = transactionService.newConnection(false);			
 		}
 		return new ConnectionWrapper(connection);
 	}

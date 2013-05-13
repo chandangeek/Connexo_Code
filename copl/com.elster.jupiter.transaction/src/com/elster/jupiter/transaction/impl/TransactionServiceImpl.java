@@ -2,26 +2,26 @@ package com.elster.jupiter.transaction.impl;
 
 import java.sql.*;
 import javax.sql.DataSource;
-
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.bootstrap.BootstrapService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.*;
 
 @Component(name="com.elster.jupiter.transaction.impl")
 public class TransactionServiceImpl implements TransactionService {
 	
+	private volatile ThreadPrincipalService threadPrincipalService;
 	private volatile DataSource dataSource;
 	private final ThreadLocal<TransactionContextImpl> transactionContexts = new ThreadLocal<TransactionContextImpl>();
 	
 	public TransactionServiceImpl() {		
 	}
 
-	private Connection newConnection() throws SQLException {
+	Connection newConnection(boolean autoCommit) throws SQLException {
 		Connection result = dataSource.getConnection();
-		result.setAutoCommit(true);
+		result.setAutoCommit(autoCommit);
+		threadPrincipalService.setEndToEndMetrics(result);		
 		return result;
 	}
 	
@@ -40,7 +40,7 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	
 	private void doExecute(Runnable runnable) throws SQLException {
-		TransactionContextImpl transactionContext = new TransactionContextImpl(dataSource);
+		TransactionContextImpl transactionContext = new TransactionContextImpl(this);
 		transactionContexts.set(transactionContext);
 		boolean commit = false;
 		try {
@@ -54,13 +54,13 @@ public class TransactionServiceImpl implements TransactionService {
 	
 	Connection getConnection() throws SQLException {
 		TransactionContextImpl transactionContext = transactionContexts.get();
-		return transactionContext == null ? newConnection() : transactionContext.getConnection();
+		return transactionContext == null ? newConnection(true) : transactionContext.getConnection();
 	}
 	
 	DataSource getDataSource() {
 		return dataSource;
 	}
-
+	
 	@Override
 	public void setRollbackOnly() {
 		TransactionContextImpl transactionContext = transactionContexts.get();
@@ -73,8 +73,12 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	
 	@Reference
-	public void setBootstrapService(BootstrapService bootStrapService) {
-		this.dataSource = bootStrapService.getDataSource();
+	public void setBootstrapService(BootstrapService bootStrapService) throws SQLException {
+		this.dataSource = bootStrapService.createDataSource();
 	}
 	
+	@Reference
+	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+		this.threadPrincipalService = threadPrincipalService;		
+	}
 }
