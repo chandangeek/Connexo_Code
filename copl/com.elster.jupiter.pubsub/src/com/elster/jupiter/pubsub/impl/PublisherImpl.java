@@ -1,7 +1,11 @@
 package com.elster.jupiter.pubsub.impl;
 
 import java.util.*;
+import java.util.logging.Logger;
+
 import org.osgi.service.component.annotations.*;
+import org.osgi.service.log.LogService;
+
 import com.elster.jupiter.pubsub.*;
 
 @Component (name="com.elster.jupiter.pubsub", immediate = true )
@@ -57,5 +61,11 @@ public class PublisherImpl implements Publisher {
 	@Override
 	public void unsetThreadSubscriber() {
 		this.threadSubscribers.remove();		
+	}
+	
+	@Reference
+	public void setLogService(LogService logService) {
+		//LogManager.getLogManager().reset();
+		Logger.getLogger("").addHandler(new LogHandler(logService));
 	}
 }
