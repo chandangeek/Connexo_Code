@@ -1,7 +1,9 @@
 package com.elster.jupiter.bootstrap;
 
+import java.sql.SQLException;
+
 import javax.sql.DataSource;
 
 public interface BootstrapService {
-	DataSource getDataSource();
+	DataSource createDataSource() throws SQLException;
 }
