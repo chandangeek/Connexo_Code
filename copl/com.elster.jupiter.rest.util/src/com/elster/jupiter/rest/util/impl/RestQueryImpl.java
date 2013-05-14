@@ -45,8 +45,7 @@ class RestQueryImpl<T> implements RestQuery<T> {
 		int start = getStart(map);
 		int limit = getLimit(map);
 		if (start >= 0 && limit >= 0) {
-			System.out.println("Start: " + start + " Limit: " + limit);
-			return query.select(convert(map),start+1,start + limit+1);
+			return query.select(convert(map),start+1,start + limit);
 		} else {
 			return query.select(convert(map));
 		}
