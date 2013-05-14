@@ -46,7 +46,9 @@ public class ChannelImpl implements Channel {
 	
 	ChannelImpl(MeterActivation meterActivation) {
 		this.meterActivation = meterActivation;
+		this.meterActivationId = meterActivation.getId();
 	}
+	
 	@Override
 	public long getId() {
 		return id;

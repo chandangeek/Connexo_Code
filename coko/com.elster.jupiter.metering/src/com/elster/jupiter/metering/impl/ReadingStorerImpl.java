@@ -28,15 +28,15 @@ public class ReadingStorerImpl implements ReadingStorer {
 
 	@Override
 	public void add(Channel channel, Date dateTime, BigDecimal value) {
-		this.storer.add(channel.getTimeSeries(),dateTime,0L,value);
+		this.storer.add(channel.getTimeSeries(),dateTime,0L,0L,value);
 	}
 
 	public void add(Channel channel, Date dateTime, BigDecimal value,Date from) {
-		this.storer.add(channel.getTimeSeries(),dateTime,0L,value,from);
+		this.storer.add(channel.getTimeSeries(), dateTime,0L,0L,value,from);		
 	}
 	
 	public void add(Channel channel, Date dateTime, BigDecimal value,Date from ,Date when) {
-		this.storer.add(channel.getTimeSeries(),dateTime,0L,value,from,when);
+		this.storer.add(channel.getTimeSeries(),dateTime,0L,0L,value,from,when);
 	}
 	
 	@Override
