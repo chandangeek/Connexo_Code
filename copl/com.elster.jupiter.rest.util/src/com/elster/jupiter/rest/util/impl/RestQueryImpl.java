@@ -21,14 +21,32 @@ class RestQueryImpl<T> implements RestQuery<T> {
 		return values == null || values.isEmpty() ? null : values.get(values.size() - 1);
 	}
 	
+	private int getLastValue(MultivaluedMap<String, String> map, String key) {
+		String intString = getLast(map,key);
+		try {
+			return intString == null ? -1 : Integer.parseInt(intString);
+		} catch (NumberFormatException ex) {
+			return -1;
+		}
+	}
+	
+	@Override
+	public int getStart(MultivaluedMap<String, String> map) {
+		return getLastValue(map,"start");
+	}
+	
+	@Override
+	public int getLimit(MultivaluedMap<String, String> map) {
+		return getLastValue(map,"limit");
+	}
+	
 	@Override
 	public List<T> select(MultivaluedMap<String, String> map) {
-		String startString = getLast(map,"start");
-		String limitString = getLast(map,"limit");
-		if (startString != null && limitString != null) {
-			int start = Integer.valueOf(startString);
-			int limit = Integer.valueOf(limitString);
-			return query.select(convert(map),start+1,limit+1);
+		int start = getStart(map);
+		int limit = getLimit(map);
+		if (start >= 0 && limit >= 0) {
+			System.out.println("Start: " + start + " Limit: " + limit);
+			return query.select(convert(map),start+1,start + limit+1);
 		} else {
 			return query.select(convert(map));
 		}
