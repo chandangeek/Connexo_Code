@@ -1,14 +1,23 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
+import com.energyict.cpo.Environment;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.exceptions.InboundFrameException;
-import com.energyict.mdc.protocol.inbound.AbstractDiscover;
+import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
+import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Inbound device discovery created for the MK10 protocol
@@ -20,26 +29,39 @@ import java.io.IOException;
  * @author: sva
  * @since: 29/10/12 (10:34)
  */
-public class MK10InboundDeviceProtocol extends AbstractDiscover {
+public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
-    private static final int DEFAULT_DELAY_MILLIS = 10;
+    private static final int TIMEOUT_DEFAULT = 10000;
+    private static final int RETRIES_DEFAULT = 2;
+    private static final String TIMEOUT_KEY = Environment.getDefault().getTranslation("protocol.timeout");
+    private static final String RETRIES_KEY = Environment.getDefault().getTranslation("protocol.retries");
 
-    SerialNumberDeviceIdentifier deviceIdentifier;
+    private DeviceIdentifierBySerialNumber deviceIdentifier;
+    private InboundDiscoveryContext context;
+    private ComChannel comChannel;
+    private TypedProperties typedProperties;
+
+
+    @Override
+    public void initializeDiscoveryContext(InboundDiscoveryContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public InboundDiscoveryContext getContext() {
+        return context;
+    }
 
     @Override
     public DiscoverResultType doDiscovery() {
-        try {
-            PushPacket packet = PushPacket.getPushPacket(readFrame());
-            switch (packet.getPushPacketType()) {
-                case README:
-                case HEARTBEAT:
-                    setDeviceIdentifier(packet.getSerial());
-                    return DiscoverResultType.IDENTIFIER;
-                default:
-                    throw new IOException("The received packet is unsupported in the current protocol [" + packet.toString() + "].");
-            }
-        } catch (IOException e) {
-            throw new CommunicationException(e);
+        PushPacket packet = PushPacket.getPushPacket(readFrame());
+        switch (packet.getPushPacketType()) {
+            case README:
+            case HEARTBEAT:
+                setDeviceIdentifier(packet.getSerial());
+                return DiscoverResultType.IDENTIFIER;
+            default:
+                throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(packet.toString(), "The received packet is unsupported in the current protocol");
         }
     }
 
@@ -48,10 +70,10 @@ public class MK10InboundDeviceProtocol extends AbstractDiscover {
      * implemented by reading bytes until a timeout occurs.
      *
      * @return the partial frame
-     * @throws com.energyict.mdc.protocol.exceptions.InboundFrameException
+     * @throws com.energyict.mdc.exceptions.ComServerExecutionException
      *          in case of timeout after x retries
      */
-    private byte[] readFrame() throws InboundFrameException {
+    private byte[] readFrame() {
         getComChannel().startReading();
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         long timeoutMoment = System.currentTimeMillis() + getTimeOutProperty();
@@ -71,7 +93,7 @@ public class MK10InboundDeviceProtocol extends AbstractDiscover {
                 retryCount++;
                 timeoutMoment = System.currentTimeMillis() + getTimeOutProperty();
                 if (retryCount > getRetriesProperty()) {
-                    throw InboundFrameException.timeout("Timeout while waiting for inbound frame, after " + getTimeOutProperty() + " ms, using " + getRetriesProperty() + " retries.");
+                    throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException(String.format("Timeout while waiting for inbound frame, after %d ms, using %d retries.", getTimeOutProperty(), getRetriesProperty()));
                 }
             }
         }
@@ -82,10 +104,10 @@ public class MK10InboundDeviceProtocol extends AbstractDiscover {
     }
 
     private void delay() {
-        this.delay(DEFAULT_DELAY_MILLIS);
+        this.delay(TIMEOUT_DEFAULT);
     }
 
-    private void delay(int millis) throws InboundFrameException {
+    private void delay(int millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
@@ -103,12 +125,58 @@ public class MK10InboundDeviceProtocol extends AbstractDiscover {
         return deviceIdentifier;
     }
 
+    @Override
+    public List<CollectedData> getCollectedData() {
+        return Collections.emptyList();
+    }
+
     public void setDeviceIdentifier(String serialNumber) {
-        this.deviceIdentifier = new SerialNumberDeviceIdentifier(serialNumber);
+        this.deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
     }
 
     @Override
     public String getVersion() {
         return "$Date: 2012-10-26 14:42:27 +0200 (vr, 26 okt 2012) $";
+    }
+
+    @Override
+    public void addProperties(TypedProperties properties) {
+        this.typedProperties = properties;
+    }
+
+    @Override
+    public void initComChannel(ComChannel comChannel) {
+        this.comChannel = comChannel;
+    }
+
+    protected ComChannel getComChannel () {
+        return comChannel;
+    }
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<PropertySpec> getOptionalProperties() {
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_KEY));
+        propertySpecs.add(PropertySpecFactory.bigDecimalPropertySpec(RETRIES_KEY));
+        return propertySpecs;
+    }
+
+    public int getTimeOutProperty() {
+        return getTypedProperties().getIntegerProperty(TIMEOUT_KEY, new BigDecimal(TIMEOUT_DEFAULT)).intValue();
+    }
+
+    public int getRetriesProperty() {
+        return getTypedProperties().getIntegerProperty(RETRIES_KEY, new BigDecimal(RETRIES_DEFAULT)).intValue();
+    }
+
+    public TypedProperties getTypedProperties() {
+        if (typedProperties == null) {
+            typedProperties = TypedProperties.empty();
+        }
+        return typedProperties;
     }
 }

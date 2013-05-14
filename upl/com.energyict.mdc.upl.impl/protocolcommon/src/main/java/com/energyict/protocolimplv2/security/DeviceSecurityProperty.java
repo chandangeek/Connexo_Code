@@ -7,6 +7,7 @@ import com.energyict.dynamicattributes.BigDecimalFactory;
 import com.energyict.dynamicattributes.BooleanFactory;
 import com.energyict.dynamicattributes.PasswordFactory;
 import com.energyict.dynamicattributes.StringFactory;
+
 import java.math.BigDecimal;
 
 /**

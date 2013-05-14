@@ -1,21 +1,24 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.cbo.Unit;
-import com.energyict.comserver.issues.Problem;
-import com.energyict.comserver.issues.ProblemImpl;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileDataIdentifier;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.ProfileChannel;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.CTRObjectInfo;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -150,7 +153,7 @@ public class LoadProfileBuilder {
         /** While reading one of the loadProfiles, a blocking issue was encountered; this indicates it makes no sense to try to read out the other loadProfiles **/
         boolean blockingIssueEncountered = false;
         /** The blocking Communication Exception **/
-        CommunicationException blockingIssue = null;
+        ComServerExecutionException blockingIssue = null;
 
         List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<CollectedLoadProfile>();
         for (LoadProfileReader lpr : loadProfiles) {
@@ -158,8 +161,8 @@ public class LoadProfileBuilder {
             if (!blockingIssueEncountered) {
                 if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                     List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
-                    LoadProfileIdentifier loadProfileIdentifier = new LoadProfileDataIdentifier(lpc.getObisCode(), new SerialNumberDeviceIdentifier(lpr.getMeterSerialNumber()));
-                    CollectedLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
+                    LoadProfileIdentifier loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(lpc.getObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
+                    CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
                     List<IntervalData> collectedIntervalData = new ArrayList<IntervalData>();
 
                     for (ChannelInfo channel : channelInfos) {
@@ -170,33 +173,33 @@ public class LoadProfileBuilder {
                             channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                             collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
                         } catch (IOException e) {
-                            Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), channel.getName(), e);
+                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), channel.getName(), e);
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             collectedIntervalData.clear();
-                        } catch (CommunicationException e) {
+                        } catch (ComServerExecutionException e) {
                             blockingIssueEncountered = true;
                             blockingIssue = e;
-                            CTRException cause = (CTRException) e.getMessageArguments()[0];
-                            Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
+                            CTRException cause = (CTRException) e.getCause();
+                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             collectedIntervalData.clear();
                         }
                     }
 
-                    ((DeviceLoadProfile) collectedLoadProfile).setCollectedData(collectedIntervalData, channelInfos);
+                    collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
                     collectedLoadProfileList.add(collectedLoadProfile);
                 } else {
-                    LoadProfileIdentifier loadProfileIdentifier = new LoadProfileDataIdentifier(lpc.getObisCode(), new SerialNumberDeviceIdentifier(lpr.getMeterSerialNumber()));
-                    CollectedLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
-                    Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                    LoadProfileIdentifier loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(lpc.getObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
+                    CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
+                    Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                     collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                     collectedLoadProfileList.add(collectedLoadProfile);
                 }
             } else {
-                LoadProfileIdentifier loadProfileIdentifier = new LoadProfileDataIdentifier(lpc.getObisCode(), new SerialNumberDeviceIdentifier(lpr.getMeterSerialNumber()));
-                CollectedLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
-                CTRException cause = (CTRException) blockingIssue.getMessageArguments()[0];
-                Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
+                LoadProfileIdentifier loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(lpc.getObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
+                CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
+                CTRException cause = (CTRException) blockingIssue.getCause();
+                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
                 collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                 collectedLoadProfileList.add(collectedLoadProfile);
             }

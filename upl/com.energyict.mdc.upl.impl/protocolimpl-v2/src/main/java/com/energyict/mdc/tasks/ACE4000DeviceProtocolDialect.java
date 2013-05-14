@@ -2,10 +2,12 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.tasks.DeviceProtocolDialectImpl;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Models a GPRS {@link com.energyict.mdc.tasks.DeviceProtocolDialect} for the ACE4000 protocol
@@ -13,7 +15,7 @@ import java.util.*;
  * @author: khe
  * @since: 16/10/12 (113:25)
  */
-public class ACE4000DeviceProtocolDialect extends DeviceProtocolDialectImpl {
+public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     // Optional properties
     public static final String TIMEOUT_PROPERTY_NAME = "Timeout";

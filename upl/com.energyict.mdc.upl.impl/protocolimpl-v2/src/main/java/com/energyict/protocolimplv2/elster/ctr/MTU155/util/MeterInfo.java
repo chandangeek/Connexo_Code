@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.util;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.comserver.exceptions.LegacyProtocolException;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -180,10 +180,10 @@ public class MeterInfo extends AbstractUtilObject {
             String msg = "Unable to read MTU SerialNumber. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         } catch (CTRException e) {
             getLogger().severe("Unable to read MTU SerialNumber: " + e.getMessage());
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -209,10 +209,10 @@ public class MeterInfo extends AbstractUtilObject {
             String msg = "Unable to read Converter SerialNumber. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         } catch (CTRException e) {
             getLogger().severe("Unable to read Converter SerialNumber: " + e.getMessage());
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -238,10 +238,10 @@ public class MeterInfo extends AbstractUtilObject {
             String msg = "Unable to read the convertor type. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         } catch (CTRException e) {
             getLogger().severe("Unable to read the convertor type: " + e.getMessage());
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -267,10 +267,10 @@ public class MeterInfo extends AbstractUtilObject {
             String msg = "Unable to read the meter type. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-            throw new LegacyProtocolException(e);
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
         } catch (CTRException e) {
             getLogger().severe("Unable to read the meter type: " + e.getMessage());
-            throw new LegacyProtocolException(e);
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
         }
     }
 
@@ -299,10 +299,10 @@ public class MeterInfo extends AbstractUtilObject {
             String msg = "Unable to read the meter caliber. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-            throw new LegacyProtocolException(e);
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
         } catch (CTRException e) {
             getLogger().severe("Unable to read the meter caliber: " + e.getMessage());
-            throw new LegacyProtocolException(e);
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
         }
     }
 
@@ -331,10 +331,10 @@ public class MeterInfo extends AbstractUtilObject {
             String msg = "Unable to read the pulseWeightVm. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-            throw new LegacyProtocolException(e);
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
         } catch (CTRException e) {
             getLogger().severe("Unable to read the pulseWeightVm: " + e.getMessage());
-            throw new LegacyProtocolException(e);
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
         }
     }
 
@@ -363,10 +363,10 @@ public class MeterInfo extends AbstractUtilObject {
             String msg = "Unable to read the pulseWeightVbs. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-            throw new LegacyProtocolException(e);
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
         } catch (CTRException e) {
             getLogger().severe("Unable to read the pulseWeightVbs: " + e.getMessage());
-            throw new LegacyProtocolException(e);
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
         }
     }
 

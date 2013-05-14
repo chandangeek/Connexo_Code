@@ -2,9 +2,9 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.tasks.DeviceProtocolDialectImpl;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +17,7 @@ import java.util.List;
  * Date: 5/02/13
  * Time: 15:46
  */
-public class SDKLoadProfileProtocolDialectProperties extends DeviceProtocolDialectImpl {
+public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProtocolDialect {
 
     /**
      * This value holds the name of the Property that contains an ObisCode that we don't support for this session

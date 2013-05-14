@@ -1,43 +1,31 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.comserver.adapters.common.ComChannelInputStreamAdapter;
-import com.energyict.comserver.adapters.common.ComChannelOutputStreamAdapter;
-import com.energyict.comserver.exceptions.LegacyProtocolException;
-import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.DeviceTopology;
-import com.energyict.mdc.meterdata.MaximumDemandDeviceRegister;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterDataIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.ServerComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.core.Device;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -45,9 +33,13 @@ import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
+import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +85,7 @@ public class MTU155 implements DeviceProtocol {
      */
     private Logger protocolLogger;
     private TypedProperties allProperties;
-    private SerialNumberDeviceIdentifier deviceIdentifier;
+    private DeviceIdentifierBySerialNumber deviceIdentifier;
     private ObisCodeMapper obisCodeMapper;
     private LoadProfileBuilder loadProfileBuilder;
 
@@ -192,7 +184,7 @@ public class MTU155 implements DeviceProtocol {
         try {
             getRequestFactory().getMeterInfo().setTime(timeToSet);
         } catch (CTRException e) {
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -211,7 +203,7 @@ public class MTU155 implements DeviceProtocol {
         try {
             return getRequestFactory().getMeterInfo().getTime();
         } catch (CTRException e) {
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -256,7 +248,7 @@ public class MTU155 implements DeviceProtocol {
         /** While reading one of the registers, a blocking issue was encountered; this indicates it makes no sense to try to read out the other registers **/
         boolean blockingIssueEncountered = false;
         /** The blocking Communication Exception **/
-        CommunicationException blockingIssue = null;
+        ComServerExecutionException blockingIssue = null;
 
         List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
         for (OfflineRegister register : rtuRegisters) {
@@ -264,26 +256,26 @@ public class MTU155 implements DeviceProtocol {
                 try {
                     RegisterValue registerValue = getObisCodeMapper().readRegister(register.getObisCode());
 
-                    MaximumDemandDeviceRegister deviceRegister = new MaximumDemandDeviceRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
                     deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
                     deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
                     collectedRegisters.add(deviceRegister);
                 } catch (NoSuchRegisterException e) {   // Register with obisCode ... is not supported.
-                    DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
-                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+                    CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
                     collectedRegisters.add(defaultDeviceRegister);
                 } catch (CTRException e) {  // See list of possible error messages
-                    DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
-                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXissue", register.getObisCode(), e));
+                    CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXissue", register.getObisCode(), e));
                     collectedRegisters.add(defaultDeviceRegister);
-                } catch (CommunicationException e) {    // CommunicationException.numberOfRetriesReached or CommunicationException.cipheringException
+                } catch (ComServerExecutionException e) {    // CommunicationException.numberOfRetriesReached or CommunicationException.cipheringException
                     blockingIssueEncountered = true;
                     blockingIssue = e;
-                    DefaultDeviceRegister deviceRegister = createBlockingIssueDeviceRegister(register, blockingIssue);
+                    CollectedRegister deviceRegister = createBlockingIssueDeviceRegister(register, blockingIssue);
                     collectedRegisters.add(deviceRegister);
                 }
             } else {
-                DefaultDeviceRegister deviceRegister = createBlockingIssueDeviceRegister(register, blockingIssue);
+                CollectedRegister deviceRegister = createBlockingIssueDeviceRegister(register, blockingIssue);
                 collectedRegisters.add(deviceRegister);
             }
         }
@@ -306,10 +298,10 @@ public class MTU155 implements DeviceProtocol {
      * CTRParsingException
      */
 
-    private DefaultDeviceRegister createBlockingIssueDeviceRegister(OfflineRegister register, CommunicationException e) {
-        DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
-        CTRException cause = (CTRException) e.getMessageArguments()[0];
-        defaultDeviceRegister.setFailureInformation(ResultType.Other, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXBlockingIssue", register.getObisCode(), cause));
+    private CollectedRegister createBlockingIssueDeviceRegister(OfflineRegister register, ComServerExecutionException e) {
+        CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+        CTRException cause = (CTRException) e.getCause();
+        defaultDeviceRegister.setFailureInformation(ResultType.Other, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXBlockingIssue", register.getObisCode(), cause));
         return defaultDeviceRegister;
     }
 
@@ -332,14 +324,14 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final DeviceTopology deviceTopology = new DeviceTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, new ProblemImpl<Device>(getDeviceIdentifier().findDevice(), "devicetopologynotsupported"));
+        final CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
+        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(getDeviceIdentifier().findDevice(), "devicetopologynotsupported"));
         return deviceTopology;
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
         if (deviceIdentifier == null) {
-            this.deviceIdentifier = new SerialNumberDeviceIdentifier(offlineDevice.getSerialNumber());
+            this.deviceIdentifier = new DeviceIdentifierBySerialNumber(offlineDevice.getSerialNumber());
         }
         return deviceIdentifier;
     }
@@ -366,8 +358,8 @@ public class MTU155 implements DeviceProtocol {
     }
 
     private void updateRequestFactory(ComChannel comChannel) {
-        this.requestFactory = new GprsRequestFactory(new ComChannelInputStreamAdapter((ServerComChannel) comChannel),
-                new ComChannelOutputStreamAdapter((ServerComChannel) comChannel),
+        this.requestFactory = new GprsRequestFactory(new ComChannelInputStreamAdapter(comChannel),
+                new ComChannelOutputStreamAdapter(comChannel),
                 getLogger(),
                 getMTU155Properties(),
                 getTimeZone());
@@ -389,7 +381,7 @@ public class MTU155 implements DeviceProtocol {
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
-        return new RegisterDataIdentifier(offlineRtuRegister.getObisCode(), new SerialNumberDeviceIdentifier(offlineRtuRegister.getSerialNumber()));
+        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), new DeviceIdentifierBySerialNumber(offlineRtuRegister.getSerialNumber()));
     }
 
     @Override
@@ -403,14 +395,14 @@ public class MTU155 implements DeviceProtocol {
             CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
             List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
                     meterEvent.getMeterEvents(lastLogBookReading));
-            collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
-            ((DeviceLogBook) collectedLogBook).setMeterEvents(meterProtocolEvents);
+            collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            collectedLogBook.setMeterEvents(meterProtocolEvents);
         } catch (CTRException e) {
-            collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
-            collectedLogBook.setFailureInformation(ResultType.InCompatible, new ProblemImpl<>(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
-        } catch (CommunicationException e) {                                                                                           //ToDO: add DB key to todo-resources.sql
-            collectedLogBook = new DeviceLogBook(logBook.getLogBookIdentifier());
-            collectedLogBook.setFailureInformation(ResultType.Other, new ProblemImpl<>(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+            collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
+        } catch (ComServerExecutionException e) {                                                                                           //ToDO: add DB key to todo-resources.sql
+            collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+            collectedLogBook.setFailureInformation(ResultType.Other, MdcManager.getIssueCollector().addProblem(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
         }                                                                                                                               //ToDO: add DB key to todo-resources.sql
 
         collectedLogBooks.add(collectedLogBook);

@@ -2,12 +2,12 @@ package com.energyict.protocolimpl.edmi.mk10;
 
 import com.energyict.cpo.Environment;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.mdc.protocol.ServerComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -49,7 +49,7 @@ public class MK10InboundDeviceProtocolTest {
     protected byte[] inboundFrame;
 
     @Mock
-    protected ServerComChannel comChannel;
+    protected ComChannel comChannel;
 
     @Test
     public void heartBeatPacketHandlingTest() {
@@ -62,11 +62,11 @@ public class MK10InboundDeviceProtocolTest {
         DeviceIdentifier deviceIdentifier = inboundDeviceProtocol.getDeviceIdentifier();
 
         assertEquals(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER, discoverResultType);
-        assertEquals(SerialNumberDeviceIdentifier.class, deviceIdentifier.getClass());
+        assertEquals(DeviceIdentifierBySerialNumber.class, deviceIdentifier.getClass());
         assertEquals("device with serial number " + SERIALNUMBER, deviceIdentifier.toString());
     }
 
-    @Test(expected = CommunicationException.class)
+    @Test(expected = ComServerExecutionException.class)
     public void commissioningPacketHandlingTest() {
         inboundFrame = ProtocolTools.getBytesFromHexString(COMMISSIONING_PUSH_PACKET);
         mockComChannel();

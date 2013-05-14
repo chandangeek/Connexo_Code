@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.Tracker;
-import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 
 import java.util.List;
 
@@ -70,7 +70,7 @@ public abstract class AbstractRequest<Input, Result> {
      * Some requests can return partial data (e.g. some registers, some events).
      * Others just throw the exception.
      */
-    protected void handleException(CommunicationException e) {
+    protected void handleException(ComServerExecutionException e) {
         if (e != null) {
             throw e;
         }
@@ -85,7 +85,7 @@ public abstract class AbstractRequest<Input, Result> {
         this.result = null;
 
         doBefore();
-        CommunicationException exception = null;
+        ComServerExecutionException exception = null;
         getAce4000().getObjectFactory().setRequestAttemptNumber(0);
 
         while (getAce4000().getObjectFactory().getRequestAttemptNumber() <= getAce4000().getProperties().getRetries()) {
@@ -107,7 +107,7 @@ public abstract class AbstractRequest<Input, Result> {
                         return result;
                     }
                 }
-            } catch (CommunicationException e) {
+            } catch (ComServerExecutionException e) {
                 exception = e;
             }
             getAce4000().getObjectFactory().increaseRequestAttemptNumber();    //Retry in case of timeout

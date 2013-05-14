@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.messages.DeviceMessageSpecFactoryImpl;
+import com.energyict.mdc.Manager;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecFactory;
+import com.energyict.mdw.interfacing.mdc.MdcInterface;
+import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
@@ -30,12 +32,24 @@ import static org.mockito.Mockito.when;
 public class ABBA1140MessageConverterTest {
 
     @Mock
-    private ServerManager serverManager;
+    private Manager manager;
+    @Mock
+    private DeviceMessageSpecFactory deviceMessageSpecFactory;
+    @Mock
+    private MdcInterface mdcInterface;
+    @Mock
+    private MdcInterfaceProvider mdcInterfaceProvider;
 
     @Before
     public void beforeEachTest() {
-        when(serverManager.getDeviceMessageSpecFactory()).thenReturn(new DeviceMessageSpecFactoryImpl());
-        ManagerFactory.setCurrent(serverManager);
+        MdcInterfaceProvider.instance.set(mdcInterfaceProvider);
+        when(mdcInterfaceProvider.getMdcInterface()).thenReturn(mdcInterface);
+        when(mdcInterface.getManager()).thenReturn(manager);
+        when(manager.getDeviceMessageSpecFactory()).thenReturn(deviceMessageSpecFactory);
+        final ABBA1140MessageConverter abba1140MessageConverter = new ABBA1140MessageConverter();
+        for (DeviceMessageSpec deviceMessageSpec : abba1140MessageConverter.getSupportedMessages()) {
+            when(deviceMessageSpecFactory.fromPrimaryKey(deviceMessageSpec.getPrimaryKey().getValue())).thenReturn(deviceMessageSpec);
+        }
     }
 
     @Test

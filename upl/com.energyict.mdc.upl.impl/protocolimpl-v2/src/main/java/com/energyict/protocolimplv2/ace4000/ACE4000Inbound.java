@@ -2,14 +2,16 @@ package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCodeImpl;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
+import com.energyict.protocolimplv2.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -61,7 +63,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
         collectedDatas.addAll(getCollectedRegisters());
         collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles());
 
-        CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByDeviceAndObisCodeImpl(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
+        CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE));
         collectedDatas.add(deviceLogBook);
 
         return collectedDatas;

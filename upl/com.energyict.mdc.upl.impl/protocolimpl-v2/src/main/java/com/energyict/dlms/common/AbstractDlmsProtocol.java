@@ -1,8 +1,5 @@
 package com.energyict.dlms.common;
 
-import com.energyict.comserver.adapters.common.ComChannelInputStreamAdapter;
-import com.energyict.comserver.adapters.common.ComChannelOutputStreamAdapter;
-import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.ConnectionException;
@@ -14,16 +11,17 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.ServerComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.HHUEnabler;
-
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
+import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -91,7 +89,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
             checkCacheObjects();
             initAfterConnect();
         } catch (IOException e) {
-            throw CommunicationException.protocolConnectFailed(e);
+            throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
         }
     }
 
@@ -141,7 +139,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
                 changed = true;
             }
         } catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         } finally {
             if (changed) {
                 this.dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
@@ -195,7 +193,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(timeToSet));
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -205,7 +203,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
             return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -234,21 +232,17 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     }
 
     /**
-     * @Override
-     * This is an empty implementation, and you should override this method if you're using the HHUSignon
-     *
      * @param commChannel       The SerialCommunicationChannel
      * @param enableDataReadout enable or disable the data readout
      * @throws ConnectionException
+     * @Override This is an empty implementation, and you should override this method if you're using the HHUSignon
      */
     public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean enableDataReadout) throws ConnectionException {
     }
 
     /**
-     * @Override
-     * Override this method to use the HHUData readout
-     *
      * @return empty byte array (new byte[0])
+     * @Override Override this method to use the HHUData readout
      */
     public byte[] getHHUDataReadout() {
         return new byte[0];
@@ -278,8 +272,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
 
     public DlmsSession getDlmsSession() {
         if (dlmsSession == null) {
-            dlmsSession = new DlmsSession(new ComChannelInputStreamAdapter((ServerComChannel) comChannel),
-                    new ComChannelOutputStreamAdapter((ServerComChannel) comChannel),
+            dlmsSession = new DlmsSession(new ComChannelInputStreamAdapter(comChannel),
+                    new ComChannelOutputStreamAdapter(comChannel),
                     getLogger(),
                     getProtocolProperties(),
                     getTimeZone());

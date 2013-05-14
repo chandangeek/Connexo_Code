@@ -10,15 +10,15 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.DeviceTopology;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
-import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
+import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
+import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -120,8 +120,8 @@ public class MeterTopology implements MasterMeter {
      */
     protected List<DeviceMapping> constructMbusMap() throws ConnectionException {
         String mbusSerial;
-        mbusMap = new ArrayList<DeviceMapping>();
-        deviceTopology = new DeviceTopology(new SerialNumberDeviceIdentifier(protocol.getOfflineDevice().getSerialNumber()));
+        mbusMap = new ArrayList<>();
+        deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getOfflineDevice().getSerialNumber()));
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
@@ -133,7 +133,7 @@ public class MeterTopology implements MasterMeter {
                     mbusSerial = constructShortId(manufacturer, identification, version, deviceType);
                     if ((mbusSerial != null) && (!mbusSerial.equalsIgnoreCase("")) && !mbusSerial.equalsIgnoreCase(ignoreZombieMbusDevice)) {
                         mbusMap.add(new DeviceMapping(mbusSerial, i));
-                        deviceTopology.addSlaveDevice(new SerialNumberDeviceIdentifier(mbusSerial));
+                        deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(mbusSerial));
                     }
                 } catch (IOException e) {
                     if (e.getMessage().contains("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error")) {

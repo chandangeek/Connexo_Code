@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
-import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.dlms.common.AbstractDlmsProtocol;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
@@ -20,13 +21,12 @@ import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
-import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
-import com.energyict.dlms.common.AbstractDlmsProtocol;
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
+import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
+import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 
 import java.io.IOException;
 import java.util.List;
@@ -92,7 +92,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
         try {
             searchForSlaveDevices();
         } catch (ConnectionException e) {
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
         } catch (IOException e) {
             String message = "Could not retrieve the serialnumber of the meter. " + e.getMessage();
             getLogger().finest(message);
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -243,7 +243,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
         try {
             return getMeterTopology().getDeviceTopology();
         } catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 }

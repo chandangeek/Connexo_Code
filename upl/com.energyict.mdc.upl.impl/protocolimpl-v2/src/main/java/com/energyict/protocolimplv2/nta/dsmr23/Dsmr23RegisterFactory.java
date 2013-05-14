@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.DLMSUtils;
@@ -23,20 +22,19 @@ import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.MaximumDemandDeviceRegister;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.RegisterDataIdentifier;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 
 import java.io.IOException;
@@ -113,7 +111,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 }
 
                 if (rv != null) {
-                    MaximumDemandDeviceRegister deviceRegister = new MaximumDemandDeviceRegister(getRegisterIdentifier(register));
+                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
                     deviceRegister.setCollectedData(rv.getQuantity(), rv.getText());
                     deviceRegister.setCollectedTimeStamps(rv.getReadTime(), rv.getFromTime(), rv.getToTime(), rv.getEventTime());
                     collectedRegisters.add(deviceRegister);
@@ -315,15 +313,15 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
-        return new RegisterDataIdentifier(offlineRtuRegister.getObisCode(), new SerialNumberDeviceIdentifier(offlineRtuRegister.getSerialNumber()));
+        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), new DeviceIdentifierBySerialNumber(offlineRtuRegister.getSerialNumber()));
     }
 
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
-        DefaultDeviceRegister collectedRegister = new DefaultDeviceRegister(getRegisterIdentifier(register));
+        CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
         } else if (resultType == ResultType.NotSupported) {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, new ProblemImpl<ObisCode>(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }

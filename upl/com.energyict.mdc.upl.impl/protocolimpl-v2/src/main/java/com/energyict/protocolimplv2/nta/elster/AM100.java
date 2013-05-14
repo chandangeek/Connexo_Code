@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.nta.elster;
 
-import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCache;
@@ -13,6 +12,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23RegisterFactory;
@@ -76,7 +76,7 @@ public class AM100 extends AbstractNtaProtocol {
                 getDlmsCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
             }
         } catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 

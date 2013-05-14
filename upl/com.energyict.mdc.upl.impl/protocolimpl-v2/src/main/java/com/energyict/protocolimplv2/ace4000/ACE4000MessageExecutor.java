@@ -4,23 +4,45 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByIdImpl;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.LoadProfileTypeFactory;
 import com.energyict.mdw.offline.OfflineLoadProfile;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterData;
+import com.energyict.protocol.MeterDataMessageResult;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.protocolimplv2.ace4000.requests.ContactorCommand;
 import com.energyict.protocolimplv2.ace4000.requests.FirmwareUpgrade;
 import com.energyict.protocolimplv2.ace4000.requests.ReadLoadProfile;
 import com.energyict.protocolimplv2.ace4000.requests.ReadMeterEvents;
 import com.energyict.protocolimplv2.ace4000.requests.WriteConfiguration;
+import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ACE4000MessageExecutor implements MessageProtocol {
 
@@ -56,7 +78,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
             if (messageContent.contains(READ_EVENTS)) {
                 //TODO what if the offline device has no logbooks configured??
                 ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(ace4000);
-                List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(new LogBookIdentifierByIdImpl(ace4000.getOfflineDevice().getAllOfflineLogBooks().get(0).getLogBookId()));
+                List<CollectedLogBook> collectedLogBooks = readMeterEventsRequest.request(new LogBookIdentifierById(ace4000.getOfflineDevice().getAllOfflineLogBooks().get(0).getLogBookId()));
                 MeterData meterData = new MeterData();
                 for (MeterProtocolEvent collectedMeterEvent : collectedLogBooks.get(0).getCollectedMeterEvents()) {
                     meterData.addMeterEvent(collectedMeterEvent);

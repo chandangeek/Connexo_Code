@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
-import com.energyict.comserver.exceptions.LegacyProtocolException;
-import com.energyict.comserver.issues.Problem;
-import com.energyict.comserver.issues.ProblemImpl;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.ComposedCosemObject;
@@ -12,22 +14,33 @@ import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.LoadProfileDataIdentifier;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileConfigurationException;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedProfileConfig;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -150,7 +163,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
             }
             return this.loadProfileConfigurationList;
         } catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -400,8 +413,8 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
-            LoadProfileIdentifier loadProfileIdentifier = new LoadProfileDataIdentifier(lpc.getObisCode(), new SerialNumberDeviceIdentifier(lpr.getMeterSerialNumber()));
-            CollectedLoadProfile collectedLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
+            LoadProfileIdentifier loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(lpc.getObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
+            CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
 
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 this.meterProtocol.getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
@@ -421,13 +434,13 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
                             this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new DSMRProfileIntervalStatusBits());
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(lpc.getProfileInterval());
 
-                    ((DeviceLoadProfile) collectedLoadProfile).setCollectedData(collectedIntervalData, channelInfos);
+                    collectedLoadProfile.setCollectedData(collectedIntervalData, channelInfos);
                 } catch (IOException e) {
-                    Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
+                    Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXIssue", lpr.getProfileObisCode(), e);
                     collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                 }
             } else {
-                Problem<LoadProfileReader> problem = new ProblemImpl<LoadProfileReader>(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);

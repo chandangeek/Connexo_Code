@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.security;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
@@ -135,7 +135,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
     @Test
     public void convertToTypedPropertiesTest() {
         ExtendedAnsiC12SecuritySupport ansiC12SecuritySupport = new ExtendedAnsiC12SecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        final TypedProperties securityProperties = TypedProperties.empty();
         String ansiC12UserIdValue = "MyAnsiC12UserId";
         securityProperties.setProperty(SecurityPropertySpecName.ANSI_C12_USER_ID.toString(), ansiC12UserIdValue);
         String ansiC12UserValue = "MyAnsiC12User";
@@ -148,8 +148,23 @@ public class ExtendedAnsiC12SecuritySupportTest {
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKey);
         String calledApTitle = "MyPersonalAPTitle";
         securityProperties.setProperty(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString(), calledApTitle);
-        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
-                new DeviceProtocolSecurityPropertySetImpl(1, 2, securityProperties);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public int getAuthenticationDeviceAccessLevel() {
+                        return 1;
+                    }
+
+                    @Override
+                    public int getEncryptionDeviceAccessLevel() {
+                        return 2;
+                    }
+
+                    @Override
+                    public TypedProperties getSecurityProperties() {
+                        return securityProperties;
+                    }
+                };
 
         // business method
         TypedProperties legacyProperties = ansiC12SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);

@@ -2,19 +2,56 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.SecureGprsConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRNackException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.*;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Address;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Channel;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Cpa;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.EncryptionStatus;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Function;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.StructureCode;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.*;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.*;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.AckStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayEventsQueryRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayEventsQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.DownloadRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.EndOfSessionRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ExecuteRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.InitialisationCode;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.RegisterQueryRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.RegisterQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.RegisterWriteRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECFQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableDECQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TableQueryRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TraceQueryRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TraceQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.AckAdditionalDownloadData;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Group;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Identify;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Index_Q;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.NumberOfElements;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.P_Session;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.PeriodTrace;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.PeriodTrace_C;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Segment;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.StartDate;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.GasQuality;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.MeterInfo;
 
@@ -894,9 +931,9 @@ public class GprsRequestFactory implements RequestFactory {
             } else {
                 getLogger().warning("Unable to close connection. getConnection() returned null.");
             }
-        } catch (CommunicationException e) {
+        } catch (ComServerExecutionException e) {
             getLogger().severe("Failed to close session! " + e.getMessage());
-            throw CommunicationException.protocolDisconnectFailed(e);
+            throw MdcManager.getComServerExceptionFactory().createProtocolDisconnectFailed(e);
         }
     }
 

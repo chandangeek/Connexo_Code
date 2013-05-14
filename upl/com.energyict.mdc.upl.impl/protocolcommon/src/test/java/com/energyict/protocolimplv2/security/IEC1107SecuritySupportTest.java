@@ -5,7 +5,6 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
 
@@ -95,13 +94,26 @@ public class IEC1107SecuritySupportTest {
     @Test
     public void convertToTypedPropertiesTest() {
         IEC1107SecuritySupport iec1107SecuritySupport = new IEC1107SecuritySupport();
-        TypedProperties securityProperties = TypedProperties.empty();
+        final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
-        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
-                new DeviceProtocolSecurityPropertySetImpl(IEC1107SecuritySupport.AccessLevelIds.LEVEL_TWO.getAccessLevel(),
-                        DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, securityProperties);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public int getAuthenticationDeviceAccessLevel() {
+                        return IEC1107SecuritySupport.AccessLevelIds.LEVEL_TWO.getAccessLevel();
+                    }
 
+                    @Override
+                    public int getEncryptionDeviceAccessLevel() {
+                        return DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+                    }
+
+                    @Override
+                    public TypedProperties getSecurityProperties() {
+                        return securityProperties;
+                    }
+                };
         // business method
         TypedProperties legacyProperties = iec1107SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
 

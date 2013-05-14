@@ -1,13 +1,14 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.comserver.issues.ProblemImpl;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.meterdata.identifiers.RegisterDataIdentifier;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.util.List;
 
@@ -85,7 +86,7 @@ public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, Li
     }
 
     @Override
-    protected void handleException(CommunicationException e) {
+    protected void handleException(ComServerExecutionException e) {
         createResult("Didn't receive register from meter");
     }
 
@@ -94,16 +95,15 @@ public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, Li
         List<CollectedRegister> result = getAce4000().getCollectedRegisters();
         for (OfflineRegister rtuRegister : getInput()) {
             boolean receivedRegister = false;
-            for (CollectedRegister collectedRegister : getAce4000().getCollectedRegisters()) {
-                String obisCode = ((RegisterDataIdentifier) collectedRegister.getRegisterIdentifier()).toString();
-                if (rtuRegister.getObisCode().toString().equals(obisCode)) {
+            for (ObisCode registerObisCode : getAce4000().getReceivedRegisterObisCodeList()) {
+                if (rtuRegister.getObisCode().equals(registerObisCode)) {
                     receivedRegister = true;
                     break;
                 }
             }
             if (!receivedRegister) {
-                DefaultDeviceRegister defaultDeviceRegister = new DefaultDeviceRegister(new RegisterDataIdentifier(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
-                defaultDeviceRegister.setFailureInformation(ResultType.DataIncomplete, new ProblemImpl<ObisCode>(rtuRegister.getObisCode(), msg, rtuRegister.getObisCode()));
+                CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
+                defaultDeviceRegister.setFailureInformation(ResultType.DataIncomplete, MdcManager.getIssueCollector().addProblem(rtuRegister.getObisCode(), msg, rtuRegister.getObisCode()));
                 result.add(defaultDeviceRegister);
             }
         }

@@ -4,11 +4,15 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
-import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -32,6 +36,11 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     private List<CollectedRegister> collectedCurrentRegisters;
     private List<CollectedRegister> collectedMBusCurrentRegisters;
 
+    /**
+     * Serves as a storage of all received RegisterValue ObisCodes.
+     */
+    private List<ObisCode> receivedRegisterObisCodeList = new ArrayList<>();
+
     //Used by both inbound and outbound protocols
     protected ObjectFactory objectFactory;
 
@@ -40,7 +49,7 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
-        return new SerialNumberDeviceIdentifier(serialNumber);
+        return new DeviceIdentifierBySerialNumber(serialNumber);
     }
 
     public String getSerialNumber() {
@@ -151,5 +160,13 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
 
     public boolean isDst() {
         return getTimeZone().inDaylightTime(getObjectFactory().getCurrentMeterTime(false, new Date()));
+    }
+
+    public void addReceivedRegisterObisCode(final ObisCode obisCode){
+        this.receivedRegisterObisCodeList.add(obisCode);
+    }
+
+    public List<ObisCode> getReceivedRegisterObisCodeList() {
+        return receivedRegisterObisCodeList;
     }
 }

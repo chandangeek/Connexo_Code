@@ -2,19 +2,19 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.DialHomeIdDeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
+import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
 
 import java.sql.SQLException;
 

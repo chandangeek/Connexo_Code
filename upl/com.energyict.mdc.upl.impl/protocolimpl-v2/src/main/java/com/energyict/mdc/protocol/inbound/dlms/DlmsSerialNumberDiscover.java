@@ -1,8 +1,6 @@
-package com.energyict.mdc.protocol.inbound;
+package com.energyict.mdc.protocol.inbound.dlms;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.comserver.adapters.common.ComChannelInputStreamAdapter;
-import com.energyict.comserver.adapters.common.ComChannelOutputStreamAdapter;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCOSEMGlobals;
@@ -13,11 +11,13 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.protocol.ServerComChannel;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
-import com.energyict.mdc.protocol.inbound.dlms.EnhancedTCPIPConnection;
+import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
+import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.protocol.inbound.dlms.aso.SimpleApplicationServiceObject;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
+import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -50,7 +50,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     private SimpleApplicationServiceObject aso;
 
     @Override
-    public DiscoverResultType doDiscovery() {
+    public InboundDeviceProtocol.DiscoverResultType doDiscovery() {
         try {
             init();
             connect();
@@ -60,7 +60,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
                 disconnect();
             }
         } catch (IOException e) {
-            throw new CommunicationException(e);
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
 
         return DiscoverResultType.IDENTIFIER;
@@ -68,8 +68,8 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
 
     public void init() throws IOException {
         this.dlmsConnection = new EnhancedTCPIPConnection(
-                new ComChannelInputStreamAdapter((ServerComChannel) getComChannel()),
-                new ComChannelOutputStreamAdapter((ServerComChannel) getComChannel()),
+                new ComChannelInputStreamAdapter(getComChannel()),
+                new ComChannelOutputStreamAdapter(getComChannel()),
                 getTimeOutProperty(),
                 DEFAULT_FORCED_DELAY,
                 getRetriesProperty(),

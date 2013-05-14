@@ -2,9 +2,9 @@ package com.energyict.mdc.tasks;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.tasks.DeviceProtocolDialectImpl;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 * @author: sva
 * @since: 16/10/12 (113:25)
 */
-public class CtrDeviceProtocolDialect extends DeviceProtocolDialectImpl {
+public class CtrDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
     // Required properties
     public static final String ENCRYPTION_KEY_C_PROPERTY_NAME = "KeyC";

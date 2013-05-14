@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.comserver.adapters.common.LegacyMessageConverter;
 import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;

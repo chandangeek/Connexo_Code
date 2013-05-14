@@ -3,8 +3,8 @@ package com.energyict.protocolimplv2.sdksample;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.tasks.DeviceProtocolDialectImpl;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +17,7 @@ import java.util.List;
  * Date: 5/02/13
  * Time: 15:51
  */
-public class SDKTimeDeviceProtocolDialectProperties extends DeviceProtocolDialectImpl {
+public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtocolDialect {
 
     public static final String clockOffsetToWritePropertyName = "ClockOffsetWhenReading";
 

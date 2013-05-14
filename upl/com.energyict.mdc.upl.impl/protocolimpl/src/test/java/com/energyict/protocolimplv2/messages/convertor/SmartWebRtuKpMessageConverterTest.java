@@ -4,9 +4,9 @@ import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.ManagerFactory;
-import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.messages.DeviceMessageSpecFactoryImpl;
+import com.energyict.mdc.Manager;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecFactory;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.Code;
@@ -15,6 +15,8 @@ import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.core.LoadProfileSpec;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.interfacing.mdc.MdcInterface;
+import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
@@ -64,12 +66,24 @@ public class SmartWebRtuKpMessageConverterTest {
     private static final Unit UNIT = Unit.get("kWh");
 
     @Mock
-    private ServerManager serverManager;
+    private Manager manager;
+    @Mock
+    private DeviceMessageSpecFactory deviceMessageSpecFactory;
+    @Mock
+    private MdcInterface mdcInterface;
+    @Mock
+    private MdcInterfaceProvider mdcInterfaceProvider;
 
     @Before
     public void beforeEachTest() {
-        when(serverManager.getDeviceMessageSpecFactory()).thenReturn(new DeviceMessageSpecFactoryImpl());
-        ManagerFactory.setCurrent(serverManager);
+        MdcInterfaceProvider.instance.set(mdcInterfaceProvider);
+        when(mdcInterfaceProvider.getMdcInterface()).thenReturn(mdcInterface);
+        when(mdcInterface.getManager()).thenReturn(manager);
+        when(manager.getDeviceMessageSpecFactory()).thenReturn(deviceMessageSpecFactory);
+        final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
+        for (DeviceMessageSpec deviceMessageSpec : smartWebRtuKpMessageConverter.getSupportedMessages()) {
+            when(deviceMessageSpecFactory.fromPrimaryKey(deviceMessageSpec.getPrimaryKey().getValue())).thenReturn(deviceMessageSpec);
+        }
     }
 
     @Test

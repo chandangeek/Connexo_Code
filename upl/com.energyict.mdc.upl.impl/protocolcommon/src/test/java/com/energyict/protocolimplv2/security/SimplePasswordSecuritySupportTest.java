@@ -5,7 +5,6 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
 
@@ -79,12 +78,27 @@ public class SimplePasswordSecuritySupportTest {
     @Test
     public void convertToTypedPropertiesTest(){
         SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
 
-        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
-                new DeviceProtocolSecurityPropertySetImpl(0, DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID, securityProperties);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public int getAuthenticationDeviceAccessLevel() {
+                        return 0;
+                    }
+
+                    @Override
+                    public int getEncryptionDeviceAccessLevel() {
+                        return DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
+                    }
+
+                    @Override
+                    public TypedProperties getSecurityProperties() {
+                        return securityProperties;
+                    }
+                };
 
         // business method
         TypedProperties legacyProperties = simplePasswordSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
@@ -97,7 +111,7 @@ public class SimplePasswordSecuritySupportTest {
     @Test
     public void testConvertFromTypedProperties() throws Exception {
         SimplePasswordSecuritySupport simplePasswordSecuritySupport = new SimplePasswordSecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         securityProperties.setProperty(DeviceSecurityProperty.PASSWORD.getPropertySpec().getName(), passwordValue);
 

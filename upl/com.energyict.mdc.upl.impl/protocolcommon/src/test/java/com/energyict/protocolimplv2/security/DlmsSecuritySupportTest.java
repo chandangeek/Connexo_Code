@@ -5,7 +5,6 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
@@ -248,7 +247,7 @@ public class DlmsSecuritySupportTest {
     @Test
     public void convertToTypedPropertiesTest() {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        final TypedProperties securityProperties = new TypedProperties();
         String encryptionKeyValue = "MyEncryptionKey";
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKeyValue);
         String authenticationKeyValue = "MyAuthenticationKey";
@@ -257,9 +256,23 @@ public class DlmsSecuritySupportTest {
         securityProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), clientMacAddressValue);
         String passwordValue = "MyPassword";
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
-        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
-                new DeviceProtocolSecurityPropertySetImpl(DlmsSecuritySupport.AccessLevelIds.GMAC_AUTHENTICATION.getAccessLevel(),
-                        DlmsSecuritySupport.AccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel(), securityProperties);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public int getAuthenticationDeviceAccessLevel() {
+                        return DlmsSecuritySupport.AccessLevelIds.GMAC_AUTHENTICATION.getAccessLevel();
+                    }
+
+                    @Override
+                    public int getEncryptionDeviceAccessLevel() {
+                        return DlmsSecuritySupport.AccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel();
+                    }
+
+                    @Override
+                    public TypedProperties getSecurityProperties() {
+                        return securityProperties;
+                    }
+                };
 
         // business method
         TypedProperties legacyProperties = dlmsSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
@@ -329,13 +342,27 @@ public class DlmsSecuritySupportTest {
     @Test
     public void testPasswordConversion() {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
-        TypedProperties securityProperties = TypedProperties.empty();
+        final TypedProperties securityProperties = TypedProperties.empty();
         String passwordValue = "MyPassword";
         Password password = new Password(passwordValue);
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), password);
-        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
-                new DeviceProtocolSecurityPropertySetImpl(DlmsSecuritySupport.AccessLevelIds.GMAC_AUTHENTICATION.getAccessLevel(),
-                        DlmsSecuritySupport.AccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel(), securityProperties);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public int getAuthenticationDeviceAccessLevel() {
+                        return DlmsSecuritySupport.AccessLevelIds.GMAC_AUTHENTICATION.getAccessLevel();
+                    }
+
+                    @Override
+                    public int getEncryptionDeviceAccessLevel() {
+                        return DlmsSecuritySupport.AccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel();
+                    }
+
+                    @Override
+                    public TypedProperties getSecurityProperties() {
+                        return securityProperties;
+                    }
+                };
 
         // business method
         TypedProperties legacyProperties = dlmsSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);

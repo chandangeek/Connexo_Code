@@ -55,28 +55,6 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>com.energyict.comserver</groupId>
-                <artifactId>comserver-core-impl</artifactId>
-                <version>${comserver.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.energyict.comserver</groupId>
-                <artifactId>comserver-core-common</artifactId>
-                <version>${comserver.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.energyict.comserver</groupId>
-                <artifactId>comserver-online</artifactId>
-                <version>${comserver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict.comserver</groupId>
-                <artifactId>comserver-launcher</artifactId>
-                <version>${comserver.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>1.0.4</version>

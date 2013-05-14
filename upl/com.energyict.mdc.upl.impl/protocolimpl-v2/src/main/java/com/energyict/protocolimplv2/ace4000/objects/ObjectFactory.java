@@ -1,28 +1,42 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.meterdata.identifiers.*;
-import com.energyict.mdc.protocol.exceptions.InboundFrameException;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
-import com.energyict.mdc.protocol.inbound.SerialNumberDeviceIdentifier;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.LoadProfileTypeFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.ace4000.ACE4000;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestState;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.Tracker;
-import org.w3c.dom.*;
+import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import com.energyict.protocolimplv2.ace4000.ACE4000;
-import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -749,12 +763,12 @@ public class ObjectFactory {
             try {
                 document = builder.parse(new InputSource(new StringReader(xml)));
             } catch (IOException e) {
-                throw InboundFrameException.unexpectedFrame(xml, e.getMessage());
+                throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(xml, e.getMessage());
             }
             Element topElement = document.getDocumentElement();
             parseElements(topElement);
         } catch (ParserConfigurationException | SAXException e) {
-            throw InboundFrameException.unexpectedFrame(xml, e.getMessage());
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(xml, e.getMessage());
         }
     }
 
@@ -824,6 +838,7 @@ public class ObjectFactory {
                         getCurrentReadings().parse(mdElement);
                         for (RegisterValue registerValue : getCurrentReadings().getMrd().getRegisterValues()) {
                             getAce4000().getCollectedCurrentRegisters().add(createCommonRegister(registerValue));
+                            getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.CurrentRegisters));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.BILLDATA)) {
@@ -831,6 +846,7 @@ public class ObjectFactory {
                         getBillingData().parse(mdElement);
                         for (RegisterValue registerValue : getBillingData().getMrd().getRegisterValues()) {
                             getAce4000().getCollectedBillingRegisters().add(createBillingRegister(registerValue));
+                            getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.BillingRegisters));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.MAXDEMAND)) {
@@ -838,13 +854,15 @@ public class ObjectFactory {
                         getMaximumDemandRegisters().parse(mdElement);
                         for (RegisterValue registerValue : getMaximumDemandRegisters().getMdr().getRegisterValues()) {
                             getAce4000().getCollectedMaxDemandRegisters().add(createCommonRegister(registerValue));
+                            getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.MBUSBILLINGDATA)) {
                         log(Level.INFO, "Received MBus billing data.");
                         setCurrentSlaveSerialNumber(currentSerialNumber);
                         getMBusBillingData().parse(mdElement);
                         for (RegisterValue registerValue : getMBusBillingData().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, new SerialNumberDeviceIdentifier(currentSerialNumber)));
+                            getAce4000().getCollectedMBusBillingRegisters().add(createCommonRegister(registerValue, new DeviceIdentifierBySerialNumber(currentSerialNumber)));
+                            getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.MBusBillingRegister));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.MBUSCREADING)) {
@@ -852,7 +870,8 @@ public class ObjectFactory {
                         setCurrentSlaveSerialNumber(currentSerialNumber);
                         getMBusCurrentReadings().parse(mdElement);
                         for (RegisterValue registerValue : getMBusCurrentReadings().getMrd().getRegisterValues()) {
-                            getAce4000().getCollectedMBusCurrentRegisters().add(createCommonRegister(registerValue, new SerialNumberDeviceIdentifier(currentSerialNumber)));
+                            getAce4000().getCollectedMBusCurrentRegisters().add(createCommonRegister(registerValue, new DeviceIdentifierBySerialNumber(currentSerialNumber)));
+                            getAce4000().addReceivedRegisterObisCode(registerValue.getObisCode());
                         }
                         updateRequestSuccess(new Tracker(RequestType.MBusCurrentRegister));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.RESFIRMWARE)) {
@@ -904,14 +923,14 @@ public class ObjectFactory {
 
     private CollectedRegister createCommonRegister(RegisterValue registerValue, DeviceIdentifier deviceIdentifier) {
         //TODO should this be max demand register?
-        MaximumDemandDeviceRegister deviceRegister = new MaximumDemandDeviceRegister(new RegisterDataIdentifier(registerValue.getObisCode(), deviceIdentifier));
+        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), deviceIdentifier));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
     }
 
     private CollectedRegister createBillingRegister(RegisterValue registerValue) {
-        BillingDeviceRegisters deviceRegister = new BillingDeviceRegisters(new RegisterDataIdentifier(registerValue.getObisCode(), getAce4000().getDeviceIdentifier()));
+        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createBillingCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), getAce4000().getDeviceIdentifier()));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
         return deviceRegister;
@@ -923,7 +942,7 @@ public class ObjectFactory {
 
     public List<CollectedLoadProfile> createCollectedLoadProfiles(ObisCode obisCode) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>();
-        DeviceLoadProfile collectedLoadProfile = new DeviceLoadProfile(new LoadProfileDataIdentifier(obisCode, getAce4000().getDeviceIdentifier()));
+        CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(obisCode, getAce4000().getDeviceIdentifier()));
         collectedLoadProfile.setCollectedData(getLoadProfile().getProfileData().getIntervalDatas(), getLoadProfile().getProfileData().getChannelInfos());
         collectedLoadProfiles.add(collectedLoadProfile);
         return collectedLoadProfiles;
@@ -1011,7 +1030,7 @@ public class ObjectFactory {
     }
 
     public CollectedLogBook getDeviceLogBook(LogBookIdentifier identifier) {
-        DeviceLogBook deviceLogBook = new DeviceLogBook(identifier);
+        CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(identifier);
         deviceLogBook.setMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(getAllMeterEvents()));
         return deviceLogBook;
     }

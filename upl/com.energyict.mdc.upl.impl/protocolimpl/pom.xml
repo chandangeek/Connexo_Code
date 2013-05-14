@@ -12,22 +12,6 @@
     </parent>
 
     <dependencies>
-        <!-- ComServer dependencies -->
-        <dependency>
-            <groupId>com.energyict.comserver</groupId>
-            <artifactId>comserver-core-impl</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict.comserver</groupId>
-            <artifactId>comserver-core-common</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict.comserver</groupId>
-            <artifactId>comserver-online</artifactId>
-        </dependency>
-
         <!-- EIServer dependencies -->
         <dependency>
             <groupId>com.energyict</groupId>

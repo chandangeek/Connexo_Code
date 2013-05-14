@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.CTREncryption;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
@@ -74,7 +74,7 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                 attempts++;
                 if (attempts > retries) {
                     // throw new CTRConnectionException("Number of retries reached: [" + --attempts + "/" + retries + "].", e);
-                    throw CommunicationException.numberOfRetriesReached(e, attempts);
+                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
                 }
             }
         } while (true);

@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cpo.PropertySpec;
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.messaging.MessageValueSpec;
@@ -51,7 +51,7 @@ public class MessageConverterTools {
      * @return the deviceMessageSpec
      */
     public static DeviceMessageSpec getDeviceMessageSpecForOfflineDeviceMessage(OfflineDeviceMessage offlineDeviceMessage) {
-        return ManagerFactory.getCurrent().getDeviceMessageSpecFactory().fromPrimaryKey(offlineDeviceMessage.getDeviceMessageSpecPrimaryKey().getValue());
+        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getDeviceMessageSpecFactory().fromPrimaryKey(offlineDeviceMessage.getDeviceMessageSpecPrimaryKey().getValue());
     }
 
     /**

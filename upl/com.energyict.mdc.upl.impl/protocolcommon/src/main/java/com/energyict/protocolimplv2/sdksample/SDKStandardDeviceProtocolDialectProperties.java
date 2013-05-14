@@ -2,8 +2,8 @@ package com.energyict.protocolimplv2.sdksample;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.mdc.tasks.DeviceProtocolDialectImpl;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
+import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 5/02/13
  * Time: 15:02
  */
-public class SDKStandardDeviceProtocolDialectProperties extends DeviceProtocolDialectImpl {
+public class SDKStandardDeviceProtocolDialectProperties extends AbstractDeviceProtocolDialect {
 
     /**
      * This value holds the name of the Property that will do something

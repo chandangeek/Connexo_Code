@@ -1,14 +1,19 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.comserver.exceptions.LegacyProtocolException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import com.energyict.protocolimpl.mbus.core.*;
+import com.energyict.protocolimpl.mbus.core.CIField72h;
+import com.energyict.protocolimpl.mbus.core.DataRecord;
+import com.energyict.protocolimpl.mbus.core.ObisCodeCreator;
+import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import org.w3c.dom.*;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.util.Date;
@@ -113,7 +118,7 @@ public class MBusCurrentReadings extends AbstractActarisObject {
             }
 
         } catch (IOException e) {
-            throw new LegacyProtocolException(e);
+            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
         }
     }
 

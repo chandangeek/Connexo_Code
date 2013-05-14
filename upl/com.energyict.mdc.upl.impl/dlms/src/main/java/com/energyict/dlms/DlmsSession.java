@@ -18,6 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * //TODO needs refactoring to use a ComChannel instead of the Input- and OutputStream
+ *
  * Copyrights EnergyICT
  * Date: 11/02/11
  * Time: 18:18
@@ -35,6 +37,14 @@ public class DlmsSession implements ProtocolLink {
     protected CosemObjectFactory cosemObjectFactory;
     protected HHUSignOn hhuSignOn = null;
 
+    /**
+     * @deprecated it is advised not ot use the input- and outputStream directly, use the ComChannel instead
+     * @param in
+     * @param out
+     * @param logger
+     * @param properties
+     * @param timeZone
+     */
     public DlmsSession(InputStream in, OutputStream out, Logger logger, DlmsSessionProperties properties, TimeZone timeZone) {
         this.in = in;
         this.out = out;

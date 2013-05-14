@@ -4,11 +4,11 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
-import java.util.List;
 import org.fest.assertions.core.Condition;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -108,15 +108,30 @@ public class WavenisSecuritySupportTest {
     @Test
     public void convertToTypedPropertiesTest() {
         WavenisSecuritySupport wavenisSecuritySupport = new WavenisSecuritySupport();
-        TypedProperties securityProperties = new TypedProperties();
+        final TypedProperties securityProperties = new TypedProperties();
 
         String passwordValue = "MyPassword";
         String encryptionKey = "MyEncryptionKey";
         securityProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), passwordValue);
         securityProperties.setProperty(SecurityPropertySpecName.ENCRYPTION_KEY.toString(), encryptionKey);
 
-        DeviceProtocolSecurityPropertySetImpl deviceProtocolSecurityPropertySet =
-                new DeviceProtocolSecurityPropertySetImpl(0, 0, securityProperties);
+        DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet =
+                new DeviceProtocolSecurityPropertySet() {
+                    @Override
+                    public int getAuthenticationDeviceAccessLevel() {
+                        return 0;
+                    }
+
+                    @Override
+                    public int getEncryptionDeviceAccessLevel() {
+                        return 0;
+                    }
+
+                    @Override
+                    public TypedProperties getSecurityProperties() {
+                        return securityProperties;
+                    }
+                };
 
         // business method
         TypedProperties legacyProperties = wavenisSecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
