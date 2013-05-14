@@ -8,14 +8,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.elster.jupiter.metering.UsagePoint;
 
 @XmlRootElement
-public class UsagePointInfos {	
+public class UsagePointInfos {
+	public int total;
 	public List<UsagePointInfo> usagePoints = new ArrayList<>();
 	
 	UsagePointInfos() {		
 	}
 	
 	UsagePointInfos(UsagePoint usagePoint) {
-		add(usagePoint);
+		add(usagePoint);		
 	}
 	
 	UsagePointInfos(List<UsagePoint> usagePoints) {
@@ -25,6 +26,7 @@ public class UsagePointInfos {
 	UsagePointInfo add(UsagePoint usagePoint) {
 		UsagePointInfo result = new UsagePointInfo(usagePoint);
 		usagePoints.add(result);
+		total++;
 		return result;
 	}
 	
