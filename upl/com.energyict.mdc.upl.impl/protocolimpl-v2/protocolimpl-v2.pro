@@ -32,6 +32,9 @@
 -keep class * implements com.energyict.protocol.SmartMeterProtocol
 -keep class * implements com.energyict.protocol.MeterProtocol
 -keep class * implements com.energyict.mdc.protocol.DeviceProtocol
+-keep class * implements com.energyict.mdc.protocol.inbound.InboundDeviceProtocol
+-keep class * implements com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol
+-keep class * implements com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol
 
 # Keep names - Native method names. Keep all native class/method names.
 -keepclasseswithmembernames class * {
