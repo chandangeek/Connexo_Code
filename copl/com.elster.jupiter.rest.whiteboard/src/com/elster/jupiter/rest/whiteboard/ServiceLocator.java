@@ -8,4 +8,5 @@ public interface ServiceLocator {
 	
 	UserService getUserService();
 	ThreadPrincipalService getThreadPrincipalService();
+	boolean getDebug();
 }
