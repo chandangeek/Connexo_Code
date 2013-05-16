@@ -2,6 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import java.security.Principal;
 import java.sql.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sql.DataSource;
 
@@ -19,7 +20,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	private volatile OrmClient ormClient;
 	private volatile DataSource dataSource;
 	private volatile ThreadPrincipalService threadPrincipalService;
-	private volatile Publisher publisher;
+	private AtomicReference<Publisher> publisherHolder = new AtomicReference<>();
 	
 	public OrmServiceImpl() {
 	}
@@ -64,6 +65,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	
 	@Override
 	public void publish(Object event) {
+		Publisher publisher = publisherHolder.get();
 		if (publisher != null) { 
 			publisher.publish(event);
 		}
@@ -83,14 +85,15 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
-	
+		
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
 	public void setPublisher(Publisher publisher) {
-		this.publisher = publisher;
+		publisherHolder.set(publisher);
 	}
 	
 	public void unsetPublisher(Publisher publisher) {
-		this.publisher = null;
+		// needed as OSGI SCR does not guarantee order between setting new reference, and unsetting old
+		publisherHolder.compareAndSet(publisher, null);
 	}
 	
 	@Activate
