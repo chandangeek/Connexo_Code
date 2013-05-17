@@ -1,3 +1,4 @@
+-classpath: target/classes 
 Export-Package: com.elster.jupiter.util.conditions,\
 	com.elster.jupiter.util.sql,\
 	com.elster.jupiter.util.time,\
