@@ -1,4 +1,8 @@
+-classpath: target/classes 
 Bundle-Name: com.elster.jupiter.bootstrap
+
 Private-Package: com.elster.jupiter.bootstrap.impl
 Export-Package: com.elster.jupiter.bootstrap
 -dsannotations: *
+Import-Package: oracle.jdbc.pool;version=0,\
+	*
