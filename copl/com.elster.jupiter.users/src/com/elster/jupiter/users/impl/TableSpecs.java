@@ -9,9 +9,10 @@ public enum TableSpecs {
 	USR_PRIVILEGE {
 		void describeTable(Table table) {
 			Column nameColumn = table.addColumn("NAME", "varchar2(80)" , true , NOCONVERSION , "name");
-			Column componentName = table.addColumn("COMPONENT","varchar2(3)",true,NOCONVERSION,"componentName");
+			table.addColumn("COMPONENT","varchar2(3)",true,NOCONVERSION,"componentName");
+			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION, "description");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
-			table.addPrimaryKeyConstraint("USR_PK_PRIVILEGES", componentName, nameColumn);			
+			table.addPrimaryKeyConstraint("USR_PK_PRIVILEGES",nameColumn);			
 		}
 	},
 	USR_GROUP {
@@ -41,7 +42,7 @@ public enum TableSpecs {
 	USR_PRIVILEGEINGROUP {
 		void describeTable(Table table) {
 			Column groupIdColumn = table.addColumn("GROUPID", "number" , true, NUMBER2LONG , "groupId");
-			Column privilegeNameColumn = table.addColumn("PRIVILEGENAME", "number" , true, NOCONVERSION , "privilegeName");
+			Column privilegeNameColumn = table.addColumn("PRIVILEGENAME", "varchar2(80)" , true, NOCONVERSION , "privilegeName");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addPrimaryKeyConstraint("USR_PK_PRIVILEGEINGROUP", groupIdColumn , privilegeNameColumn);		
 			table.addForeignKeyConstraint("FK_PRIVINGROUP2GROUP", USR_GROUP.name(), CASCADE, new AssociationMapping("group"),groupIdColumn);
