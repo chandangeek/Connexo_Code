@@ -4,6 +4,6 @@ import java.security.Principal;
 
 public interface User extends Principal {
 	long getId();
-	boolean hasPrivilege(Privilege privilege);
-	boolean hasRole(String roleName);
+	boolean hasPrivilege(String privilege);
+	boolean isMemberOf(String groupName);
 }

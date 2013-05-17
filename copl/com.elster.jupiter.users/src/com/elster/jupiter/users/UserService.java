@@ -2,11 +2,11 @@ package com.elster.jupiter.users;
 
 public interface UserService {
 	User createUser(String authenticationName , String firstName , String lastName);
-	Role createRole(String name);
-	PrivilegeDescription createPrivilegeDescription(Privilege privilege, String description);
+	Group createGroup(String name);
+	Privilege createPrivilege(String componentName , String name, String description);
 	User findUser(String authenticationName);
-	Role findRole(String roleName);
-	PrivilegeDescription findPrivilegeDescription(Privilege privilege);
+	Group findGroup(String name);
+	Privilege getPrivilege(String name);
 	User authenticateBase64(String base64String);
 	String getRealm();
 }

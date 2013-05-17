@@ -9,15 +9,19 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.PrivilegeDescription;
-import com.elster.jupiter.users.Role;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
-@Component (name = "com.elster.jupiter.users" , service = UserService.class , immediate = true) 
-public class UserServiceImpl implements UserService , ServiceLocator {
+@Component (
+	name = "com.elster.jupiter.users" , 
+	service = { UserService.class , InstallService.class } , 
+	immediate = true , 
+	property = "name=" + Bus.COMPONENTNAME )
+public class UserServiceImpl implements UserService , InstallService, ServiceLocator {
 	
 	private volatile OrmClient ormClient;
 	private volatile TransactionService transactionService;
@@ -67,15 +71,15 @@ public class UserServiceImpl implements UserService , ServiceLocator {
 	}
 
 	@Override
-	public Role createRole(String name) {
-		RoleImpl result = new RoleImpl(name);
+	public Group createGroup(String name) {
+		GroupImpl result = new GroupImpl(name);
 		result.persist();
 		return result;
 	}
 
 	@Override
-	public PrivilegeDescription createPrivilegeDescription(Privilege privilege,String description) {
-		PrivilegeDescriptionImpl result = new PrivilegeDescriptionImpl(privilege, description);
+	public Privilege createPrivilege(String componentName, String privilegeName,String description) {
+		PrivilegeImpl result = new PrivilegeImpl(componentName, privilegeName, description);
 		result.persist();
 		return result;
 	}
@@ -92,13 +96,13 @@ public class UserServiceImpl implements UserService , ServiceLocator {
 	}
 
 	@Override
-	public Role findRole(String roleName) {
-		return Bus.getOrmClient().getRoleFactory().getUnique("name",roleName);
+	public Group findGroup(String name) {
+		return Bus.getOrmClient().getGroupFactory().getUnique("name",name);
 	}
 
 	@Override
-	public PrivilegeDescription findPrivilegeDescription(Privilege privilege) {
-		return Bus.getOrmClient().getPrivilegeDescriptionFactory().get(privilege.getComponentName(),privilege.getId());
+	public Privilege getPrivilege(String privilegeName) {
+		return Bus.getOrmClient().getPrivilegeFactory().get(privilegeName);
 	}
 
 	@Override
@@ -118,6 +122,11 @@ public class UserServiceImpl implements UserService , ServiceLocator {
 	@Override
 	public String getRealm() {
 		return "Jupiter";
+	}
+
+	@Override
+	public void install() {
+		ormClient.install(true,true);
 	}
 
 }
