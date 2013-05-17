@@ -1,3 +1,4 @@
+-classpath: target/classes 
 -dsannotations: *
 Private-Package: com.elster.jupiter.ids.impl,\
 	com.elster.jupiter.ids.plumbing
