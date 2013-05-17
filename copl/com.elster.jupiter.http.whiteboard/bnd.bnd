@@ -1,3 +1,4 @@
+-classpath: target/classes 
 Private-Package: com.elster.jupiter.http.whiteboard.impl
 Export-Package: com.elster.jupiter.http.whiteboard
 -dsannotations: *

@@ -9,7 +9,6 @@
         <artifactId>parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>com.elster.jupiter</groupId>
     <artifactId>http.whiteboard</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
@@ -25,12 +24,12 @@
                 <configuration>
                     <instructions>
                         <Export-Package>com.elster.jupiter.http.whiteboard</Export-Package>
-                        <Import-Package>javax.servlet.http;version="2.5.0",
+                        <Import-Package>org.osgi.service.event,
+                            javax.servlet.http;version="2.5.0",
                             org.osgi.framework;version="1.3.0",
                             org.osgi.service.http;version="1.2",
                             org.osgi.util.tracker;version="1.5.0"
                         </Import-Package>
-                        <Bundle-Activator>com.elster.jupiter.http.whiteboard.impl.Activator</Bundle-Activator>
                     </instructions>
                 </configuration>
             </plugin>
@@ -41,15 +40,11 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <version>4.3.1</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
-            <version>4.3.1</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
