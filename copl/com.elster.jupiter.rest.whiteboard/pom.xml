@@ -9,7 +9,6 @@
         <artifactId>parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>com.elster.jupiter</groupId>
     <artifactId>rest.whiteboard</artifactId>
     <version>1.0.0.SNAPSHOT</version>
     <packaging>bundle</packaging>
@@ -38,7 +37,6 @@
                             org.osgi.service.http;version="1.2",
                             org.osgi.util.tracker;version="1.5.0"
                         </Import-Package>
-                        <Bundle-Activator>com.elster.jupiter.rest.whiteboard.Activator</Bundle-Activator>
                     </instructions>
                 </configuration>
             </plugin>
