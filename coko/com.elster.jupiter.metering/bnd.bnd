@@ -1,3 +1,4 @@
+-classpath: target/classes 
 -dsannotations: *
 Private-Package: com.elster.jupiter.metering.impl,\
 	com.elster.jupiter.metering.plumbing
