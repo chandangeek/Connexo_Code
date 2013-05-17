@@ -1,3 +1,4 @@
+-classpath: target/classes 
 -dsannotations: *
 Private-Package: com.elster.jupiter.metering.rest
 Bundle-Name: com.elster.jupiter.metering.rest
@@ -46,11 +47,3 @@ Bundle-Name: com.elster.jupiter.metering.rest
 	com.elster.jupiter.osgi.goodies;version=latest,\
 	com.elster.jupiter.parties;version=latest,\
 	com.elster.jupiter.util;version=latest
-\n\
--runrepos: Workspace,\
-	Local,\
-	Bndtools Hub
--runrepos: Bndtools Hub,\
-	Release,\
-	Workspace,\
-	Local
