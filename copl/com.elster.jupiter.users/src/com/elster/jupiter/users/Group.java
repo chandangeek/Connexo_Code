@@ -1,7 +1,7 @@
 package com.elster.jupiter.users;
 
-public interface Role {
+public interface Group {
 	long getId();
 	String getName();	
-	boolean hasPrivilege(Privilege privilege);	
+	boolean hasPrivilege(String privilegeName);	
 }

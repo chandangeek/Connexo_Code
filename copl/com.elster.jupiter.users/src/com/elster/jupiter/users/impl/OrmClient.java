@@ -4,10 +4,10 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.users.*;
 
 interface OrmClient {
-	DataMapper<PrivilegeDescription> getPrivilegeDescriptionFactory();
-	DataMapper<Role> getRoleFactory();
+	DataMapper<Privilege> getPrivilegeFactory();
+	DataMapper<Group> getGroupFactory();
 	DataMapper<User> getUserFactory();
-	DataMapper<PrivilegeInRole> getPrivilegeInRoleFactory();	
-	DataMapper<UserInRole> getUserInRoleFactory();	
+	DataMapper<PrivilegeInGroup> getPrivilegeInGroupFactory();	
+	DataMapper<UserInGroup> getUserInGroupFactory();	
 	void install(boolean executeDdl , boolean storeMappings);		
 }

@@ -31,9 +31,9 @@ public class UserImpl implements User {
 	}
 	
 	@Override
-	public boolean hasPrivilege(Privilege privilege) {
-		for (Role each : getRoles()) {
-			if (each.hasPrivilege(privilege)) {
+	public boolean hasPrivilege(String privilegeName) {
+		for (Group each : getGroups()) {
+			if (each.hasPrivilege(privilegeName)) {
 				return true;
 			}
 		}
@@ -45,17 +45,17 @@ public class UserImpl implements User {
 		return authenticationName;
 	}
 	
-	List<Role> getRoles() {
-		List<UserInRole> userInRoles = Bus.getOrmClient().getUserInRoleFactory().find("userId", getId());
-		List<Role> result = new ArrayList<>(userInRoles.size());
-		for (UserInRole each : userInRoles) {
-			result.add(each.getRole());
+	List<Group> getGroups() {
+		List<UserInGroup> userInGroups = Bus.getOrmClient().getUserInGroupFactory().find("userId", getId());
+		List<Group> result = new ArrayList<>(userInGroups.size());
+		for (UserInGroup each : userInGroups) {
+			result.add(each.getGroup());
 		}
 		return result;
 	}
 	
-	void addRole(Role role) {
-		new UserInRole(this,role).persist();
+	void addGroup(Group group) {
+		new UserInGroup(this,group).persist();
 	}
 	
 	void persist() {
@@ -80,7 +80,7 @@ public class UserImpl implements User {
 	}
 
 	@Override
-	public boolean hasRole(String roleName) {
+	public boolean isMemberOf(String groupName) {
 		return true;
 	}
 }

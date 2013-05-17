@@ -5,12 +5,11 @@ import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.PrivilegeDescription;
-import com.elster.jupiter.users.Role;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.util.time.UtcInstant;
 
 
-public class RoleImpl implements Role {
+public class GroupImpl implements Group {
 	//persistent fields
 	private long id;
 	private String name;
@@ -19,10 +18,10 @@ public class RoleImpl implements Role {
 	private UtcInstant modTime;
 	
 	@SuppressWarnings("unused")
-	private RoleImpl() {		
+	private GroupImpl() {		
 	}
 	
-	RoleImpl(String name) {
+	GroupImpl(String name) {
 		this.name = name;
 	}
 
@@ -37,9 +36,9 @@ public class RoleImpl implements Role {
 	}
 
 	@Override
-	public boolean hasPrivilege(Privilege privilege) {
+	public boolean hasPrivilege(String privilegeName) {
 		for (Privilege each : getPrivileges()) {
-			if (each.equals(privilege)) {
+			if (each.getName().equals(privilegeName)) {
 				return true;
 			}			
 		}
@@ -47,20 +46,20 @@ public class RoleImpl implements Role {
 	}
 	
 	List<Privilege> getPrivileges() {
-		List<PrivilegeInRole> privilegeInRoles = Bus.getOrmClient().getPrivilegeInRoleFactory().find("roleId", getId());
-		List<Privilege> result = new ArrayList<>(privilegeInRoles.size());
-		for (PrivilegeInRole each : privilegeInRoles) {
+		List<PrivilegeInGroup> privilegeInGroups = Bus.getOrmClient().getPrivilegeInGroupFactory().find("groupId", getId());
+		List<Privilege> result = new ArrayList<>(privilegeInGroups.size());
+		for (PrivilegeInGroup each : privilegeInGroups) {
 			result.add(each.getPrivilege());
 		}
 		return result;
 	}
 	
-	void addPrivilege(PrivilegeDescription privilegeDescription) {
-		new PrivilegeInRole(this,privilegeDescription).persist();
+	void addPrivilege(Privilege privilege) {
+		new PrivilegeInGroup(this,privilege).persist();
 	}
 	
 	void persist() {
-		Bus.getOrmClient().getRoleFactory().persist(this);
+		Bus.getOrmClient().getGroupFactory().persist(this);
 	}
 	
 	public Date getCreateDate() {
@@ -77,6 +76,6 @@ public class RoleImpl implements Role {
 	
 	@Override
 	public String toString() {
-		return "Role " + getName();
+		return "Group: " + getName();
 	}
 }

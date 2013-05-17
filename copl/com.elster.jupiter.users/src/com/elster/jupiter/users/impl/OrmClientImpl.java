@@ -14,28 +14,28 @@ class OrmClientImpl implements OrmClient {
 	}
 	
 	@Override
-	public DataMapper<PrivilegeDescription> getPrivilegeDescriptionFactory() {
-		return dataModel.getDataMapper(PrivilegeDescription.class, PrivilegeDescriptionImpl.class, USR_PRIVILEGES.name());
+	public DataMapper<Privilege> getPrivilegeFactory() {
+		return dataModel.getDataMapper(Privilege.class, PrivilegeImpl.class, USR_PRIVILEGE.name());
 	}
 
 	@Override
-	public DataMapper<Role> getRoleFactory() {
-		return dataModel.getDataMapper(Role.class, RoleImpl.class, USR_ROLES.name());
+	public DataMapper<Group> getGroupFactory() {
+		return dataModel.getDataMapper(Group.class, GroupImpl.class, USR_GROUP.name());
 	}
 	
 	@Override
 	public DataMapper<User> getUserFactory() {
-		return dataModel.getDataMapper(User.class, UserImpl.class, USR_USERS.name());
+		return dataModel.getDataMapper(User.class, UserImpl.class, USR_USER.name());
 	}
 	
 	@Override
-	public DataMapper<PrivilegeInRole> getPrivilegeInRoleFactory() {
-		return dataModel.getDataMapper(PrivilegeInRole.class, PrivilegeInRole.class, USR_PRIVILEGEINROLE.name());
+	public DataMapper<PrivilegeInGroup> getPrivilegeInGroupFactory() {
+		return dataModel.getDataMapper(PrivilegeInGroup.class, PrivilegeInGroup.class, USR_PRIVILEGEINGROUP.name());
 	}
 
 	@Override
-	public DataMapper<UserInRole> getUserInRoleFactory() {
-		return dataModel.getDataMapper(UserInRole.class, UserInRole.class, USR_USERINROLE.name());
+	public DataMapper<UserInGroup> getUserInGroupFactory() {
+		return dataModel.getDataMapper(UserInGroup.class, UserInGroup.class, USR_USERINGROUP.name());
 	}
 
 	@Override

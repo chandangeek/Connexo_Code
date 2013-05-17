@@ -30,7 +30,7 @@ public class CommandExecutorImpl implements CommandExecutor {
 		if (user == null) {
 			throw new IllegalStateException("No user");
 		}
-		if (user.hasPrivilege(command.getPrivilege())) {
+		if (user.hasPrivilege(command.getPrivilege().getName())) {
 			Bus.getServiceLocator().getTransactionService().execute(command);
 		} else {
 			throw new AccessControlException("No access");
