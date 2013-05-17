@@ -7,7 +7,11 @@
 package com.energyict.protocolimpl.iec1107.emh.lzqj;
 
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
@@ -16,7 +20,9 @@ import com.energyict.protocolimpl.iec1107.vdew.VDEWProfile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -326,7 +332,7 @@ public class LZQJProfile extends VDEWProfile {
 									System.out
 											.println("KV_DEBUG> partialInterval, add partialInterval to currentInterval");
 								}
-								intervalData = addIntervalData(intervalDataSave, intervalData); // add
+								intervalData = addIntervalData(profileData, intervalDataSave, intervalData); // add
 								// intervals together to avoid double interval
 								// values ...
 							} else {
@@ -359,7 +365,7 @@ public class LZQJProfile extends VDEWProfile {
 								if (DEBUG >= 1) {
 									System.out.println("KV_DEBUG> add partialInterval to currentInterval");
 								}
-								intervalData = addIntervalData(intervalDataSave, intervalData); // add
+								intervalData = addIntervalData(profileData, intervalDataSave, intervalData); // add
 								// intervals together to avoid double interval
 								// values ...
 							} else {

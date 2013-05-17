@@ -7,15 +7,26 @@
 package com.energyict.protocolimpl.iec1107.vdew;
 
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.DataParser;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.iec1107.*;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
+import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -430,7 +441,7 @@ abstract public class VDEWProfile {
                              if (DEBUG >= 1) {
 								System.out.println("KV_DEBUG> partialInterval, add partialInterval to currentInterval");
 							}
-                             intervalData = addIntervalData(intervalDataSave,intervalData); // add intervals together to avoid double interval values...
+                             intervalData = addIntervalData(profileData, intervalDataSave,intervalData); // add intervals together to avoid double interval values...
                           }
                           else {
                              if (DEBUG >= 1) {
@@ -456,7 +467,7 @@ abstract public class VDEWProfile {
                              if (DEBUG >= 1) {
 								System.out.println("KV_DEBUG> add partialInterval to currentInterval");
 							}
-                             intervalData = addIntervalData(intervalDataSave,intervalData); // add intervals together to avoid double interval values...
+                             intervalData = addIntervalData(profileData, intervalDataSave,intervalData); // add intervals together to avoid double interval values...
                           }
                           else {
                              if (DEBUG >= 1) {
@@ -495,15 +506,25 @@ abstract public class VDEWProfile {
     } // private ProfileData buildProfileData(byte[] responseData) throws IOException
    
     
-    protected IntervalData addIntervalData(IntervalData cumulatedIntervalData,IntervalData currentIntervalData) {
+    protected IntervalData addIntervalData(ProfileData profileData, IntervalData cumulatedIntervalData,IntervalData currentIntervalData) {
         int currentCount = currentIntervalData.getValueCount();
         IntervalData intervalData = new IntervalData(currentIntervalData.getEndTime());
-        
-        int i;
-        for (i=0;i<currentCount;i++) {
-            BigDecimal val1 = (BigDecimal)currentIntervalData.get(i);
-            BigDecimal val2 = (BigDecimal)cumulatedIntervalData.get(i);
-            intervalData.addValue(val1.add(val2));
+        List<ChannelInfo> channelInfos = profileData.getChannelInfos();
+
+        for (int i = 0; i < currentCount; i++) {
+            boolean cumulative = false;
+            try {
+                cumulative = channelInfos.get(i).isCumulative();
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // Just to be fail save - in this case use non-cumulative channel (default behaviour before this fix)
+            }
+            BigDecimal val1 = (BigDecimal) currentIntervalData.get(i);
+            BigDecimal val2 = (BigDecimal) cumulatedIntervalData.get(i);
+            if (cumulative) {
+                intervalData.addValue(val1);            // Discard the saved cumulative value, only keep the current cumulative value (COMMUNICATION-905)
+            } else {
+                intervalData.addValue(val1.add(val2));  // Add the two consumption values together
+            }
         }
         return intervalData;
     }    
