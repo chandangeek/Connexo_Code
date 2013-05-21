@@ -1,19 +1,14 @@
 package com.elster.jupiter.security.thread.impl;
 
-import static oracle.jdbc.OracleConnection.END_TO_END_ACTION_INDEX;
-import static oracle.jdbc.OracleConnection.END_TO_END_CLIENTID_INDEX;
-import static oracle.jdbc.OracleConnection.END_TO_END_MODULE_INDEX;
-import static oracle.jdbc.OracleConnection.END_TO_END_STATE_INDEX_MAX;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import oracle.jdbc.OracleConnection;
+import org.osgi.service.component.annotations.Component;
 
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import oracle.jdbc.OracleConnection;
-
-import org.osgi.service.component.annotations.Component;
-
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import static oracle.jdbc.OracleConnection.*;
 
 @Component (name = "com.elster.jupiter.security.thread")
 public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
