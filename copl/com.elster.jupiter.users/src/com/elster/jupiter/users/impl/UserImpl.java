@@ -81,6 +81,11 @@ public class UserImpl implements User {
 
 	@Override
 	public boolean isMemberOf(String groupName) {
-		return true;
+		for (Group each : getGroups()) {
+			if (each.getName().equals(groupName)) {
+				return true;
+			}
+		} 
+		return false;
 	}
 }
