@@ -44,6 +44,6 @@ public class SelectEventImpl implements SelectEvent {
 	
 	@Override
 	public String toString() {
-		return "Fetched " + rowCount + " tuples in " + (getElapsed()/1000L) + " µs for " + getText();  
+		return "Fetched " + rowCount + " tuples in " + (getElapsed()/1000L) + " Âµs for " + getText();
 	}
 }
