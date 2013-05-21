@@ -18,9 +18,14 @@ public class UpdateUsagePointTransaction implements Runnable {
 	@Override
 	public void run() {
 		usagePoint = Bus.getServiceLocator().getMeteringService().findUsagePoint(info.id);
-		usagePoint.setMRID(info.mRID);
-		usagePoint.setPhaseCode(info.phaseCode);
-		usagePoint.setRatedPower(info.ratedPower);
-		usagePoint.save();
+		if (usagePoint.getVersion() == info.version) {
+			usagePoint.setMRID(info.mRID);
+			usagePoint.setPhaseCode(info.phaseCode);
+			usagePoint.setRatedPower(info.ratedPower);
+			usagePoint.save();
+		} else {
+			System.out.println("Failed");
+			throw new RuntimeException("Optimistic lock failed");
+		}
 	}
 }
