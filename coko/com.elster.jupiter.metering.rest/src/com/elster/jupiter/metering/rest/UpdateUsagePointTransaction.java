@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering.rest;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+
 import com.elster.jupiter.metering.UsagePoint;
 
 
@@ -24,8 +27,7 @@ public class UpdateUsagePointTransaction implements Runnable {
 			usagePoint.setRatedPower(info.ratedPower);
 			usagePoint.save();
 		} else {
-			System.out.println("Failed");
-			throw new RuntimeException("Optimistic lock failed");
+			throw new WebApplicationException(Response.Status.CONFLICT);			
 		}
 	}
 }
