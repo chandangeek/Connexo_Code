@@ -27,7 +27,7 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier {
     public Device findDevice() {
         List<Device> devicesByDialHomeId = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(this.callHomeID);
         if (devicesByDialHomeId.isEmpty()) {
-            throw new NotFoundException("Device with call home ID " + this.callHomeID + " not found");
+            return null;
         } else {
             if (devicesByDialHomeId.size() > 1) {
                 throw new NotFoundException("More than one device found with call home ID " + this.callHomeID);

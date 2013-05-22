@@ -31,7 +31,7 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier {
     public Device findDevice () {
         List<Device> devicesBySerialNumber = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(this.serialNumber);
         if (devicesBySerialNumber.isEmpty()) {
-            throw new NotFoundException("Device with serialnumber " + this.serialNumber + " not found");
+            return null;
         }
         else {
             if (devicesBySerialNumber.size() > 1) {
