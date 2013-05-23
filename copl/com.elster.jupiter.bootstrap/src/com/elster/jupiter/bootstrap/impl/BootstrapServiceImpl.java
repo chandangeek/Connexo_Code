@@ -13,6 +13,7 @@ public class BootstrapServiceImpl implements BootstrapService {
 	public BootstrapServiceImpl() {		
 	}
 	
+	@SuppressWarnings("deprecation")
 	public DataSource createDataSource() throws SQLException {
 		OracleDataSource source = new OracleDataSource();
 		source.setDriverType("thin");
