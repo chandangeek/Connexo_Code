@@ -1,4 +1,3 @@
 -classpath: target/classes
 Bundle-Activator: com.elster.jupiter.extjs.Activator
 Private-Package: com.elster.jupiter.extjs
-Bundle-Name: com.elster.jupiter.extjs
