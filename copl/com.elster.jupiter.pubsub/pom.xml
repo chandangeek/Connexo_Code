@@ -14,27 +14,6 @@
     <packaging>bundle</packaging>
     <name>pubsub</name>
 
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>com.elster.jupiter.pubsub
-                        </Export-Package>
-                        <Import-Package>org.osgi.framework;version="1.3.0",
-                            org.osgi.service.component.annotations,
-                            org.osgi.service.log
-                        </Import-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
