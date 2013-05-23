@@ -1,4 +1,4 @@
 -classpath: target/classes 
 -dsannotations: *
 Private-Package: com.elster.jupiter.metering.rest
-Bundle-Name: com.elster.jupiter.metering.rest
+
