@@ -15,22 +15,6 @@
     <packaging>bundle</packaging>
     <name>Time</name>
 
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>com.elster.jupiter.time</Export-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
