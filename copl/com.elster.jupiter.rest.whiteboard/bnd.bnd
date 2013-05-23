@@ -1,6 +1,4 @@
--classpath: target/classes 
--dsannotations: *
+-classpath: target/classes
+-dsannotations: com.elster.jupiter.rest.whiteboard.ServiceLocatorImpl
 Private-Package: com.elster.jupiter.rest.whiteboard
-Import-Package: javax.servlet.*;version='[2.5,3)',\
-	*
 Include-Resource: OSGI-INF/metatype/metatype.xml=OSGI-INF/metatype/metatype.xml
