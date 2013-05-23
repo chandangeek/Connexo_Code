@@ -15,24 +15,6 @@
     <packaging>bundle</packaging>
     <name>Cbo</name>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>com.elster.jupiter.cbo</Export-Package>
-                        <Import-Package>com.elster.jupiter.util.time,
-                            com.elster.jupiter.util.units
-                        </Import-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
