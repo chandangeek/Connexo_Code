@@ -14,37 +14,6 @@
     <packaging>bundle</packaging>
     <name>Metering</name>
 
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>com.elster.jupiter.metering</Export-Package>
-                        <Import-Package>com.elster.jupiter.cbo,
-                            com.elster.jupiter.util.conditions,
-                            com.elster.jupiter.domain.util,
-                            com.elster.jupiter.ids,
-                            com.elster.jupiter.metering,
-                            com.elster.jupiter.orm,
-                            com.elster.jupiter.orm.callback,
-                            com.elster.jupiter.orm.cache,
-                            com.elster.jupiter.util.time,
-                            com.elster.jupiter.util.units,
-                            com.elster.jupiter.util.sql,
-                            com.elster.jupiter.parties,
-                            org.osgi.framework;version="1.3.0",
-                            org.osgi.util.tracker;version="1.5.0"
-                        </Import-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
