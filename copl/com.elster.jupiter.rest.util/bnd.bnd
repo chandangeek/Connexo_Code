@@ -2,4 +2,3 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.rest.util.impl
 Export-Package: com.elster.jupiter.rest.util
-Bundle-Name: com.elster.jupiter.rest.util
