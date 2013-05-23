@@ -161,32 +161,48 @@
                     </instructions>
                 </configuration>
             </plugin>
+            <plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-eclipse-plugin</artifactId>        		
+        		<configuration>
+        			<addGroupIdToProjectName>true</addGroupIdToProjectName>
+        			<additionalBuildcommands>
+        				<buildCommand>
+        					<name>bndtools.core.bndbuilder</name>
+        				</buildCommand>
+        			</additionalBuildcommands>
+        			<additionalProjectnatures>
+        				<projectnature>bndtools.core.bndnature</projectnature>
+        			</additionalProjectnatures>        			        		
+	        	</configuration>
+      </plugin>
+            
         </plugins>
     </build>
 
-	<modules>
-		<module>../bootstrap</module>
-		<module>../cbo</module>
-		<module>../domain.util</module>
-		<module>../extjs</module>
-		<module>../http.whiteboard</module>
-		<module>../ids</module>
-		<module>../install</module>
-		<module>../metering</module>
-		<module>../metering.extjs</module>
-		<module>../metering.rest</module>
-		<module>../orm</module>
-		<module>../orm.cache</module>
-		<module>../osgi.goodies</module>
-		<module>../parties</module>
-		<module>../pubsub</module>
-		<module>../rest.util</module>
-		<module>../rest.whiteboard</module>
-		<module>../security.thread</module>
-		<module>../test</module>
-		<module>../transaction</module>
-		<module>../users</module>
-		<module>../util</module>
+	<modules>		
+		<module>../com.elster.jupiter.bootstrap</module>
+		<module>../com.elster.jupiter.cbo</module>
+		<module>../com.elster.jupiter.domain.util</module>
+		<module>../com.elster.jupiter.extjs</module>
+		<module>../com.elster.jupiter.http.whiteboard</module>
+		<module>../com.elster.jupiter.ids</module>
+		<module>../com.elster.jupiter.install</module>
+		<module>../com.elster.jupiter.metering</module>
+		<module>../com.elster.jupiter.metering.extjs</module>
+		<module>../com.elster.jupiter.metering.rest</module>
+		<module>../com.elster.jupiter.orm</module>
+		<module>../com.elster.jupiter.orm.cache</module>
+		<module>../com.elster.jupiter.osgi.goodies</module>
+		<module>../com.elster.jupiter.parties</module>		
+		<module>../com.elster.jupiter.pubsub</module>
+		<module>../com.elster.jupiter.rest.util</module>
+		<module>../com.elster.jupiter.rest.whiteboard</module>
+		<module>../com.elster.jupiter.security.thread</module>
+		<module>../com.elster.jupiter.test</module>
+		<module>../com.elster.jupiter.transaction</module>
+		<module>../com.elster.jupiter.users</module>
+		<module>../com.elster.jupiter.util</module>
 	</modules>
 
 </project>
