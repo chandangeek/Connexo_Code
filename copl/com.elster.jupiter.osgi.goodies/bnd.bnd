@@ -1,4 +1,4 @@
 -classpath: target/classes
-Private-Package: com.elster.jupiter.osgi.goodies
-Bundle-Name: com.elster.jupiter.osgi.goodies
 -dsannotations: *
+Private-Package: com.elster.jupiter.osgi.goodies
+
