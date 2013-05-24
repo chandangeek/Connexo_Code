@@ -24,11 +24,6 @@ public class REMIDatalogger extends E350 {
     private LoadProfileBuilder loadProfileBuilder;
 
     @Override
-    public String getVersion() {
-        return "$Date: 2012-04-02 13:07:50 +0200 (ma, 02 apr 2012) $";
-    }
-
-    @Override
     public DlmsProtocolProperties getProperties() {
         if (this.properties == null) {
             this.properties = new XemexProperties();
@@ -97,5 +92,10 @@ public class REMIDatalogger extends E350 {
             return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
         }
         return null;
+    }
+
+    @Override
+    public String getVersion() {
+        return "$Date: 2012-04-02 13:07:50 +0200 (ma, 02 apr 2012) $";
     }
 }
