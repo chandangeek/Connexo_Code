@@ -51,7 +51,7 @@ public enum TableSpecs {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
 			Column vaultComponent = table.addColumn("VAULTCOMPONENT","varchar2(3)",true,NOCONVERSION,"vaultComponentName");
-			Column vaultIdColumn = table.addColumn("VAULTDID" , "number", true , NUMBER2LONG , "vaultId");
+			Column vaultIdColumn = table.addColumn("VAULTID" , "number", true , NUMBER2LONG , "vaultId");
 			Column recordSpecComponent = table.addColumn("RECORDSPECCOMPONENT","varchar2(3)",true,NOCONVERSION,"recordSpecComponentName");
 			Column recordSpecIdColumn = table.addColumn("RECORDSPECID" , "number", true , NUMBER2LONG , "recordSpecId");
 			table.addColumn("FIRSTTIME","number",false,NUMBER2UTCINSTANT,"firstTime");
