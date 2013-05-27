@@ -1,15 +1,5 @@
 package com.elster.jupiter.parties.impl;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
-
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
@@ -19,6 +9,13 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component (name = "com.elster.jupiter.parties" , service = {PartyService.class,InstallService.class}, property="name="+Bus.COMPONENTNAME)
 public class PartyServiceImpl implements PartyService, InstallService , ServiceLocator {
@@ -54,13 +51,11 @@ public class PartyServiceImpl implements PartyService, InstallService , ServiceL
 		this.cache = cacheService.getComponentCache(ormClient.getDataModel());
 	}
 
-	@Activate
-	public void activate() {
+	public void activate(ComponentContext context) {
 		Bus.setServiceLocator(this);
 	}
 	
-	@Deactivate
-	public void deActivate() {
+	public void deActivate(ComponentContext context) {
 		Bus.setServiceLocator(null);
 	}
 	@Override
