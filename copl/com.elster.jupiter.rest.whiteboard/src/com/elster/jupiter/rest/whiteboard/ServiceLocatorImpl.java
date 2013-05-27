@@ -8,6 +8,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.http.*;
 import org.osgi.util.tracker.BundleTracker;
@@ -35,16 +36,14 @@ public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
     	this.whiteBoard = new WhiteBoard(httpService);
     }
     
-    @Activate
-    public void activate(BundleContext bundleContext) {
+    public void activate(ComponentContext context) {
     	Bus.setServiceLocator(this);  
     	int stateMask = Bundle.ACTIVE | Bundle.START_TRANSIENT | Bundle.STARTING;
-    	tracker = new BundleTracker<>(bundleContext, stateMask , new JerseyBundleTrackerCustomizer(bundleContext));
+    	tracker = new BundleTracker<>(context.getBundleContext(), stateMask , new JerseyBundleTrackerCustomizer(context.getBundleContext()));
     	tracker.open();    	
     }
     
-    @Deactivate
-    public void deActivate() {        	
+    public void deActivate(ComponentContext context) {
     	tracker.close();
     	whiteBoard.close();    	
     	Bus.setServiceLocator(null);    	 	
