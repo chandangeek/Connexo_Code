@@ -1,10 +1,6 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.*;
 import com.energyict.dlms.mocks.MockDLMSConnection;
 import com.energyict.dlms.mocks.MockProtocolLink;
 import org.junit.Test;
@@ -89,7 +85,8 @@ public class AbstractCosemObjectTest {
         try {
             data.checkCosemPDUResponseHeader(DLMSUtils.hexStringToByteArray(confirmedServiceErrorResponseEncryptionFailed));
         } catch (Exception e) {
-            if (!e.getMessage().equalsIgnoreCase("Confirmed Service Error - 'Write error' - Reason: Application-reference - Error detected by the deciphering function")) {
+            assertTrue(e instanceof IOException);
+            if (!e.getMessage().equalsIgnoreCase("Confirmed Service Error - 'Write error' - Reason: " + ServiceError.APP_REFERENCE_CIPHER_ERROR.getDescription())) {
                 e.printStackTrace();
                 fail();
             }
