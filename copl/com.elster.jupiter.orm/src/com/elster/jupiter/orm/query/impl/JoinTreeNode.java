@@ -16,8 +16,8 @@ import com.elster.jupiter.util.sql.SqlFragment;
 
 final class JoinTreeNode<T>  {
 	
-	final private JoinDataMapper<T> value;
-	final private List<JoinTreeNode<?>> children = new ArrayList<>();
+	private final JoinDataMapper<T> value;
+	private final List<JoinTreeNode<?>> children = new ArrayList<>();
 	private boolean marked; 
 	
 	public JoinTreeNode (JoinDataMapper<T> value) {

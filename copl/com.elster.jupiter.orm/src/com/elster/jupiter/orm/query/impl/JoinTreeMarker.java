@@ -6,7 +6,7 @@ import com.elster.jupiter.util.conditions.*;
 
 public class JoinTreeMarker implements Visitor {
 	
-	final private JoinTreeNode<?> root;
+	private final JoinTreeNode<?> root;
 	
 	JoinTreeMarker(JoinTreeNode<?> root) {
 		this.root = root;

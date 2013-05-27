@@ -4,8 +4,8 @@ import com.elster.jupiter.orm.SelectEvent;
 import com.elster.jupiter.util.time.StopWatch;
 
 public class SelectEventImpl implements SelectEvent {
-	final private StopWatch stopWatch;
-	final private String text;
+	private final StopWatch stopWatch;
+	private final String text;
 	private int rowCount;
 
 	

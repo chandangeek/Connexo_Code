@@ -4,7 +4,7 @@ import com.elster.jupiter.util.sql.SqlFragment;
 
 abstract class AliasFragment implements SqlFragment {
 	
-	final private String alias;
+	private final String alias;
 	
 	AliasFragment(String alias) {
 		this.alias = alias;

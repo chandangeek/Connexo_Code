@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class AliasFactory {
-	final private Set<String> aliases = new HashSet<>();
+	private final Set<String> aliases = new HashSet<>();
 	private String base;
 	
 	void setBase(String alias) {

@@ -11,7 +11,7 @@ import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 public class ChildDataMapper<T> extends JoinDataMapper <T> {
-	final private ForeignKeyConstraint constraint;
+	private final ForeignKeyConstraint constraint;
 	private Map<Object, List<?>> targetCache;
 	
 	public ChildDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraint constraint, String alias) {

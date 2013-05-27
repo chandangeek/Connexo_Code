@@ -7,12 +7,12 @@ import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 
 public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
 	
-	final private TableSqlGenerator sqlGenerator;
-	final private DomainMapper mapper;
-	final private Collection<Class<? extends T>> implementations;
-	final private String alias;
-	final private DataMapperReader<T> reader;
-	final private DataMapperWriter<T> writer;
+	private final TableSqlGenerator sqlGenerator;
+	private final DomainMapper mapper;
+	private final Collection<Class<? extends T>> implementations;
+	private final String alias;
+	private final DataMapperReader<T> reader;
+	private final DataMapperWriter<T> writer;
 	
 	DataMapperImpl(Class<T> api, Class<? extends T> implementation ,  Table table) {
 		this.mapper = DomainMapper.FIELDSTRICT;

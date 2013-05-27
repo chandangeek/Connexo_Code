@@ -1,15 +1,21 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.plumbing.OrmClient;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
-
-import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.orm.plumbing.OrmClient;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 
 public class DataModelImpl implements DataModel , PersistenceAware {
@@ -132,22 +138,16 @@ public class DataModelImpl implements DataModel , PersistenceAware {
 	}
 	
 	private void doExecuteDdl() throws SQLException {
-		Connection connection = Bus.getConnection(false);
-		try {
-			Statement statement = connection.createStatement();
-			try {
-				for (Table table : getTables()) {									
-					for (String each : ((TableImpl) table).getDdl()) {
-						System.out.println(each);
-						statement.execute(each);
-					}
-				}
-			} finally {
-				statement.close();
-			}
-		} finally {
-			connection.close();
-		}
+        try (Connection connection = Bus.getConnection(false)) {
+            try (Statement statement = connection.createStatement()) {
+                for (Table table : getTables()) {
+                    for (String each : ((TableImpl) table).getDdl()) {
+                        System.out.println(each);
+                        statement.execute(each);
+                    }
+                }
+            }
+        }
 	}
 
 	@Override

@@ -5,7 +5,7 @@ public enum DeleteRule {
 	SETNULL (" on delete set null"),
 	CASCADE (" on delete cascade");
 	
-	final private String ddl;
+	private final String ddl;
 	
 	private DeleteRule(String ddl) {
 		this.ddl = ddl;

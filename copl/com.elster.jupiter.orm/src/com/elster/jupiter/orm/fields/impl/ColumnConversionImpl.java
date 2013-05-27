@@ -1,12 +1,13 @@
 package com.elster.jupiter.orm.fields.impl;
 
-import java.util.Date;
-import java.sql.*;
-import java.util.Currency;
-
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Unit;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Currency;
+import java.util.Date;
 
 // naming convention is DATABASE TYPE 2 JAVATYPE 
 public enum ColumnConversionImpl {
@@ -46,7 +47,7 @@ public enum ColumnConversionImpl {
 	NUMBER2INTNULLZERO { // 2
 		@Override
 		public Object convertToDb(Object value) {
-			return ((Integer) value) == 0 ? null : value;
+			return value == 0 ? null : value;
 		}
 		
 		@Override
@@ -79,7 +80,7 @@ public enum ColumnConversionImpl {
 	NUMBER2LONGNULLZERO { // 4
 		@Override
 		public Object convertToDb(Object value) {
-			return ((Long) value) == 0 ? null : value;
+			return value == 0 ? null : value;
 		}
 		
 		@Override
