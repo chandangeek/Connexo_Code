@@ -1,28 +1,54 @@
 package com.elster.jupiter.bootstrap.impl;
 
-import java.sql.SQLException;
-import javax.sql.DataSource;
+import com.elster.jupiter.bootstrap.BootstrapService;
+import com.elster.jupiter.bootstrap.PropertyNotFoundException;
 import oracle.jdbc.pool.OracleDataSource;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
-import com.elster.jupiter.bootstrap.BootstrapService;
+import javax.sql.DataSource;
+import java.sql.SQLException;
+import java.util.Properties;
 
 @Component (name = "com.elster.jupiter.bootstrap")
 public class BootstrapServiceImpl implements BootstrapService {
-	
-	public BootstrapServiceImpl() {		
-	}
-	
-	@SuppressWarnings("deprecation")
-	public DataSource createDataSource() throws SQLException {
-		OracleDataSource source = new OracleDataSource();
-		source.setDriverType("thin");
-		source.setServerName("localhost");
-		source.setPortNumber(1521);
-		source.setDatabaseName("eiserver");
-		source.setUser("kore");
-		source.setPassword("kore");	
-		source.setConnectionCachingEnabled(true);
-		return source;
-	}
+
+    private static final String JDBC_DRIVER_URL = "com.elster.jupiter.datasource.jdbcurl";
+    private static final String JDBC_USER = "com.elster.jupiter.datasource.jdbcuser";
+    private static final String JDBC_PASSWORD = "com.elster.jupiter.datasource.jdbcpassword";
+
+    private String jdbcUrl;
+    private String jdbcUser;
+    private String jdbcPassword;
+
+    @Activate
+    public void activate(BundleContext context) {
+        jdbcUrl = getRequiredProperty(context, JDBC_DRIVER_URL);
+        jdbcUser = getRequiredProperty(context, JDBC_USER);
+        jdbcPassword = getRequiredProperty(context, JDBC_PASSWORD);
+    }
+
+    @Override
+    public DataSource createDataSource() throws SQLException {
+        return createDataSourceFromProperties(new Properties());
+    }
+
+    private DataSource createDataSourceFromProperties(Properties properties) throws SQLException {
+        OracleDataSource source = new OracleDataSource();
+        source.setURL(jdbcUrl);
+        source.setUser(jdbcUser);
+        source.setPassword(jdbcPassword);
+        source.setConnectionCachingEnabled(true);
+        return source;
+    }
+
+    private String getRequiredProperty(BundleContext context, String property) {
+        String value = context.getProperty(property);
+        if (value == null) {
+            throw new PropertyNotFoundException(property);
+        }
+        return value;
+    }
+
 }
