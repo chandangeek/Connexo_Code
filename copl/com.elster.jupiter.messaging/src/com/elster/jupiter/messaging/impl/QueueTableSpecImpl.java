@@ -9,17 +9,19 @@ import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
 
-import com.elster.jupiter.messaging.QueueTable;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import oracle.AQ.AQException;
+import oracle.AQ.AQQueueTable;
 import oracle.AQ.AQQueueTableProperty;
+import oracle.jdbc.OracleConnection;
 import oracle.jms.AQjmsQueueConnectionFactory;
 import oracle.jms.AQjmsSession;
 
-public class QueueTableImpl implements QueueTable {	
+public class QueueTableSpecImpl implements QueueTableSpec {	
 	// persistent fields
-	
 	private String name;
 	private String payloadType;
 	private boolean multiConsumer;
@@ -35,9 +37,10 @@ public class QueueTableImpl implements QueueTable {
 	private String userName;
 	
 	@SuppressWarnings("unused")
-	private QueueTableImpl() {		
+	private QueueTableSpecImpl() {		
 	}
-	public QueueTableImpl(String name , String payloadType , boolean multiConsumer) {
+	
+	public QueueTableSpecImpl(String name , String payloadType , boolean multiConsumer) {
 		this.name = name;
 		this.payloadType = payloadType;
 		this.multiConsumer = multiConsumer;	
@@ -51,7 +54,7 @@ public class QueueTableImpl implements QueueTable {
 			throw new RuntimeException(ex);
 		}
 		active = true;
-		Bus.getOrmClient().getQueueTableFactory().update(this,"active");
+		Bus.getOrmClient().getQueueTableSpecFactory().update(this,"active");
 	}
 	
 	private String getDatabaseUser(Connection connection) throws SQLException {
@@ -65,10 +68,17 @@ public class QueueTableImpl implements QueueTable {
 	
 	private void doActivate() throws SQLException, JMSException, AQException {
 		try (Connection connection = Bus.getConnection()) {
-			AQjmsSession session = getSession(connection);
-			AQQueueTableProperty properties = new AQQueueTableProperty(payloadType);
-			properties.setMultiConsumer(multiConsumer);			
-			session.createQueueTable(getDatabaseUser(connection),name,properties);			
+			OracleConnection oraConnection = connection.unwrap(OracleConnection.class); 
+			QueueConnection queueConnection = AQjmsQueueConnectionFactory.createQueueConnection(oraConnection);
+			try {
+				queueConnection.start();
+				AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);		
+				AQQueueTableProperty properties = new AQQueueTableProperty(payloadType);
+				properties.setMultiConsumer(multiConsumer);			
+				session.createQueueTable(getDatabaseUser(connection),name,properties);
+			} finally {
+				queueConnection.close();
+			}
 		}
 	}
 	
@@ -80,7 +90,7 @@ public class QueueTableImpl implements QueueTable {
 			throw new RuntimeException(ex);
 		}		
 		active = false;
-		Bus.getOrmClient().getQueueTableFactory().update(this,"active");
+		Bus.getOrmClient().getQueueTableSpecFactory().update(this,"active");
 	}
 	
 	private String dropSql() {
@@ -98,11 +108,6 @@ public class QueueTableImpl implements QueueTable {
 		}
 	}
 	
-	private AQjmsSession getSession(Connection connection) throws JMSException {
-		QueueConnection queueConnection = AQjmsQueueConnectionFactory.createQueueConnection(connection);
-		queueConnection.start();
-		return (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);		
-	}
 	@Override
 	public String getName() {
 		return name;
@@ -121,6 +126,17 @@ public class QueueTableImpl implements QueueTable {
 	@Override
 	public boolean isActive() {
 		return active;
+	}
+	
+	AQQueueTable getAqQueueTable(AQjmsSession session) throws JMSException, SQLException {
+		return session.getQueueTable(name, getDatabaseUser(session.getDBConnection()));
+	}
+
+	@Override
+	public DestinationSpec createDestinationSpec(String name, int retryDelay) {
+		DestinationSpecImpl spec = new DestinationSpecImpl(this, name, retryDelay);
+		spec.activate();
+		return spec;
 	}
 	
 }

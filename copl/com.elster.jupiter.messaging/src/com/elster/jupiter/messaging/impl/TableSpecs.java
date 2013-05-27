@@ -6,23 +6,24 @@ import static com.elster.jupiter.orm.DeleteRule.*;
 import com.elster.jupiter.orm.*;
 
 public enum TableSpecs {
-	MSG_QUEUETABLE {
+	MSG_QUEUETABLESPEC {
 		void  describeTable(Table table) {
 			Column nameColumn = table.addColumn("NAME","varchar2(30)",true,NOCONVERSION,"name");
 			table.addColumn("PAYLOADTYPE", "varchar2(30)" , true , NOCONVERSION , "payloadType");
 			table.addColumn("MULTICONSUMER", "char(1)", true, CHAR2BOOLEAN, "multiConsumer");
 			table.addColumn("ACTIVE", "char(1)", true, CHAR2BOOLEAN, "active");
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MSG_PK_QUEUETABLE", nameColumn);
+			table.addPrimaryKeyConstraint("MSG_PK_QUEUETABLESPEC", nameColumn);
 		}
 	},
-	MSG_QUEUE {
+	MSG_DESTINATIONSPEC {
 		void describeTable(Table table) {
 			Column nameColumn = table.addColumn("NAME","varchar2(30)",true,NOCONVERSION,"name");
-			Column queueTableNameColumn = table.addColumn("QUEUETABLENAME" , "number", true , NOCONVERSION , "queueTableName");
+			Column queueTableNameColumn = table.addColumn("QUEUETABLENAME" , "varchar2(30)", true , NOCONVERSION , "queueTableName");
+			table.addColumn("RETRYDELAY" , "number" , true, NUMBER2INT , "retryDelay");
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MSG_PK_QUEUE", nameColumn);
-			table.addForeignKeyConstraint("MSG_FK_QUEUE", MSG_QUEUETABLE.name() , RESTRICT, new AssociationMapping("queueTable") , queueTableNameColumn);				
+			table.addPrimaryKeyConstraint("MSG_PK_DESTINATIONSPEC", nameColumn);
+			table.addForeignKeyConstraint("MSG_FK_DESTINATIONSPEC", MSG_QUEUETABLESPEC.name() , RESTRICT, new AssociationMapping("queueTable") , queueTableNameColumn);				
 		}
 	};
 	

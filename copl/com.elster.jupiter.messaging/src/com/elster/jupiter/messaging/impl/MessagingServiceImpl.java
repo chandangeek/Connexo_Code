@@ -8,8 +8,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessagingService;
-import com.elster.jupiter.messaging.QueueTable;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -50,7 +51,7 @@ public class MessagingServiceImpl implements MessagingService , InstallService ,
 	public void aqcreatetable(String in) {
 		System.out.println("About to create Queue table " + in);
 		try {
-			new QueueTableImpl(in, "RAW", false).activate();
+			new QueueTableSpecImpl(in, "RAW", false).activate();
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 		}
@@ -58,16 +59,16 @@ public class MessagingServiceImpl implements MessagingService , InstallService ,
 	
 	public void aqdroptable(String in) {
 		try {
-			new QueueTableImpl(in, "RAW", false).deActivate();
+			new QueueTableSpecImpl(in, "RAW", false).deActivate();
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 		}		
 	}
 
 	@Override
-	public QueueTable createQueueTable(String name, String payloadType,boolean multiConsumer) {
-		QueueTableImpl result = new QueueTableImpl(name, payloadType, multiConsumer);
-		ormClient.getQueueTableFactory().persist(result);
+	public QueueTableSpec createQueueTableSpec(String name, String payloadType,boolean multiConsumer) {
+		QueueTableSpecImpl result = new QueueTableSpecImpl(name, payloadType, multiConsumer);
+		ormClient.getQueueTableSpecFactory().persist(result);
 		result.activate();
 		return null;
 	}
@@ -79,6 +80,16 @@ public class MessagingServiceImpl implements MessagingService , InstallService ,
 	
 	@Override
 	public void install() {
-		ormClient.install();
+		new InstallerImpl().install(this);
+	}
+
+	@Override
+	public QueueTableSpec getQueueTableSpec(String name) {
+		return Bus.getOrmClient().getQueueTableSpecFactory().get(name);
+	}
+
+	@Override
+	public DestinationSpec getDestinationSpec(String name) {		
+		return Bus.getOrmClient().getDestinationSpecFactory().get(name);
 	}
 }
