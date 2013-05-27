@@ -4,7 +4,7 @@ import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.bootstrap.PropertyNotFoundException;
 import oracle.jdbc.pool.OracleDataSource;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 
 import javax.sql.DataSource;
@@ -21,11 +21,10 @@ public class BootstrapServiceImpl implements BootstrapService {
     private String jdbcUser;
     private String jdbcPassword;
 
-    @Activate
-    public void activate(BundleContext context) {
-        jdbcUrl = getRequiredProperty(context, JDBC_DRIVER_URL);
-        jdbcUser = getRequiredProperty(context, JDBC_USER);
-        jdbcPassword = getRequiredProperty(context, JDBC_PASSWORD);
+    public void activate(ComponentContext context) {
+        jdbcUrl = getRequiredProperty(context.getBundleContext(), JDBC_DRIVER_URL);
+        jdbcUser = getRequiredProperty(context.getBundleContext(), JDBC_USER);
+        jdbcPassword = getRequiredProperty(context.getBundleContext(), JDBC_PASSWORD);
     }
 
     @Override
