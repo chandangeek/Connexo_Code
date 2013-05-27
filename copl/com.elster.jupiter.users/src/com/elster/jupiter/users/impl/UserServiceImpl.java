@@ -1,20 +1,18 @@
 package com.elster.jupiter.users.impl;
 
-import javax.xml.bind.DatatypeConverter;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.xml.bind.DatatypeConverter;
 
 @Component (
 	name = "com.elster.jupiter.users" , 
@@ -53,13 +51,11 @@ public class UserServiceImpl implements UserService , InstallService, ServiceLoc
 		this.transactionService = transactionService;
 	}
 
-	@Activate
-	public void activate() {
+	public void activate(ComponentContext context) {
 		Bus.setServiceLocator(this);
 	}
 	
-	@Deactivate
-	public void deActivate() {
+	public void deActivate(ComponentContext context) {
 		Bus.setServiceLocator(null);
 	}
 	
