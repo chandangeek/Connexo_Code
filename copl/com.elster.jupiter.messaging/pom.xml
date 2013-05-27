@@ -32,5 +32,10 @@
             <artifactId>jupiter-oracle</artifactId>
             <version>1.11.2.03</version>
         </dependency>
+         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
