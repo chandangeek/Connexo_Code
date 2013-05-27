@@ -20,22 +20,22 @@ class TransactionContextImpl {
 	}
 	
 	void terminate(boolean commit) throws SQLException {
-		if (connection != null) {
-			try {
-				if (commit && !rollback) {
-					connection.commit();
-				} else {
-					connection.rollback();
-				}
-			} finally {
-				connection.close();
-			}
-		}		
+		if (connection == null) {
+            return;
+        }
+        try {
+            if (commit && !rollback) {
+                connection.commit();
+            } else {
+                connection.rollback();
+            }
+        } finally {
+            connection.close();
+        }
 	}
 
 	void setRollbackOnly() {
 		this.rollback = true;
-		
 	}
 	
 }
