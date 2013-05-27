@@ -1,7 +1,7 @@
 package com.elster.jupiter.osgi.goodies;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.packageadmin.PackageAdmin;
@@ -26,9 +26,8 @@ public class Command {
 		this.admin = admin;
 	}
 	
-	@Activate
-	public void activate(BundleContext bundleContext) {
-		this.bundleContext = bundleContext;
+	public void activate(ComponentContext context) {
+		this.bundleContext = context.getBundleContext();
 	}
 	
 	
