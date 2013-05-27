@@ -23,23 +23,23 @@ public class ObisCodeMapper {
 
     static {
 
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_CLOCK_TIME_SHIFT_EVENT_LIMIT, new DLMSAttribute(ObisCodeProvider.REG_CLOCK_TIME_SHIFT_EVENT_LIMIT, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_CLOCK_SYNC_WINDOW, new DLMSAttribute(ObisCodeProvider.REG_CLOCK_SYNC_WINDOW, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_ERROR, new DLMSAttribute(ObisCodeProvider.REG_ERROR, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_ALARM, new DLMSAttribute(ObisCodeProvider.REG_ALARM, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_TIME_SINCE_LAST_EOB_1, new DLMSAttribute(ObisCodeProvider.REG_TIME_SINCE_LAST_EOB_1, RegisterAttributes.Register_Value));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_CLOCK_TIME_SHIFT_EVENT_LIMIT, new DLMSAttribute(ObisCodeProvider.REG_CLOCK_TIME_SHIFT_EVENT_LIMIT, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_CLOCK_SYNC_WINDOW, new DLMSAttribute(ObisCodeProvider.REG_CLOCK_SYNC_WINDOW, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_ERROR, new DLMSAttribute(ObisCodeProvider.REG_ERROR, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_ALARM, new DLMSAttribute(ObisCodeProvider.REG_ALARM, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_TIME_SINCE_LAST_EOB_1, new DLMSAttribute(ObisCodeProvider.REG_TIME_SINCE_LAST_EOB_1, RegisterAttributes.VALUE));
 
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOTAL, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOTAL, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_1, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_1, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_2, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_2, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_3, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_3, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_4, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_4, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_5, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_5, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_6, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_6, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_7, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_7, RegisterAttributes.Register_Value));
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_8, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_8, RegisterAttributes.Register_Value));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOTAL, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOTAL, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_1, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_1, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_2, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_2, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_3, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_3, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_4, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_4, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_5, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_5, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_6, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_6, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_7, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_7, RegisterAttributes.VALUE));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_GAS_VOLUME_TOU_8, new DLMSAttribute(ObisCodeProvider.REG_GAS_VOLUME_TOU_8, RegisterAttributes.VALUE));
 
-        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_PROFILE_DEMAND, new DLMSAttribute(ObisCodeProvider.REG_PROFILE_DEMAND, RegisterAttributes.Register_Value));
+        ABSTRACT_REGISTER.put(ObisCodeProvider.REG_PROFILE_DEMAND, new DLMSAttribute(ObisCodeProvider.REG_PROFILE_DEMAND, RegisterAttributes.VALUE));
         ABSTRACT_REGISTER.put(ObisCodeProvider.REG_DEMAND_TOTAL, new DLMSAttribute(ObisCodeProvider.REG_DEMAND_TOTAL, DemandRegisterAttributes.CURRENT_AVG_VALUE));
         ABSTRACT_REGISTER.put(ObisCodeProvider.REG_MAXIMUM_DEMAND_ENERGY_IMPORT, new DLMSAttribute(ObisCodeProvider.REG_MAXIMUM_DEMAND_ENERGY_IMPORT, ExtendedRegisterAttributes.VALUE));
 

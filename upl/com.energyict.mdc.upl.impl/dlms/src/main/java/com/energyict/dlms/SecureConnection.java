@@ -66,6 +66,10 @@ public class SecureConnection implements DLMSConnection {
         return getTransportConnection().getTimeout();
     }
 
+    public void setRetries(int retries) {
+        getTransportConnection().setRetries(retries);
+    }
+
     /**
      * The sendRequest will check the current securitySuite to encrypt or authenticate the data and then parse the APDU to the DLMSConnection.
      * The response from the meter is decrypted before sending it back to the object.
@@ -224,6 +228,10 @@ public class SecureConnection implements DLMSConnection {
 
     public void setHHUSignOn(final HHUSignOn hhuSignOn, final String meterId) {
         getTransportConnection().setHHUSignOn(hhuSignOn, meterId);
+    }
+
+    public void setHHUSignOn(final HHUSignOn hhuSignOn, final String meterId, int hhuSignonBaudRateCode) {
+        getTransportConnection().setHHUSignOn(hhuSignOn, meterId, hhuSignonBaudRateCode);
     }
 
     public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {

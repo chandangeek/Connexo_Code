@@ -6,6 +6,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.*;
 import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.protocolimpl.coronis.core.wavecell.WaveCellConnect;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
@@ -15,7 +16,7 @@ import com.energyict.protocolimpl.coronis.waveflow.waveflowV2.WaveFlowV2;
 import java.io.*;
 import java.util.*;
 
-abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink, EventMapper, BubbleUp {
+abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink, EventMapper, BubbleUp, IncomingAlarmFrameParser {
 
     private static final String PROP_SCALE_A = "ScaleA";
     private static final String PROP_SCALE_B = "ScaleB";
@@ -25,13 +26,21 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     private static final String PROP_MULTIPLIER_B = "MultiplierB";
     private static final String PROP_MULTIPLIER_C = "MultiplierC";
     private static final String PROP_MULTIPLIER_D = "MultiplierD";
+    public static final int DEFAULT_TIMEOUT = 5000;
+    public static final int DEFAULT_RETRIES = 2;
+    private int connectionMode = 0;
+    private int waveFlowId = -1;
+
+    public static final String MUC_WAVECELL_CONNECTION = "0";
+    public static final String LEGACY_WAVECELL_CONNECTION = "1";
+    public static final String CONNECTION_PROPERTY = "Connection";
 
     abstract protected void doTheInit() throws IOException;
 
     abstract protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException;
 
     private boolean multiFrame;         //Custom property enabling multiframe mode. This mode is not available when using repeaters to reach the waveflow module.
-    private boolean verifyProfileInterval = true;
+    protected boolean verifyProfileInterval = true;
     private boolean roundDownToNearestInterval = false;
     private int initialRFCommand = 0;
     private boolean isV1 = false;
@@ -40,9 +49,24 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     private PulseWeight[] pulseWeights = new PulseWeight[4];
     private boolean isV210 = false;
     protected WaveFlowMessageParser waveFlowMessages;
+    protected CommonObisCodeMapper commonObisCodeMapper = null;
+    protected ParameterFactory parameterFactory = null;
 
     public boolean usesInitialRFCommand() {
         return getInitialRFCommand() == 0x06 || getInitialRFCommand() == 0x27;
+    }
+
+    /**
+     * Check the number of connected meters, based on the pulse weight properties that are filled in or are empty
+     */
+    protected int calcNumberOfInputs() {
+        int numberOfInputs = 0;
+        for (PulseWeight pulseWeight : pulseWeights) {
+            if (pulseWeight != null) {
+                numberOfInputs++;
+            }
+        }
+        return numberOfInputs;
     }
 
     public boolean isRoundDownToNearestInterval() {
@@ -108,7 +132,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     }
 
     /**
-     * reference to the lower connect latyers of the wavenis stack
+     * reference to the lower connect layers of the wavenis stack
      */
     private WaveFlowConnect waveFlowConnect;
 
@@ -117,9 +141,12 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
      */
     private RadioCommandFactory radioCommandFactory;
 
-    abstract public CommonObisCodeMapper getCommonObisCodeMapper();
-
-    abstract public ParameterFactory getParameterFactory();
+    public ParameterFactory getParameterFactory() {
+        if (parameterFactory == null) {
+            parameterFactory = new ParameterFactory(this);
+        }
+        return parameterFactory;
+    }
 
     /**
      * the correcttime property. this property is set from the protocolreader in order to allow to sync the time...
@@ -131,7 +158,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
      */
     ObisCode loadProfileObisCode;
 
-    final public RadioCommandFactory getRadioCommandFactory() {
+    public RadioCommandFactory getRadioCommandFactory() {
         if (radioCommandFactory == null) {
             radioCommandFactory = new RadioCommandFactory(this);
         }
@@ -150,6 +177,18 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         }
     }
 
+    /**
+     * In case of a bubble up frame, no requests are allowed.
+     * Use this method to enable "no request" behavior in the parsing
+     */
+    public void enableInitialRFCommand() {
+        this.initialRFCommand = 0x06;
+    }
+
+    public CommonObisCodeMapper getCommonObisCodeMapper() {
+        return commonObisCodeMapper;
+    }
+
     private boolean isV2() {
         return (!isV1() && !isV210());
     }
@@ -166,7 +205,12 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
                                         HalfDuplexController halfDuplexController) throws IOException {
 
         radioCommandFactory = new RadioCommandFactory(this);
-        waveFlowConnect = new WaveFlowConnect(inputStream, outputStream, timeoutProperty, getLogger(), forcedDelay, getInfoTypeProtocolRetriesProperty());
+        if (connectionMode == 1) {
+            waveFlowConnect = new WaveCellConnect(inputStream, outputStream, timeoutProperty, getLogger(), forcedDelay, getInfoTypeProtocolRetriesProperty());
+            waveFlowConnect.setWaveFlowId(waveFlowId);      //Necessary in requests
+        } else {
+            waveFlowConnect = new WaveFlowConnect(inputStream, outputStream, timeoutProperty, getLogger(), forcedDelay, getInfoTypeProtocolRetriesProperty());
+        }
         doTheInit();
 
         return waveFlowConnect;
@@ -179,39 +223,62 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME, "0"));
         multiFrame = Integer.parseInt(properties.getProperty("EnableMultiFrameMode", "0")) == 1;
 
-        //Important to set this to false (don't check the interval) when requesting the DAILY load profile.
-        //This is because the meter's interval needs to be set to 60 minutes in order to generate daily values...
         verifyProfileInterval = Integer.parseInt(properties.getProperty("verifyProfileInterval", "1")) == 1;
 
         // e.g. USED,4,28740,28800,1,0e514a401f25
         bubbleUpStartMoment = Integer.parseInt(properties.getProperty("WavenisBubbleUpInfo", "USED,1,28800,28800,1,000000000000").split(",")[2]);
         deviceType = Integer.parseInt(properties.getProperty("ApplicationStatusVariant", "0"));
 
-        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, "5000").trim()));
-        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, "2").trim()));
+        setInfoTypeTimeoutProperty(Integer.parseInt(properties.getProperty(PROP_TIMEOUT, String.valueOf(DEFAULT_TIMEOUT)).trim()));
+        setInfoTypeProtocolRetriesProperty(Integer.parseInt(properties.getProperty(PROP_RETRIES, String.valueOf(DEFAULT_RETRIES)).trim()));
 
-        int scaleA = Integer.parseInt(properties.getProperty(PROP_SCALE_A, "0"));
-        int scaleB = Integer.parseInt(properties.getProperty(PROP_SCALE_B, "0"));
-        int scaleC = Integer.parseInt(properties.getProperty(PROP_SCALE_C, "0"));
-        int scaleD = Integer.parseInt(properties.getProperty(PROP_SCALE_D, "0"));
+        Integer scaleA = getIntProperty(properties.getProperty(PROP_SCALE_A));
+        Integer scaleB = getIntProperty(properties.getProperty(PROP_SCALE_B));
+        Integer scaleC = getIntProperty(properties.getProperty(PROP_SCALE_C));
+        Integer scaleD = getIntProperty(properties.getProperty(PROP_SCALE_D));
 
-        int multiplierA = Integer.parseInt(properties.getProperty(PROP_MULTIPLIER_A, "1"));
-        int multiplierB = Integer.parseInt(properties.getProperty(PROP_MULTIPLIER_B, "1"));
-        int multiplierC = Integer.parseInt(properties.getProperty(PROP_MULTIPLIER_C, "1"));
-        int multiplierD = Integer.parseInt(properties.getProperty(PROP_MULTIPLIER_D, "1"));
+        Integer multiplierA = getIntProperty(properties.getProperty(PROP_MULTIPLIER_A));
+        Integer multiplierB = getIntProperty(properties.getProperty(PROP_MULTIPLIER_B));
+        Integer multiplierC = getIntProperty(properties.getProperty(PROP_MULTIPLIER_C));
+        Integer multiplierD = getIntProperty(properties.getProperty(PROP_MULTIPLIER_D));
 
-        WaveFlow waveFlow = new WaveFlowV2();
-        PulseWeight pulseWeightA = new PulseWeight(waveFlow, scaleA, multiplierA, 1);
-        PulseWeight pulseWeightB = new PulseWeight(waveFlow, scaleB, multiplierB, 2);
-        PulseWeight pulseWeightC = new PulseWeight(waveFlow, scaleC, multiplierC, 3);
-        PulseWeight pulseWeightD = new PulseWeight(waveFlow, scaleD, multiplierD, 4);
+        pulseWeights[0] = createPulseWeight(scaleA, multiplierA, 1);
+        pulseWeights[1] = createPulseWeight(scaleB, multiplierB, 2);
+        pulseWeights[2] = createPulseWeight(scaleC, multiplierC, 3);
+        pulseWeights[3] = createPulseWeight(scaleD, multiplierD, 4);
+
         initialRFCommand = Integer.parseInt(properties.getProperty("InitialRFCommand", "0").trim());
         roundDownToNearestInterval = Integer.parseInt(properties.getProperty("RoundDownToNearestInterval", "0").trim()) == 1;
+        connectionMode = Integer.parseInt(properties.getProperty(CONNECTION_PROPERTY, MUC_WAVECELL_CONNECTION).trim());
+        String nodeIdString = properties.getProperty(MeterProtocol.ADDRESS, "-1");
+        try {
+            waveFlowId = Integer.parseInt(nodeIdString.trim().length() == 0 ? "-1" : nodeIdString.trim());   //DeviceId
+        } catch (NumberFormatException e) {
+            waveFlowId = -1;
+        }
+        if ((waveFlowId == -1) && (connectionMode == 1)) {
+            throw new MissingPropertyException("DeviceId property is invalid... It should contain the WaveFlow ID if the connectionMode is set to 1");
+        }
+    }
 
-        pulseWeights[0] = pulseWeights[0] == null ? pulseWeightA : pulseWeights[0];             //Don't override cached pulse weights!
-        pulseWeights[1] = pulseWeights[1] == null ? pulseWeightB : pulseWeights[1];
-        pulseWeights[2] = pulseWeights[2] == null ? pulseWeightC : pulseWeights[2];
-        pulseWeights[3] = pulseWeights[3] == null ? pulseWeightD : pulseWeights[3];
+    private Integer getIntProperty(String property) {
+        if (property == null) {
+            return null;
+        }
+        return Integer.parseInt(property);
+    }
+
+    private PulseWeight createPulseWeight(Integer scale, Integer multiplier, int port) {
+        if (pulseWeights[port - 1] != null) {
+            return pulseWeights[port - 1];     //Don't override cached pulse weights!
+        }
+        if (scale == null) {
+            return null;
+        }
+        if (multiplier == null) {
+            return null;
+        }
+        return new PulseWeight(new WaveFlowV2(), scale, multiplier, port);
     }
 
     /**
@@ -249,7 +316,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
         return "N/A";         //Omit for battery saving purposes.
     }
 
-    public String readFirmwareVersion() throws IOException, UnsupportedException {
+    public String readFirmwareVersion() throws IOException {
         return "V" + WaveflowProtocolUtils.toHexString(getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion()) + ", Mode of transmission " + getRadioCommandFactory().readFirmwareVersion().getModeOfTransmission();
     }
 
@@ -279,15 +346,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     }
 
     public final void forceSetTime() throws IOException {
-        Calendar now = Calendar.getInstance();
         Calendar cal = Calendar.getInstance(getTimeZone());
-        cal.set(Calendar.YEAR, now.get(Calendar.YEAR));
-        cal.set(Calendar.MONTH, now.get(Calendar.MONTH));
-        cal.set(Calendar.DATE, now.get(Calendar.DATE));
-        cal.set(Calendar.DAY_OF_WEEK, now.get(Calendar.DAY_OF_WEEK));
-        cal.set(Calendar.HOUR_OF_DAY, now.get(Calendar.HOUR_OF_DAY));
-        cal.set(Calendar.SECOND, now.get(Calendar.SECOND));
-        cal.set(Calendar.MILLISECOND, now.get(Calendar.MILLISECOND));
         getParameterFactory().writeTimeDateRTC(cal.getTime());
     }
 
@@ -347,7 +406,7 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
 
     @Override
     protected List doGetOptionalKeys() {
-        List result = new ArrayList();
+        List<String> result = new ArrayList<String>();
         result.add("EnableMultiFrameMode");
         result.add("verifyProfileInterval");
         result.add("InitialRFCommand");
@@ -380,14 +439,26 @@ abstract public class WaveFlow extends AbstractProtocol implements ProtocolLink,
     /**
      * This parses the received alarm frames into a list of meter events.
      * The first entry of this list is the alarm status, this is used in the acknowledgement sent back to the module.
+     * <p/>
+     * The event String is an ASCII representation of all bytes in the alarm frame
      */
+    @Deprecated
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
         AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
-        alarmFrame.parse(event.getBytes());
+        alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()));
         statusAndEvents.add(alarmFrame.getResponseACK());
         statusAndEvents.add(alarmFrame.getMeterEvents());
         return statusAndEvents;
+    }
+
+    /**
+     * Same parsing as the map2MeterEvent method, but takes the original byte array (incoming frame) as argument
+     */
+    public List<MeterEvent> parseAlarms(byte[] frame) throws IOException {
+        AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
+        alarmFrame.parse(frame);
+        return alarmFrame.getMeterEvents();
     }
 
     public int getDeviceType() {

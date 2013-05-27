@@ -5,6 +5,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
+import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.PulseWeight;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.DailyConsumption;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.ExtendedIndexReading;
@@ -39,25 +40,26 @@ public class ObisCodeMapper {
         registerMaps.put(ObisCode.fromString("1.4.82.8.0.1"), "Last Billing period (day) index for input D");
 
         registerMaps.put(ObisCode.fromString("0.0.96.5.4.255"), "Valve application status");
+        registerMaps.put(ObisCode.fromString("0.0.96.5.5.255"), "Valve state");
     }
 
-    private WaveFlowV2 waveFlowV2;
+    private WaveFlow waveFlow;
 
     /**
      * Creates a new instance ofObisCodeMapper
      *
-     * @param waveFlowV2 the protocol
+     * @param waveFlow the protocol
      */
-    public ObisCodeMapper(final WaveFlowV2 waveFlowV2) {
-        this.waveFlowV2 = waveFlowV2;
+    public ObisCodeMapper(final WaveFlow waveFlow) {
+        this.waveFlow = waveFlow;
     }
 
     final String getRegisterExtendedLogging() {
         StringBuilder strBuilder = new StringBuilder();
         for (Entry<ObisCode, String> obisCodeStringEntry : registerMaps.entrySet()) {
-            waveFlowV2.getLogger().info(obisCodeStringEntry.getKey().toString() + ", " + obisCodeStringEntry.getValue());
+            waveFlow.getLogger().info(obisCodeStringEntry.getKey().toString() + ", " + obisCodeStringEntry.getValue());
         }
-        strBuilder.append(waveFlowV2.getCommonObisCodeMapper().getRegisterExtendedLogging());
+        strBuilder.append(waveFlow.getCommonObisCodeMapper().getRegisterExtendedLogging());
         return strBuilder.toString();
     }
 
@@ -76,25 +78,25 @@ public class ObisCodeMapper {
             // Index request for inputs A..D  (FieldA = 1 (electricity) because there's no pulse counter yet for water meters in the blue book...)
             if (isCurrentIndexReading(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                if (channel > (waveFlowV2.getNumberOfChannels() - 1)) {
+                if (channel > (waveFlow.getNumberOfChannels() - 1)) {
                     throw new NoSuchRegisterException("This channel is not supported");
                 }
 
-                PulseWeight pulseWeight = waveFlowV2.getPulseWeight(channel);
-                BigDecimal currentIndexValue = new BigDecimal(pulseWeight.getWeight() * waveFlowV2.getRadioCommandFactory().readCurrentReading().getReadings()[channel]);
+                PulseWeight pulseWeight = waveFlow.getPulseWeight(channel);
+                BigDecimal currentIndexValue = new BigDecimal(pulseWeight.getWeight() * waveFlow.getRadioCommandFactory().readCurrentReading().getReadings()[channel]);
                 return new RegisterValue(obisCode, new Quantity(currentIndexValue, pulseWeight.getUnit()), new Date());
 
                 // Billing data request for inputs A ... D
             } else if (isLastBillingPeriodIndexReadingForMonth(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                PulseWeight pulseWeight = waveFlowV2.getPulseWeight(channel);
-                ExtendedIndexReading extendedIndexReadingConfiguration = waveFlowV2.getRadioCommandFactory().readExtendedIndexConfiguration();
-                if (channel > (waveFlowV2.getNumberOfChannels() - 1)) {
+                PulseWeight pulseWeight = waveFlow.getPulseWeight(channel);
+                ExtendedIndexReading extendedIndexReadingConfiguration = waveFlow.getRadioCommandFactory().readExtendedIndexConfiguration();
+                if (channel > (waveFlow.getNumberOfChannels() - 1)) {
                     throw new NoSuchRegisterException("No billing data available this channel");
                 }
                 int value = extendedIndexReadingConfiguration.getIndexOfLastMonth(channel);
                 if (value == -1) {
-                    waveFlowV2.getLogger().log(Level.WARNING, "No billing data available yet, values are 0xFFFFFFFF");
+                    waveFlow.getLogger().log(Level.WARNING, "No billing data available yet, values are 0xFFFFFFFF");
                     throw new NoSuchRegisterException("No billing data available yet");
                 }
                 BigDecimal lastMonthsIndexValue = new BigDecimal(pulseWeight.getWeight() * value);
@@ -102,33 +104,40 @@ public class ObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(lastMonthsIndexValue, pulseWeight.getUnit()), toDate, toDate);
             } else if (isLastBillingPeriodIndexReadingForDay(obisCode)) {
                 int channel = obisCode.getB() - 1;
-                PulseWeight pulseWeight = waveFlowV2.getPulseWeight(channel);
-                DailyConsumption consumption = waveFlowV2.getRadioCommandFactory().readDailyConsumption();
+                PulseWeight pulseWeight = waveFlow.getPulseWeight(channel);
+                DailyConsumption consumption = waveFlow.getRadioCommandFactory().readDailyConsumption();
                 int value = consumption.getIndexZone().getDailyIndexOnPort(channel);
                 if (value == -1) {
-                    waveFlowV2.getLogger().log(Level.WARNING, "No billing data available yet, values are 0xFFFFFFFF");
+                    waveFlow.getLogger().log(Level.WARNING, "No billing data available yet, values are 0xFFFFFFFF");
                     throw new NoSuchRegisterException("No billing data available yet");
                 }
                 BigDecimal lastMonthsIndexValue = new BigDecimal(pulseWeight.getWeight() * value);
                 Date toDate = consumption.getIndexZone().getLastDailyLoggedIndex();
                 return new RegisterValue(obisCode, new Quantity(lastMonthsIndexValue, pulseWeight.getUnit()), toDate, toDate);
             } else if (obisCode.equals(ObisCode.fromString("0.0.96.5.4.255"))) {
-                if (waveFlowV2.getParameterFactory().readProfileType().supportsWaterValveControl()) {
-                    int status = waveFlowV2.getParameterFactory().readValveApplicationStatus();
+                if (waveFlow.getParameterFactory().readProfileType().supportsWaterValveControl()) {
+                    int status = waveFlow.getParameterFactory().readValveApplicationStatus();
                     return new RegisterValue(obisCode, new Quantity(status, Unit.get("")), new Date());
                 } else {
                     throw new NoSuchRegisterException("Module doesn't have valve support");
                 }
+            } else if (obisCode.equals(ObisCode.fromString("0.0.96.5.5.255"))) {
+                if (waveFlow.getParameterFactory().readProfileType().supportsWaterValveControl()) {
+                    int status = waveFlow.getRadioCommandFactory().readValveStatus();
+                    return new RegisterValue(obisCode, new Quantity(status, Unit.get("")), new Date(), null, new Date(), new Date(), 0, ((status & 0x02) == 0x02) ? "Valve is closed" : "Valve is open");
+                } else {
+                    throw new NoSuchRegisterException("Module doesn't have valve support");
+            }
             }
 
             // Other cases
             else {
-                return waveFlowV2.getCommonObisCodeMapper().getRegisterValue(obisCode);
+                return waveFlow.getCommonObisCodeMapper().getRegisterValue(obisCode);
             }
 
         } catch (IOException e) {
             if (!(e instanceof NoSuchRegisterException)) {
-                waveFlowV2.getLogger().log(Level.SEVERE, "Error getting [" + obisCode + "]: timeout, " + e.getMessage());
+                waveFlow.getLogger().log(Level.SEVERE, "Error getting [" + obisCode + "]: timeout, " + e.getMessage());
             }
             throw e;
         }

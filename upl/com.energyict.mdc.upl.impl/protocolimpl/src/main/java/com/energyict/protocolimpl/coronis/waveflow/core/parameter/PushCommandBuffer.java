@@ -27,7 +27,7 @@ public class PushCommandBuffer extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.PushCommandBuffer;
     }
 

@@ -31,6 +31,7 @@ public class BubbleUpFrameParser {
 
     public static BubbleUpObject parse(byte[] data, WaveFlow waveflow) throws IOException {
         data = ProtocolTools.getSubArray(data, 6);          //Skip the radio address
+        waveflow.enableInitialRFCommand();                  //To avoid new requests by the protocol
 
         int type = data[0] & 0xFF;
         type = type | 0x80;
@@ -115,7 +116,7 @@ public class BubbleUpFrameParser {
         profileDataReader.setNumberOfInputsUsed(dailyConsumption.getNumberOfInputs());
         profileDataReader.setInterval(dailyConsumption.getSamplingPeriod().getSamplingPeriodInSeconds());
 
-        profileDatas.add(profileDataReader.parseProfileData(false, false, true, false, lastLogged, 0, 0, dailyConsumption, new Date(0), new Date(), null));
+        profileDatas.add(profileDataReader.parseProfileData(true, false, true, true, false, lastLogged, 0, 0, dailyConsumption, new Date(0), new Date(), null));
         result.setProfileDatas(profileDatas);
         result.setRegisterValues(registerValues);
         return result;
@@ -138,7 +139,7 @@ public class BubbleUpFrameParser {
         if (operatingMode.isWeeklyMeasurement()) {
             profileDataReader.setInterval(WEEKLY);
         }
-        profileDatas.add(profileDataReader.parseProfileData(false, false, false, operatingMode.isMonthlyMeasurement(), lastLogged, 0, 0, null, new Date(0), new Date(), last4loggedIndexes));
+        profileDatas.add(profileDataReader.parseProfileData(true, false, true, false, operatingMode.isMonthlyMeasurement(), lastLogged, 0, 0, null, new Date(0), new Date(), last4loggedIndexes));
         result.setProfileDatas(profileDatas);
 
         for (int input = 0; input < extendedIndexReading.getNumberOfEnabledInputs(); input++) {
@@ -170,6 +171,7 @@ public class BubbleUpFrameParser {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         GlobalIndexReading globalIndexReading = new GlobalIndexReading(waveflow);
         int operationMode = data[0] & 0xFF;
+        int applicationStatus = data[1] & 0xFF;
         OperatingMode operatingMode = new OperatingMode(waveflow, operationMode);
         data = ProtocolTools.getSubArray(data, 2);  //Skip first 2 bytes
         globalIndexReading.parse(data, operatingMode.getNumberOfInputsUsed());
@@ -181,6 +183,9 @@ public class BubbleUpFrameParser {
             index++;
         }
         result.setRegisterValues(registerValues);
+
+        List<ProfileData> profileDatas = getMeterEventsFromApplicationStatus(waveflow, applicationStatus);
+        result.setProfileDatas(profileDatas);
 
         return result;
     }
@@ -244,7 +249,7 @@ public class BubbleUpFrameParser {
         int inputsUsed = (channels == 1 || channels == 3) ? 1 : 2;
         int nrOfReadings = (inputsUsed == 1 ? ((channels == 3) ? 12 : 24) : 12);
 
-        profileDatas.add(profileDataReaderV1.parseProfileData(false, inputsUsed, channelIndexes, nrOfReadings, operatingMode.isMonthlyMeasurement(), new Date(0), new Date(), false, rawValues, lastLogged));
+        profileDatas.add(profileDataReaderV1.parseProfileData(true, false, inputsUsed, channelIndexes, nrOfReadings, operatingMode.isMonthlyMeasurement(), new Date(0), new Date(), true, rawValues, lastLogged));
         result.setProfileDatas(profileDatas);
         return result;
     }
@@ -255,6 +260,10 @@ public class BubbleUpFrameParser {
 
         CurrentIndexReading indexReading = new CurrentIndexReading(waveflow);
         indexReading.parse(data);
+
+        List<ProfileData> profileDatas = getMeterEventsFromApplicationStatus(waveflow, indexReading.getApplicationStatus());
+        result.setProfileDatas(profileDatas);
+
         RegisterValue readingA = new RegisterValue(ObisCode.fromString("1.1.82.8.0.255"), new Quantity(indexReading.getReadings(0) * waveflow.getPulseWeight(0, false).getWeight(), waveflow.getPulseWeight(0, false).getUnit()), new Date());
         RegisterValue readingB = new RegisterValue(ObisCode.fromString("1.2.82.8.0.255"), new Quantity(indexReading.getReadings(1) * waveflow.getPulseWeight(1, false).getWeight(), waveflow.getPulseWeight(1, false).getUnit()), new Date());
 
@@ -262,5 +271,23 @@ public class BubbleUpFrameParser {
         registerValues.add(readingB);
         result.setRegisterValues(registerValues);
         return result;
+    }
+
+    /**
+     * Parse the application status into a list of meter events and return them in a profile data object
+     *
+     * @param waveflow          reference to the protocol containing the properties
+     * @param applicationStatus the status indicating the events
+     * @return list of profile datas containing the parsed events
+     * @throws java.io.IOException
+     */
+    private static List<ProfileData> getMeterEventsFromApplicationStatus(WaveFlow waveflow, int applicationStatus) throws IOException {
+        List<ProfileData> profileDatas = new ArrayList<ProfileData>();
+        ProfileData profileData = new ProfileData();
+        ApplicationStatusParser parser = new ApplicationStatusParser(waveflow, true);
+        List<MeterEvent> meterEvents = parser.getMeterEvents(true, applicationStatus, false);
+        profileData.setMeterEvents(meterEvents);
+        profileDatas.add(profileData);
+        return profileDatas;
     }
 }

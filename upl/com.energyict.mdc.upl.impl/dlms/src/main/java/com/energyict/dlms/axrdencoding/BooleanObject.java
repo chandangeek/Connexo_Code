@@ -6,23 +6,35 @@ import java.math.BigDecimal;
 public class BooleanObject extends AbstractDataType {
 
 	private static final int SIZE = 2;
+    private int trueValue = 0xFF;
+    private static final int FALSE = 0x00;
 	private boolean state;
 
 	public BooleanObject(boolean state) {
 		this.state = state;
 	}
 
-	/** Creates a new instance of Enum */
+    /**
+     * The AXDR spec explains that all values different from 0x00 are accepted as boolean TRUE.
+     * However, some meters don't follow this spec and require a specific value, e.g. 0x01.
+     */
+    public void setTrueValue(int trueValue) {
+        this.trueValue = trueValue;
+    }
+
+    /**
+     * Creates a new instance of Enum
+     */
 	public BooleanObject(byte[] berEncodedData, int offset) throws IOException {
 		if (berEncodedData[offset] != AxdrType.BOOLEAN.getTag()) {
 			throw new IOException("BooleanObject, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
-		setState(berEncodedData[offset] == 0x00 ? false : true);
+        setState(berEncodedData[offset] != FALSE);
 	}
 
 	public String toString() {
-		StringBuffer strBuffTab = new StringBuffer();
+        StringBuilder strBuffTab = new StringBuilder();
 		for (int i = 0; i < getLevel(); i++) {
 			strBuffTab.append("  ");
 		}
@@ -40,7 +52,7 @@ public class BooleanObject extends AbstractDataType {
 	protected byte[] doGetBEREncodedByteArray() {
 		byte[] data = new byte[2];
 		data[0] = AxdrType.BOOLEAN.getTag();
-		data[1] = (byte) (state ? 0xff : 0x00);
+        data[1] = (byte) (state ? trueValue : FALSE);
 		return data;
 	}
 

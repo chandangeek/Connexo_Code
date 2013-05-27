@@ -3,9 +3,7 @@ package com.energyict.dlms;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,7 +52,7 @@ public class IF2Connection implements DLMSConnection {
     /**
      * The maximum number of retries if there occurred an error while reading or writing from/to the IF2Connection
      */
-    private final int maxRetries;
+    private int maxRetries;
 
     /**
      * The current try count, 0-based
@@ -139,6 +137,10 @@ public class IF2Connection implements DLMSConnection {
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
         this.hhuSignOn = hhuSignOn;
         this.meterId = meterId;
+    }
+
+    public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId, int hhuSignonBaudRateCode) {
+        setHHUSignOn(hhuSignOn, meterId);
     }
 
     /**
@@ -332,6 +334,10 @@ public class IF2Connection implements DLMSConnection {
 
     public int getTimeout() {
         return timeout;
+    }
+
+    public void setRetries(int retries) {
+        this.maxRetries = retries;
     }
 
     /**

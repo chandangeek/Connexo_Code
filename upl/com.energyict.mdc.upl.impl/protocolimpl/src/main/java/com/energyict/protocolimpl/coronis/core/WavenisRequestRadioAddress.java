@@ -21,14 +21,14 @@ public class WavenisRequestRadioAddress extends AbstractEscapeCommand {
 
 	
 	@Override
-	EscapeCommandId getEscapeCommandId() {
+    EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.WAVENIS_REQUEST_RADIO_ADDRESS;
 	}
 
 	@Override
 	void parse(byte[] data) throws IOException {
 		if (data.length != RADIOADDRESS_LENGTH) {
-			throw new EscapeCommandException("Invalid radio address received ["+ProtocolUtils.outputHexString(data)+"]");
+			throw new EscapeCommandException("Invalid radio address received ["+ ProtocolUtils.outputHexString(data)+"]");
 		}
 		else {
 			radioAddress = data;

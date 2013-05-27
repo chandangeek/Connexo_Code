@@ -1,19 +1,7 @@
 package com.energyict.genericprotocolimpl.common.messages;
 
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageAttributeSpec;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageElement;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageTagSpec;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocol.messaging.*;
+import com.energyict.protocolimpl.messages.*;
 
 import java.util.Iterator;
 import java.util.List;
@@ -421,17 +409,6 @@ public abstract class GenericMessaging implements Messaging {
     }
 
     /**
-     * Message category that adds one extra message to the usual MBus setup category:
-     * message to change the MBus key using the Cryptoserver
-     */
-    public MessageCategorySpec getCryptoMbusSetupCategory() {
-        MessageCategorySpec mbusSetupCategory = getMbusSetupCategory();
-        MessageSpec msgSpec = addCryptoMBusEncryptionKey(RtuMessageKeyIdConstants.CRYPTO_MBUSENCRYPTIONKEY, RtuMessageConstant.CRYPTOSERVER_MBUS_ENCRYPTION_KEYS, false);
-        mbusSetupCategory.addMessageSpec(msgSpec);
-        return mbusSetupCategory;
-    }
-
-    /**
      * Creates a MessageSpec for specialDays functionality. It contains one field to enter the ID of the codeTable
      * which has the special days configured.
      *
@@ -449,18 +426,6 @@ public abstract class GenericMessaging implements Messaging {
         tagSpec.add(msgVal);
         MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
                 RtuMessageConstant.TOU_SPECIAL_DAYS_CODE_TABLE, true);
-        tagSpec.add(msgAttrSpec);
-        msgSpec.add(tagSpec);
-        return msgSpec;
-    }
-
-    protected MessageSpec addCryptoMBusEncryptionKey(String keyId, String tagName, boolean advanced) {
-        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
-        MessageValueSpec msgVal = new MessageValueSpec();
-        msgVal.setValue(" ");
-        tagSpec.add(msgVal);
-        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.MBUS_DEFAULT_KEY, true);
         tagSpec.add(msgAttrSpec);
         msgSpec.add(tagSpec);
         return msgSpec;
@@ -826,6 +791,11 @@ public abstract class GenericMessaging implements Messaging {
      */
     protected MessageSpec addFirmwareMsg(String keyId, String tagName,
                                          boolean advanced) {
+        return addFirmwareMsg(keyId, tagName, advanced, false);
+    }
+
+    protected MessageSpec addFirmwareMsg(String keyId, String tagName,
+                                         boolean advanced, boolean imageIdentifier) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
         MessageValueSpec msgVal = new MessageValueSpec();
@@ -848,6 +818,10 @@ public abstract class GenericMessaging implements Messaging {
         msgAttrSpec = new MessageAttributeSpec(
                 RtuMessageConstant.FIRMWARE_ACTIVATE_DATE, false);
         tagSpec.add(msgAttrSpec);
+        if (imageIdentifier) {
+            msgAttrSpec = new MessageAttributeSpec(RtuMessageConstant.FIRMWARE_IMAGE_IDENTIFIER, false);
+            tagSpec.add(msgAttrSpec);
+        }
         msgSpec.add(tagSpec);
         return msgSpec;
     }

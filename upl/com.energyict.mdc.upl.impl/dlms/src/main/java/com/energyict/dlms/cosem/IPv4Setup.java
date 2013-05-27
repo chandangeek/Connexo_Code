@@ -4,12 +4,7 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.Ipv4SetupAttributes;
 import com.energyict.obis.ObisCode;
 
@@ -27,7 +22,7 @@ import java.io.IOException;
  * @author gna
  *
  */
-public class IPv4Setup extends AbstractCosemObject{
+public class IPv4Setup extends AbstractCosemObject {
 
     /** Reference to the DataLink layer setup Object by it's logical name */
 	private OctetString dl_Reference = null;
@@ -88,7 +83,7 @@ public class IPv4Setup extends AbstractCosemObject{
 	}
 
     /** Write the {@link #dl_Reference} to the device*/
-	public void writeDLReference(OctetString dlReference) throws IOException{
+	public void writeDLReference(OctetString dlReference) throws IOException {
 		write(Ipv4SetupAttributes.DL_REFERENCE, dlReference.getBEREncodedByteArray());
 		this.dl_Reference = dlReference;
 	}
@@ -96,9 +91,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Read the IP-address from the device
      * @return the IP-address as a double-long-unsigned
-     * @throws IOException if we failed to read the Ip-address
+     * @throws java.io.IOException if we failed to read the Ip-address
      */
-	public Unsigned32 readIPAddress() throws IOException{
+	public Unsigned32 readIPAddress() throws IOException {
     	this.ipAddress = new Unsigned32(getResponseData(Ipv4SetupAttributes.IP_ADDRESS), 0);
 		return this.ipAddress;
 	}
@@ -106,9 +101,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the IP address
      * @return the IP address in doted notation ( A.B.C.D.E.F)
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public String getIPAddress() throws IOException{
+	public String getIPAddress() throws IOException {
 	   	StringBuffer builder = new StringBuffer();
         if(this.ipAddress == null) {
             readIPAddress();
@@ -118,7 +113,7 @@ public class IPv4Setup extends AbstractCosemObject{
     		if(i != 1){
     			builder.append(".");
     		}
-                builder.append(Integer.toString(this.ipAddress.getBEREncodedByteArray()[i]&0xff));
+                builder.append(Integer.toString(this.ipAddress.getBEREncodedByteArray()[i] & 0xff));
     	}
     	return builder.toString();
         } else {
@@ -129,14 +124,14 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the IP address
      * @param newIp the IP address to set in dotted notation
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public void setIPAddress(String newIp) throws IOException{
+	public void setIPAddress(String newIp) throws IOException {
 		int pointer = 0;
 		byte[] ipByte = new byte[5];
 		ipByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < ipByte.length; i++){
-			ipByte[i] = (byte)Integer.parseInt(newIp.substring(pointer, (newIp.indexOf(".", pointer) == -1)?newIp.length():newIp.indexOf(".", pointer)));
+			ipByte[i] = (byte) Integer.parseInt(newIp.substring(pointer, (newIp.indexOf(".", pointer) == -1) ? newIp.length() : newIp.indexOf(".", pointer)));
 			pointer = newIp.indexOf(".", pointer) + 1;
 		}
 		writeIPAddress(new Unsigned32(ipByte, 0));
@@ -145,9 +140,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for th IP address
      * @param newIp the IP address to set as an {@link com.energyict.dlms.axrdencoding.Unsigned32}
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public void writeIPAddress(Unsigned32 newIp) throws IOException{
+	public void writeIPAddress(Unsigned32 newIp) throws IOException {
 		write(Ipv4SetupAttributes.IP_ADDRESS, newIp.getBEREncodedByteArray());
 		this.ipAddress = newIp;
 	}
@@ -166,19 +161,19 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Read the MulticastIp address list from the device
      * @return an Array of multicast IP addresses
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public Array readMulticastIPAddress() throws IOException{
-        this.multicastIPAddress = (Array)AXDRDecoder.decode(getResponseData(Ipv4SetupAttributes.MULTICAST_IP_ADDRESS));
+	public Array readMulticastIPAddress() throws IOException {
+        this.multicastIPAddress = (Array) AXDRDecoder.decode(getResponseData(Ipv4SetupAttributes.MULTICAST_IP_ADDRESS));
 		return this.multicastIPAddress;
 	}
 
     /**
      * Getter for the Multicast IP address. If the array is null then it is read from the device
      * @return an Array of multicast IP addresses
-     * @throws IOException
+     * @throws java.io.IOException
      */
-    public Array getMulticastIPAddress() throws IOException{
+    public Array getMulticastIPAddress() throws IOException {
 		if(this.multicastIPAddress == null){
 			return readMulticastIPAddress();
 		}
@@ -188,9 +183,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the Multicast IP addresses
      * @param multicastIPAddress the array of IP addresses to set
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public void writeMulticastIPAddress(Array multicastIPAddress) throws IOException{
+	public void writeMulticastIPAddress(Array multicastIPAddress) throws IOException {
 		write(Ipv4SetupAttributes.MULTICAST_IP_ADDRESS, multicastIPAddress.getBEREncodedByteArray());
 		this.multicastIPAddress = multicastIPAddress;
 	}
@@ -198,17 +193,17 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Read the IP options from the device
      * @return the array of IP Options
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public Array readIPOptions() throws IOException {
-        this.ipOptions = (Array)AXDRDecoder.decode(getResponseData(Ipv4SetupAttributes.IP_OPTIONS));
+        this.ipOptions = (Array) AXDRDecoder.decode(getResponseData(Ipv4SetupAttributes.IP_OPTIONS));
 		return this.ipOptions;
 	}
 
     /**
      * Get the IP options, if the IP options is null then read it from the device
      * @return the array of IP Options
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public Array getIPOptions() throws IOException {
 		if(this.ipOptions == null){
@@ -220,7 +215,7 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the IP Options
      * @param ipOptions the IP Options to set
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public void writeIPOptions(Array ipOptions) throws IOException {
 		write(Ipv4SetupAttributes.IP_OPTIONS, ipOptions.getBEREncodedByteArray());
@@ -230,7 +225,7 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the subnetMaks. Will always be read from the device
      * @return the Subnetmask as an Unsigned32
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public Unsigned32 readSubnetMask() throws IOException {
         this.subnetMask = new Unsigned32(getResponseData(Ipv4SetupAttributes.SUBNET_MASK), 0);
@@ -240,9 +235,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the SubnetMask. If the mask is null then we read it from the device
      * @return the subnetmask in dotted notation
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public String getSubnetMask() throws IOException{
+	public String getSubnetMask() throws IOException {
         if(this.subnetMask == null){
             readSubnetMask();
         }
@@ -252,7 +247,7 @@ public class IPv4Setup extends AbstractCosemObject{
     		if(i != 1){
     			builder.append(".");
     		}
-                builder.append(Integer.toString(this.subnetMask.getBEREncodedByteArray()[i]&0xff));
+                builder.append(Integer.toString(this.subnetMask.getBEREncodedByteArray()[i] & 0xff));
     	}
     	return builder.toString();
         } else {
@@ -263,9 +258,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the subnetmask
      * @param subnetMask the subnetmask to set
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public void writeSubnetMask(Unsigned32 subnetMask) throws IOException{
+	public void writeSubnetMask(Unsigned32 subnetMask) throws IOException {
 		write(Ipv4SetupAttributes.SUBNET_MASK, subnetMask.getBEREncodedByteArray());
 		this.subnetMask = subnetMask;
 	}
@@ -273,14 +268,14 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the subnetmask in dotted notation
      * @param subnetMask the subnetmask to set
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public void setSubnetMask(String subnetMask) throws IOException {
 		int pointer = 0;
 		byte[] subnetByte = new byte[5];
 		subnetByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < subnetByte.length; i++){
-			subnetByte[i] = (byte)Integer.parseInt(subnetMask.substring(pointer, (subnetMask.indexOf(".", pointer) == -1)?subnetMask.length():subnetMask.indexOf(".", pointer)));
+			subnetByte[i] = (byte) Integer.parseInt(subnetMask.substring(pointer, (subnetMask.indexOf(".", pointer) == -1) ? subnetMask.length() : subnetMask.indexOf(".", pointer)));
 			pointer = subnetMask.indexOf(".", pointer) + 1;
 		}
 		writeSubnetMask(new Unsigned32(subnetByte, 0));
@@ -289,7 +284,7 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the GateWay IP address. Address will always be read from the device
      * @return the gateWay Ip address
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public Unsigned32 readGatewayIPAddress() throws IOException {
 		this.gatewayIPAddress = new Unsigned32(getResponseData(Ipv4SetupAttributes.GATEWAY_IP_ADDRESS), 0);
@@ -299,9 +294,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the GateWay IP Address. If the gateway IP address is null then we read it from the device.
      * @return the gateway Ip address in dotted notation
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public String getGatewayIPAddress() throws IOException{
+	public String getGatewayIPAddress() throws IOException {
         if(this.gatewayIPAddress == null){
             readGatewayIPAddress();
         }
@@ -311,7 +306,7 @@ public class IPv4Setup extends AbstractCosemObject{
     		if(i != 1){
     			builder.append(".");
     		}
-                builder.append(Integer.toString(this.gatewayIPAddress.getBEREncodedByteArray()[i]&0xff));
+                builder.append(Integer.toString(this.gatewayIPAddress.getBEREncodedByteArray()[i] & 0xff));
     	}
     	return builder.toString();
         } else {
@@ -322,9 +317,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the GateWayIP address
      * @param gatewayIPAddress the gateWay IP Address to set
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public void writeGatewayIPAddress(Unsigned32 gatewayIPAddress) throws IOException{
+	public void writeGatewayIPAddress(Unsigned32 gatewayIPAddress) throws IOException {
 		write(Ipv4SetupAttributes.GATEWAY_IP_ADDRESS, gatewayIPAddress.getBEREncodedByteArray());
 		this.gatewayIPAddress = gatewayIPAddress;
 	}
@@ -332,14 +327,14 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the gateway IP address
      * @param gatewayIPAddress the gateway IP address in dotted notation
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public void setGatewayIPAddress(String gatewayIPAddress) throws IOException {
 		int pointer = 0;
 		byte[] gatewayByte = new byte[5];
 		gatewayByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < gatewayByte.length; i++){
-			gatewayByte[i] = (byte)Integer.parseInt(gatewayIPAddress.substring(pointer, (gatewayIPAddress.indexOf(".", pointer) == -1)?gatewayIPAddress.length():gatewayIPAddress.indexOf(".", pointer)));
+			gatewayByte[i] = (byte) Integer.parseInt(gatewayIPAddress.substring(pointer, (gatewayIPAddress.indexOf(".", pointer) == -1) ? gatewayIPAddress.length() : gatewayIPAddress.indexOf(".", pointer)));
 			pointer = gatewayIPAddress.indexOf(".", pointer) + 1;
 		}
 		writeGatewayIPAddress(new Unsigned32(gatewayByte, 0));
@@ -348,7 +343,7 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the primary DNS address. The address will always be read from the device
      * @return the primary DNS address
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public Unsigned32 readPrimaryDNSAddress() throws IOException {
 		this.primaryDNSAddress = new Unsigned32(getResponseData(Ipv4SetupAttributes.PRIMARY_DNS_ADDRESS), 0);
@@ -358,9 +353,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the primary DNS address. If the address is null then it will be read from the device
      * @return the primary DNS address
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public String getPrimaryDNSAddress() throws IOException{
+	public String getPrimaryDNSAddress() throws IOException {
         if(this.primaryDNSAddress == null){
             readPrimaryDNSAddress();
         }
@@ -370,7 +365,7 @@ public class IPv4Setup extends AbstractCosemObject{
     		if(i != 1){
     			builder.append(".");
     		}
-                builder.append(Integer.toString(this.primaryDNSAddress.getBEREncodedByteArray()[i]&0xff));
+                builder.append(Integer.toString(this.primaryDNSAddress.getBEREncodedByteArray()[i] & 0xff));
     	}
     	return builder.toString();
         } else {
@@ -381,9 +376,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the primary DNS address
      * @param primaryDNSAddress the primary DNS address
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public void writePrimaryDNSAddress(Unsigned32 primaryDNSAddress) throws IOException{
+	public void writePrimaryDNSAddress(Unsigned32 primaryDNSAddress) throws IOException {
 		write(Ipv4SetupAttributes.PRIMARY_DNS_ADDRESS, primaryDNSAddress.getBEREncodedByteArray());
 		this.primaryDNSAddress = primaryDNSAddress;
 	}
@@ -391,14 +386,14 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the primary DNS address
      * @param primaryDNSAddress the primary DNS address in dotted notation
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public void setPrimaryDNSAddress(String primaryDNSAddress) throws IOException {
 		int pointer = 0;
 		byte[] primaryDNSByte = new byte[5];
 		primaryDNSByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < primaryDNSByte.length; i++){
-			primaryDNSByte[i] = (byte)Integer.parseInt(primaryDNSAddress.substring(pointer, (primaryDNSAddress.indexOf(".", pointer) == -1)?primaryDNSAddress.length():primaryDNSAddress.indexOf(".", pointer)));
+			primaryDNSByte[i] = (byte) Integer.parseInt(primaryDNSAddress.substring(pointer, (primaryDNSAddress.indexOf(".", pointer) == -1) ? primaryDNSAddress.length() : primaryDNSAddress.indexOf(".", pointer)));
 			pointer = primaryDNSAddress.indexOf(".", pointer) + 1;
 		}
 		writePrimaryDNSAddress(new Unsigned32(primaryDNSByte, 0));
@@ -407,7 +402,7 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the secondary DNS address. The address will always be read from the device
      * @return the secondary DNS address
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public Unsigned32 readSecondaryDNSAddress() throws IOException {
 		this.secondaryDNSAddress = new Unsigned32(getResponseData(Ipv4SetupAttributes.SECONDARY_DNS_ADDRESS), 0);
@@ -417,9 +412,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the secondary DNS address. If the address is null it will be read from the device.
      * @return the secondary DNS address in dotted notation
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public String getSecondaryDNSAddress() throws IOException{
+	public String getSecondaryDNSAddress() throws IOException {
         if(this.secondaryDNSAddress == null){
             readSecondaryDNSAddress();
         }
@@ -429,7 +424,7 @@ public class IPv4Setup extends AbstractCosemObject{
     		if(i != 1){
     			builder.append(".");
     		}
-                builder.append(Integer.toString(this.secondaryDNSAddress.getBEREncodedByteArray()[i]&0xff));
+                builder.append(Integer.toString(this.secondaryDNSAddress.getBEREncodedByteArray()[i] & 0xff));
     	}
     	return builder.toString();
         } else {
@@ -440,9 +435,9 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the secondary DNS address
      * @param secondaryDNSAddress the secondary DNS address to set
-     * @throws IOException
+     * @throws java.io.IOException
      */
-	public void writeSecondaryDNSAddress(Unsigned32 secondaryDNSAddress) throws IOException{
+	public void writeSecondaryDNSAddress(Unsigned32 secondaryDNSAddress) throws IOException {
 		write(Ipv4SetupAttributes.SECONDARY_DNS_ADDRESS, secondaryDNSAddress.getBEREncodedByteArray());
 		this.secondaryDNSAddress = secondaryDNSAddress;
 	}
@@ -450,14 +445,14 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the secondary DNS address.
      * @param secondaryDNSAddress the secondary DNS address in dotted notation.
-     * @throws IOException
+     * @throws java.io.IOException
      */
 	public void setSecondaryDNSAddress(String secondaryDNSAddress) throws IOException {
 		int pointer = 0;
 		byte[] secondaryDNSByte = new byte[5];
 		secondaryDNSByte[0] = AxdrType.DOUBLE_LONG_UNSIGNED.getTag();
 		for(int i = 1; i < secondaryDNSByte.length; i++){
-			secondaryDNSByte[i] = (byte)Integer.parseInt(secondaryDNSAddress.substring(pointer, (secondaryDNSAddress.indexOf(".", pointer) == -1)?secondaryDNSAddress.length():secondaryDNSAddress.indexOf(".", pointer)));
+			secondaryDNSByte[i] = (byte) Integer.parseInt(secondaryDNSAddress.substring(pointer, (secondaryDNSAddress.indexOf(".", pointer) == -1) ? secondaryDNSAddress.length() : secondaryDNSAddress.indexOf(".", pointer)));
 			pointer = secondaryDNSAddress.indexOf(".", pointer) + 1;
 		}
 		writePrimaryDNSAddress(new Unsigned32(secondaryDNSByte, 0));
@@ -475,7 +470,7 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Getter for the DHCP flag. If the flag is null then we will read it from the device
      * @return
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public boolean getDHCPFlag() throws IOException {
         if(this.useDHCPFlag == null){
@@ -491,7 +486,7 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the DHCPflag.
      * @param dhcpFlag the DHCP flag to set as an AXDR encoded boolean
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public void writeDHCPFlag(BooleanObject dhcpFlag) throws IOException {
         write(Ipv4SetupAttributes.USE_DHCP_FLAG, dhcpFlag.getBEREncodedByteArray());
@@ -501,7 +496,7 @@ public class IPv4Setup extends AbstractCosemObject{
     /**
      * Setter for the DHCPFlag.
      * @param dhcpFlag the DHCP flag as a java boolean
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public void setDHCPFlag(boolean dhcpFlag) throws IOException {
         writeDHCPFlag(new BooleanObject(dhcpFlag));

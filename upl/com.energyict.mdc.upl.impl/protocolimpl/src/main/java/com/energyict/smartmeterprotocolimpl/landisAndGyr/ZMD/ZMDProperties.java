@@ -107,8 +107,8 @@ public class ZMDProperties extends DlmsProtocolProperties {
     }
 
     @Override
-    public String getSystemIdentifier() {
-        return "";
+    public byte[] getSystemIdentifier() {
+        return "".getBytes();
     }
 
     @Override

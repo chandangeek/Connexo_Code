@@ -19,15 +19,15 @@ public class WaveflowProtocolUtils {
 	}
 	
 	static public String toHexString(final short val) {
-		return "0x"+Integer.toHexString(toInt(val));
+		return "0x"+ Integer.toHexString(toInt(val));
 	}
 	
 	static public String toHexString(final int val) {
-		return "0x"+Integer.toHexString(val);
+		return "0x"+ Integer.toHexString(val);
 	}
 
 	static public String toHexString(final long val) {
-		return "0x"+Long.toHexString(val);
+		return "0x"+ Long.toHexString(val);
 	}
 	
 	
@@ -39,7 +39,7 @@ public class WaveflowProtocolUtils {
      */
     static public byte[] getSubArray(final byte[] data, final int offset) {
         byte[] subArray = new byte[data.length-offset];
-        System.arraycopy(data,offset,subArray,0,subArray.length);
+        System.arraycopy(data, offset, subArray, 0, subArray.length);
         return subArray;
     }
     
@@ -52,7 +52,7 @@ public class WaveflowProtocolUtils {
      */
     static public byte[] getSubArray(final byte[] data,final int offset, final int length) {
         byte[] subArray = new byte[length];
-        System.arraycopy(data,offset,subArray,0,subArray.length);
+        System.arraycopy(data, offset, subArray, 0, subArray.length);
         return subArray;
     }
 
@@ -82,7 +82,7 @@ public class WaveflowProtocolUtils {
 		
 		byte[] array = new byte[str.length()/2];
 		for (int i=0;i<array.length;i++) {
-			array[i] = (byte)(Integer.parseInt(str.substring(i*2, (i*2)+2),16) & 0xFF);
+			array[i] = (byte)(Integer.parseInt(str.substring(i * 2, (i * 2) + 2), 16) & 0xFF);
 		}
 		return array;
 	}

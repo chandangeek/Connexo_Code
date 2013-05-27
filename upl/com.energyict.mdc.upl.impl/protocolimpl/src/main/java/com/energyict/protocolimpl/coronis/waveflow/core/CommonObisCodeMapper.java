@@ -16,10 +16,10 @@ public class CommonObisCodeMapper {
     static Map<ObisCode, String> registerMaps = new HashMap<ObisCode, String>();
 
     private static final int MULTIPLIER = 256;
-    private static final ObisCode OBISCODE_APPLICATION_STATUS = ObisCode.fromString("0.0.96.5.2.255");
-    private static final ObisCode OBISCODE_OPERATION_MODE = ObisCode.fromString("0.0.96.5.1.255");
+    public static final ObisCode OBISCODE_APPLICATION_STATUS = ObisCode.fromString("0.0.96.5.2.255");
+    public static final ObisCode OBISCODE_OPERATION_MODE = ObisCode.fromString("0.0.96.5.1.255");
 
-    private static final ObisCode OBISCODE_REMAINING_BATTERY = ObisCode.fromString("0.0.96.6.0.255");
+    public static final ObisCode OBISCODE_REMAINING_BATTERY = ObisCode.fromString("0.0.96.6.0.255");
     private static final ObisCode OBISCODE_PROFILE_TYPE = ObisCode.fromString("0.0.96.0.50.255");     //Waveflow specific register, E >= 50
     private static final ObisCode OBISCODE_PULSEWEIGHT_A = ObisCode.fromString("0.1.96.0.51.255");
     private static final ObisCode OBISCODE_PULSEWEIGHT_B = ObisCode.fromString("0.2.96.0.51.255");
@@ -28,6 +28,7 @@ public class CommonObisCodeMapper {
     private static final ObisCode OBISCODE_FIRMWARE = ObisCode.fromString("1.0.0.2.0.255");
 
     private static final ObisCode OBISCODE_SENT_FRAMES = ObisCode.fromString("0.0.96.0.52.255");
+    public static final ObisCode OBISCODE_RELAYED_FRAMES = ObisCode.fromString("0.1.96.0.52.255");
     private static final ObisCode OBISCODE_RECEIVED_FRAMES = ObisCode.fromString("0.0.96.0.53.255");
     private static final ObisCode OBISCODE_ELAPSED_DAYS = ObisCode.fromString("0.0.96.0.54.255");
 
@@ -42,7 +43,7 @@ public class CommonObisCodeMapper {
     private static final ObisCode OBISCODE_NUMBER_OF_FRAME_RX = ObisCode.fromString("0.0.96.0.61.255");
     private static final ObisCode OBISCODE_NUMBER_OF_FRAME_TX = ObisCode.fromString("0.0.96.0.62.255");
 
-    private static final ObisCode OBISCODE_RSSI_LEVEL = ObisCode.fromString("0.0.96.0.63.255");
+    public static final ObisCode OBISCODE_RSSI_LEVEL = ObisCode.fromString("0.0.96.0.63.255");
 
     private static final ObisCode OBISCODE_RESIDUAL_LEAKAGE_THRESHOLD1 = ObisCode.fromString("8.1.96.50.0.255");
     private static final ObisCode OBISCODE_RESIDUAL_LEAKAGE_THRESHOLD2 = ObisCode.fromString("8.2.96.50.0.255");
@@ -91,6 +92,7 @@ public class CommonObisCodeMapper {
     private static final ObisCode OBISCODE_WakeUpPeriodForTimeWindow2 = ObisCode.fromString("0.0.96.0.108.255");
     private static final ObisCode OBISCODE_EnableTimeWindowsByDayOfWeek = ObisCode.fromString("0.0.96.0.109.255");
     private static final ObisCode OBISCODE_EnableWakeUpPeriodsByDayOfWeek = ObisCode.fromString("0.0.96.0.110.255");
+    private static final ObisCode OBISCODE_ALARM_CONFIG_BYTE = ObisCode.fromString("0.0.96.0.111.255");
 
     static {
         registerMaps.put(OBISCODE_REMAINING_BATTERY, "Available battery power in %");
@@ -165,6 +167,7 @@ public class CommonObisCodeMapper {
         registerMaps.put(OBISCODE_WakeUpPeriodForTimeWindow2, "WakeUp period for 2nd time window (in second) ");
         registerMaps.put(OBISCODE_EnableTimeWindowsByDayOfWeek, "Enable time windows by day of the week ");
         registerMaps.put(OBISCODE_EnableWakeUpPeriodsByDayOfWeek, "Enable WakeUp periods by day of the week");
+        registerMaps.put(OBISCODE_ALARM_CONFIG_BYTE, "Alarm configuration byte");
     }
 
     private WaveFlow waveFlow;
@@ -202,7 +205,7 @@ public class CommonObisCodeMapper {
         try {
             OperatingMode operatingMode = waveFlow.getParameterFactory().readOperatingMode();
             if (obisCode.equals(OBISCODE_REMAINING_BATTERY)) {
-                double level = waveFlow.getParameterFactory().readBatteryLifeDurationCounter().remainingBatteryLife();
+                double level = waveFlow.getParameterFactory().readBatteryLifeDurationCounter();
                 return new RegisterValue(obisCode, new Quantity(BigDecimal.valueOf(level), Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_APPLICATION_STATUS)) {
                 int status = waveFlow.getParameterFactory().readApplicationStatus();
@@ -249,6 +252,9 @@ public class CommonObisCodeMapper {
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_EnableWakeUpPeriodsByDayOfWeek)) {
                 int value = waveFlow.getParameterFactory().getEnableWakeUpPeriodsByDayOfWeek();
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
+            } else if (obisCode.equals(OBISCODE_ALARM_CONFIG_BYTE)) {
+                int value = waveFlow.getParameterFactory().readAlarmConfigurationValue();
                 return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             } else if (obisCode.equals(OBISCODE_RESIDUAL_LEAKAGE_THRESHOLD1)) {
                 int threshold = waveFlow.getParameterFactory().readResidualLeakageThreshold(1);

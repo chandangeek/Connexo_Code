@@ -2,35 +2,25 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
  * @author gna
- *         <pre>
- *                                 The Image transfer takes place in several steps:
- *                                 Step 1:   The client gets the ImageBlockSize from each server individually;
- *                                 Step 2:   The client initiates the Image transfer process individually or using broadcast;
- *                                 Step 3:   The client transfers ImageBlocks to (a group of) server(s) individually or using  broadcast;
- *                                 Step 4:   The client checks the completeness of the Image in each server individually and transfers any ImageBlocks not (yet) transferred;
- *                                 Step 5:   The Image is verified;
- *                                 Step 6:   Before activation, the Image is checked;
- *                                 Step 7:   The Image(s) is(/are) activated.
- *                                 </pre>
+ * <pre>
+ * The Image transfer takes place in several steps:
+ * Step 1:   The client gets the ImageBlockSize from each server individually;
+ * Step 2:   The client initiates the Image transfer process individually or using broadcast;
+ * Step 3:   The client transfers ImageBlocks to (a group of) server(s) individually or using  broadcast;
+ * Step 4:   The client checks the completeness of the Image in each server individually and transfers any ImageBlocks not (yet) transferred;
+ * Step 5:   The Image is verified;
+ * Step 6:   Before activation, the Image is checked;
+ * Step 7:   The Image(s) is(/are) activated.
+ * </pre>
  */
 
 public class ImageTransfer extends AbstractCosemObject {
@@ -87,6 +77,7 @@ public class ImageTransfer extends AbstractCosemObject {
 
     private int startIndex = 0;
     private long delayBeforeSendingBlocks = 0;
+    private int booleanValue = 0xFF;        //Default byte value representing boolean TRUE is 0xFF
 
     /**
      * The number of the first block that should be transferred.
@@ -95,6 +86,13 @@ public class ImageTransfer extends AbstractCosemObject {
      */
     public void setStartIndex(int startIndex) {
         this.startIndex = startIndex;
+    }
+
+    /**
+     * Some meters don't follow the AXDR spec where boolean TRUE is represented by all byte values different from 0x00.
+     */
+    public void setBooleanValue(int booleanValue) {
+        this.booleanValue = booleanValue;
     }
 
     public void setDelayBeforeSendingBlocks(long delayBeforeSendingBlocks) {
@@ -133,7 +131,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * @param data
      * 		- the image to transfer
      *
-     * @throws IOException if something went wrong during the upgrade.
+     * @throws java.io.IOException if something went wrong during the upgrade.
      * @throws InterruptedException when interrupted while sleeping
      */
     public void upgrade(byte[] data) throws IOException, InterruptedException {
@@ -148,7 +146,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * @param additionalZeros
      * 		- indicate whether you need to add zeros to the last block to match the blockSize
      *
-     * @throws IOException when something went wrong during the upgrade
+     * @throws java.io.IOException when something went wrong during the upgrade
      * @throws InterruptedException when interrupted while sleeping
      */
     public void upgrade(byte[] data, boolean additionalZeros) throws IOException, InterruptedException {
@@ -183,7 +181,7 @@ public class ImageTransfer extends AbstractCosemObject {
      *      - the name of the file. Default is NewImage
      * @param checkForMissingBlocks
      *      - whether or not to resend lost blocks
-     * @throws IOException when something went wrong during the upgrade
+     * @throws java.io.IOException when something went wrong during the upgrade
      * @throws InterruptedException when interrupted while sleeping
      */
     public void upgrade(byte[] data, boolean additionalZeros, String imageIdentifier, boolean checkForMissingBlocks) throws IOException, InterruptedException {
@@ -310,7 +308,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * @param additionalZeros
      * 		- add additional zeros to match the last blocksize to a multiple of the fileSize
      *
-     * @throws IOException if something went wrong during the upgrade
+     * @throws java.io.IOException if something went wrong during the upgrade
      */
     public void transferImageBlocks(boolean additionalZeros) throws IOException {
 
@@ -419,7 +417,7 @@ public class ImageTransfer extends AbstractCosemObject {
 
     /**
      * Check if there are missing blocks, if so, resent them
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public void checkAndSendMissingBlocks() throws IOException {
         Structure imageBlockTransfer;
@@ -467,7 +465,7 @@ public class ImageTransfer extends AbstractCosemObject {
     /**
      * Verify the image. If the result is a temporary failure, then wait a few seconds and retry it.
      *
-     * @throws IOException
+     * @throws java.io.IOException
      * @throws InterruptedException
      */
     public void verifyAndRetryImage() throws IOException, InterruptedException {
@@ -498,7 +496,7 @@ public class ImageTransfer extends AbstractCosemObject {
 
     /**
      * Verify the image. If the result is a temporary failure, then wait a few seconds and check the.
-     * @throws IOException
+     * @throws java.io.IOException
      * @throws InterruptedException
      */
     public void verifyAndPollForSuccess() throws IOException {
@@ -588,7 +586,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * Get the maximum block image size from the device
      *
      * @return The block size that should be used during the image transfer
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public Unsigned32 readImageBlockSize() throws IOException {
         if (this.imageMaxBlockSize == null) {
@@ -603,7 +601,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * (Not every meter supports this, most of the meters will return R/W denied)
      *
      * @param blockSize The new block size
-     * @throws IOException If we could not write the new image block size
+     * @throws java.io.IOException If we could not write the new image block size
      */
     public void writeImageBlockSize(Unsigned32 blockSize) throws IOException {
         write(ATTRB_IMAGE_BLOCK_SIZE, blockSize.getBEREncodedByteArray());
@@ -616,7 +614,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * 		0 = Not transferred,
      * 		1 = Transferred
      * @return
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public BitString readImageTransferedBlockStatus() throws IOException {
         final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_TRANSFER_BLOCK_STATUS);
@@ -637,7 +635,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * of blocks calculated from the Image size and the ImageBlockSize.
      *
      * @return
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public Unsigned32 readFirstNotTransferedBlockNumber() throws IOException {
         final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_FIRST_NOT_TRANSFERED_BLOCK);
@@ -652,7 +650,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * TRUE = Enabled
      *
      * @return
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public BooleanObject readImageTransferEnabledState() throws IOException {
         final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_TRANSFER_ENABLED);
@@ -664,10 +662,11 @@ public class ImageTransfer extends AbstractCosemObject {
      * Write the given state to the imageTransfer enabled attribute
      *
      * @param state : true to indicate that in imageTransfer will be done, false otherwise
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public void writeImageTransferEnabledState(boolean state) throws IOException {
         final BooleanObject dlmsState = new BooleanObject(state);
+        dlmsState.setTrueValue(booleanValue);
         final byte[] berEncodedByteArray = dlmsState.getBEREncodedByteArray();
         write(ATTRB_IMAGE_TRANSFER_ENABLED, berEncodedByteArray);
     }
@@ -679,7 +678,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * TRUE = Enabled
      *
      * @return
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public BooleanObject getImageTransferEnabledState() throws IOException {
         if (this.imageTransferEnabled == null) {
@@ -702,7 +701,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * 		(7)  Image activation failed
      * </pre>
      * @return
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public ImageTransferStatus readImageTransferStatus() throws IOException {
         final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_TRANSFER_STATUS);
@@ -723,13 +722,13 @@ public class ImageTransfer extends AbstractCosemObject {
      *
      * @return The list of image to activate infos.
      *
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public final List<ImageToActivateInfo> readImageToActivateInfo() throws IOException {
         final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_TO_ACTIVATE_INFO);
 
         final Array imagesToActivateArray = AXDRDecoder.decode(berEncodedData, Array.class);
-        final List<ImageToActivateInfo> imagesToActivate = new ArrayList<ImageTransfer.ImageToActivateInfo>(imagesToActivateArray.nrOfDataTypes());
+        final List<ImageToActivateInfo> imagesToActivate = new ArrayList<ImageToActivateInfo>(imagesToActivateArray.nrOfDataTypes());
 
         for (int i = 0; i < imagesToActivateArray.nrOfDataTypes(); i++) {
             final Structure currentImage = imagesToActivateArray.getDataType(i, Structure.class);
@@ -754,7 +753,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * </pre>
      *
      * @param imageInfo
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public void imageTransferInitiate(final Structure imageInfo) throws IOException {
         final byte[] berEncodedByteArray = imageInfo.getBEREncodedByteArray();
@@ -778,7 +777,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * </pre>
      *
      * @param imageData
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public void imageBlockTransfer(Structure imageData) throws IOException {
         final byte[] berEncodedByteArray = imageData.getBEREncodedByteArray();
@@ -797,7 +796,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * result of the verification can be learned by retrieving the value of
      * the image_transfer_status attribute.
      *
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public void imageVerification() throws IOException {
         final Integer8 value = new Integer8(0);
@@ -818,7 +817,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * If it is not success, then the result of the activation can be learned
      * by retrieving the value of the image_transfer_status attribute.
      *
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public void imageActivation() throws IOException {
         updateState(ImageTransferCallBack.ImageTransferState.ACTIVATE, "", blockCount, size != null ? size.intValue() : 0, 0);
@@ -881,7 +880,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * @param blockCount   The number of blocks to send to the device (could be 0 if unknown)
      * @param dataSize     The number of bytes to send to the device (complete firmware size)
      * @param currentBlock The block number we're sending to the device (could be 0 if unknown, or if we're not sending blocks)
-     * @throws IOException
+     * @throws java.io.IOException
      */
     private void updateState(ImageTransferCallBack.ImageTransferState state, String imageName, int blockCount, int dataSize, int currentBlock) throws IOException {
         if (callBack != null) {
@@ -951,7 +950,7 @@ public class ImageTransfer extends AbstractCosemObject {
         private final int imageSize;
 
         /**
-         * Converts the given {@link Structure} to an {@link ImageToActivateInfo} instance.
+         * Converts the given {@link com.energyict.dlms.axrdencoding.Structure} to an {@link ImageToActivateInfo} instance.
          *
          * @param     structure            The structure to convert.
          *

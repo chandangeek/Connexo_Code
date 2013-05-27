@@ -1,11 +1,9 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
+import com.energyict.dlms.axrdencoding.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
-
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned8;
 
 /**
  * Object to describe a dayProfile in the Activity Calendar.

@@ -12,7 +12,7 @@ import com.energyict.obis.ObisCode;
  * Time: 10:28:52
  * </p>
  */
-public enum MacAddressSetupAttributes implements DLMSClassAttributes{
+public enum MacAddressSetupAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1),
 	MAC_ADDRESS(2);

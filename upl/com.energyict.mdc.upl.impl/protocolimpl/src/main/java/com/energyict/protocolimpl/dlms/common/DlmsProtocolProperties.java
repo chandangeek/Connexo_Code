@@ -1,15 +1,7 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.ConnectionMode;
-import com.energyict.dlms.DLMSReference;
-import com.energyict.dlms.DlmsSessionProperties;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.LocalSecurityProvider;
-import com.energyict.dlms.aso.SecurityProvider;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.*;
 import com.energyict.protocolimpl.base.AbstractProtocolProperties;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 
@@ -237,11 +229,10 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     }
 
     @ProtocolProperty
-    public String getSystemIdentifier() {
-        return getStringValue(SYSTEM_IDENTIFIER, DEFAULT_SYSTEM_IDENTIFIER);
+    public byte[] getSystemIdentifier() {
+        return getStringValue(SYSTEM_IDENTIFIER, DEFAULT_SYSTEM_IDENTIFIER).getBytes();
     }
 
-    @ProtocolProperty
     public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
         byte invokeIdAndPriority = (byte) (getIntProperty(INVOKE_ID_AND_PRIORITY, DEFAULT_INVOKE_ID_AND_PRIORITY) & 0x0FF);
         if (validateInvokeId()) {

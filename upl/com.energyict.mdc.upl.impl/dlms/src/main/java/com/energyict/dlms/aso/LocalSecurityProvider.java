@@ -192,28 +192,52 @@ public class LocalSecurityProvider implements SecurityProvider {
         return this.respondingFrameCounterHandler;
     }
 
+    public void changeEncryptionKey() throws IOException {
+        this.dataTransportPassword = getNEWGlobalKey();
+    }
+
+    public void changeAuthenticationKey() throws IOException {
+        this.authenticationPassword = getNEWAuthenticationKey();
+    }
+
     //********** Return new keys for KeyChange functionality **********/
+
 
 	/**
 	 * @return the new data encryption Authentication Key
 	 */
 	public byte[] getNEWAuthenticationKey() throws IOException {
+        return DLMSUtils.hexStringToByteArray(getNEWAuthenticationKeys()[0]);
+    }
+
+    /**
+     * @return the new authentication Key, as a String array
+     * @throws IOException
+     */
+    public String[] getNEWAuthenticationKeys() throws IOException {
 		if(this.properties.containsKey(NEW_AUTHENTICATION_KEY)){
-			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_AUTHENTICATION_KEY));
+            return new String[]{this.properties.getProperty(NEW_AUTHENTICATION_KEY)};
 		}
 		throw new IllegalArgumentException("New authenticationKey is not correctly filled in.");
 	}
 
 	/**
-	 * @return the new Global Key
+     * @return the new encryption Key
 	 */
 	public byte[] getNEWGlobalKey() throws IOException {
+        return DLMSUtils.hexStringToByteArray(getNEWGlobalKeys()[0]);
+    }
+
+    /**
+     * @return the new encryption Key, as a String array
+     * @throws IOException
+     */
+    public String[] getNEWGlobalKeys() throws IOException {
 		if(this.properties.containsKey(NEW_GLOBAL_KEY)){
-			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_GLOBAL_KEY));
+            return new String[]{this.properties.getProperty(NEW_GLOBAL_KEY)};
 		}
 		throw new IllegalArgumentException("New globalKey is not correctly filled in.");
 	}
-
 	/**
 	 * @return the new HLS secret
 	 */

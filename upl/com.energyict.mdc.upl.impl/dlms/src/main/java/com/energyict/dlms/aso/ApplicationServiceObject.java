@@ -1,13 +1,10 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.AssociationSN;
-import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.*;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -101,7 +98,7 @@ public class ApplicationServiceObject {
      * Depending on the securityLevel encrypted challenges will be used to authenticate the client and server
      * If aarqTimeout is not 0, use it to receive the AARE. Else, use the 'normal' timeout.
      */
-    public void createAssociation(int aarqTimeout) throws IOException, DLMSConnectionException {
+    public void createAssociation(int aarqTimeout) throws IOException {
         byte[] request = this.acse.createAssociationRequest();
         int normalTimeout = this.protocolLink.getDLMSConnection().getTimeout();
         if (isConfirmedAssociation()) {
@@ -133,7 +130,7 @@ public class ApplicationServiceObject {
         }
     }
 
-    public void createAssociation() throws IOException, DLMSConnectionException {
+    public void createAssociation() throws IOException {
         createAssociation(0);
     }
 
@@ -147,7 +144,7 @@ public class ApplicationServiceObject {
      *
      * @throws IOException
      */
-    protected void handleHighLevelSecurityAuthentication() throws IOException, DLMSConnectionException {
+    protected void handleHighLevelSecurityAuthentication() throws IOException {
         byte[] decryptedResponse;
         byte[] plainText;
 
@@ -213,7 +210,7 @@ public class ApplicationServiceObject {
      * @param encryptedResponse is the response from the server to the reply_to_HLS_authentication
      * @throws IOException if the two challenges don't match, or if the HLSSecret could be supplied, if it's not a valid algorithm or when there is no callingAuthenticationvalue
      */
-    protected void analyzeDecryptedResponse(byte[] encryptedResponse) throws IOException, DLMSConnectionException {
+    protected void analyzeDecryptedResponse(byte[] encryptedResponse) throws IOException {
 
         byte[] cToSEncrypted;
         // We have to make a distinction between the response from HLS5_GMAC or one of the below ones.

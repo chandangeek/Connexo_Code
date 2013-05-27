@@ -3,13 +3,10 @@
  */
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.*;
+
+import java.io.IOException;
 
 /**
  * @author gna
@@ -18,7 +15,7 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
  * GNA |26012009| Extended the object with all getters and setters for all attributes
  * 				NOTE: check the executedScript, it is possible that you have to use a ScriptTable object instead of a Structure
  */
-public class SingleActionSchedule extends AbstractCosemObject{
+public class SingleActionSchedule extends AbstractCosemObject {
 
 	/** Attributes */
 //	private ScriptTable executedScript = null;
@@ -46,9 +43,9 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	/**
 	 * Get the latest retrieved executedScript
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Structure getExecutedScript() throws IOException{
+	public Structure getExecutedScript() throws IOException {
 		if(this.executedScript == null){
 			readExecutedScript(); // do a dummy read
 		}
@@ -58,9 +55,9 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	/**
 	 * Read the executedScript from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Structure readExecutedScript() throws IOException{
+	public Structure readExecutedScript() throws IOException {
 		this.executedScript = new Structure(getLNResponseData(ATTRB_EXECUTED_SCRIPT), 0, 0);
 		return this.executedScript;
 	}
@@ -68,9 +65,9 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	/**
 	 * Get the latest retrieved type
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public TypeEnum getType() throws IOException{
+	public TypeEnum getType() throws IOException {
 		if(this.type == null){
 			readType();	// do a dummy read
 		}
@@ -80,9 +77,9 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	/**
 	 * Read the type from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public TypeEnum readType() throws IOException{
+	public TypeEnum readType() throws IOException {
 		this.type = new TypeEnum(getLNResponseData(ATTRB_TYPE), 0);
 		return this.type;
 	}
@@ -90,9 +87,9 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	/**
 	 * Write a type to the device
 	 * @param type
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeType(TypeEnum type) throws IOException{
+	public void writeType(TypeEnum type) throws IOException {
 		write(ATTRB_TYPE, type.getBEREncodedByteArray());
 		this.type = type;
 	}
@@ -100,9 +97,9 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	/**
 	 * Write a specific scriptStructure to the device
 	 * @param script
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeExecutedScript(Structure script) throws IOException{
+	public void writeExecutedScript(Structure script) throws IOException {
 		write(ATTRB_EXECUTED_SCRIPT, script.getBEREncodedByteArray());
 		this.executedScript = script;
 	}
@@ -110,11 +107,11 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	/**
 	 * Reads the executionTime from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Array getExecutionTime() throws IOException {
 		if (executionTime == null){
-			executionTime = (Array)AXDRDecoder.decode(getLNResponseData(ATTRB_EXECUTION_TIME));
+			executionTime = (Array) AXDRDecoder.decode(getLNResponseData(ATTRB_EXECUTION_TIME));
 		}
 		return executionTime;
 	}
@@ -122,7 +119,7 @@ public class SingleActionSchedule extends AbstractCosemObject{
 	/**
 	 * Writes an Array of possible executionTime STRUCTURES.
 	 * @param executionTime
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
     public void writeExecutionTime(Array executionTime) throws IOException {
         write(ATTRB_EXECUTION_TIME, executionTime.getBEREncodedByteArray());

@@ -2,9 +2,7 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 
@@ -12,7 +10,7 @@ import java.io.IOException;
 
 /**
  * This {@link AbstractCosemObject} with class_id 25 allows to model and
- * configure communication channels according to EN13757-2 'M-Bus' Several
+ * configure communication channels according to EN13757-2 �M-Bus� Several
  * communication channels can be configured.
  *
  * @author jme
@@ -27,11 +25,11 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	private static final int	ATTRB_ADDRESS_STATE			= 0x18;
 	private static final int	ATTRB_BUS_ADDRESS			= 0x20;
 
-	private OctetString			logicalName					= null;
-	private TypeEnum			defaultBaudRate				= null;
-	private TypeEnum			availableBaudRates			= null;
-	private TypeEnum			addressState				= null;
-	private Unsigned8			busAddress					= null;
+	private OctetString logicalName					= null;
+	private TypeEnum defaultBaudRate				= null;
+	private TypeEnum availableBaudRates			= null;
+	private TypeEnum addressState				= null;
+	private Unsigned8 busAddress					= null;
 
 	/**
 	 * Creates a new instance of MBusSlavePortSetup
@@ -44,7 +42,7 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	}
 
 	/**
-	 * Get the default {@link ObisCode} of the object
+	 * Get the default {@link com.energyict.obis.ObisCode} of the object
 	 * @return
 	 */
 	public static ObisCode getDefaultObisCode() {
@@ -57,9 +55,9 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	}
 
 	/**
-	 * Identifies the 'M-Bus Port setup object instance.
+	 * Identifies the �M-Bus Port setup object instance.
 	 *
-	 * @return the logical name as {@link OctetString}
+	 * @return the logical name as {@link com.energyict.dlms.axrdencoding.OctetString}
 	 */
 	public OctetString getLogicalName() {
 		try {
@@ -71,7 +69,7 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	/**
 	 * Defines the baud rate for the opening sequence
 	 *
-	 * @return the default baud rate as {@link TypeEnum}
+	 * @return the default baud rate as {@link com.energyict.dlms.axrdencoding.TypeEnum}
 	 */
 	public TypeEnum getDefaultBaudRate() {
 		try {
@@ -83,7 +81,7 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	/**
 	 * Defines the baud rates that can be negotiated after startup
 	 *
-	 * @return the available baud rates as {@link TypeEnum}
+	 * @return the available baud rates as {@link com.energyict.dlms.axrdencoding.TypeEnum}
 	 */
 	public TypeEnum getAvailableBaudRates() {
 		try {
@@ -96,8 +94,8 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	 * Defines whether or not the device has been assigned an address since last
 	 * power up of the device.
 	 *
-	 * @return the address state as {@link TypeEnum}
-	 * @throws IOException
+	 * @return the address state as {@link com.energyict.dlms.axrdencoding.TypeEnum}
+	 * @throws java.io.IOException
 	 */
 	public TypeEnum getAddressState() {
 		try {
@@ -109,8 +107,8 @@ public class MBusSlavePortSetup extends AbstractCosemObject implements RegisterR
 	/**
 	 * The currently assigned address on the bus for the device
 	 *
-	 * @return the bus address as {@link Unsigned8}
-	 * @throws IOException
+	 * @return the bus address as {@link com.energyict.dlms.axrdencoding.Unsigned8}
+	 * @throws java.io.IOException
 	 */
 	public Unsigned8 getBusAddress() {
 		try {

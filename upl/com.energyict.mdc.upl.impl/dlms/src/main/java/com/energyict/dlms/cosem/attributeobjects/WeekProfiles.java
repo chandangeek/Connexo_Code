@@ -1,12 +1,10 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
+import com.energyict.dlms.axrdencoding.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned8;
 
 public class WeekProfiles extends Structure {
 

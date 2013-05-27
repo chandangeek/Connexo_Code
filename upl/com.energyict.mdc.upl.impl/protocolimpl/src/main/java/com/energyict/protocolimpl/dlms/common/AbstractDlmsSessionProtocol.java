@@ -11,9 +11,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -33,7 +31,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
 
     protected abstract String readSerialNumber() throws IOException;
 
-    private void validateSerialNumber() throws IOException {
+    protected void validateSerialNumber() throws IOException {
         String eisSerial = getProperties().getSerialNumber().trim();
         String meterSerialNumber = readSerialNumber().trim();
         getLogger().info("Meter serial number [" + meterSerialNumber + "]");
@@ -57,7 +55,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
         ((DlmsProtocolProperties) getProperties()).addProperties(properties);
     }
 
-    protected DlmsSession getSession() {
+    public DlmsSession getSession() {
         return this.session;
     }
 
@@ -89,6 +87,9 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     protected Logger getLogger() {
+        if (this.session == null || this.session.getLogger() == null) {
+            return Logger.getLogger(getClass().getName());
+        }
         return this.session.getLogger();
     }
 

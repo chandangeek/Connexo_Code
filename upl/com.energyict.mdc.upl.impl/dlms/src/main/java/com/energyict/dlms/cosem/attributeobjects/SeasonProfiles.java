@@ -3,16 +3,18 @@
  */
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+
+import java.io.IOException;
+import java.util.Date;
 
 /**
  * A seasonProfile is defined by their starting date and a specific weekProfile to be executed
  */
-public class SeasonProfiles extends Structure{
+public class SeasonProfiles extends Structure implements Comparable {
 
     /** The dataType index of the {@link #seasonProfileName} */
     private static final int indexSeasonProfileName = 0;
@@ -107,6 +109,27 @@ public class SeasonProfiles extends Structure{
         setDataType(indexWeekName, weekName);
 	}
 
+    public Date getSeasonStartDate() {
+        try {
+            AXDRDateTime axdrDateTime = new AXDRDateTime(this.getSeasonStart(), AXDRDateTimeDeviationType.Negative);
+            return axdrDateTime.getValue().getTime();
+        } catch (IOException e) {
+            return new Date(0);
+        }
+    }
 
-
+    /**
+     * Implement comparable to be able to sort the season profile entries
+     */
+    public int compareTo(Object o) {
+        if (o instanceof SeasonProfiles) {
+            SeasonProfiles otherSeasonProfile = ((SeasonProfiles) o);
+            if (this.getSeasonStartDate().before(otherSeasonProfile.getSeasonStartDate())) {
+                return -1;
+            } else if (this.getSeasonStartDate().after(otherSeasonProfile.getSeasonStartDate())) {
+                return 1;
+            }
+        }
+        return 0;
+    }
 }

@@ -10,6 +10,6 @@ public class MBusDevice extends com.energyict.smartmeterprotocolimpl.nta.dsmr40.
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2013-03-12 16:42:27 +0100 (di, 12 mrt 2013) $";
     }
 }

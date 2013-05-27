@@ -1,11 +1,7 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 
 import java.io.IOException;
 
@@ -60,7 +56,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Read the current mode from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public TypeEnum readMode() throws IOException {
 		try{
@@ -73,7 +69,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Get the current mode, if it's not read yet, read if from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public TypeEnum getMode() throws IOException {
 		if(this.mode == null){
@@ -85,7 +81,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Write the given mode to the device
 	 * @param mode
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void writeMode(TypeEnum mode) throws IOException {
 		try{
@@ -103,13 +99,13 @@ public class AutoConnect extends AbstractCosemObject {
 	 * (0)  no auto dialling,
 	 * (1)  auto dialling allowed anytime,
 	 * (2)  auto dialling allowed within the validity time of the calling window,
-	 * (3)  'regular' auto dialling allowed within the validity time of the calling window; 'alarm' initiated auto dialling allowed anytime,
+	 * (3)  �regular� auto dialling allowed within the validity time of the calling window; �alarm� initiated auto dialling allowed anytime,
 	 * (4)  SMS sending via Public Land Mobile Network (PLMN),
 	 * (5)  SMS sending via PSTN,
 	 * (6)  email  sending,
 	 * (200..255)   manufacturer specific modes
 	 * </pre>
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void writeMode(int mode) throws IOException {
 		writeMode(new TypeEnum(mode));
@@ -118,7 +114,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Read the repetition value from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Unsigned8 readRepetitions() throws IOException {
 		try{
@@ -131,7 +127,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Get the repetition value, if it's not read yet, read it from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Unsigned8 getRepetitions() throws IOException {
 		if(this.repetitions == null){
@@ -143,7 +139,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Write the given repetitions to the device
 	 * @param repetitions
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void writeRepetitions(Unsigned8 repetitions) throws IOException {
 		try{
@@ -156,18 +152,18 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Write the given repetitions to the device
 	 * @param repetitions
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeRepetitions(int repetitions) throws IOException{
+	public void writeRepetitions(int repetitions) throws IOException {
 		writeRepetitions(new Unsigned8(repetitions));
 	}
 
 	/**
 	 * Read the repetitionDelay from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Unsigned16 readRepetitionDelay() throws IOException{
+	public Unsigned16 readRepetitionDelay() throws IOException {
 		try{
 			return this.repetitionDelay = new Unsigned16(getLNResponseData(ATTRB_REPETITION_DELAY), 0);
 		} catch (IOException e){
@@ -178,9 +174,9 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Get the repetitionDelay, if it's not read yet, read it from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Unsigned16 getRepetitionDelay() throws IOException{
+	public Unsigned16 getRepetitionDelay() throws IOException {
 		if(this.repetitionDelay == null){
 			return readRepetitionDelay();
 		}
@@ -190,9 +186,9 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Write the given repetitionDelay to the device
 	 * @param repetitionDelay
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeRepetitionDelay(Unsigned16 repetitionDelay) throws IOException{
+	public void writeRepetitionDelay(Unsigned16 repetitionDelay) throws IOException {
 		try{
 			write(ATTRB_REPETITION_DELAY, repetitionDelay.getBEREncodedByteArray());
 		} catch(IOException e){
@@ -203,7 +199,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Write the given repetitionDelay to the device
 	 * @param repetitionDelay
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void writeRepetitionDelay(int repetitionDelay) throws IOException {
 		writeRepetitionDelay(new Unsigned16(repetitionDelay));
@@ -212,9 +208,9 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Read the callingWindow array from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Array readCallingWindow() throws IOException{
+	public Array readCallingWindow() throws IOException {
 		try{
 			return this.callingWindow = new Array(getLNResponseData(ATTRB_CALLING_WINDOW), 0, 0);
 		} catch (IOException e){
@@ -225,7 +221,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Get the callingWindow, if it's not read yet, read it from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Array getCallingWindow() throws IOException {
 		if(this.callingWindow == null){
@@ -237,9 +233,9 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Write the given callingWindow to the device
 	 * @param callingWindow
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeCallingWindow(Array callingWindow) throws IOException{
+	public void writeCallingWindow(Array callingWindow) throws IOException {
 		try{
 			write(ATTRB_CALLING_WINDOW, callingWindow.getBEREncodedByteArray());
 		}catch (IOException e){
@@ -250,9 +246,9 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Read the destinationList from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Array readDestinationList() throws IOException{
+	public Array readDestinationList() throws IOException {
 		try{
 			return this.destinationList = new Array(getLNResponseData(ATTRB_DESTINATION_LIST), 0, 0);
 		}catch (IOException e){
@@ -263,9 +259,9 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Get the destinationList, if it's not read yet, read it from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Array getDestinationList() throws IOException{
+	public Array getDestinationList() throws IOException {
 		if(this.destinationList == null){
 			return readDestinationList();
 		}
@@ -275,9 +271,9 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Write the given destinationList to the device
 	 * @param destinationList
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeDestinationList(Array destinationList) throws IOException{
+	public void writeDestinationList(Array destinationList) throws IOException {
 		try{
 			write(ATTRB_DESTINATION_LIST, destinationList.getBEREncodedByteArray());
 		} catch (IOException e){
@@ -288,7 +284,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Add a phone or email address to the destinationList
 	 * @param number
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void addNumberToDestinationList(OctetString number) throws IOException {
 		try{
@@ -302,7 +298,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Add a phone or email address to the destinationList
 	 * @param number
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void addNumberToDestinationList(String number) throws IOException {
 		addNumberToDestinationList(OctetString.fromString(number));
@@ -311,7 +307,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Delete a phone or email address from the destinationList
 	 * @param number
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void deleteFromDestinationList(OctetString number) throws IOException {
 		try{
@@ -330,7 +326,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Delete a phone or email address from the destinationList
 	 * @param number
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void deleteFromDestinationList(String number) throws IOException {
 		deleteFromDestinationList(OctetString.fromString(number));
@@ -339,7 +335,7 @@ public class AutoConnect extends AbstractCosemObject {
 	/**
 	 * Clear the complete whiteList in the device
 	 * (added this because it's not possible to show the list in eiserver...
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void clearWhiteList() throws IOException {
 		Array temp = new Array();
@@ -349,7 +345,7 @@ public class AutoConnect extends AbstractCosemObject {
 
 	/**
 	 * Write the updated phoneList to the device
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void updatePhoneList() throws IOException {
 		writeDestinationList(getDestinationList());

@@ -35,7 +35,7 @@ public class PrivacyEnhancingDataAggregation extends AbstractCosemObject impleme
 
     @Override
     protected int getClassId() {
-        return DLMSClassId.PRIVACY_ENHANCING_DATA_AGGREGATION.getClassId();
+        return DLMSClassId.MANUFACTURER_SPECIFIC_8194.getClassId();
     }
 
     public long getValue() throws IOException {
@@ -84,7 +84,7 @@ public class PrivacyEnhancingDataAggregation extends AbstractCosemObject impleme
      * Each key should be 32 bytes long.
      *
      * @param keysOfAggregationGroup list of key pairs
-     * @throws java.io.IOException communication error
+     * @throws java.io.IOException communication error or data access error
      */
     public void setPublicKeysOfAggregationGroup(List<String> keysOfAggregationGroup) throws IOException {
         List<Structure> keyPairs = new ArrayList<Structure>();
@@ -119,8 +119,8 @@ public class PrivacyEnhancingDataAggregation extends AbstractCosemObject impleme
     /**
      * This is the setter for the own public keys.
      *
-     * @param randomNumber 32 random bytes
-     * @throws IOException
+     * @param randomNumber 64 hex characters, forming 32 random bytes
+     * @throws java.io.IOException
      */
     public void generateNewKeyPair(byte[] randomNumber) throws IOException {
         if (randomNumber == null || randomNumber.length != 32) {

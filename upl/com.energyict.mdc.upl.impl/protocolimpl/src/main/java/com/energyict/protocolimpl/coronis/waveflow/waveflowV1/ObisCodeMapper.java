@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow.waveflowV1;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
@@ -28,6 +29,8 @@ public class ObisCodeMapper {
         registerMaps.put(ObisCode.fromString("1.2.82.8.0.0"), "Last Billing period index for input B");
         registerMaps.put(ObisCode.fromString("1.3.82.8.0.0"), "Last Billing period index for input C");
         registerMaps.put(ObisCode.fromString("1.4.82.8.0.0"), "Last Billing period index for input D");
+
+        registerMaps.put(CommonObisCodeMapper.OBISCODE_RELAYED_FRAMES, "Number of relayed frames and alarm frames transmitted");     //Waveflow V1 433 MHz repeaters only
     }
 
     private WaveFlowV1 waveFlowV1;
@@ -88,8 +91,10 @@ public class ObisCodeMapper {
                 BigDecimal lastMonthsIndexValue = new BigDecimal(pulseWeight.getWeight() * value);
                 Date toDate = extendedIndexReadingConfiguration.getDateOfLastMonthsEnd();
                 return new RegisterValue(obisCode, new Quantity(lastMonthsIndexValue, pulseWeight.getUnit()), toDate, toDate);
+            } else if (CommonObisCodeMapper.OBISCODE_RELAYED_FRAMES.equals(obisCode)) {
+                int value = waveFlowV1.getParameterFactory().readNumberOfRelayedFramesV1() * 256;
+                return new RegisterValue(obisCode, new Quantity(value, Unit.get("")), new Date());
             }
-
             // Other cases
             else {
                 return waveFlowV1.getCommonObisCodeMapper().getRegisterValue(obisCode);

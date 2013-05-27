@@ -1,8 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
-import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.*;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.protocol.HHUEnabler;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
@@ -15,13 +18,43 @@ import java.io.IOException;
  * Date: 13-okt-2011
  * Time: 12:04:50
  */
-public class E350 extends AbstractSmartDSMR40NtaProtocol {
+public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
 
     private LoadProfileBuilder loadProfileBuilder;
 
     @Override
     public String getVersion() {
         return "$Date$";
+    }
+
+    /**
+     * Get the equipment identifier (serves as a unique serial number) of the device
+     */
+    public String getMeterSerialNumber() throws IOException {
+        try {
+            return getMeterInfo().getEquipmentIdentifier();
+        } catch (DataAccessResultException e) {
+            getLogger().warning("Could not retrieve the equipment identifier of the meter. " + e.getMessage());
+            getLogger().warning("Moving on without validating the equipment identifier.");
+            return "";
+        } catch (IOException e) {
+            String message = "Could not retrieve the equipment identifier of the meter. " + e.getMessage();
+            getLogger().warning(message);
+            throw e;
+        }
+    }
+
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
+        try {
+            getDlmsSession().init();
+        } catch (IOException e) {
+            getLogger().warning("Failed while initializing the DLMS connection.");
+        }
+        HHUSignOn hhuSignOn = (HHUSignOn) new IEC1107HHUConnection(commChannel, getProperties().getTimeout(), getProperties().getRetries(), 300, 0);
+        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);                                  //HDLC:         9600 baud, 8N1
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
+        hhuSignOn.enableDataReadout(datareadout);
+        getDlmsSession().getDLMSConnection().setHHUSignOn(hhuSignOn, "P07210", 0);      //IEC1107:      300 baud, 7E1
     }
 
     /**
@@ -57,11 +90,6 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol {
             this.loadProfileBuilder = new LGLoadProfileBuilder(this);
         }
         return loadProfileBuilder;
-    }
-
-    @Override
-    public void searchForSlaveDevices() throws ConnectionException {
-        getMeterTopology().searchForSlaveDevices();
     }
 
     /**

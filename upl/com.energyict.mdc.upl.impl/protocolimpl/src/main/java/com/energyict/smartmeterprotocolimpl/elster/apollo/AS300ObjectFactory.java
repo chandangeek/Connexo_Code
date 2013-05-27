@@ -284,4 +284,83 @@ public class AS300ObjectFactory {
         return (ScriptTable) objectMap.get(getObisCodeProvider().getScriptTableObisCode());
     }
 
+    public ProfileGeneric getStandardEventLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getStandardEventLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getStandardEventLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getStandardEventLogObisCode());
+    }
+
+    public ProfileGeneric getPowerQualityFinishedEventLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getPowerQualityFinishedEventLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getPowerQualityFinishedEventLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getPowerQualityFinishedEventLogObisCode());
+    }
+
+    public ProfileGeneric getPowerQualityNotFinishedEventLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getPowerQualityNotFinishedEventLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getPowerQualityNotFinishedEventLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getPowerQualityNotFinishedEventLogObisCode());
+    }
+
+    public ProfileGeneric getFraudDetectionEventLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getFraudDetectionEventLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getFraudDetectionEventLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getFraudDetectionEventLogObisCode());
+    }
+
+    public ProfileGeneric getDemandManagementEventLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getDemandManagementEventLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getDemandManagementEventLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getDemandManagementEventLogObisCode());
+    }
+
+    public ProfileGeneric getCommonEventLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getCommonEventLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getCommonEventLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getCommonEventLogObisCode());
+    }
+
+    public ProfileGeneric getPowerContractEventLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getPowerContractEventLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getPowerContractEventLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getPowerContractEventLogObisCode());
+    }
+
+    public ProfileGeneric getFirmwareEventLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getFirmwareEventLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getFirmwareEventLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getFirmwareEventLogObisCode());
+    }
+
+    public ProfileGeneric getObjectSynchronizationEventLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getObjectSynchronizationEventLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getObjectSynchronizationEventLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getObjectSynchronizationEventLogObisCode());
+    }
+
+    public ProfileGeneric getDisconnectControlLog() {
+        if (!objectMap.containsKey(getObisCodeProvider().getDisconnectControlLogObisCode())) {
+            ObisCode obisCode = getObisCodeProvider().getDisconnectControlLogObisCode();
+            this.objectMap.put(obisCode, new ProfileGeneric(this.meterProtocol, new ObjectReference(obisCode.getLN())));
+        }
+        return (ProfileGeneric) objectMap.get(getObisCodeProvider().getDisconnectControlLogObisCode());
+    }
 }

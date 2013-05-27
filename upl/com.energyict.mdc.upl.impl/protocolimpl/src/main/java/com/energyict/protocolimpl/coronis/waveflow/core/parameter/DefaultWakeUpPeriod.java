@@ -14,7 +14,7 @@ public class DefaultWakeUpPeriod extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.DefaultWakeUpPeriod;
     }
 

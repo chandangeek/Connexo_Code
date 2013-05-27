@@ -2,34 +2,18 @@ package com.energyict.protocolimplv2.nta.dsmr23;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.cosem.AssociationLN;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.SecuritySetup;
-import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
-import com.energyict.dlms.cosem.attributes.DataAttributes;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributes.*;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.EncryptionStatus;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
@@ -39,11 +23,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -125,7 +105,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             } catch (IOException e) {
                 collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e));
             } catch (IndexOutOfBoundsException e) {
-                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e));
+                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.Other, e));
             }
             // ToDo: blocking issues are not caught! When a blocking issue was encountered, it makes no sense to try to read out the other registers!
             // ToDo: maybe wrap all timeout exceptions in DLMSConnectionException & catch them properly?
@@ -157,8 +137,8 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
                     if (uo != null) {
                         if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-                            ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, RegisterAttributes.Register_Value.getAttributeNumber(), uo.getClassID()),
-                                    new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID()));
+                            ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), uo.getClassID()),
+                                    new DLMSAttribute(rObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID()));
                             dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
                             dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
                             this.composedRegisterMap.put(register, composedRegister);
@@ -172,7 +152,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             if (ACTIVITY_CALENDAR.equals(rObisCode) || ACTIVITY_CALENDAR_NAME.equals(rObisCode)) {
                                 this.registerMap.put(register, new DLMSAttribute(ACTIVITY_CALENDAR, ActivityCalendarAttributes.CALENDAR_NAME_ACTIVE.getAttributeNumber(), DLMSClassId.ACTIVITY_CALENDAR.getClassId()));
                             } else if (rObisCode.equals(GSM_SIGNAL_STRENGTH)) {
-                                this.registerMap.put(register, new DLMSAttribute(rObisCode, RegisterAttributes.Register_Value.getAttributeNumber(), DLMSClassId.REGISTER.getClassId()));
+                                this.registerMap.put(register, new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), DLMSClassId.REGISTER.getClassId()));
                             } else if (rObisCode.equals(ISKRA_MBUS_ENCRYPTION_STATUS)) {
                                 this.registerMap.put(register, new DLMSAttribute(rObisCode, DLMSCOSEMGlobals.ATTR_DATA_VALUE, DLMSClassId.DATA.getClassId()));
 

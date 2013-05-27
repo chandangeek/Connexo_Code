@@ -1,26 +1,20 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * @version  1.0
  * @author Koenraad Vanderschaeve
- *         <p/>
+ * <P>
  *         <B>Description :</B><BR>
  *         Class that implements the TCPIP transport layer wrapper protocol.
- * @version 1.0
  */
 
 public class TCPIPConnection extends Connection implements DLMSConnection {
@@ -321,7 +315,6 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 
     /**
      * Method that sends an information data field and receives an information field.
-     *
      * @param data with the information field.
      * @return Response data with the information field.
      */
@@ -358,6 +351,10 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
         return timeout;
     }
 
+    public void setRetries(int retries) {
+        this.maxRetries = retries;
+    }
+
     public byte[] sendRequest(final byte[] encryptedRequest, boolean isAlreadyEncrypted) throws IOException {
         return sendRequest(encryptedRequest);
     }
@@ -389,11 +386,14 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
 
     HHUSignOn hhuSignOn = null;
     String meterId = "";
-
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
         this.hhuSignOn = hhuSignOn;
         this.meterId = meterId;
     }
+
+	public void setHHUSignOn(HHUSignOn hhuSignOn,String meterId, int hhuSignonBaudRateCode) {
+        setHHUSignOn(hhuSignOn, meterId);
+	}
 
     public HHUSignOn getHhuSignOn() {
         return this.hhuSignOn;

@@ -12,7 +12,7 @@ public class WavecardRadioUserTimeout extends AbstractEscapeCommand {
 	int timeout;
 	
 	@Override
-	EscapeCommandId getEscapeCommandId() {
+    EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.RADIO_USER_TIMEOUT;
 	}
 

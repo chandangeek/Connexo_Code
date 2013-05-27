@@ -6,12 +6,11 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.*;
+
 import java.io.IOException;
 
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
 /**
  *
  * @author  Koen
@@ -39,7 +38,7 @@ public class SMTPSetup extends AbstractCosemObject {
     }
     public Unsigned16 readServerPort() throws IOException {
         if (serverPort == null) {
-            serverPort = (Unsigned16)AXDRDecoder.decode(getLNResponseData(2));
+            serverPort = (Unsigned16) AXDRDecoder.decode(getLNResponseData(2));
         }
         return serverPort;
     }
@@ -50,7 +49,7 @@ public class SMTPSetup extends AbstractCosemObject {
     }
     public OctetString readUserName() throws IOException {
         if (userName == null) {
-            userName = (OctetString)AXDRDecoder.decode(getLNResponseData(3));
+            userName = (OctetString) AXDRDecoder.decode(getLNResponseData(3));
         }
         return userName;
     }
@@ -61,7 +60,7 @@ public class SMTPSetup extends AbstractCosemObject {
     }
     public OctetString readLoginPassword() throws IOException {
         if (loginPassword==null) {
-            loginPassword = (OctetString)AXDRDecoder.decode(getLNResponseData(4));
+            loginPassword = (OctetString) AXDRDecoder.decode(getLNResponseData(4));
         }
         return loginPassword;
     }
@@ -73,7 +72,7 @@ public class SMTPSetup extends AbstractCosemObject {
     }
     public OctetString readServerAddress() throws IOException {
         if (serverAddress==null) {
-            serverAddress = (OctetString)AXDRDecoder.decode(getLNResponseData(5));
+            serverAddress = (OctetString) AXDRDecoder.decode(getLNResponseData(5));
         }
         return serverAddress;
     }
@@ -84,7 +83,7 @@ public class SMTPSetup extends AbstractCosemObject {
     }
     public OctetString readSenderAddress() throws IOException {
         if (senderAddress==null) {
-            senderAddress = (OctetString)AXDRDecoder.decode(getLNResponseData(6));
+            senderAddress = (OctetString) AXDRDecoder.decode(getLNResponseData(6));
         }
         return senderAddress;
     }

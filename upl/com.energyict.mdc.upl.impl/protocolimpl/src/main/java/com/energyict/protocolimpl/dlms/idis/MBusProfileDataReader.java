@@ -4,7 +4,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
@@ -24,6 +23,7 @@ public class MBusProfileDataReader extends ProfileDataReader {
 
     private static ObisCode MBUS_EVENT_LOG = ObisCode.fromString("0.0.99.98.3.255");
     private static ObisCode MBUS_CONTROL_LOG = ObisCode.fromString("0.0.24.5.0.255");
+    private List<ChannelInfo> channelInfo = null;
 
     public MBusProfileDataReader(IDIS idis) {
         super(idis);
@@ -41,11 +41,12 @@ public class MBusProfileDataReader extends ProfileDataReader {
     }
 
     protected List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects) throws IOException {
+        if (channelInfo == null) {
         List<ChannelInfo> infos = new ArrayList<ChannelInfo>();
         int counter = 0;
 
         for (CapturedObject capturedObject : capturedObjects) {
-            if (capturedObject.getClassId() == DLMSClassId.REGISTER.getClassId()) {
+                if (isChannel(capturedObject)) {
                 ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
                 Quantity quantity = idis.readRegister(obisCode).getQuantity();
                 Unit unit = Unit.get("");
@@ -53,11 +54,19 @@ public class MBusProfileDataReader extends ProfileDataReader {
                     unit = quantity.getUnit();
                 }
 
-                infos.add(new ChannelInfo(counter, obisCode.toString(), unit));
+                    ChannelInfo channelInfo = new ChannelInfo(counter, obisCode.toString(), unit);
+                    if (isCumulative(capturedObject)) {
+                        channelInfo.setCumulative();
+                    }
+                    infos.add(channelInfo);
+
+                    idis.getLogger().info("Channel " + counter + ": " + obisCode.toString() + ", unit: " + unit.toString() + ", cumulative: " + (channelInfo.isCumulative() ? "yes" : "no"));
                 counter++;
             }
         }
-        return infos;
+            channelInfo = infos;
+        }
+        return channelInfo;
     }
 
     private List<MeterEvent> getMBusControlLog(Calendar fromCal, Calendar toCal) {

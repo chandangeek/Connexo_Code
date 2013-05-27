@@ -51,10 +51,10 @@ public class Data extends AbstractCosemObject implements CosemObject {
     }
 
     /**
-     * Get the value attribute as text value. The text is actually the value represented as a {@link DataContainer}.
+     * Get the value attribute as text value. The text is actually the value represented as a {@link com.energyict.dlms.DataContainer}.
      *
      * @return The attribute value as text.
-     * @throws IOException If there was an error during the readout of the value attribute
+     * @throws java.io.IOException If there was an error during the readout of the value attribute
      * @see com.energyict.dlms.DataContainer#getText(java.lang.String)
      */
     public String getText() throws IOException {
@@ -63,12 +63,12 @@ public class Data extends AbstractCosemObject implements CosemObject {
 
     /**
      * Try to read the billing date from the value attribute. This method assumes that
-     * the value attribute contains a date, represented as an {@link OctetString}. If this
+     * the value attribute contains a date, represented as an {@link com.energyict.dlms.OctetString}. If this
      * is not the case, the method will throw an exception.
      *
      * @return The billing date
-     * @throws IOException If there was an error while reading the value or the value did not
-     *                     contain an date encoded as {@link OctetString}
+     * @throws java.io.IOException If there was an error while reading the value or the value did not
+     *                     contain an date encoded as {@link com.energyict.dlms.OctetString}
      */
     public Date getBillingDate() throws IOException {
         return getDataContainer().getRoot().getOctetString(0).toDate(protocolLink.getTimeZone());
@@ -79,7 +79,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
      * The Data object has no capture time. This will always return null
      *
      * @return null, because the data object has no capture time
-     * @throws IOException This method will never throw an IOException because there is no capture time to read from the device
+     * @throws java.io.IOException This method will never throw an IOException because there is no capture time to read from the device
      */
     public Date getCaptureTime() throws IOException {
         return null;
@@ -102,7 +102,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
      * The Data object has no scaler or unit. This will always return a unit less value with a scaler 0
      *
      * @return
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public ScalerUnit getScalerUnit() throws IOException {
         return new ScalerUnit(Unit.get(BaseUnit.UNITLESS));
@@ -113,7 +113,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
      * attribute contains an integer, long or a string that represents a long, and will throw an IOException if this is not the case.
      *
      * @return The long value of the value attribute
-     * @throws IOException if there was an error reading the data or if the value was not convertible to a long value
+     * @throws java.io.IOException if there was an error reading the data or if the value was not convertible to a long value
      */
     public long getValue() throws IOException {
         DataStructure root = getDataContainer().getRoot();
@@ -137,7 +137,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
      * the value attribute contains a string value, and will throw an IOException if this is not the case.
      *
      * @return The string value of the value attribute
-     * @throws IOException if there was an error reading the data or if the value was not a string value
+     * @throws java.io.IOException if there was an error reading the data or if the value was not a string value
      */
     public String getString() throws IOException {
         DataContainer dataContainer = getDataContainer();
@@ -154,7 +154,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
      * A more common method to read the value attribute is {@link Data#getValueAttr()}.
      *
      * @return the raw AXDR encoded binary data
-     * @throws IOException if there was an error reading the data
+     * @throws java.io.IOException if there was an error reading the data
      * @see Data#getValueAttr()
      * @see Data#getDataContainer()
      */
@@ -167,7 +167,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
      * This should be the most used method to retrieve the contents of the value attribute
      *
      * @return the raw AXDR encoded binary data
-     * @throws IOException if there was an error reading the data
+     * @throws java.io.IOException if there was an error reading the data
      * @see Data#getRawValueAttr()
      * @see Data#getDataContainer()
      */
@@ -179,7 +179,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
      * Read the Data object's value attribute and return it as a DataContainer object
      *
      * @return DataContainer object, containing the value of this Data object
-     * @throws IOException if there was an error reading the data
+     * @throws java.io.IOException if there was an error reading the data
      * @see Data#getValueAttr()
      */
     public DataContainer getDataContainer() throws IOException {
@@ -192,7 +192,7 @@ public class Data extends AbstractCosemObject implements CosemObject {
      * Write a new value to the vallue attribute of this {@link Data} object.
      *
      * @param value The new dlms {@link com.energyict.dlms.axrdencoding.AbstractDataType} to write to the value attribute. The value cannot be null.
-     * @throws IOException if there was an error writing the data
+     * @throws java.io.IOException if there was an error writing the data
      * @see Data#getValueAttr()
      */
     public void setValueAttr(AbstractDataType value) throws IOException {
@@ -205,6 +205,16 @@ public class Data extends AbstractCosemObject implements CosemObject {
         } catch (IOException e) {
             return "data retrieving error! " + e.getMessage();
         }
+    }
+
+    public <T extends AbstractDataType> T getValueAttr(Class<T> expectedClass) throws IOException {
+        final AbstractDataType valueAttr = getValueAttr();
+        if (valueAttr == null) {
+            throw new IOException("Received 'null' while reading data value as [" + expectedClass.getSimpleName() + "].");
+        } else if (!valueAttr.getClass().getName().equalsIgnoreCase(expectedClass.getName())) {
+            throw new IOException("Received invalid class [" + valueAttr.getClass().getSimpleName() + "] while reading data value. Expected [" + expectedClass.getSimpleName() + "].");
+        }
+        return (T) valueAttr;
     }
 
 }

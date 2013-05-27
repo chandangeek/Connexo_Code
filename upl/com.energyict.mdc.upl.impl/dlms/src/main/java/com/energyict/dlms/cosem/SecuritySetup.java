@@ -6,7 +6,7 @@ import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 
-public class SecuritySetup extends AbstractCosemObject{
+public class SecuritySetup extends AbstractCosemObject {
 
 	static final byte[] LN=new byte[]{0,0,43,0,0,(byte)255};
 
@@ -45,9 +45,9 @@ public class SecuritySetup extends AbstractCosemObject{
 	/**
 	 * Read the current securityPolicy from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public TypeEnum readSecurityPolicy() throws IOException{
+	public TypeEnum readSecurityPolicy() throws IOException {
 		try {
 			this.securityPolicy = new TypeEnum(getLNResponseData(ATTRB_SECURITY_POLICY), 0);
 			return this.securityPolicy;
@@ -60,9 +60,9 @@ public class SecuritySetup extends AbstractCosemObject{
 	/**
 	 * Write the given securityPolicy to the device
 	 * @param securityPolicy
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeSecurityPolicy(TypeEnum securityPolicy) throws IOException{
+	public void writeSecurityPolicy(TypeEnum securityPolicy) throws IOException {
 		try {
 			write(ATTRB_SECURITY_POLICY, securityPolicy.getBEREncodedByteArray());
 		} catch (IOException e) {
@@ -72,7 +72,7 @@ public class SecuritySetup extends AbstractCosemObject{
 	}
 	/**
 	 * @return the current securityPolicy
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public TypeEnum getSecurityPolicy() throws IOException {
 		if(this.securityPolicy == null){
@@ -85,9 +85,9 @@ public class SecuritySetup extends AbstractCosemObject{
 	/**
 	 * Read the current securitySuite from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public TypeEnum readSecuritySuite() throws IOException{
+	public TypeEnum readSecuritySuite() throws IOException {
 		try{
 			this.securitySuite = new TypeEnum(getLNResponseData(ATTRB_SECURITY_SUITE),0);
 			return this.securitySuite;
@@ -98,9 +98,9 @@ public class SecuritySetup extends AbstractCosemObject{
 	}
 	/**
 	 * @return the current securitySuite
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public TypeEnum getSecuritySuite() throws IOException{
+	public TypeEnum getSecuritySuite() throws IOException {
 		if(this.securitySuite == null){
 			return readSecuritySuite();
 		} else {
@@ -110,9 +110,9 @@ public class SecuritySetup extends AbstractCosemObject{
 	/**
 	 * Write the given securitySuite to the device
 	 * @param securitySuite
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeSecuritySuite(TypeEnum securitySuite) throws IOException{
+	public void writeSecuritySuite(TypeEnum securitySuite) throws IOException {
 		try {
 			write(ATTRB_SECURITY_SUITE, securitySuite.getBEREncodedByteArray());
 		} catch (IOException e) {
@@ -123,7 +123,7 @@ public class SecuritySetup extends AbstractCosemObject{
 
 	/**
 	 * @return the current clientSystem title
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public OctetString readClientSystemTitle() throws IOException {
 		try{
@@ -137,7 +137,7 @@ public class SecuritySetup extends AbstractCosemObject{
 
 	/**
 	 * @return the serverSystem title
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public OctetString readServerSystemTitle() throws IOException {
 		try{
@@ -161,7 +161,7 @@ public class SecuritySetup extends AbstractCosemObject{
 	 * </pre>
 	 *
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public byte[] activateSecurity(TypeEnum securityPolicy) throws IOException {
 		try {
@@ -177,7 +177,7 @@ public class SecuritySetup extends AbstractCosemObject{
 	 * The global keys must be wrapped with the MasterKey
 	 * @param keyData
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public byte[] transferGlobalKey(Array keyData) throws IOException {
 		try{

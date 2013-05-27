@@ -8,7 +8,8 @@ public enum PrivacyEnhancingDataAggregationAttributes implements DLMSClassAttrib
 
     LOGICAL_NAME(1, 0x00),
     OWN_PUBLIC_KEY(2, 0x08),
-    PUBLIC_KEYS_OF_AGGREGATION_GROUP(3, 0x10);
+    MAX_GROUP_SIZE(3, 0x10),
+    PUBLIC_KEYS_OF_AGGREGATION_GROUP(4, 0x18);
 
     /**
      * The number of this attribute
@@ -40,7 +41,7 @@ public enum PrivacyEnhancingDataAggregationAttributes implements DLMSClassAttrib
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.PRIVACY_ENHANCING_DATA_AGGREGATION;
+        return DLMSClassId.MANUFACTURER_SPECIFIC_8194;
     }
 
     /**

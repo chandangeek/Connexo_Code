@@ -35,6 +35,7 @@ abstract class AbstractEscapeCommand {
 		 */
 		USE_SEND_FRAME(0x20,"Use the SEND_FRAME command"),
 		USE_SEND_MESSAGE(0x22,"Use the SEND_MESSAGE command"),
+		USE_SERVICE_REQUEST(0x83,"Use the SERVICE_REQUEST command"),
 
 
 		/****************************************************************************************************************************
@@ -75,7 +76,7 @@ abstract class AbstractEscapeCommand {
 		}
 		
 		public String toString() {
-			return "EscapeCommandId="+description+" ["+Integer.toHexString(id)+"]";
+			return "EscapeCommandId="+description+" ["+ Integer.toHexString(id)+"]";
 		}				
 	}
 	
@@ -109,8 +110,8 @@ abstract class AbstractEscapeCommand {
 			byte[] escapeData = baos.toByteArray();
 			byte[] data = getProtocolStackLink().sendEscapeData(escapeData);
 			
-			if (WaveflowProtocolUtils.toInt(data[0]) != 0) { 
-				throw new EscapeCommandException("Error invoking the escape sequence. Returned ["+WaveflowProtocolUtils.toInt(data[0])+"] for escape sequence ["+ProtocolUtils.outputHexString(escapeData)+"]");
+			if (WaveflowProtocolUtils.toInt(data[0]) != 0) {
+				throw new EscapeCommandException("Error invoking the escape sequence. Returned ["+ WaveflowProtocolUtils.toInt(data[0])+"] for escape sequence ["+ ProtocolUtils.outputHexString(escapeData)+"]");
 			}
 			
 			parse(ProtocolUtils.getSubArray(data, 1));

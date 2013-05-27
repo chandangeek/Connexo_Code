@@ -10,7 +10,7 @@ public class ModuleType extends AbstractRadioCommand {
         super(waveFlow);
     }
 
-    ModuleType(WaveFlow waveFlow, int rssiLevel) {
+    public ModuleType(WaveFlow waveFlow, int rssiLevel) {
         super(waveFlow);
         this.rssiLevel = rssiLevel;
     }

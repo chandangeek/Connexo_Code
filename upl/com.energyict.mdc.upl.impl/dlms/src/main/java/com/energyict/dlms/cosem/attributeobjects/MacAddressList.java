@@ -15,7 +15,7 @@ public class MacAddressList extends AbstractPrintableArray<MacAddress> {
 	 * @param berEncodedData
 	 * @param offset
 	 * @param level
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public MacAddressList(byte[] berEncodedData, int offset, int level) throws IOException {
 		super(berEncodedData, offset, level);

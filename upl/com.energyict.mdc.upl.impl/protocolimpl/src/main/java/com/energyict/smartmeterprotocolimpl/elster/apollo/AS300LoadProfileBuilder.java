@@ -1,34 +1,18 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileConfigurationException;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -42,12 +26,12 @@ public class AS300LoadProfileBuilder {
     private List<LoadProfileConfiguration> loadProfileConfigurationList;
     private Map<Register, DLMSAttribute> registerUnitMap = new HashMap<Register, DLMSAttribute>();
     private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<LoadProfileReader, ComposedProfileConfig>();
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
     private Map<LoadProfileReader, List<Register>> capturedObjectRegisterListMap = new HashMap<LoadProfileReader, List<Register>>();
-    private Map<ObisCode, List<CapturedObject>> capturedObjectsToRequest = new HashMap<ObisCode, List<CapturedObject>>();
-    private AS300 meterProtocol;
-    private Map<LoadProfileReader, ProfileMasks> masks = new HashMap<LoadProfileReader, ProfileMasks>();
-
+    protected Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
+    protected Map<ObisCode, List<CapturedObject>> capturedObjectsToRequest = new HashMap<ObisCode, List<CapturedObject>>();
+    protected Map<LoadProfileReader, ProfileMasks> masks = new HashMap<LoadProfileReader, ProfileMasks>();
+    protected Map<ObisCode, List<CapturedObject>> capturedObjectsMap = new HashMap<ObisCode, List<CapturedObject>>();
+    protected AS300 meterProtocol;
 
     public AS300LoadProfileBuilder(AS300 meterProtocol) {
         this.meterProtocol = meterProtocol;
@@ -97,7 +81,7 @@ public class AS300LoadProfileBuilder {
                 ObisCode rObisCode = register.getObisCode();
                 UniversalObject uo = new UniversalObject(rObisCode.getLN(), RegisterReader.getClassId(rObisCode).getClassId(), 0);
                 if (isRegisterClass(uo)) {
-                    DLMSAttribute registerUnit = new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
+                    DLMSAttribute registerUnit = new DLMSAttribute(rObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID());
                     dlmsAttributes.add(registerUnit);
                     this.registerUnitMap.put(register, registerUnit);
                 } else if (isDemandRegisterClass(uo)) {            //Because the unit is attribute 4 for demand registers!
@@ -187,7 +171,7 @@ public class AS300LoadProfileBuilder {
         return profileDataList;
     }
 
-    private LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
+    protected LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
         for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
             if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
                 return lpc;
@@ -196,11 +180,10 @@ public class AS300LoadProfileBuilder {
         return null;
     }
 
-    private boolean isDataObisCode(ObisCode obisCode) {
+    protected boolean isDataObisCode(ObisCode obisCode) {
         boolean isDataObisCode = true;
         return !Clock.getDefaultObisCode().equals(obisCode) && isDataObisCode;
     }
-
 
     private List<Register> createCapturedObjectRegisterList(ComposedCosemObject ccoLpConfigs) throws IOException {
         List<Register> channelRegisters = new ArrayList<Register>();
@@ -214,6 +197,7 @@ public class AS300LoadProfileBuilder {
                     dc.parseObjectList(ccoLpConfigs.getAttribute(cpc.getLoadProfileCapturedObjects()).getBEREncodedByteArray(), this.meterProtocol.getLogger());
                     ProfileGeneric pg = new ProfileGeneric(this.meterProtocol.getDlmsSession(), null);
                     List<CapturedObject> capturedObjects = pg.getCapturedObjectsFromDataContainter(dc);
+                    capturedObjectsMap.put(lpr.getProfileObisCode(), capturedObjects);  //Remember the captured_objects of this LP
                     List<Register> coRegisters = new ArrayList<Register>();
                     List<CapturedObject> relevantObjects = new ArrayList<CapturedObject>();
                     for (CapturedObject co : capturedObjects) {
@@ -227,7 +211,7 @@ public class AS300LoadProfileBuilder {
                         } else if (isStatus(co.getLogicalName().getObisCode())) {
                             relevantObjects.add(co);
                             statusMask = DLMSProfileIntervals.DefaultStatusMask;
-                        } else if (co.getClassId() == DLMSClassId.CLOCK.getClassId()) {
+                        } else if (isClock(co)) {
                             relevantObjects.add(co);
                             clockMask = DLMSProfileIntervals.DefaultClockMask;
                         }
@@ -243,7 +227,11 @@ public class AS300LoadProfileBuilder {
         return channelRegisters;
     }
 
-    private boolean isStatus(ObisCode obisCode) {
+    protected boolean isClock(CapturedObject co) {
+        return co.getClassId() == DLMSClassId.CLOCK.getClassId();
+    }
+
+    protected boolean isStatus(ObisCode obisCode) {
         return AS300ObisCodeProvider.LoadProfileStatus30Min.equals(obisCode) || AS300ObisCodeProvider.LoadProfileStatusP2.equals(obisCode);
     }
 
@@ -278,7 +266,7 @@ public class AS300LoadProfileBuilder {
         return null;
     }
 
-    private class ProfileMasks{
+    protected class ProfileMasks {
         private final int clockMask;
         private final int statusMask;
 

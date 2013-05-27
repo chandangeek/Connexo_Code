@@ -34,7 +34,7 @@ public class WireCutDetectionDate extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         switch (inputChannel) {
             case 0: return ParameterId.WireCutDetectionDateInputA;
             case 1: return ParameterId.WireCutDetectionDateInputB;

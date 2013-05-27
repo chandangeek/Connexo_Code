@@ -55,6 +55,10 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.DISCONNECT_LOAD.equals(qName)){
 			setType(RtuMessageConstant.DISCONNECT_LOAD);
 			handleDisconnectLoad(attrbs);
+        } else if(RtuMessageConstant.REMOTE_CONNECT.equals(qName)){
+			setType(RtuMessageConstant.CONNECT_LOAD);
+		} else if(RtuMessageConstant.REMOTE_DISCONNECT.equals(qName)){
+			setType(RtuMessageConstant.DISCONNECT_LOAD);
 		} else if(RtuMessageConstant.CONNECT_CONTROL_MODE.equals(qName)){
 			setType(RtuMessageConstant.CONNECT_CONTROL_MODE);
 			handleConnectControlMode(attrbs);
@@ -102,8 +106,13 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.TEST_MESSAGE.equals(qName)){
 			setType(RtuMessageConstant.TEST_MESSAGE);
 			handleTestMessage(attrbs);
+		} else if(RtuMessageConstant.TEST_SECURITY_MESSAGE.equals(qName)){
+			setType(RtuMessageConstant.TEST_SECURITY_MESSAGE);
+			handleTestMessage(attrbs);
 		} else if(RtuMessageConstant.GLOBAL_METER_RESET.equals(qName)){
 			setType(RtuMessageConstant.GLOBAL_METER_RESET);
+		} else if(RtuMessageConstant.RESTORE_FACTORY_SETTINGS.equals(qName)){
+			setType(RtuMessageConstant.RESTORE_FACTORY_SETTINGS);
 		} else if(RtuMessageConstant.WAKEUP_ADD_WHITELIST.equals(qName)){
 			setType(RtuMessageConstant.WAKEUP_ADD_WHITELIST);
 			handleWakeUpWhiteList(attrbs);
@@ -131,6 +140,18 @@ public class MessageHandler extends DefaultHandler{
             handleMbusInstall(attrbs);
         } else if(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL.equals(qName)){
             setType(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
+            handleChangeAuthentication(attrbs);
+        } else if(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0.equals(qName)){
+            setType(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0);
+            handleChangeAuthentication(attrbs);
+        } else if(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0.equals(qName)){
+            setType(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0);
+            handleChangeAuthentication(attrbs);
+        } else if(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3.equals(qName)){
+            setType(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3);
+            handleChangeAuthentication(attrbs);
+        } else if(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3.equals(qName)){
+            setType(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3);
             handleChangeAuthentication(attrbs);
         } else if(RtuMessageConstant.CHANGE_HAN_SAS.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.CHANGE_HAN_SAS);
@@ -207,10 +228,17 @@ public class MessageHandler extends DefaultHandler{
 
     private String userfileId;
     private String activationDate;
+    private String imageIdentifier;
+
     private void handleFirmWareUpgrade(Attributes attrbs) {
     	this.userfileId = attrbs.getValue(RtuMessageConstant.FIRMWARE);
     	this.activationDate = ProtocolTools.getEpochTimeFromString(attrbs.getValue(RtuMessageConstant.FIRMWARE_ACTIVATE_DATE));
+        this.imageIdentifier = attrbs.getValue(RtuMessageConstant.FIRMWARE_IMAGE_IDENTIFIER);
 	}
+
+    public String getImageIdentifier() {
+        return imageIdentifier;
+    }
 
 	public String getUserFileId(){
 		return this.userfileId;
@@ -407,6 +435,7 @@ public class MessageHandler extends DefaultHandler{
 
     private String openKey = "";
     private String transferKey = "";
+
 	private void handleMbusEncryptionKeys(Attributes attrbs){
 		this.openKey = attrbs.getValue(RtuMessageConstant.MBUS_OPEN_KEY);
 		this.transferKey = attrbs.getValue(RtuMessageConstant.MBUS_TRANSFER_KEY);

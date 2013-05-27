@@ -22,7 +22,7 @@ public class AlarmConfig extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.AlarmConfig;
     }
 

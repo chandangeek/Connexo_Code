@@ -17,6 +17,7 @@ public class WaveFlowV2Messages extends WaveFlowMessageParser {
 
         MessageCategorySpec cat1 = new MessageCategorySpec("Waveflow general messages");
         cat1.addMessageSpec(addBasicMsgWithValue("Set operating mode", "SetOperatingMode", false));
+        cat1.addMessageSpec(addBasicMsgWithTwoAttr("Set operating mode with mask", "SetOperatingModeWithMask", false, "Operation mode (decimal value)", "Writing mask (decimal value)"));
         cat1.addMessageSpec(addBasicMsg("Reset application status", "ResetApplicationStatusFull", false));
         cat1.addMessageSpec(addBasicMsg("Force to sync the time", "ForceTimeSync", false));
         cat1.addMessageSpec(addBasicMsgWithValue("Set number of inputs to be used", "SetNumberOfInputs", false));
@@ -76,7 +77,7 @@ public class WaveFlowV2Messages extends WaveFlowMessageParser {
 
         MessageCategorySpec cat7 = new MessageCategorySpec("Waveflow alarm frames configuration");
         cat7.addMessageSpec(addBasicMsgWithValue("Set the alarm configuration byte", "SetAlarmConfig", true));
-        cat7.addMessageSpec(addBasicMsgWithValue("Initialize the alarm route and set the alarm config byte", "InitializeRoute", true));
+        cat7.addMessageSpec(addBasicMsgWithAttr("Initialize the alarm route and set the alarm config byte", "InitializeRoute", true, "Alarm config byte (decimal value)"));
         cat7.addMessageSpec(addBasicMsgWithAttr("Set the time slot granularity (in minutes)", "SetTimeSlotGranularity", true, "Allowed: 15, 30 or 60 minutes"));
         cat7.addMessageSpec(addBasicMsgWithAttr("Set the time slot duration (in seconds)", "SetTimeSlotDuration", true, "Allowed: 30, 45, 60, 90 or 120 seconds"));
         cat7.addMessageSpec(addBasicMsg("Enable the time slot mechanism", "EnableTimeSlotMechanism", true));

@@ -63,7 +63,7 @@ public class SFSKIec61334LLCSetup extends AbstractCosemObject implements Registe
 
 	/**
 	 * @param maxFrameLength
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setMaxFrameLength(int maxFrameLength) throws IOException {
 		write(SFSKIec61334LLCSetupAttribute.MAX_FRAME_LENGTH, new Unsigned8(maxFrameLength).getBEREncodedByteArray());

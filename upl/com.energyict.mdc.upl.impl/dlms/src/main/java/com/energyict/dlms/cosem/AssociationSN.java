@@ -14,7 +14,7 @@ import java.io.IOException;
  */
 public class AssociationSN extends AbstractCosemObject {
 
-	private static final ObisCode	OBISCODE					= ObisCode.fromString("0.0.40.0.0.255");
+	private static final ObisCode OBISCODE					= ObisCode.fromString("0.0.40.0.0.255");
 
 	/** Attribute numbers (short name notation ...) */
 	private static final int		ATTRB_OBJECT_LIST			= 0x08;
@@ -49,9 +49,9 @@ public class AssociationSN extends AbstractCosemObject {
 	}
 
 	/**
-	 * Getter for the default {@link ObisCode} of this object
+	 * Getter for the default {@link com.energyict.obis.ObisCode} of this object
 	 *
-	 * @return the logicalName ({@link ObisCode}) of this object
+	 * @return the logicalName ({@link com.energyict.obis.ObisCode}) of this object
 	 */
 	public static ObisCode getDefaultObisCode() {
 		return OBISCODE;
@@ -61,7 +61,7 @@ public class AssociationSN extends AbstractCosemObject {
 	 * Read the objectList from the current association
 	 *
 	 * @return an array of UO containing the information of the objects in the device
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public UniversalObject[] getBuffer() throws IOException {
 		buffer = data2UOL(getResponseData(ATTRB_OBJECT_LIST));
@@ -86,7 +86,7 @@ public class AssociationSN extends AbstractCosemObject {
 	 *
 	 * @param secret the new secret
 	 * @return the irrelevant response (parsing has already been done)
-	 * @throws IOException if the type of the secret doensn't match or when you
+	 * @throws java.io.IOException if the type of the secret doensn't match or when you
 	 * don't have the proper permissions
 	 */
 	public byte[] changeSecret(byte[] secret) throws IOException {

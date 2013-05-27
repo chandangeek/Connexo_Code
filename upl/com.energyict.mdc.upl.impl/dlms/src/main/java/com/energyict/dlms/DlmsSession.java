@@ -2,17 +2,11 @@ package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -174,9 +168,6 @@ public class DlmsSession implements ProtocolLink {
             } catch (IOException e) {
                 logger.fine("Application association failed, " + e.getMessage());
                 throw e;
-            } catch (DLMSConnectionException e) {
-                logger.fine("Application association failed, " + e.getMessage());
-                throw new NestedIOException(e, "Exception occurred while connection DLMSStream");
             }
         } else {
             logger.fine("Application association was already open, continuing...");
@@ -323,7 +314,7 @@ public class DlmsSession implements ProtocolLink {
                 getProperties().getDataTransportSecurityLevel(),
                 getProperties().getAuthenticationSecurityLevel(),
                 0, // TODO: check what this means
-                (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier().getBytes(),
+                (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier(),
                 getProperties().getSecurityProvider(),
                 getProperties().getCipheringType().getType()
         );

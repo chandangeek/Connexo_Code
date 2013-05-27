@@ -23,20 +23,13 @@ public class WaveFlowV1 extends WaveFlow implements MessageProtocol {
      */
     private ProfileDataReaderV1 profileDataReader;
 
-    /**
-     * The common obis code mapper for the waveflow pulse (Waveflow V1)
-     */
-    private CommonObisCodeMapper commonObisCodeMapper = null;
-
-    /**
-     * The parameter factory interface
-     */
-    private ParameterFactory parameterFactory = null;
-
     @Override
     protected void doTheInit() throws IOException {
         obisCodeMapper = new ObisCodeMapper(this);
         profileDataReader = new ProfileDataReaderV1(this);
+        int numberOfInputs = calcNumberOfInputs();
+        profileDataReader.setNumberOfInputs(numberOfInputs);
+        getLogger().info("Module has " + numberOfInputs + " channel(s), based on the pulseweight properties");
         commonObisCodeMapper = new CommonObisCodeMapper(this);
         parameterFactory = new ParameterFactory(this);
         setIsV1(true);     //Boolean indicating this is the V1 protocol, using the legacy v1 commands.
@@ -61,6 +54,11 @@ public class WaveFlowV1 extends WaveFlow implements MessageProtocol {
         return obisCodeMapper.getRegisterInfo(obisCode);
     }
 
+    @Override
+    public String getProtocolVersion() {
+        return "$Date: 2013-03-21 10:44:10 +0100 (do, 21 mrt 2013) $";
+    }
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
@@ -68,19 +66,6 @@ public class WaveFlowV1 extends WaveFlow implements MessageProtocol {
     @Override
     protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException {
         return profileDataReader.getProfileData(lastReading, toDate, includeEvents);
-    }
-
-    @Override
-    public CommonObisCodeMapper getCommonObisCodeMapper() {
-        return commonObisCodeMapper;
-    }
-
-    @Override
-    public ParameterFactory getParameterFactory() {
-        if (parameterFactory == null) {
-            parameterFactory = new ParameterFactory(this);
-        }
-        return parameterFactory;
     }
 
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {

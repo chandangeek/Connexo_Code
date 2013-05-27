@@ -3,10 +3,10 @@
  */
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned32;
+
+import java.io.IOException;
 
 /**
  * @author jme

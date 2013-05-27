@@ -1,23 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.eventhandling;
 
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.MbusControlLog;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -61,7 +54,7 @@ public class DSMR40EventProfile extends EventProfile {
         MbusControlLog mbusControlLog;
         try {
             for (DeviceMapping mbusDevices : this.protocol.getMeterTopology().getMbusMeterMap()) {
-                dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress() - 1).getObisCode()).getBuffer(fromCal, getToCalendar());
+                dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress() -1).getObisCode()).getBuffer(fromCal, getToCalendar());
                 mbusControlLog = new MbusControlLog(dcMbusControlLog, this.protocol.getDateTimeDeviationType());
                 eventList.addAll(mbusControlLog.getMeterEvents());
 
@@ -73,7 +66,7 @@ public class DSMR40EventProfile extends EventProfile {
                 }
             }
         } catch (IOException e) {
-            if (!e.getMessage().contains("DLMSConfig, getMbusControlLog, not found in objectlist (IOL)")) {
+            if(!e.getMessage().contains("DLMSConfig, getMbusControlLog, not found in objectlist (IOL)")){
                 throw e;
             } // else it just means no MbusDevices are installed ...
         }

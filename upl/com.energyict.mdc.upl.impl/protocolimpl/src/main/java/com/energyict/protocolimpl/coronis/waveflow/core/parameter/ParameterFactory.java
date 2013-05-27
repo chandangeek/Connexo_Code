@@ -10,7 +10,7 @@ import java.util.*;
 
 public class ParameterFactory {
 
-    private WaveFlow waveFlow;
+    protected WaveFlow waveFlow;
 
     // cached
     private SamplingPeriod samplingPeriod = null;
@@ -249,6 +249,12 @@ public class ParameterFactory {
         return receivedFrames.getNumber();
     }
 
+    public int readNumberOfRelayedFramesV1() throws IOException {
+        NumberOfRelayedFramesV1 sentFrames = new NumberOfRelayedFramesV1(waveFlow);
+        sentFrames.read();
+        return sentFrames.getNumber();
+    }
+
     private void setDayOfWeekToday(int mode) throws IOException {
         if (mode == WEEKLY_LOGGING) {
             Calendar now = new GregorianCalendar(waveFlow.getTimeZone());
@@ -277,17 +283,25 @@ public class ParameterFactory {
     }
 
     public Date readWireCutDetectionDate(int inputChannel) throws IOException {
-        WireCutDetectionDate wireCutDetectionDate = new WireCutDetectionDate(waveFlow, inputChannel);
-        wireCutDetectionDate.read();
-        Date eventDate = wireCutDetectionDate.getEventDate();
-        return (eventDate.after(new Date()) ? new Date() : eventDate);
+        try {
+            WireCutDetectionDate wireCutDetectionDate = new WireCutDetectionDate(waveFlow, inputChannel);
+            wireCutDetectionDate.read();
+            Date eventDate = wireCutDetectionDate.getEventDate();
+            return (eventDate.after(new Date()) ? new Date() : eventDate);
+        } catch (WaveFlowException e) {
+            return new Date();   //Timestamp not available
+        }
     }
 
     public Date readReedFaultDetectionDate(int inputChannel) throws IOException {
-        ReedFaultDetectionDate reedFaultDetectionDate = new ReedFaultDetectionDate(waveFlow, inputChannel);
-        reedFaultDetectionDate.read();
-        Date eventDate = reedFaultDetectionDate.getEventDate();
-        return (eventDate.after(new Date()) ? new Date() : eventDate);
+        try {
+            ReedFaultDetectionDate reedFaultDetectionDate = new ReedFaultDetectionDate(waveFlow, inputChannel);
+            reedFaultDetectionDate.read();
+            Date eventDate = reedFaultDetectionDate.getEventDate();
+            return (eventDate.after(new Date()) ? new Date() : eventDate);
+        } catch (WaveFlowException e) {
+            return new Date();   //Timestamp not available
+        }
     }
 
     final public void writeApplicationStatus(final int status) throws IOException {
@@ -314,7 +328,7 @@ public class ParameterFactory {
         valveApplicationStatus.write();
     }
 
-    final public OperatingMode readOperatingMode() throws IOException {
+    public OperatingMode readOperatingMode() throws IOException {
         if (operatingMode == null) {
             operatingMode = new OperatingMode(waveFlow);
             operatingMode.read();
@@ -340,18 +354,27 @@ public class ParameterFactory {
         operatingMode.write();
     }
 
-    final public void writeOperatingMode(final int operatingModeVal) throws IOException {
+    public void writeOperatingMode(final int operatingModeVal) throws IOException {
         operatingMode = new OperatingMode(waveFlow, operatingModeVal);
         operatingMode.write();
     }
 
-    final public Date readTimeDateRTC() throws IOException {
+    public void writeWorkingMode(final int workingMode, int mask) throws IOException {
+        operatingMode = new OperatingMode(waveFlow, workingMode & 0xFF);
+        operatingMode.setWorkingMode(workingMode);
+        operatingMode.setParameterId(null);
+        operatingMode.setMask(mask);
+        operatingMode.write();
+        operatingMode = null;   //Read it out again next time
+    }
+
+    public Date readTimeDateRTC() throws IOException {
         TimeDateRTC o = new TimeDateRTC(waveFlow);
         o.set();
         return o.getCalendar().getTime();
     }
 
-    final public void writeTimeDateRTC(final Date date) throws IOException {
+    public void writeTimeDateRTC(final Date date) throws IOException {
         TimeDateRTC o = new TimeDateRTC(waveFlow);
         Calendar calendar = Calendar.getInstance(waveFlow.getTimeZone());
         calendar.setTime(date);
@@ -363,14 +386,22 @@ public class ParameterFactory {
      * The queried sampling period is only valid for periodic measurements, otherwise, it's a weekly / monthly interval.
      */
     final public int readSamplingPeriod() throws IOException {
-        readOperatingMode();
+        int interval = 0;
+        if (!waveFlow.isV1()) {
+            interval = readRawSamplingPeriod();           //In case of Waveflow V2, the operation mode is also returned and cached
+        } else {
+            readOperatingMode();                          //In case of V1, read it out
+        }
         if (operatingMode.isMonthlyMeasurement()) {
             return MONTHLY;
         }
         if (operatingMode.isWeeklyMeasurement()) {
             return WEEKLY;
         }
-        return readRawSamplingPeriod();
+        if (waveFlow.isV1()) {
+            interval = readRawSamplingPeriod();
+        }
+        return interval;
     }
 
     /**
@@ -393,7 +424,7 @@ public class ParameterFactory {
      * This byte contains a flag indicating the back flow detection method.
      *
      * @return byte containing the flags
-     * @throws IOException
+     * @throws java.io.IOException
      */
     final public ExtendedOperationMode readExtendedOperationMode() throws IOException {
         if (extendedOperationMode == null) {
@@ -443,12 +474,12 @@ public class ParameterFactory {
         return readSamplingPeriod();
     }
 
-    final public BatteryLifeDurationCounter readBatteryLifeDurationCounter() throws IOException {
+    public double readBatteryLifeDurationCounter() throws IOException {
         if (batteryLifeDurationCounter == null) {
             batteryLifeDurationCounter = new BatteryLifeDurationCounter(waveFlow);
             batteryLifeDurationCounter.read();
         }
-        return batteryLifeDurationCounter;
+        return batteryLifeDurationCounter.remainingBatteryLife();
     }
 
     final public void setBatteryLifeDurationCounter(int shortLifeCounter) {
@@ -527,7 +558,7 @@ public class ParameterFactory {
      *
      * @param inputChannelIndex indicates which port (one based!)
      * @return the pulse weight for that port
-     * @throws IOException
+     * @throws java.io.IOException
      */
     public PulseWeight readPulseWeight(int inputChannelIndex) throws IOException {
         if (inputChannelIndex == 0) {
@@ -830,6 +861,10 @@ public class ParameterFactory {
         config.write();
     }
 
+    public int readAlarmConfigurationValue() throws IOException {
+        return readAlarmConfiguration().getAlarmConfig();
+    }
+
     public AlarmConfig readAlarmConfiguration() throws IOException {
         AlarmConfig config = new AlarmConfig(waveFlow);
         config.read();
@@ -930,18 +965,6 @@ public class ParameterFactory {
         AlarmConfig alarmConfig = readAlarmConfiguration();
         alarmConfig.disableAlarmOnCreditDetection();
         alarmConfig.write();
-    }
-
-    public void disableAllAlarms() throws IOException {
-        AlarmConfig config = new AlarmConfig(waveFlow);
-        config.setAlarmConfig(0x00);
-        config.write();
-    }
-
-    public void sendAllAlarms() throws IOException {
-        AlarmConfig config = new AlarmConfig(waveFlow);
-        config.setAlarmConfig(0xFF);
-        config.write();
     }
 
     public void stopDataLogging() throws IOException {

@@ -2,17 +2,8 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.cosem.attributeobjects.DeltaElectricalPhase;
-import com.energyict.dlms.cosem.attributeobjects.ElectricalPhase;
-import com.energyict.dlms.cosem.attributeobjects.Frequencies;
-import com.energyict.dlms.cosem.attributeobjects.FrequencyGroup;
-import com.energyict.dlms.cosem.attributeobjects.MacAddress;
-import com.energyict.dlms.cosem.attributeobjects.MacAddressList;
-import com.energyict.dlms.cosem.attributeobjects.Repeater;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.attributeobjects.*;
 import com.energyict.dlms.cosem.attributes.SFSKPhyMacSetupAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -60,7 +51,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 * 			(2) Phase 2,
 	 * 			(3) Phase 3.
 	 *
-	 * @return {@link TypeEnum} with the current value
+	 * @return {@link com.energyict.dlms.axrdencoding.TypeEnum} with the current value
 	 */
 	public ElectricalPhase getInitiatorElectricalPhase() {
 		try {
@@ -79,7 +70,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 * 			(3) Phase 3.
 	 *
 	 * @param electricalPhase
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setInitiatorElectricalPhase(ElectricalPhase electricalPhase) throws IOException {
 		write(SFSKPhyMacSetupAttribute.INITIATOR_ELECTRICAL_PHASE, electricalPhase.getBEREncodedByteArray());
@@ -134,7 +125,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 
 	/**
 	 * @param maxRxGain
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setMaxReceivingGain(int maxRxGain) throws IOException {
 		write(SFSKPhyMacSetupAttribute.MAX_RECEIVING_GAIN, new Unsigned8(maxRxGain).getBEREncodedByteArray());
@@ -159,7 +150,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 
 	/**
 	 * @param maxTxGain
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setMaxTransmittingGain(int maxTxGain) throws IOException {
 		write(SFSKPhyMacSetupAttribute.MAX_TRANSMITTING_GAIN, new Unsigned8(maxTxGain).getBEREncodedByteArray());
@@ -182,7 +173,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 
 	/**
 	 * @param searchInitGain
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setSearchInitiatorGain(int searchInitGain) throws IOException {
 		write(SFSKPhyMacSetupAttribute.SEARCH_INITIATOR_GAIN, new Unsigned8(searchInitGain).getBEREncodedByteArray());
@@ -204,7 +195,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 
 	/**
 	 * @param frequencies
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setFrequencies(Frequencies frequencies) throws IOException {
 		write(SFSKPhyMacSetupAttribute.FREQUENCIES, frequencies.getBEREncodedByteArray());
@@ -212,7 +203,7 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 
 	/**
 	 * @param frequencyGroups
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setFrequencies(FrequencyGroup[] frequencyGroups) throws IOException {
 		setFrequencies(Frequencies.fromFrequencyGroups(frequencyGroups));
@@ -223,14 +214,14 @@ public class SFSKPhyMacSetup extends AbstractCosemObject implements RegisterRead
 	 * NOTE MAC addresses are expressed on 12 bits.
 	 *
 	 * Contains the value of the address of the physical attachment (MAC address)
-	 * associated to the local system. In the unconfigured state, the MAC address is NEW-address.
+	 * associated to the local system. In the unconfigured state, the MAC address is �NEW-address�.
 	 * This attribute is locally written by the CIASE when the system is registered
 	 * (with a Register service). The value is used in each outgoing or incoming
 	 * frame. The default value is "NEW-address".
 	 *
 	 * This attribute is set to NEW:
 	 * - by the MAC sub-layer, once the time-out-not-addressed delay is exceeded;
-	 * - when a client system 'resets' the server system.
+	 * - when a client system �resets� the server system.
 	 *
 	 * When this attribute is set to NEW:
 	 * - the system loses its synchronization (function of the MAC-sublayer);

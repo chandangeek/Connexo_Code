@@ -2,12 +2,11 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.*;
+
 import java.io.IOException;
 
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
 /**
  *
  * @author  Koen

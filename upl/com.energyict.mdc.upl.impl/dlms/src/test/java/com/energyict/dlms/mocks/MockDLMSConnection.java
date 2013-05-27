@@ -4,11 +4,7 @@
 package com.energyict.dlms.mocks;
 
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 
 import java.io.IOException;
@@ -17,6 +13,7 @@ import java.util.Map;
 
 /**
  * @author gna
+ *
  */
 public class MockDLMSConnection implements DLMSConnection {
 
@@ -29,7 +26,6 @@ public class MockDLMSConnection implements DLMSConnection {
      */
     public MockDLMSConnection() {
     }
-
     public void connectMAC() throws IOException, DLMSConnectionException {
 
     }
@@ -43,6 +39,9 @@ public class MockDLMSConnection implements DLMSConnection {
 
     public int getTimeout() {
         return 0;
+    }
+
+    public void setRetries(int retries) {
     }
 
     public void disconnectMAC() throws IOException, DLMSConnectionException {
@@ -111,6 +110,9 @@ public class MockDLMSConnection implements DLMSConnection {
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
     }
 
+    public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId, int hhuSignonBaudRateCode) {
+	}
+
     public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
     }
 
@@ -130,7 +132,6 @@ public class MockDLMSConnection implements DLMSConnection {
 
     /**
      * Set the responseBytes you want to get back from the sendRequest
-     *
      * @param response
      */
     public void setResponseByte(byte[] response) {

@@ -4,6 +4,7 @@ import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
+import com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter.ParameterFactoryHydreka;
 
 import java.io.IOException;
 import java.util.List;
@@ -321,8 +322,16 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
                 return forceTimeSync(messageEntry);
             } else if (messageEntry.getContent().indexOf("<SetBackflowDetectionMethod") >= 0) {
                 return setBackflowDetectionMethod(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetOperatingModeWithMask") >= 0) {
+                return setOperationModeWithMask(messageEntry);
             } else if (messageEntry.getContent().indexOf("<SetOperatingMode") >= 0) {
                 return setOperationMode(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetLeakageStatusReadingHour") >= 0) {
+                return setLeakageStatusReadingHour(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetHistogramReadingHour") >= 0) {
+                return setHistogramReadingHour(messageEntry);
+            } else if (messageEntry.getContent().indexOf("<SetRTCResyncPeriod") >= 0) {
+                return setRTCResyncPeriod(messageEntry);
             } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusFull") >= 0) {
                 return resetApplicationStatus(messageEntry);
             } else if (messageEntry.getContent().indexOf("<ResetApplicationStatusBit0") >= 0) {
@@ -613,7 +622,8 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
 
     private MessageResult initializeRoute(MessageEntry messageEntry) throws IOException {
         waveFlow.getLogger().info("************************* initializeRoute *************************");
-        int alarmMode = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        String[] parts = messageEntry.getContent().split("=");
+        int alarmMode = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
         waveFlow.getRadioCommandFactory().initializeRoute(alarmMode);
         return MessageResult.createSuccess(messageEntry);
     }
@@ -1095,13 +1105,13 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
 
     private MessageResult sendAllAlarms(MessageEntry messageEntry) throws IOException {
         waveFlow.getLogger().info("************************* SendAllAlarms *************************");
-        waveFlow.getParameterFactory().sendAllAlarms();
+        waveFlow.getParameterFactory().writeAlarmConfigurationByte(0xFF);
         return MessageResult.createSuccess(messageEntry);
     }
 
     private MessageResult disableAllAlarms(MessageEntry messageEntry) throws IOException {
         waveFlow.getLogger().info("************************* DisableAllAlarms *************************");
-        waveFlow.getParameterFactory().disableAllAlarms();
+        waveFlow.getParameterFactory().writeAlarmConfigurationByte(0x00);
         return MessageResult.createSuccess(messageEntry);
     }
 
@@ -1601,6 +1611,57 @@ public abstract class WaveFlowMessageParser implements MessageProtocol {
             return MessageResult.createFailed(messageEntry);
         }
         waveFlow.getParameterFactory().writeOperatingMode(operationMode);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setLeakageStatusReadingHour(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* SetLeakageStatusReadingHour *************************");
+        int hour = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (hour < 0 || hour > 23) {
+            waveFlow.getLogger().warning("Invalid reading hour, should be between 0 and 23");
+            return MessageResult.createFailed(messageEntry);
+        }
+        ((ParameterFactoryHydreka) waveFlow.getParameterFactory()).writeReadingHourLeakageStatus(hour);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setHistogramReadingHour(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* SetHistogramReadingHour *************************");
+        int hour = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (hour < 0 || hour > 23) {
+            waveFlow.getLogger().warning("Invalid reading hour, should be between 0 and 23");
+            return MessageResult.createFailed(messageEntry);
+        }
+        ((ParameterFactoryHydreka) waveFlow.getParameterFactory()).writeReadingHourHistogram(hour);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setRTCResyncPeriod(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* SetRTCResyncPeriod *************************");
+        int period = Integer.parseInt(stripOffTag(messageEntry.getContent()));
+        if (period < 0 || period > 0xFF) {
+            waveFlow.getLogger().warning("Invalid Period of the RTC resynchronization, should be between 0 and 255");
+            return MessageResult.createFailed(messageEntry);
+        }
+        ((ParameterFactoryHydreka) waveFlow.getParameterFactory()).writeRTCResynchPeriod(period);
+        return MessageResult.createSuccess(messageEntry);
+    }
+
+    private MessageResult setOperationModeWithMask(MessageEntry messageEntry) throws IOException {
+        waveFlow.getLogger().info("************************* SetOperatingModeWithMask *************************");
+
+        String[] parts = messageEntry.getContent().split("=");
+        int operationMode = Integer.parseInt(parts[1].substring(1).split("\"")[0]);
+        int mask = Integer.parseInt(parts[2].substring(1).split("\"")[0]);
+
+        if (operationMode < 0x00 || operationMode > 0xFF) {
+            return MessageResult.createFailed(messageEntry);
+        }
+        if (mask < 0x00 || mask > 0xFF) {
+            return MessageResult.createFailed(messageEntry);
+        }
+
+        waveFlow.getParameterFactory().writeWorkingMode(operationMode, mask);
         return MessageResult.createSuccess(messageEntry);
     }
 

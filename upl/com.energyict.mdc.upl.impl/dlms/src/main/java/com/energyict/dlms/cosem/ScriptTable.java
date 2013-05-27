@@ -2,13 +2,12 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.obis.ObisCode;
+
 import java.io.IOException;
 
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.obis.ObisCode;
 /**
  *
  * @author  Koen
@@ -58,7 +57,7 @@ public class ScriptTable extends AbstractCosemObject {
     }
     public Array readScripts() throws IOException {
         if (scripts == null) {
-            scripts = (Array)AXDRDecoder.decode(getLNResponseData(2));
+            scripts = (Array) AXDRDecoder.decode(getLNResponseData(2));
         }
         return scripts;
     }

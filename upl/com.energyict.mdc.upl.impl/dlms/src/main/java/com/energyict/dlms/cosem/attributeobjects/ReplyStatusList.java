@@ -1,8 +1,8 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+
+import java.io.IOException;
 
 /**
  * @author jme

@@ -14,13 +14,14 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
 
     private ObisCodeMapper obisCodeMapper;
     private ProfileDataReader profileDataReader;
-    private CommonObisCodeMapper commonObisCodeMapper = null;
-    private ParameterFactory parameterFactory = null;
 
     @Override
     protected void doTheInit() throws IOException {
         obisCodeMapper = new ObisCodeMapper(this);
         profileDataReader = new ProfileDataReader(this);
+        int numberOfInputs = calcNumberOfInputs();
+        profileDataReader.setNumberOfInputsUsed(numberOfInputs);
+        getLogger().info("Module has " + numberOfInputs + " channel(s), based on the pulseweight properties");
         commonObisCodeMapper = new CommonObisCodeMapper(this);
         parameterFactory = new ParameterFactory(this);
         setIsV1(false);
@@ -39,25 +40,12 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterInfo(obisCode);
+        return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     @Override
     protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException {
         return profileDataReader.getProfileData(lastReading, toDate, includeEvents);
-    }
-
-    @Override
-    public CommonObisCodeMapper getCommonObisCodeMapper() {
-        return commonObisCodeMapper;
-    }
-
-    @Override
-    public ParameterFactory getParameterFactory() {
-        if (parameterFactory == null) {
-            parameterFactory = new ParameterFactory(this);
-        }
-        return parameterFactory;
     }
 
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {

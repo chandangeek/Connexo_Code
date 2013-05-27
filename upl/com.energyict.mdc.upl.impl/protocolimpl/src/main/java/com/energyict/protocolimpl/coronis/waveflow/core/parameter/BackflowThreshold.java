@@ -37,7 +37,7 @@ public class BackflowThreshold extends AbstractParameter {
 
 
     @Override
-    ParameterId getParameterId() throws WaveFlowException {
+    protected ParameterId getParameterId() throws WaveFlowException {
         switch (input) {
             case 1:
                 if (simple) {

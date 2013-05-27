@@ -4,12 +4,13 @@ import com.energyict.cbo.Quantity;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -32,13 +33,20 @@ public class IDISMBus extends IDIS {
 
         // search for the channel of the Mbus Device
         String serial;
+        List<String> receivedSerialNumbers = new ArrayList<String>();
         ObisCode obisCode = MBUS_CLIENT_OBISCODE;
+        String expectedSerialNumber = new String(getCalledAPTitle());
         for (int i = 1; i <= MAX_MBUS_CHANNELS; i++) {
             try {
                 obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) i);
-                serial = String.valueOf(getCosemObjectFactory().getData(obisCode).getAttrbAbstractDataType(6).getInteger32().longValue());
-                if (serial.contains(new String(getCalledAPTitle()))) {
+                long serialNumberValue = getCosemObjectFactory().getMbusClient(obisCode, MbusClientAttributes.VERSION10).getIdentificationNumber().getValue();
+                if (serialNumberValue != 0) {
+                    serial = ProtocolTools.getHexStringFromInt((int) serialNumberValue, 4, "");
+                    receivedSerialNumbers.add(serial);
+                    if (serial.equals(expectedSerialNumber)) {
                     setGasSlotId(i);
+                        break;
+                }
                 }
             } catch (IOException e) {
                 // fetch next
@@ -46,7 +54,21 @@ public class IDISMBus extends IDIS {
         }
 
         if (getGasSlotId() == -1) {
-            throw new IOException("No MBus device found with serialNumber " + getInfoTypeSerialNumber() + " on the E-meter.");
+            StringBuilder sb = new StringBuilder();
+            for (String receivedSerialNumber : receivedSerialNumbers) {
+                sb.append("'").append(receivedSerialNumber).append("'");
+                if (receivedSerialNumbers.indexOf(receivedSerialNumber) == (receivedSerialNumbers.size() - 1)) {    //Last element
+                    sb.append(".");
+                } else if (receivedSerialNumbers.indexOf(receivedSerialNumber) == (receivedSerialNumbers.size() - 2)) {    //Second last element
+                    sb.append(" or ");
+                } else {
+                    sb.append(", ");
+        }
+    }
+            if (receivedSerialNumbers.isEmpty()) {
+                throw new IOException("No MBus device found with serialNumber '" + expectedSerialNumber + "' on the E-meter. No MBus devices are connected.");
+            }
+            throw new IOException("No MBus device found with serialNumber '" + expectedSerialNumber + "' on the E-meter. Expected " + sb.toString());
         }
     }
 
@@ -66,6 +88,12 @@ public class IDISMBus extends IDIS {
         return getMBusProfileDataReader().getProfileData(from, to, includeEvents);
     }
 
+    @Override
+    public int getNumberOfChannels() throws UnsupportedException, IOException {
+        ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(getLoadProfileObisCode());
+        return getMBusProfileDataReader().getChannelInfo(profileGeneric.getCaptureObjects()).size();
+    }
+
     protected IDISMessageHandler getMessageHandler() {
         if (messageHandler == null) {
             messageHandler = new IDISMBusMessageHandler(this);
@@ -75,15 +103,17 @@ public class IDISMBus extends IDIS {
 
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
+        ObisCode originalObisCode = ObisCode.fromByteArray(obisCode.getLN());
         if (isMBusValueChannel(obisCode)) {  //Extended register
+            obisCode = ProtocolTools.setObisCodeField(obisCode, 1, (byte) getGasSlotId());
             UniversalObject uo = getMeterConfig().findObject(obisCode);
             if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
                 ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
                 AbstractDataType value = register.getAttrbAbstractDataType(2);
                 if (value instanceof Unsigned32) {
-                    return new RegisterValue(obisCode, new Quantity(value.getUnsigned32().intValue(), register.getScalerUnit().getEisUnit()));
+                    return new RegisterValue(originalObisCode, new Quantity(value.getUnsigned32().intValue(), register.getScalerUnit().getEisUnit()));
                 } else if (value instanceof OctetString) {
-                    return new RegisterValue(obisCode, ((OctetString) value).stringValue());
+                    return new RegisterValue(originalObisCode, ((OctetString) value).stringValue());
                 } else {
                     throw new NoSuchRegisterException();
                 }
@@ -91,7 +121,7 @@ public class IDISMBus extends IDIS {
                 final Data register = getCosemObjectFactory().getData(obisCode);
                 OctetString octetString = register.getValueAttr().getOctetString();
                 if (octetString != null && octetString.stringValue() != null) {
-                    return new RegisterValue(obisCode, octetString.stringValue());
+                    return new RegisterValue(originalObisCode, octetString.stringValue());
                 }
                 throw new NoSuchRegisterException();
             }

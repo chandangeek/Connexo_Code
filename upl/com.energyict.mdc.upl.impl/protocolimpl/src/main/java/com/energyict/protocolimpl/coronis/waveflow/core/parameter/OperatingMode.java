@@ -9,6 +9,7 @@ public class OperatingMode extends AbstractParameter {
     private static final int PERIODIC_MEASUREMENT = 1;
     private static final int WEEKLY_MEASUREMENT = 2;
     private static final int MONTHLY_MEASUREMENT = 3;
+    private ParameterId parameterId = ParameterId.OperationMode;
 
     public OperatingMode(WaveFlow waveFlow) {
         super(waveFlow);
@@ -82,8 +83,12 @@ public class OperatingMode extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
-        return ParameterId.OperationMode;
+    protected ParameterId getParameterId() {
+        return parameterId;
+    }
+
+    public void setParameterId(ParameterId parameterId) {
+        this.parameterId = parameterId;
     }
 
     @Override

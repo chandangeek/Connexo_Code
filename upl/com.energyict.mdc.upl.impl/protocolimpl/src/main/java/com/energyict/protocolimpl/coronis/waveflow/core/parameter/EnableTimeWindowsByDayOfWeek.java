@@ -14,7 +14,7 @@ public class EnableTimeWindowsByDayOfWeek extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.EnableTimeWindowsByDayOfWeek;
     }
 

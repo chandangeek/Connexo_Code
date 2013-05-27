@@ -7,6 +7,7 @@
 package com.energyict.dlms.cosem;
 import com.energyict.dlms.OctetString;
 import com.energyict.obis.ObisCode;
+
 /**
  *
  * @author  Koen

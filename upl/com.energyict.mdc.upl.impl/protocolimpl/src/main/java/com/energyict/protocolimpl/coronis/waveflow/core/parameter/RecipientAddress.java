@@ -14,7 +14,7 @@ public class RecipientAddress extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.RecipientAddress;
     }
 

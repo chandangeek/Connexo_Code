@@ -1,10 +1,10 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
 /**
- * @author sva
- * @since 14/12/12 - 13:19
+ * Copyrights EnergyICT
+ * Date: 10/15/12
+ * Time: 10:01 AM
  */
-
 public enum ImageTransferStatus {
 
     TRANSFER_NOT_INITIATED(0),

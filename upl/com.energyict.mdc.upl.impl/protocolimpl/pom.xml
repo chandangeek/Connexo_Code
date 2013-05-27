@@ -164,9 +164,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.energyict.rtuplusserver</groupId>
-            <artifactId>communication-driver-impl-eictwavenis</artifactId>
-            <version>2.6.1</version>
+            <groupId>com.energyict.dataconcentrator.communicationdrivers</groupId>
+            <artifactId>wavenis-driver</artifactId>
+            <version>1.0.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.energyict</groupId>
@@ -180,9 +180,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.energyict.rtuplusserver.dialers</groupId>
+            <groupId>com.energyict.dataconcentrator.dialers</groupId>
             <artifactId>dialer-impl-wavenis</artifactId>
-            <version>2.6.1</version>
+            <version>1.0.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.energyict</groupId>

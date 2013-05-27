@@ -6,15 +6,12 @@
 
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
 import com.energyict.dlms.cosem.methods.ActivityCalendarMethods;
+
+import java.io.IOException;
 
 /**
  * Straightforward implementation of the ActivityCalendar object according to the BlueBook
@@ -58,7 +55,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * (Mostly this is not enabled by the meter)
      *
      * @param calendarNameActive the new Active calendarName to set
-     * @throws IOException if the writing failed
+     * @throws java.io.IOException if the writing failed
      */
     public void writeCalendarNameActive(OctetString calendarNameActive) throws IOException {
         write(ActivityCalendarAttributes.CALENDAR_NAME_ACTIVE, calendarNameActive.getBEREncodedByteArray());
@@ -69,7 +66,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the <b>Active</b> calendarName from the device
      *
      * @return the Active calendarName
-     * @throws IOException if the reading failed
+     * @throws java.io.IOException if the reading failed
      */
     public OctetString readCalendarNameActive() throws IOException {
         if (calendarNameActive == null) {
@@ -83,7 +80,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * (Mostly this is not enabled by the meter)
      *
      * @param seasonProfileActive the new Active seasonProfile
-     * @throws IOException if the write failed
+     * @throws java.io.IOException if the write failed
      */
     public void writeSeasonProfileActive(Array seasonProfileActive) throws IOException {
         write(ActivityCalendarAttributes.SEASON_PROFILE_ACTIVE, seasonProfileActive.getBEREncodedByteArray());
@@ -94,7 +91,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the <b>Active</b> seasonProfile from the device
      *
      * @return the Active seasonProfile
-     * @throws IOException if the reading failed
+     * @throws java.io.IOException if the reading failed
      */
     public Array readSeasonProfileActive() throws IOException {
         if (seasonProfileActive == null) {
@@ -108,7 +105,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * (Mostly this is not enabled by the meter)
      *
      * @param weekProfileTableActive the new Active weekProfileTable
-     * @throws IOException if the write failed
+     * @throws java.io.IOException if the write failed
      */
     public void writeWeekProfileTableActive(Array weekProfileTableActive) throws IOException {
         write(ActivityCalendarAttributes.WEEK_PROFILE_TABLE_ACTIVE, weekProfileTableActive.getBEREncodedByteArray());
@@ -119,7 +116,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the <b>Active</b> weekProfileTable from the device
      *
      * @return the Active weekProfileTable
-     * @throws IOException if the reading failed
+     * @throws java.io.IOException if the reading failed
      */
     public Array readWeekProfileTableActive() throws IOException {
         if (weekProfileTableActive == null) {
@@ -133,7 +130,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * (Mostly this is not enabled by the meter)
      *
      * @param dayProfileTableActive the new Active dayProfileTable
-     * @throws IOException if the write failed
+     * @throws java.io.IOException if the write failed
      */
     public void writeDayProfileTableActive(Array dayProfileTableActive) throws IOException {
         write(ActivityCalendarAttributes.DAY_PROFILE_TABLE_ACTIVE, dayProfileTableActive.getBEREncodedByteArray());
@@ -144,7 +141,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the <b>Active</b> dayProfileTable from the device
      *
      * @return the Active dayProfileTable
-     * @throws IOException if the reading failed
+     * @throws java.io.IOException if the reading failed
      */
     public Array readDayProfileTableActive() throws IOException {
         if (dayProfileTableActive == null) {
@@ -157,7 +154,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Write the <b>Passive</b> calendarName to the device
      *
      * @param calendarNamePassive the new Passive calendarName to write
-     * @throws IOException if the write failed
+     * @throws java.io.IOException if the write failed
      */
     public void writeCalendarNamePassive(OctetString calendarNamePassive) throws IOException {
         write(ActivityCalendarAttributes.CALENDAR_NAME_PASSIVE, calendarNamePassive.getBEREncodedByteArray());
@@ -168,7 +165,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the <b>Passive</b> calendarName from the device
      *
      * @return the Passive calendarName
-     * @throws IOException if the reading failed
+     * @throws java.io.IOException if the reading failed
      */
     public OctetString readCalendarNamePassive() throws IOException {
         if (calendarNamePassive == null) {
@@ -181,7 +178,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Write the <b>Passive</b> seasonProfile to the device
      *
      * @param seasonProfilePassive the new Passive seasonProfile
-     * @throws IOException if the write failed
+     * @throws java.io.IOException if the write failed
      */
     public void writeSeasonProfilePassive(Array seasonProfilePassive) throws IOException {
         write(ActivityCalendarAttributes.SEASON_PROFILE_PASSIVE, seasonProfilePassive.getBEREncodedByteArray());
@@ -192,7 +189,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the <b>Passive</b> seasonProfile from the device
      *
      * @return the Passive seasonProfile
-     * @throws IOException if the reading failed
+     * @throws java.io.IOException if the reading failed
      */
     public Array readSeasonProfilePassive() throws IOException {
         if (seasonProfilePassive == null) {
@@ -205,7 +202,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Write the <b>Passive</b> weekProfileTable Array to the Device
      *
      * @param weekProfileTablePassive the Passive weekProfileTable to write
-     * @throws IOException if an error occurred during the write
+     * @throws java.io.IOException if an error occurred during the write
      */
     public void writeWeekProfileTablePassive(Array weekProfileTablePassive) throws IOException {
         write(ActivityCalendarAttributes.WEEK_PROFILE_TABLE_PASSIVE, weekProfileTablePassive.getBEREncodedByteArray());
@@ -216,7 +213,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the <b>Passive</b> weekProfileTable from the device
      *
      * @return the Passive weekProfileTable
-     * @throws IOException if the reading failed
+     * @throws java.io.IOException if the reading failed
      */
     public Array readWeekProfileTablePassive() throws IOException {
         if (weekProfileTablePassive == null) {
@@ -229,7 +226,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Write the <b>Passive</b> dayProfileTable to the device
      *
      * @param dayProfileTablePassive the new Passive dayProfileTable
-     * @throws IOException if the write failed
+     * @throws java.io.IOException if the write failed
      */
     public void writeDayProfileTablePassive(Array dayProfileTablePassive) throws IOException {
         write(ActivityCalendarAttributes.DAY_PROFILE_TABLE_PASSIVE, dayProfileTablePassive.getBEREncodedByteArray());
@@ -240,7 +237,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the <b>Passive</b> dayProfileTable from the device
      *
      * @return the Passive dayProfileTable
-     * @throws IOException if the reading failed
+     * @throws java.io.IOException if the reading failed
      */
     public Array readDayProfileTablePassive() throws IOException {
         if (dayProfileTablePassive == null) {
@@ -253,7 +250,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Write the activationTime to activate the <b>PASSIVE</b> calendar
      *
      * @param activatePassiveCalendarTime the activationTime to write
-     * @throws IOException if the write failed
+     * @throws java.io.IOException if the write failed
      */
     public void writeActivatePassiveCalendarTime(OctetString activatePassiveCalendarTime) throws IOException {
         write(ActivityCalendarAttributes.ACTIVATE_PASSIVE_CALENDAR_TIME, activatePassiveCalendarTime.getBEREncodedByteArray());
@@ -264,7 +261,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the activationTime to activate the <b>PASSIVE</b> calendar
      *
      * @return the activationTime of the Passive calendar
-     * @throws IOException if the reading failed
+     * @throws java.io.IOException if the reading failed
      */
     public OctetString readActivatePassiveCalendarTime() throws IOException {
         if (activatePassiveCalendarTime == null) {
@@ -276,7 +273,7 @@ public class ActivityCalendar extends AbstractCosemObject {
     /**
      * Trigger the 'activatePassiveCalendar' method
      *
-     * @throws IOException if the invocation failed
+     * @throws java.io.IOException if the invocation failed
      */
     public void activateNow() throws IOException {
         methodInvoke(ActivityCalendarMethods.ACTIVATE_PASSIVE_CALENDAR, new Integer8(0).getBEREncodedByteArray());

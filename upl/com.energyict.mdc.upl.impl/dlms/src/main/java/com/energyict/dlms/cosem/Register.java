@@ -9,8 +9,8 @@ package com.energyict.dlms.cosem;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -121,11 +121,13 @@ public class Register extends AbstractCosemObject implements CosemObject {
     }
 
     public void setScalerUnitAttr(Unit unit) throws IOException {
-    	ScalerUnit scalerUnit = new ScalerUnit(unit);
-        write(3, scalerUnit.getScalerUnitStructure().getBEREncodedByteArray());
+    	final ScalerUnit scalerUnit = new ScalerUnit(unit);
+        final Structure structure = scalerUnit.getScalerUnitStructure();
+        write(RegisterAttributes.SCALER_UNIT, structure);
     }
-    public void setValueAttr(AbstractDataType dataType) throws IOException {
-        write(2, dataType.getBEREncodedByteArray());
+
+    public void setValueAttr(AbstractDataType value) throws IOException {
+        write(RegisterAttributes.VALUE, value);
     }
 
 }

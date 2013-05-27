@@ -11,7 +11,7 @@ import com.energyict.obis.ObisCode;
  * Time: 10:59
  * To change this template use File | Settings | File Templates.
  */
-public class GenericDlmsClassAttribute implements DLMSClassAttributes{
+public class GenericDlmsClassAttribute implements DLMSClassAttributes {
 
     private final int attributeNumber;
     private final DLMSClassId dlmsClassId;
@@ -44,7 +44,7 @@ public class GenericDlmsClassAttribute implements DLMSClassAttributes{
      * @return the short name as int
      */
     public DLMSAttribute getDLMSAttribute(final ObisCode obisCode) {
-        return new DLMSAttribute(obisCode, getAttributeNumber(), getDlmsClassId());  
+        return new DLMSAttribute(obisCode, getAttributeNumber(), getDlmsClassId());
     }
 
     /**

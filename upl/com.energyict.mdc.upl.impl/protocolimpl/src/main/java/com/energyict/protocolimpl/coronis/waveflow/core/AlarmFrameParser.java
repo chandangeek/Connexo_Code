@@ -10,6 +10,7 @@ import java.util.*;
 
 public class AlarmFrameParser {
 
+    private static final String ORIGIN_SAF = " [origin SAF]";
     private WaveFlow waveFlow;
     private int status;
     private Date date;
@@ -79,16 +80,16 @@ public class AlarmFrameParser {
         List<MeterEvent> events = new ArrayList<MeterEvent>();
 
         if ((status & 0x01) == 0x01) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Wirecut on valve"));
+            events.add(new MeterEvent(date, MeterEvent.METER_ALARM, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Wirecut on valve"));
         }
         if ((status & 0x02) == 0x02) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Fault on water gate"));
+            events.add(new MeterEvent(date, MeterEvent.METER_ALARM, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Fault on water gate"));
         }
         if ((status & 0x04) == 0x04) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_DEFAULT, "Threshold detection on credit"));
+            events.add(new MeterEvent(date, MeterEvent.METER_ALARM, EventStatusAndDescription.EVENTCODE_DEFAULT, "Threshold detection on credit"));
         }
         if ((status & 0x08) == 0x08) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_DEFAULT, "Credit is zero"));
+            events.add(new MeterEvent(date, MeterEvent.METER_ALARM, EventStatusAndDescription.EVENTCODE_DEFAULT, "Credit is zero"));
         }
         return events;
     }
@@ -113,10 +114,10 @@ public class AlarmFrameParser {
         EventStatusAndDescription translator = new EventStatusAndDescription(waveFlow);
 
         if ((status & 0x04) == 0x04) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, A.equals(input) ? EventStatusAndDescription.EVENTCODE_REEDFAULT_A : EventStatusAndDescription.EVENTCODE_REEDFAULT_B, "Reed fault detection on input " + input));
+            events.add(new MeterEvent(date, MeterEvent.METER_ALARM, A.equals(input) ? EventStatusAndDescription.EVENTCODE_REEDFAULT_A : EventStatusAndDescription.EVENTCODE_REEDFAULT_B, "Reed fault detection on input " + input));
         }
         if ((status & 0x08) == 0x08) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForSimpleBackflow((status & 0x03) - 1), "Backflow detection on input " + input));
+            events.add(new MeterEvent(date, MeterEvent.METER_ALARM, translator.getProtocolCodeForSimpleBackflow((status & 0x03) - 1), "Backflow detection on input " + input));
         }
         if ((status & 0x10) == 0x10) {
             events.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "End of battery life"));
@@ -125,12 +126,26 @@ public class AlarmFrameParser {
             events.add(new MeterEvent(date, translator.getEventCode(0x20), translator.getProtocolCodeForStatus(0x20), translator.getEventDescription(0x20)));
         }
         if ((status & 0x40) == 0x40) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_RESIDUAL, input), "Leak on input " + input + ". Flow is " + flow + "."));
+            events.add(new MeterEvent(date, MeterEvent.METER_ALARM, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_RESIDUAL, input), "Leak on input " + input + ". Flow-rate = " + flow));
         }
         if ((status & 0x80) == 0x80) {
-            events.add(new MeterEvent(date, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.END, LeakageEvent.LEAKAGETYPE_EXTREME, input), "Burst on input " + input + ". Flow is " + flow + "."));
+            events.add(new MeterEvent(date, MeterEvent.METER_ALARM, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_EXTREME, input), "Burst on input " + input + ". Flow-rate = " + flow));
         }
-        return events;
+        return addOriginNotion(events);
+    }
+
+    /**
+     * Add the origin of the event to the event message
+     *
+     * @param events list of the received events
+     * @return list of the received events, with the origin of the events added to their messages
+     */
+    private List<MeterEvent> addOriginNotion(List<MeterEvent> events) {
+        List<MeterEvent> result = new ArrayList<MeterEvent>();
+        for (MeterEvent meterEvent : events) {
+            result.add(new MeterEvent(meterEvent.getTime(), meterEvent.getEiCode(), meterEvent.getProtocolCode(), meterEvent.getMessage() + ORIGIN_SAF));
+        }
+        return result;
     }
 
     /**

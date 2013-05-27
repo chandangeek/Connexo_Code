@@ -1,8 +1,6 @@
 package com.energyict.protocolimpl.dlms.idis.events;
 
 import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.protocol.MeterEvent;
 
 import java.io.IOException;
@@ -42,11 +40,8 @@ public abstract class AbstractEvent {
         Date eventTimeStamp;
         for (int i = 0; i <= (size - 1); i++) {
             int eventId = (int) this.dcEvents.getRoot().getStructure(i).getValue(1) & 0xFF; // To prevent negative values
-            eventTimeStamp = null;
             if (isOctetString(this.dcEvents.getRoot().getStructure(i).getElement(0))) {
-                eventTimeStamp = new AXDRDateTime(OctetString.fromByteArray(dcEvents.getRoot().getStructure(i).getOctetString(0).getArray())).getValue().getTime();
-            }
-            if (eventTimeStamp != null) {
+                eventTimeStamp = dcEvents.getRoot().getStructure(i).getOctetString(0).toDate(timeZone);
                 buildMeterEvent(meterEvents, eventTimeStamp, eventId);
             }
         }

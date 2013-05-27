@@ -20,6 +20,7 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode ClockSynchronizationObisCode = ObisCode.fromString("0.0.96.2.12.255");
     public static final ObisCode SerialNumberObisCode = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode LoadProfileP1 = ObisCode.fromString("1.0.99.1.0.255");
+    public static final ObisCode EncryptedLP = ObisCode.fromString("1.128.99.2.0.255");
     public static final ObisCode LoadProfileDaily = ObisCode.fromString("0.0.98.2.0.255");
     public static final ObisCode LoadProfileMonthly = ObisCode.fromString("0.0.98.1.0.255");
     public static final ObisCode LoadProfileBlockDaily = ObisCode.fromString("0.0.98.2.1.255");       //Block profile data   ==> E = 1
@@ -95,6 +96,21 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
     public static final ObisCode LoadProfileStatusP2 = ObisCode.fromString("0.0.96.10.2.255");
     public static final ObisCode SCRIPT_TABLE_OBIS = ObisCode.fromString("0.0.10.0.100.255");
     public static final ObisCode SCRIPT_TABLE_PASSIVE_OBIS = ObisCode.fromString("0.0.10.1.100.255");
+
+    //Apollo5 only
+    public static final ObisCode Apollo5LoadProfileStatusHourly = ObisCode.fromString("0.0.96.10.7.255");
+    public static final ObisCode Apollo5LoadProfileStatusDaily = ObisCode.fromString("0.0.96.10.8.255");
+    public static final ObisCode Apollo5LoadProfileStatusEncrypted = ObisCode.fromString("0.128.96.10.8.255");
+    public static final ObisCode StandardEventLogObisCode = ObisCode.fromString("0.0.99.98.0.255");
+    public static final ObisCode PowerQualityFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.9.255");
+    public static final ObisCode PowerQualityNotFinishedEventLogObisCode = ObisCode.fromString("0.0.99.98.5.255");
+    public static final ObisCode FraudDetectionEventLogObisCode = ObisCode.fromString("0.0.99.98.1.255");
+    public static final ObisCode DemandManagementEventLogObisCode = ObisCode.fromString("0.0.99.98.6.255");
+    public static final ObisCode CommonEventLogObisCode = ObisCode.fromString("0.0.99.98.7.255");
+    public static final ObisCode PowerContractEventLogObisCode = ObisCode.fromString("0.0.99.98.3.255");
+    public static final ObisCode FirmwareEventLogObisCode = ObisCode.fromString("0.0.99.98.4.255");
+    public static final ObisCode ObjectSynchronizationEventLogObisCode = ObisCode.fromString("0.0.99.98.8.255");
+    public static final ObisCode DisconnectControlLogObisCode = ObisCode.fromString("0.0.99.98.2.255");
 
     /**
      * @return the {@link #ClockObisCode} for the {@link com.energyict.dlms.cosem.Clock}
@@ -218,4 +234,43 @@ public class AS300ObisCodeProvider implements CommonObisCodeProvider {
         return ActiveLongFirmwareIdentifierMCOR;
     }
 
+    public ObisCode getStandardEventLogObisCode() {
+        return StandardEventLogObisCode;
+    }
+
+    public ObisCode getPowerQualityFinishedEventLogObisCode() {
+        return PowerQualityFinishedEventLogObisCode;
+    }
+
+    public ObisCode getPowerQualityNotFinishedEventLogObisCode() {
+        return PowerQualityNotFinishedEventLogObisCode;
+    }
+
+    public ObisCode getFraudDetectionEventLogObisCode() {
+        return FraudDetectionEventLogObisCode;
+    }
+
+    public ObisCode getDemandManagementEventLogObisCode() {
+        return DemandManagementEventLogObisCode;
+    }
+
+    public ObisCode getCommonEventLogObisCode() {
+        return CommonEventLogObisCode;
+    }
+
+    public ObisCode getPowerContractEventLogObisCode() {
+        return PowerContractEventLogObisCode;
+    }
+
+    public ObisCode getFirmwareEventLogObisCode() {
+        return FirmwareEventLogObisCode;
+    }
+
+    public ObisCode getObjectSynchronizationEventLogObisCode() {
+        return ObjectSynchronizationEventLogObisCode;
+    }
+
+    public ObisCode getDisconnectControlLogObisCode() {
+        return DisconnectControlLogObisCode;
+    }
 }

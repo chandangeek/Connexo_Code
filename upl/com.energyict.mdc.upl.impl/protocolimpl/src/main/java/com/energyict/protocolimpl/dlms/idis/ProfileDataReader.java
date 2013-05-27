@@ -1,10 +1,11 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.dlms.idis.events.*;
 
 import java.io.IOException;
@@ -25,9 +26,17 @@ public class ProfileDataReader {
     private static ObisCode FRAUD_DETECTION_LOG = ObisCode.fromString("0.0.99.98.1.255");
     private static ObisCode POWER_FAILURE_EVENT_LOG = ObisCode.fromString("1.0.99.97.0.255");
     private static ObisCode POWER_QUALITY_LOG = ObisCode.fromString("0.0.99.98.4.255");
+    private List<ChannelInfo> channelInfo = null;
+    private static final ObisCode OBISCODE_NR_OF_POWER_FAILURES = ObisCode.fromString("0.0.96.7.9.255");
 
     public ProfileDataReader(IDIS idis) {
         this.idis = idis;
+    }
+
+    public ProfileData getProfileData(ProfileLimiter limiter, boolean includeEvents) throws IOException {
+        Date from = limiter.getFromDate();
+        Date to = limiter.getToDate();
+        return getProfileData(from, to, includeEvents);
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
@@ -51,7 +60,7 @@ public class ProfileDataReader {
 
         for (int index = 0; index < loadProfileEntries.length; index++) {
             DataStructure structure = buffer.getRoot().getStructure(index);
-            Date timeStamp = structure.getOctetString(0).toDate();
+            Date timeStamp = structure.getOctetString(0).toDate(idis.getTimeZone());
             int status = structure.getInteger(1);
             List<IntervalValue> values = new ArrayList<IntervalValue>();
             for (int channel = 0; channel < profileData.getChannelInfos().size(); channel++) {
@@ -80,17 +89,59 @@ public class ProfileDataReader {
     }
 
     protected List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects) throws IOException {
+        if (channelInfo == null) {
         List<ChannelInfo> infos = new ArrayList<ChannelInfo>();
         int counter = 0;
 
         for (CapturedObject capturedObject : capturedObjects) {
-            if (capturedObject.getClassId() == DLMSClassId.REGISTER.getClassId()) {
+                if (isChannel(capturedObject)) {
                 ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
-                infos.add(new ChannelInfo(counter, obisCode.toString(), idis.readRegister(obisCode).getQuantity().getUnit()));
+                    Unit unit;
+                    try {
+                        unit = idis.readRegister(obisCode).getQuantity().getUnit();
+                    } catch (NoSuchRegisterException e) {
+                        unit = Unit.get("");
+                    }
+                    ChannelInfo channelInfo = new ChannelInfo(counter, obisCode.toString(), unit);
+                    if (isCumulative(capturedObject)) {
+                        channelInfo.setCumulative();
+                    }
+                    infos.add(channelInfo);
+
+                    idis.getLogger().info("Channel " + counter + ": " + obisCode.toString() + ", unit: " + unit.toString() + ", cumulative: " + (channelInfo.isCumulative() ? "yes" : "no"));
                 counter++;
             }
         }
-        return infos;
+            channelInfo = infos;
+        }
+        return channelInfo;
+    }
+
+    protected boolean isCumulative(CapturedObject capturedObject) {
+        return ParseUtils.isObisCodeCumulative(capturedObject.getLogicalName().getObisCode()) || isNrOfPowerFailures(capturedObject.getLogicalName().getObisCode());
+    }
+
+    private boolean isNrOfPowerFailures(ObisCode obisCode) {
+        return OBISCODE_NR_OF_POWER_FAILURES.equals(obisCode);
+    }
+
+    protected boolean isChannel(CapturedObject capturedObject) {
+        int classId = capturedObject.getClassId();
+        ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
+        if (classId == DLMSClassId.REGISTER.getClassId() || classId == DLMSClassId.EXTENDED_REGISTER.getClassId() || classId == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+            return true;
+        } else if (!isClock(obisCode) && !isProfileStatus(obisCode)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isProfileStatus(ObisCode obisCode) {
+        return (obisCode.getA() == 0 && (obisCode.getB() >= 0 && obisCode.getB() <= 4) && obisCode.getC() == 96 && obisCode.getD() == 10 && (obisCode.getE() == 1 || obisCode.getE() == 2 || obisCode.getE() == 3) && obisCode.getF() == 255);
+    }
+
+    private boolean isClock(ObisCode obisCode) {
+        return (Clock.getDefaultObisCode().equals(obisCode));
     }
 
     private int getEiServerStatus(int protocolStatus) {

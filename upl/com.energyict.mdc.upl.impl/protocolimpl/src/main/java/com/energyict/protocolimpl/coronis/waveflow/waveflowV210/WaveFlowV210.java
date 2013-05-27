@@ -15,13 +15,14 @@ public class WaveFlowV210 extends WaveFlow implements MessageProtocol {
 
     private ObisCodeMapper obisCodeMapper;
     private ProfileDataReaderV210 profileDataReader;
-    private CommonObisCodeMapper commonObisCodeMapper = null;
-    private ParameterFactory parameterFactory = null;
 
     @Override
     protected void doTheInit() throws IOException {
         obisCodeMapper = new ObisCodeMapper(this);
         profileDataReader = new ProfileDataReaderV210(this);
+        int numberOfInputs = calcNumberOfInputs();
+        profileDataReader.setNumberOfInputs(numberOfInputs);
+        getLogger().info("Module has " + numberOfInputs + " channel(s), based on the pulseweight properties");
         commonObisCodeMapper = new CommonObisCodeMapper(this);
         parameterFactory = new ParameterFactory(this);
         setIsV1(true);     //Boolean indicating this is the V1 protocol, using the legacy v1 commands.
@@ -40,6 +41,11 @@ public class WaveFlowV210 extends WaveFlow implements MessageProtocol {
         return obisCodeMapper.getRegisterValue(obisCode);
     }
 
+    @Override
+    public String getProtocolVersion() {
+        return "$Date: 2013-03-21 10:44:10 +0100 (do, 21 mrt 2013) $";
+    }
+
     /**
      * Override this method to provide meter specific info for an obiscode mapped register. This method is called outside the communication session. So the info provided is static info in the protocol.
      *
@@ -48,25 +54,12 @@ public class WaveFlowV210 extends WaveFlow implements MessageProtocol {
      * @throws java.io.IOException thrown when somethiong goes wrong
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
-        return obisCodeMapper.getRegisterInfo(obisCode);
+        return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
     @Override
     protected ProfileData getTheProfileData(Date lastReading, Date toDate, boolean includeEvents) throws UnsupportedException, IOException {
         return profileDataReader.getProfileData(lastReading, toDate, includeEvents);
-    }
-
-    @Override
-    public CommonObisCodeMapper getCommonObisCodeMapper() {
-        return commonObisCodeMapper;
-    }
-
-    @Override
-    public ParameterFactory getParameterFactory() {
-        if (parameterFactory == null) {
-            parameterFactory = new ParameterFactory(this);
-        }
-        return parameterFactory;
     }
 
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {

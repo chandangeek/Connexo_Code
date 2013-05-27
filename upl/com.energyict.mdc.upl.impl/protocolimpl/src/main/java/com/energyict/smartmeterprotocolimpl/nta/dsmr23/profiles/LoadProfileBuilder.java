@@ -226,15 +226,15 @@ public class LoadProfileBuilder {
 
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
                 if (uo != null) {
-                    if (uo.getDLMSClassId().isRegister()) {
-                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
+                    if (uo.getDLMSClassId() == DLMSClassId.REGISTER) {
+                        DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID());
                         dlmsAttributes.add(unitAttribute);
                         this.registerUnitMap.put(register, unitAttribute);
-                    } else if (uo.getDLMSClassId().isExtendedRegister()) {
+                    } else if (uo.getDLMSClassId() == DLMSClassId.EXTENDED_REGISTER) {
                         DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, ExtendedRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
                         dlmsAttributes.add(unitAttribute);
                         this.registerUnitMap.put(register, unitAttribute);
-                    } else if (uo.getDLMSClassId().isDemandRegister()) {
+                    } else if (uo.getDLMSClassId() == DLMSClassId.DEMAND_REGISTER) {
                         DLMSAttribute unitAttribute = new DLMSAttribute(rObisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
                         dlmsAttributes.add(unitAttribute);
                         this.registerUnitMap.put(register, unitAttribute);

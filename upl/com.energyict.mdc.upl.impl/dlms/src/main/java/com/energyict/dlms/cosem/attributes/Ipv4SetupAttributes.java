@@ -14,7 +14,7 @@ import com.energyict.obis.ObisCode;
  * Time: 10:28:52
  * </p>
  */
-public enum Ipv4SetupAttributes implements DLMSClassAttributes{
+public enum Ipv4SetupAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1),
 	DL_REFERENCE(2),

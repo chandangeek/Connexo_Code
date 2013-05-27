@@ -1,9 +1,9 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+
+import java.io.IOException;
 
 /**
  * @author jme

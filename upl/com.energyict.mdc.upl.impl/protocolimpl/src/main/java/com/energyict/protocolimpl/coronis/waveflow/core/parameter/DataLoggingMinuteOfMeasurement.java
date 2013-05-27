@@ -12,7 +12,7 @@ public class DataLoggingMinuteOfMeasurement extends AbstractParameter {
     private int minuteOfMeasurement;
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.MinuteOfMeasurement;
     }
 

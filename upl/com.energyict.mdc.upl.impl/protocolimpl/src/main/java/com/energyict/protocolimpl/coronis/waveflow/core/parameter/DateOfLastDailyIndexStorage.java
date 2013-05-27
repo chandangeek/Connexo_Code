@@ -24,7 +24,7 @@ public class DateOfLastDailyIndexStorage extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.DateOfLastDailyIndexStorage;
     }
 

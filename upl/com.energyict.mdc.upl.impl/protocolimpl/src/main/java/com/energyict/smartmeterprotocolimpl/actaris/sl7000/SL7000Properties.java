@@ -95,7 +95,7 @@ public class SL7000Properties extends DlmsProtocolProperties {
     }
 
     @Override
-    public String getSystemIdentifier() {
-        return "";
+    public byte[] getSystemIdentifier() {
+        return "".getBytes();
     }
 }

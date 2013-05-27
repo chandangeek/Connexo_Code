@@ -14,7 +14,7 @@ public class EnableWakeUpPeriodsByDayOfWeek extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.EnableWakeUpPeriodsByDayOfWeek;
     }
 

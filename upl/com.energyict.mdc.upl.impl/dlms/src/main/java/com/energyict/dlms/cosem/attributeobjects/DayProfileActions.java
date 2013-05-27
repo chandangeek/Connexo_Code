@@ -1,11 +1,9 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
+import com.energyict.dlms.axrdencoding.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
-
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
 
 /**
  * Object to describe a DayProfileAction in an ActivityCalendar
@@ -43,7 +41,7 @@ public class DayProfileActions extends Structure {
 
     /**
 	 * @return the BER encoded structure.
-	 * @throws IOException when parsing of the structure fails
+	 * @throws java.io.IOException when parsing of the structure fails
 	 * @throws IllegalArgumentException when not all necessary dayProfileAction fields are written
 	 */
 	protected byte[] doGetBEREncodedByteArray() {

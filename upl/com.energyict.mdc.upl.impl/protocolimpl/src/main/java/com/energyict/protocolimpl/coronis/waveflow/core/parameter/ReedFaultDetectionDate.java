@@ -34,7 +34,7 @@ public class ReedFaultDetectionDate extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         switch (inputChannel) {
             case 0: return ParameterId.ReedFaultDetectionDateInputA;
             case 1: return ParameterId.ReedFaultDetectionDateInputB;

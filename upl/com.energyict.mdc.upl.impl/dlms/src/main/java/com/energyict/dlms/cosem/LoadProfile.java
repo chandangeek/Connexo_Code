@@ -5,10 +5,12 @@
  */
 
 package com.energyict.dlms.cosem;
-import java.io.IOException;
 
 import com.energyict.dlms.DLMSCOSEMGlobals;
 import com.energyict.dlms.ProtocolLink;
+
+import java.io.IOException;
+
 /**
  *
  * @author  Koen

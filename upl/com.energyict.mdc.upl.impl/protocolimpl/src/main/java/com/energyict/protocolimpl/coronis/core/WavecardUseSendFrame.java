@@ -9,7 +9,7 @@ public class WavecardUseSendFrame extends AbstractEscapeCommand {
 	}
 
 	@Override
-	EscapeCommandId getEscapeCommandId() {
+    EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.USE_SEND_FRAME;
 	}
 

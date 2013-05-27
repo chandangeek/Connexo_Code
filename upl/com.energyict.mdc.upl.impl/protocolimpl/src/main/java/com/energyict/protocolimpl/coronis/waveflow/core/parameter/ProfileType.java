@@ -11,7 +11,7 @@ public class ProfileType extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.ProfileType;
     }
 

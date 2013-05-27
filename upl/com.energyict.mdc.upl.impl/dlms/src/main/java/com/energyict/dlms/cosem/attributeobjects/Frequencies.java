@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * This class extends an {@link Array} to give a fancy toString
+ * This class extends an {@link com.energyict.dlms.axrdencoding.Array} to give a fancy toString
  * method when showing PLC channel frequencies.
  * <p/>
  * structure : {
@@ -28,7 +28,7 @@ public class Frequencies extends Array implements Comparable<Frequencies> {
 	 * @param berEncodedData
 	 * @param offset
 	 * @param level
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Frequencies(byte[] berEncodedData, int offset, int level) throws IOException {
 		super(berEncodedData, offset, level);
@@ -40,7 +40,7 @@ public class Frequencies extends Array implements Comparable<Frequencies> {
 
 	/**
 	 * @param berEncodedData
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Frequencies(byte[] berEncodedData) throws IOException {
         this(berEncodedData, 0, 0);

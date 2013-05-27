@@ -6,9 +6,10 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.ProtocolLink;
+
 import java.io.IOException;
 
-import com.energyict.dlms.ProtocolLink;
 /**
  *
  * @author  Koen
@@ -26,6 +27,10 @@ public class GenericWrite extends AbstractCosemObject {
 
     public void write(byte[] data) throws IOException {
         write(attr,data);
+    }
+
+    public int getAttr() {
+        return attr;
     }
 
     protected int getClassId() {

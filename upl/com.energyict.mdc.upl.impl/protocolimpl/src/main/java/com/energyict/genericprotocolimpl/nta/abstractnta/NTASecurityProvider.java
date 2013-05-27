@@ -25,33 +25,48 @@ public class NTASecurityProvider implements SecurityProvider {
 
 	protected int securityLevel;
 	protected byte[] cTOs;
-	protected byte[] authenticationKey;
-	protected byte[] encryptionKey;
+    private byte[] authenticationKey;
+    private byte[] encryptionKey;
 	protected byte[] dedicatedKey;
-	protected byte[] masterKey;
-	protected String hlsSecret;
+    private byte[] masterKey;
+    private String hlsSecret;
 	protected Properties properties;
     private RespondingFrameCounterHandler respondingFrameCounterHandler = new DefaultRespondingFrameCounterHandler();
 
-	/** Property name of the new AuthenticationKey */
+    /**
+     * Property name of the new AuthenticationKey
+     */
 	public static final String NEW_DATATRANSPORT_AUTHENTICATION_KEY = "NewDataTransportAuthenticationKey";
-	/** Property name of the new Global encryption Key */
+    /**
+     * Property name of the new Global encryption Key
+     */
 	public static final String NEW_DATATRANSPORT_ENCRYPTION_KEY = "NewDataTransportEncryptionKey";
-	/** Property name of the new HighLevel security Secret */
+    /**
+     * Property name of the new HighLevel security Secret
+     */
 	public static final String NEW_HLS_SECRET = "NewHLSSecret";
-	/** Property name of the DataTransport EncryptionKey */
+    /**
+     * Property name of the DataTransport EncryptionKey
+     */
 	public static final String DATATRANSPORT_ENCRYPTIONKEY = "DataTransportEncryptionKey";
-	/** Property name of the Master key, or KeyEncryptionKey */
+    /**
+     * Property name of the Master key, or KeyEncryptionKey
+     */
 	public static final String MASTERKEY = "MasterKey";
-	/** Property name of the DataTransport AuthenticationKey */
+    /**
+     * Property name of the DataTransport AuthenticationKey
+     */
 	public static final String DATATRANSPORT_AUTHENTICATIONKEY = "DataTransportAuthenticationKey";
-	/** Property name of the new LowLevel security Secret */
+    /**
+     * Property name of the new LowLevel security Secret
+     */
 	public static final String NEW_LLS_SECRET = "NewLLSSecret";
 
     Long initialFrameCounter;
 
 	/**
 	 * Create a new instance of LocalSecurityProvider
+     *
 	 * @param properties - contains the keys for the authentication/encryption
 	 */
 	public NTASecurityProvider(Properties properties){
@@ -62,16 +77,12 @@ public class NTASecurityProvider implements SecurityProvider {
 		} else {
 			this.securityLevel = Integer.parseInt(sl);
 		}
-		this.encryptionKey = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_ENCRYPTIONKEY, ""));
-		this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
-		this.authenticationKey = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY,""));
-		this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD,"");
 	}
 
 	/**
 	 * Generate a random challenge of 8 bytes long
 	 */
-	protected void generateClientToServerChallenge(){
+    protected void generateClientToServerChallenge() throws SecurityLevelException {
 		if(this.cTOs == null){
 			Random generator = new Random();
 			this.cTOs = new byte[16];
@@ -83,6 +94,9 @@ public class NTASecurityProvider implements SecurityProvider {
 	 * Return the dataTransprot authenticationKey
 	 */
 	public byte[] getAuthenticationKey() {
+        if (this.authenticationKey == null) {
+            this.authenticationKey = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_AUTHENTICATIONKEY, ""));
+        }
 		return this.authenticationKey;
 	}
 
@@ -114,14 +128,21 @@ public class NTASecurityProvider implements SecurityProvider {
 	 * The global key or encryption key is a custom property of the rtu
 	 */
 	public byte[] getGlobalKey() {
+        if (this.encryptionKey == null) {
+            this.encryptionKey = DLMSUtils.hexStringToByteArray(properties.getProperty(DATATRANSPORT_ENCRYPTIONKEY, ""));
+        }
 		return this.encryptionKey;
 	}
 
 	/**
 	 * The HLSSecret is the password of the RTU
+     *
 	 * @return the password of the RTU
 	 */
 	public byte[] getHLSSecret() {
+        if (this.hlsSecret == null) {
+            this.hlsSecret = properties.getProperty(MeterProtocol.PASSWORD, "");
+        }
 		byte[] byteWord = new byte[this.hlsSecret.length()];
 		for(int i = 0; i < this.hlsSecret.length(); i++){
 			byteWord[i] = (byte)this.hlsSecret.charAt(i);
@@ -131,6 +152,7 @@ public class NTASecurityProvider implements SecurityProvider {
 
 	/**
 	 * The LLSSecret is the same as the HLSSecret
+     *
 	 * @return the password of the RTU
 	 */
 	public byte[] getLLSSecret(){
@@ -141,6 +163,9 @@ public class NTASecurityProvider implements SecurityProvider {
 	 * @return the master key (this is the KeyEncryptionKey)
 	 */
 	public byte[] getMasterKey() throws IOException {
+        if (this.masterKey == null) {
+            this.masterKey = DLMSUtils.hexStringToByteArray(properties.getProperty(MASTERKEY, ""));
+        }
 		return this.masterKey;
 	}
 
@@ -182,6 +207,14 @@ public class NTASecurityProvider implements SecurityProvider {
         return this.respondingFrameCounterHandler;
     }
 
+    public void changeEncryptionKey() throws IOException {
+        this.encryptionKey = getNEWGlobalKey();
+    }
+
+    public void changeAuthenticationKey() throws IOException {
+        this.authenticationKey = getNEWAuthenticationKey();
+    }
+
     public void setInitialFrameCounter(long frameCounter){
         this.initialFrameCounter = frameCounter;
     }
@@ -192,8 +225,16 @@ public class NTASecurityProvider implements SecurityProvider {
 	 * @return the new data encryption Authentication Key
 	 */
 	public byte[] getNEWAuthenticationKey() throws IOException {
+        return DLMSUtils.hexStringToByteArray(getNEWAuthenticationKeys()[0]);
+    }
+
+    /**
+     * @return the new authentication Key, as a String array
+     * @throws IOException
+     */
+    public String[] getNEWAuthenticationKeys() throws IOException {
 		if(this.properties.containsKey(NEW_DATATRANSPORT_AUTHENTICATION_KEY)){
-			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_DATATRANSPORT_AUTHENTICATION_KEY));
+            return new String[]{this.properties.getProperty(NEW_DATATRANSPORT_AUTHENTICATION_KEY)};
 		}
 		throw new IllegalArgumentException("New authenticationKey is not correctly filled in.");
 	}
@@ -202,8 +243,16 @@ public class NTASecurityProvider implements SecurityProvider {
 	 * @return the new encryption Key
 	 */
 	public byte[] getNEWGlobalKey() throws IOException {
+        return DLMSUtils.hexStringToByteArray(getNEWGlobalKeys()[0]);
+    }
+
+    /**
+     * @return the new encryption Key, as a String array
+     * @throws IOException
+     */
+    public String[] getNEWGlobalKeys() throws IOException {
 		if(this.properties.containsKey(NEW_DATATRANSPORT_ENCRYPTION_KEY)){
-			return DLMSUtils.hexStringToByteArray(this.properties.getProperty(NEW_DATATRANSPORT_ENCRYPTION_KEY));
+            return new String[]{this.properties.getProperty(NEW_DATATRANSPORT_ENCRYPTION_KEY)};
 		}
 		throw new IllegalArgumentException("New globalKey is not correctly filled in.");
 	}
@@ -219,7 +268,6 @@ public class NTASecurityProvider implements SecurityProvider {
 	}
 
 	/**
-	 * @return the new LLS secret
 	 * @return
 	 * @throws java.io.IOException
 	 */
@@ -244,4 +292,27 @@ public class NTASecurityProvider implements SecurityProvider {
 		return dedicatedKey;
 	}
 
+    protected void setAuthenticationKey(byte[] authenticationKey) {
+        this.authenticationKey = authenticationKey;
+    }
+
+    protected void setDedicatedKey(byte[] dedicatedKey) {
+        this.dedicatedKey = dedicatedKey;
+    }
+
+    protected void setEncryptionKey(byte[] encryptionKey) {
+        this.encryptionKey = encryptionKey;
+    }
+
+    protected void setHlsSecret(String hlsSecret) {
+        this.hlsSecret = hlsSecret;
+    }
+
+    protected void setMasterKey(byte[] masterKey) {
+        this.masterKey = masterKey;
+    }
+
+    protected Properties getProperties() {
+        return this.properties;
+    }
 }

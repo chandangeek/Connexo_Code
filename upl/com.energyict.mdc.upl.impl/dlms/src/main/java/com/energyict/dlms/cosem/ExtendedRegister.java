@@ -6,10 +6,7 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.OctetString;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.VisibleString;
 
@@ -27,7 +24,7 @@ import static com.energyict.dlms.DLMSCOSEMGlobals.*;
  */
 public class ExtendedRegister extends Register implements CosemObject {
     public final int DEBUG=0;
-    public static final int CLASSID=DLMSClassId.EXTENDED_REGISTER.getClassId();
+    public static final int CLASSID= DLMSClassId.EXTENDED_REGISTER.getClassId();
 
     Date captureTime;
     boolean captureTimeCached=false;
@@ -111,26 +108,26 @@ public class ExtendedRegister extends Register implements CosemObject {
 
     /**
      * @return the status of the register
-     * @throws IOException if resulted dataType is not supported or when read failed.
+     * @throws java.io.IOException if resulted dataType is not supported or when read failed.
      */
-    public long getStatus() throws IOException{
+    public long getStatus() throws IOException {
     	return DLMSUtils.parseValue2long(getResponseData(EXTENDED_REGISTER_STATUS));
     }
 
      /**  To be used when the status element has data-type 'Visible-string' or 'octet-string'
      * @return the status of the register
-     * @throws IOException if resulted dataType is not supported or when read failed.
+     * @throws java.io.IOException if resulted dataType is not supported or when read failed.
      */
-    public String getStatusText() throws IOException{
+    public String getStatusText() throws IOException {
         VisibleString visibleString = new VisibleString(getResponseData(EXTENDED_REGISTER_STATUS), 0);
         return visibleString.getStr();
     }
 
     /**
      * @param status - The dataType is manufactures specific
-     * @throws IOException when writing failed, possible dataType not supported
+     * @throws java.io.IOException when writing failed, possible dataType not supported
      */
-    public void setStatus(AbstractDataType status) throws IOException{
+    public void setStatus(AbstractDataType status) throws IOException {
     	write(EXTENDED_REGISTER_STATUS, status.getBEREncodedByteArray());
     }
 

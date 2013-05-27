@@ -42,6 +42,9 @@ public class AdaptorConnection implements DLMSConnection {
         return 0;
     }
 
+    public void setRetries(int retries) {
+    }
+
     public void sendUnconfirmedRequest(final byte[] byteRequestBuffer) throws IOException {
         if (baos == null) {
             baos = new ByteArrayOutputStream();
@@ -78,6 +81,10 @@ public class AdaptorConnection implements DLMSConnection {
     }
 
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
+        // Nothing to do
+    }
+
+    public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId, int hhuSignonBaudRateCode) {
         // Nothing to do
     }
 

@@ -96,9 +96,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Read the monitoredValue structure from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public ValueDefinitionType readMonitoredValue() throws IOException{
+	public ValueDefinitionType readMonitoredValue() throws IOException {
 		try {
 			this.monitoredValue = new ValueDefinitionType(getLNResponseData(ATTRB_MONITORED_VALUE), 0, 0);
 			return this.monitoredValue;
@@ -110,9 +110,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Get the latest retrieved monitoredValue, if its not there yet, read if from device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public ValueDefinitionType getMonitoredValue() throws IOException{
+	public ValueDefinitionType getMonitoredValue() throws IOException {
 		if(this.monitoredValue == null) {
 			readMonitoredValue(); // do a dummy read
 		}
@@ -122,9 +122,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Write the given monitoredValue structure to the device
 	 * @param monitoredValue
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeMonitoredValue(ValueDefinitionType monitoredValue) throws IOException{
+	public void writeMonitoredValue(ValueDefinitionType monitoredValue) throws IOException {
 		write(ATTRB_MONITORED_VALUE, monitoredValue.getBEREncodedByteArray());
 		this.monitoredValue = monitoredValue;
 	}
@@ -132,9 +132,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Retrieve the current thresholdActive object from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public AbstractDataType readThresholdActive() throws IOException{
+	public AbstractDataType readThresholdActive() throws IOException {
 		try{
 			this.thresholdActive = AXDRDecoder.decode(getLNResponseData(ATTRB_THRESHOLD_ACTIVE));
 			return this.thresholdActive;
@@ -147,9 +147,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	 * Write the given thresholdActive value to the device.
 	 * Note: Don't know if the writing of this object is allowed ...
 	 * @param thresholdActive
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeThresholdActive(AbstractDataType thresholdActive) throws IOException{
+	public void writeThresholdActive(AbstractDataType thresholdActive) throws IOException {
 		try{
 			write(ATTRB_THRESHOLD_ACTIVE, thresholdActive.getBEREncodedByteArray());
 			this.thresholdActive = thresholdActive;
@@ -161,9 +161,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Retrieve the current thresholdNormal value from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public AbstractDataType readThresholdNormal() throws IOException{
+	public AbstractDataType readThresholdNormal() throws IOException {
 		try{
 			this.thresholdNormal = AXDRDecoder.decode(getLNResponseData(ATTRB_THRESHOLD_NORMAL));
 			return this.thresholdNormal;
@@ -175,9 +175,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Write the given thresholdNormal value to the device
 	 * @param thresholdNormal
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeThresholdNormal(AbstractDataType thresholdNormal) throws IOException{
+	public void writeThresholdNormal(AbstractDataType thresholdNormal) throws IOException {
 		try{
 			write(ATTRB_THRESHOLD_NORMAL, thresholdNormal.getBEREncodedByteArray());
 			this.thresholdNormal = thresholdNormal;
@@ -189,9 +189,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Retrieve the current thresholdEmergency value from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public AbstractDataType readThresholdEmergency() throws IOException{
+	public AbstractDataType readThresholdEmergency() throws IOException {
 		try{
 			this.thresholdEmergency = AXDRDecoder.decode(getLNResponseData(ATTRB_THRESHOLD_EMERGENCY));
 			return this.thresholdEmergency;
@@ -203,9 +203,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Write the given thresholdEmergency value to the device
 	 * @param thresholdEmergency
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeThresholdEmergency(AbstractDataType thresholdEmergency) throws IOException{
+	public void writeThresholdEmergency(AbstractDataType thresholdEmergency) throws IOException {
 		try{
 			write(ATTRB_THRESHOLD_EMERGENCY, thresholdEmergency.getBEREncodedByteArray());
 			this.thresholdEmergency = thresholdEmergency;
@@ -217,7 +217,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Retrieve the current minOverThresholdDuration value from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Unsigned32 readMinOverThresholdDuration() throws IOException {
 		try{
@@ -231,9 +231,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Write the given minOverThresholdDuration value to the device
 	 * @param minOverThresholdDuration
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeMinOverThresholdDuration(Unsigned32 minOverThresholdDuration) throws IOException{
+	public void writeMinOverThresholdDuration(Unsigned32 minOverThresholdDuration) throws IOException {
 		try{
 			write(ATTRB_MIN_OVER_THRESHOLD_DURATION, minOverThresholdDuration.getBEREncodedByteArray());
 			this.minOverThresholdDuration = minOverThresholdDuration;
@@ -245,7 +245,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Retrieve the current minUnderThresholdDuration value from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Unsigned32 readMinUnderThresholdDuration() throws IOException {
 		try{
@@ -259,9 +259,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Write the given minUnderThresholdDuration value to the device
 	 * @param minUnderThresholdDuration
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeMinUnderThresholdDuration(Unsigned32 minUnderThresholdDuration) throws IOException{
+	public void writeMinUnderThresholdDuration(Unsigned32 minUnderThresholdDuration) throws IOException {
 		try{
 			write(ATTRB_MIN_UNDER_THRESHOLD_DURATION, minUnderThresholdDuration.getBEREncodedByteArray());
 			this.minUnderThresholdDuration = minUnderThresholdDuration;
@@ -273,9 +273,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Retrieve the current emergencyProfile from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public EmergencyProfile readEmergencyProfile() throws IOException{
+	public EmergencyProfile readEmergencyProfile() throws IOException {
 		try{
 			this.emergencyProfile = new EmergencyProfile(getLNResponseData(ATTRB_EMERGENCY_PROFILE), 0, 0);
 			return this.emergencyProfile;
@@ -287,9 +287,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Write the given emergycyProfile structure to the device
 	 * @param emergencyProfile
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeEmergencyProfile(EmergencyProfile emergencyProfile) throws IOException{
+	public void writeEmergencyProfile(EmergencyProfile emergencyProfile) throws IOException {
 		try{
 			write(ATTRB_EMERGENCY_PROFILE, emergencyProfile.getBEREncodedByteArray());
 			this.emergencyProfile = emergencyProfile;
@@ -298,7 +298,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 		}
 	}
 
-	public void writeEmergencyProfile(byte[] berEncodedByteArray) throws IOException{
+	public void writeEmergencyProfile(byte[] berEncodedByteArray) throws IOException {
 		try{
 			write(ATTRB_EMERGENCY_PROFILE, berEncodedByteArray);
 //			this.emergencyProfile = new EmergencyProfile();
@@ -314,9 +314,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Retrieve the current emergecyProfileGroupIdList from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Array readEmergencyProfileGroupIdList() throws IOException{
+	public Array readEmergencyProfileGroupIdList() throws IOException {
 		try{
 			this.emergencyProfileGroupIdList = new Array(getLNResponseData(ATTRB_EMERGENCY_PROFILE_GROUP_ID_LIST), 0, 0);
 			return this.emergencyProfileGroupIdList;
@@ -328,7 +328,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Write the given emergencyProfileGroupId array to the device
 	 * @param emergencyProfileGroupIdList
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void writeEmergencyProfileGroupIdList(Array emergencyProfileGroupIdList) throws IOException {
 		try{
@@ -342,9 +342,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Retrieve the current state of the emergencyProfileActive boolean from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public BooleanObject getEmergencyProfileActive() throws IOException{
+	public BooleanObject getEmergencyProfileActive() throws IOException {
 		try{
 			this.emergencyProfileActive = new BooleanObject(getLNResponseData(ATTRB_EMERGENCY_PROFILE_ACTIVE), 0);
 			return this.emergencyProfileActive;
@@ -355,18 +355,18 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 
 	/**
 	 * @return true or false, depending on the state of the emergencyProfile
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public boolean isEmergencyProfileActive() throws IOException{
+	public boolean isEmergencyProfileActive() throws IOException {
 		return getEmergencyProfileActive().getState();
 	}
 
 	/**
 	 * Write the given emergencyProfileActive boolean to the device
 	 * @param emergencyProfileActive
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeEmergencyProfileActive(BooleanObject emergencyProfileActive) throws IOException{
+	public void writeEmergencyProfileActive(BooleanObject emergencyProfileActive) throws IOException {
 		try{
 			write(ATTRB_EMERGENCY_PROFILE_ACTIVE, emergencyProfileActive.getBEREncodedByteArray());
 			this.emergencyProfileActive = emergencyProfileActive;
@@ -378,9 +378,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Retrieve the actions from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public ActionType readActions() throws IOException{
+	public ActionType readActions() throws IOException {
 		try{
 			this.actions = new ActionType(getLNResponseData(ATTRB_ACTIONS), 0, 0);
 			return this.actions;
@@ -391,9 +391,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 
 	/**
 	 * @return the latest retrieved actions attribute from the device
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public ActionType getActions() throws IOException{
+	public ActionType getActions() throws IOException {
 		if(this.actions == null){
 			readActions(); 	// do a dummy read
 		}
@@ -403,9 +403,9 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 	/**
 	 * Write the given actions to the device
 	 * @param actions
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeActions(ActionType actions) throws IOException{
+	public void writeActions(ActionType actions) throws IOException {
 		try{
 			write(ATTRB_ACTIONS, actions.getBEREncodedByteArray());
 			this.actions = actions;
@@ -414,7 +414,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 		}
 	}
 
-    public class ValueDefinitionType extends Structure{
+    public class ValueDefinitionType extends Structure {
 		private static final int ITEM_CLASS_ID = 0;
 		private static final int ITEM_LOGICAL_NAME = 1;
 		private static final int ITEM_ATTRIBUTE_INDEX = 2;
@@ -423,7 +423,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			super();
 		}
 
-		public ValueDefinitionType(byte[] berEncodedData, int offset, int level) throws IOException{
+		public ValueDefinitionType(byte[] berEncodedData, int offset, int level) throws IOException {
 			super(berEncodedData, offset, level);
 		}
 
@@ -447,7 +447,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 		}
 	}
 
-	public class EmergencyProfile extends Structure{
+	public class EmergencyProfile extends Structure {
 
 		private static final int ITEM_EMERGENCY_PROFILE_ID = 0;
 		private static final int ITEM_EMERGENCY_ACTIVATION_TIME = 1;
@@ -463,7 +463,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 //			this.addDataType(dataType)
 		}
 
-		public EmergencyProfile(byte[] berEncodedData, int offset, int level) throws IOException{
+		public EmergencyProfile(byte[] berEncodedData, int offset, int level) throws IOException {
 			super(berEncodedData, offset, level);
 		}
 
@@ -488,7 +488,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
         }
 	}
 
-	public class ActionType extends Structure{
+	public class ActionType extends Structure {
 
 		private static final int ITEM_ACTION_OVER_THRESHOLD = 0;
 		private static final int ITEM_ACTION_UNDER_THRESHOLD = 1;
@@ -503,21 +503,21 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			addDataType(actionUnderThreshold);
 		}
 
-		public ActionType(byte[] berEncodedData, int offset, int level) throws IOException{
+		public ActionType(byte[] berEncodedData, int offset, int level) throws IOException {
 			super(berEncodedData, offset, level);
 		}
 
-		public ActionItem getActionOverThreshold() throws IOException{
+		public ActionItem getActionOverThreshold() throws IOException {
 			return  new ActionItem(getDataType(ITEM_ACTION_OVER_THRESHOLD).getBEREncodedByteArray(), 0, 0);
 		}
 
-		public ActionItem getActionUnderThreshold() throws IOException{
+		public ActionItem getActionUnderThreshold() throws IOException {
 			return new ActionItem(getDataType(ITEM_ACTION_UNDER_THRESHOLD).getBEREncodedByteArray(), 0, 0);
 		}
 
 	}
 
-	public class ActionItem extends Structure{
+	public class ActionItem extends Structure {
 
 		private static final int ITEM_LOGICAL_NAME = 0;
 		private static final int ITEM_SELECTOR = 1;
@@ -532,7 +532,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			addDataType(scriptSelector);
 		}
 
-		public ActionItem(byte[] berEncodedData, int offset, int level) throws IOException{
+		public ActionItem(byte[] berEncodedData, int offset, int level) throws IOException {
 			super(berEncodedData, offset, level);
 		}
 

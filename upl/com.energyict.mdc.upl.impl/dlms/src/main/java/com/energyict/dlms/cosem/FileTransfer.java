@@ -24,7 +24,7 @@ import java.util.logging.Level;
  * </pre>
  */
 
-public class FileTransfer extends AbstractCosemObject{
+public class FileTransfer extends AbstractCosemObject {
 
 	public static boolean DEBUG = false;
 	private static int delay = 3000;
@@ -123,7 +123,7 @@ public class FileTransfer extends AbstractCosemObject{
 	 * @throws java.io.IOException if something went wrong during the upgrade.
 	 * @throws InterruptedException when interrupted while sleeping
 	 */
-	public void upgrade(byte[] data) throws IOException, InterruptedException{
+	public void upgrade(byte[] data) throws IOException, InterruptedException {
 	    this.upgrade(data, true);
 	}
 
@@ -138,7 +138,7 @@ public class FileTransfer extends AbstractCosemObject{
 	 * @throws java.io.IOException when something went wrong during the upgrade
 	 * @throws InterruptedException when interrupted while sleeping
 	 */
-	public void upgrade(byte[] data, boolean additionalZeros) throws IOException, InterruptedException{
+	public void upgrade(byte[] data, boolean additionalZeros) throws IOException, InterruptedException {
 		this.data = data;
 		this.size = new Unsigned32(data.length);
 
@@ -224,8 +224,8 @@ public class FileTransfer extends AbstractCosemObject{
 		for(int i = 0; i < blockCount; i++){
 			if(i < blockCount -1){
 				octetStringData = new byte[(int)readImageBlockSize().getValue()];
-				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
-						(int)readImageBlockSize().getValue());
+				System.arraycopy(this.data, (int) (i * readImageBlockSize().getValue()), octetStringData, 0,
+                        (int) readImageBlockSize().getValue());
 			} else {
 			    /*
 			     * If it is the last block then it is dependent from vendor to vendor whether they want the size of the last block
@@ -234,12 +234,12 @@ public class FileTransfer extends AbstractCosemObject{
 			    long blockSize = this.size.getValue() - (i*readImageBlockSize().getValue());
 			    if(additionalZeros){
 				octetStringData = new byte[(int)readImageBlockSize().getValue()];
-				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
-						(int)blockSize);
+				System.arraycopy(this.data, (int) (i * readImageBlockSize().getValue()), octetStringData, 0,
+                        (int) blockSize);
 			    } else {
 				octetStringData = new byte[(int)blockSize];
-				System.arraycopy(this.data, (int)(i*readImageBlockSize().getValue()), octetStringData, 0,
-					(int)blockSize);
+				System.arraycopy(this.data, (int) (i * readImageBlockSize().getValue()), octetStringData, 0,
+                        (int) blockSize);
 			    }
 
 			}
@@ -287,7 +287,7 @@ public class FileTransfer extends AbstractCosemObject{
 	 * Check if there are missing blocks, if so, resent them
 	 * @throws java.io.IOException
 	 */
-	public void checkAndSendMissingBlocks() throws IOException{
+	public void checkAndSendMissingBlocks() throws IOException {
 		Structure imageBlockTransfer;
 		byte[] octetStringData = null;
 		OctetString os = null;
@@ -309,13 +309,13 @@ public class FileTransfer extends AbstractCosemObject{
 
 			if (this.getImageFirstNotTransferedBlockNumber().getValue() < this.blockCount -1) {
 				octetStringData = new byte[(int)readImageBlockSize().getValue()];
-				System.arraycopy(this.data, (int)(this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue()), octetStringData, 0,
-						(int)readImageBlockSize().getValue());
+				System.arraycopy(this.data, (int) (this.getImageFirstNotTransferedBlockNumber().getValue() * readImageBlockSize().getValue()), octetStringData, 0,
+                        (int) readImageBlockSize().getValue());
 			} else {
 				long blockSize = this.size.getValue() - (this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue());
 				octetStringData = new byte[(int)blockSize];
-				System.arraycopy(this.data, (int)(this.getImageFirstNotTransferedBlockNumber().getValue()*readImageBlockSize().getValue()), octetStringData, 0,
-						(int)blockSize);
+				System.arraycopy(this.data, (int) (this.getImageFirstNotTransferedBlockNumber().getValue() * readImageBlockSize().getValue()), octetStringData, 0,
+                        (int) blockSize);
 			}
 
 			os = OctetString.fromByteArray(octetStringData);
@@ -332,7 +332,7 @@ public class FileTransfer extends AbstractCosemObject{
 	 * @throws java.io.IOException
 	 * @throws InterruptedException
 	 */
-	public void verifyAndRetryImage() throws IOException, InterruptedException{
+	public void verifyAndRetryImage() throws IOException, InterruptedException {
 		try{
 			int retry = 3;
 			while(retry >= 0){
@@ -360,7 +360,7 @@ public class FileTransfer extends AbstractCosemObject{
 	 * @return
 	 * @throws java.io.IOException
 	 */
-	public Unsigned32 readImageBlockSize() throws IOException{
+	public Unsigned32 readImageBlockSize() throws IOException {
 		try {
 			if(this.imageMaxBlockSize == null){
 				this.imageMaxBlockSize = new Unsigned32(getLNResponseData(ATTRB_IMAGE_BLOCK_SIZE),0);
@@ -416,7 +416,7 @@ public class FileTransfer extends AbstractCosemObject{
 	 * @return
 	 * @throws java.io.IOException
 	 */
-	public BooleanObject readImageTransferEnabledState() throws IOException{
+	public BooleanObject readImageTransferEnabledState() throws IOException {
 		try {
 			this.imageTransferEnabled = new BooleanObject(getLNResponseData(ATTRB_IMAGE_TRANSFER_ENABLED),0);
 			return this.imageTransferEnabled;
@@ -431,7 +431,7 @@ public class FileTransfer extends AbstractCosemObject{
 	 * @param state : true to indicate that in imageTransfer will be done, false otherwise
 	 * @throws java.io.IOException
 	 */
-	public void writeImageTransferEnabledState(boolean state) throws IOException{
+	public void writeImageTransferEnabledState(boolean state) throws IOException {
 		try {
 			write(ATTRB_IMAGE_TRANSFER_ENABLED, new BooleanObject(state).getBEREncodedByteArray());
 		} catch (IOException e) {
@@ -448,7 +448,7 @@ public class FileTransfer extends AbstractCosemObject{
 	 * @return
 	 * @throws java.io.IOException
 	 */
-	public BooleanObject getImageTransferEnabledState() throws IOException{
+	public BooleanObject getImageTransferEnabledState() throws IOException {
 		try {
 			if(this.imageTransferEnabled == null){
 				return readImageTransferEnabledState();

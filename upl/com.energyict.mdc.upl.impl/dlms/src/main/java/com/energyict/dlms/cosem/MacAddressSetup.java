@@ -7,7 +7,7 @@ import com.energyict.dlms.cosem.attributes.MacAddressSetupAttributes;
 import java.io.IOException;
 
 
-public class MacAddressSetup extends AbstractCosemObject{
+public class MacAddressSetup extends AbstractCosemObject {
 
 	private OctetString logicalName = null;
 

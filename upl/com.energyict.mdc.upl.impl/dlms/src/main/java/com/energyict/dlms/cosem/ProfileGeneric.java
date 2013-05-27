@@ -6,24 +6,11 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AXDRDecoder;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.energyict.dlms.DLMSCOSEMGlobals.*;
 
@@ -32,7 +19,9 @@ import static com.energyict.dlms.DLMSCOSEMGlobals.*;
  */
 public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
 
-    private final int DEBUG = 0;
+    private static final int RESET_LN = 1;
+    private static final int RESET_SN = 0x58;
+
     private List<CapturedObject> captureObjects = null; // of type CaptureObject
     private int capturePeriod = -1;
     private int profileEntries = -1;
@@ -42,6 +31,11 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
     private byte[] bufferResponseData = null;
 
     private UniversalObject[] capturedObjects = null;
+
+    /**
+     * Checks if caching for profile buffer data is enabled or disabled (enabled by default)
+     */
+    private boolean profileCaching = true;
 
     /**
      * Creates a new instance of ProfileGeneric
@@ -64,59 +58,23 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
     }
 
     public DataContainer getBuffer(Calendar fromCalendar, Calendar toCalendar) throws IOException {
-        DataContainer dataContainer = new DataContainer();
         byte[] responseData = getBufferResponseData(fromCalendar, toCalendar);
-
-        // KV_DEBUG
-        if (DEBUG >= 2) {
-            File file = new File("responseData.bin");
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(responseData);
-            fos.close();
-        }
-
+        DataContainer dataContainer = new DataContainer();
         dataContainer.parseObjectList(responseData, protocolLink.getLogger());
-        if (DEBUG >= 1) {
-            dataContainer.printDataContainer();
-        }
         return dataContainer;
     }
 
     public DataContainer getBuffer(long fromCalendar, long toCalendar) throws IOException {
-        DataContainer dataContainer = new DataContainer();
         byte[] responseData = getBufferResponseData(fromCalendar, toCalendar);
-
-        // KV_DEBUG
-        if (DEBUG >= 2) {
-            File file = new File("responseData.bin");
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(responseData);
-            fos.close();
-        }
-
+        DataContainer dataContainer = new DataContainer();
         dataContainer.parseObjectList(responseData, protocolLink.getLogger());
-        if (DEBUG >= 1) {
-            dataContainer.printDataContainer();
-        }
         return dataContainer;
     }
 
     public DataContainer getBuffer(int fromEntry, int toEntry, int fromValue, int toValue) throws IOException {
-        DataContainer dataContainer = new DataContainer();
         byte[] responseData = getBufferResponseData(fromEntry, toEntry, fromValue, toValue);
-
-        // KV_DEBUG
-        if (DEBUG >= 2) {
-            File file = new File("responseData.bin");
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(responseData);
-            fos.close();
-        }
-
+        DataContainer dataContainer = new DataContainer();
         dataContainer.parseObjectList(responseData, protocolLink.getLogger());
-        if (DEBUG >= 1) {
-            dataContainer.printDataContainer();
-        }
         return dataContainer;
     }
 
@@ -150,28 +108,28 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
     }
 
     private byte[] getBufferResponseData(Calendar fromCalendar, Calendar toCalendar) throws IOException {
-        if (bufferResponseData == null) {
+        if (bufferResponseData == null || !isProfileCaching()) {
             bufferResponseData = getResponseData(PROFILE_GENERIC_BUFFER, fromCalendar, toCalendar);
         }
         return bufferResponseData;
     }
 
     private byte[] getBufferResponseData(long fromCalendar, long toCalendar) throws IOException {
-        if (bufferResponseData == null) {
+        if (bufferResponseData == null || !isProfileCaching()) {
             bufferResponseData = getResponseData(PROFILE_GENERIC_BUFFER, fromCalendar, toCalendar);
         }
         return bufferResponseData;
     }
 
     private byte[] getBufferResponseData(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) throws IOException {
-        if (bufferResponseData == null) {
+        if (bufferResponseData == null || !isProfileCaching()) {
             bufferResponseData = getResponseData(PROFILE_GENERIC_BUFFER, fromCalendar, toCalendar, channels);
         }
         return bufferResponseData;
     }
 
     private byte[] getBufferResponseData(int fromEntry, int toEntry, int fromValue, int toValue) throws IOException {
-        if (bufferResponseData == null) {
+        if (bufferResponseData == null || !isProfileCaching()) {
             bufferResponseData = getResponseData(PROFILE_GENERIC_BUFFER, fromEntry, toEntry, fromValue, toValue);
         }
         return bufferResponseData;
@@ -199,10 +157,6 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         if (captureObjects == null) {
             DataContainer dataContainer = new DataContainer();
             dataContainer.parseObjectList(getCapturedObjectsResponseData(), protocolLink.getLogger());
-
-            if (DEBUG >= 1) {
-                dataContainer.printDataContainer();
-            }
             getCapturedObjectsFromDataContainter(dataContainer);
         }
         return captureObjects;
@@ -318,6 +272,14 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return 0;
     }
 
+    public void reset() throws IOException {
+        if(getObjectReference().isLNReference()){
+            invoke(RESET_LN, new Integer8(0).getBEREncodedByteArray());
+        } else {
+            write(RESET_SN, new Integer8(0).getBEREncodedByteArray());
+        }
+    }
+
     public ScalerUnit getScalerUnit() throws IOException {
         return null;
     }
@@ -328,29 +290,6 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
 
     public long getValue() throws IOException {
         throw new IOException("Data, getValue(), invalid data value type...");
-    }
-
-    private void parseResponseData() {
-        if (DEBUG >= 1) {
-            byte[] data = null;
-            try {
-                File file = new File("responseData.bin");
-                FileInputStream fis = new FileInputStream(file);
-                data = new byte[(int) file.length()];
-                fis.read(data);
-                fis.close();
-
-                DataContainer dc = new DataContainer();
-                dc.parseObjectList(data, protocolLink.getLogger());
-                //dc.printDataContainer();
-            }
-            catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public byte[] getData(int attr, Calendar from, Calendar to) throws IOException {
@@ -393,4 +332,26 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         write(4, val.getBEREncodedByteArray());
     }
 
-} // public class ProfileGeneric
+    /**
+     * This method can be used to enable or disable the caching for (and only for) the profile data (the actual buffer).<br>
+     * If caching is disabled, all requests for profile data will go straight to the meter.<br>
+     * Caching is enabled by default and can be disabled using the {@link ProfileGeneric#setProfileCaching(boolean)} method.
+     *
+     * @return true if caching is enabled
+     * @see ProfileGeneric#setProfileCaching(boolean)
+     */
+    public final boolean isProfileCaching() {
+        return profileCaching;
+    }
+
+    /**
+     * Enable or disable the caching for the profile data (enabled by default)
+     *
+     * @param profileCaching True to enable, false to disable
+     * @see ProfileGeneric#isProfileCaching()
+     */
+    public final void setProfileCaching(final boolean profileCaching) {
+        this.profileCaching = profileCaching;
+    }
+
+}

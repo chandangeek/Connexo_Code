@@ -57,7 +57,7 @@ public class TransmissionPeriod extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.TransmissionPeriod;
     }
 

@@ -14,7 +14,7 @@ public class WakeUpPeriodForTimeWindow2 extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.WakeUpPeriodForTimeWindow2;
     }
 

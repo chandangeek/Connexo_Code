@@ -14,7 +14,7 @@ public class NumberOfRepeaters extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.NumberOfRepeaters;
     }
 

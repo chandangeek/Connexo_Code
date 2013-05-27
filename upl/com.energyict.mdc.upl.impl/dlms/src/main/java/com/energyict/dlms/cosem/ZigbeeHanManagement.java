@@ -46,7 +46,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Read the blackList attribute from the Device
      *
      * @return the up-to-date blackList
-     * @throws IOException if for some reason you could not read the attribute
+     * @throws java.io.IOException if for some reason you could not read the attribute
      */
     public Array readBlackList() throws IOException {
         this.blackList = new Array(getResponseData(ZigbeeHanManagementAttributes.BLACK_LIST), 0, 0);
@@ -57,7 +57,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Write the blackList to the device
      *
      * @param blackList the blackList to write
-     * @throws IOException if for some reason you could not write the attribute
+     * @throws java.io.IOException if for some reason you could not write the attribute
      */
     public void writeBlackList(Array blackList) throws IOException {
         write(ZigbeeHanManagementAttributes.BLACK_LIST, blackList.getBEREncodedByteArray());
@@ -68,7 +68,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Get the blackList attribute. If the attribute is cached, then this is returned, otherwise it is fetched from the device using the {@link #readBlackList()} method
      *
      * @return the 'cached' blackList attribute
-     * @throws IOException if for some reason the attribute could not be read from the device
+     * @throws java.io.IOException if for some reason the attribute could not be read from the device
      */
     public Array getBlackList() throws IOException {
         if (this.blackList == null) {
@@ -81,7 +81,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Read the activeDevices attribute from the device
      *
      * @return the up-to-date structure with the active devices
-     * @throws IOException if for some reason we could not read the attribute
+     * @throws java.io.IOException if for some reason we could not read the attribute
      */
     public Array readActiveDevices() throws IOException {
         this.activeDevices = new Array(getResponseData(ZigbeeHanManagementAttributes.ACTIVE_DEVICES), 0, 0);
@@ -92,7 +92,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Write the given activeDevices to the attribute of the device
      *
      * @param activeDevices the activeDevices to write
-     * @throws IOException if for some reason we could not write the attribute
+     * @throws java.io.IOException if for some reason we could not write the attribute
      */
     public void writeActiveDevices(Array activeDevices) throws IOException {
         write(ZigbeeHanManagementAttributes.ACTIVE_DEVICES, activeDevices.getBEREncodedByteArray());
@@ -103,7 +103,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Get the activeDevices attribute. If the attribute is cached, then this is returned, otherwise it is fetched from the device using the {@link #readActiveDevices()} method
      *
      * @return the 'cached' activeDevices attribute
-     * @throws IOException if for some reason we could not read the attribute
+     * @throws java.io.IOException if for some reason we could not read the attribute
      */
     public Array getActiveDevices() throws IOException {
         if (this.activeDevices == null) {
@@ -116,7 +116,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Read the backupData attribute from the device
      *
      * @return the up-to-date backupData attribute
-     * @throws IOException if for some reason we could not read the attribute
+     * @throws java.io.IOException if for some reason we could not read the attribute
      */
     public Structure readBackupData() throws IOException {
         byte[] responseData = getResponseData(ZigbeeHanManagementAttributes.BACKUP_DATA);
@@ -129,7 +129,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Write the given backupData to the device attribute
      *
      * @param backupData the backupData to write
-     * @throws IOException if for some reason we could not write the attribute
+     * @throws java.io.IOException if for some reason we could not write the attribute
      */
     public void writeBackupData(Structure backupData) throws IOException {
         write(ZigbeeHanManagementAttributes.BACKUP_DATA, backupData.getBEREncodedByteArray());
@@ -140,7 +140,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Get the backupData attribute. If the attribute is cached, then this is returned, otherwise it is fetched from the device using the {@link #readBackupData()} method
      *
      * @return the 'cached' backupData attribute
-     * @throws IOException if for some reason we could not fetch the attribute
+     * @throws java.io.IOException if for some reason we could not fetch the attribute
      */
     public Structure getBackupData() throws IOException {
         if (this.backupData == null) {
@@ -154,7 +154,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      *
      * @param data additional data
      * @return raw data returned from the method invocation
-     * @throws IOException if for some reason the invocation did not succeed
+     * @throws java.io.IOException if for some reason the invocation did not succeed
      */
     public byte[] backup(AbstractDataType data) throws IOException {
         return methodInvoke(ZigbeeHanManagementMethods.BACKUP, data);
@@ -164,7 +164,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Inform the HUB to backup all ZigBee devices. Default additional data will be a {@link com.energyict.dlms.axrdencoding.Integer8} with value '0'.
      *
      * @return raw data returned from the method invocation
-     * @throws IOException if for some reason the invocation did not succeed
+     * @throws java.io.IOException if for some reason the invocation did not succeed
      */
     public byte[] backup() throws IOException {
         byte[] bytes = new byte[0];
@@ -191,7 +191,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      *               }<br>
      *               }
      * @return raw data returned from the method invocation
-     * @throws IOException if for some reason the invocation did not succeed
+     * @throws java.io.IOException if for some reason the invocation did not succeed
      */
     public byte[] restore(Structure backUp) throws IOException {
         return methodInvoke(ZigbeeHanManagementMethods.RESTORE, backUp);
@@ -201,7 +201,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Inform the HUB to create a HAN network
      *
      * @return raw data returned from the method invocation
-     * @throws IOException if for some reason the invocation did not succeed
+     * @throws java.io.IOException if for some reason the invocation did not succeed
      */
     public byte[] createHan() throws IOException {
         return methodInvoke(ZigbeeHanManagementMethods.CREATE_HAN, new Integer8(0));
@@ -211,7 +211,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      * Inform the HUB to remove a HAN network
      *
      * @return raw data returned from the method invocation
-     * @throws IOException if for some reason the invocation did not succeed
+     * @throws java.io.IOException if for some reason the invocation did not succeed
      */
     public byte[] removeHan() throws IOException {
         return methodInvoke(ZigbeeHanManagementMethods.REMOVE_HAN, new Integer8(0));
@@ -226,7 +226,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      *                           IdentfiyTime = long-unsigned (seconds)<br>
      *                           }
      * @return raw data returned from the method invocation
-     * @throws IOException if for some reason the invocation did not succeed
+     * @throws java.io.IOException if for some reason the invocation did not succeed
      */
     public byte[] identifyDevice(Structure identificationData) throws IOException {
         return methodInvoke(ZigbeeHanManagementMethods.IDENTIFY_DEVICE, identificationData);
@@ -237,7 +237,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      *
      * @param mirrorDataStructure additional data
      * @return raw data returned from the method invocation
-     * @throws IOException if for some reason the invocation did not succeed
+     * @throws java.io.IOException if for some reason the invocation did not succeed
      */
     public byte[] removeMirror(Structure mirrorDataStructure) throws IOException {
         return methodInvoke(ZigbeeHanManagementMethods.REMOVE_MIRROR, mirrorDataStructure);
@@ -248,7 +248,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      *
      * @param data additional data
      * @return raw data returned from the method invocation
-     * @throws IOException if for some reason the invocation did not succeed
+     * @throws java.io.IOException if for some reason the invocation did not succeed
      */
     public byte[] updateNetworkKeys(AbstractDataType data) throws IOException {
         return methodInvoke(ZigbeeHanManagementMethods.UPDATE_NETWORK_KEYS, data);
@@ -259,7 +259,7 @@ public class ZigbeeHanManagement extends AbstractCosemObject {
      *
      * @param data additional data
      * @return raw data returned from the method invocation
-     * @throws IOException if for some reason the invocation did not succeed
+     * @throws java.io.IOException if for some reason the invocation did not succeed
      */
     public byte[] updateLinkKeys(AbstractDataType data) throws IOException {
         return methodInvoke(ZigbeeHanManagementMethods.UPDATE_LINK_KEYS, data);

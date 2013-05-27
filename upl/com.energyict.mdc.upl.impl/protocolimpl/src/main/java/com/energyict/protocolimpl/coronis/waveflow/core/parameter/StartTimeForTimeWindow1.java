@@ -14,7 +14,7 @@ public class StartTimeForTimeWindow1 extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.StartTimeForTimeWindow1;
     }
 

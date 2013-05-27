@@ -223,8 +223,8 @@ public class RegisterReader {
                 UniversalObject uo = new UniversalObject(rObisCode.getLN(), getClassId(rObisCode).getClassId(), 0);
                 if (uo.getClassID() != DLMSClassId.UNKNOWN.getClassId()) {
                     if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-                        DLMSAttribute registerUnit = new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
-                        DLMSAttribute registerValue = new DLMSAttribute(rObisCode, RegisterAttributes.Register_Value.getAttributeNumber(), uo.getClassID());
+                        DLMSAttribute registerUnit = new DLMSAttribute(rObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID());
+                        DLMSAttribute registerValue = new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), uo.getClassID());
                         ComposedRegister composedRegister = new ComposedRegister(registerValue, registerUnit);
                         dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());

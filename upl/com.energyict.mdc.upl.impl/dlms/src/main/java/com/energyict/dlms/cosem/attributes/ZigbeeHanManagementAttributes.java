@@ -15,7 +15,7 @@ import com.energyict.obis.ObisCode;
  * Date: 22-jul-2011<br/>
  * Time: 11:36:44<br/>
  */
-public enum ZigbeeHanManagementAttributes implements DLMSClassAttributes{
+public enum ZigbeeHanManagementAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
     BLACK_LIST(2, 0x08),

@@ -13,8 +13,8 @@ import java.util.List;
  */
 public class StandardEventLog extends EventsLog {
 
-    private static final int EVENT_TARIFF_SHIFT_TIME = 19;
-    private static final int EVENT_SELF_CHECK_AFTER_FIRMWARE = 20;
+	private static final int EVENT_TARIFF_SHIFT_TIME = 19;
+	private static final int EVENT_SELF_CHECK_AFTER_FIRMWARE = 20;
 
     public StandardEventLog(DataContainer dc, AXDRDateTimeDeviationType deviationType) {
         super(dc, deviationType);
@@ -25,17 +25,10 @@ public class StandardEventLog extends EventsLog {
      */
     @Override
     protected void buildMeterEvent(final List<MeterEvent> meterEvents, final Date eventTimeStamp, final int eventId) {
-        switch (eventId) {
-            case EVENT_TARIFF_SHIFT_TIME: {
-                meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Tariff shift time (TOU)"));
-            }
-            break;
-            case EVENT_SELF_CHECK_AFTER_FIRMWARE: {
-                meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Successful selfcheck after firmwareupdate"));
-            }
-            break;
-            default:
-                super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);
+        switch(eventId){
+            case EVENT_TARIFF_SHIFT_TIME : {meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Tariff shift time (TOU)"));}break;
+            case EVENT_SELF_CHECK_AFTER_FIRMWARE : {meterEvents.add(createNewStandardLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Successful selfcheck after firmwareupdate"));}break;
+            default: super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);
         }
     }
 }

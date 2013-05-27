@@ -16,6 +16,7 @@ import java.io.IOException;
 public class ComposedMeterInfo extends ComposedCosemObject {
 
     public static final DLMSAttribute SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");
+    public static final DLMSAttribute EQUIPMENT_IDENTIFIER = DLMSAttribute.fromString("1:0.0.96.1.1.255:2");
     public static final DLMSAttribute FIRMWARE_VERSION = DLMSAttribute.fromString("1:1.0.0.2.0.255:2");
     public static final DLMSAttribute CONFIG_NUMBER = DLMSAttribute.fromString("1:0.0.96.2.0.255:2");
 
@@ -26,6 +27,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     private static DLMSAttribute[] getDlmsAttributes() {
         return new DLMSAttribute[]{
                 SERIALNR,
+                EQUIPMENT_IDENTIFIER,
                 FIRMWARE_VERSION,
                 CONFIG_NUMBER
         };
@@ -51,5 +53,14 @@ public class ComposedMeterInfo extends ComposedCosemObject {
 
     public int getConfigurationChanges() throws IOException {
         return getAttribute(CONFIG_NUMBER).intValue();
+    }
+
+    public String getEquipmentIdentifier() throws IOException {
+        AbstractDataType attribute = getAttribute(EQUIPMENT_IDENTIFIER);
+        if (attribute instanceof OctetString) {
+            return attribute.getOctetString().stringValue();
+        } else {
+            throw new IOException("Expected OctetString but was " + attribute.getClass().getSimpleName());
+        }
     }
 }

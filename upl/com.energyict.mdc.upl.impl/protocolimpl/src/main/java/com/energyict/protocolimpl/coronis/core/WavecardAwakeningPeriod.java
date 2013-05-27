@@ -12,7 +12,7 @@ public class WavecardAwakeningPeriod extends AbstractEscapeCommand {
 	int awakeningPeriod;
 	
 	@Override
-	EscapeCommandId getEscapeCommandId() {
+    EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.AWAKENING_PERIOD;
 	}
 

@@ -39,7 +39,7 @@ public class StartOfPushMechanism extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.StartOfPushMechanism;
     }
 

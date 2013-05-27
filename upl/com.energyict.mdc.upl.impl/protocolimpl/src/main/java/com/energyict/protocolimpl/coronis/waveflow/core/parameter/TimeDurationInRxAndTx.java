@@ -12,7 +12,7 @@ import java.io.IOException;
  * Date: 5-apr-2011
  * Time: 14:13:24
  */
-public class TimeDurationInRxAndTx extends AbstractParameter{
+public class TimeDurationInRxAndTx extends AbstractParameter {
 
     TimeDurationInRxAndTx(WaveFlow waveFlow) {
         super(waveFlow);
@@ -30,15 +30,15 @@ public class TimeDurationInRxAndTx extends AbstractParameter{
     }
 
     @Override
-    ParameterId getParameterId() throws WaveFlowException {
+    protected ParameterId getParameterId() throws WaveFlowException {
         return ParameterId.TimeDurationRxAndTx;
     }
 
     @Override
     protected void parse(byte[] data) throws IOException {
         byte[] rxBytes = ProtocolTools.getSubArray(data, 0, 2);
-        rxBytes  = ProtocolTools.reverseByteArray(rxBytes );
-        timeRx = ProtocolTools.getUnsignedIntFromBytes(rxBytes );
+        rxBytes  = ProtocolTools.reverseByteArray(rxBytes);
+        timeRx = ProtocolTools.getUnsignedIntFromBytes(rxBytes);
 
         byte[] txBytes = ProtocolTools.getSubArray(data, 2, 4);
         txBytes = ProtocolTools.reverseByteArray(txBytes);

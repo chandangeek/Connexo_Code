@@ -1,10 +1,7 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 
 import java.io.IOException;
@@ -97,6 +94,9 @@ public class DummyDLMSConnection implements DLMSConnection {
         return 0;
     }
 
+    public void setRetries(int retries) {
+    }
+
     /**
      * Doesn't send anything, just returns the response you have to set before the send.
      */
@@ -113,7 +113,13 @@ public class DummyDLMSConnection implements DLMSConnection {
     * @see com.energyict.dlms.DLMSConnection#setHHUSignOn(com.energyict.dialer.connection.HHUSignOn, java.lang.String)
     */
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
+        // TODO Auto-generated method stub
+
     }
+
+    public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId, int baudRateCode) {
+    }
+
 
     /* (non-Javadoc)
      * @see com.energyict.dlms.DLMSConnection.setInvokeIdAndPriorityHandler(com.energyict.dlms.InvokeIdAndPriorityHandler)

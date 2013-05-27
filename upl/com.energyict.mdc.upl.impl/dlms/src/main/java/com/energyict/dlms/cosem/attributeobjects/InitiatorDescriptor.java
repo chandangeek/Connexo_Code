@@ -1,11 +1,9 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
-
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  * @author jme
@@ -21,7 +19,7 @@ public class InitiatorDescriptor extends Structure {
 	 * @param berEncodeData
 	 * @param offset
 	 * @param level
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public InitiatorDescriptor(byte[] berEncodeData, int offset, int level) throws IOException {
 		super(berEncodeData, offset, level);
@@ -36,7 +34,7 @@ public class InitiatorDescriptor extends Structure {
 
 	/**
 	 * @return
-	 * @throws IOException 
+	 * @throws java.io.IOException
 	 */
 	public MacAddress getMacAddress() {
 		try {

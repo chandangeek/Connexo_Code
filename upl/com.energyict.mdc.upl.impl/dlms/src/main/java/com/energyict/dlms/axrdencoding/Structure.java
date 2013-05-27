@@ -15,9 +15,7 @@ import com.energyict.dlms.DLMSUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -152,5 +150,17 @@ public class Structure extends AbstractDataType {
 	public long longValue() {
 		return -1;
 	}
+
+    public <T extends AbstractDataType> T getDataType(int index, Class<T> expectedClass) throws IOException {
+        final int dataTypes = nrOfDataTypes();
+        if (dataTypes <= index) {
+            throw new IOException("Invalid index [" + index + "] while reading [" + expectedClass.getSimpleName() + "]. Structure contains only [" + dataTypes + "] items.");
+        }
+        final AbstractDataType dataType = getDataType(index);
+        if (!dataType.getClass().getName().equalsIgnoreCase(expectedClass.getName())) {
+            throw new IOException("Invalid dataType at index [" + index + "]. Expected [" + expectedClass.getSimpleName() + "] but received [" + dataType.getClass().getSimpleName() + "]");
+        }
+        return (T) getDataType(index);
+    }
 
 }

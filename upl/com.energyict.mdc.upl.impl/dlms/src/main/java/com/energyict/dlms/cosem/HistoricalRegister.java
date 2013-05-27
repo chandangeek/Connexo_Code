@@ -14,11 +14,11 @@ import java.util.Date;
  */
 public class HistoricalRegister implements CosemObject {
 
-	private Date		billingDate		= new Date();
-	private Date		eventTime		= null;
-	private Date		captureTime		= new Date();
-	private Quantity	quantityValue	= new Quantity(0, Unit.getUndefined());
-	private ScalerUnit	scalerUnit		= new ScalerUnit(Unit.getUndefined());
+	private Date billingDate		= new Date();
+	private Date eventTime		= null;
+	private Date captureTime		= new Date();
+	private Quantity quantityValue	= new Quantity(0, Unit.getUndefined());
+	private ScalerUnit scalerUnit		= new ScalerUnit(Unit.getUndefined());
 
 	public Date getBillingDate() throws IOException {
 		return billingDate;

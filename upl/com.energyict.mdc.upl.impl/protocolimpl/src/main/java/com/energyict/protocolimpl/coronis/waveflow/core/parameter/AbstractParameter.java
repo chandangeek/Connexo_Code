@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.coronis.waveflow.core.parameter;
 
 import com.energyict.protocolimpl.coronis.core.WaveFlowException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.waveflow.core.ParameterType;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.AbstractRadioCommand;
 
@@ -10,9 +11,9 @@ import java.io.*;
 abstract public class AbstractParameter extends AbstractRadioCommand {
 
     static final int PARAM_UPDATE_OK = 0x00;
-    static final int PARAM_UPDATE_ERROR = 0xFF;
+    protected ParameterType parameterType = ParameterType.WaveFlowV2; //By default, a parameter is handled as if it's a WaveFlow V2 parameter.
 
-    enum ParameterId {
+    protected enum ParameterId {
 
         BatteryLifeDurationCounter(0xA2, 2, "Battery life duration counter"),
         BatteryLifeDateEnd(0x90, 6, "Battery life end date"),
@@ -61,13 +62,27 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         EnableTimeWindowsByDayOfWeek(0x08, 1, "Enable time windows by day of the week "),
         EnableWakeUpPeriodsByDayOfWeek(0x09, 1, "Enable WakeUp periods by day of the week"),
 
+        //Hydreka parameters
+        TimeDateRTC(0x04, 7, "RTC date and time", ParameterType.Hydreka),
+        ReadingHourLeakageStatus(0x05, 1, "Daily reading hour of the leakage status", ParameterType.Hydreka),
+        ReadingHourHistogram(0x06, 1, "Daily reading hour of the histogram", ParameterType.Hydreka),
+        RTCResynchPeriod(0x07, 1, "Period of the RTC resynchronization", ParameterType.Hydreka),
+        ModuleEndOfBatteryTimestamp(0x90, 7, "Battery of module low timestamp", ParameterType.Hydreka),
+        TamperTimestamp(0x91, 6, "Tamper detection timestamp", ParameterType.Hydreka),
+        LeakageTimestamp(0x92, 6, "Leakage detection timestamp", ParameterType.Hydreka),
+        ProbeEndOfBatteryTimestamp(0x93, 6, "Battery of probe low timestamp", ParameterType.Hydreka),
+        BatteryLifeDurationCounterHydreka(0xA2, 3, "Battery life duration counter", ParameterType.Hydreka),
+
         //Hidden parameters
         ProfileType(0xE7, 1, "Profile type indicating the functionality supported by the module"),
-        NumberOfSentFrames(0xE8, 2, "Number of frames sent by the module"),
-        NumberOfReceivedFrames(0xE9, 2, "Number of frames received by the module"),
+        NumberOfSentFrames(0xE9, 2, "Number of frames sent by the module"),
+        NumberOfReceivedFrames(0xE8, 2, "Number of frames received by the module"),
         ElapsedDays(0xED, 2, "Number of days elapsed by the module"),
         TimeDurationRxAndTx(0xEB, 4, "Time duration in RX and TX"),
-        NumberOfFrameRxAndTx(0xEA, 2, "number of frame in RX and TX"),
+        NumberOfFrameRxAndTx(0xEA, 2, "Number of frame in RX and TX"),
+
+        //V1 433 MHz
+        NumberOfRelayedFramesV1(0xEB, 2, "Number of frames relayed and alarm frames transmitted by the V1 module", ParameterType.WaveFlowV1_433MHz),
 
         LeakageMeasurementStep(0xC4, 1, "Measurement step, expressed in multiple of minutes"),
         ResidualLeakageFlowA(0x88, 1, "Residual leakage flow (low threshold) for input A"),
@@ -105,20 +120,26 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
         private int id;
         private int length;
         private String description;
+        private ParameterType type;
 
-        ParameterId(final int id, final int length, final String description) {
+        ParameterId(final int id, final int length, final String description, ParameterType type) {
             this.id = id;
             this.length = length;
             this.description = description;
+            this.type = type;
+        }
+
+        ParameterId(final int id, final int length, final String description) {
+            this(id, length, description, ParameterType.WaveFlowV2);
         }
 
         public String toString() {
             return WaveflowProtocolUtils.toHexString(id) + ", " + description;
         }
 
-        static ParameterId fromId(final int id) {
+        static ParameterId fromId(final int id, ParameterType type) {
             for (ParameterId pid : values()) {
-                if (pid.id == id) {
+                if (pid.id == id && pid.type == type) {
                     return pid;
                 }
             }
@@ -151,13 +172,13 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
     }
 
 
-    AbstractParameter(WaveFlow waveFlow) {
+    public AbstractParameter(WaveFlow waveFlow) {
         super(waveFlow);
     }
 
-    abstract ParameterId getParameterId() throws WaveFlowException;
+    protected abstract ParameterId getParameterId() throws WaveFlowException;
 
-    void write() throws IOException {
+    public void write() throws IOException {
         ByteArrayOutputStream baos = null;
         try {
             baos = new ByteArrayOutputStream();
@@ -210,6 +231,9 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
             } else {
                 if (!getWaveFlow().isV1()) {
                     workingMode = dais.readShort();     //Only V2 modules send the workingmode in the response.                    
+                    operationMode = workingMode & 0xFF;
+                    getWaveFlow().getParameterFactory().setExtendedOperationMode((workingMode >> 8) & 0xFF);
+                    getWaveFlow().getParameterFactory().setOperatingMode(operationMode);
                 }
                 if (getParameterId() != null) {
                     int nrOfParameters = WaveflowProtocolUtils.toInt(dais.readByte());
@@ -217,7 +241,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                         throw new WaveFlowException("Writing only 1 parameter at a time allowed, returned [" + nrOfParameters + "] parameters!");
                     }
 
-                    ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()));
+                    ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()), parameterType);
                     if (pid != getParameterId()) {
                         throw new WaveFlowException("Invalid parameter returned expected [" + getParameterId() + "], returned [" + pid + "]");
                     }
@@ -282,6 +306,9 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
             } else {
                 if (!getWaveFlow().isV1()) {
                     workingMode = dais.readShort(); //The working mode is only received from V2 modules.                    
+                    operationMode = workingMode & 0xFF;
+                    getWaveFlow().getParameterFactory().setExtendedOperationMode((workingMode >> 8) & 0xFF);
+                    getWaveFlow().getParameterFactory().setOperatingMode(operationMode);
                 }
                 if (getParameterId() != null) {
                     int nrOfParameters = WaveflowProtocolUtils.toInt(dais.readByte());
@@ -289,7 +316,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                         throw new WaveFlowException("Reading only 1 parameter at a time allowed, returned [" + nrOfParameters + "] parameters!");
                     }
 
-                    ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()));
+                    ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()), parameterType);
                     if (pid != getParameterId()) {
                         throw new WaveFlowException("Invalid parameter returned expected [" + getParameterId() + "], returned [" + pid + "]");
                     }
@@ -321,7 +348,6 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
     protected RadioCommandId getRadioCommandId() {
         return null;
     }
-
 
     void writeBubbleUpConfiguration(int command, int transmissionPeriod) throws IOException {
         ByteArrayOutputStream baos = null;
@@ -389,6 +415,9 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 throw new WaveFlowException("Invalid response tag [" + WaveflowProtocolUtils.toHexString(commandIdAck) + "]");
             } else {
                 workingMode = dais.readShort();  //Is always sent in the response
+                operationMode = workingMode & 0xFF;
+                getWaveFlow().getParameterFactory().setExtendedOperationMode((workingMode >> 8) & 0xFF);
+                getWaveFlow().getParameterFactory().setOperatingMode(operationMode);
 
                 int nrOfParameters = WaveflowProtocolUtils.toInt(dais.readByte());
                 if (nrOfParameters != 4) {
@@ -396,7 +425,7 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
                 }
 
                 for (int i = 0; i < 4; i++) {
-                    ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()));
+                    ParameterId pid = ParameterId.fromId(WaveflowProtocolUtils.toInt(dais.readByte()), parameterType);
                     int result = WaveflowProtocolUtils.toInt(dais.readByte());
                     if (result != PARAM_UPDATE_OK) {
                         throw new WaveFlowException("Update parameter [" + pid + "] failed. Result code [" + WaveflowProtocolUtils.toHexString(result) + "]");

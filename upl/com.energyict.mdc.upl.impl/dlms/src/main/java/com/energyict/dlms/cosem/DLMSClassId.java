@@ -66,8 +66,8 @@ public enum DLMSClassId {
     PLC_OFDM_TYPE2_PHY_AND_MAC_COUNTERS(90),
     PLC_OFDM_TYPE2_MAC_SETUP(91),
     SIX_LOW_PAN_ADAPTATION_LAYER_SETUP(92),
-    KEYS_LOCK_DOWN_SWITCH(8193),
-    PRIVACY_ENHANCING_DATA_AGGREGATION(8194),
+    MANUFACTURER_SPECIFIC_8193(8193),
+    MANUFACTURER_SPECIFIC_8194(8194),
     ACTIVE_PASSIVE(9000),
     ZIGBEE_HAN_MANAGEMENT(9900),
     ZIGBEE_SAS_STARTUP(9901),
@@ -81,6 +81,9 @@ public enum DLMSClassId {
     G3_NETWORK_MANAGEMENT(20002),
     GENERIC_PLC_IB_SETUP(20003);
 
+    /**
+     * The dlms class identifier
+     */
     private int classId;
 
     /**
@@ -117,7 +120,7 @@ public enum DLMSClassId {
     }
 
     /**
-     * Get a desctiption based on the classId as int
+     * Get a description based on the classId as int
      *
      * @param dlmsClassId
      * @return
@@ -126,61 +129,4 @@ public enum DLMSClassId {
         return findById(dlmsClassId).toString();
     }
 
-    /**
-     * Check if a given DlmsClassId is a REGISTER
-     *
-     * @return true if the DlmsClassId is a REGISTER
-     */
-    public boolean isRegister() {
-        return getClassId() == REGISTER.getClassId();
-    }
-
-    /**
-     * Check if a given DlmsClassId is a EXTENDED_REGISTER
-     *
-     * @return true if the DlmsClassId is a EXTENDED_REGISTER
-     */
-    public boolean isExtendedRegister() {
-        return getClassId() == EXTENDED_REGISTER.getClassId();
-    }
-
-    /**
-     * Check if a given DlmsClassId is a DEMAND_REGISTER
-     *
-     * @return true if the DlmsClassId is a DEMAND_REGISTER
-     */
-    public boolean isDemandRegister() {
-        return getClassId() == DEMAND_REGISTER.getClassId();
-    }
-
-    /**
-     * Check if a given DlmsClassId is a PROFILE_GENERIC
-     *
-     * @return true if the DlmsClassId is a PROFILE_GENERIC
-     */
-    public boolean isProfileGeneric() {
-        return getClassId() == PROFILE_GENERIC.getClassId();
-    }
-
-    /**
-     * Check if a given DlmsClassId is a DATA
-     *
-     * @return true if the DlmsClassId is a DATA
-     */
-    public boolean isData() {
-        return getClassId() == DATA.getClassId();
-    }
-
-    /**
-     * Check if a given DlmsClassId is a CLOCK
-     *
-     * @return true if the DlmsClassId is a CLOCK
-     */
-    public boolean isClock() {
-        return getClassId() == CLOCK.getClassId();
-    }
-
-    public boolean isMacAddressSetup() {
-        return getClassId() == MAC_ADDRESS_SETUP.getClassId();
-    }
 }

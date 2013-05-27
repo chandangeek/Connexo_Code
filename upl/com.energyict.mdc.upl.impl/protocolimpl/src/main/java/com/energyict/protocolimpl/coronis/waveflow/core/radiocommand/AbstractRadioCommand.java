@@ -52,7 +52,7 @@ abstract public class AbstractRadioCommand {
         WriteCurrentRTCLegacy(0x13),    // For compatibility with waveflow v1 modules
         ReadCurrentRTC(0x14),           // page 38 waveflow V2 document: used to read the clock
 		WriteCurrentRTC(0x15),          // page 38 waveflow V2 document: used to set the clock
-		CurrentIndexReading(0x01,true),
+		CurrentIndexReading(0x01),
 		GlobalIndexReading(0x05,true),  // page 42 waveflow V2 document: used to read out the current meter indexes
 		LeakageEventTable(0x04),        // contains latest 5 leak events
 		BackFlowEventTable(0x08),       // contains latest 4 back flow events
@@ -60,8 +60,9 @@ abstract public class AbstractRadioCommand {
 		ModuleType(0x20),               // contains the module type
 		ExtendedIndexReading(0x06),     // contains the meter config settings.
         ControlWaterValve(0x30),        // command to open the water valve, only works for water valve profiles.
+        ReadValveStatus(0x31),
         AddCreditBeforeClosing(0x33),
-        DailyConsumption(0x27, false);  //Use the generic header in the parse
+        DailyConsumption(0x27);  //Use the generic header in the parse
 
 		private int commandId;
 		/**
@@ -123,7 +124,7 @@ abstract public class AbstractRadioCommand {
 		return operationMode;
 	}
 
-	final int getApplicationStatus() {
+	public final int getApplicationStatus() {
 		return applicationStatus;
 	}
 
@@ -145,7 +146,7 @@ abstract public class AbstractRadioCommand {
 
 	/**
 	 * Set the Radio parameter initiated value.
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
     public void set() throws IOException {
 
@@ -180,7 +181,7 @@ abstract public class AbstractRadioCommand {
 
 			int commandIdAck = WaveflowProtocolUtils.toInt(dais.readByte());
 			if (commandIdAck != (0x80 | getRadioCommandId().getCommandId())) {
-				throw new WaveFlowException("Invalid response tag ["+WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
+				throw new WaveFlowException("Invalid response tag ["+ WaveflowProtocolUtils.toHexString(commandIdAck)+"]");
 			}
 			else {
 

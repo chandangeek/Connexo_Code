@@ -196,7 +196,7 @@ public class LoadProfileBuilder {
                 if (uo != null) {
                     //TODO do we need to check the classId???
                     if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-                        DLMSAttribute registerUnit = new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID());
+                        DLMSAttribute registerUnit = new DLMSAttribute(rObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID());
                         dlmsAttributes.add(registerUnit);
                         this.registerUnitMap.put(register, registerUnit);
                     }

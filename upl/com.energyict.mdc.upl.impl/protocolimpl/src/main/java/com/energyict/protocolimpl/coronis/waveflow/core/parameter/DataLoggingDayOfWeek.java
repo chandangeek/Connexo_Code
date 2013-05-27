@@ -11,7 +11,7 @@ public class DataLoggingDayOfWeek extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.DayOfWeek;
     }
 

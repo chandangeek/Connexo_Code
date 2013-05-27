@@ -19,7 +19,7 @@ public class EscapeCommandFactory {
 	/**
 	 * Set the communication attempt starting with 0 for first attempt.
 	 * @param communicationAttemptNr
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setWavenisStackCommunicationAttemptNr(int communicationAttemptNr) throws IOException {
 		WavenisStackCommunicationAttemptNr o = new WavenisStackCommunicationAttemptNr(protocolStackLink,communicationAttemptNr);
@@ -29,13 +29,13 @@ public class EscapeCommandFactory {
 	/**
 	 * Set the Wavenis stack communication RF response timeout to match the protocols default timeout
 	 * @param configRFResponseTimeoutInMs
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setWavenisStackConfigRFResponseTimeout(int configRFResponseTimeoutInMs) throws IOException {
 		WavenisStackConfigRFResponseTimeout o = new WavenisStackConfigRFResponseTimeout(protocolStackLink,configRFResponseTimeoutInMs);
 		o.invoke();
 	}
-	
+
 	/**
 	 * Set the wavecard radio timeout in seconds. this command is used prio to a meterdetect command "0x0C"
 	 * @param timeout
@@ -53,19 +53,19 @@ public class EscapeCommandFactory {
 		WavecardWakeupLength o = new WavecardWakeupLength(protocolStackLink,wakeupLength);
 		o.invoke();
 	}
-	
+
 	/**
 	 * Set the wavecard awakening period in 100ms unities (default is 10 = 1sec). We need to set thios parameter to 110ms to be able to talk to the DLMS meter with the 22 commans REQ_SEND_MESSAGE for the DLMS waveflow 32 command to request multiple obiscodes...
-	 * @param wakeupLength in ms
+	 * @param awakeningPeriod in ms
 	 */
 	public void setAndVerifyWavecardAwakeningPeriod(int awakeningPeriod) throws IOException {
 		WavecardAwakeningPeriod o = new WavecardAwakeningPeriod(protocolStackLink,awakeningPeriod);
 		o.invoke();
 	}
-	
+
 	/**
-	 * Use the 
-	 * @throws IOException
+	 * Use the
+	 * @throws java.io.IOException
 	 */
 	public void sendUsingSendMessage() throws IOException {
 		WavecardUseSendMessage o = new WavecardUseSendMessage(protocolStackLink);
@@ -74,6 +74,11 @@ public class EscapeCommandFactory {
 	
 	public void sendUsingSendFrame() throws IOException {
 		WavecardUseSendFrame o = new WavecardUseSendFrame(protocolStackLink);
+		o.invoke();
+	}
+
+	public void sendUsingServiceRequest() throws IOException {
+		WavecardUseServiceRequest o = new WavecardUseServiceRequest(protocolStackLink);
 		o.invoke();
 	}
 }

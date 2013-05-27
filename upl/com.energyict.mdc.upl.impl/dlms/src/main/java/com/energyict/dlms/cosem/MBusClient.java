@@ -11,7 +11,7 @@ import java.io.IOException;
  * A straightforward implementation of the MbusClient object according to the DLMS BlueBooks. Versioning is applied because changes have
  * been made in the mapping of the shortnames
  */
-public class MBusClient extends AbstractCosemObject{
+public class MBusClient extends AbstractCosemObject {
 
     /**
      * Contains the version of the used BlueBook implementation
@@ -53,7 +53,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * Get the identification number from the MBus device.
 	 *
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Unsigned32 getIdentificationNumber() throws IOException {
         return new Unsigned32(getResponseData(MbusClientAttributes.IDENTIFICATION_NUMBER.forVersion(getUsedVersion())), 0);
@@ -63,7 +63,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * Get the manufacturer ID from the MBus device.
 	 *
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Unsigned16 getManufacturerID() throws IOException {
         return new Unsigned16(getResponseData(MbusClientAttributes.MANUFACTURER_ID.forVersion(getUsedVersion())), 0);
@@ -73,16 +73,16 @@ public class MBusClient extends AbstractCosemObject{
 	 * Force to install the mbus meter with the given primaryAddress
      *
 	 * @param primaryAddress
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void installSlave(int primaryAddress) throws IOException{
+	public void installSlave(int primaryAddress) throws IOException {
         methodInvoke(MbusClientMethods.SLAVE_INSTALL.forVersion(getUsedVersion()), new Integer8(primaryAddress));
 		}
 
 	/**
 	 * Force to deinstall the current slave meter
      *
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void deinstallSlave() throws IOException {
         methodInvoke(MbusClientMethods.SLAVE_DEINSTALL.forVersion(getUsedVersion()), new Integer8(0));
@@ -94,7 +94,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * If null is given as open key, then the encryption is disabled
      *
 	 * @param openKey
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setEncryptionKey(String openKey) throws IOException {
 		if(openKey.equals("")){
@@ -110,7 +110,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * If null is given as open key, then the encryption is disabled
      *
 	 * @param openKey
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setEncryptionKey(byte[] openKey) throws IOException {
         methodInvoke(MbusClientMethods.SET_ENCRYPTION_KEY.forVersion(getUsedVersion()), OctetString.fromByteArray(openKey));
@@ -121,7 +121,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * of the device
      *
 	 * @param encryptedkey
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setTransportKey(String encryptedkey) throws IOException {
 		setTransportKey(OctetString.fromString(encryptedkey).getBEREncodedByteArray());
@@ -132,7 +132,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * of the device
      *
 	 * @param encryptedkey
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void setTransportKey(byte[] encryptedkey) throws IOException {
         methodInvoke(MbusClientMethods.TRANSFER_KEY.forVersion(getUsedVersion()), OctetString.fromByteArray(encryptedkey));
@@ -150,7 +150,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * </pre>
 	 *
      * @param rawEncryptedKeys - the rawDataStructure with the two keys
-	 * @throws IOException if something went wrong during the setting of the keys
+	 * @throws java.io.IOException if something went wrong during the setting of the keys
 	 */
 	public void setTransportKeyRawData(byte[] rawEncryptedKeys) throws IOException {
         methodInvoke(MbusClientMethods.TRANSFER_KEY.forVersion(getUsedVersion()), rawEncryptedKeys);
@@ -161,9 +161,9 @@ public class MBusClient extends AbstractCosemObject{
 	 * Description of the different types can be found in 'EN 13757-3 sub-clause 5.7, Table 3'
      *
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Unsigned8 getDeviceType() throws IOException{
+	public Unsigned8 getDeviceType() throws IOException {
         return new Unsigned8(getResponseData(MbusClientAttributes.DEVICE_TYPE.forVersion(getUsedVersion())), 0);
 	}
 
@@ -172,9 +172,9 @@ public class MBusClient extends AbstractCosemObject{
 	 * NOTE: setter may not be supported by all meters.
      *
 	 * @param deviceType
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void setDeviceType(Unsigned8 deviceType) throws IOException{
+	public void setDeviceType(Unsigned8 deviceType) throws IOException {
         write(MbusClientAttributes.DEVICE_TYPE.forVersion(getUsedVersion()), deviceType.getBEREncodedByteArray());
 	}
 
@@ -183,9 +183,9 @@ public class MBusClient extends AbstractCosemObject{
 	 * NOTE: setter may not be supported by all meters.
      *
 	 * @param deviceType
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void setDeviceType(int deviceType) throws IOException{
+	public void setDeviceType(int deviceType) throws IOException {
 		setDeviceType(new Unsigned8(deviceType));
 	}
 
@@ -193,9 +193,9 @@ public class MBusClient extends AbstractCosemObject{
 	 * Get the version from the MBus device.
      *
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Unsigned8 getVersion() throws IOException{
+	public Unsigned8 getVersion() throws IOException {
         return new Unsigned8(getResponseData(MbusClientAttributes.VERSION.forVersion(getUsedVersion())), 0);
 	    }
 
@@ -203,9 +203,9 @@ public class MBusClient extends AbstractCosemObject{
 	 * Write the given unsigned8 version to the device
      *
 	 * @param version
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void setVersion(Unsigned8 version) throws IOException{
+	public void setVersion(Unsigned8 version) throws IOException {
         write(MbusClientAttributes.VERSION.forVersion(getUsedVersion()), version.getBEREncodedByteArray());
 	}
 
@@ -213,9 +213,9 @@ public class MBusClient extends AbstractCosemObject{
 	 * Write the version to the meter.
      *
 	 * @param version
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void setVersion(int version) throws IOException{
+	public void setVersion(int version) throws IOException {
 		setVersion(new Unsigned8(version));
 	}
 
@@ -225,9 +225,9 @@ public class MBusClient extends AbstractCosemObject{
 	 * The first is the DIB(DataInformationBlock) octetString, the other is the VIB(ValueInformationBlock) octetString
      *
 	 * @param capDef
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeCaptureDefinition(Array capDef) throws IOException{
+	public void writeCaptureDefinition(Array capDef) throws IOException {
         write(MbusClientAttributes.CAPTURE_DEFINITION.forVersion(getUsedVersion()), capDef.getBEREncodedByteArray());
 	}
 
@@ -237,7 +237,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * The first is the DIB(DataInformationBlock) octetString, the other is the VIB(ValueInformationBlock) octetString
      *
 	 * @return an array containing the capture definition of the mbus slave device
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public Array getCaptureDefiniton() throws IOException {
         return new Array(getResponseData(MbusClientAttributes.CAPTURE_DEFINITION.forVersion(getUsedVersion())), 0, 0);
@@ -251,9 +251,9 @@ public class MBusClient extends AbstractCosemObject{
 	 * </pre>
 	 *
 	 * @return the capture period in seconds
-	 * @throws IOException if something goes wrong during the read
+	 * @throws java.io.IOException if something goes wrong during the read
 	 */
-	public Unsigned32 getCapturePeriod() throws IOException{
+	public Unsigned32 getCapturePeriod() throws IOException {
         return new Unsigned32(getResponseData(MbusClientAttributes.CAPTURE_PERIOD.forVersion(getUsedVersion())), 0);
 		}
 
@@ -261,7 +261,7 @@ public class MBusClient extends AbstractCosemObject{
 	 * Setter for the capturePeriod
 	 *
      * @param period - the period in seconds
-	 * @throws IOException if something goes wrong during the setting
+	 * @throws java.io.IOException if something goes wrong during the setting
 	 */
 	public void setCapturePeriod(int period) throws IOException {
         write(MbusClientAttributes.CAPTURE_PERIOD.forVersion(getUsedVersion()), new Unsigned32(period).getBEREncodedByteArray());

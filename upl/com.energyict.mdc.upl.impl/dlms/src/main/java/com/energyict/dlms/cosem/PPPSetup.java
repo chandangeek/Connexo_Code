@@ -17,8 +17,6 @@ import java.io.IOException;
  */
 public class PPPSetup extends AbstractCosemObject {
 
-	private boolean DEBUG = true;	//TODO set it back to false
-
 	/** Attributes */
 	private OctetString phyReference = null;	// Contains information about the specific physical layer interface, supporting the PPP layer
 	private LCPOptionsType lcpOptions = null;	// Contains the parameters for the Link Control Protocol options
@@ -46,9 +44,9 @@ public class PPPSetup extends AbstractCosemObject {
 	/**
 	 * Read the current lcpOptionsType from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public LCPOptionsType readLCPOptionsType() throws IOException{
+	public LCPOptionsType readLCPOptionsType() throws IOException {
 		try{
 			this.lcpOptions = new LCPOptionsType(getLNResponseData(ATTRB_LCP_OPTIONS));
 			return this.lcpOptions;
@@ -61,9 +59,9 @@ public class PPPSetup extends AbstractCosemObject {
 	/**
 	 * Return the latest retrieved lcpOptionsType
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public LCPOptionsType getLCPOptionsType() throws IOException{
+	public LCPOptionsType getLCPOptionsType() throws IOException {
 		if(this.lcpOptions == null){
 			readLCPOptionsType();	// do a dummy read;
 		}
@@ -73,9 +71,9 @@ public class PPPSetup extends AbstractCosemObject {
 	/**
 	 * Read the current pppAuthenticationType from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public PPPAuthenticationType readPPPAuthenticationType() throws IOException{
+	public PPPAuthenticationType readPPPAuthenticationType() throws IOException {
 		try{
 			this.pppAuthentication = new PPPAuthenticationType(getLNResponseData(ATTRB_PPP_AUTHENTICATION));
 			return this.pppAuthentication;
@@ -88,9 +86,9 @@ public class PPPSetup extends AbstractCosemObject {
 	/**
 	 * Return the latest retrieved pppAuthenticationType
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public PPPAuthenticationType getPPPAuthenticationType() throws IOException{
+	public PPPAuthenticationType getPPPAuthenticationType() throws IOException {
 		if(this.pppAuthentication == null){
 			readPPPAuthenticationType();	// do a dummy read
 		}
@@ -100,9 +98,9 @@ public class PPPSetup extends AbstractCosemObject {
 	/**
 	 * Write a self build pppAuthenticationType to the device
 	 * @param pppAuthenticationType
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writePPPAuthenticationType(PPPAuthenticationType pppAuthenticationType) throws IOException{
+	public void writePPPAuthenticationType(PPPAuthenticationType pppAuthenticationType) throws IOException {
 		write(ATTRB_PPP_AUTHENTICATION, pppAuthenticationType.getBEREncodedByteArray());
 		this.pppAuthentication = pppAuthenticationType;
 	}
@@ -110,9 +108,9 @@ public class PPPSetup extends AbstractCosemObject {
 	/**
 	 * Write a self build pppAuthenticationStructure to the device
 	 * @param pppAuthenticationType
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writePPPAuthenticationType(Structure pppAuthenticationType) throws IOException{
+	public void writePPPAuthenticationType(Structure pppAuthenticationType) throws IOException {
 		write(ATTRB_PPP_AUTHENTICATION, pppAuthenticationType.getBEREncodedByteArray());
 		this.pppAuthentication = new PPPAuthenticationType(pppAuthenticationType.getBEREncodedByteArray());
 	}
@@ -158,9 +156,6 @@ public class PPPSetup extends AbstractCosemObject {
 			this.dataContainer = new DataContainer();
 			try {
 				this.dataContainer.parseObjectList(responseData, protocolLink.getLogger());
-				if(DEBUG) {
-					this.dataContainer.printDataContainer();
-				}
 
 				if(getLCPOptionsType().getAuthProt() != null){
 					switch(getLCPOptionsType().getAuthProt().getValue()){
@@ -274,9 +269,6 @@ public class PPPSetup extends AbstractCosemObject {
 		public LCPOptionsType(byte[] responseData) throws IOException {
 			this.dataContainer = new DataContainer();
 			this.dataContainer.parseObjectList(responseData, protocolLink.getLogger());
-			if(DEBUG) {
-				this.dataContainer.printDataContainer();
-			}
 
 			for (int i=0; i<dataContainer.getRoot().getNrOfElements(); i++) {
 				switch(dataContainer.getRoot().getStructure(i).getInteger(LCP_OPTION_TYPE)){

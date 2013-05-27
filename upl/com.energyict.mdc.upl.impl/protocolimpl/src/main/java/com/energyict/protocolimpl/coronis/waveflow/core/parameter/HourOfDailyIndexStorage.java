@@ -22,7 +22,7 @@ public class HourOfDailyIndexStorage extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.HourOfDailyLogging;
     }
 

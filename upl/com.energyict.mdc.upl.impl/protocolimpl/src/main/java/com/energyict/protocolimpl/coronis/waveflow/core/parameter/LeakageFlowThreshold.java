@@ -34,7 +34,7 @@ public class LeakageFlowThreshold extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         switch (thresholdType) {
             case 0:
                 switch (input) {
@@ -81,6 +81,13 @@ public class LeakageFlowThreshold extends AbstractParameter {
 
     @Override
     protected byte[] prepare() throws IOException {
-        return new byte[]{(byte) getThresholdValue()};
+        switch (thresholdType) {
+            case 0:
+                return new byte[]{(byte) getThresholdValue()};
+            case 1:
+                return ProtocolTools.reverseByteArray(ProtocolTools.getBytesFromInt(getThresholdValue(), 2));
+            default:
+                return new byte[0];
+        }
     }
 }

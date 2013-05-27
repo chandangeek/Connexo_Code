@@ -1,53 +1,21 @@
 package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.InvokeIdAndPriorityHandler;
-import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DemandRegister;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.HistoricalValue;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.CacheMechanism;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterProtocol;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocol.messaging.FirmwareUpdateMessaging;
-import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
-import com.energyict.protocol.messaging.Message;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.*;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.dlms.AbstractDLMSProtocol;
+import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.idis.registers.IDISStoredValues;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -61,17 +29,22 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     private static final String READ_CACHE_DEFAULT_VALUE = "0";
     private static final String CALLING_AP_TITLE_DEFAULT = "0000000000000000";
     private static final String READCACHE_PROPERTY = "ReadCache";
+    private static final String LIMITMAXNROFDAYS_PROPERTY = "LimitMaxNrOfDays";
     private static final String CALLING_AP_TITLE = "CallingAPTitle";
     private static final String LOAD_PROFILE_OBIS_CODE_PROPERTY = "LoadProfileObisCode";
     public static final String OBISCODE_LOAD_PROFILE1 = "1.0.99.1.0.255";   //Quarterly
+    private static final String MAX_NR_OF_DAYS_DEFAULT = "0";
     public static final String VALIDATE_INVOKE_ID = "ValidateInvokeId";
     public static final String DEFAULT_VALIDATE_INVOKE_ID = "1";
+    private static final String TIMEOUT = "timeout";
 
     private ProfileDataReader profileDataReader = null;
     private IDISMessageHandler messageHandler = null;
     private boolean readCache = false;      //Property indicating to read the cache out (useful because there's no config change state)
     private ObisCode loadProfileObisCode = ObisCode.fromString(OBISCODE_LOAD_PROFILE1);
     private IDISStoredValues storedValues = null;
+    private ObisCodeMapper obisCodeMapper = null;
+    private int limitMaxNrOfDays = 0;
 
     private ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
@@ -117,7 +90,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     private void connectWithRetries() throws IOException {
         int tries = 0;
         while (true) {
-            Exception exception = null;
+            IOException exception;
             try {
                 if (this.aso.getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     this.aso.createAssociation();
@@ -125,19 +98,23 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
                 return;
             } catch (IOException e) {
                 exception = e;
-            } catch (DLMSConnectionException e) {
-                exception = e;
             }
 
-            if (exception != null) {
+            if ((exception.getMessage() != null) && exception.getMessage().toLowerCase().contains(TIMEOUT)) {
+                getLogger().severe("Meter didn't reply to the association request! Stopping session.");
+                throw exception;    //Don't retry the AARQ if it's a real timeout!
+            } else {
                 if (++tries > retries) {
-                    getLogger().severe("Unable to establish association after [" + tries + "/" + retries + "] tries.");
+                    getLogger().severe("Unable to establish association after [" + tries + "/" + (retries + 1) + "] tries.");
                     throw new NestedIOException(exception);
-                } else if (getLogger().isLoggable(Level.INFO)) {
-                    getLogger().info("Unable to establish association after [" + tries + "/" + retries + "] tries. Sending RLRQ and retry ...");
+                } else {
+                    if (getLogger().isLoggable(Level.INFO)) {
+                        getLogger().info("Unable to establish association after [" + tries + "/" + (retries + 1) + "] tries. Sending RLRQ and retry ...");
+                    }
                     try {
                         this.aso.releaseAssociation();
                     } catch (IOException e) {
+                        this.aso.setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
                         // Absorb exception: in 99% of the cases we expect an exception here ...
                     }
                 }
@@ -147,31 +124,28 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
 
     @Override
     protected void checkCacheObjects() throws IOException {
-        try {
-
-            if (dlmsCache == null) {
-                dlmsCache = new DLMSCache();
-            }
-            if (dlmsCache.getObjectList() == null || isReadCache()) {
-                logger.info("Reading out the cache");
-                requestObjectList();
-                dlmsCache.saveObjectList(dlmsMeterConfig.getInstantiatedObjectList());  // save object list in cache
-            }
-
-            if (dlmsCache.getObjectList() != null) {
-                dlmsMeterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
-            }
-
-        } catch (IOException e) {
-            IOException exception = new IOException("connect() error, " + e.getMessage());
-            exception.initCause(e);
-            throw exception;
+        if (dlmsCache == null) {
+            dlmsCache = new DLMSCache();
+        }
+        if (dlmsCache.getObjectList() == null || isReadCache()) {       //Don't read the object list from the meter, instead use a hardcoded copy. This is to avoid many round trips over a bad PLC connection...
+            dlmsCache.saveObjectList(new IDISObjectList().getObjectList());  // save object list in cache
+        }
+        if (dlmsCache.getObjectList() != null) {
+            dlmsMeterConfig.setInstantiatedObjectList(dlmsCache.getObjectList());
         }
     }
 
     @Override
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
-        return getProfileDataReader().getProfileData(from, to, includeEvents);
+        if (to == null) {
+            to = ProtocolUtils.getCalendar(getTimeZone()).getTime();
+            getLogger().info("getProfileData: toDate was 'null'. Changing toDate to: " + to);
+        }
+        ProfileData profileData = getProfileDataReader().getProfileData(new ProfileLimiter(from, to, getLimitMaxNrOfDays()), includeEvents);
+        if ((profileData.getIntervalDatas().size() == 0) && (getLimitMaxNrOfDays() > 0)) {
+            profileData = getProfileDataReader().getProfileData(from, to, includeEvents);
+        }
+        return profileData;
     }
 
     public TimeZone getTimeZone() {
@@ -212,6 +186,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     @Override
     protected void doValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         readCache = Integer.parseInt(properties.getProperty(READCACHE_PROPERTY, READ_CACHE_DEFAULT_VALUE).trim()) == 1;
+        limitMaxNrOfDays = Integer.parseInt(properties.getProperty(LIMITMAXNROFDAYS_PROPERTY, MAX_NR_OF_DAYS_DEFAULT).trim());
         String callingAPTitle = properties.getProperty(CALLING_AP_TITLE, CALLING_AP_TITLE_DEFAULT).trim();
         setCallingAPTitle(callingAPTitle);
         loadProfileObisCode = ObisCode.fromString(properties.getProperty(LOAD_PROFILE_OBIS_CODE_PROPERTY, OBISCODE_LOAD_PROFILE1).trim());
@@ -223,34 +198,14 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
 
     @Override
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
-        if (obisCode.getF() != 255) {
-            HistoricalValue historicalValue = getStoredValues().getHistoricalValue(obisCode);
-            return new RegisterValue(obisCode, historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
-        }
+        return getObisCodeMapper().readRegister(obisCode);
+    }
 
-        final UniversalObject uo = getMeterConfig().findObject(obisCode);
-        if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
-            final Register register = getCosemObjectFactory().getRegister(obisCode);
-            return new RegisterValue(obisCode, register.getQuantityValue());
-        } else if (uo.getClassID() == DLMSClassId.DEMAND_REGISTER.getClassId()) {
-            final DemandRegister register = getCosemObjectFactory().getDemandRegister(obisCode);
-            return new RegisterValue(obisCode, register.getQuantityValue());
-        } else if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-            final ExtendedRegister register = getCosemObjectFactory().getExtendedRegister(obisCode);
-            return new RegisterValue(obisCode, register.getQuantityValue());
-        } else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
-            final Disconnector register = getCosemObjectFactory().getDisconnector(obisCode);
-            return new RegisterValue(obisCode, "" + register.getState());
-        } else if (uo.getClassID() == DLMSClassId.DATA.getClassId()) {
-            final Data register = getCosemObjectFactory().getData(obisCode);
-            OctetString octetString = register.getValueAttr().getOctetString();
-            if (octetString != null && octetString.stringValue() != null) {
-                return new RegisterValue(obisCode, octetString.stringValue());
-            }
-            throw new NoSuchRegisterException();
-        } else {
-            throw new NoSuchRegisterException();
+    private ObisCodeMapper getObisCodeMapper() {
+        if (obisCodeMapper == null) {
+            obisCodeMapper = new ObisCodeMapper(this);
         }
+        return obisCodeMapper;
     }
 
     @Override
@@ -322,7 +277,8 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
 
     @Override
     public int getNumberOfChannels() throws UnsupportedException, IOException {
-        return getCosemObjectFactory().getProfileGeneric(getLoadProfileObisCode()).getNumberOfProfileChannels();
+        ProfileGeneric profileGeneric = getCosemObjectFactory().getProfileGeneric(getLoadProfileObisCode());
+        return getProfileDataReader().getChannelInfo(profileGeneric.getCaptureObjects()).size();
     }
 
     public void applyMessages(List messageEntries) throws IOException {
@@ -368,5 +324,9 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
     public String getFileName() {
         final Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_IDIS.cache";
+    }
+
+    public int getLimitMaxNrOfDays() {
+        return limitMaxNrOfDays;
     }
 }

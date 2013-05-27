@@ -3,9 +3,9 @@
  */
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.TypeEnum;
+
+import java.io.IOException;
 
 /**
  * @author jme

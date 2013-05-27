@@ -3,8 +3,7 @@ package com.energyict.protocolimpl.coronis.waveflow.waveflowV2;
 import com.energyict.cbo.Unit;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ParseUtils;
-import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
-import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
+import com.energyict.protocolimpl.coronis.waveflow.core.*;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.*;
 import com.energyict.protocolimpl.coronis.waveflow.core.radiocommand.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -49,7 +48,7 @@ public class ProfileDataReader {
 
         int nrOfIntervals = 4;
         if (!waveFlowV2.usesInitialRFCommand()) {
-            nrOfIntervals = getNrOfIntervals(lastReading, toDate);
+            nrOfIntervals = getNrOfIntervals(lastReading, toDate, monthly);
         }
 
         Date lastLoggedValue = new Date();
@@ -82,6 +81,7 @@ public class ProfileDataReader {
                 while (nrOfIntervals > 0) {
                     if (startOffset == -1) {
                         ExtendedDataloggingTable table = waveFlowV2.getRadioCommandFactory().readExtendedDataloggingTable(i + 1, (nrOfIntervals < getSteps(nrOfIntervals) ? nrOfIntervals : getSteps(nrOfIntervals)), toDate);
+                        table.setMonthly(monthly);
                         values = ProtocolTools.concatLongArrays(values, table.getReadingsInputs());
                         startOffset = table.getOffset();
                         initialOffset = startOffset;
@@ -113,13 +113,13 @@ public class ProfileDataReader {
                 rawValues.add(values);
             }
         }
-        return parseProfileData(!daily, includeEvents, daily, monthly, lastLoggedValue, initialOffset, indexFirst, dailyConsumption, lastReading, toDate, rawValues);
+        return parseProfileData(false, !daily, includeEvents, daily, monthly, lastLoggedValue, initialOffset, indexFirst, dailyConsumption, lastReading, toDate, rawValues);
     }
 
     //The parsing of the values.
     //This method can be used after a request or for a bubble up frame containing daily profile data.
 
-    public ProfileData parseProfileData(boolean requestsAllowed, boolean includeEvents, boolean daily, boolean monthly, Date lastLoggedValue, long initialOffset, int indexFirst, DailyConsumption dailyConsumption, Date lastReading, Date toDate, List<Long[]> rawValues) throws IOException {
+    public ProfileData parseProfileData(boolean bubbleUpOrigin, boolean requestsAllowed, boolean includeEvents, boolean daily, boolean monthly, Date lastLoggedValue, long initialOffset, int indexFirst, DailyConsumption dailyConsumption, Date lastReading, Date toDate, List<Long[]> rawValues) throws IOException {
         ProfileData profileData = new ProfileData();
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         TimeZone timeZone = waveFlowV2.getTimeZone();
@@ -153,11 +153,8 @@ public class ProfileDataReader {
             }
         }
 
-        if (monthly || (getProfileIntervalInSeconds() == WEEKLY)) {
-            calendar = roundTimeStamps(calendar, HOURLY);
-        } else {
-            calendar = roundTimeStamps(calendar, getProfileIntervalInSeconds());
-        }
+        calendar = roundTimeStamps(monthly, calendar, getProfileIntervalInSeconds());
+        int flags = checkBadTime(calendar);
 
         int nrOfReadings;
         if (!daily) {
@@ -173,19 +170,27 @@ public class ProfileDataReader {
             if (!daily) {
                 for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
                     int weight = waveFlowV2.getPulseWeight(inputId, requestsAllowed).getWeight();
-                    BigDecimal bd = new BigDecimal(weight * rawValues.get(inputId)[index]);
-                    intervalValues.add(new IntervalValue(bd, 0, 0));    //The module doesn't send any information about the value's status..
+                    Long value = rawValues.get(inputId)[index];
+                    if (value != -1) {  //Value 0xFFFFFFFF (-1) is not a valid value
+                        BigDecimal bd = new BigDecimal(weight * value);
+                        intervalValues.add(new IntervalValue(bd, 0, flags));    //The module doesn't send any information about the value's status..
+                    }
                 }
             } else {
                 for (int inputId = 0; inputId < getNumberOfInputsUsed(); inputId++) {
                     int weight = waveFlowV2.getPulseWeight(inputId, requestsAllowed).getWeight();
-                    BigDecimal bd = new BigDecimal(weight * dailyConsumption.getReceivedValues()[inputId][index]);
-                    intervalValues.add(new IntervalValue(bd, 0, 0));
+                    long value = dailyConsumption.getReceivedValues()[inputId][index];
+                    if (value != -1) {  //Value 0xFFFFFFFF (-1) is not a valid value
+                        BigDecimal bd = new BigDecimal(weight * value);
+                        intervalValues.add(new IntervalValue(bd, 0, flags));
+                    }
                 }
             }
             //Don't add the record if it doesn't belong in the requested interval
             if ((daily && !requestsAllowed) || (calendar.getTime().before(toDate) && calendar.getTime().after(lastReading))) {
-                intervalDatas.add(new IntervalData(calendar.getTime(), 0, 0, 0, intervalValues));
+                if (!intervalValues.isEmpty()) {
+                    intervalDatas.add(new IntervalData(calendar.getTime(), 0, 0, 0, intervalValues));
+                }
             }
 
             if (!monthly) {
@@ -198,16 +203,41 @@ public class ProfileDataReader {
 
         // build meter events
         if (includeEvents && (requestsAllowed || waveFlowV2.usesInitialRFCommand())) {
-            profileData.setMeterEvents(buildMeterEvents(lastReading, toDate));
+            List<MeterEvent> meterEvents = buildMeterEvents(lastReading, toDate, bubbleUpOrigin);
+            if (flags != IntervalStateBits.OK) {
+                meterEvents.add(new MeterEvent(
+                        new Date(),
+                        MeterEvent.CLOCK_INVALID,
+                        EventStatusAndDescription.EVENTCODE_BADTIME_DATALOGGING,
+                        "Received LP entries but their timestamps deviate more than " + getProfileIntervalInSeconds() + " seconds from the expected to date"));
+            }
+            profileData.setMeterEvents(meterEvents);
         }
 
         return profileData;
     }
 
-    private Calendar roundTimeStamps(Calendar calendar, int profileIntervalInSeconds) throws IOException {
+    /**
+     * If the timestamp of the newest LP interval deviates more than X minutes (X = profile interval) from the current time, indicate the LP entries as 'bad time'.
+     * Also add an event in this case.
+     */
+    private int checkBadTime(Calendar calendar) throws IOException {
+        Calendar now = Calendar.getInstance(calendar.getTimeZone());
+        if (Math.abs(calendar.getTimeInMillis() - now.getTimeInMillis()) > (getProfileIntervalInSeconds() * 1000)) {
+            return IntervalStateBits.BADTIME;
+        }
+        return IntervalStateBits.OK;
+    }
+
+    private Calendar roundTimeStamps(boolean monthly, Calendar calendar, int profileIntervalInSeconds) throws IOException {
         if (waveFlowV2.isRoundDownToNearestInterval()) {
-            if (!ParseUtils.isOnIntervalBoundary(calendar, profileIntervalInSeconds)) {
-                ParseUtils.roundDown2nearestInterval(calendar, profileIntervalInSeconds);
+            if (monthly || profileIntervalInSeconds == WEEKLY || profileIntervalInSeconds == DAILY) {
+                calendar.set(Calendar.HOUR, 0);
+                calendar.set(Calendar.MINUTE, 0);
+            } else {
+                if (!ParseUtils.isOnIntervalBoundary(calendar, profileIntervalInSeconds)) {
+                    ParseUtils.roundDown2nearestInterval(calendar, profileIntervalInSeconds);
+                }
             }
         }
         return calendar;
@@ -230,6 +260,9 @@ public class ProfileDataReader {
         return 24 / getNumberOfInputsUsed();
     }
 
+    /**
+     * Only request the number of channels (it's included in the operation mode) if it is not known yet
+     */
     private int getNumberOfInputsUsed() throws IOException {
         if (inputsUsed == 0) {
             inputsUsed = waveFlowV2.getParameterFactory().readOperatingMode().getNumberOfInputsUsed();
@@ -261,10 +294,10 @@ public class ProfileDataReader {
     /**
      * Getter for the number of profile data entries that should be read.
      */
-    private int getNrOfIntervals(Date lastReading, Date toDate) throws IOException {
+    private int getNrOfIntervals(Date lastReading, Date toDate, boolean monthly) throws IOException {
 
         //The monthly logging doesn't have a fixed time interval.
-        if (waveFlowV2.getParameterFactory().readOperatingMode().isMonthlyMeasurement()) {
+        if (monthly) {
             Calendar checkDate = new GregorianCalendar(waveFlowV2.getTimeZone());
             checkDate.setTime(toDate);
             checkDate.setLenient(true);
@@ -280,7 +313,7 @@ public class ProfileDataReader {
         return (int) (((toDate.getTime() - lastReading.getTime()) / 1000) / getProfileIntervalInSeconds()) + 1;
     }
 
-    private List<MeterEvent> buildMeterEvents(Date lastReading, Date toDate) throws IOException {
+    private List<MeterEvent> buildMeterEvents(Date lastReading, Date toDate, boolean bubbleUpOrigin) throws IOException {
 
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         EventStatusAndDescription translator = new EventStatusAndDescription(waveFlowV2);
@@ -297,7 +330,7 @@ public class ProfileDataReader {
                     for (int i = 0; i <= 12; i++) {
                         if (backflowDetectionFlags.flagIsSet(i)) {
                             Date eventDate = backflowDetectionFlags.getEventDate(i);
-                            meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForSimpleBackflow(input), "Backflow detected on input " + backflowDetectionFlags.getInputChannelName()));
+                            meterEvents.add(new MeterEvent(eventDate, MeterEvent.METER_ALARM, translator.getProtocolCodeForSimpleBackflow(input), "Backflow detected on input " + backflowDetectionFlags.getInputChannelName()));
                         }
                     }
                 }
@@ -310,8 +343,8 @@ public class ProfileDataReader {
                     for (BackFlowEventByVolumeMeasuring backFlowEvent : waveFlowV2.getRadioCommandFactory().readBackFlowEventTableByVolumeMeasuring().getEvents()) {
                         int inputIndex = backFlowEvent.getInputIndex();
                         PulseWeight pulseWeight = waveFlowV2.getPulseWeight(inputIndex);
-                        meterEvents.add(new MeterEvent(backFlowEvent.getStartOfDetectionDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflowVolumeMeasuring(inputIndex, true), "Backflow start, input channel = " + (inputIndex + 1) + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString()));
-                        meterEvents.add(new MeterEvent(backFlowEvent.getEndOfDetectionDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflowVolumeMeasuring(inputIndex, false), "Backflow end, input channel = " + (inputIndex + 1) + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString()));
+                        meterEvents.add(new MeterEvent(backFlowEvent.getStartOfDetectionDate(), MeterEvent.METER_ALARM, translator.getProtocolCodeForAdvancedBackflowVolumeMeasuring(inputIndex, true), "Backflow start, input channel = " + (inputIndex + 1) + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString()));
+                        meterEvents.add(new MeterEvent(backFlowEvent.getEndOfDetectionDate(), MeterEvent.METER_ALARM, translator.getProtocolCodeForAdvancedBackflowVolumeMeasuring(inputIndex, false), "Backflow end, input channel = " + (inputIndex + 1) + ", volume = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString()));
                     }
                 }
 
@@ -320,8 +353,8 @@ public class ProfileDataReader {
                     for (BackFlowEventByFlowRate backFlowEvent : waveFlowV2.getRadioCommandFactory().readBackFlowEventTableByFlowRate().getEvents()) {
                         int inputIndex = backFlowEvent.getInputIndex();
                         PulseWeight pulseWeight = waveFlowV2.getPulseWeight(inputIndex);
-                        meterEvents.add(new MeterEvent(backFlowEvent.getStartDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflowFlowRate(inputIndex, true), "Backflow start, input channel = " + (inputIndex + 1) + ", maximum flow rate = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString() + ", detection duration = " + backFlowEvent.getDetectionDuration() + " minutes, water backflow duration = " + backFlowEvent.getBackflowDuration() + " minutes."));
-                        meterEvents.add(new MeterEvent(backFlowEvent.getEndDate(), MeterEvent.OTHER, translator.getProtocolCodeForAdvancedBackflowFlowRate(inputIndex, false), "Backflow end, input channel = " + (inputIndex + 1) + ", maximum flow rate = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString() + ", detection duration = " + backFlowEvent.getDetectionDuration() + " minutes, water backflow duration = " + backFlowEvent.getBackflowDuration() + " minutes."));
+                        meterEvents.add(new MeterEvent(backFlowEvent.getStartDate(), MeterEvent.METER_ALARM, translator.getProtocolCodeForAdvancedBackflowFlowRate(inputIndex, true), "Backflow start, input channel = " + (inputIndex + 1) + ", maximum flow rate = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString() + ", detection duration = " + backFlowEvent.getDetectionDuration() + " minutes, water backflow duration = " + backFlowEvent.getBackflowDuration() + " minutes."));
+                        meterEvents.add(new MeterEvent(backFlowEvent.getEndDate(), MeterEvent.METER_ALARM, translator.getProtocolCodeForAdvancedBackflowFlowRate(inputIndex, false), "Backflow end, input channel = " + (inputIndex + 1) + ", maximum flow rate = " + backFlowEvent.getVolume() * pulseWeight.getWeight() + " " + pulseWeight.getUnit().toString() + ", detection duration = " + backFlowEvent.getDetectionDuration() + " minutes, water backflow duration = " + backFlowEvent.getBackflowDuration() + " minutes."));
                     }
                 }
             }
@@ -332,116 +365,26 @@ public class ProfileDataReader {
                     String leakageType = leakageEvent.getLeakageType();
                     String inputChannel = leakageEvent.getCorrespondingInputChannel();
                     if (leakageEvent.getLeakageType().equals(LeakageEvent.LEAKAGETYPE_EXTREME)) {
-                        meterEvents.add(new MeterEvent(leakageEvent.getDate(), MeterEvent.OTHER, translator.getProtocolCodeForLeakage(startOrEnd, leakageType, inputChannel), startOrEnd + " of " + leakageEvent.getEventDescription() + " on input " + inputChannel + ": flow-rate = " + leakageEvent.getConsumptionRate()));
+                        meterEvents.add(new MeterEvent(leakageEvent.getDate(), MeterEvent.METER_ALARM, translator.getProtocolCodeForLeakage(startOrEnd, leakageType, inputChannel), startOrEnd + " of " + leakageEvent.getEventDescription() + " on input " + inputChannel + ": flow-rate = " + leakageEvent.getConsumptionRate()));
                     }
                     if (leakageEvent.getLeakageType().equals(LeakageEvent.LEAKAGETYPE_RESIDUAL)) {
-                        meterEvents.add(new MeterEvent(leakageEvent.getDate(), MeterEvent.OTHER, translator.getProtocolCodeForLeakage(startOrEnd, leakageType, inputChannel), startOrEnd + " of " + leakageEvent.getEventDescription() + " on input " + inputChannel + ": flow-rate = " + leakageEvent.getConsumptionRate()));
+                        meterEvents.add(new MeterEvent(leakageEvent.getDate(), MeterEvent.METER_ALARM, translator.getProtocolCodeForLeakage(startOrEnd, leakageType, inputChannel), startOrEnd + " of " + leakageEvent.getEventDescription() + " on input " + inputChannel + ": flow-rate = " + leakageEvent.getConsumptionRate()));
                     }
                 }
             }
         }
 
+        //Parse the application status for events
         int applicationStatus = waveFlowV2.getParameterFactory().readApplicationStatus();
+        boolean valve = false;
         if (!usesInitialRFCommand) {
-            int valveApplicationStatus = 0;
-            if (waveFlowV2.getParameterFactory().readProfileType().supportsWaterValveControl()) {
-                valveApplicationStatus = waveFlowV2.getParameterFactory().readValveApplicationStatus();
-            }
-            if ((valveApplicationStatus & 0x01) == 0x01) {
-                meterEvents.add(new MeterEvent(new Date(), MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_A, "Tamper (valve wirecut)"));
-            }
-            if ((valveApplicationStatus & 0x02) == 0x02) {
-                meterEvents.add(new MeterEvent(new Date(), MeterEvent.HARDWARE_ERROR, EventStatusAndDescription.EVENTCODE_VALVE_FAULT, "Valve fault"));
-            }
-            if ((valveApplicationStatus & 0x04) == 0x04) {
-                meterEvents.add(new MeterEvent(new Date(), MeterEvent.LIMITER_THRESHOLD_EXCEEDED, EventStatusAndDescription.EVENTCODE_DEFAULT, "Credit under threshold"));
-            }
-            if ((valveApplicationStatus & 0x08) == 0x08) {
-                meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_DEFAULT, "Credit equal to zero"));
-            }
+            valve = waveFlowV2.getParameterFactory().readProfileType().supportsWaterValveControl();
         }
-
-        if ((applicationStatus & 0x01) == 0x01) {
-            Date eventDate = new Date();
-            if (!usesInitialRFCommand) {
-                eventDate = waveFlowV2.getParameterFactory().readBatteryLifeDateEnd();
-            }
-            meterEvents.add(new MeterEvent(eventDate, MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EVENTCODE_BATTERY_LOW, "Low battery warning"));
-        }
-        if ((applicationStatus & 0x02) == 0x02) {
-            Date eventDate = new Date();
-            if (!usesInitialRFCommand) {
-                eventDate = waveFlowV2.getParameterFactory().readWireCutDetectionDate(0);
-            }
-            meterEvents.add(new MeterEvent(eventDate, translator.getEventCode(0x02), translator.getProtocolCodeForStatus(0x02), translator.getEventDescription(0x02)));
-        }
-        if ((applicationStatus & 0x04) == 0x04) {
-            Date eventDate = new Date();
-            if (!usesInitialRFCommand) {
-                eventDate = waveFlowV2.getParameterFactory().readWireCutDetectionDate(1);
-            }
-            meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_B, "Tamper (wirecut B)"));
-        }
-
-        if (usesInitialRFCommand) {
-            if ((applicationStatus & 0x08) == 0x08) {
-                Date eventDate = new Date();
-                meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_RESIDUAL, LeakageEvent.A), "Leak"));
-            }
-            if ((applicationStatus & 0x10) == 0x10) {
-                Date eventDate = new Date();
-                meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForLeakage(LeakageEvent.START, LeakageEvent.LEAKAGETYPE_EXTREME, LeakageEvent.A), "Burst"));
-            }
-        }
-
-        if ((applicationStatus & 0x20) == 0x20) {
-            Date eventDate = new Date();
-            if (!usesInitialRFCommand) {
-                ProfileType profileType = waveFlowV2.getParameterFactory().readProfileType();
-                if (profileType.isOfType4Iputs()) {
-                    eventDate = waveFlowV2.getParameterFactory().readWireCutDetectionDate(2);
-                } else {
-                    eventDate = waveFlowV2.getParameterFactory().readReedFaultDetectionDate(0);
-                }
-            }
-            meterEvents.add(new MeterEvent(eventDate, translator.getEventCode(0x20), translator.getProtocolCodeForStatus(0x20), translator.getEventDescription(0x20)));
-        }
-
-        if ((applicationStatus & 0x40) == 0x40) {
-            Date eventDate = new Date();
-            if (!usesInitialRFCommand) {
-                ProfileType profileType = waveFlowV2.getParameterFactory().readProfileType();
-                if (profileType.isOfType4Iputs()) {
-                    eventDate = waveFlowV2.getParameterFactory().readWireCutDetectionDate(3);
-                } else {
-                    eventDate = waveFlowV2.getParameterFactory().readReedFaultDetectionDate(1);
-                }
-            }
-            meterEvents.add(new MeterEvent(eventDate, MeterEvent.TAMPER, EventStatusAndDescription.EVENTCODE_WIRECUT_TAMPER_D, "Tamper (wirecut D"));
-        }
-
-        if (usesInitialRFCommand) {
-            if ((applicationStatus & 0x80) == 0x80) {
-                Date eventDate = new Date();
-                meterEvents.add(new MeterEvent(eventDate, MeterEvent.OTHER, translator.getProtocolCodeForSimpleBackflow(0), "Backflow detected"));
-            }
-        }
+        ApplicationStatusParser parser = new ApplicationStatusParser(waveFlowV2, bubbleUpOrigin);
+        meterEvents.addAll(parser.getMeterEvents(usesInitialRFCommand, applicationStatus, valve));
 
         //meterEvents = shiftDates(meterEvents);      //Don't use this, it happens in the RTU+server
-        return checkValid(meterEvents, lastReading, toDate);
-    }
-
-    /**
-     * Deletes events that don't fit in the interval [lastReading - toDate]
-     */
-    private List<MeterEvent> checkValid(List<MeterEvent> meterEvents, Date lastReading, Date toDate) {
-        List<MeterEvent> result = new ArrayList<MeterEvent>();
-        for (MeterEvent meterEvent : meterEvents) {
-            if (meterEvent.getTime().after(lastReading) && (meterEvent.getTime().before(toDate) || waveFlowV2.usesInitialRFCommand())) {
-                result.add(meterEvent);
-            }
-        }
-        return result;
+        return meterEvents;
     }
 
     /**

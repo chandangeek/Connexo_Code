@@ -9,6 +9,8 @@ import java.io.IOException;
  *
  * @author gna
  * @change 3th nov. 2009 - Added the getNEWLLSSecret method
+ * @change 17th oct. 2021 - Added methods to change the used encryption and authentication keys instantly, this should be called after setting new keys to devices that use them instantly.
+ * @change 22th oct. 2012 - Added the getNEWAuthenticationKeys method and getNEWEncryptionKeys method, returning a string array of the original and the wrapped key.
  */
 public interface SecurityProvider {
 
@@ -54,11 +56,15 @@ public interface SecurityProvider {
     byte[] getNEWGlobalKey() throws IOException;
 
     /**
+     * @return the new GlobalKeys (original and wrapped) for the KeyChange functionality
+     * @throws IOException
+     */
+    String[] getNEWGlobalKeys() throws IOException;
+
+    /**
      * A dedicated key is a ciphering key that is delivered during AA establishment and that may be used in subsequent
      * transmissions to cipher xDLMS APDU's, exchanged between the same client and server, within the same AA.
      * The lifetime of the dedicated key is the same as the lifetime of the AA. The dedicated key can be seen as a session key.
-     *
-     * @throws IOException
      */
     byte[] getDedicatedKey();
 
@@ -75,6 +81,12 @@ public interface SecurityProvider {
      * @throws IOException
      */
     byte[] getNEWAuthenticationKey() throws IOException;
+
+    /**
+     * @return the new authentication key (original and wrapped) for the KeyChange functionality
+     * @throws IOException
+     */
+    String[] getNEWAuthenticationKeys() throws IOException;
 
     /**
      * A master key shall be present in each COSEM server logical device configured in the system.
@@ -121,4 +133,22 @@ public interface SecurityProvider {
      * @return the used handler for the responding frameCounter
      */
     public RespondingFrameCounterHandler getRespondingFrameCounterHandler();
+
+    /**
+     * Swap the currently used encryption key with the new encryption key (see property)
+     * This is necessary after writing a new encryption key to a device that switches the keys immediately.
+     * This is not necessary if the device only starts to use the new key in the next association
+     *
+     * @throws IOException if the key is not correctly filled in
+     */
+    public void changeEncryptionKey() throws IOException;
+
+    /**
+     * Swap the currently used authentication key with the new authentication key (see property)
+     * This is necessary after writing a new authentication key to a device that switches the keys immediately.
+     * This is not necessary if the device only starts to use the new key in the next association
+     *
+     * @throws IOException if the key is not correctly filled in
+     */
+    public void changeAuthenticationKey() throws IOException;
 }

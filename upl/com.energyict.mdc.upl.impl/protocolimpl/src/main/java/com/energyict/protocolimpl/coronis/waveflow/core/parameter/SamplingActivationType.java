@@ -28,7 +28,7 @@ public class SamplingActivationType extends AbstractParameter {
 	}
 
 	@Override
-	ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
 		return ParameterId.SamplingActivationStartHour;
 	}
 	

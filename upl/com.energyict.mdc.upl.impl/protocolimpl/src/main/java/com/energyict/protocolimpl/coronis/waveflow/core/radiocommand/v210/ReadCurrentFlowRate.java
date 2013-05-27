@@ -16,7 +16,7 @@ public class ReadCurrentFlowRate extends AbstractRadioCommand {
         super(waveFlow);
     }
 
-    private int currentFlowRate;    //Range 0 - 9.999.999
+    private int currentFlowRate;    //Range 0 – 9.999.999
 
     public int getCurrentFlowRate() {
         return currentFlowRate;

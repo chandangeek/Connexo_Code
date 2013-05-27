@@ -18,7 +18,7 @@ public class Apollo5MessageExecutorTest extends TestCase {
     @Test
     public void test() throws IOException {
         String xml = "<SetPublicKeysOfAggregationGroup><KeyPair1>0102030405010203040501020304050102030405010203040501020304050101,0102030405010203040501020304050102030405010203040501020304050101</KeyPair1><KeyPair2>0102030405010203040501020304050102030405010203040501020304050101,0102030405010203040501020304050102030405010203040501020304050101</KeyPair2></SetPublicKeysOfAggregationGroup>";
-        Apollo5MessageExecutor executor = new Apollo5MessageExecutor(new Apollo5());
+        AS300DPETMessageExecutor executor = new AS300DPETMessageExecutor(new AS300DPET());
         List<String> keyPairs = executor.parseKeyPairs(new MessageEntry(xml, "0"));
 
         for (String keyPair : keyPairs) {

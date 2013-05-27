@@ -29,7 +29,7 @@ public class NumberOfFrameInRxAndTx extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() throws WaveFlowException {
+    protected ParameterId getParameterId() throws WaveFlowException {
         return ParameterId.NumberOfFrameRxAndTx;
     }
 

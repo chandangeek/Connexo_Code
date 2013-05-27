@@ -5,11 +5,7 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.InvalidBooleanStateException;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -23,7 +19,7 @@ import java.io.IOException;
  *
  * 					** States **
  * ------------------------------------------------
- * StateN	|	StateName	|	State Description
+ * StateN�	|	StateName	|	State Description
  * __________________________________________________________________________________________________________
  * 	0		| Disconnected	| The outputState is set to FALSE and the consumer is disconnected
  * 	1		| Connected		| The outputState is set to TRUE and the consumer is connected
@@ -99,7 +95,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Just returns the outputState that we previously read from the meter, if it is null, then we read it anyway
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public BooleanObject getOutputState() throws InvalidBooleanStateException {
 		if(this.outputState == null){
@@ -111,7 +107,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Returns the state of the ouputState
 	 * @return true or false
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public boolean getState() throws InvalidBooleanStateException {
 		BooleanObject state = getOutputState();
@@ -121,7 +117,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Reads the outputState from the meter
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public BooleanObject readOutputState() throws InvalidBooleanStateException {
 		try {
@@ -135,9 +131,9 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Sets the outputState in the given state
 	 * @param outputStat
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeOutputState(BooleanObject outputStat) throws IOException{
+	public void writeOutputState(BooleanObject outputStat) throws IOException {
 		write(DisconnectControlAttribute.OUTPUT_STATE, outputStat.getBEREncodedByteArray());
 		this.outputState = outputStat;
 	}
@@ -145,7 +141,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Read the controlState from the meter
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public TypeEnum readControlState() {
 		try {
@@ -159,7 +155,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Get the latest retrieved control state
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public TypeEnum getControlState() {
 		if(this.controlState == null){
@@ -171,7 +167,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Write a controlState to the meter
 	 * @param controlStat
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void writeControlState(TypeEnum controlStat) throws IOException {
 		write(DisconnectControlAttribute.CONTROL_STATE, controlStat.getBEREncodedByteArray());
@@ -181,7 +177,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Get the latest retrieved controlMode
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public TypeEnum getControlMode() {
 		if(this.controlMode == null){
@@ -193,7 +189,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Read the control mode out of the meter
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public TypeEnum readControlMode() {
 		try {
@@ -206,7 +202,7 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	 * Note: 	The ControlMode attribute is a static attribute ... so I suppose you can not write it.
 	 * 			But wrote a protected method to write it, if it's needed, just make it public.
 	 * @param ctrlMode
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public void writeControlMode(TypeEnum ctrlMode) throws IOException {
 		write(DisconnectControlAttribute.CONTROL_MODE, ctrlMode.getBEREncodedByteArray());
@@ -216,9 +212,9 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	/**
 	 * Forces the disconnect control object into 'Disconnected' state if remote disconnection
 	 * is enabled (control mode > 0)
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void remoteDisconnect() throws IOException{
+	public void remoteDisconnect() throws IOException {
 		if(getObjectReference().isLNReference()){
 			invoke(METHOD_REMOTE_DISCONNECT, new Integer8(0).getBEREncodedByteArray());
 		} else {
@@ -232,9 +228,9 @@ public class Disconnector extends AbstractCosemObject implements RegisterReadabl
 	 *
 	 * Forces the disconnect control object into the 'connected' state if a direct remote
 	 * reconnection is enabled (control mode = 2, 4)
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void remoteReconnect() throws IOException{
+	public void remoteReconnect() throws IOException {
 		if(getObjectReference().isLNReference()){
 			invoke(METHOD_REMOTE_RECONNECT, new Integer8(0).getBEREncodedByteArray());
 		} else {

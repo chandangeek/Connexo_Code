@@ -36,7 +36,7 @@ public class ReadOverspeedAlarmInfo extends AbstractRadioCommand {
 
         for (OverSpeedAlarmInfo alarmInfo : alarmInfos) {
             if (alarmInfo.getFlowRatePerSecond() != 0) {
-                result.add(new MeterEvent(alarmInfo.getDate(), MeterEvent.OTHER, EventStatusAndDescription.EVENTCODE_OVERSPEED, "Over speed, max detected flow rate: " + (3600 * alarmInfo.getFlowRatePerSecond() * pulseWeight.getWeight()) + " " + unitDescription));
+                result.add(new MeterEvent(alarmInfo.getDate(), MeterEvent.METER_ALARM, EventStatusAndDescription.EVENTCODE_OVERSPEED, "Over speed, max detected flow rate: " + (3600 * alarmInfo.getFlowRatePerSecond() * pulseWeight.getWeight()) + " " + unitDescription));
             }
         }
         return result;

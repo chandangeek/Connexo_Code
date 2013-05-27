@@ -20,7 +20,7 @@ public class RepeaterAddress extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         switch (id) {
             default:
             case 1:

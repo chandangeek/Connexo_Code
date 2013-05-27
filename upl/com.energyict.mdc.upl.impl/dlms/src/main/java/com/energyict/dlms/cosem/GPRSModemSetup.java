@@ -5,6 +5,9 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.attributeobjects.QualityOfService;
+import com.energyict.dlms.cosem.attributeobjects.QualityOfServiceElement;
+import com.energyict.obis.ObisCode;
 
 import java.io.IOException;
 
@@ -17,7 +20,7 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/** Attributes */
 	private OctetString apn = null;	// Defines the accessPoint name of the network
 	private Unsigned16 pincode = null;	// Holds the personal identification number
-	private Structure qualityOfService = null;
+	private QualityOfService qualityOfService = null;
 
 	/** Attribute numbers */
 	private static final int ATTRB_APN = 2;
@@ -30,6 +33,8 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	private static final int QOS_DEFAULT = 0;
 	private static final int QOS_REQUESTED = 1;
 
+    private static final ObisCode DEFAULT_OBIS_CODE = ObisCode.fromString("0.0.25.4.0.255");
+
 	/**
 	 * @param protocolLink
 	 * @param objectReference
@@ -38,16 +43,20 @@ public class GPRSModemSetup extends AbstractCosemObject {
 		super(protocolLink, objectReference);
 	}
 
-	protected int getClassId() {
+    public final static ObisCode getDefaultObisCode() {
+        return DEFAULT_OBIS_CODE;
+    }
+
+    protected int getClassId() {
 		return DLMSClassId.GPRS_SETUP.getClassId();
 	}
 
 	/**
 	 * Reads the current APN from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public OctetString readAPN() throws IOException{
+	public OctetString readAPN() throws IOException {
 		try{
 			this.apn = new OctetString(getLNResponseData(ATTRB_APN), 0);
 			return this.apn;
@@ -60,9 +69,9 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Return the latest retrieved apn
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public OctetString getAPN() throws IOException{
+	public OctetString getAPN() throws IOException {
 		if(this.apn == null){
 			readAPN();	// do a dummy read
 		}
@@ -72,9 +81,9 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Write the given apn octetString to the device
 	 * @param apn
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeAPN(OctetString apn) throws IOException{
+	public void writeAPN(OctetString apn) throws IOException {
 		try{
 			write(ATTRB_APN, apn.getBEREncodedByteArray());
 			this.apn = apn;
@@ -87,18 +96,18 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Write the given apn string to the device
 	 * @param apn
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeAPN(String apn) throws IOException{
+	public void writeAPN(String apn) throws IOException {
 		this.writeAPN(OctetString.fromString(apn));
 	}
 
 	/**
 	 * Read the current pincode from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Unsigned16 readPinCode() throws IOException{
+	public Unsigned16 readPinCode() throws IOException {
 		try{
 			this.pincode = new Unsigned16(getLNResponseData(ATTRB_PIN_CODE), 0);
 			return this.pincode;
@@ -111,9 +120,9 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Return the latest retrieved pincode
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Unsigned16 getPinCod() throws IOException{
+	public Unsigned16 getPinCod() throws IOException {
 		if(this.pincode == null){
 			readPinCode();	// do a dummy read
 		}
@@ -123,9 +132,9 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Write the given unsigned16 pincode to the device
 	 * @param pincode
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writePinCode(Unsigned16 pincode) throws IOException{
+	public void writePinCode(Unsigned16 pincode) throws IOException {
 		try{
 			write(ATTRB_PIN_CODE, pincode.getBEREncodedByteArray());
 			this.pincode = pincode;
@@ -138,20 +147,20 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Write the given pincode to the device
 	 * @param pincode
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writePinCode(long pincode) throws IOException{
+	public void writePinCode(long pincode) throws IOException {
 		this.writePinCode(new Unsigned16((int)pincode));
 	}
 
 	/**
 	 * Read the current quality of Service from the device
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Structure readQualityOfService() throws IOException{
+	public QualityOfService readQualityOfService() throws IOException {
 		try{
-			this.qualityOfService = new Structure(getLNResponseData(ATTRB_QUALITY_OF_SERVICE), 0, 0);
+			this.qualityOfService = QualityOfService.fromStructure(new Structure(getLNResponseData(ATTRB_QUALITY_OF_SERVICE), 0, 0));
 			return this.qualityOfService;
 		} catch (IOException e){
 			e.printStackTrace();
@@ -162,9 +171,9 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Get the latest retrieved quality of service structure
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Structure getQualityOfService() throws IOException{
+	public Structure getQualityOfService() throws IOException {
 		if(this.qualityOfService == null){
 			readQualityOfService();		// do a dummy read
 		}
@@ -174,9 +183,9 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Return the default QOS structure
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Structure getTheDefaultQualityOfService() throws IOException{
+	public Structure getTheDefaultQualityOfService() throws IOException {
 		if(getQualityOfService().getDataType(QOS_DEFAULT).isStructure()){
 			return (Structure)getQualityOfService().getDataType(QOS_DEFAULT);
 		} else {
@@ -187,9 +196,9 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Return the requested QOS structure
 	 * @return
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public Structure getRequestedQualityOfService() throws IOException{
+	public Structure getRequestedQualityOfService() throws IOException {
 		if(getQualityOfService().getDataType(QOS_REQUESTED).isStructure()){
 			return (Structure)getQualityOfService().getDataType(QOS_REQUESTED);
 		} else {
@@ -200,9 +209,9 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	/**
 	 * Write the given quality of service structure to the device
 	 * @param qos
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeQualityOfService(Structure qos) throws IOException{
+	public void writeQualityOfService(final QualityOfService qos) throws IOException {
 		try{
 			write(ATTRB_QUALITY_OF_SERVICE, qos.getBEREncodedByteArray());
 			this.qualityOfService = qos;
@@ -216,12 +225,12 @@ public class GPRSModemSetup extends AbstractCosemObject {
 	 * Write the given default and requested qos structures to the device
 	 * @param defaultQOS
 	 * @param requestedQOS
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
-	public void writeQualityOfService(Structure defaultQOS, Structure requestedQOS) throws IOException{
+	public void writeQualityOfService(QualityOfServiceElement defaultQOS, QualityOfServiceElement requestedQOS) throws IOException {
 		Structure qos = new Structure();
 		qos.addDataType(defaultQOS);
 		qos.addDataType(requestedQOS);
-		writeQualityOfService(qos);
+		writeQualityOfService(QualityOfService.fromStructure(qos));
 	}
 }

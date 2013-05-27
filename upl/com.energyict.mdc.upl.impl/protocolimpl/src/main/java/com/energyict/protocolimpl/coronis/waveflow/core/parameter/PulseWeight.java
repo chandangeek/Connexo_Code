@@ -25,7 +25,7 @@ public class PulseWeight extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         switch (inputChannel) {
             case 1:
                 return ParameterId.DefinePulseWeightA;

@@ -12,7 +12,7 @@ import com.energyict.obis.ObisCode;
  */
 public class ObjectIdentification {
 
-	private ObisCode	obisCode;
+	private ObisCode obisCode;
 	private int			classId;
 
 	/**
@@ -39,7 +39,7 @@ public class ObjectIdentification {
 	/**
 	 * Getter for the obisCode field
 	 *
-	 * @return the {@link ObisCode}
+	 * @return the {@link com.energyict.obis.ObisCode}
 	 */
 	public ObisCode getObisCode() {
 		return obisCode;

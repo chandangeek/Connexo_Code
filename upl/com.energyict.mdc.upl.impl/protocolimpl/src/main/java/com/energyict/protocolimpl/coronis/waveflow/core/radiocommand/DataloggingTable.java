@@ -134,7 +134,7 @@ public class DataloggingTable extends AbstractRadioCommand {
                 offset += 4;
             }
         }
-        byte[] dateBytes = ProtocolTools.getSubArray(data, offset, data.length);
+        byte[] dateBytes = ProtocolTools.getSubArray(data, offset, offset + 6);
         TimeZone timeZone = getWaveFlow().getTimeZone();
         if (timeZone == null) {
             timeZone = TimeZone.getDefault();

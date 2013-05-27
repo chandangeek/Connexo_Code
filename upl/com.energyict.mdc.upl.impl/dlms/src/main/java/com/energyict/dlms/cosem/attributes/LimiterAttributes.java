@@ -9,7 +9,7 @@ import com.energyict.obis.ObisCode;
  * Date: 14-dec-2010
  * Time: 14:19:55
  */
-public enum LimiterAttributes implements DLMSClassAttributes{
+public enum LimiterAttributes implements DLMSClassAttributes {
 
     LOGICAL_NAME(1, 0x00),
     MONITORED_VALUE(2, 0x08),

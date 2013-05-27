@@ -12,7 +12,7 @@ public class WavecardWakeupLength extends AbstractEscapeCommand {
 	int wakeupLength;
 	
 	@Override
-	EscapeCommandId getEscapeCommandId() {
+    EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.WAKEUP_LENGTH;
 	}
 

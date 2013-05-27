@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Extends the original DSMR2.3 FraudDetectionLog with additional events for DSMR4.0
  */
-public class FraudDetectionLog extends com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.FraudDetectionLog {
+public class FraudDetectionLog extends com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.FraudDetectionLog{
 
     private static final int EVENT_CONFIGURATION_CHANGE = 47;
 
@@ -23,13 +23,9 @@ public class FraudDetectionLog extends com.energyict.smartmeterprotocolimpl.nta.
      */
     @Override
     protected void buildMeterEvent(final List<MeterEvent> meterEvents, final Date eventTimeStamp, final int eventId) {
-        switch (eventId) {
-            case EVENT_CONFIGURATION_CHANGE: {
-                meterEvents.add(createNewFraudDetectionLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Configuration is activated or de-activated after the meter was installed"));
-            }
-            break;
-            default:
-                super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);
+        switch(eventId){
+            case EVENT_CONFIGURATION_CHANGE : {meterEvents.add(createNewFraudDetectionLogbookEvent(eventTimeStamp, MeterEvent.CONFIGURATIONCHANGE, eventId, "Configuration is activated or de-activated after the meter was installed"));}break;
+            default: super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);
         }
     }
 }

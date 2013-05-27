@@ -12,7 +12,7 @@ public class WavenisStackCommunicationAttemptNr extends AbstractEscapeCommand {
 	int communicationAttemptNr;
 	
 	@Override
-	EscapeCommandId getEscapeCommandId() {
+    EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.WAVENIS_COMMUNICATION_ATTEMPT_NR;
 	}
 

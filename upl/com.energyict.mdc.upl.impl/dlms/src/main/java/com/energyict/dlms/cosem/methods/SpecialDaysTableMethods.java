@@ -1,7 +1,6 @@
 package com.energyict.dlms.cosem.methods;
 
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.methods.DLMSClassMethods;
 
 /**
  * Contains functionality to access methods of the SpecialDay table (independent whether or not shortName or logicalNames are used)

@@ -12,7 +12,7 @@ import java.io.IOException;
  * Date: 5-apr-2011
  * Time: 14:13:24
  */
-public class NumberOfReceivedFrames extends AbstractParameter{
+public class NumberOfReceivedFrames extends AbstractParameter {
 
     NumberOfReceivedFrames(WaveFlow waveFlow) {
         super(waveFlow);
@@ -25,7 +25,7 @@ public class NumberOfReceivedFrames extends AbstractParameter{
     }
 
     @Override
-    ParameterId getParameterId() throws WaveFlowException {
+    protected ParameterId getParameterId() throws WaveFlowException {
         return ParameterId.NumberOfReceivedFrames;
     }
 

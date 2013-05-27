@@ -1,13 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
-import com.energyict.protocol.Register;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 
 import java.io.IOException;
@@ -116,8 +117,8 @@ public class WebRTUZ3RegisterFactory implements BulkRegisterProtocol {
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
                 if (uo != null) {
                     if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-                        ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, RegisterAttributes.Register_Value.getAttributeNumber(), uo.getClassID()),
-                                new DLMSAttribute(rObisCode, RegisterAttributes.Register_Unit.getAttributeNumber(), uo.getClassID()));
+                        ComposedRegister composedRegister = new ComposedRegister(new DLMSAttribute(rObisCode, RegisterAttributes.VALUE.getAttributeNumber(), uo.getClassID()),
+                                new DLMSAttribute(rObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID()));
                         dlmsAttributes.add(composedRegister.getRegisterValueAttribute());
                         dlmsAttributes.add(composedRegister.getRegisterUnitAttribute());
                         this.composedRegisterMap.put(register, composedRegister);

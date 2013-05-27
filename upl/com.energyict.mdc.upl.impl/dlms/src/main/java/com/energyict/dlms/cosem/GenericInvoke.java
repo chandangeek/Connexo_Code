@@ -1,8 +1,8 @@
 package com.energyict.dlms.cosem;
 
-import java.io.IOException;
-
 import com.energyict.dlms.ProtocolLink;
+
+import java.io.IOException;
 
 /**
  * @author gna
@@ -25,8 +25,12 @@ public class GenericInvoke extends AbstractCosemObject {
 	public void invoke(byte[] data) throws IOException {
 		invoke(method, data);
 	}
-	
-	public void invoke() throws IOException {
+
+    public int getMethod() {
+        return method;
+    }
+
+    public void invoke() throws IOException {
 		invoke(method);
 	}
 

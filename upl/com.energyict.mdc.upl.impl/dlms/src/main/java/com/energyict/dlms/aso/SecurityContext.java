@@ -365,7 +365,7 @@ public class SecurityContext {
      * @return the encrypted packet
      * @throws IOException
      */
-    public byte[] createHighLevelAuthenticationGMACResponse(byte[] clientChallenge, byte[] cipheredFrame) throws IOException, DLMSConnectionException {
+    public byte[] createHighLevelAuthenticationGMACResponse(byte[] clientChallenge, byte[] cipheredFrame) throws IOException {
         byte[] fc = ProtocolUtils.getSubArray2(cipheredFrame, 1, FRAME_COUNTER_SIZE);
         int offset = 0;
         List<byte[]> plainArray = new ArrayList<byte[]>();

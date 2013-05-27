@@ -12,7 +12,7 @@ public class WavenisStackConfigRFResponseTimeout extends AbstractEscapeCommand {
 	int timeout;
 	
 	@Override
-	EscapeCommandId getEscapeCommandId() {
+    EscapeCommandId getEscapeCommandId() {
 		return EscapeCommandId.WAVENIS_CONFIG_RF_TIMEOUT;
 	}
 

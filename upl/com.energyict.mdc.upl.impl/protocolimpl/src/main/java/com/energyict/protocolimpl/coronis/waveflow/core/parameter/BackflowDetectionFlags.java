@@ -30,7 +30,7 @@ public class BackflowDetectionFlags extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return portId == 0 ? ParameterId.SimpleBackflowDetectionFlagsPortA : ParameterId.SimpleBackflowDetectionFlagsPortB;
     }
 

@@ -272,11 +272,11 @@ public class UniversalObject implements Serializable {
         if(obisCode == null){
             return false;
         }
-		if ((getLNA() == obisCode.getA()) &&
-				(getLNB() == obisCode.getB()) &&
-				(getLNC() == obisCode.getC()) &&
-				(getLND() == obisCode.getD()) &&
-				(getLNE() == obisCode.getE())) {
+        if (((getLNA()&0xFF) == obisCode.getA()) &&
+                ((getLNB()&0xFF) == obisCode.getB()) &&
+                ((getLNC()&0xFF) == obisCode.getC()) &&
+                ((getLND()&0xFF) == obisCode.getD()) &&
+                ((getLNE()&0xFF) == obisCode.getE())) {
 			return true;
 		} else {
 			return false;
@@ -371,12 +371,12 @@ public class UniversalObject implements Serializable {
 	@Override
 	public String toString() {
         return this.getBaseName() + "-" +
-                this.getLNA() + "." +
-                this.getLNB() + "." +
-                this.getLNC() + "." +
-                this.getLND() + "." +
-                this.getLNE() + "." +
-                this.getLNF() + "." +
+                String.valueOf(this.getLNA()&0xff) + "." +
+                String.valueOf(this.getLNB()&0xff) + "." +
+                String.valueOf(this.getLNC()&0xff) + "." +
+                String.valueOf(this.getLND()&0xff) + "." +
+                String.valueOf(this.getLNE()&0xff) + "." +
+                String.valueOf(this.getLNF()&0xff) + "." +
                 this.getClassID();
 	}
 

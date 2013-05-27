@@ -1,21 +1,18 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * @version  1.0
  * @author Koenraad Vanderschaeve
- *         <p/>
+ * <P>
  *         <B>Description :</B><BR>
  *         Class that implements the HDLC datalink layer protocol.
  *         <B>Hardcoded :</B><BR>
@@ -31,7 +28,6 @@ import java.util.logging.Logger;
  *         KV 14012004 changed 4 byte addressing
  *         KV 17112004 made more robust...
  *         GN 14012008 made SNRMType for interoperability
- * @version 1.0
  */
 
 
@@ -107,6 +103,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     private byte[] rxFrame = new byte[MAX_BUFFER_SIZE];
 
 
+
+
     // HDLC specific
     // Sequence numbering
     private byte NR;
@@ -120,6 +118,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     private static final byte HDLC_TIMEOUT = 0x02;
     private static final byte HDLC_ABORT = 0x04;
     private static final byte HDLC_BADFRAME = 0x08;
+
 
 
     private static final String[] reasons = {"BADCRC", "TIMEOUT", "ABORT", "BADFRAME"};
@@ -200,15 +199,13 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     private int currentTryCount;
 
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
-
     /**
      * Class constructor.
-     *
      * @param inputStream  InputStream for the active connection, e.g. established with ATDialer.
      * @param outputStream OutputStream for the active connection, e.g. established with ATDialer.
      * @param iTimeout     Time in ms. for a request to wait for a response before returning an timeout error.
      * @param lForceDelay  Force delay (in ms) before each frame send (e.g. SL7000 meter needs at lease 100 ms.).
-     * @throws DLMSConnectionException
+     * @exception DLMSConnectionException
      */
     public HDLCConnection(InputStream inputStream,
                           OutputStream outputStream,
@@ -239,6 +236,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     } // public HDLCConnection(...)
 
     private void getAddressingMode(int addressingMode) throws DLMSConnectionException {
+
 
 
         if (addressingMode == CLIENT_ADDRESSING_DEFAULT) {
@@ -365,8 +363,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     /**
      * Method that requests a MAC connection for the HDLC layer. this request negotiates some parameters
      * for the buffersizes and windowsizes.
-     *
-     * @throws DLMSConnectionException
+     * @exception DLMSConnectionException
      */
     public void connectMAC() throws IOException, DLMSConnectionException {
 
@@ -443,8 +440,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 
     /**
      * Method that requests a MAC disconnect for the HDLC layer.
-     *
-     * @throws DLMSConnectionException
+     * @exception DLMSConnectionException
      */
     public void disconnectMAC() throws IOException, DLMSConnectionException {
         HDLCFrame hdlcFrame;
@@ -775,7 +771,6 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 
     /**
      * Method that sends an information data field and receives an information field.
-     *
      * @param Data with the information field.
      * @return Response data with the information field.
      * @exception DLMSConnectionException
@@ -844,6 +839,10 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 
     public int getTimeout() {
         return iProtocolTimeout;
+    }
+
+    public void setRetries(int retries) {
+        this.iMaxRetries = retries;
     }
 
     public void sendUnconfirmedRequest(final byte[] request) throws IOException {
@@ -1251,10 +1250,13 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     // KV 18092003
     HHUSignOn hhuSignOn = null;
     String meterId = "";
-
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId) {
         this.hhuSignOn = hhuSignOn;
         this.meterId = meterId;
+    }
+
+    public void setHHUSignOn(HHUSignOn hhuSignOn,String meterId, int hhuSignonBaudRateCode) {
+        setHHUSignOn(hhuSignOn, meterId);
     }
 
     public HHUSignOn getHhuSignOn() {

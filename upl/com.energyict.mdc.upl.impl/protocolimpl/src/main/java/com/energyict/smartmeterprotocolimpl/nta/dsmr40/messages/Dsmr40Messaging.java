@@ -5,9 +5,7 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
+import com.energyict.protocolimpl.messages.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23Messaging;
 
 import java.io.IOException;
@@ -42,6 +40,16 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
         return messages;
     }
 
+    /**
+     * Has one extra attribute: imageIdentifier
+     */
+    public MessageCategorySpec getFirmwareCategory() {
+        MessageCategorySpec catFirmware = new MessageCategorySpec(RtuMessageCategoryConstants.FIRMWARE);
+        MessageSpec msgSpec = addFirmwareMsg(RtuMessageKeyIdConstants.FIRMWARE, RtuMessageConstant.FIRMWARE_UPGRADE, false, true);
+        catFirmware.addMessageSpec(msgSpec);
+        return catFirmware;
+    }
+
     @Override
     public MessageCategorySpec getAuthEncryptCategory() {
         MessageCategorySpec catAuthEncrypt = new MessageCategorySpec(RtuMessageCategoryConstants.AUTHENTICATEENCRYPT);
@@ -52,8 +60,6 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
         msgSpec = addNoValueMsg(RtuMessageKeyIdConstants.NTA_CHANGEDATATRANSPORTAUTHENTICATIONKEY, RtuMessageConstant.NTA_AEE_CHANGE_DATATRANSPORT_AUTHENTICATION_KEY, false);
         catAuthEncrypt.addMessageSpec(msgSpec);
         msgSpec = addSecurityLevelMsg(RtuMessageKeyIdConstants.ACTIVATE_SECURITY, RtuMessageConstant.AEE_ACTIVATE_SECURITY, true);
-        catAuthEncrypt.addMessageSpec(msgSpec);
-        msgSpec = addAuthenticationLevelMsg(RtuMessageKeyIdConstants.CHANGE_AUTHENTICATION_LEVEL, RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL, true);
         catAuthEncrypt.addMessageSpec(msgSpec);
         msgSpec = addAuthenticationLevelMsg(RtuMessageKeyIdConstants.ENABLE_AUTHENTICATION_LEVEL_P0, RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0, true);
         catAuthEncrypt.addMessageSpec(msgSpec);

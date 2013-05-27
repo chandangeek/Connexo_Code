@@ -52,7 +52,7 @@ public class ExtendedOperationMode extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.ExtendedOperationMode;
     }
 

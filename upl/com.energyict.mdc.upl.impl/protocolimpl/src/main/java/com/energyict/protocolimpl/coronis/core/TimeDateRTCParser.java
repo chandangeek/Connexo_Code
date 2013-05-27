@@ -18,14 +18,14 @@ public class TimeDateRTCParser {
 		
 
 		int offset=0;
-		calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.getInt(data, offset++, 1));
-		calendar.set(Calendar.MONTH,ProtocolUtils.getInt(data, offset++, 1)-1);
-		calendar.set(Calendar.YEAR,ProtocolUtils.getInt(data, offset++, 1)+2000);
+		calendar.set(Calendar.DAY_OF_MONTH, ProtocolUtils.getInt(data, offset++, 1));
+		calendar.set(Calendar.MONTH, ProtocolUtils.getInt(data, offset++, 1)-1);
+		calendar.set(Calendar.YEAR, ProtocolUtils.getInt(data, offset++, 1)+2000);
 		offset++; // skip day of week
-		calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.getInt(data, offset++, 1));
-		calendar.set(Calendar.MINUTE,ProtocolUtils.getInt(data, offset++, 1));
+		calendar.set(Calendar.HOUR_OF_DAY, ProtocolUtils.getInt(data, offset++, 1));
+		calendar.set(Calendar.MINUTE, ProtocolUtils.getInt(data, offset++, 1));
 		if (data.length==7) {
-			calendar.set(Calendar.SECOND,ProtocolUtils.getInt(data, offset++, 1));
+			calendar.set(Calendar.SECOND, ProtocolUtils.getInt(data, offset++, 1));
 		}
 		else {
 			calendar.set(Calendar.SECOND,0);
@@ -39,10 +39,10 @@ public class TimeDateRTCParser {
 		Calendar calendar = Calendar.getInstance(timeZone);
 		//calendar.clear();
 		int offset=0;
-System.out.println(calendar.getTime());		
-		calendar.set(Calendar.DAY_OF_MONTH,ProtocolUtils.getInt(data, offset++, 1));
-		calendar.set(Calendar.MONTH,ProtocolUtils.getInt(data, offset++, 1)-1);
-		calendar.set(Calendar.YEAR,ProtocolUtils.getInt(data, offset++, 1)+2000);
+System.out.println(calendar.getTime());
+		calendar.set(Calendar.DAY_OF_MONTH, ProtocolUtils.getInt(data, offset++, 1));
+		calendar.set(Calendar.MONTH, ProtocolUtils.getInt(data, offset++, 1)-1);
+		calendar.set(Calendar.YEAR, ProtocolUtils.getInt(data, offset++, 1)+2000);
 		
 //System.out.println(calendar.getTime());
 		
@@ -51,16 +51,16 @@ System.out.println(calendar.getTime());
 		
 System.out.println(calendar.getTime());
 	
-		calendar.set(Calendar.HOUR_OF_DAY,ProtocolUtils.getInt(data, offset++, 1));
+		calendar.set(Calendar.HOUR_OF_DAY, ProtocolUtils.getInt(data, offset++, 1));
 		
-System.out.println(calendar.getTime());	
+System.out.println(calendar.getTime());
 
-		calendar.set(Calendar.MINUTE,ProtocolUtils.getInt(data, offset++, 1));
+		calendar.set(Calendar.MINUTE, ProtocolUtils.getInt(data, offset++, 1));
 		
 System.out.println(calendar.getTime());
 		
 		if (data.length==7) {
-			calendar.set(Calendar.SECOND,ProtocolUtils.getInt(data, offset++, 1));
+			calendar.set(Calendar.SECOND, ProtocolUtils.getInt(data, offset++, 1));
 		}
 		else {
 			calendar.set(Calendar.SECOND,0);

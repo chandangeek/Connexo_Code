@@ -30,7 +30,7 @@ public enum PrivacyEnhancingDataAggregationMethods implements DLMSClassMethods {
     }
 
     public DLMSClassId getDlmsClassId() {
-        return DLMSClassId.PRIVACY_ENHANCING_DATA_AGGREGATION;
+        return DLMSClassId.MANUFACTURER_SPECIFIC_8194;
     }
 
     /**

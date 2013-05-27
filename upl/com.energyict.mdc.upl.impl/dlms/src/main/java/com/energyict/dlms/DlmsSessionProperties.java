@@ -56,7 +56,7 @@ public interface DlmsSessionProperties {
 
     boolean isLNReference();
 
-    String getSystemIdentifier();
+    byte[] getSystemIdentifier();
 
     InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler();
 

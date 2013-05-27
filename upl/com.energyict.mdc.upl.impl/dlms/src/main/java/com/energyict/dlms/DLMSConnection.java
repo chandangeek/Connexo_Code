@@ -51,9 +51,13 @@ public interface DLMSConnection {
 
     int getTimeout();
 
+    void setRetries(int retries);
+
     void sendUnconfirmedRequest(final byte[] request) throws IOException;
 
     void setHHUSignOn(HHUSignOn hhuSignOn, String meterId);
+
+    void setHHUSignOn(HHUSignOn hhuSignOn, String meterId, int hhuSignonBaudRateCode);
 
     HHUSignOn getHhuSignOn();
 

@@ -35,7 +35,7 @@ public class LeakageDetectionPeriod extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         switch (thresholdType) {
             case 0:
                 switch (input) {

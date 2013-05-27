@@ -216,8 +216,8 @@ public class IskraMX372Properties extends DlmsProtocolProperties {
     }
 
     @Override
-    public String getSystemIdentifier() {
-        return null;
+    public byte[] getSystemIdentifier() {
+        return new byte[0];
     }
 
     @Override

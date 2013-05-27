@@ -22,7 +22,7 @@ public class ApplicationStatus extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.ApplicationStatus;
     }
 

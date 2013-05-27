@@ -4,35 +4,15 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.OldDeviceMessage;
+import com.energyict.mdw.core.*;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterData;
-import com.energyict.protocol.MeterDataMessageResult;
-import com.energyict.protocol.MeterReadingData;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
 import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
@@ -42,10 +22,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -63,9 +40,13 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         this.dlmsSession = this.protocol.getDlmsSession();
     }
 
+    public AbstractSmartNtaProtocol getProtocol() {
+        return protocol;
+    }
+
     public MessageResult executeMessageEntry(MessageEntry msgEntry) {
         String content = msgEntry.getContent();
-        MessageHandler messageHandler = new NTAMessageHandler();
+        MessageHandler messageHandler = getMessageHandler();
         String serialNumber = msgEntry.getSerialNumber();
         MessageResult msgResult = null;
         try {
@@ -127,6 +108,10 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
         return msgResult;
     }
 
+    protected NTAMessageHandler getMessageHandler() {
+        return new NTAMessageHandler();
+    }
+
     private void setMbusUncorrected(final MessageHandler messageHandler, final String serialNumber) throws IOException {
         log(Level.INFO, "Handling MbusMessage Set loadprofile to unCorrected values");
         Array capDef = new Array();
@@ -160,7 +145,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     }
 
     protected void setCryptoserverMbusEncryptionKeys(MessageEntry msgEntry, final MessageHandler messageHandler, final String serialNumber) throws IOException {
-        throw new IOException("Received message to renew MBus keys using the Cryptoserver, but Cryptoserver usage is disabled");
+        throw new IOException("Received message to renew MBus keys using the Cryptoserver, but Cryptoserver usage is not supported in this protocol");
     }
 
     protected void setMbusEncryptionKeys(final MessageHandler messageHandler, final String serialNumber) throws IOException {
@@ -278,7 +263,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
     }
 
 
-    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
+    protected MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
             LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();

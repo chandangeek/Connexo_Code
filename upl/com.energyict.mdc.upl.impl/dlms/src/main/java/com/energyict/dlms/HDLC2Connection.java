@@ -1,15 +1,11 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.*;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 final public class HDLC2Connection extends Connection implements DLMSConnection {
 
@@ -108,11 +104,11 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
 
     private int iProtocolTimeout;
     final private long lForceDelay;
-    final private int iMaxRetries;
+    private int iMaxRetries;
     final private int iClientMacAddress;
     final private int iServerUpperMacAddress;
     final private int iServerLowerMacAddress;
-    final private int hhuSignonBaudRateCode;
+    private int hhuSignonBaudRateCode;
     final private int informationFieldSize;
 
     private int bAddressingMode = 1;
@@ -297,8 +293,7 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
 
     /**
      * Method that requests a MAC disconnect for the HDLC layer.
-     *
-     * @throws DLMSConnectionException
+     * @exception DLMSConnectionException
      */
     public void disconnectMAC() throws IOException, DLMSConnectionException {
         int bResult = 0;
@@ -504,6 +499,10 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
 
     public int getTimeout() {
         return iProtocolTimeout;
+    }
+
+    public void setRetries(int retries) {
+        this.iMaxRetries = retries;
     }
 
     public void sendUnconfirmedRequest(final byte[] request) throws IOException {
@@ -786,6 +785,11 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         this.meterId = meterId;
     }
 
+    public void setHHUSignOn(HHUSignOn hhuSignOn,String meterId, int hhuSignonBaudRateCode) {
+        setHHUSignOn(hhuSignOn, meterId);
+        this.hhuSignonBaudRateCode = hhuSignonBaudRateCode;
+    }
+
     public HHUSignOn getHhuSignOn() {
         return hhuSignOn;
     }
@@ -891,7 +895,6 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         sMaxRXIFSize = 0x00F8;
         sMaxTXIFSize = 0x00F8;
     }
-
     private class HDLCFrame {
 
         private int sLength;

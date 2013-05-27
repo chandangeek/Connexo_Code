@@ -18,7 +18,7 @@ public class ValveApplicationStatus extends AbstractParameter {
     }
 
     @Override
-    ParameterId getParameterId() {
+    protected ParameterId getParameterId() {
         return ParameterId.ValveApplicationStatus;
     }
 

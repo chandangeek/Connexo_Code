@@ -1,19 +1,10 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.Limiter;
-import com.energyict.dlms.cosem.ScriptTable;
-import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.*;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
 import com.energyict.genericprotocolimpl.common.messages.ActivityCalendarMessage;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
@@ -41,10 +32,19 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     private static final ObisCode OBISCODE_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
     private static final ObisCode OBISCODE_PUSH_SCRIPT = ObisCode.fromString("0.0.10.0.108.255");
     private static final ObisCode OBISCODE_GLOBAL_RESET = ObisCode.fromString("0.1.94.31.5.255");
-    private static final String TIMEOUT = "timeout";
 
     public Dsmr40MessageExecutor(final AbstractSmartNtaProtocol protocol) {
         super(protocol);
+    }
+
+    public MessageResult executeMessageEntry(MessageEntry msgEntry) throws ConnectionException, NestedIOException {
+        if (!this.protocol.getSerialNumber().equalsIgnoreCase(msgEntry.getSerialNumber())) {
+            //Execute messages for MBus device
+            Dsmr40MbusMessageExecutor mbusMessageExecutor = new Dsmr40MbusMessageExecutor(protocol);
+            return mbusMessageExecutor.executeMessageEntry(msgEntry);
+        } else {
+            return super.executeMessageEntry(msgEntry);
+        }
     }
 
     @Override
@@ -69,18 +69,25 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
 
         byte[] imageData = uf.loadFileInByteArray();
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+        it.setBooleanValue(getBooleanValue());
         it.setUsePollingVerifyAndActivate(true);    //Poll verification
-        it.setPollingDelay(5000);
-        it.setPollingRetries(15);
+        it.setPollingDelay(10000);
+        it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
-        it.upgrade(imageData, false);
+        String imageIdentifier = messageHandler.getImageIdentifier();
+        if (imageIdentifier != null && imageIdentifier.length() > 0) {
+            it.upgrade(imageData, false, imageIdentifier, false);
+        } else {
+            it.upgrade(imageData, false);
+        }
         if (messageHandler.getActivationDate().equalsIgnoreCase("")) { // Do an execute now
             try {
+                it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
+                log(Level.INFO, "Activating the image");
                 it.imageActivation();
-            } catch (IOException e) {
-                if (e.getMessage() != null && e.getMessage().toLowerCase().contains(TIMEOUT)) {
-                    log(Level.INFO, "Polling for activation status timed out, meter is rebooting.");
-                    //Move on, meter is rebooting
+            } catch (DataAccessResultException e) {
+                if (isTemporaryFailure(e)) {
+                    log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
                 } else {
                     throw e;
                 }
@@ -102,6 +109,10 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
             Array dateArray = convertUnixToDateTimeArray(strDate);
             sas.writeExecutionTime(dateArray);
         }
+    }
+
+    private boolean isTemporaryFailure(DataAccessResultException e) {
+        return (e.getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
     }
 
     @Override
@@ -320,4 +331,10 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         }
     }
 
+    /**
+     * Default value, subclasses can override. This value is used to set the image_transfer_enable attribute.
+     */
+    protected int getBooleanValue() {
+        return 0xFF;
+    }
 }

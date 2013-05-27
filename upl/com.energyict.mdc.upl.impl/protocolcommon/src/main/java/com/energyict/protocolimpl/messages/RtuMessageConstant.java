@@ -12,10 +12,12 @@ public class RtuMessageConstant {
      * DeviceMessage tag for connecting load
      */
     public static final String CONNECT_LOAD = "connectLoad";
+    public static final String REMOTE_CONNECT = "RemoteConnect";
     /**
      * DeviceMessage tag for disconnecting load
      */
     public static final String DISCONNECT_LOAD = "disconnectLoad";
+    public static final String REMOTE_DISCONNECT = "RemoteDisconnect";
     /**
      * DeviceMessage tag to indicate the digital output to apply the connectControl
      */
@@ -105,6 +107,7 @@ public class RtuMessageConstant {
     public static final String FIRMWARE_METERS = "GroupID of meters to receive new firmware";
     public static final String FIRMWARE_ACTIVATE_NOW = "Activate_now";
     public static final String FIRMWARE_ACTIVATE_DATE = "Activation_date";
+    public static final String FIRMWARE_IMAGE_IDENTIFIER = "Image_identifier";
 
     public static final String FIRMWARE_UPDATE = "FirmwareUpdate";
     public static final String FIRMWARE_UPDATE_INCLUDED_FILE = "IncludedFile";
@@ -262,6 +265,15 @@ public class RtuMessageConstant {
     public static final String AEE_DISABLE_AUTHENTICATION_LEVEL_P3 = "Disable_authentication_level_P3";
     public static final String AEE_SECURITYLEVEL = "SecurityLevel";
     public static final String AEE_AUTHENTICATIONLEVEL = "AuthenticationLevel";
+
+    //Cryptoserver messages
+    public static final String SERVICEKEY_HLSSECRET = "ServiceKeyHLSSecret";
+    public static final String SERVICEKEY_AK = "ServiceKeyAK";
+    public static final String SERVICEKEY_EK = "ServiceKeyEK";
+
+    public static final String SERVICEKEY_PREPAREDDATA = "PreparedData";
+    public static final String SERVICEKEY_SIGNATURE = "Signature";
+    public static final String SERVICEKEY_VERIFYKEY = "VerificationKey";
 
     /**
      * DeviceMessage tags for SMS

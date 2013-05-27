@@ -11,7 +11,7 @@ import java.util.Date;
 public class RadioCommandFactory {
 
 
-    private WaveFlow waveFlow;
+    protected WaveFlow waveFlow;
 
     // cached
     private FirmwareVersion firmwareVersion = null;
@@ -38,7 +38,7 @@ public class RadioCommandFactory {
      * Cache the results.
      *
      * @return the current readings
-     * @throws IOException when the communication failed
+     * @throws java.io.IOException when the communication failed
      */
     final public GlobalIndexReading readCurrentReading() throws IOException {
         if (currentIndexes == null) {
@@ -207,6 +207,12 @@ public class RadioCommandFactory {
             return cleanWaterValveCommand.isSuccess();
         }
         return false;
+    }
+
+    public int readValveStatus() throws IOException {
+        ReadValveStatus readValveStatus = new ReadValveStatus(waveFlow);
+        readValveStatus.set();
+        return readValveStatus.getStatus();
     }
 
     public boolean addCreditBeforeClosing(int quantity, int add, int close) throws IOException {

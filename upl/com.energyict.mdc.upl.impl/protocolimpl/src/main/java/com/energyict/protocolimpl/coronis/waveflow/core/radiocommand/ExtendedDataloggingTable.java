@@ -2,7 +2,6 @@ package com.energyict.protocolimpl.coronis.waveflow.core.radiocommand;
 
 import com.energyict.protocolimpl.coronis.core.*;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
-import com.energyict.protocolimpl.coronis.waveflow.core.parameter.OperatingMode;
 
 import java.io.*;
 import java.util.*;
@@ -29,6 +28,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
     private static final int MAX_NR_OF_VALUES = 0xFFFF;    //See documentation v2
     private long offset = -1;
     private int indexFirst = -1;
+    private boolean monthly = false;
 
     public long getOffset() throws IOException {
         if (offset == -1) {
@@ -222,7 +222,6 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
         toCal.setTime(toDate);
         toCal.set(Calendar.SECOND, 0);
         toCal.set(Calendar.MILLISECOND, 0);
-        OperatingMode operatingMode = getWaveFlow().getParameterFactory().readOperatingMode();
 
         if (now.getTime().equals(toCal.getTime())) {
             return 0;
@@ -230,7 +229,7 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
 
         if (toCal.getTime().after(now.getTime())) {
             return 0;
-        } else if (operatingMode.isMonthlyMeasurement()) {
+        } else if (monthly) {
             getMostRecentRecord();
             Calendar lastLogged = Calendar.getInstance(getWaveFlow().getTimeZone());
             lastLogged.setTime(getMostRecentRecordTimeStamp());
@@ -248,5 +247,9 @@ public class ExtendedDataloggingTable extends AbstractRadioCommand {
             long timeDiff = (getMostRecentRecordTimeStamp().getTime() - toCal.getTimeInMillis()) / 1000;
             return indexFirst - (timeDiff / getWaveFlow().getProfileInterval());
         }
+    }
+
+    public void setMonthly(boolean monthly) {
+        this.monthly = monthly;
     }
 }

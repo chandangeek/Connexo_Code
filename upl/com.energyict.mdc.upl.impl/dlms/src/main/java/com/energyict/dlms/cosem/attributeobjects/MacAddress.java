@@ -1,9 +1,9 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
-import java.io.IOException;
-
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
 
 /**
  * @author jme
@@ -16,7 +16,7 @@ public class MacAddress extends Unsigned16 {
 	/**
 	 * @param berEncodedData
 	 * @param offset
-	 * @throws IOException
+	 * @throws java.io.IOException
 	 */
 	public MacAddress(byte[] berEncodedData, int offset) throws IOException {
 		super(berEncodedData, offset);
