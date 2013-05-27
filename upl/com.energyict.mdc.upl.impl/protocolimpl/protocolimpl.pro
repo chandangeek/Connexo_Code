@@ -52,6 +52,12 @@
 
 -keepnames class com.energyict.protocolimpl.rtuplusbus.rtuplusbus
 
+# For usage in protocolimpl-v2
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits
+-keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject
+
 # For usage in the cryptoserver project
 -keepnames class com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40SecurityProvider
