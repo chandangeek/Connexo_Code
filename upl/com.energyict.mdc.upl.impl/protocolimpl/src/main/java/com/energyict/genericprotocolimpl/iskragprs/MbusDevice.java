@@ -273,7 +273,7 @@ public class MbusDevice implements Messaging {
                     while (i.hasNext()) {
 
                         RegisterSpec spec = (RegisterSpec) i.next();
-                        ObisCode oc = spec.getObisCode();
+                        ObisCode oc = spec.getDeviceObisCode();
                         Register register = mbus.getRegister(oc);
 
                         if (register != null) {

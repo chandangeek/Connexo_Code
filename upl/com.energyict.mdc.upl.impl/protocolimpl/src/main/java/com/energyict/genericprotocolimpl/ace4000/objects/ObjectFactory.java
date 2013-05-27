@@ -1264,7 +1264,7 @@ public class ObjectFactory {
         allowedCFields.add(87);
 
         for (Register register : registers) {
-            ObisCode obisCode = register.getRegisterSpec().getObisCode();
+            ObisCode obisCode = register.getRegisterSpec().getDeviceObisCode();
             if (allowedCFields.contains(obisCode.getC()) && obisCode.getA() == 1 && obisCode.getB() == 0 && obisCode.getD() == 7 && obisCode.getE() == 0 && obisCode.getF() == 255) {
                 return true;
             }
@@ -1274,7 +1274,7 @@ public class ObjectFactory {
 
     private boolean shouldRequestCurrentRegisters(List<Register> registers) {
         for (Register register : registers) {
-            ObisCode obisCode = register.getRegisterSpec().getObisCode();
+            ObisCode obisCode = register.getRegisterSpec().getDeviceObisCode();
             if (obisCode.getA() == 1 && obisCode.getB() == 0 && (obisCode.getC() == 1 || obisCode.getC() == 2) && obisCode.getD() == 8 && obisCode.getF() == 255) {
                 return true;
             }
@@ -1298,7 +1298,7 @@ public class ObjectFactory {
     }
 
     private boolean isBillingRegister(Register register) {
-        return register.getRegisterSpec().getObisCode().getF() != 255;
+        return register.getRegisterSpec().getDeviceObisCode().getF() != 255;
     }
 
     /**

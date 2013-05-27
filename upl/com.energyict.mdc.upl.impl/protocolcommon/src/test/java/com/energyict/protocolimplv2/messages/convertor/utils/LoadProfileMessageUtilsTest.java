@@ -48,7 +48,7 @@ public class LoadProfileMessageUtilsTest {
     private LoadProfile createMockedLoadProfile() {
         LoadProfile loadProfile = mock(LoadProfile.class);
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
-        when(loadProfileSpec.getObisCode()).thenReturn(LOAD_PROFILE_OBISCODE);
+        when(loadProfileSpec.getDeviceObisCode()).thenReturn(LOAD_PROFILE_OBISCODE);
         when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
         return loadProfile;
     }

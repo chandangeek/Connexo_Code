@@ -1860,7 +1860,7 @@ public class IskraMx37x implements ProtocolLink, CacheMechanism, Messaging, HHUE
                 try {
 
                     RegisterSpec spec = (RegisterSpec) i.next();
-                    ObisCode oc = spec.getObisCode();
+                    ObisCode oc = spec.getDeviceObisCode();
                     Register register = rtu.getRegister(oc);
 
                     if (register != null) {

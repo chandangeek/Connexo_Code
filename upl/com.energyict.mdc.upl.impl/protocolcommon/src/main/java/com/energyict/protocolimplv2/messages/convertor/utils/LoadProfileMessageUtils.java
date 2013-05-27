@@ -131,7 +131,7 @@ public class LoadProfileMessageUtils {
             Document document = builder.newDocument();
             Element root = document.createElement(ROOT_TAG);
 
-            root.setAttribute(ProfileObisCodeTag, loadProfile.getLoadProfileSpec().getObisCode().toString());
+            root.setAttribute(ProfileObisCodeTag, loadProfile.getLoadProfileSpec().getDeviceObisCode().toString());
             root.setAttribute(MeterSerialNumberTag, loadProfile.getRtu().getSerialNumber());
             root.setAttribute(LoadProfileIdTag, String.valueOf(loadProfile.getId()));
 
