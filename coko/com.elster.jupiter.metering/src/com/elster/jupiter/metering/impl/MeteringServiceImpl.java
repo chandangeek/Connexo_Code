@@ -1,19 +1,22 @@
 package com.elster.jupiter.metering.impl;
 
-import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
-
-import java.util.Date;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.plumbing.*;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.plumbing.Bus;
+import com.elster.jupiter.metering.plumbing.InstallerImpl;
+import com.elster.jupiter.metering.plumbing.OrmClient;
+import com.elster.jupiter.metering.plumbing.OrmClientImpl;
+import com.elster.jupiter.metering.plumbing.ServiceLocator;
+import com.elster.jupiter.metering.plumbing.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
@@ -22,6 +25,13 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Expression;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.util.Date;
+
+import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
 
 @Component (name = "com.elster.jupiter.metering", service={MeteringService.class,InstallService.class} , property="name="+Bus.COMPONENTNAME)
 public class MeteringServiceImpl implements MeteringService , InstallService, ServiceLocator {
@@ -159,13 +169,11 @@ public class MeteringServiceImpl implements MeteringService , InstallService, Se
 		this.partyService = partyService;
 	}
 	
-	@Activate	
-	public void activate() {
-		Bus.setServiceLocator(this);		
+	public void activate(ComponentContext context) {
+        Bus.setServiceLocator(this);
 	}
 	
-	@Deactivate
-	public void deactivate() {
+	public void deActivate(ComponentContext context) {
 		Bus.setServiceLocator(null);
 	}
 	
