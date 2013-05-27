@@ -1,15 +1,15 @@
 package com.elster.jupiter.metering.rest;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.ws.rs.core.Application;
-
-import org.osgi.service.component.annotations.*;
-
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.ws.rs.core.Application;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component(name = "com.elster.jupiter.metering.rest" , service=Application.class , immediate = true , property = {"alias=/kore"} )
 public class MeteringApplication extends Application implements ServiceLocator {
@@ -57,13 +57,11 @@ public class MeteringApplication extends Application implements ServiceLocator {
 		this.restQueryService = restQueryService;
 	}
 	
-	@Activate
-	public void activate() {
+	public void activate(ComponentContext context) {
 		Bus.setServiceLocator(this);
 	}
 	
-	@Deactivate
-	public void deActivate() {
+	public void deActivate(ComponentContext context) {
 		Bus.setServiceLocator(null);
 	}
 }
