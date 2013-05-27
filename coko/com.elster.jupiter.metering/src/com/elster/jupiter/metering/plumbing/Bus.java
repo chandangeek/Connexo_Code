@@ -5,7 +5,8 @@ import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.parties.PartyService;
 
-public class Bus {
+public enum Bus {
+    ;
 	
 	public static final String COMPONENTNAME = "MTR";
 	
@@ -33,11 +34,6 @@ public class Bus {
 	
 	public static PartyService getPartyService() {
 		return locator.getPartyService();
-	}
-	
-	// pure static class;
-	private Bus() {
-		throw new UnsupportedOperationException();
 	}
 
 }
