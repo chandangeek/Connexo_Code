@@ -1,5 +1,6 @@
 package com.elster.jupiter.ids.impl;
 
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import com.elster.jupiter.ids.*;
 import com.elster.jupiter.ids.plumbing.*;
@@ -63,13 +64,11 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
     	ormClient = new OrmClientImpl(dataModel);    		
     }
     
-    @Activate
-    public void activate() {
+    public void activate(ComponentContext context) {
     	Bus.setServiceLocator(this);
     }
-    
-    @Deactivate
-    public void deActivate() {
+
+    public void deActivate(ComponentContext context) {
     	Bus.setServiceLocator(null);
     }
     		
