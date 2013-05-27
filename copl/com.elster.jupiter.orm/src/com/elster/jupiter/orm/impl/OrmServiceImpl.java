@@ -1,20 +1,29 @@
 package com.elster.jupiter.orm.impl;
 
-import java.security.Principal;
-import java.sql.*;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.sql.DataSource;
-
-import org.osgi.service.component.annotations.*;
-
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.orm.TransactionRequiredException;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.orm.plumbing.*;
+import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.plumbing.OrmClient;
+import com.elster.jupiter.orm.plumbing.OrmClientImpl;
+import com.elster.jupiter.orm.plumbing.ServiceLocator;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
-@Component (name = "com.elster.jupiter.orm" , service = { OrmService.class , InstallService.class } , property="name=" + Bus.COMPONENTNAME)
+import javax.sql.DataSource;
+import java.security.Principal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicReference;
+
+@Component (name = "com.elster.jupiter.orm", immediate = true, service = { OrmService.class , InstallService.class } , property="name=" + Bus.COMPONENTNAME)
 public class OrmServiceImpl implements OrmService , InstallService , ServiceLocator {
 	
 	private volatile OrmClient ormClient;
@@ -96,14 +105,13 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 		publisherHolder.compareAndSet(publisher, null);
 	}
 	
-	@Activate
-	public void activate() {
-		this.ormClient = new OrmClientImpl();
+	public void activate(ComponentContext context) {
+        this.ormClient = new OrmClientImpl();
 		Bus.setServiceLocator(this);
 	}
 	
-	@Deactivate
-	public void deActivate() {
+	public void deActivate(ComponentContext context) {
 		Bus.setServiceLocator(null);
 	}
+
 }
