@@ -1,11 +1,11 @@
 package com.elster.jupiter.domain.util.impl;
 
-import java.util.List;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+
+import java.util.List;
 
 class QueryImpl<T> implements Query<T> {
 	private final QueryExecutor<T> queryExecutor;
@@ -23,18 +23,18 @@ class QueryImpl<T> implements Query<T> {
 	
 	@Override
 	public List<T> select(Condition condition, int from, int to,String... orderBy) {
-		return queryExecutor.select(condition,orderBy,isEager(),exceptions,from,to);
+		return queryExecutor.select(condition, orderBy, isEager(), exceptions, from, to);
 	}
 	
 	@Override
 	public T get(Object... key) {
 		// override default eager behavior
-		return queryExecutor.get(key, eager == null ? true : eager.booleanValue() ,exceptions);
+		return queryExecutor.get(key, eager == null ? true : eager, exceptions);
 	}
 
 	@Override
 	public Subquery asSubquery(Condition condition, String ... fieldNames) {
-		return  new SubqueryImpl(queryExecutor.asFragment(condition,fieldNames));
+		return  new SubqueryImpl(queryExecutor.asFragment(condition, fieldNames));
 	}
 
 	@Override
@@ -61,7 +61,7 @@ class QueryImpl<T> implements Query<T> {
 	}
 	
 	private boolean isEager() {
-		return eager == null ? false : eager.booleanValue();
+		return eager != null && eager;
 	}
 
 	@Override
