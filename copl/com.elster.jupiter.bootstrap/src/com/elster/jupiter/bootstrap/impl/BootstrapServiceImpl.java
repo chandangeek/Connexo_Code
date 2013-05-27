@@ -9,7 +9,6 @@ import org.osgi.service.component.annotations.Component;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.Properties;
 
 @Component (name = "com.elster.jupiter.bootstrap")
 public class BootstrapServiceImpl implements BootstrapService {
@@ -31,10 +30,10 @@ public class BootstrapServiceImpl implements BootstrapService {
 
     @Override
     public DataSource createDataSource() throws SQLException {
-        return createDataSourceFromProperties(new Properties());
+        return createDataSourceFromProperties();
     }
 
-    private DataSource createDataSourceFromProperties(Properties properties) throws SQLException {
+    private DataSource createDataSourceFromProperties() throws SQLException {
         OracleDataSource source = new OracleDataSource();
         source.setURL(jdbcUrl);
         source.setUser(jdbcUser);
