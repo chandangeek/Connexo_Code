@@ -1,12 +1,18 @@
 package com.elster.jupiter.pubsub.impl;
 
-import java.util.*;
-import java.util.logging.Logger;
-
-import org.osgi.service.component.annotations.*;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.log.LogService;
 
-import com.elster.jupiter.pubsub.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 @Component (name="com.elster.jupiter.pubsub", immediate = true )
 public class PublisherImpl implements Publisher {
@@ -30,7 +36,7 @@ public class PublisherImpl implements Publisher {
 	}
 	
 	@Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC) 
-	synchronized public void addHandler(Subscriber subscriber,Map<String, Object> properties) {
+	synchronized public void addHandler(Subscriber subscriber, Map<String, Object> properties) {
 		Object filter = properties.get(Subscriber.TOPIC);
 		if (filter == null) {
 			return;
