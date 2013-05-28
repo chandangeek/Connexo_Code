@@ -1,11 +1,11 @@
 package com.elster.jupiter.parties.impl;
 
-import java.util.Date;
-
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Interval;
+
+import java.util.Date;
 
 public class PartyInRoleImpl implements PartyInRole {
 	
@@ -53,10 +53,8 @@ public class PartyInRoleImpl implements PartyInRole {
 
 	@Override
 	public boolean isCurrent() {
-		return interval.isCurrent();
+		return interval.isCurrent(Bus.getClock());
 	}
-
-	
 
 	@Override
 	public Date getStart() {

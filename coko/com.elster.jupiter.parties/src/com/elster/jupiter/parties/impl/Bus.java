@@ -1,6 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.orm.cache.ComponentCache;
+import com.elster.jupiter.util.time.Clock;
 
 class Bus {
 	
@@ -19,4 +20,8 @@ class Bus {
 	public static ComponentCache getCache() {
 		return locator.getCache();
 	}
+
+    public static Clock getClock() {
+        return locator.getClock();
+    }
 }

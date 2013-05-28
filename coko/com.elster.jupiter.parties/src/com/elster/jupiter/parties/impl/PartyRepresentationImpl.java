@@ -1,10 +1,10 @@
 package com.elster.jupiter.parties.impl;
 
-import java.util.Date;
-
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import java.util.Date;
 
 class PartyRepresentationImpl  {
 	private String delegate;
@@ -53,7 +53,7 @@ class PartyRepresentationImpl  {
 	}
 
 	public boolean isCurrent() {
-		return interval.isCurrent();
+		return interval.isCurrent(Bus.getClock());
 	}
 
 }

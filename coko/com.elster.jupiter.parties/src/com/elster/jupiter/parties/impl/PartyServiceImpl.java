@@ -9,6 +9,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -23,6 +24,7 @@ public class PartyServiceImpl implements PartyService, InstallService , ServiceL
 	private volatile OrmClient ormClient; 
 	private volatile ThreadPrincipalService threadPrincipalService;
 	private volatile ComponentCache cache;
+    private volatile Clock clock;
 
 	@Override
 	public Party getParty(String mRID) {
@@ -95,6 +97,14 @@ public class PartyServiceImpl implements PartyService, InstallService , ServiceL
 	@Override
 	public void install() {
 		new InstallerImpl().install(true,true,true);
-		
 	}
+
+    public Clock getClock() {
+        return clock;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 }
