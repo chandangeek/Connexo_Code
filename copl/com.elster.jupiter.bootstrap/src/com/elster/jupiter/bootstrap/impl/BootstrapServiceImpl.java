@@ -9,6 +9,8 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 
 import javax.sql.DataSource;
+
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -24,20 +26,20 @@ public class BootstrapServiceImpl implements BootstrapService {
     private String jdbcUrl;
     private String jdbcUser;
     private String jdbcPassword;
-    private int maxLimit;
-    private int maxStatementsLimit;
+    private String maxLimit;
+    private String maxStatementsLimit;
 
     public void activate(ComponentContext context) {
         jdbcUrl = getRequiredProperty(context.getBundleContext(), JDBC_DRIVER_URL);
         jdbcUser = getRequiredProperty(context.getBundleContext(), JDBC_USER);
         jdbcPassword = getRequiredProperty(context.getBundleContext(), JDBC_PASSWORD);
-        maxLimit = getOptionalIntProperty(context.getBundleContext(), JDBC_POOLMAXLIMIT,50);
-        maxStatementsLimit = getOptionalIntProperty(context.getBundleContext(), JDBC_POOLMAXSTATEMENTS,50);
+        maxLimit = getOptionalProperty(context.getBundleContext(), JDBC_POOLMAXLIMIT,"50");
+        maxStatementsLimit = getOptionalProperty(context.getBundleContext(), JDBC_POOLMAXSTATEMENTS,"50");
     }
 
     @Override
-    public DataSource createDataSource() throws SQLException {
-        return createDataSourceFromProperties();
+    public DataSource createDataSource() throws SQLException {    	
+    	return createDataSourceFromProperties();    	
     }
 
     // tried to switch to UCP , but ran into OSGI related class loading problems.
@@ -47,12 +49,12 @@ public class BootstrapServiceImpl implements BootstrapService {
         OracleDataSource source = new OracleDataSource();
         source.setURL(jdbcUrl);
         source.setUser(jdbcUser);
-        source.setPassword(jdbcPassword);
-        source.setConnectionCachingEnabled(true);
+        source.setPassword(jdbcPassword);        
         Properties connectionCacheProps = new Properties();
         connectionCacheProps.put("MaxLimit",maxLimit);
-        connectionCacheProps.put("MaxStatementsLimit",maxStatementsLimit);        
+        connectionCacheProps.put("MaxStatementsLimit", maxStatementsLimit);        
         source.setConnectionCacheProperties(connectionCacheProps);
+        source.setConnectionCachingEnabled(true);
         // for now , no need to set connection properties , but possible interesting keys are
         // defaultRowPrefetch
         // oracle.jdbc.FreeMemoryOnEnterImplicitCache
@@ -67,15 +69,8 @@ public class BootstrapServiceImpl implements BootstrapService {
         return value;
     }
 
-    private int getOptionalIntProperty(BundleContext context, String property , int defaultValue) {
-        String stringValue = context.getProperty(property);
-        if (stringValue == null) {
-            return defaultValue;
-        }
-        try {
-        	return Integer.valueOf(stringValue);
-        } catch (NumberFormatException ex) {
-        	return defaultValue;
-        }
+    private String getOptionalProperty(BundleContext context, String property , String defaultValue) {
+        String value = context.getProperty(property);
+        return value == null ? defaultValue : value;
     }
 }
