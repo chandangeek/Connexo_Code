@@ -1,5 +1,6 @@
 package com.elster.jupiter.ids.impl;
 
+import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import com.elster.jupiter.ids.*;
@@ -11,6 +12,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 @Component (name="com.elster.jupiter.ids", service={IdsService.class,InstallService.class}, property="name="+Bus.COMPONENTNAME)
 public class IdsServiceImpl implements IdsService, InstallService, ServiceLocator {
 	private volatile OrmClient ormClient;
+    private volatile Clock clock;
 	
 	@Override
 	public Vault getVault(String component, long id) {
@@ -71,5 +73,13 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
     public void deActivate(ComponentContext context) {
     	Bus.setServiceLocator(null);
     }
-    		
+
+    public Clock getClock() {
+        return clock;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 }

@@ -1,10 +1,5 @@
 package com.elster.jupiter.ids.impl;
 
-import java.text.*;
-import java.util.Date;
-import java.util.*;
-import java.sql.*;
-
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.IntervalLengthUnit;
 import com.elster.jupiter.ids.RecordSpec;
@@ -12,10 +7,24 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.plumbing.Bus;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.PersistenceException;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 @LiteralSql
 public class VaultImpl implements Vault {
@@ -288,7 +297,7 @@ public class VaultImpl implements Vault {
 			return true;
 		} else {
 			if (overrule) {
-				long now = System.currentTimeMillis();
+				long now = Bus.getClock().now().getTime();
 				if (hasJournal()) {
 					journal(timeSeries,when,now);
 				}					
@@ -335,7 +344,7 @@ public class VaultImpl implements Vault {
 				int offset = 1;
 				statement.setLong(offset++,timeSeries.getId());
 				statement.setLong(offset++, when);
-				statement.setLong(offset++, System.currentTimeMillis());
+				statement.setLong(offset++, Bus.getClock().now().getTime());
 				if (hasLocalTime()) {
 					Calendar cal = timeSeries.getStartCalendar(new Date(when));
 					statement.setTimestamp(offset++,new Timestamp(cal.getTime().getTime()),cal);

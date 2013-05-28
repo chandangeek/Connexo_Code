@@ -1,5 +1,7 @@
 package com.elster.jupiter.ids.plumbing;
 
+import com.elster.jupiter.util.time.Clock;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -21,7 +23,11 @@ public class Bus {
 		return getOrmClient().getConnection(transactionRequired);
 	}
 
-	// pure static class;
+    public static Clock getClock() {
+        return locator.getClock();
+    }
+
+    // pure static class;
 	private Bus() {
 		throw new UnsupportedOperationException();
 	}	

@@ -1,13 +1,26 @@
 package com.elster.jupiter.ids.impl;
 
-import java.util.Date;
-import java.util.*;
-import java.sql.*;
-
-import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.StorerStats;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesDataStorer;
+import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.PersistenceException;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @LiteralSql
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
@@ -224,7 +237,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		void execute(StorerStatsImpl stats , boolean overrules) throws SQLException {
 			try (Connection connection = Bus.getConnection(true)) {
 				setOldEntries(connection);
-				long now = System.currentTimeMillis();
+				long now = Bus.getClock().now().getTime();
 				addInserts(connection,now);
 				if (overrules) {
 					if (vault.hasJournal()) {
