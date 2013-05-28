@@ -12,6 +12,9 @@ public enum SecurityPropertySpecName {
 
     PASSWORD("Password"),
     ENCRYPTION_KEY("EncryptionKey"),
+    ENCRYPTION_KEY_1("EncryptionKey1"),
+    ENCRYPTION_KEY_2("EncryptionKey2"),
+    ENCRYPTION_KEY_3("EncryptionKey3"),
     AUTHENTICATION_KEY("AuthenticationKey"),
     CLIENT_MAC_ADDRESS("ClientMacAddress"),
     /**

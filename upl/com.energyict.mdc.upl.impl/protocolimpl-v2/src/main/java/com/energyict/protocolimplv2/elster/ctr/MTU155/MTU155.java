@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
@@ -40,10 +41,10 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -59,6 +60,9 @@ public class MTU155 implements DeviceProtocol {
     public static final String CHANNEL_BACKLOG_PROPERTY_NAME = "ChannelBacklog";
     public static final String EXTRACT_INSTALLATION_DATE_PROPERTY_NAME = "ExtractInstallationDate";
     public static final String REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME = "RemoveDayProfileOffset";
+
+    private final DeviceProtocolSecurityCapabilities securityCapabilities = new Mtu155SecuritySupport();
+
 
     /**
      * The offline rtu
@@ -282,19 +286,20 @@ public class MTU155 implements DeviceProtocol {
         return collectedRegisters;
     }
 
-    /** Note: All possible CTR error messages occuring when reading registers:
+    /**
+     * Note: All possible CTR error messages occuring when reading registers:
      * Installation date cannot be read as a regular register.
      * Expected requestedId but received receivedId while reading registers.
      * Expected ... ResponseStructure but was
      * Query for register with id: " + idObject.toString() + " failed. Meter response was empty
      * Expected RegisterResponseStructure but was ...
      * Received no suitable data for this register
-     *
+     * <p/>
      * Invalid Data: Qualifier was 0xFF at register reading for ID: regMap (Obiscode: obisCode.)
      * Invalid Measurement at register reading for ID: regMap (Obiscode: obisCode.)
      * Meter is subject to maintenance at register reading for ID: regMap (Obiscode: obisCode.)
      * Qualifier is 'Reserved' at register reading for ID: regMap (Obiscode: obisCode.)
-     *
+     * <p/>
      * CTRParsingException
      */
 
@@ -411,8 +416,7 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getSecurityProperties() {
-        // TODO return proper functionality
-        return Collections.emptyList();
+        return securityCapabilities.getSecurityProperties();
     }
 
     @Override
@@ -422,18 +426,17 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        // TODO return proper functionality
-        return Collections.emptyList();
+        return securityCapabilities.getAuthenticationAccessLevels();
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        // TODO return proper functionality
-        return Collections.emptyList();    }
+        return securityCapabilities.getEncryptionAccessLevels();
+    }
 
     @Override
     public PropertySpec getSecurityPropertySpec(String name) {
-        return null;  //TODO return proper functionality
+        return securityCapabilities.getSecurityPropertySpec(name);
     }
 
     @Override

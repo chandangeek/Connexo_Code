@@ -23,7 +23,8 @@ public enum SecurityRelationTypeName {
     IEC1107_SECURITY("IEC1107Security"),
     ANSI_C12_SECURITY("AnsiC12Security"),
     EXTENDED_ANSI_C12_SECURITY("ExtendedAnsiC12Security"),
-    NO_OR_PASSWORD_SECURITY("NoOrPasswordSecurity");
+    NO_OR_PASSWORD_SECURITY("NoOrPasswordSecurity"),
+    MTU155_SECURITY("MTU155Security");
 
     private final String securityRelationTypeName;
 
