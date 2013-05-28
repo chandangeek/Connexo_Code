@@ -29,10 +29,11 @@ public class ClockServiceImpl implements ServiceLocator, Clock {
     @Activate
     public void activate(BundleContext componentContext) {
         clock = new DefaultClock();
+        Bus.setServiceLocator(this);
     }
     
     public void deActivate() {
-    	
+    	Bus.setServiceLocator(null);
     }
 
     @Override
