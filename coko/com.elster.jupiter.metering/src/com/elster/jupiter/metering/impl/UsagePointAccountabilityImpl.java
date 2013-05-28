@@ -1,13 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Date;
-
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import java.util.Date;
 
 public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	
@@ -95,6 +96,6 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 
 	@Override
 	public boolean isCurrent() {
-		return interval.isCurrent();
+		return interval.isCurrent(Bus.getClock());
 	}
 }

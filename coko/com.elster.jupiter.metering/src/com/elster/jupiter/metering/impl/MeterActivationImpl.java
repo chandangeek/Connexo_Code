@@ -1,10 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import com.elster.jupiter.metering.BaseReading;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
@@ -14,6 +9,11 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 public class MeterActivationImpl implements MeterActivation {
 	//persistent fields
@@ -122,7 +122,7 @@ public class MeterActivationImpl implements MeterActivation {
 
 	@Override
 	public boolean isCurrent() {
-		return interval.isCurrent();
+		return interval.isCurrent(Bus.getClock());
 	}
 
 }

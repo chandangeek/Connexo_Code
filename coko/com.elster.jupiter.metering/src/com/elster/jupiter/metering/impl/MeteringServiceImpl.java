@@ -25,6 +25,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Expression;
+import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -41,6 +42,7 @@ public class MeteringServiceImpl implements MeteringService , InstallService, Se
 	private volatile IdsService idsService;
 	private volatile QueryService queryService;
 	private volatile PartyService partyService;
+    private volatile Clock clock;
 
 	
 	@Override 
@@ -186,5 +188,13 @@ public class MeteringServiceImpl implements MeteringService , InstallService, Se
 	public Condition hasAccountability(Date when) {
 		return Expression.create(new HasAccountabilitiyFragment(when));
 	}
-	
+
+    public Clock getClock() {
+        return clock;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 }

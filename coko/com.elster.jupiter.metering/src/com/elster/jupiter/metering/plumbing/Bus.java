@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.util.time.Clock;
 
 public enum Bus {
     ;
@@ -36,4 +37,7 @@ public enum Bus {
 		return locator.getPartyService();
 	}
 
+    public static Clock getClock() {
+        return locator.getClock();
+    }
 }
