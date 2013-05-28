@@ -1,5 +1,12 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.util.time.UtcInstant;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,13 +15,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.OptimisticLockException;
-import com.elster.jupiter.orm.PersistenceException;
-import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import static com.elster.jupiter.orm.plumbing.Bus.getConnection;
 
@@ -49,7 +49,7 @@ public class DataMapperWriter<T> {
 	}
 	
 	void persist(T object) throws SQLException {
-		prepare(object,false,new UtcInstant());
+		prepare(object,false,new UtcInstant(Bus.getClock()));
 		Map<Column, Long> autoIncrements = new HashMap<Column,Long>();
 		try (Connection connection = getConnection(true)) {			
 			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.insertSql(false))) {
@@ -77,7 +77,7 @@ public class DataMapperWriter<T> {
 	}
 		
 	void persist(List<T> objects) throws SQLException {
-		UtcInstant now = new UtcInstant();
+		UtcInstant now = new UtcInstant(Bus.getClock());
 		try (Connection connection = getConnection(true)) {			
 			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.insertSql(true))) {
 				for (T tuple : objects) {
@@ -127,7 +127,7 @@ public class DataMapperWriter<T> {
 	}
 	
 	void update(T object,Column[] columns) throws SQLException {
-		UtcInstant now = new UtcInstant();
+		UtcInstant now = new UtcInstant(Bus.getClock());
 		if (sqlGenerator.getTable().hasJournal()) {
 			journal(object,now);
 		}
@@ -171,7 +171,7 @@ public class DataMapperWriter<T> {
 	
 	
 	void update(List<T> objects,Column[] columns) throws SQLException {	
-		UtcInstant now = new UtcInstant();
+		UtcInstant now = new UtcInstant(Bus.getClock());
 		if (sqlGenerator.getTable().hasJournal()) {
 			journal(objects,now);
 		}
@@ -198,7 +198,7 @@ public class DataMapperWriter<T> {
 	
 	void remove(T object) throws SQLException {		
 		if (sqlGenerator.getTable().hasJournal()) {
-			journal(object,new UtcInstant());
+			journal(object,new UtcInstant(Bus.getClock()));
 		}
 		try (Connection connection = getConnection(true)) {			
 			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.deleteSql())) {
@@ -215,7 +215,7 @@ public class DataMapperWriter<T> {
 	}
 	
 	void remove(List<T> objects) throws SQLException {
-		UtcInstant now = new UtcInstant();
+		UtcInstant now = new UtcInstant(Bus.getClock());
 		if (sqlGenerator.getTable().hasJournal()) {
 			journal(objects,now);
 		}

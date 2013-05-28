@@ -1,17 +1,18 @@
 package com.elster.jupiter.orm.query.impl;
 
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
+import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 public class CurrentDataMapper<T> extends JoinDataMapper<T> implements SqlFragment {
 	private ForeignKeyConstraint constraint;
@@ -78,7 +79,7 @@ public class CurrentDataMapper<T> extends JoinDataMapper<T> implements SqlFragme
 
 	@Override
 	public int bind(PreparedStatement statement, int position) throws SQLException {
-		long now = System.currentTimeMillis(); 
+		long now = Bus.getClock().now().getTime();
 		statement.setLong(position++,now);
 		statement.setLong(position++,now);
 		return position;

@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.plumbing.OrmClientImpl;
 import com.elster.jupiter.orm.plumbing.ServiceLocator;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -29,9 +30,10 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	private volatile OrmClient ormClient;
 	private volatile DataSource dataSource;
 	private volatile ThreadPrincipalService threadPrincipalService;
-	private AtomicReference<Publisher> publisherHolder = new AtomicReference<>();
-	
-	public OrmServiceImpl() {
+    private volatile Clock clock;
+    private AtomicReference<Publisher> publisherHolder = new AtomicReference<>();
+
+    public OrmServiceImpl() {
 	}
 	
 	
@@ -80,7 +82,12 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 		}
 	}
 
-	@Override
+    @Override
+    public Clock getClock() {
+        return clock;
+    }
+
+    @Override
 	public Principal getPrincipal()  {
 		return threadPrincipalService.getPrincipal();
 	}
@@ -99,6 +106,11 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	public void setPublisher(Publisher publisher) {
 		publisherHolder.set(publisher);
 	}
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 	
 	public void unsetPublisher(Publisher publisher) {
 		// needed as OSGI SCR does not guarantee order between setting new reference, and unsetting old

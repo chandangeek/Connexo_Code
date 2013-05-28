@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.plumbing;
 
+import com.elster.jupiter.util.time.Clock;
+
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -25,8 +27,11 @@ public class Bus {
 	public static Principal getPrincipal() {
 		return locator.getPrincipal();
 	}
-	
-	// helper methods
+
+    public static Clock getClock() {
+        return locator.getClock();
+    }
+    // helper methods
 	
 	private final static String[] trueStrings = { "1" , "y" ,"yes" , "on" };
 	
