@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -27,6 +28,8 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
@@ -248,8 +251,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new SDKLoadProfileProtocolDialectProperties(),
-                new SDKStandardDeviceProtocolDialectProperties(), new SDKTimeDeviceProtocolDialectProperties());
+        return Arrays.<DeviceProtocolDialect>asList(
+                new SDKLoadProfileProtocolDialectProperties(),
+                new SDKStandardDeviceProtocolDialectProperties(),
+                new SDKTimeDeviceProtocolDialectProperties(),
+                new SDKTopologyTaskProtocolDialectProperties());
     }
 
     @Override
@@ -297,8 +303,14 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        //TODO
-        return null;
+        final CollectedTopology collectedTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(this.offlineDevice.getSerialNumber()));
+        if(!getSlaveOneSerialNumber().equals("")){
+            collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveOneSerialNumber()));
+        }
+        if(!getSlaveTwoSerialNumber().equals("")){
+            collectedTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(getSlaveTwoSerialNumber()));
+        }
+        return collectedTopology;
     }
 
     @Override
@@ -324,8 +336,16 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         return (TimeDuration) this.typedProperties.getProperty(SDKTimeDeviceProtocolDialectProperties.clockOffsetToWritePropertyName, new TimeDuration(0));
     }
 
+    private String getSlaveOneSerialNumber(){
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveOneSerialNumberPropertyName, "");
+    }
+
+    private String getSlaveTwoSerialNumber(){
+        return (String) this.typedProperties.getProperty(SDKTopologyTaskProtocolDialectProperties.slaveTwoSerialNumberPropertyName, "");
+    }
+
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return new ArrayList<>();
+        return MdcInterfaceProvider.instance.get().getMdcInterface().getManager().getConnectionTypeFactory().findAll();
     }
 }
