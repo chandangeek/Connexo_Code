@@ -313,7 +313,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     private String nodeAddress;
 
     /**
-     * The device ID. This is used in the {@link #requestSAP()} operation.
+     * The device ID. This is used in the requestSAP() operation.
      */
     private String deviceId;
 
