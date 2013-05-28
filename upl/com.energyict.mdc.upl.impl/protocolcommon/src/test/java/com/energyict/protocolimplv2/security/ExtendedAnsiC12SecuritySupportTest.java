@@ -5,11 +5,18 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdw.core.DataVault;
+import com.energyict.mdw.core.DataVaultProvider;
 import org.fest.assertions.core.Condition;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link ExtendedAnsiC12SecuritySupport} component
@@ -18,8 +25,19 @@ import static org.junit.Assert.assertNotNull;
  * Date: 31/01/13
  * Time: 13:34
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ExtendedAnsiC12SecuritySupportTest {
 
+    @Mock
+    private DataVaultProvider dataVaultProvider;
+    @Mock
+    private DataVault dataVault;
+
+    @Before
+    public void setUp() {
+        DataVaultProvider.instance.set(dataVaultProvider);
+        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
+    }
 
     @Test
     public void getSecurityPropertiesTest() {
@@ -49,7 +67,7 @@ public class ExtendedAnsiC12SecuritySupportTest {
                 return propertySpec.equals(DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec());
             }
         });
-         // check for the ANSI EncryptionKey
+        // check for the ANSI EncryptionKey
         assertThat(ansiC12SecuritySupport.getSecurityProperties()).areExactly(1, new Condition<PropertySpec>() {
             @Override
             public boolean matches(PropertySpec propertySpec) {

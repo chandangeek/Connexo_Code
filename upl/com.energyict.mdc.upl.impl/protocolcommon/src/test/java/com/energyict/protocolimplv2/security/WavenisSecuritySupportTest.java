@@ -5,13 +5,20 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdw.core.DataVault;
+import com.energyict.mdw.core.DataVaultProvider;
 import org.fest.assertions.core.Condition;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link WavenisSecuritySupport} component
@@ -20,7 +27,19 @@ import static org.junit.Assert.assertNotNull;
  * Date: 11/01/13
  * Time: 16:25
  */
+@RunWith(MockitoJUnitRunner.class)
 public class WavenisSecuritySupportTest {
+
+    @Mock
+    private DataVaultProvider dataVaultProvider;
+    @Mock
+    private DataVault dataVault;
+
+    @Before
+    public void setUp() {
+        DataVaultProvider.instance.set(dataVaultProvider);
+        when(dataVaultProvider.getKeyVault()).thenReturn(dataVault);
+    }
 
     @Test
     public void getSecurityPropertiesTest() {

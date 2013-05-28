@@ -1,11 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.dynamicattributes.BigDecimalFactory;
 import com.energyict.dynamicattributes.BooleanFactory;
-import com.energyict.dynamicattributes.PasswordFactory;
+import com.energyict.dynamicattributes.EncryptedStringFactory;
 import com.energyict.dynamicattributes.StringFactory;
 
 import java.math.BigDecimal;
@@ -23,24 +22,24 @@ public enum DeviceSecurityProperty {
      * A plain old password, can be a high- or low level password
      */
     PASSWORD(PropertySpecBuilder
-            .forClass(Password.class, new PasswordFactory()).
+            .forClass(String.class, new EncryptedStringFactory()).
                     name(SecurityPropertySpecName.PASSWORD.toString()).
-                    setDefaultValue(new Password("")).finish()),
+                    setDefaultValue("").finish()),
     /**
      * A key used for encryption of bytes
      */
     ENCRYPTION_KEY(PropertySpecBuilder
-            .forClass(Password.class, new PasswordFactory())
+            .forClass(String.class, new EncryptedStringFactory())
             .name(SecurityPropertySpecName.ENCRYPTION_KEY.toString())
-            .setDefaultValue(new Password(""))
+            .setDefaultValue("")
         .finish()),
     /**
      * A key used for authentication to a device
      */
     AUTHENTICATION_KEY(PropertySpecBuilder
-            .forClass(Password.class, new PasswordFactory())
+            .forClass(String.class, new EncryptedStringFactory())
             .name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
-            .setDefaultValue(new Password(""))
+            .setDefaultValue("")
         .finish()),
     /**
      * A DLMS clientMacAddress
@@ -54,17 +53,17 @@ public enum DeviceSecurityProperty {
      * A character identification of the accessing client
      */
     DEVICE_ACCESS_IDENTIFIER(PropertySpecBuilder
-            .forClass(Password.class, new PasswordFactory())
+            .forClass(String.class, new StringFactory())
             .name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString())
-            .setDefaultValue(new Password(""))
+            .setDefaultValue("")
         .finish()),
     /**
      * A username for ANSI C12 protocols
      */
     ANSI_C12_USER(PropertySpecBuilder
-                .forClass(Password.class, new PasswordFactory())
+                .forClass(String.class, new StringFactory())
                 .name(SecurityPropertySpecName.ANSI_C12_USER.toString())
-                .setDefaultValue(new Password(""))
+                .setDefaultValue("")
         .finish()),
     /**
      * A UserId for ANSI C12 protocols
