@@ -3,3 +3,5 @@ Export-Package: com.elster.jupiter.util.conditions,\
 	com.elster.jupiter.util.sql,\
 	com.elster.jupiter.util.time,\
 	com.elster.jupiter.util.units
+-dsannotations: *
+Private-Package: com.elster.jupiter.util.time.impl

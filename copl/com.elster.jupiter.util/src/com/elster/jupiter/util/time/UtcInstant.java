@@ -3,7 +3,7 @@ package com.elster.jupiter.util.time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-final public class UtcInstant implements Comparable<UtcInstant> {
+public final class UtcInstant implements Comparable<UtcInstant> {
 	
 	private final long ms;
 	
@@ -11,8 +11,8 @@ final public class UtcInstant implements Comparable<UtcInstant> {
 		this.ms = ms;
 	}
 	
-	public UtcInstant() {
-		this(System.currentTimeMillis());
+	public UtcInstant(Clock clock) {
+		this(clock.now().getTime());
 	}
 	
 	public UtcInstant(Date date) {
@@ -26,22 +26,27 @@ final public class UtcInstant implements Comparable<UtcInstant> {
 	public Date toDate() {
 		return new Date(ms);
 	}
-	
-	@Override
-	public boolean equals(Object other) {
-		try {
-			UtcInstant o = (UtcInstant) other;
-			return ms == o.ms;
-		} catch (ClassCastException ex) {
-			return false;
-		}
-	}
-	
-	@Override
-	public int hashCode() {
-		return (int) ms;
-	}
-	
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        UtcInstant that = (UtcInstant) o;
+
+        return ms == that.ms;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (ms ^ (ms >>> 32));
+    }
+
 	public boolean after(UtcInstant when) {
 		return ms > when.ms;
 	}

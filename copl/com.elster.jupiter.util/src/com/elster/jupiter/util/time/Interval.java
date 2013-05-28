@@ -56,8 +56,8 @@ public final class Interval {
 		return end == ETERNITY ? null : new Date(end);
 	}
 	
-	public boolean isCurrent() {
-		long now = System.currentTimeMillis();
+	public boolean isCurrent(Clock clock) {
+		long now = clock.now().getTime();
 		return start <= now && now < end;
 	}
 }
