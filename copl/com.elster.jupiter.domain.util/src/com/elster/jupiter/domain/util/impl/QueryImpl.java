@@ -17,7 +17,7 @@ class QueryImpl<T> implements Query<T> {
 	}
 	
 	@Override
-	public List<T> select(Condition condition,String ... orderBy) {	
+	public List<T> select(Condition condition, String ... orderBy) {
 		return queryExecutor.select(condition,orderBy,isEager(), exceptions);
 	}
 	
