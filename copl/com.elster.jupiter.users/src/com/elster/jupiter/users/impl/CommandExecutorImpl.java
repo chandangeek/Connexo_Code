@@ -1,10 +1,10 @@
 package com.elster.jupiter.users.impl;
 
-import java.security.AccessControlException;
-
 import com.elster.jupiter.users.CommandExecutor;
 import com.elster.jupiter.users.PrivilegedCommand;
 import com.elster.jupiter.users.User;
+
+import java.security.AccessControlException;
 
 public class CommandExecutorImpl implements CommandExecutor {
 	private ThreadLocal<User> threadUsers = new ThreadLocal<User>();
@@ -31,7 +31,7 @@ public class CommandExecutorImpl implements CommandExecutor {
 			throw new IllegalStateException("No user");
 		}
 		if (user.hasPrivilege(command.getPrivilege().getName())) {
-			Bus.getServiceLocator().getTransactionService().execute(command);
+			Bus.getTransactionService().execute(command);
 		} else {
 			throw new AccessControlException("No access");
 		}

@@ -1,25 +1,24 @@
 package com.elster.jupiter.users.impl;
 
-class Bus {	
+import com.elster.jupiter.transaction.TransactionService;
+
+enum Bus {
+    ;
+
 	public static final String COMPONENTNAME = "USR";
 	
 	private static volatile ServiceLocator locator;
-	
-	static ServiceLocator getServiceLocator() {
-		return locator;
-	}
 	
 	static void setServiceLocator(ServiceLocator locator) {
 		Bus.locator = locator;
 	}
 	
 	static OrmClient getOrmClient() {
-		return getServiceLocator().getOrmClient();
+		return locator.getOrmClient();
 	}
-		
-	// pure static class;
-	private Bus() {
-		throw new UnsupportedOperationException();
-	}	
+
+    static TransactionService getTransactionService() {
+        return locator.getTransactionService();
+    }
 
 }
