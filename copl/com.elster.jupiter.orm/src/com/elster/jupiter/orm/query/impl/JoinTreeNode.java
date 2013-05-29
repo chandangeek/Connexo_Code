@@ -43,7 +43,7 @@ final class JoinTreeNode<T>  {
 			}
 		}
 		for (JoinDataMapper<R> newNodeValue : value.wrap(newMapper, aliasFactory)) {				
-			add(new JoinTreeNode<R>(newNodeValue));
+			add(new JoinTreeNode<>(newNodeValue));
 			result = true;
 		}
 		return result;
@@ -187,7 +187,7 @@ final class JoinTreeNode<T>  {
 	}
 
 	JoinTreeNode<T> copy() {
-		JoinTreeNode<T> result = new JoinTreeNode<T>(this.value);
+		JoinTreeNode<T> result = new JoinTreeNode<>(this.value);
 		for (JoinTreeNode<?> each : children) {
 			result.add(each.copy());
 		}

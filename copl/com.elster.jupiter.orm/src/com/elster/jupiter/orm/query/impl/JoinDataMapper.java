@@ -45,7 +45,7 @@ abstract public class JoinDataMapper<T> {
 		List<JoinDataMapper<R>> result = new ArrayList<>();
 		for (ForeignKeyConstraint constraint : getTable().getForeignKeyConstraints()) {
 			if (newMapper.getTable().equals(constraint.getReferencedTable())) {
-				result.add(new ParentDataMapper<R>(newMapper , constraint , aliasFactory.getAlias()));
+				result.add(new ParentDataMapper<>(newMapper , constraint , aliasFactory.getAlias()));
 				return result;				
 			}
 		}
@@ -54,7 +54,7 @@ abstract public class JoinDataMapper<T> {
 				if (constraint.getReverseCurrentFieldName() != null) {
 					result.add(new CurrentDataMapper<>(newMapper, constraint, aliasFactory.getAlias(true)));
 				} 
-				result.add(new ChildDataMapper<R>(newMapper , constraint , aliasFactory.getAlias()));				
+				result.add(new ChildDataMapper<>(newMapper , constraint , aliasFactory.getAlias()));				
 			}
 		}
 		return result;

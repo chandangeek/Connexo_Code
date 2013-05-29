@@ -37,6 +37,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	}
 	
 	
+	@SuppressWarnings("resource")
 	@Override
 	public Connection getConnection(boolean transactionRequired) throws SQLException {
 		Connection result = dataSource.getConnection();
