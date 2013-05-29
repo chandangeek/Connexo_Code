@@ -3,16 +3,14 @@ package com.elster.jupiter.messaging.impl;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.*;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.QueueConsumer;
-import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.messaging.TopicConsumer;
+import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import oracle.AQ.AQException;
@@ -45,6 +43,7 @@ public class DestinationSpecImpl implements DestinationSpec {
 	
 	// associations
 	private QueueTableSpec queueTableSpec;
+	private List<ConsumerSpec> consumers;
 		
 	@SuppressWarnings("unused")
 	private DestinationSpecImpl() {		
@@ -64,6 +63,19 @@ public class DestinationSpecImpl implements DestinationSpec {
 		}
 		return queueTableSpec;
 	}
+	
+	@Override
+	public List<ConsumerSpec> getConsumers() {
+		return getConsumers(true);
+	}
+	
+	private List<ConsumerSpec> getConsumers(boolean protect) {
+		if (consumers == null) {
+			consumers = Bus.getOrmClient().getConsumerSpecFactory().find("destination",this);
+		}
+		return protect ? Collections.unmodifiableList(consumers) : consumers;
+	}
+	
 	
 	@Override
 	public void activate() {
@@ -147,33 +159,49 @@ public class DestinationSpecImpl implements DestinationSpec {
 	}
 	
 	@Override
-	public void send(String text)  {
+	public void send(byte[]  bytes)  {
 		try {
-			doSend(text);
+			doSend(bytes);
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
 	
-	void doSend(String text) throws SQLException {
+	void doSend(byte[] bytes) throws SQLException {
 		AQMessageProperties props = AQFactory.createAQMessageProperties();
 		AQMessage message = AQFactory.createAQMessage(props);
-		message.setPayload(text.getBytes());
+		message.setPayload(bytes);
+		send(message);		
+	}
+	
+	@Override
+	public void send(String text) {
+		send(text.getBytes());
+	}
+	
+	@Override
+	public void send(AQMessage message) throws SQLException {
 		try (Connection connection = Bus.getConnection()) {
 			OracleConnection oraConnection= connection.unwrap(OracleConnection.class);		
 			oraConnection.enqueue(name, new AQEnqueueOptions() , message);
 		}
 	}
-
-	@Override
-	public QueueConsumer asQueueConsumer() {
-		return new QueueConsumerImpl(this);
-	}
-
-	@Override
-	public TopicConsumer asTopicConsumer(String consumerName) {
-		return new TopicConsumerImpl(this,consumerName);
-	}
 	
+	@Override
+	public ConsumerSpec subscribe(String name , int workerCount) {
+		List<ConsumerSpec> currentConsumers = getConsumers(false);
+		for (ConsumerSpec each : currentConsumers) {
+			if (each.getName().equals(name)) {
+				throw new RuntimeException("Duplicate name");
+			}
+		}
+		if (isQueue() && !currentConsumers.isEmpty()) {
+			throw new RuntimeException("Queues can only have one suscriber");
+		}
+		ConsumerSpecImpl result = new ConsumerSpecImpl(this, name, workerCount);
+		result.subscribe();
+		Bus.getOrmClient().getConsumerSpecFactory().persist(result);
+		return result;
+	}
 	
 }

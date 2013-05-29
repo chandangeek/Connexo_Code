@@ -1,5 +1,10 @@
 package com.elster.jupiter.messaging;
 
+import java.sql.SQLException;
+import java.util.List;
+
+import oracle.jdbc.aq.AQMessage;
+
 public interface DestinationSpec {
 	QueueTableSpec getQueueTableSpec();
 	void activate();
@@ -10,6 +15,8 @@ public interface DestinationSpec {
 	String getPayloadType();
 	boolean isActive();
 	void send(String text);	
-	QueueConsumer asQueueConsumer();
-	TopicConsumer asTopicConsumer(String consumerName);	
+	void send(byte[] bytes);
+	void send(AQMessage message) throws SQLException;
+	List<ConsumerSpec> getConsumers();
+	ConsumerSpec subscribe(String name, int workerCount);	
 }

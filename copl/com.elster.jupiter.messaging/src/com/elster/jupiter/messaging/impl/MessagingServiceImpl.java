@@ -2,15 +2,17 @@ package com.elster.jupiter.messaging.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessagingService;
-import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -92,4 +94,18 @@ public class MessagingServiceImpl implements MessagingService , InstallService ,
 	public DestinationSpec getDestinationSpec(String name) {		
 		return Bus.getOrmClient().getDestinationSpecFactory().get(name);
 	}
+	
+	@Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
+	public void addResource(MessageHandlerFactory factory, Map<String, Object> map) {
+		String destinationName = (String) map.get("destination");
+		String subscriberName = (String) map.get("subscriber");
+		ConsumerSpec spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName,subscriberName);
+		if (spec != null) {
+			((ConsumerSpecImpl) spec).start(factory);
+		}
+	}
+		
+	public void removeResource(MessageHandlerFactory factory) {		
+	}
+	
 }

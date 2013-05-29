@@ -3,8 +3,7 @@ package com.elster.jupiter.messaging.impl;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
@@ -26,6 +25,10 @@ public class OrmClientImpl implements OrmClient {
 		return dataModel.getDataMapper(DestinationSpec.class, DestinationSpecImpl.class, TableSpecs.MSG_DESTINATIONSPEC.name());
 	}
 	
+	@Override
+	public DataMapper<ConsumerSpec> getConsumerSpecFactory() {
+		return dataModel.getDataMapper(ConsumerSpec.class, ConsumerSpecImpl.class, TableSpecs.MSG_CONSUMERSPEC.name());
+	}
 	@Override
 	public Connection getConnection() throws SQLException {
 		return dataModel.getConnection(false);

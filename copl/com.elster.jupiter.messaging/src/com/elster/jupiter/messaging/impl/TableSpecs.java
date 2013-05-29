@@ -25,6 +25,16 @@ public enum TableSpecs {
 			table.addPrimaryKeyConstraint("MSG_PK_DESTINATIONSPEC", nameColumn);
 			table.addForeignKeyConstraint("MSG_FK_DESTINATIONSPEC", MSG_QUEUETABLESPEC.name() , RESTRICT, new AssociationMapping("queueTable") , queueTableNameColumn);				
 		}
+	}, 
+	MSG_CONSUMERSPEC {
+		void describeTable(Table table) {
+			Column destinationNameColumn = table.addColumn("DESTINATION","varchar2(30)",true,NOCONVERSION,"destinationName");
+			Column nameColumn = table.addColumn("NAME","varchar2(30)",true,NOCONVERSION,"name");
+			table.addColumn("WORKERCOUNT" , "number" , true, NUMBER2INT , "workerCount");
+			table.addAuditColumns();
+			table.addPrimaryKeyConstraint("MSG_PK_CONSUMERSPEC", destinationNameColumn , nameColumn);
+			table.addForeignKeyConstraint("MSG_FK_CONSUMERSPEC", MSG_DESTINATIONSPEC.name() , CASCADE , new AssociationMapping("destination","consumers") , destinationNameColumn);				
+		}
 	};
 	
 	public void addTo(DataModel component) {
