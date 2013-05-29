@@ -45,6 +45,7 @@ public class PartiesResource {
     @POST
     @Path("/persons")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public PersonInfos createUsagePoint(PersonInfo info) {
         PersonInfos result = new PersonInfos();
         result.add(new CreatePersonTransaction(info).execute());
