@@ -63,11 +63,17 @@ public class PersonImpl extends PartyImpl implements Person {
 		this.specialNeed = specialNeed;
 	}
 
+    /**
+     * maps to cim naming
+     */
 	@Override
 	public TelephoneNumber getLandLinePhone() {
 		return getPhone1();
 	}
 
+    /**
+     * maps to cim naming
+     */
 	@Override
 	public TelephoneNumber getMobilePhone() {
 		return getPhone2();

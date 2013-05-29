@@ -1,13 +1,13 @@
 package com.elster.jupiter.parties.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 abstract class PartyImpl implements Party {
 	
@@ -26,6 +26,7 @@ abstract class PartyImpl implements Party {
 	PartyImpl() {		
 	}
 
+    @Override
 	public long getId() {
 		return id;
 	}
@@ -34,6 +35,10 @@ abstract class PartyImpl implements Party {
 		this.id = id;
 	}
 
+    /**
+     * @return Master Resource Identifier
+     */
+    @Override
 	public String getMRID() {
 		return mRID;
 	}
@@ -42,6 +47,7 @@ abstract class PartyImpl implements Party {
 		this.mRID = mRID;
 	}
 
+    @Override
 	public String getName() {
 		return name;
 	}
@@ -50,6 +56,7 @@ abstract class PartyImpl implements Party {
 		this.name = name;
 	}
 
+    @Override
 	public String getAliasName() {
 		return aliasName;
 	}
@@ -58,7 +65,8 @@ abstract class PartyImpl implements Party {
 		this.aliasName = aliasName;
 	}
 
-	public String getDescription() {
+	@Override
+    public String getDescription() {
 		return description;
 	}
 
@@ -66,6 +74,7 @@ abstract class PartyImpl implements Party {
 		this.description = description;
 	}
 
+    @Override
 	public ElectronicAddress getElectronicAddress() {
 		return electronicAddress == null ? null : electronicAddress.copy();
 	}

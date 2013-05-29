@@ -7,5 +7,6 @@ public interface Party {
 	String getMRID();
 	String getName();
 	String getAliasName();
-	ElectronicAddress getElectronicAddress();	
+	ElectronicAddress getElectronicAddress();
+    String getDescription();
 }
