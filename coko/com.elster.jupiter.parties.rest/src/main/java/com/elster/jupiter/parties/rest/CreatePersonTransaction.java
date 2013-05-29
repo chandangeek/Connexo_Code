@@ -1,28 +1,23 @@
 package com.elster.jupiter.parties.rest;
 
 import com.elster.jupiter.parties.Person;
+import com.elster.jupiter.transaction.Transaction;
 
 /**
  * Copyrights EnergyICT
  * Date: 29/05/13
  * Time: 9:03
  */
-public class CreatePersonTransaction implements Runnable {
+final class CreatePersonTransaction implements Transaction<Person> {
     private final PersonInfo info;
-    private Person person;
 
     CreatePersonTransaction(PersonInfo info) {
         this.info = info;
     }
 
-    Person execute() {
-        Bus.getTransactionService().execute(this);
-        return person;
-    }
-
     @Override
-    public void run() {
-        person = Bus.getPartyService().newPerson(info.firstName, info.lastName);
+    public Person perform() {
+        Person person = Bus.getPartyService().newPerson(info.firstName, info.lastName);
         person.setMRID(info.mRID);
         person.setName(info.name);
         person.setAliasName(info.aliasName);
@@ -37,5 +32,7 @@ public class CreatePersonTransaction implements Runnable {
         person.setMobilePhone(info.mobilePhone);
 
         person.save();
+
+        return person;
     }
 }

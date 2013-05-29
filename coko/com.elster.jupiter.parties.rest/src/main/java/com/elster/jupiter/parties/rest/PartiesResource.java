@@ -48,7 +48,7 @@ public class PartiesResource {
     @Produces(MediaType.APPLICATION_JSON)
     public PersonInfos createUsagePoint(PersonInfo info) {
         PersonInfos result = new PersonInfos();
-        result.add(new CreatePersonTransaction(info).execute());
+        result.add(Bus.getTransactionService().execute(new CreatePersonTransaction(info)));
         return result;
     }
 
