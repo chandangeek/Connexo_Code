@@ -1,24 +1,20 @@
 package com.elster.jupiter.metering.rest;
 
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.transaction.Transaction;
 
-public class CreateUsagePointTransaction implements Runnable {
-	final private UsagePointInfo info;
-	private UsagePoint usagePoint;
-	
-	CreateUsagePointTransaction(UsagePointInfo info) {
+final class CreateUsagePointTransaction implements Transaction<UsagePoint> {
+	private final UsagePointInfo info;
+
+    CreateUsagePointTransaction(UsagePointInfo info) {
 		this.info = info;
 	}
 
-	UsagePoint execute() {
-		Bus.getTransactionService().execute(this);
-		return usagePoint;
-	}
-
-	@Override
-	public void run() {
-		usagePoint = Bus.getMeteringService().getServiceCategory(info.serviceCategory).newUsagePoint(info.mRID);
+    @Override
+	public UsagePoint perform() {
+        UsagePoint usagePoint = Bus.getMeteringService().getServiceCategory(info.serviceCategory).newUsagePoint(info.mRID);
 		usagePoint.setPhaseCode(info.phaseCode);
 		usagePoint.save();
+        return usagePoint;
 	}
 }

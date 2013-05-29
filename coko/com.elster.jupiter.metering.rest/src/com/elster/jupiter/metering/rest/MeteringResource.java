@@ -49,15 +49,15 @@ public class MeteringResource {
 	@Path("/usagepoints/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public UsagePointInfos updateUsagePoint(UsagePointInfo info) {
-		new UpdateUsagePointTransaction(info).execute();
-		return getUsagePoint(info.id);
+        Bus.getServiceLocator().getTransactionService().execute(new UpdateUsagePointTransaction(info));
+        return getUsagePoint(info.id);
 	}
 	  
 	@GET
 	@Path("/usagepoints/{id}/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public UsagePointInfos getUsagePoint(@PathParam("id") long id) {
-		UsagePoint usagePoint = Bus.getServiceLocator().getMeteringService().findUsagePoint(id);
+		UsagePoint usagePoint = Bus.getMeteringService().findUsagePoint(id);
 		if (usagePoint == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
@@ -72,7 +72,7 @@ public class MeteringResource {
 	@Consumes(MediaType.APPLICATION_JSON) 
 	public UsagePointInfos createUsagePoint(UsagePointInfo info) {
 		UsagePointInfos result = new UsagePointInfos();
-		result.add(new CreateUsagePointTransaction(info).execute());
+        result.add(Bus.getTransactionService().execute(new CreateUsagePointTransaction(info)));
 		return result;
 	}	    
 }
