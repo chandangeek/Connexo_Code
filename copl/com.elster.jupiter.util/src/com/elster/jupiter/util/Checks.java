@@ -2,7 +2,7 @@ package com.elster.jupiter.util;
 
 public class Checks {
 
-    public static ObjectChecker is(Object object) {
+    public static ObjectChecker<Object> is(Object object) {
         return new ObjectChecker<>(object);
     }
 
