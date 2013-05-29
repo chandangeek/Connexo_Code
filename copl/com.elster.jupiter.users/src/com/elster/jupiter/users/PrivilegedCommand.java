@@ -1,6 +1,10 @@
 package com.elster.jupiter.users;
 
-public interface PrivilegedCommand extends Runnable {
-	Privilege getPrivilege();
-	String auditMessage();
+import com.elster.jupiter.transaction.Transaction;
+
+public interface PrivilegedCommand<T> extends Transaction<T> {
+
+    Privilege getPrivilege();
+
+    String auditMessage();
 }
