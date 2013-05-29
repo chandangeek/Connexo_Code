@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 @Component (name="com.elster.jupiter.pubsub", immediate = true )
 public class PublisherImpl implements Publisher {
 	
-	private List<Subscription> subscriptions = new ArrayList<Subscription>();
+	private List<Subscription> subscriptions = new ArrayList<>();
 	private final ThreadLocal<Subscriber> threadSubscribers = new ThreadLocal<>();
 
 	@Override
