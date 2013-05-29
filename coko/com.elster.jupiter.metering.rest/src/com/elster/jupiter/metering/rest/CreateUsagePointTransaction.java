@@ -11,12 +11,13 @@ public class CreateUsagePointTransaction implements Runnable {
 	}
 
 	UsagePoint execute() {
-		Bus.getServiceLocator().getTransactionService().execute(this);
+		Bus.getTransactionService().execute(this);
 		return usagePoint;
 	}
+
 	@Override
 	public void run() {
-		usagePoint = Bus.getServiceLocator().getMeteringService().getServiceCategory(info.serviceCategory).newUsagePoint(info.mRID);		
+		usagePoint = Bus.getMeteringService().getServiceCategory(info.serviceCategory).newUsagePoint(info.mRID);
 		usagePoint.setPhaseCode(info.phaseCode);
 		usagePoint.save();
 	}
