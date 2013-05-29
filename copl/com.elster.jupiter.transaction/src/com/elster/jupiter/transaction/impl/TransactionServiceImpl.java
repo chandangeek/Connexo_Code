@@ -5,6 +5,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.NestedTransactionException;
 import com.elster.jupiter.transaction.NotInTransactionException;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -23,12 +24,12 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	
 	@Override
-	public void execute(Runnable runnable) {
+	public <T> T execute(Transaction<T> runnable) {
         if (isInTransaction()) {
             throw new NestedTransactionException();
         }
         try {
-            doExecute(runnable);
+            return doExecute(runnable);
         } catch (SQLException ex) {
             throw new CommitException(ex);
         }
@@ -39,7 +40,6 @@ public class TransactionServiceImpl implements TransactionService {
 		this.dataSource = bootStrapService.createDataSource();
 	}
 	
-	@Override
 	public void setRollbackOnly() {
         if (isInTransaction()) {
             transactionContexts.get().setRollbackOnly();
@@ -68,17 +68,19 @@ public class TransactionServiceImpl implements TransactionService {
         return result;
     }
 
-    private void doExecute(Runnable runnable) throws SQLException {
+    private <T> T doExecute(Transaction<T> transaction) throws SQLException {
 		TransactionContextImpl transactionContext = new TransactionContextImpl(this);
 		transactionContexts.set(transactionContext);
+        T result = null;
 		boolean commit = false;
 		try {
-			runnable.run();
+			result = transaction.perform();
 			commit = true;
 		} finally {
 			transactionContexts.remove();
 			transactionContext.terminate(commit);						
 		}
+        return result;
 	}
 
     private boolean isInTransaction() {
