@@ -1,13 +1,12 @@
 package com.elster.jupiter.rest.util.impl;
 
-import java.util.List;
-
-import javax.ws.rs.core.MultivaluedMap;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
+
+import javax.ws.rs.core.MultivaluedMap;
+import java.util.List;
 
 class RestQueryImpl<T> implements RestQuery<T> {
 	private final Query<T> query;
@@ -42,14 +41,21 @@ class RestQueryImpl<T> implements RestQuery<T> {
 	
 	@Override
 	public List<T> select(MultivaluedMap<String, String> map) {
-		int start = getStart(map);
-		int limit = getLimit(map);
-		if (start >= 0 && limit >= 0) {
-			return query.select(convert(map),start+1,start + limit);
-		} else {
-			return query.select(convert(map));
-		}
+        return select(map, Condition.TRUE);
 	}
+
+    @Override
+    public List<T> select(MultivaluedMap<String, String> map, Condition condition) {
+        int start = getStart(map);
+        int limit = getLimit(map);
+        condition = condition.and(convert(map));
+        if (start >= 0 && limit >= 0) {
+            return query.select(condition, start + 1, start + limit);
+        } else {
+            return query.select(condition);
+        }
+    }
+
 	
 	private Condition convert(MultivaluedMap<String, String> map) {
 		Condition condition = Condition.TRUE;
