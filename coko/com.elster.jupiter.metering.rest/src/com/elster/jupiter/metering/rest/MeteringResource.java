@@ -1,27 +1,31 @@
 package com.elster.jupiter.metering.rest;
 
-import java.util.List;
-
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.RestQuery;
 
-import static com.elster.jupiter.metering.rest.Bus.*;
+import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.List;
+
+import static com.elster.jupiter.metering.rest.Bus.getMeteringService;
+import static com.elster.jupiter.metering.rest.Bus.getQueryService;
 
 @Path("/mtr")
 public class MeteringResource {	
-	@GET
-	@Produces(MediaType.TEXT_HTML)
-	  public String component() {
-	    return "<html> " + "<title>" + "Metering" + "</title>"
-	    + "<body><h1>" + "Metering component2" + "</body></h1>" + "</html> ";
-	}
-	  
-	@GET
+
+    @GET
 	@Path("/usagepoints")
 	@Produces(MediaType.APPLICATION_JSON) 
 	public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo) {
