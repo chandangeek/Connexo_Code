@@ -31,7 +31,7 @@ class RestQueryImpl<T> implements RestQuery<T> {
 	
 	@Override
 	public int getStart(MultivaluedMap<String, String> map) {
-		return getLastValue(map,"start");
+		return Math.max(0, getLastValue(map,"start"));
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ class RestQueryImpl<T> implements RestQuery<T> {
         int start = getStart(map);
         int limit = getLimit(map);
         condition = condition.and(convert(map));
-        if (start >= 0 && limit >= 0) {
+        if (limit >= 0) {
             return query.select(condition, start + 1, start + limit);
         } else {
             return query.select(condition);
