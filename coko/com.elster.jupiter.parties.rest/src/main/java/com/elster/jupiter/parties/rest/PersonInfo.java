@@ -21,16 +21,16 @@ public class PersonInfo {
     public String aliasName;
     public String description;
     public ElectronicAddress electronicAddress;
-    public TelephoneNumber phone1;
-    public TelephoneNumber phone2;
 
     //person
     public String firstName;
     public String lastName;
-    public String mName;
+    public String middleName;
     public String prefix;
     public String suffix;
     public String specialNeed;
+    public TelephoneNumber landLinePhone;
+    public TelephoneNumber mobilePhone;
 
     public PersonInfo() {
     }
@@ -41,6 +41,14 @@ public class PersonInfo {
         name = person.getName();
         aliasName = person.getAliasName();
         description = person.getDescription();
-
+        electronicAddress = person.getElectronicAddress();
+        firstName = person.getFirstName();
+        lastName = person.getLastName();
+        middleName = person.getMiddleName();
+        prefix = person.getPrefix();
+        suffix = person.getSuffix();
+        specialNeed = person.getSpecialNeed();
+        landLinePhone = person.getLandLinePhone();
+        mobilePhone = person.getMobilePhone();
     }
 }
