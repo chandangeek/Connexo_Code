@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.component.ComponentContext;
@@ -79,8 +80,13 @@ public class PartyServiceImpl implements PartyService, InstallService , ServiceL
     public Query<Party> getPartyQuery() {
         return getQueryService().wrap(getOrmClient().getPartyFactory().with());
     }
-	
-	@Override
+
+    @Override
+    public Person newPerson(String firstName, String lastName) {
+        return new PersonImpl(firstName, lastName);
+    }
+
+    @Override
 	public Principal getPrincipal() {
 		return threadPrincipalService.getPrincipal();
 	}

@@ -5,8 +5,14 @@ import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 
 public interface Organization extends Party {
-	TelephoneNumber getPhone1();
-	TelephoneNumber getPhone2();
-	PostalAddress getPostalAddress();
-	StreetAddress getStreetAddress();
+
+    String TYPE_IDENTIFIER = "O";
+
+    TelephoneNumber getPhone1();
+
+    TelephoneNumber getPhone2();
+
+    PostalAddress getPostalAddress();
+
+    StreetAddress getStreetAddress();
 }

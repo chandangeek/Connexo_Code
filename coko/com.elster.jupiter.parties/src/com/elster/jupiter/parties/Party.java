@@ -9,4 +9,16 @@ public interface Party {
 	String getAliasName();
 	ElectronicAddress getElectronicAddress();
     String getDescription();
+
+    void setMRID(String mRID);
+
+    void setName(String name);
+
+    void setAliasName(String aliasName);
+
+    void setDescription(String description);
+
+    void setElectronicAddress(ElectronicAddress electronicAddress);
+
+    void save();
 }

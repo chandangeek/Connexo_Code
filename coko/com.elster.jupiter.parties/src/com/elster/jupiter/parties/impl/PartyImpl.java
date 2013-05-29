@@ -2,14 +2,24 @@ package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
+import com.elster.jupiter.parties.Person;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 abstract class PartyImpl implements Party {
+
+    // ORM inheritance map
+	static final Map<String,Class<? extends Party>> implementers = ImmutableMap.<String, Class<? extends Party>>of(Organization.TYPE_IDENTIFIER, OrganizationImpl.class, Person.TYPE_IDENTIFIER, PersonImpl.class);
+
+    // associations
+	List<PartyInRole> partyInRoles;
 	
 	private long id;
 	private String mRID;
@@ -19,20 +29,31 @@ abstract class PartyImpl implements Party {
 	private ElectronicAddress electronicAddress;
 	private TelephoneNumber phone1;
 	private TelephoneNumber phone2;
-	
-	// associations
-	List<PartyInRole> partyInRoles;
-	
-	PartyImpl() {		
+
+    private long version;
+    private UtcInstant createTime;
+    private UtcInstant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
+
+    @Override
+	public String getAliasName() {
+		return aliasName;
+	}
+
+	@Override
+    public String getDescription() {
+		return description;
+	}
+
+    @Override
+	public ElectronicAddress getElectronicAddress() {
+		return electronicAddress == null ? null : electronicAddress.copy();
 	}
 
     @Override
 	public long getId() {
 		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
     /**
@@ -43,60 +64,9 @@ abstract class PartyImpl implements Party {
 		return mRID;
 	}
 
-	public void setMRID(String mRID) {
-		this.mRID = mRID;
-	}
-
     @Override
 	public String getName() {
 		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-    @Override
-	public String getAliasName() {
-		return aliasName;
-	}
-
-	public void setAliasName(String aliasName) {
-		this.aliasName = aliasName;
-	}
-
-	@Override
-    public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-    @Override
-	public ElectronicAddress getElectronicAddress() {
-		return electronicAddress == null ? null : electronicAddress.copy();
-	}
-
-	public void setElectronicAddress(ElectronicAddress electronicAddress) {
-		this.electronicAddress = electronicAddress == null ? null : electronicAddress.copy();
-	}
-
-	public TelephoneNumber getPhone1() {
-		return phone1 == null ? null : phone1.copy();
-	}
-
-	public void setPhone1(TelephoneNumber phone1) {
-		this.phone1 = phone1 == null ? null : phone1.copy();
-	}
-
-	public TelephoneNumber getPhone2() {
-		return phone2 == null ? null : phone2.copy();
-	}
-
-	public void setPhone2(TelephoneNumber phone2) {
-		this.phone2 = phone2 == null ? null : phone2.copy();
 	}
 
 	public List<PartyInRole> getPartyInRoles() {
@@ -105,12 +75,81 @@ abstract class PartyImpl implements Party {
 		}
 		return partyInRoles;
 	}
-	
-	// ORM inheritance map
-	static final Map<String,Class<? extends Party>> implementers = new HashMap<>();
-	{
-		implementers.put("ORGANIZATION", OrganizationImpl.class);
-		implementers.put("PERSON", PersonImpl.class);
+
+	public TelephoneNumber getPhone1() {
+		return phone1 == null ? null : phone1.copy();
 	}
 
+	public TelephoneNumber getPhone2() {
+		return phone2 == null ? null : phone2.copy();
+	}
+
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public void save() {
+        if (getId() == 0) {
+            partyFactory().persist(this);
+        } else {
+            partyFactory().update(this);
+        }
+    }
+
+	@Override
+    public void setAliasName(String aliasName) {
+		this.aliasName = aliasName;
+	}
+
+	@Override
+    public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Override
+    public void setElectronicAddress(ElectronicAddress electronicAddress) {
+		this.electronicAddress = electronicAddress == null ? null : electronicAddress.copy();
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	@Override
+    public void setMRID(String mRID) {
+		this.mRID = mRID;
+	}
+
+	@Override
+    public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setPhone1(TelephoneNumber phone1) {
+		this.phone1 = phone1 == null ? null : phone1.copy();
+	}
+
+	public void setPhone2(TelephoneNumber phone2) {
+		this.phone2 = phone2 == null ? null : phone2.copy();
+	}
+
+    PartyImpl() {
+	}
+
+    UtcInstant getCreateTime() {
+        return createTime;
+    }
+
+    UtcInstant getModTime() {
+        return modTime;
+    }
+
+    String getUserName() {
+        return userName;
+    }
+
+    private DataMapper<Party> partyFactory() {
+        return Bus.getOrmClient().getPartyFactory();
+    }
 }
