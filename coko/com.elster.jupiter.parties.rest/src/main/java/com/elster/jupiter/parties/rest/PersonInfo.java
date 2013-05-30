@@ -21,6 +21,7 @@ public class PersonInfo {
     public String aliasName;
     public String description;
     public ElectronicAddress electronicAddress;
+    public long version;
 
     //person
     public String firstName;
@@ -50,5 +51,22 @@ public class PersonInfo {
         specialNeed = person.getSpecialNeed();
         landLinePhone = person.getLandLinePhone();
         mobilePhone = person.getMobilePhone();
+        version = person.getVersion();
+    }
+
+    public void update(Person person) {
+        person.setMRID(mRID);
+        person.setName(name);
+        person.setAliasName(aliasName);
+        person.setDescription(description);
+        person.setElectronicAddress(electronicAddress);
+        person.setFirstName(firstName);
+        person.setLastName(lastName);
+        person.setMiddleName(middleName);
+        person.setPrefix(prefix);
+        person.setSuffix(suffix);
+        person.setSpecialNeed(specialNeed);
+        person.setLandLinePhone(landLinePhone);
+        person.setMobilePhone(mobilePhone);
     }
 }
