@@ -65,8 +65,7 @@ public class MeteringResource {
 		result.addServiceLocationInfo();
 		return result;
 	}
-	  
-	  
+
 	@POST
 	@Path("/usagepoints")
 	@Consumes(MediaType.APPLICATION_JSON) 
@@ -74,5 +73,5 @@ public class MeteringResource {
 		UsagePointInfos result = new UsagePointInfos();
         result.add(Bus.getTransactionService().execute(new CreateUsagePointTransaction(info)));
 		return result;
-	}	    
+	}
 }
