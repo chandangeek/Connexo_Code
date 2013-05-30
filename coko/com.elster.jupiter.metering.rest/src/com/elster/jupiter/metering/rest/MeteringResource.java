@@ -25,53 +25,53 @@ import static com.elster.jupiter.metering.rest.Bus.getQueryService;
 public class MeteringResource {
 
     @GET
-    @Path("/usagepoints")
-    @Produces(MediaType.APPLICATION_JSON)
-    public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo) {
-        Query<UsagePoint> query = getMeteringService().getUsagePointQuery();
-        query.setLazy("serviceLocation");
-        RestQuery<UsagePoint> restQuery = getQueryService().wrap(query);
-        List<UsagePoint> list = restQuery.select(uriInfo.getQueryParameters());
-        UsagePointInfos infos = new UsagePointInfos(list);
-        infos.addServiceLocationInfo();
-        int limit = restQuery.getLimit(uriInfo.getQueryParameters());
-        int start = restQuery.getStart(uriInfo.getQueryParameters());
-        infos.total = start + list.size();
-        if (list.size() == limit) {
-            infos.total++;
-        }
-        return infos;
-    }
-
-    @PUT
+	@Path("/usagepoints")
+	@Produces(MediaType.APPLICATION_JSON) 
+	public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo) {
+		Query<UsagePoint> query = getMeteringService().getUsagePointQuery();
+		query.setLazy("serviceLocation");
+		RestQuery<UsagePoint> restQuery = getQueryService().wrap(query);
+		List<UsagePoint> list =  restQuery.select(uriInfo.getQueryParameters());
+		UsagePointInfos infos = new UsagePointInfos(list);
+		infos.addServiceLocationInfo();
+		int limit = restQuery.getLimit(uriInfo.getQueryParameters());
+		int start = restQuery.getStart(uriInfo.getQueryParameters());
+		infos.total = start + list.size();
+		if (list.size() == limit) {
+			infos.total++;
+		}
+		return infos;
+	  }
+	  
+	@PUT
 //	@RolesAllowed("user")
-    @Path("/usagepoints/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public UsagePointInfos updateUsagePoint(UsagePointInfo info) {
-        new UpdateUsagePointTransaction(info).execute();
+	@Path("/usagepoints/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public UsagePointInfos updateUsagePoint(UsagePointInfo info) {
+        Bus.getServiceLocator().getTransactionService().execute(new UpdateUsagePointTransaction(info));
         return getUsagePoint(info.id);
-    }
-
-    @GET
-    @Path("/usagepoints/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
-    public UsagePointInfos getUsagePoint(@PathParam("id") long id) {
-        UsagePoint usagePoint = Bus.getServiceLocator().getMeteringService().findUsagePoint(id);
-        if (usagePoint == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        UsagePointInfos result = new UsagePointInfos(usagePoint);
-        result.addServiceLocationInfo();
-        return result;
-    }
-
-
-    @POST
-    @Path("/usagepoints")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public UsagePointInfos createUsagePoint(UsagePointInfo info) {
-        UsagePointInfos result = new UsagePointInfos();
-        result.add(new CreateUsagePointTransaction(info).execute());
-        return result;
-    }
+	}
+	  
+	@GET
+	@Path("/usagepoints/{id}/")
+	@Produces(MediaType.APPLICATION_JSON)
+	public UsagePointInfos getUsagePoint(@PathParam("id") long id) {
+		UsagePoint usagePoint = Bus.getMeteringService().findUsagePoint(id);
+		if (usagePoint == null) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		UsagePointInfos result = new UsagePointInfos(usagePoint);
+		result.addServiceLocationInfo();
+		return result;
+	}
+	  
+	  
+	@POST
+	@Path("/usagepoints")
+	@Consumes(MediaType.APPLICATION_JSON) 
+	public UsagePointInfos createUsagePoint(UsagePointInfo info) {
+		UsagePointInfos result = new UsagePointInfos();
+        result.add(Bus.getTransactionService().execute(new CreateUsagePointTransaction(info)));
+		return result;
+	}	    
 }

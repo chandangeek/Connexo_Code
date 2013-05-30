@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.rest;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
 
 public class Bus {
 	private static volatile ServiceLocator locator;
@@ -21,8 +22,12 @@ public class Bus {
 	static RestQueryService getQueryService() {
 		return locator.getQueryService();
 	}
-	
-	private Bus() {
+
+    public static TransactionService getTransactionService() {
+        return locator.getTransactionService();
+    }
+
+    private Bus() {
 		throw new UnsupportedOperationException();
 	}
 	
