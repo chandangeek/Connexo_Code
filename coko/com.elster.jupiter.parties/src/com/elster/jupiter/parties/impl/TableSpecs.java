@@ -1,10 +1,14 @@
 package com.elster.jupiter.parties.impl;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import com.elster.jupiter.orm.AssociationMapping;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
 
 import java.util.List;
 
-import com.elster.jupiter.orm.*;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 
 public enum TableSpecs {
 	PRT_PARTY {
@@ -72,7 +76,7 @@ public enum TableSpecs {
 			table.addColumn("PHONE2LOCALNUMBER", "varchar2(80)", false, NOCONVERSION , "phone2.localNumber");
 			table.addColumn("FIRSTNAME" , "varchar2(80)", false , NOCONVERSION , "firstName");
 			table.addColumn("LASTNAME" , "varchar2(80)", false , NOCONVERSION , "lastName");
-			table.addColumn("MIDDLENAME" , "varchar2(80)", false , NOCONVERSION , "mName");
+			table.addColumn("MIDDLENAME" , "varchar2(80)", false , NOCONVERSION , "middleName");
 			table.addColumn("PREFIX" , "varchar2(80)", false , NOCONVERSION , "prefix");
 			table.addColumn("SUFFIX" , "varchar2(80)", false , NOCONVERSION , "suffix");
 			table.addColumn("SPECIALNEED" , "varchar2(80)", false , NOCONVERSION , "specialNeed");

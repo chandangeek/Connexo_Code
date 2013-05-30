@@ -82,11 +82,6 @@ public class PartyServiceImpl implements PartyService, InstallService , ServiceL
     }
 
     @Override
-    public Person newPerson(String firstName, String lastName) {
-        return new PersonImpl(firstName, lastName);
-    }
-
-    @Override
 	public Principal getPrincipal() {
 		return threadPrincipalService.getPrincipal();
 	}
@@ -99,6 +94,11 @@ public class PartyServiceImpl implements PartyService, InstallService , ServiceL
 	public void install() {
 		new InstallerImpl().install(true,true,true);
 	}
+
+    @Override
+    public Person newPerson(String firstName, String lastName) {
+        return new PersonImpl(firstName, lastName);
+    }
 	
 	@Reference(name = "ZCacheService")
 	public void setCacheService (CacheService cacheService) {
@@ -131,4 +131,9 @@ public class PartyServiceImpl implements PartyService, InstallService , ServiceL
 	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
 		this.threadPrincipalService = threadPrincipalService;
 	}
+
+    @Override
+    public Party findParty(long id) {
+        return getOrmClient().getPartyFactory().get(id);
+    }
 }

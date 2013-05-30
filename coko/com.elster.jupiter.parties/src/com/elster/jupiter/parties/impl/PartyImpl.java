@@ -33,7 +33,6 @@ abstract class PartyImpl implements Party {
     private long version;
     private UtcInstant createTime;
     private UtcInstant modTime;
-    @SuppressWarnings("unused")
     private String userName;
 
     @Override
@@ -84,6 +83,7 @@ abstract class PartyImpl implements Party {
 		return phone2 == null ? null : phone2.copy();
 	}
 
+    @Override
     public long getVersion() {
         return version;
     }
@@ -95,6 +95,10 @@ abstract class PartyImpl implements Party {
         } else {
             partyFactory().update(this);
         }
+    }
+
+    public void delete() {
+        partyFactory().remove(this);
     }
 
 	@Override
@@ -110,10 +114,6 @@ abstract class PartyImpl implements Party {
 	@Override
     public void setElectronicAddress(ElectronicAddress electronicAddress) {
 		this.electronicAddress = electronicAddress == null ? null : electronicAddress.copy();
-	}
-
-	public void setId(long id) {
-		this.id = id;
 	}
 
 	@Override

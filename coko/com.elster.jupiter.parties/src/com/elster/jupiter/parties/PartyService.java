@@ -15,4 +15,6 @@ public interface PartyService {
     Query<Party> getPartyQuery();
 
     Person newPerson(String firstName, String lastName);
+
+    Party findParty(long id);
 }

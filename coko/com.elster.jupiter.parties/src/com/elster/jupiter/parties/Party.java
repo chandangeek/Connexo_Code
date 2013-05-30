@@ -21,4 +21,8 @@ public interface Party {
     void setElectronicAddress(ElectronicAddress electronicAddress);
 
     void save();
+
+    void delete();
+
+    long getVersion();
 }

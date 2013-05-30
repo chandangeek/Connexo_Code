@@ -33,4 +33,8 @@ public interface Person extends Party {
     void setSpecialNeed(String specialNeed);
 
     void setSuffix(String suffix);
+
+    void setFirstName(String firstName);
+
+    void setLastName(String lastName);
 }
