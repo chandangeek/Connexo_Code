@@ -10,7 +10,6 @@ import org.osgi.service.component.annotations.Component;
 
 import javax.sql.DataSource;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 

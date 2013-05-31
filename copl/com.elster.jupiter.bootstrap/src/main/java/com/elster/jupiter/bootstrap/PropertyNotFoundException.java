@@ -12,6 +12,7 @@ import java.text.MessageFormat;
  * Time: 11:32
  */
 public class PropertyNotFoundException extends RuntimeException {
+	private static final long serialVersionUID = 1L;
 
     /**
      * @param propertyKey key of the property
