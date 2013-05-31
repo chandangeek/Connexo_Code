@@ -1,6 +1,7 @@
 package com.elster.jupiter.rest.util.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -15,39 +16,15 @@ class RestQueryImpl<T> implements RestQuery<T> {
 		this.query = query;
 	}
 
-	private String getLast(MultivaluedMap<String, String> map, String key) {
-		List<String> values = map.get(key);
-		return values == null || values.isEmpty() ? null : values.get(values.size() - 1);
-	}
-	
-	private int getLastValue(MultivaluedMap<String, String> map, String key) {
-		String intString = getLast(map,key);
-		try {
-			return intString == null ? -1 : Integer.parseInt(intString);
-		} catch (NumberFormatException ex) {
-			return -1;
-		}
-	}
-	
 	@Override
-	public int getStart(MultivaluedMap<String, String> map) {
-		return Math.max(0, getLastValue(map,"start"));
-	}
-	
-	@Override
-	public int getLimit(MultivaluedMap<String, String> map) {
-		return getLastValue(map,"limit");
-	}
-	
-	@Override
-	public List<T> select(MultivaluedMap<String, String> map) {
+	public List<T> select(QueryParameters map) {
         return select(map, Condition.TRUE);
 	}
 
     @Override
-    public List<T> select(MultivaluedMap<String, String> map, Condition condition) {
-        int start = getStart(map);
-        int limit = getLimit(map);
+    public List<T> select(QueryParameters map, Condition condition) {
+        int start = map.getStart();
+        int limit = map.getLimit();
         condition = condition.and(convert(map));
         if (limit >= 0) {
             return query.select(condition, start + 1, start + limit);
