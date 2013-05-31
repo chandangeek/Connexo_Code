@@ -80,7 +80,7 @@ public class ChannelImpl implements Channel {
 				cumulativeReadingTypeMRID = cumulativeReadingType.getMRID();
 			} 
 		}
-		this.additionalReadingTypes = new ArrayList<ReadingType>();
+		this.additionalReadingTypes = new ArrayList<>();
 		for (; index < readingTypes.length ; index++) {
 			this.additionalReadingTypes.add(readingTypes[index]);
 		}
