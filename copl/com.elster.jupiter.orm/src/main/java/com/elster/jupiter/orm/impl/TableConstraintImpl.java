@@ -8,12 +8,14 @@ import com.elster.jupiter.orm.plumbing.Bus;
 
 abstract public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	
-	public final static Map<String,Class<? extends TableConstraint>> implementers =  new HashMap<>();
+	public final static Map<String,Class<? extends TableConstraint>> implementers =  createImplementers();
 	
-	{
-		implementers.put("PRIMARYKEY",PrimaryKeyConstraintImpl.class);
-		implementers.put("UNIQUE",  UniqueConstraintImpl.class);
-		implementers.put("FOREIGNKEY" , ForeignKeyConstraintImpl.class);
+	static Map<String,Class<? extends TableConstraint>> createImplementers() {
+		Map<String,Class<? extends TableConstraint>> result = new HashMap<>();
+		result.put("PRIMARYKEY",PrimaryKeyConstraintImpl.class);
+		result.put("UNIQUE",  UniqueConstraintImpl.class);
+		result.put("FOREIGNKEY" , ForeignKeyConstraintImpl.class);
+		return result;
 	}
 	
 	// persistent fields

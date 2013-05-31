@@ -34,23 +34,17 @@ public class DataMapperWriter<T> {
 	}
 	
 	private long getNext(Connection connection , String sequence) throws SQLException {
-		PreparedStatement statement = connection.prepareStatement("select " + sequence + ".nextval from dual");
-		try {
-			ResultSet rs = statement.executeQuery();
-			try {
+		try (PreparedStatement statement = connection.prepareStatement("select " + sequence + ".nextval from dual")) {
+			try (ResultSet rs = statement.executeQuery()) {
 				rs.next();
 				return rs.getLong(1);
-			} finally {
-				rs.close();
 			}
-		} finally {
-			statement.close();
 		}
 	}
 	
 	void persist(T object) throws SQLException {
 		prepare(object,false,new UtcInstant(Bus.getClock()));
-		Map<Column, Long> autoIncrements = new HashMap<Column,Long>();
+		Map<Column, Long> autoIncrements = new HashMap<>();
 		try (Connection connection = getConnection(true)) {			
 			try (PreparedStatement statement = connection.prepareStatement(sqlGenerator.insertSql(false))) {
 				int index = 1;	
