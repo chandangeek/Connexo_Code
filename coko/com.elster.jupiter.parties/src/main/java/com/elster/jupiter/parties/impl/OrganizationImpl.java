@@ -4,6 +4,8 @@ import com.elster.jupiter.cbo.PostalAddress;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.parties.Organization;
 
+import static com.elster.jupiter.util.Checks.is;
+
 public final class OrganizationImpl extends PartyImpl implements Organization {
 
 	private PostalAddress postalAddress;
@@ -13,7 +15,19 @@ public final class OrganizationImpl extends PartyImpl implements Organization {
 		super();
 	}
 
-	public PostalAddress getPostalAddress() {
+    OrganizationImpl(String mRID) {
+        super();
+        validateMRID(mRID);
+        setMRID(mRID);
+    }
+
+    private void validateMRID(String mRID) {
+        if (is(mRID).emptyOrOnlyWhiteSpace()) {
+            throw new IllegalArgumentException("MRID cannot be empty.");
+        }
+    }
+
+    public PostalAddress getPostalAddress() {
 		return postalAddress;
 	}
 

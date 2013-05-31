@@ -15,4 +15,9 @@ public interface Organization extends Party {
     PostalAddress getPostalAddress();
 
     StreetAddress getStreetAddress();
+
+    void setStreetAddress(StreetAddress streetAddress);
+
+    void setPostalAddress(PostalAddress postalAddress);
+
 }

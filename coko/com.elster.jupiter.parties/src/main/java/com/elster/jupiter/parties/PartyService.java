@@ -17,4 +17,6 @@ public interface PartyService {
     Person newPerson(String firstName, String lastName);
 
     Party findParty(long id);
+
+    Organization newOrganization(String mRID);
 }

@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
@@ -135,5 +136,10 @@ public class PartyServiceImpl implements PartyService, InstallService , ServiceL
     @Override
     public Party findParty(long id) {
         return getOrmClient().getPartyFactory().get(id);
+    }
+
+    @Override
+    public Organization newOrganization(String mRID) {
+        return new OrganizationImpl(mRID);
     }
 }
