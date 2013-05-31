@@ -69,6 +69,23 @@ public class PartiesResource {
         return infos;
     }
 
+    @GET
+    @Path("/parties")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PartyInfos getParties(@Context UriInfo uriInfo) {
+        Query<Party> query = Bus.getPartyService().getPartyQuery();
+        RestQuery<Party> restQuery = Bus.getQueryService().wrap(query);
+        List<Party> parties = restQuery.select(uriInfo.getQueryParameters());
+        PartyInfos infos = new PartyInfos(parties);
+        int limit = restQuery.getLimit(uriInfo.getQueryParameters());
+        int start = restQuery.getStart(uriInfo.getQueryParameters());
+        infos.total = start + parties.size();
+        if (parties.size() == limit) {
+            infos.total++;
+        }
+        return infos;
+    }
+
     @PUT
     @Path("/persons/{id}/")
     @Produces(MediaType.APPLICATION_JSON)

@@ -35,7 +35,6 @@ public class PersonInfo extends PartyInfo {
         specialNeed = person.getSpecialNeed();
         landLinePhone = person.getLandLinePhone();
         mobilePhone = person.getMobilePhone();
-        version = person.getVersion();
     }
 
     public void update(Person person) {

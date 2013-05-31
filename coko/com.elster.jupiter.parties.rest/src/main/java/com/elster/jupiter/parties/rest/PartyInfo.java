@@ -23,6 +23,7 @@ public class PartyInfo {
         aliasName = party.getAliasName();
         description = party.getDescription();
         electronicAddress = party.getElectronicAddress();
+        version = party.getVersion();
     }
 
     public PartyInfo() {
