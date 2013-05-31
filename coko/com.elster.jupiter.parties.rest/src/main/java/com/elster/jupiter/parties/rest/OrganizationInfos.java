@@ -2,17 +2,16 @@ package com.elster.jupiter.parties.rest;
 
 import com.elster.jupiter.parties.Organization;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class OrganizationInfos {
 
     public int total;
 
-    public List<OrganizationInfo> persons = new ArrayList<>();
+    public List<OrganizationInfo> organizations = new ArrayList<>();
 
     OrganizationInfos() {
     }
@@ -27,7 +26,7 @@ public class OrganizationInfos {
 
     OrganizationInfo add(Organization organization) {
         OrganizationInfo result = new OrganizationInfo(organization);
-        persons.add(result);
+        organizations.add(result);
         total++;
         return result;
     }
