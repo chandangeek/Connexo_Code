@@ -43,6 +43,18 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>com.energyict.comserver</groupId>
+                <artifactId>comserver-core-impl</artifactId>
+                <version>${eiserver.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict.comserver</groupId>
+                <artifactId>comserver-core-common</artifactId>
+                <version>${eiserver.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdwimpl</artifactId>
                 <version>${eiserver.version}</version>
@@ -108,6 +120,7 @@
         <module>dlms</module>
         <module>protocolimpl-elster</module>
         <module>protocolimpl-v2</module>
+        <module>connectiontypes</module>
     </modules>
 
     <build>

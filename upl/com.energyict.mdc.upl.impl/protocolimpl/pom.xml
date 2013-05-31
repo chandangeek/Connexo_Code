@@ -180,18 +180,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.energyict.dataconcentrator.dialers</groupId>
-            <artifactId>dialer-impl-wavenis</artifactId>
-            <version>1.0.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.energyict</groupId>
-                    <artifactId>mdw</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
         </dependency>
