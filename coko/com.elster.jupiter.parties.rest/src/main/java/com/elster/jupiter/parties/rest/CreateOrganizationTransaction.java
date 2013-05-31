@@ -5,7 +5,6 @@ import com.elster.jupiter.transaction.Transaction;
 
 public class CreateOrganizationTransaction implements Transaction<Organization> {
 
-
     private final OrganizationInfo info;
 
     public CreateOrganizationTransaction(OrganizationInfo info) {
@@ -22,6 +21,8 @@ public class CreateOrganizationTransaction implements Transaction<Organization> 
 
         organization.setPostalAddress(info.postalAddress);
         organization.setStreetAddress(info.streetAddress);
+        organization.setPhone1(info.phone1);
+        organization.setPhone2(info.phone2);
 
         organization.save();
 
