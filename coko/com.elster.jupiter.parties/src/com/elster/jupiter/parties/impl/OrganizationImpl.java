@@ -4,7 +4,7 @@ import com.elster.jupiter.cbo.PostalAddress;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.parties.Organization;
 
-public class OrganizationImpl extends PartyImpl implements Organization {
+public final class OrganizationImpl extends PartyImpl implements Organization {
 
 	private PostalAddress postalAddress;
 	private StreetAddress streetAddress;

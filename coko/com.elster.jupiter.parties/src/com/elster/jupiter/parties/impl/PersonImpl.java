@@ -5,11 +5,11 @@ import com.elster.jupiter.parties.Person;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public class PersonImpl extends PartyImpl implements Person {
+public final class PersonImpl extends PartyImpl implements Person {
 
 	private String firstName;
 	private String lastName;
-	private String middleName;
+	private String mName;
 	private String prefix;
 	private String suffix;
 	private String specialNeed;
@@ -57,7 +57,7 @@ public class PersonImpl extends PartyImpl implements Person {
 
     @Override
 	public String getMiddleName() {
-		return middleName;
+		return mName;
 	}
 
     @Override
@@ -74,7 +74,7 @@ public class PersonImpl extends PartyImpl implements Person {
 
     @Override
     public void setMiddleName(String mName) {
-		this.middleName = mName;
+		this.mName = mName;
 	}
 
     @Override
