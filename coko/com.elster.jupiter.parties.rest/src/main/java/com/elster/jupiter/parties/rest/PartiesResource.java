@@ -48,6 +48,15 @@ public class PartiesResource {
     }
 
     @DELETE
+    @Path("/organizations/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public OrganizationInfos deleteOrganization(OrganizationInfo info, @PathParam("id") long id) {
+        info.id = id;
+        Bus.getTransactionService().execute(new DeleteOrganizationTransaction(info));
+        return new OrganizationInfos();
+    }
+
+    @DELETE
     @Path("/persons/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public PersonInfos deletePerson(PersonInfo info, @PathParam("id") long id) {

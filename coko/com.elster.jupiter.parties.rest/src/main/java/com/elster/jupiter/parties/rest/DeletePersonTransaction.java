@@ -21,9 +21,8 @@ class DeletePersonTransaction extends VoidTransaction {
         doDelete(person);
     }
 
-    private Person doDelete(Person person) {
+    private void doDelete(Person person) {
         person.delete();
-        return person;
     }
 
     private void validateDelete(Person person) {
