@@ -115,7 +115,6 @@
 
     <build>
         <finalName>${groupId}.${artifactId}-${version}</finalName>
-        <sourceDirectory>src</sourceDirectory>
 		<resources>
 			<resource>
 				<!-- This include everything else under src directory -->
