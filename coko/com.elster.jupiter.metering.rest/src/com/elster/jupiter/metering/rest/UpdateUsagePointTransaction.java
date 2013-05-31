@@ -16,7 +16,7 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
 
     @Override
 	public UsagePoint perform() {
-        UsagePoint usagePoint = Bus.getServiceLocator().getMeteringService().findUsagePoint(info.id);
+        UsagePoint usagePoint = Bus.getMeteringService().findUsagePoint(info.id);
 		if (usagePoint.getVersion() == info.version) {
 			usagePoint.setMRID(info.mRID);
 			usagePoint.setPhaseCode(info.phaseCode);
