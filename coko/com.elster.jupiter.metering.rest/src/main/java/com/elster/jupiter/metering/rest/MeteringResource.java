@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.rest;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 
 import javax.annotation.security.RolesAllowed;
@@ -32,11 +33,12 @@ public class MeteringResource {
 		Query<UsagePoint> query = getMeteringService().getUsagePointQuery();
 		query.setLazy("serviceLocation");
 		RestQuery<UsagePoint> restQuery = getQueryService().wrap(query);
-		List<UsagePoint> list =  restQuery.select(uriInfo.getQueryParameters());
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        List<UsagePoint> list =  restQuery.select(queryParameters);
 		UsagePointInfos infos = new UsagePointInfos(list);
 		infos.addServiceLocationInfo();
-		int limit = restQuery.getLimit(uriInfo.getQueryParameters());
-		int start = restQuery.getStart(uriInfo.getQueryParameters());
+		int limit = queryParameters.getLimit();
+		int start = queryParameters.getStart();
 		infos.total = start + list.size();
 		if (list.size() == limit) {
 			infos.total++;
