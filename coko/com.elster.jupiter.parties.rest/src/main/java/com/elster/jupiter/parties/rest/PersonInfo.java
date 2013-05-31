@@ -26,7 +26,7 @@ public class PersonInfo {
     //person
     public String firstName;
     public String lastName;
-    public String middleName;
+    public String mName;
     public String prefix;
     public String suffix;
     public String specialNeed;
@@ -45,7 +45,7 @@ public class PersonInfo {
         electronicAddress = person.getElectronicAddress();
         firstName = person.getFirstName();
         lastName = person.getLastName();
-        middleName = person.getMiddleName();
+        mName = person.getMiddleName();
         prefix = person.getPrefix();
         suffix = person.getSuffix();
         specialNeed = person.getSpecialNeed();
@@ -62,7 +62,7 @@ public class PersonInfo {
         person.setElectronicAddress(electronicAddress);
         person.setFirstName(firstName);
         person.setLastName(lastName);
-        person.setMiddleName(middleName);
+        person.setMiddleName(mName);
         person.setPrefix(prefix);
         person.setSuffix(suffix);
         person.setSpecialNeed(specialNeed);

@@ -24,7 +24,7 @@ final class CreatePersonTransaction implements Transaction<Person> {
         person.setDescription(info.description);
         person.setElectronicAddress(info.electronicAddress);
 
-        person.setMiddleName(info.middleName);
+        person.setMiddleName(info.mName);
         person.setPrefix(info.prefix);
         person.setSuffix(info.suffix);
         person.setSpecialNeed(info.specialNeed);
