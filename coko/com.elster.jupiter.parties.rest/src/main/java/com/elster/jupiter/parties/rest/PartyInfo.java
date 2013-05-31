@@ -28,4 +28,12 @@ public class PartyInfo {
 
     public PartyInfo() {
     }
+
+    void updateParty(Party party) {
+        party.setMRID(mRID);
+        party.setName(name);
+        party.setAliasName(aliasName);
+        party.setDescription(description);
+        party.setElectronicAddress(electronicAddress);
+    }
 }

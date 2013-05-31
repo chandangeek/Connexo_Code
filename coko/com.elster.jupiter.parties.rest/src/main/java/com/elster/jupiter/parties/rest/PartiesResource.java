@@ -106,4 +106,16 @@ public class PartiesResource {
         return new PersonInfos();
 
     }
+
+    @POST
+    @Path("/organizations")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public OrganizationInfos createOrganization(OrganizationInfo info) {
+        OrganizationInfos result = new OrganizationInfos();
+        result.add(Bus.getTransactionService().execute(new CreateOrganizationTransaction(info)));
+        return result;
+    }
+
+
 }

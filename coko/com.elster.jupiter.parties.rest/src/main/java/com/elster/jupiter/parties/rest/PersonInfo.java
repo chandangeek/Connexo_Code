@@ -38,11 +38,7 @@ public class PersonInfo extends PartyInfo {
     }
 
     public void update(Person person) {
-        person.setMRID(mRID);
-        person.setName(name);
-        person.setAliasName(aliasName);
-        person.setDescription(description);
-        person.setElectronicAddress(electronicAddress);
+        updateParty(person);
         person.setFirstName(firstName);
         person.setLastName(lastName);
         person.setMiddleName(mName);
@@ -52,4 +48,5 @@ public class PersonInfo extends PartyInfo {
         person.setLandLinePhone(landLinePhone);
         person.setMobilePhone(mobilePhone);
     }
+
 }

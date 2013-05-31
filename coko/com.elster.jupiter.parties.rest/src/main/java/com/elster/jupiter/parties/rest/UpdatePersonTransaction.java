@@ -7,12 +7,7 @@ import com.elster.jupiter.transaction.Transaction;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-/**
- * Copyrights EnergyICT
- * Date: 29/05/13
- * Time: 16:35
- */
-public class UpdatePersonTransaction implements Transaction<Person> {
+class UpdatePersonTransaction implements Transaction<Person> {
 
     private final PersonInfo info;
 
