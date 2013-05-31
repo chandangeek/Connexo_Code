@@ -14,6 +14,7 @@ public final class PersonImpl extends PartyImpl implements Person {
 	private String suffix;
 	private String specialNeed;
 
+    @SuppressWarnings("unused")
     private PersonImpl() {
     }
 
