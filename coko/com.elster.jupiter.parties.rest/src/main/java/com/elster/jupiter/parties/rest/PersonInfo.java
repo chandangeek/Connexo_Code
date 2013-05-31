@@ -1,6 +1,5 @@
 package com.elster.jupiter.parties.rest;
 
-import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.parties.Person;
 
@@ -12,18 +11,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Time: 14:46
  */
 @XmlRootElement
-public class PersonInfo {
+public class PersonInfo extends PartyInfo {
 
-    // party
-    public long id;
-    public String mRID;
-    public String name;
-    public String aliasName;
-    public String description;
-    public ElectronicAddress electronicAddress;
-    public long version;
-
-    //person
     public String firstName;
     public String lastName;
     public String mName;
@@ -37,12 +26,7 @@ public class PersonInfo {
     }
 
     public PersonInfo(Person person) {
-        id = person.getId();
-        mRID = person.getMRID();
-        name = person.getName();
-        aliasName = person.getAliasName();
-        description = person.getDescription();
-        electronicAddress = person.getElectronicAddress();
+        super(person);
         firstName = person.getFirstName();
         lastName = person.getLastName();
         mName = person.getMiddleName();

@@ -6,7 +6,7 @@ import com.elster.jupiter.parties.Person;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-public class DeletePersonTransaction extends VoidTransaction {
+class DeletePersonTransaction extends VoidTransaction {
 
     private final PersonInfo info;
 
