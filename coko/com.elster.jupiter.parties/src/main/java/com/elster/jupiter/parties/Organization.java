@@ -20,4 +20,8 @@ public interface Organization extends Party {
 
     void setPostalAddress(PostalAddress postalAddress);
 
+    void setPhone1(TelephoneNumber telephoneNumber);
+
+    void setPhone2(TelephoneNumber telephoneNumber);
+
 }
