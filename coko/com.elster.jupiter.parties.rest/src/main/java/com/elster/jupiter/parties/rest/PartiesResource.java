@@ -37,6 +37,25 @@ public class PartiesResource {
         return result;
     }
 
+    @POST
+    @Path("/persons")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public PersonInfos createPerson(PersonInfo info) {
+        PersonInfos result = new PersonInfos();
+        result.add(Bus.getTransactionService().execute(new CreatePersonTransaction(info)));
+        return result;
+    }
+
+    @DELETE
+    @Path("/persons/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PersonInfos deletePerson(PersonInfo info, @PathParam("id") long id) {
+        info.id = id;
+        Bus.getTransactionService().execute(new DeletePersonTransaction(info));
+        return new PersonInfos();
+    }
+
     @GET
     @Path("/organizations/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
@@ -64,41 +83,14 @@ public class PartiesResource {
         return infos;
     }
 
-    private int determineTotal(QueryParameters queryParameters, List<Party> list) {
-        int total = queryParameters.getStart() + list.size();
-        if (list.size() == queryParameters.getLimit()) {
-            total++;
-        }
-        return total;
-    }
-
-    @POST
-    @Path("/persons")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public PersonInfos createPerson(PersonInfo info) {
-        PersonInfos result = new PersonInfos();
-        result.add(Bus.getTransactionService().execute(new CreatePersonTransaction(info)));
-        return result;
-    }
-
-    @DELETE
-    @Path("/persons/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public PersonInfos deletePerson(PersonInfo info, @PathParam("id") long id) {
-        info.id = id;
-        Bus.getTransactionService().execute(new DeletePersonTransaction(info));
-        return new PersonInfos();
-    }
-
     @GET
     @Path("/parties")
     @Produces(MediaType.APPLICATION_JSON)
     public PartyInfos getParties(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<Party> list = getPartyRestQuery().select(queryParameters);
-        PartyInfos infos = new PartyInfos(list);
-        infos.total = determineTotal(queryParameters, list);
+        List<Party> parties = getPartyRestQuery().select(queryParameters);
+        PartyInfos infos = new PartyInfos(parties);
+        infos.total = determineTotal(queryParameters, parties);
         return infos;
     }
 
@@ -130,14 +122,32 @@ public class PartiesResource {
     }
 
     @PUT
+    @Path("/organizations/{id}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public OrganizationInfos updateOrganization(OrganizationInfo info, @PathParam("id") long id) {
+        info.id = id;
+        Bus.getTransactionService().execute(new UpdateOrganizationTransaction(info));
+        return getOrganization(info.id);
+    }
+
+    @PUT
     @Path("/persons/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public PersonInfos updatePerson(PersonInfo info, @PathParam("id") long id) {
         info.id = id;
-        PersonInfos result = new PersonInfos();
-        result.add(Bus.getTransactionService().execute(new UpdatePersonTransaction(info)));
+        Bus.getTransactionService().execute(new UpdatePersonTransaction(info));
         return getPerson(info.id);
+    }
+
+
+    private int determineTotal(QueryParameters queryParameters, List<Party> list) {
+        int total = queryParameters.getStart() + list.size();
+        if (list.size() == queryParameters.getLimit()) {
+            total++;
+        }
+        return total;
     }
 
     private RestQuery<Party> getPartyRestQuery() {
