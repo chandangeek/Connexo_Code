@@ -7,7 +7,7 @@ import com.elster.jupiter.users.User;
 import java.security.AccessControlException;
 
 public class CommandExecutorImpl implements CommandExecutor {
-	private ThreadLocal<User> threadUsers = new ThreadLocal<User>();
+	private ThreadLocal<User> threadUsers = new ThreadLocal<>();
 	
 	@Override
 	public void setThreadUser(String authenticationName) {
@@ -25,13 +25,13 @@ public class CommandExecutorImpl implements CommandExecutor {
 	}
 
 	@Override
-	public void execute(PrivilegedCommand command) {
+	public <T> T execute(PrivilegedCommand<T> command) {
 		User user = threadUsers.get();
 		if (user == null) {
 			throw new IllegalStateException("No user");
 		}
 		if (user.hasPrivilege(command.getPrivilege().getName())) {
-			Bus.getTransactionService().execute(command);
+			return Bus.getTransactionService().execute(command);
 		} else {
 			throw new AccessControlException("No access");
 		}
