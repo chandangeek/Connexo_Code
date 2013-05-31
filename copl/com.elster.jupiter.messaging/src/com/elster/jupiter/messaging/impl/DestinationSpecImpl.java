@@ -5,25 +5,19 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.QueueConnection;
-import javax.jms.Session;
+import javax.jms.*;
 
 import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.util.time.UtcInstant;
 
-import oracle.AQ.AQException;
-import oracle.AQ.AQQueueTable;
+
+import oracle.AQ.*;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQEnqueueOptions;
 import oracle.jdbc.aq.AQFactory;
 import oracle.jdbc.aq.AQMessage;
 import oracle.jdbc.aq.AQMessageProperties;
-import oracle.jms.AQjmsDestination;
-import oracle.jms.AQjmsDestinationProperty;
-import oracle.jms.AQjmsQueueConnectionFactory;
-import oracle.jms.AQjmsSession;
+import oracle.jms.*;
 
 public class DestinationSpecImpl implements DestinationSpec {	
 	// persistent fields
@@ -80,7 +74,11 @@ public class DestinationSpecImpl implements DestinationSpec {
 	@Override
 	public void activate() {
 		try {
-			doActivate();
+			if (getQueueTableSpec().isJms()) {
+				doActivateJms();
+			} else {
+				doActivateAq();
+			}
 		} catch (SQLException | JMSException | AQException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -88,12 +86,25 @@ public class DestinationSpecImpl implements DestinationSpec {
 		Bus.getOrmClient().getDestinationSpecFactory().update(this,"active");
 	}
 	
-	private void doActivate() throws SQLException, JMSException, AQException {
+	private void doActivateAq() throws SQLException {
 		try (Connection connection = Bus.getConnection()) {
-			QueueConnection queueConnection = AQjmsQueueConnectionFactory.createQueueConnection(connection);
+			try (PreparedStatement statement = connection.prepareStatement(createSql())) {
+				statement.setString(1, name);
+				statement.setString(2, queueTableName);
+				statement.setInt(3, retryDelay);
+				statement.setString(4, name);
+				statement.executeQuery();				
+			}
+		}
+	}
+	
+	private void doActivateJms() throws SQLException, JMSException, AQException {
+		try (Connection connection = Bus.getConnection()) {
+			OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
+			QueueConnection queueConnection = AQjmsQueueConnectionFactory.createQueueConnection(oraConnection);
 			try {
 				queueConnection.start();
-				AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);		
+				AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);	
 				AQQueueTable aqQueueTable = ((QueueTableSpecImpl) getQueueTableSpec()).getAqQueueTable(session);
 				AQjmsDestinationProperty props = new AQjmsDestinationProperty();
 				props.setRetryInterval(retryDelay);
@@ -116,6 +127,11 @@ public class DestinationSpecImpl implements DestinationSpec {
 		}		
 		active = false;
 		Bus.getOrmClient().getDestinationSpecFactory().update(this,"active");
+	}
+	
+	
+	private String createSql() {
+		return "begin dbms_aqadm.create_queue(queue_name => ?, queue_table => ?, retry_delay => ?); dbms_aqadm.start_queue(?); end;";					
 	}
 	
 	private String dropSql() {
@@ -150,7 +166,7 @@ public class DestinationSpecImpl implements DestinationSpec {
 	@Override
 	public String getPayloadType() {
 		// TODO Auto-generated method stub
-		return getQueueTableSpec().getName();
+		return getQueueTableSpec().getPayloadType();
 	}
 	
 	@Override
@@ -176,8 +192,38 @@ public class DestinationSpecImpl implements DestinationSpec {
 	
 	@Override
 	public void send(String text) {
-		send(text.getBytes());
+		if (getQueueTableSpec().isJms()) {
+			sendJms(text);
+		} else {
+			send(text.getBytes());
+		}
 	}
+	
+	void sendJms(String text) {
+		 try {
+			 doSendJms(text);
+		 } catch (SQLException | JMSException ex) {
+			 throw new RuntimeException(ex);
+		 }
+	 }
+	 
+	void doSendJms(String text) throws JMSException, SQLException {
+		try (Connection connection = Bus.getConnection()) {
+			OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
+			QueueConnection queueConnection = AQjmsQueueConnectionFactory.createQueueConnection(oraConnection);
+			try {
+				queueConnection.start();
+				AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+				TextMessage message = session.createTextMessage();
+				message.setText(text);
+				session.createSender(session.getQueue("kore", name)).send(message);				
+			} finally {
+				queueConnection.close();
+			}
+		}
+	}
+	
+	
 	
 	@Override
 	public void send(AQMessage message) throws SQLException {

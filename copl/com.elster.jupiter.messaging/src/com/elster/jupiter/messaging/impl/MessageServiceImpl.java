@@ -4,24 +4,19 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-
+import org.osgi.service.component.annotations.*;
 import com.elster.jupiter.messaging.*;
 import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionService;
 
-@Component(name = "com.elster.jupiter.messaging" , service = { MessagingService.class , InstallService.class } ,
+@Component(name = "com.elster.jupiter.messaging" , service = { MessageService.class , InstallService.class } ,
 	property = { "name=" + Bus.COMPONENTNAME , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable" , "osgi.command.function=aqdroptable" } )
-public class MessagingServiceImpl implements MessagingService , InstallService , ServiceLocator {
-	
+public class MessageServiceImpl implements MessageService , InstallService , ServiceLocator {	
 	private volatile OrmClient ormClient;
+	private volatile TransactionService transactionService;
 	
 	@Reference
 	public void setOrmService(OrmService ormService) {
@@ -33,7 +28,11 @@ public class MessagingServiceImpl implements MessagingService , InstallService ,
 			}
 		}
 		this.ormClient = new OrmClientImpl(dataModel);
-		
+	}
+	
+	@Reference
+	public void setTransactionService(TransactionService transactionService) {
+		this.transactionService = transactionService;
 	}
 	
 	public Connection getConnection() throws SQLException {
@@ -78,6 +77,11 @@ public class MessagingServiceImpl implements MessagingService , InstallService ,
 	@Override
 	public OrmClient getOrmClient() {
 		return ormClient;
+	}
+	
+	@Override
+	public TransactionService getTransactionService() {
+		return transactionService;
 	}
 	
 	@Override

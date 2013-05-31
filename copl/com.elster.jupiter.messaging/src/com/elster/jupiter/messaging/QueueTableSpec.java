@@ -8,4 +8,5 @@ public interface QueueTableSpec {
 	boolean isMultiConsumer();
 	boolean isActive();
 	DestinationSpec createDestinationSpec(String name, int retryDelay);
+	boolean isJms();
 }

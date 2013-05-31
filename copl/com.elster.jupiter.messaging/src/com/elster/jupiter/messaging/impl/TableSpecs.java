@@ -21,6 +21,7 @@ public enum TableSpecs {
 			Column nameColumn = table.addColumn("NAME","varchar2(30)",true,NOCONVERSION,"name");
 			Column queueTableNameColumn = table.addColumn("QUEUETABLENAME" , "varchar2(30)", true , NOCONVERSION , "queueTableName");
 			table.addColumn("RETRYDELAY" , "number" , true, NUMBER2INT , "retryDelay");
+			table.addColumn("ACTIVE", "char(1)", true, CHAR2BOOLEAN, "active");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MSG_PK_DESTINATIONSPEC", nameColumn);
 			table.addForeignKeyConstraint("MSG_FK_DESTINATIONSPEC", MSG_QUEUETABLESPEC.name() , RESTRICT, new AssociationMapping("queueTable") , queueTableNameColumn);				

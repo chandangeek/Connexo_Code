@@ -2,23 +2,20 @@ package com.elster.jupiter.messaging.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.sql.SQLException;
 
-import javax.jms.JMSException;
-import javax.jms.QueueConnection;
-import javax.jms.Session;
+import javax.jms.*;
+
+import oracle.AQ.*;
+import oracle.jdbc.OracleConnection;
+import oracle.jms.*;
+
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.util.time.UtcInstant;
 
-import oracle.AQ.AQException;
-import oracle.AQ.AQQueueTable;
-import oracle.AQ.AQQueueTableProperty;
-import oracle.jdbc.OracleConnection;
-import oracle.jms.AQjmsQueueConnectionFactory;
-import oracle.jms.AQjmsSession;
 
 public class QueueTableSpecImpl implements QueueTableSpec {	
 	// persistent fields
@@ -47,27 +44,33 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 	}
 	
 	@Override
-	public void activate() {
+	public void activate()  {
 		try {
-			doActivate();
-		} catch (SQLException | JMSException | AQException ex) {
+			if(isJms()) {
+				doActivateJms();
+			} else {
+				doActivateAq();
+			}
+		} catch (SQLException | AQException | JMSException ex) {
 			throw new RuntimeException(ex);
 		}
 		active = true;
 		Bus.getOrmClient().getQueueTableSpecFactory().update(this,"active");
 	}
 	
-	private String getDatabaseUser(Connection connection) throws SQLException {
-		try (PreparedStatement statement = connection.prepareStatement("select user from dual")) {
-			try (ResultSet resultSet = statement.executeQuery()) {
-				resultSet.next();
-				return resultSet.getString(1);
-			}
+	private void doActivateAq() throws SQLException  {
+		try (Connection connection = Bus.getConnection()) {
+			try (PreparedStatement statement = connection.prepareStatement(createSql())) {
+				statement.setString(1, name);
+				statement.setString(2, payloadType);
+				statement.executeQuery();				
+			}		
 		}
 	}
 	
-	private void doActivate() throws SQLException, JMSException, AQException {
+	private void doActivateJms() throws SQLException, JMSException, AQException {
 		try (Connection connection = Bus.getConnection()) {
+			System.out.println("In activate JMS");
 			OracleConnection oraConnection = connection.unwrap(OracleConnection.class); 
 			QueueConnection queueConnection = AQjmsQueueConnectionFactory.createQueueConnection(oraConnection);
 			try {
@@ -75,7 +78,7 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 				AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);		
 				AQQueueTableProperty properties = new AQQueueTableProperty(payloadType);
 				properties.setMultiConsumer(multiConsumer);			
-				session.createQueueTable(getDatabaseUser(connection),name,properties);
+				session.createQueueTable("kore",name,properties);
 			} finally {
 				queueConnection.close();
 			}
@@ -91,6 +94,13 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 		}		
 		active = false;
 		Bus.getOrmClient().getQueueTableSpecFactory().update(this,"active");
+	}
+	
+	private String createSql() {
+		return 
+			"begin dbms_aqadm.create_queue_table(queue_table => ?, queue_payload_type => ? , multiple_consumers => " +
+			(multiConsumer ? "TRUE" : "FALSE") + 
+			"); end;";
 	}
 	
 	private String dropSql() {
@@ -128,15 +138,20 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 		return active;
 	}
 	
-	AQQueueTable getAqQueueTable(AQjmsSession session) throws JMSException, SQLException {
-		return session.getQueueTable(name, getDatabaseUser(session.getDBConnection()));
-	}
-
 	@Override
-	public DestinationSpec createDestinationSpec(String name, int retryDelay) {
+	public DestinationSpec createDestinationSpec(String name, int retryDelay) {		
 		DestinationSpecImpl spec = new DestinationSpecImpl(this, name, retryDelay);
+		Bus.getOrmClient().getDestinationSpecFactory().persist(spec);
 		spec.activate();
 		return spec;
 	}
 	
+	@Override
+	public boolean isJms() {
+		return payloadType.toUpperCase().startsWith("SYS.AQ$_JMS_");
+	}
+
+	public AQQueueTable getAqQueueTable(AQjmsSession session) throws JMSException {
+		return session.getQueueTable("kore",name);
+	}	
 }

@@ -7,7 +7,7 @@ import oracle.jdbc.aq.*;
 
 import com.elster.jupiter.messaging.ConsumerSpec;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
+import com.elster.jupiter.messaging.consumer.*;
 import com.elster.jupiter.util.time.UtcInstant;
 
 public class ConsumerSpecImpl implements ConsumerSpec {
@@ -69,6 +69,9 @@ public class ConsumerSpecImpl implements ConsumerSpec {
 	}
 	
 	void subscribe() {
+		if (getDestination().isQueue()) {
+			return;
+		}
 		try {
 			doSubscribe();
 		} catch (SQLException ex) {
@@ -106,7 +109,7 @@ public class ConsumerSpecImpl implements ConsumerSpec {
 	private String subscribeSql() {
 		return 
 			"declare subscriber sys.aq$_agent;  " +
-			"begin subscriber := sys.aq$_agent(?,null,null); + " +
+			"begin subscriber := sys.aq$_agent(?,null,null); " +
 			"dbms_aqadm.add_subscriber(?,subscriber); end;";
 		
 				
@@ -120,7 +123,11 @@ public class ConsumerSpecImpl implements ConsumerSpec {
 	}
 	
 	void start(MessageHandlerFactory factory) {
-		// TO DO
+		for (int i = 0 ; i < workerCount ; i++) {
+			MessageHandler handler = factory.newMessageHandler();
+			MessageHandlerTask task = new MessageHandlerTask(this,handler);
+			new Thread(task).start();
+		}
 	}
 }
 

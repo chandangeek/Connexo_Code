@@ -3,6 +3,8 @@ package com.elster.jupiter.messaging.impl;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import com.elster.jupiter.transaction.TransactionService;
+
 public class Bus {
 	static final String COMPONENTNAME = "MSG";
 	
@@ -18,6 +20,10 @@ public class Bus {
 	
 	static OrmClient getOrmClient() {
 		return locator.getOrmClient();
+	}
+
+	public static TransactionService getTransactionService() {
+		return locator.getTransactionService();
 	}
 	
 }
