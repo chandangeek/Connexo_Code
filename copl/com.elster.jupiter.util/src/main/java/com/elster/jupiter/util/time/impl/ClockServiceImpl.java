@@ -1,8 +1,7 @@
 package com.elster.jupiter.util.time.impl;
 
 import com.elster.jupiter.util.time.Clock;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.Date;
@@ -26,13 +25,12 @@ public class ClockServiceImpl implements ServiceLocator, Clock {
         return clock;
     }
 
-    @Activate
-    public void activate(BundleContext componentContext) {
+    public void activate(ComponentContext componentContext) {
         clock = new DefaultClock();
         Bus.setServiceLocator(this);
     }
     
-    public void deActivate() {
+    public void deActivate(ComponentContext componentContext) {
     	Bus.setServiceLocator(null);
     }
 
