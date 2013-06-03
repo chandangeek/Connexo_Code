@@ -1,8 +1,8 @@
 package com.elster.jupiter.parties.rest;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Operator;
@@ -23,39 +23,33 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/06/13
- * Time: 9:51
- */
-@Path("/prt/persons")
-public class PersonsResource {
-
+@Path("/prt/organizations")
+public class OrganizationsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public PersonInfos createPerson(PersonInfo info) {
-        PersonInfos result = new PersonInfos();
-        result.add(Bus.getTransactionService().execute(new CreatePersonTransaction(info)));
+    public OrganizationInfos createOrganization(OrganizationInfo info) {
+        OrganizationInfos result = new OrganizationInfos();
+        result.add(Bus.getTransactionService().execute(new CreateOrganizationTransaction(info)));
         return result;
     }
 
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public PersonInfos deletePerson(PersonInfo info, @PathParam("id") long id) {
+    public OrganizationInfos deleteOrganization(OrganizationInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new DeletePersonTransaction(info));
-        return new PersonInfos();
+        Bus.getTransactionService().execute(new DeleteOrganizationTransaction(info));
+        return new OrganizationInfos();
     }
 
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public PersonInfos getPerson(@PathParam("id") long id) {
+    public OrganizationInfos getOrganization(@PathParam("id") long id) {
         Party party = Bus.getPartyService().findParty(id);
-        if (party instanceof Person) {
-            return new PersonInfos((Person) party);
+        if (party instanceof Organization) {
+            return new OrganizationInfos((Organization) party);
         } else {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -63,15 +57,15 @@ public class PersonsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PersonInfos getPersons(@Context UriInfo uriInfo) {
+    public OrganizationInfos getOrganizations(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<Party> list = getPartyRestQuery().select(queryParameters, Operator.EQUAL.compare("class", Person.TYPE_IDENTIFIER));
-        List<Person> persons = new ArrayList<>(list.size());
+        List<Party> list = getPartyRestQuery().select(queryParameters, Operator.EQUAL.compare("class", Organization.TYPE_IDENTIFIER));
+        List<Organization> organizations = new ArrayList<>(list.size());
         for (Party party : list) {
-            persons.add((Person) party);
+            organizations.add((Organization) party);
         }
-        PersonInfos infos = new PersonInfos(persons);
-        infos.total = queryParameters.determineTotal(list.size());
+        OrganizationInfos infos = new OrganizationInfos(organizations);
+        infos.total = determineTotal(queryParameters, list);
         return infos;
     }
 
@@ -79,16 +73,23 @@ public class PersonsResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public PersonInfos updatePerson(PersonInfo info, @PathParam("id") long id) {
+    public OrganizationInfos updateOrganization(OrganizationInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new UpdatePersonTransaction(info));
-        return getPerson(info.id);
+        Bus.getTransactionService().execute(new UpdateOrganizationTransaction(info));
+        return getOrganization(info.id);
+    }
+
+    private int determineTotal(QueryParameters queryParameters, List<Party> list) {
+        int total = queryParameters.getStart() + list.size();
+        if (list.size() == queryParameters.getLimit()) {
+            total++;
+        }
+        return total;
     }
 
     private RestQuery<Party> getPartyRestQuery() {
         Query<Party> query = Bus.getPartyService().getPartyQuery();
         return Bus.getQueryService().wrap(query);
     }
-
 
 }
