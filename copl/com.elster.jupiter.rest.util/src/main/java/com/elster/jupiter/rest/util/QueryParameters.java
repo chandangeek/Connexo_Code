@@ -113,6 +113,13 @@ public class QueryParameters implements MultivaluedMap<String, String> {
         return getLastValue(map, "limit");
     }
 
+    public int determineTotal(int resultSize) {
+        if (resultSize == getLimit()) {
+            return getStart() + resultSize + 1;
+        }
+        return getStart() + resultSize;
+    }
+
     private int getLastValue(MultivaluedMap<String, String> map, String key) {
         String intString = getLast(map,key);
         try {
