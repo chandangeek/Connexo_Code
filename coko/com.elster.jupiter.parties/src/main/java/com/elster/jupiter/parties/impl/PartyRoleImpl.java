@@ -58,4 +58,19 @@ class PartyRoleImpl implements PartyRole {
     public long getVersion() {
         return version;
     }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setAliasName(String aliasName) {
+        this.aliasName = aliasName;
+    }
 }

@@ -7,4 +7,10 @@ public interface PartyRole {
 	String getAliasName();
 	String getDescription();
     long getVersion();
+
+    void setDescription(String description);
+
+    void setName(String name);
+
+    void setAliasName(String aliasName);
 }

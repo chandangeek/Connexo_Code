@@ -14,6 +14,7 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -74,13 +75,37 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     }
 
     @Override
-    public Party getParty(String mRID) {
-        return ormClient.getPartyFactory().getUnique("mRID", mRID);
+    public Optional<Party> getParty(String mRID) {
+        return Optional.fromNullable(ormClient.getPartyFactory().getUnique("mRID", mRID));
     }
 
     @Override
     public Query<Party> getPartyQuery() {
         return getQueryService().wrap(getOrmClient().getPartyFactory().with());
+    }
+
+    @Override
+    public List<PartyRole> getPartyRoles() {
+        return getOrmClient().getPartyRoleFactory().find();
+    }
+
+    @Override
+    public void deletePartyRole(PartyRole partyRole) {
+        getOrmClient().getPartyRoleFactory().remove(partyRole);
+    }
+
+    @Override
+    public void updateRole(PartyRole partyRole) {
+        getOrmClient().getPartyRoleFactory().update(partyRole);
+    }
+
+    public Optional<PartyRole> findPartyRoleByMRID(String mRID) {
+        for (PartyRole partyRole : getPartyRoles()) {
+            if (partyRole.getMRID().equals(mRID)) {
+                return Optional.of(partyRole);
+            }
+        }
+        return Optional.absent();
     }
 
     @Override
@@ -132,8 +157,8 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     }
 
     @Override
-    public Party findParty(long id) {
-        return getOrmClient().getPartyFactory().get(id);
+    public Optional<Party> findParty(long id) {
+        return Optional.fromNullable(getOrmClient().getPartyFactory().get(id));
     }
 
     @Override
