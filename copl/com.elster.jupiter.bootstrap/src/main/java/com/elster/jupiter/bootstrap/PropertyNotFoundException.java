@@ -7,9 +7,6 @@ import java.text.MessageFormat;
  *
  * Note that the constructor takes the property key, and not a message.
  *
- * Copyrights EnergyICT
- * Date: 21/05/13
- * Time: 11:32
  */
 public class PropertyNotFoundException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
