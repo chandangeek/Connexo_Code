@@ -124,12 +124,13 @@ public class LIS200Utils {
                     case 1:
                         return Unit.get(BaseUnit.DEGREE_CELSIUS);
                     case 2:
-                        if ((strUnit.charAt(0) == '{') || (strUnit.charAt(0) == '\u00B0')) {
+                        char degreeChar = new String("\u00B0").charAt(0);
+                        if ((strUnit.charAt(0) == '{') || (strUnit.charAt(0) == degreeChar)) {
                             return Unit.get(BaseUnit.DEGREE_CELSIUS);
                         }
                         break;
                 }
-                if (strUnit.equalsIgnoreCase("\\xb0c")) {
+                if (strUnit.equalsIgnoreCase("\u00B0c")) {
                     return Unit.get(BaseUnit.DEGREE_CELSIUS);
                 }
             }
