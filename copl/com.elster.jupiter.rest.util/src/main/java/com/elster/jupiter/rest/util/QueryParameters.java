@@ -7,9 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Copyrights EnergyICT
- * Date: 31/05/13
- * Time: 11:47
  */
 public class QueryParameters implements MultivaluedMap<String, String> {
 
