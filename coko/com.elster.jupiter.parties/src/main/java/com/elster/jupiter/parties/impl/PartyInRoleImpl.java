@@ -57,12 +57,7 @@ public class PartyInRoleImpl implements PartyInRole {
 	}
 
 	@Override
-	public Date getStart() {
-		return interval.getStart();
-	}
-
-	@Override
-	public Date getEnd() {
-		return interval.getEnd();
-	}
+	public Interval getInterval() {
+        return interval;
+    }
 }

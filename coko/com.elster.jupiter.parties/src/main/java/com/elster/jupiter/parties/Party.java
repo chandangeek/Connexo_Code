@@ -2,6 +2,8 @@ package com.elster.jupiter.parties;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
 
+import java.util.List;
+
 public interface Party {
 	long getId();
 	String getMRID();
@@ -25,4 +27,6 @@ public interface Party {
     void delete();
 
     long getVersion();
+
+    List<PartyInRole> getPartyInRoles();
 }

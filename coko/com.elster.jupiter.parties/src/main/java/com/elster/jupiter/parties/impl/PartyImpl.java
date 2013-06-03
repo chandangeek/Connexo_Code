@@ -68,7 +68,8 @@ abstract class PartyImpl implements Party {
 		return name;
 	}
 
-	public List<PartyInRole> getPartyInRoles() {
+	@Override
+    public List<PartyInRole> getPartyInRoles() {
 		if (partyInRoles == null) {
 			partyInRoles = Bus.getOrmClient().getPartyInRoleFactory().find("party",this);
 		}

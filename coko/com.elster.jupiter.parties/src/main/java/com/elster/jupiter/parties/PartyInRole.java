@@ -1,13 +1,12 @@
 package com.elster.jupiter.parties;
 
-import java.util.Date;
+import com.elster.jupiter.util.time.Interval;
 
 public interface PartyInRole {
 	long getId();
 	Party getParty();
 	PartyRole getRole();
 	boolean isCurrent();
-	Date getStart();
-	Date getEnd();
+	Interval getInterval();
 	
 }

@@ -115,7 +115,7 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("PTR_PK_PARTYINROLE", idColumn);
 			table.addUniqueConstraint("PTR_U_PARTYINROLE", partyIdColumn , roleMRIDColumn , intervalColumns.get(0));
-			table.addForeignKeyConstraint("PRT_FKPARTYINROLEPARTY", PRT_PARTY.name(), DeleteRule.CASCADE, new AssociationMapping("party,partyInRoles"),partyIdColumn);
+			table.addForeignKeyConstraint("PRT_FKPARTYINROLEPARTY", PRT_PARTY.name(), DeleteRule.CASCADE, new AssociationMapping("party", "partyInRoles"),partyIdColumn);
 			table.addForeignKeyConstraint("PRT_FKPARTYINROLEROLE", PRT_PARTYROLE.name(), DeleteRule.RESTRICT, new AssociationMapping("role"),roleMRIDColumn);
 		}
 	};

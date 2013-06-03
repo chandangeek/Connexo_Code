@@ -53,4 +53,9 @@ class PartyRoleImpl implements PartyRole {
 	public String getDescription() {
 		return description;
 	}
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
 }

@@ -6,4 +6,5 @@ public interface PartyRole {
 	String getName();
 	String getAliasName();
 	String getDescription();
+    long getVersion();
 }
