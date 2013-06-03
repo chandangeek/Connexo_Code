@@ -1,9 +1,9 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Finder;
+
 import java.util.List;
 import java.util.Map;
-
-import com.elster.jupiter.orm.Finder;
 
 public abstract class AbstractFinder<T> implements Finder<T> {
 
@@ -71,7 +71,7 @@ public abstract class AbstractFinder<T> implements Finder<T> {
 	@Override
 	final public T getUnique(String[] fieldNames , Object[] values) {
 		List<T> candidates = find(fieldNames, values);
-		return candidates.isEmpty() ? null : candidates.get(0);		
+		return candidates.isEmpty() ? null : candidates.get(0);
 	}
 		
 	@Override
