@@ -1,9 +1,6 @@
 package com.elster.jupiter.util;
 
 /**
- * Copyrights EnergyICT
- * Date: 29/05/13
- * Time: 10:44
  */
 public class StringChecker extends ObjectChecker<String> {
 
