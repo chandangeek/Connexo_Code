@@ -4,13 +4,16 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
@@ -23,7 +26,7 @@ public class PartiesResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Party> parties = getPartyRestQuery().select(queryParameters);
         PartyInfos infos = new PartyInfos(parties);
-        infos.total = queryParameters.determineTotal(parties.size());
+        infos.total = determineTotal(queryParameters, parties);
         return infos;
     }
 
@@ -35,14 +38,27 @@ public class PartiesResource {
     }
 
     private Party partyWithId(long id) {
-        return Bus.getPartyService().findParty(id);
+        Optional<Party> party = Bus.getPartyService().findParty(id);
+        if (party.isPresent()) {
+            return party.get();
+        }
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
     @GET
     @Path("/{id}/roles")
     @Produces(MediaType.APPLICATION_JSON)
     public PartyInRoleInfos getRoles(@PathParam("id") long id, @Context UriInfo uriInfo) {
-        return new PartyInRoleInfos(partyWithId(id).getPartyInRoles());
+        Party party = partyWithId(id);
+        return new PartyInRoleInfos(party.getPartyInRoles());
+    }
+
+    private int determineTotal(QueryParameters queryParameters, List<Party> list) {
+        int total = queryParameters.getStart() + list.size();
+        if (list.size() == queryParameters.getLimit()) {
+            total++;
+        }
+        return total;
     }
 
     private RestQuery<Party> getPartyRestQuery() {

@@ -6,6 +6,7 @@ import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Operator;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -23,11 +24,6 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/06/13
- * Time: 9:51
- */
 @Path("/prt/persons")
 public class PersonsResource {
 
@@ -53,9 +49,9 @@ public class PersonsResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     public PersonInfos getPerson(@PathParam("id") long id) {
-        Party party = Bus.getPartyService().findParty(id);
-        if (party instanceof Person) {
-            return new PersonInfos((Person) party);
+        Optional<Party> party = Bus.getPartyService().findParty(id);
+        if (party.isPresent() && party.get() instanceof Person) {
+            return new PersonInfos((Person) party.get());
         } else {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }

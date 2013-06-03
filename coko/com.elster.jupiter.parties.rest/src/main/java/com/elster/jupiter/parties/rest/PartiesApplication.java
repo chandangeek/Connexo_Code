@@ -20,7 +20,7 @@ public class PartiesApplication extends Application implements ServiceLocator {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(PartiesResource.class, PersonsResource.class, OrganizationsResource.class);
+        return ImmutableSet.<Class<?>>of(PartiesResource.class, PersonsResource.class, OrganizationsResource.class, RolesResource.class);
     }
 
     @Override

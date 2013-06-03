@@ -14,7 +14,6 @@ public class PartyRoleInfo {
     public String description;
     public long version;
 
-    @SuppressWarnings("unused")
     PartyRoleInfo() {
     }
 

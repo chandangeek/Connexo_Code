@@ -3,6 +3,7 @@ package com.elster.jupiter.parties.rest;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.transaction.Transaction;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -36,10 +37,10 @@ class UpdatePersonTransaction implements Transaction<Person> {
     }
 
     private Person fetchPerson() {
-        Party party = Bus.getPartyService().findParty(info.id);
-        if (!(party instanceof Person)) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        Optional<Party> party = Bus.getPartyService().findParty(info.id);
+        if (party.isPresent() && party.get() instanceof Person) {
+            return (Person) party;
         }
-        return (Person) party;
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 }

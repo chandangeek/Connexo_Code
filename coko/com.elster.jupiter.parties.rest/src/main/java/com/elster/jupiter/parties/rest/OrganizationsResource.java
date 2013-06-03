@@ -6,6 +6,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Operator;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -47,9 +48,9 @@ public class OrganizationsResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     public OrganizationInfos getOrganization(@PathParam("id") long id) {
-        Party party = Bus.getPartyService().findParty(id);
-        if (party instanceof Organization) {
-            return new OrganizationInfos((Organization) party);
+        Optional<Party> party = Bus.getPartyService().findParty(id);
+        if (party.isPresent() && party.get() instanceof Organization) {
+            return new OrganizationInfos((Organization) party.get());
         } else {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
