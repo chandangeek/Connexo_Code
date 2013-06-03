@@ -6,9 +6,6 @@ import com.elster.jupiter.parties.Person;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Copyrights EnergyICT
- * Date: 28/05/13
- * Time: 14:46
  */
 @XmlRootElement
 public class PersonInfo extends PartyInfo {

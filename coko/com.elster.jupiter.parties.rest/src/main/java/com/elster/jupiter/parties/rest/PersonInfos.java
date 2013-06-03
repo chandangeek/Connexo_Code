@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Copyrights EnergyICT
- * Date: 28/05/13
- * Time: 14:42
  */
 @XmlRootElement
 public class PersonInfos {

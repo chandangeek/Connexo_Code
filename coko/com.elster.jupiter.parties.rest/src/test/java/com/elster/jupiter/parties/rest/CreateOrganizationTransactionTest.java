@@ -26,9 +26,6 @@ import static org.mockito.Mockito.when;
 
 
 /**
- * Copyrights EnergyICT
- * Date: 31/05/13
- * Time: 14:19
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CreateOrganizationTransactionTest {

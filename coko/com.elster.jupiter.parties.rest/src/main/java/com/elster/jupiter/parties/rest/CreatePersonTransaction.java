@@ -4,9 +4,6 @@ import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.transaction.Transaction;
 
 /**
- * Copyrights EnergyICT
- * Date: 29/05/13
- * Time: 9:03
  */
 final class CreatePersonTransaction implements Transaction<Person> {
     private final PersonInfo info;

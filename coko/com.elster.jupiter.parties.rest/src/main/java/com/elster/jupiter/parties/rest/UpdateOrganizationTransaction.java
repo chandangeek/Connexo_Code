@@ -8,9 +8,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 /**
- * Copyrights EnergyICT
- * Date: 31/05/13
- * Time: 13:45
  */
 public class UpdateOrganizationTransaction implements Transaction<Organization> {
 
