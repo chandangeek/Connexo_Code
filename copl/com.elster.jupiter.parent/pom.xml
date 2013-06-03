@@ -30,6 +30,24 @@
                 <version>4.3.1</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.11</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.9.5</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.easytesting</groupId>
+                <artifactId>fest-assert-core</artifactId>
+                <version>2.0M8</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -115,17 +133,17 @@
 
     <build>
         <finalName>${groupId}.${artifactId}-${version}</finalName>
-		<resources>
-			<resource>
-				<!-- This include everything else under src directory -->
-				<!-- Allows copying of packageinfo to output dir -->
-				<directory>${basedir}/src</directory>
-					<excludes>
-						<exclude>**/*.java</exclude>
-					</excludes>
-			</resource>
-		</resources>
-		<pluginManagement>
+        <resources>
+            <resource>
+                <!-- This include everything else under src directory -->
+                <!-- Allows copying of packageinfo to output dir -->
+                <directory>${basedir}/src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.felix</groupId>
@@ -156,52 +174,52 @@
                     <instructions>
                         <Bundle-Vendor>Elster</Bundle-Vendor>
                         <Bundle-RequiredExecutionEnvironment>JavaSE-1.7</Bundle-RequiredExecutionEnvironment>
-						<_include>bnd.bnd</_include>
+                        <_include>bnd.bnd</_include>
                     </instructions>
                 </configuration>
             </plugin>
             <plugin>
-        		<groupId>org.apache.maven.plugins</groupId>
-        		<artifactId>maven-eclipse-plugin</artifactId>        		
-        		<configuration>
-        			<addGroupIdToProjectName>true</addGroupIdToProjectName>
-        			<additionalBuildcommands>
-        				<buildCommand>
-        					<name>bndtools.core.bndbuilder</name>
-        				</buildCommand>
-        			</additionalBuildcommands>
-        			<additionalProjectnatures>
-        				<projectnature>bndtools.core.bndnature</projectnature>
-        			</additionalProjectnatures>        			        		
-	        	</configuration>
-      </plugin>
-            
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-eclipse-plugin</artifactId>
+                <configuration>
+                    <addGroupIdToProjectName>true</addGroupIdToProjectName>
+                    <additionalBuildcommands>
+                        <buildCommand>
+                            <name>bndtools.core.bndbuilder</name>
+                        </buildCommand>
+                    </additionalBuildcommands>
+                    <additionalProjectnatures>
+                        <projectnature>bndtools.core.bndnature</projectnature>
+                    </additionalProjectnatures>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
-	<modules>		
-		<module>../com.elster.jupiter.bootstrap</module>
-		<module>../com.elster.jupiter.cbo</module>
-		<module>../com.elster.jupiter.domain.util</module>
-		<module>../com.elster.jupiter.extjs</module>
-		<module>../com.elster.jupiter.http.whiteboard</module>
-		<module>../com.elster.jupiter.ids</module>
-		<module>../com.elster.jupiter.install</module>
-		<module>../com.elster.jupiter.metering</module>
-		<module>../com.elster.jupiter.metering.extjs</module>
-		<module>../com.elster.jupiter.metering.rest</module>
-		<module>../com.elster.jupiter.orm</module>
-		<module>../com.elster.jupiter.orm.cache</module>
-		<module>../com.elster.jupiter.osgi.goodies</module>
-		<module>../com.elster.jupiter.parties</module>		
-		<module>../com.elster.jupiter.pubsub</module>
-		<module>../com.elster.jupiter.rest.util</module>
-		<module>../com.elster.jupiter.rest.whiteboard</module>
-		<module>../com.elster.jupiter.security.thread</module>
-		<module>../com.elster.jupiter.test</module>
-		<module>../com.elster.jupiter.transaction</module>
-		<module>../com.elster.jupiter.users</module>
-		<module>../com.elster.jupiter.util</module>
-	</modules>
+    <modules>
+        <module>../com.elster.jupiter.bootstrap</module>
+        <module>../com.elster.jupiter.cbo</module>
+        <module>../com.elster.jupiter.domain.util</module>
+        <module>../com.elster.jupiter.extjs</module>
+        <module>../com.elster.jupiter.http.whiteboard</module>
+        <module>../com.elster.jupiter.ids</module>
+        <module>../com.elster.jupiter.install</module>
+        <module>../com.elster.jupiter.metering</module>
+        <module>../com.elster.jupiter.metering.extjs</module>
+        <module>../com.elster.jupiter.metering.rest</module>
+        <module>../com.elster.jupiter.orm</module>
+        <module>../com.elster.jupiter.orm.cache</module>
+        <module>../com.elster.jupiter.osgi.goodies</module>
+        <module>../com.elster.jupiter.parties</module>
+        <module>../com.elster.jupiter.pubsub</module>
+        <module>../com.elster.jupiter.rest.util</module>
+        <module>../com.elster.jupiter.rest.whiteboard</module>
+        <module>../com.elster.jupiter.security.thread</module>
+        <module>../com.elster.jupiter.test</module>
+        <module>../com.elster.jupiter.transaction</module>
+        <module>../com.elster.jupiter.users</module>
+        <module>../com.elster.jupiter.util</module>
+    </modules>
 
 </project>
