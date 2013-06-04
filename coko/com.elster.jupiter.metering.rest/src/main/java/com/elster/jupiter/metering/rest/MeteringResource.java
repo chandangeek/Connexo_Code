@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -49,7 +50,8 @@ public class MeteringResource {
 //	@RolesAllowed("user")
 	@Path("/usagepoints/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public UsagePointInfos updateUsagePoint(UsagePointInfo info) {
+	public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info) {
+        info.id = id;
         Bus.getServiceLocator().getTransactionService().execute(new UpdateUsagePointTransaction(info));
         return getUsagePoint(info.id);
 	}
@@ -58,11 +60,11 @@ public class MeteringResource {
 	@Path("/usagepoints/{id}/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public UsagePointInfos getUsagePoint(@PathParam("id") long id) {
-		UsagePoint usagePoint = Bus.getMeteringService().findUsagePoint(id);
-		if (usagePoint == null) {
+		Optional<UsagePoint> usagePoint = Bus.getMeteringService().findUsagePoint(id);
+		if (!usagePoint.isPresent()) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
-		UsagePointInfos result = new UsagePointInfos(usagePoint);
+		UsagePointInfos result = new UsagePointInfos(usagePoint.get());
 		result.addServiceLocationInfo();
 		return result;
 	}
