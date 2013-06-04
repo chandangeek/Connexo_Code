@@ -37,14 +37,13 @@ public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
     }
     
     public void activate(ComponentContext context) {
-    	Bus.setServiceLocator(this);  
+    	Bus.setServiceLocator(this);      	
     	int stateMask = Bundle.ACTIVE | Bundle.START_TRANSIENT | Bundle.STARTING;
     	tracker = new BundleTracker<>(context.getBundleContext(), stateMask , new JerseyBundleTrackerCustomizer(context.getBundleContext()));
-    	tracker.open();    	
     }
     
-    public void deActivate(ComponentContext context) {
-    	tracker.close();
+    public void deactivate(ComponentContext context) {
+    	tracker.close();    	
     	whiteBoard.close();    	
     	Bus.setServiceLocator(null);    	 	
     }
@@ -75,7 +74,8 @@ public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
 			debug = false;
 		} else {
 			debug = (Boolean) dict.get(DEBUG);
-		}		
+		}				
+    	tracker.open();    	
 	}
 	
 	void startWhiteBoard(BundleContext bundleContext) {		
@@ -113,8 +113,7 @@ public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
 		}
 
 		@Override
-		public void removedBundle(Bundle bundle, BundleEvent event, Bundle trackedBundle) {
-			System.out.println("Removing bundle " + bundle.getSymbolicName() + " event " + event);
+		public void removedBundle(Bundle bundle, BundleEvent event, Bundle trackedBundle) {		
 		}
 		
 	}
