@@ -3,6 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <description>Module for all connection types and some specific comchannels</description>
     <artifactId>connectiontypes</artifactId>
     <name>connectiontypes</name>
     <packaging>jar</packaging>

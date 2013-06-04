@@ -42,6 +42,8 @@
                 <version>${eiserver.version}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <!--Only for connectiontypes module-->
             <dependency>
                 <groupId>com.energyict.comserver</groupId>
                 <artifactId>comserver-core-impl</artifactId>
@@ -54,6 +56,7 @@
                 <version>${eiserver.version}</version>
                 <scope>provided</scope>
             </dependency>
+
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdwimpl</artifactId>

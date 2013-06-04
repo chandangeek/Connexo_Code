@@ -46,3 +46,9 @@ insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceMessageCategories.LOAD_PROFILES', 'LoadProfile messages', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST', 'Partial load profile request', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST', 'Load profile register request', 'L', 'Y', 'N', 'MDW', sysdate);
+
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceMessageCategories.CONFIGURATION_CHANGE', 'Configuration changes', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ConfigurationChangeDeviceMessage.WriteWavecardParameters', 'Write Wavecard parameter', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.exchangeStatus', 'Write exchange status', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.writeRadioAcknowledge', 'Write radio acknowledge', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.writeRadioUserTimeout', 'Write radio user timeout', 'L', 'Y', 'N', 'MDW', sysdate);

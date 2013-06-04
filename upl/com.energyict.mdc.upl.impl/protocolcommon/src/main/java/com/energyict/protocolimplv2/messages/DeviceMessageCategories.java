@@ -1,13 +1,9 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKey;
-import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Serves as a implementation to summarize <b>all</b> the supported standard
@@ -117,6 +113,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(LoadProfileMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to a configuration changes
+     */
+    CONFIGURATION_CHANGE {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(ConfigurationChangeDeviceMessage.values());
         }
     };
 

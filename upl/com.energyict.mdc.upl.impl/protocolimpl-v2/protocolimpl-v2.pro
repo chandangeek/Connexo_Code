@@ -45,6 +45,7 @@
  public *;
 }
 -keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155
+-keepnames class com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway
 -keepnames class com.energyict.protocolimplv2.nta.elster.AM100
 -keepnames class com.energyict.protocolimplv2.nta.elster.MbusDevice
 -keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Inbound
