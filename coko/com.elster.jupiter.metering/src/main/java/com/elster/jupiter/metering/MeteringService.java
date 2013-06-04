@@ -4,14 +4,15 @@ import java.util.Date;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.conditions.Condition;
+import com.google.common.base.Optional;
 
 public interface MeteringService {
-	ReadingType getReadingType(String mRid);
+	Optional<ReadingType> getReadingType(String mRid);
 	ServiceLocation newServiceLocation();
 	ServiceLocation findServiceLocation(String mRid);
-	ServiceLocation findServiceLocation(long id);
-	ServiceCategory getServiceCategory(ServiceKind kind);
-	UsagePoint findUsagePoint(long id);
+	Optional<ServiceLocation> findServiceLocation(long id);
+	Optional<ServiceCategory> getServiceCategory(ServiceKind kind);
+	Optional<UsagePoint> findUsagePoint(long id);
 	ReadingStorer createStorer(boolean overrules);
 	Query<UsagePoint> getUsagePointQuery();
 	Query<MeterActivation> getMeterActivationQuery();

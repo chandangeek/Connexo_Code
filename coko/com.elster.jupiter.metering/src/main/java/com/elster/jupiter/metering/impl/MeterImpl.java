@@ -92,7 +92,7 @@ public class MeterImpl implements Meter {
 	@Override
 	public AmrSystem getAmrSystem() {
 		if (amrSystem == null) {
-			amrSystem = Bus.getOrmClient().getAmrSystemFactory().get(amrSystemId);
+			amrSystem = Bus.getOrmClient().getAmrSystemFactory().getExisting(amrSystemId);
 		}
 		return amrSystem;
 	}

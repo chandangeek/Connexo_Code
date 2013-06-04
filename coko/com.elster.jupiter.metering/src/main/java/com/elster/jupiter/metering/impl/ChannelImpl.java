@@ -1,14 +1,28 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.*;
-
-import com.elster.jupiter.ids.*;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReading;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.Reading;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
 
-import static com.elster.jupiter.metering.plumbing.Bus.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.TimeZone;
+
+import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
+import static com.elster.jupiter.metering.plumbing.Bus.getIdsService;
 
 public class ChannelImpl implements Channel {
 	
@@ -57,7 +71,7 @@ public class ChannelImpl implements Channel {
 	@Override 
 	public MeterActivation getMeterActivation() {
 		if (meterActivation == null) {
-			meterActivation = Bus.getOrmClient().getMeterActivationFactory().get(meterActivationId);
+			meterActivation = Bus.getOrmClient().getMeterActivationFactory().getExisting(meterActivationId);
 		}
 		return meterActivation;
 	}
@@ -65,7 +79,12 @@ public class ChannelImpl implements Channel {
 	@Override
 	public TimeSeries getTimeSeries() {
 		if (timeSeries == null) {
-			timeSeries = Bus.getIdsService().getTimeSeries(timeSeriesId);
+            Optional<TimeSeries> result = Bus.getIdsService().getTimeSeries(timeSeriesId);
+            if (result.isPresent()) {
+                timeSeries = result.get();
+            } else {
+                throw new DoesNotExistException();
+            }
 		}
 		return timeSeries;
 	}
@@ -108,15 +127,31 @@ public class ChannelImpl implements Channel {
 	
 	TimeSeries createTimeSeries() {
 		IntervalLength intervalLength = getIntervalLength();
-		Vault vault = getIdsService().getVault(COMPONENTNAME, intervalLength == null ? IRREGULARVAULTID : REGULARVAULTID);
-		RecordSpec recordSpec = getIdsService().getRecordSpec(COMPONENTNAME, intervalLength == null ? IRREGULARRECORDSPECID : REGULARRECORDSPECID);
-		TimeZone timeZone = TimeZone.getDefault();
+        Vault vault = getVault(intervalLength);
+        RecordSpec recordSpec = getRecordSpec(intervalLength);
+        TimeZone timeZone = TimeZone.getDefault();
 		return intervalLength == null ? 
 				vault.createIrregularTiemSeries(recordSpec, timeZone) :
 				vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), intervalLength.getLength() , intervalLength.getUnitCode(),0);		
 	}
-	
-	void persistReadingTypes() {
+
+    private RecordSpec getRecordSpec(IntervalLength intervalLength) {
+        Optional<RecordSpec> result = getIdsService().getRecordSpec(COMPONENTNAME, intervalLength == null ? IRREGULARRECORDSPECID : REGULARRECORDSPECID);
+        if (result.isPresent()) {
+        return result.get();
+        }
+        throw new DoesNotExistException();
+    }
+
+    private Vault getVault(IntervalLength intervalLength) {
+        Optional<Vault> result = getIdsService().getVault(COMPONENTNAME, intervalLength == null ? IRREGULARVAULTID : REGULARVAULTID);
+        if (result.isPresent()) {
+            return result.get();
+        }
+        throw new DoesNotExistException();
+    }
+
+    void persistReadingTypes() {
 		int offset = 1;
 		DataMapper<ReadingTypeInChannel> factory = Bus.getOrmClient().getReadingTypeInChannelFactory();
 		for (ReadingType readingType : getAdditionalReadingTypes()) {
@@ -169,7 +204,7 @@ public class ChannelImpl implements Channel {
 	@Override
 	public ReadingType getMainReadingType() {
 		if (mainReadingType == null) {
-			mainReadingType = Bus.getOrmClient().getReadingTypeFactory().get(mainReadingTypeMRID);
+			mainReadingType = Bus.getOrmClient().getReadingTypeFactory().getExisting(mainReadingTypeMRID);
 		}
 		return mainReadingType;
 	}
@@ -180,7 +215,7 @@ public class ChannelImpl implements Channel {
 			return null;
 		}
 		if (cumulativeReadingType == null) {
-			cumulativeReadingType = Bus.getOrmClient().getReadingTypeFactory().get(cumulativeReadingTypeMRID);
+			cumulativeReadingType = Bus.getOrmClient().getReadingTypeFactory().getExisting(cumulativeReadingTypeMRID);
 		}
 		return cumulativeReadingType;
 	}

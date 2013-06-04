@@ -1,15 +1,22 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import com.elster.jupiter.cbo.*;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Quantity;
+
+import java.util.Date;
+import java.util.List;
 
 public class UsagePointImpl implements UsagePoint {
 	// persistent fields
@@ -180,7 +187,7 @@ public class UsagePointImpl implements UsagePoint {
 	@Override
 	public ServiceCategory getServiceCategory() {
 		if (serviceCategory == null) {
-			serviceCategory = Bus.getOrmClient().getServiceCategoryFactory().get(serviceKind);
+			serviceCategory = Bus.getOrmClient().getServiceCategoryFactory().getExisting(serviceKind);
 		}
 		return serviceCategory;
 	}
@@ -191,7 +198,7 @@ public class UsagePointImpl implements UsagePoint {
 			return null;
 		}
 		if (serviceLocation == null ) {
-			serviceLocation = Bus.getOrmClient().getServiceLocationFactory().get(serviceLocationId);
+			serviceLocation = Bus.getOrmClient().getServiceLocationFactory().getExisting(serviceLocationId);
 		}
 		return serviceLocation;
 	}

@@ -26,6 +26,7 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -46,12 +47,12 @@ public class MeteringServiceImpl implements MeteringService , InstallService, Se
 
 	
 	@Override 
-	public ServiceCategory getServiceCategory(ServiceKind kind) {
+	public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
 		return getOrmClient().getServiceCategoryFactory().get(kind);
 	}
 	
 	@Override
-	public ReadingType getReadingType(String mRid) {
+	public Optional<ReadingType> getReadingType(String mRid) {
 		return getOrmClient().getReadingTypeFactory().get(mRid);
 	}
 	
@@ -71,12 +72,12 @@ public class MeteringServiceImpl implements MeteringService , InstallService, Se
 	}
 
 	@Override
-	public ServiceLocation findServiceLocation(long id) {
+	public Optional<ServiceLocation> findServiceLocation(long id) {
 		return getOrmClient().getServiceLocationFactory().get(id);				
 	}
 	
 	@Override
-	public UsagePoint findUsagePoint(long id) {
+	public Optional<UsagePoint> findUsagePoint(long id) {
 		return getOrmClient().getUsagePointFactory().get(id);				
 	}
 	

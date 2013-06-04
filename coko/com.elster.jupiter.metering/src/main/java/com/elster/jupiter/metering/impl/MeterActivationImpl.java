@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,23 +58,25 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
-	public UsagePoint getUsagePoint() {
-		if (usagePointId == 0)
-			return null;
+	public Optional<UsagePoint> getUsagePoint() {
+		if (usagePointId == 0) {
+			return Optional.absent();
+        }
 		if (usagePoint == null) {
-			usagePoint = Bus.getOrmClient().getUsagePointFactory().get(usagePointId);
+			usagePoint = Bus.getOrmClient().getUsagePointFactory().getExisting(usagePointId);
 		}			
-		return usagePoint;
+		return Optional.of(usagePoint);
 	}
 
 	@Override
-	public Meter getMeter() {
-		if (meterId == 0) 
-			return null;
+	public Optional<Meter> getMeter() {
+		if (meterId == 0) {
+			return Optional.absent();
+        }
 		if (meter == null) {
-			meter = Bus.getOrmClient().getMeterFactory().get(meterId);
+			meter = Bus.getOrmClient().getMeterFactory().getExisting(meterId);
 		}
-		return meter;
+		return Optional.of(meter);
 	}
 	
 	@Override

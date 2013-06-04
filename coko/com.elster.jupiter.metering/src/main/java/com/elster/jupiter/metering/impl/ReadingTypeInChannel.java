@@ -22,6 +22,6 @@ public class ReadingTypeInChannel {
 	}
 
 	public ReadingType getReadingType() {
-		return Bus.getOrmClient().getReadingTypeFactory().get(readingTypeMRID);
+		return Bus.getOrmClient().getReadingTypeFactory().getExisting(readingTypeMRID);
 	}
 }
