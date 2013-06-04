@@ -1,9 +1,20 @@
 package com.elster.jupiter.orm.impl;
 
-import java.util.*;
-import java.sql.*;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+import com.google.common.base.Optional;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
 	
@@ -59,7 +70,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 
 	@Override
-	List<T> findByPrimaryKey (Object[] values) {
+    Optional<T> findByPrimaryKey(Object[] values) {
 		try {
 			return reader.findByPrimaryKey(values);
 		} catch (SQLException ex) {
@@ -82,7 +93,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 	
 	@Override
-	public List<T> find(String[] fieldNames , Object[] values , String... orderColumns) {
+	public List<T> find(String[] fieldNames, Object[] values, String... orderColumns) {
 		try {
 			return reader.find(fieldNames,values,orderColumns);
 		} catch(SQLException ex) {
@@ -90,7 +101,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 	}
 
-	public T construct(ResultSet rs, int startIndex) throws SQLException {						
+    public T construct(ResultSet rs, int startIndex) throws SQLException {
 		return reader.construct(rs,startIndex);
 	}
 	

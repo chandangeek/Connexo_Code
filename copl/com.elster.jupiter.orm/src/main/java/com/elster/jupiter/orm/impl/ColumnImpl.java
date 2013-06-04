@@ -1,11 +1,14 @@
 package com.elster.jupiter.orm.impl;
 
-import java.sql.*;
-
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.orm.plumbing.OrmClient;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ColumnImpl implements Column  {
 	// persistent fields
@@ -54,7 +57,7 @@ public class ColumnImpl implements Column  {
 	@Override
 	public Table getTable() {
 		if (table == null) {
-			return getOrmClient().getTableFactory().get(componentName,tableName);
+			return getOrmClient().getTableFactory().getExisting(componentName,tableName);
 		}
 		return table;
 	}

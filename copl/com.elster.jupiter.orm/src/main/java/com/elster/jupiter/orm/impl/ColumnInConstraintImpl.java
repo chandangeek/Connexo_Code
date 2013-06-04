@@ -34,7 +34,7 @@ public class ColumnInConstraintImpl {
 	
 	TableConstraint getConstraint() {
 		if (constraint == null) {
-			constraint = getOrmClient().getTableConstraintFactory().get(componentName,tableName,constraintName);
+			constraint = getOrmClient().getTableConstraintFactory().getExisting(componentName,tableName,constraintName);
 		}
 		return constraint;
 	}

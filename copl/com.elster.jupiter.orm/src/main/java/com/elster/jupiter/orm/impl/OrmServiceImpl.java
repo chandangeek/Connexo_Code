@@ -51,7 +51,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	@Override
 	public DataModel getDataModel(String name) {
 		try {
-			return getOrmClient().getDataModelFactory().get(name);
+			return getOrmClient().getDataModelFactory().getExisting(name);
 		} catch (PersistenceException ex) {
 			return null;
 		}

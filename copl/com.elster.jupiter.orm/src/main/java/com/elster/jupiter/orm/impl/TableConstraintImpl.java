@@ -1,10 +1,16 @@
 package com.elster.jupiter.orm.impl;
 
-import java.util.*;
-
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.plumbing.Bus;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 abstract public class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	
@@ -69,7 +75,7 @@ abstract public class TableConstraintImpl implements TableConstraint , Persisten
 	@Override
 	public Table getTable() {
 		if (table == null) {
-			table = Bus.getOrmClient().getTableFactory().get(componentName, tableName);
+			table = Bus.getOrmClient().getTableFactory().getExisting(componentName, tableName);
 		}
 		return table;
 	}

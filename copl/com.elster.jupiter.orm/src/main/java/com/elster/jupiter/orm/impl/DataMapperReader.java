@@ -1,5 +1,18 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.NotUniqueException;
+import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
+import com.elster.jupiter.orm.fields.impl.FieldMapping;
+import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
+import com.google.common.base.Optional;
+
 import java.lang.reflect.Constructor;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,18 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.PersistenceException;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
-import com.elster.jupiter.orm.fields.impl.FieldMapping;
-import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
 
 import static com.elster.jupiter.orm.plumbing.Bus.getConnection;
 
@@ -78,8 +79,12 @@ public class DataMapperReader<T> {
 		return fragments;		
 	}
 	
-	List<T> findByPrimaryKey (Object[] values) throws SQLException {
-		return find(getPrimaryKeyFragments(values),null,false);		
+	Optional<T> findByPrimaryKey (Object[] values) throws SQLException {
+        List<T> result = find(getPrimaryKeyFragments(values), null, false);
+        if (result.size() > 1) {
+            throw new NotUniqueException();
+        }
+        return result.isEmpty() ? Optional.<T>absent() : Optional.of(result.get(0));
 	}
 	
 	int getPrimaryKeyLength() {

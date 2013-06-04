@@ -40,7 +40,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 			if (referencedComponentName.equals(getComponentName())) {
 				referencedTable = getTable().getDataModel().getTable(referencedTableName);
 			} else {
-				referencedTable = Bus.getOrmClient().getTableFactory().get(referencedComponentName, referencedTableName);
+				referencedTable = Bus.getOrmClient().getTableFactory().getExisting(referencedComponentName, referencedTableName);
 			}
 		}
 		return referencedTable;
