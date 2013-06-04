@@ -6,6 +6,7 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.google.common.base.Optional;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -47,7 +48,7 @@ public class MeteringResource {
 	  }
 	  
 	@PUT
-//	@RolesAllowed("user")
+	@RolesAllowed("user")
 	@Path("/usagepoints/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info) {
