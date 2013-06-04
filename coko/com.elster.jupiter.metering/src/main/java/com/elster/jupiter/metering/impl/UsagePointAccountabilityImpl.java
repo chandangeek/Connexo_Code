@@ -37,7 +37,7 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 		this.partyId = party.getId();
 		this.role = role;
 		this.roleMRID = role.getMRID();
-		this.interval = new Interval(start);
+		this.interval = Interval.startAt(start);
 	}
 
 	public long getUsagePointId() {

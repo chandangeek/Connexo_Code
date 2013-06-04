@@ -40,12 +40,12 @@ public class MeterActivationImpl implements MeterActivation {
 	private MeterActivationImpl() {	
 	}
 	
-	MeterActivationImpl(UsagePointImpl usagePoint , Date at , Meter meter) {
+	MeterActivationImpl(UsagePointImpl usagePoint , Date start , Meter meter) {
 		this.usagePointId = usagePoint == null ? 0 : usagePoint.getId();
 		this.usagePoint = usagePoint;
 		this.meterId = meter == null ? 0 : meter.getId();
 		this.meter = meter;
-		this.interval = new Interval(at);
+		this.interval = Interval.startAt(start);
 	}
 	
 	public MeterActivationImpl(UsagePointImpl usagePoint, Date at) {
