@@ -27,7 +27,7 @@ public class ClockServiceImpl implements ServiceLocator, Clock {
         Bus.setServiceLocator(this);
     }
     
-    public void deActivate(ComponentContext componentContext) {
+    public void deactivate(ComponentContext componentContext) {
     	Bus.setServiceLocator(null);
     }
 
