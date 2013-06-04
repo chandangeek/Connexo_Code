@@ -21,6 +21,7 @@
 		<moduleSet>
 			<includes>
 				<include>com.energyict:dlms</include>
+				<include>com.energyict:connectiontypes</include>
 				<include>com.energyict:protocolimpl</include>
 				<include>com.energyict:protocolimpl-v2</include>
                 <include>com.energyict:protocolcommon</include>
