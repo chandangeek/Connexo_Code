@@ -8,7 +8,7 @@ import oracle.jdbc.aq.AQMessage;
 public interface DestinationSpec {
 	QueueTableSpec getQueueTableSpec();
 	void activate();
-	void deActivate();
+	void deactivate();
 	String getName();
 	boolean isTopic();
 	boolean isQueue();

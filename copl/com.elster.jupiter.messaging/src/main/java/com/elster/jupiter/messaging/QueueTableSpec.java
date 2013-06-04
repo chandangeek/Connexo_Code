@@ -3,7 +3,7 @@ package com.elster.jupiter.messaging;
 public interface QueueTableSpec {
 	String getName();
 	void activate();
-	void deActivate();
+	void deactivate();
 	String getPayloadType();
 	boolean isMultiConsumer();
 	boolean isActive();

@@ -119,9 +119,9 @@ public class DestinationSpecImpl implements DestinationSpec {
 	}
 	
 	@Override
-	public void deActivate() {
+	public void deactivate() {
 		try {
-			doDeActivate();
+			doDeactivate();
 		} catch (SQLException ex) {
 			throw new RuntimeException(ex);
 		}		
@@ -138,7 +138,7 @@ public class DestinationSpecImpl implements DestinationSpec {
 		return "begin dbms_aqadm.stop_queue(?); dmsq_aqadm.drop_queue(?); end;";					
 	}
 	
-	private void doDeActivate() throws SQLException  {
+	private void doDeactivate() throws SQLException  {
 		try (Connection connection = Bus.getConnection()) {
 			try (PreparedStatement statement = connection.prepareStatement(dropSql())) {
 				statement.setString(1, name);

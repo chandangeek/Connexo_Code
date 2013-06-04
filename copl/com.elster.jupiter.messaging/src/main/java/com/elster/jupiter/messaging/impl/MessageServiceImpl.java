@@ -60,7 +60,7 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 	
 	public void aqdroptable(String in) {
 		try {
-			new QueueTableSpecImpl(in, "RAW", false).deActivate();
+			new QueueTableSpecImpl(in, "RAW", false).deactivate();
 		} catch (Throwable ex) {
 			ex.printStackTrace();
 		}		
