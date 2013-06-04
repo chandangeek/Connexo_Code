@@ -48,7 +48,7 @@
                 <groupId>com.energyict.comserver</groupId>
                 <artifactId>comserver-core-impl</artifactId>
                 <version>${eiserver.version}</version>
-                <scope>provided</scope>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>com.energyict.comserver</groupId>

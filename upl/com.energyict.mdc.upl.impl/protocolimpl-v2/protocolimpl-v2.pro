@@ -51,8 +51,8 @@
 -keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Inbound
 -keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Outbound
 -keepnames class com.energyict.protocolimplv2.elster.am100r.apollo.ApolloMeter
--keepnames class com.energyict.protocolimplv2.gatewayz3.GateWayZ3
--keepnames class com.energyict.protocolimplv2.rtuplusserver.g3.RtuPlusServer
+-keepnames class com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3
+-keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer
 
 -keepnames class com.energyict.mdc.protocol.inbound.DlmsSerialNumberDiscover
 -keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
