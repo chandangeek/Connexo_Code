@@ -42,4 +42,14 @@ public final class OrganizationImpl extends PartyImpl implements Organization {
 	public void setStreetAddress(StreetAddress streetAddress) {
 		this.streetAddress = streetAddress;
 	}
+
+    @Override
+    public String toString() {
+        return "Organization{" +
+                "id=" + getId() +
+                ", mRID='" + getMRID() + '\'' +
+                ", name='" + getName() + '\'' +
+                '}';
+    }
+
 }

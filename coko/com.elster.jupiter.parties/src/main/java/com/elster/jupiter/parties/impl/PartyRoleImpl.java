@@ -3,6 +3,8 @@ package com.elster.jupiter.parties.impl;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import static com.elster.jupiter.util.Checks.is;
+
 class PartyRoleImpl implements PartyRole {
 	private String componentName;
 	private String mRID;
@@ -21,8 +23,16 @@ class PartyRoleImpl implements PartyRole {
 	@SuppressWarnings("unused")
 	private PartyRoleImpl() {		
 	}
-	
+
+    /**
+     * @param componentName
+     * @param mRID cannot be null.
+     * @param name
+     * @param aliasName
+     * @param description
+     */
 	PartyRoleImpl(String componentName , String mRID , String name , String aliasName , String description) {
+        validate(mRID);
 		this.componentName = componentName;
 		this.mRID = mRID;
 		this.name = name;
@@ -30,7 +40,14 @@ class PartyRoleImpl implements PartyRole {
 		this.description = description;
 	}
 
-	public String getComponentName() {
+    private void validate(String mRID) {
+        if (is(mRID).emptyOrOnlyWhiteSpace()) {
+            throw new IllegalArgumentException("mRID of PartyRole cannot be null");
+        }
+
+    }
+
+    public String getComponentName() {
 		return componentName;
 	}
 
@@ -72,5 +89,33 @@ class PartyRoleImpl implements PartyRole {
     @Override
     public void setAliasName(String aliasName) {
         this.aliasName = aliasName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PartyRole)) {
+            return false;
+        }
+
+        PartyRole partyRole = (PartyRole) o;
+
+        return mRID.equals(partyRole.getMRID());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return mRID.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "PartyRole{" +
+                "mRID='" + mRID + '\'' +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

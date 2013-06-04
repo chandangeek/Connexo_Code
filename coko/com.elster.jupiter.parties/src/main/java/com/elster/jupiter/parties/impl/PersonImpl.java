@@ -133,4 +133,13 @@ public final class PersonImpl extends PartyImpl implements Person {
         setPhone2(telephoneNumber);
     }
 
+    @Override
+    public String toString() {
+        return "Person{" +
+                "id=" + getId() +
+                ", mRID='" + getMRID() + '\'' +
+                ", name='" + getName() + '\'' +
+                '}';
+    }
+
 }

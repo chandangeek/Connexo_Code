@@ -1,6 +1,7 @@
 package com.elster.jupiter.parties;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
+import com.elster.jupiter.util.time.Interval;
 
 import java.util.List;
 
@@ -29,4 +30,8 @@ public interface Party {
     long getVersion();
 
     List<PartyInRole> getPartyInRoles();
+
+    PartyInRole addRole(PartyRole role, Interval interval);
+
+
 }

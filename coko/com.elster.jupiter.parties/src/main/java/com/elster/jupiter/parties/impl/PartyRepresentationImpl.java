@@ -33,7 +33,7 @@ class PartyRepresentationImpl  {
 		this.partyId = party.getId();
 		this.party = party;
 		this.delegate = delegate;
-		this.interval = new Interval(at);
+		this.interval = Interval.startAt(at);
 	}
 
 	public String getDelegate() {	

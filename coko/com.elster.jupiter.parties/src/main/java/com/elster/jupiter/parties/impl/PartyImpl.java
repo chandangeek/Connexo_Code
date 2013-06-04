@@ -6,10 +6,13 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
+import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.Person;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +76,7 @@ abstract class PartyImpl implements Party {
 		if (partyInRoles == null) {
 			partyInRoles = Bus.getOrmClient().getPartyInRoleFactory().find("party",this);
 		}
-		return partyInRoles;
+		return Collections.unmodifiableList(partyInRoles);
 	}
 
 	public TelephoneNumber getPhone1() {
@@ -152,5 +155,47 @@ abstract class PartyImpl implements Party {
 
     private DataMapper<Party> partyFactory() {
         return Bus.getOrmClient().getPartyFactory();
+    }
+
+    @Override
+    public PartyInRole addRole(PartyRole role, Interval interval) {
+        PartyInRoleImpl candidate = new PartyInRoleImpl(this, role, interval);
+        for (PartyInRole partyInRole : getPartyInRoles()) {
+            if (candidate.conflictsWith(partyInRole)) {
+                throw new IllegalArgumentException("Conflicts with existing Role : " + partyInRole);
+            }
+        }
+        partyInRoles.add(candidate);
+        Bus.getOrmClient().getPartyInRoleFactory().persist(candidate);
+        return candidate;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Party)) {
+            return false;
+        }
+
+        Party party = (Party) o;
+
+        return id == party.getId();
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    @Override
+    public String toString() {
+        return "Party{" +
+                "id=" + id +
+                ", mRID='" + mRID + '\'' +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

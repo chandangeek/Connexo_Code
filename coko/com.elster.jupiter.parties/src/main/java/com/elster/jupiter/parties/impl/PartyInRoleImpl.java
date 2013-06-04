@@ -5,8 +5,6 @@ import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Interval;
 
-import java.util.Date;
-
 public class PartyInRoleImpl implements PartyInRole {
 	
 	private long id;
@@ -21,12 +19,12 @@ public class PartyInRoleImpl implements PartyInRole {
 	private PartyInRoleImpl() {
 	}
 	
-	PartyInRoleImpl(Party party , PartyRole role , Date start ) {
+	PartyInRoleImpl(Party party , PartyRole role , Interval interval) {
 		this.party = party;
 		this.partyId = party.getId();
 		this.role = role;
 		this.roleMRID = role.getMRID();
-		this.interval = new Interval(start);
+		this.interval = interval;
 	}
 	
 
@@ -59,5 +57,19 @@ public class PartyInRoleImpl implements PartyInRole {
 	@Override
 	public Interval getInterval() {
         return interval;
+    }
+
+    @Override
+    public boolean conflictsWith(PartyInRole other) {
+        return role.equals(other.getRole()) && party.equals(other.getParty()) && interval.overlaps(other.getInterval());
+    }
+
+    @Override
+    public String toString() {
+        return "PartyInRole{" +
+                "party=" + party +
+                ", role=" + role +
+                ", interval=" + interval +
+                '}';
     }
 }
