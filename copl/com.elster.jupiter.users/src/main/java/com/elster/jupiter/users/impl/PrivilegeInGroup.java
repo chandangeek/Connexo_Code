@@ -23,7 +23,7 @@ class PrivilegeInGroup {
 
 	Privilege getPrivilege() {
 		if (privilege == null) {
-			privilege = Bus.getOrmClient().getPrivilegeFactory().get(privilegeName);
+			privilege = Bus.getOrmClient().getPrivilegeFactory().getExisting(privilegeName);
 		}
 		return privilege;
 	}

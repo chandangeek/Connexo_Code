@@ -8,6 +8,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -97,7 +98,7 @@ public class UserServiceImpl implements UserService , InstallService, ServiceLoc
 	}
 
 	@Override
-	public Privilege getPrivilege(String privilegeName) {
+	public Optional<Privilege> getPrivilege(String privilegeName) {
 		return Bus.getOrmClient().getPrivilegeFactory().get(privilegeName);
 	}
 

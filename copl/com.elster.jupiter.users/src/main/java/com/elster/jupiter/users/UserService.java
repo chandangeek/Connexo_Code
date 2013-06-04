@@ -1,12 +1,14 @@
 package com.elster.jupiter.users;
 
+import com.google.common.base.Optional;
+
 public interface UserService {
 	User createUser(String authenticationName , String firstName , String lastName);
 	Group createGroup(String name);
 	Privilege createPrivilege(String componentName , String name, String description);
 	User findUser(String authenticationName);
 	Group findGroup(String name);
-	Privilege getPrivilege(String name);
+	Optional<Privilege> getPrivilege(String privilegeName);
 	User authenticateBase64(String base64String);
 	String getRealm();
 }

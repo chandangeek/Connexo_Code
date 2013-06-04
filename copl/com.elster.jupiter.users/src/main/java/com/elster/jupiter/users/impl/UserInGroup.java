@@ -22,7 +22,7 @@ public class UserInGroup {
 	
 	Group getGroup() {
 		if (group == null) {
-			group = Bus.getOrmClient().getGroupFactory().get(groupId);
+			group = Bus.getOrmClient().getGroupFactory().getExisting(groupId);
 			
 		}
 		return group;
