@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService , InstallService, ServiceLoc
 		Bus.setServiceLocator(this);
 	}
 	
-	public void deActivate(ComponentContext context) {
+	public void deactivate(ComponentContext context) {
 		Bus.setServiceLocator(null);
 	}
 	
