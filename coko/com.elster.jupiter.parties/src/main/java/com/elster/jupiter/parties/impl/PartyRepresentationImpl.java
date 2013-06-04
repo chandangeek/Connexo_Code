@@ -27,6 +27,9 @@ class PartyRepresentationImpl  {
 	}
 	
 	PartyRepresentationImpl(String delegate , Party party , Date at) {
+        if (party == null) {
+            throw new IllegalArgumentException("Party cannot be null");
+        }
 		this.partyId = party.getId();
 		this.party = party;
 		this.delegate = delegate;
@@ -39,7 +42,7 @@ class PartyRepresentationImpl  {
 
 	public Party getParty() {
 		if (party == null) {
-			party  = Bus.getOrmClient().getPartyFactory().get(partyId);
+			party = Bus.getOrmClient().getPartyFactory().getExisting(partyId);
 		}			
 		return party;
 	}

@@ -158,7 +158,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     @Override
     public Optional<Party> findParty(long id) {
-        return Optional.fromNullable(getOrmClient().getPartyFactory().get(id));
+        return getOrmClient().getPartyFactory().get(id);
     }
 
     @Override

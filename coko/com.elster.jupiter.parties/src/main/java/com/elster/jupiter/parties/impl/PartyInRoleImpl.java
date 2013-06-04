@@ -38,7 +38,7 @@ public class PartyInRoleImpl implements PartyInRole {
 	@Override
 	public Party getParty() {
 		if (party == null) {
-			party = Bus.getOrmClient().getPartyFactory().get(partyId);
+			party = Bus.getOrmClient().getPartyFactory().getExisting(partyId);
 		}
 		return party;
 	}
@@ -46,7 +46,7 @@ public class PartyInRoleImpl implements PartyInRole {
 	@Override
 	public PartyRole getRole() {
 		if (role == null) {
-			role = Bus.getOrmClient().getPartyRoleFactory().get(roleMRID);
+			role = Bus.getOrmClient().getPartyRoleFactory().getExisting(roleMRID);
 		}
 		return role;
 	}
