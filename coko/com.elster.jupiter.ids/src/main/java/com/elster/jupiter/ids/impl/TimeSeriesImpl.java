@@ -1,13 +1,22 @@
 package com.elster.jupiter.ids.impl;
 
-import java.util.*;
-
-import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.IntervalLengthUnit;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
 
-import static com.elster.jupiter.ids.IntervalLengthUnit.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+
+import static com.elster.jupiter.ids.IntervalLengthUnit.DAY;
+import static com.elster.jupiter.ids.IntervalLengthUnit.MINUTE;
 
 public class TimeSeriesImpl implements TimeSeries {
 	// persistent fields
@@ -42,6 +51,7 @@ public class TimeSeriesImpl implements TimeSeries {
 	}
 
 	TimeSeriesImpl(Vault vault , RecordSpec recordSpec, TimeZone timeZone) {
+        validate(vault, recordSpec);
 		this.vault = vault;
 		this.vaultComponentName = vault.getComponentName();
 		this.vaultId = vault.getId();
@@ -52,9 +62,19 @@ public class TimeSeriesImpl implements TimeSeries {
 		this.timeZoneName = timeZone.getID();
 		this.regular = false;		
 	}
-	
-	TimeSeriesImpl(Vault vault , RecordSpec recordSpec, TimeZone timeZone, int intervalLength, IntervalLengthUnit intervalLengthUnit, int offset) {
+
+    private void validate(Vault vault, RecordSpec recordSpec) {
+        if (vault == null) {
+            throw new IllegalArgumentException("Vault cannot be null.");
+        }
+        if (recordSpec == null) {
+            throw new IllegalArgumentException("RecordSpec cannot be null.");
+        }
+    }
+
+    TimeSeriesImpl(Vault vault , RecordSpec recordSpec, TimeZone timeZone, int intervalLength, IntervalLengthUnit intervalLengthUnit, int offset) {
 		this(vault,recordSpec,timeZone);
+        validate(vault, recordSpec);
 		this.regular = true;
 		this.intervalLength = intervalLength;
 		this.intervalLengthUnit = intervalLengthUnit;
@@ -113,7 +133,7 @@ public class TimeSeriesImpl implements TimeSeries {
 	@Override
 	public Vault getVault() {
 		if (vault == null) {
-			vault = Bus.getOrmClient().getVaultFactory().get(vaultComponentName,vaultId);
+			vault = Bus.getOrmClient().getVaultFactory().getExisting(vaultComponentName, vaultId);
 		}
 		return vault;
 	}
@@ -121,7 +141,7 @@ public class TimeSeriesImpl implements TimeSeries {
 	@Override
 	public RecordSpec getRecordSpec() {
 		if (recordSpec == null) {
-			recordSpec = Bus.getOrmClient().getRecordSpecFactory().get(recordSpecComponentName,recordSpecId);
+			recordSpec = Bus.getOrmClient().getRecordSpecFactory().getExisting(recordSpecComponentName, recordSpecId);
 		}
 		return recordSpec;
 	}

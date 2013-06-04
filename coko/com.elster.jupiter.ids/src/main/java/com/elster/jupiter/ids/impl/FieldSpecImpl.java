@@ -1,11 +1,16 @@
 package com.elster.jupiter.ids.impl;
 
-import java.sql.*;
-
-import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.FieldDerivationRule;
+import com.elster.jupiter.ids.FieldSpec;
+import com.elster.jupiter.ids.FieldType;
+import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class FieldSpecImpl implements FieldSpec {
 	// persistent fields
@@ -44,7 +49,7 @@ public class FieldSpecImpl implements FieldSpec {
 	@Override
 	public RecordSpec getRecordSpec() {
 		if (recordSpec == null) {
-			recordSpec = Bus.getOrmClient().getRecordSpecFactory().get(componentName, recordSpecId);
+			recordSpec = Bus.getOrmClient().getRecordSpecFactory().getExisting(componentName, recordSpecId);
 		}
 		return recordSpec;
 	}

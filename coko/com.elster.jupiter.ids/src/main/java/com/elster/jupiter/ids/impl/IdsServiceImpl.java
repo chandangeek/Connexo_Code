@@ -1,6 +1,7 @@
 package com.elster.jupiter.ids.impl;
 
 import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import com.elster.jupiter.ids.*;
@@ -15,17 +16,17 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
     private volatile Clock clock;
 	
 	@Override
-	public Vault getVault(String component, long id) {
+	public Optional<Vault> getVault(String component, long id) {
 		return getOrmClient().getVaultFactory().get(component,id);
 	}
 
 	@Override
-	public RecordSpec getRecordSpec(String component, long id) {
+	public Optional<RecordSpec> getRecordSpec(String component, long id) {
 		return getOrmClient().getRecordSpecFactory().get(component,id);
 	}
 
 	@Override
-	public TimeSeries getTimeSeries(long id) {
+	public Optional<TimeSeries> getTimeSeries(long id) {
 		return getOrmClient().getTimeSeriesFactory().get(id);
 	}
 	
