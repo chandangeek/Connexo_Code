@@ -37,16 +37,16 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
         Bus.setServiceLocator(this);
     }
 
-    @Override
-    public PartyRole createRole(String componentName, String mRID, String name, String aliasName, String description) {
-        PartyRoleImpl result = new PartyRoleImpl(componentName, mRID, name, aliasName, description);
-        ormClient.getPartyRoleFactory().persist(result);
-        return result;
-    }
-
-    public void deActivate(ComponentContext context) {
-        Bus.setServiceLocator(null);
-    }
+	@Override
+	public PartyRole createRole(String componentName, String mRID, String name, String aliasName , String description) {
+		PartyRoleImpl result = new PartyRoleImpl(componentName, mRID, name, aliasName, description);
+		ormClient.getPartyRoleFactory().persist(result);
+		return result;
+	}
+	
+	public void deactivate(ComponentContext context) {
+		Bus.setServiceLocator(null);
+	}
 
     @Override
     public ComponentCache getCache() {
