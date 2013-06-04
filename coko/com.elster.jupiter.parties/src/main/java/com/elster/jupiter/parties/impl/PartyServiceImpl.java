@@ -42,7 +42,7 @@ public class PartyServiceImpl implements PartyService, InstallService , ServiceL
 		return result;
 	}
 	
-	public void deActivate(ComponentContext context) {
+	public void deactivate(ComponentContext context) {
 		Bus.setServiceLocator(null);
 	}
 
