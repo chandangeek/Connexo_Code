@@ -35,160 +35,157 @@ import java.util.Date;
 
 import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
 
-@Component (name = "com.elster.jupiter.metering", service={MeteringService.class,InstallService.class} , property="name="+Bus.COMPONENTNAME)
-public class MeteringServiceImpl implements MeteringService , InstallService, ServiceLocator {
+@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME)
+public class MeteringServiceImpl implements MeteringService, InstallService, ServiceLocator {
 
-	private volatile OrmClient ormClient;
-	private volatile ComponentCache componentCache;
-	private volatile IdsService idsService;
-	private volatile QueryService queryService;
-	private volatile PartyService partyService;
+    private volatile OrmClient ormClient;
+    private volatile ComponentCache componentCache;
+    private volatile IdsService idsService;
+    private volatile QueryService queryService;
+    private volatile PartyService partyService;
     private volatile Clock clock;
 
-	
-	@Override 
-	public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
-		return getOrmClient().getServiceCategoryFactory().get(kind);
-	}
-	
-	@Override
-	public Optional<ReadingType> getReadingType(String mRid) {
-		return getOrmClient().getReadingTypeFactory().get(mRid);
-	}
-	
-	@Override
-	public void install() {
-		new InstallerImpl().install(true, true, true);
-	}
-	
-	@Override
-	public ServiceLocation newServiceLocation() {	
-		return new ServiceLocationImpl();
-	}
 
-	@Override
-	public ServiceLocation findServiceLocation(String mRID) {
-		return getOrmClient().getServiceLocationFactory().getUnique("mRID", mRID);				
-	}
+    @Override
+    public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
+        return getOrmClient().getServiceCategoryFactory().get(kind);
+    }
 
-	@Override
-	public Optional<ServiceLocation> findServiceLocation(long id) {
-		return getOrmClient().getServiceLocationFactory().get(id);				
-	}
-	
-	@Override
-	public Optional<UsagePoint> findUsagePoint(long id) {
-		return getOrmClient().getUsagePointFactory().get(id);				
-	}
-	
-	@Override
-	public ReadingStorer createStorer(boolean overrules) {
-		return new ReadingStorerImpl(overrules);
-	}
+    @Override
+    public Optional<ReadingType> getReadingType(String mRid) {
+        return getOrmClient().getReadingTypeFactory().get(mRid);
+    }
 
-	@Override 
-	public Query<UsagePoint> getUsagePointQuery() {
-		return getQueryService().wrap(
-			getOrmClient().getUsagePointFactory().with(
-				getOrmClient().getServiceLocationFactory(),
-				getOrmClient().getMeterActivationFactory(),
-			//	getOrmClient().getChannelFactory(),
-				getOrmClient().getMeterFactory()));		
-	}
+    @Override
+    public void install() {
+        new InstallerImpl().install(true, true, true);
+    }
 
-	@Override
-	public Query<MeterActivation> getMeterActivationQuery() {
-		return getQueryService().wrap(
-			getOrmClient().getMeterActivationFactory().with(
-				getOrmClient().getUsagePointFactory(),
-				getOrmClient().getMeterFactory(),
-				getOrmClient().getServiceLocationFactory()));					
-	}
-	
-	@Override
-	public Query<ServiceLocation> getServiceLocationQuery() {
-		return getQueryService().wrap(
-			getOrmClient().getServiceLocationFactory().with(
-				getOrmClient().getUsagePointFactory(),
-				getOrmClient().getMeterActivationFactory(),
-				//getOrmClient().getChannelFactory(),
-				getOrmClient().getMeterFactory()));										
-	}
+    @Override
+    public ServiceLocation newServiceLocation() {
+        return new ServiceLocationImpl();
+    }
 
-	@Override
-	public OrmClient getOrmClient() {
-		return ormClient;
-	}
+    @Override
+    public ServiceLocation findServiceLocation(String mRID) {
+        return getOrmClient().getServiceLocationFactory().getUnique("mRID", mRID);
+    }
 
-	@Override
-	public ComponentCache getComponentCache() {
-		return componentCache;
-	}
+    @Override
+    public Optional<ServiceLocation> findServiceLocation(long id) {
+        return getOrmClient().getServiceLocationFactory().get(id);
+    }
 
-	@Override
-	public IdsService getIdsService() {
-		return idsService;
-	}
+    @Override
+    public Optional<UsagePoint> findUsagePoint(long id) {
+        return getOrmClient().getUsagePointFactory().get(id);
+    }
 
-	@Override
-	public QueryService getQueryService() {
-		return queryService;
-	}
+    @Override
+    public ReadingStorer createStorer(boolean overrules) {
+        return new ReadingStorerImpl(overrules);
+    }
 
-	@Override
-	public PartyService getPartyService() {
-		return partyService;
-	}
-	
-	@Reference
-	public void setOrmService(OrmService ormService) {
-		DataModel dataModel = ormService.getDataModel(Bus.COMPONENTNAME);
-		if (dataModel == null) {
-			dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
-			for (TableSpecs spec : TableSpecs.values()) {
-				spec.addTo(dataModel);			
-			}						
-		}
-		this.ormClient = new OrmClientImpl(dataModel);
-	}
-	
-	@Reference(name = "ZCacheService")
-	public void setCacheService(CacheService cacheService) {
-		this.componentCache = cacheService.getComponentCache(ormClient.getDataModel());
-	}
-	
-	@Reference
-	public void setIdsService(IdsService idsService) {
-		this.idsService = idsService;
-	}
-	
-	@Reference
-	public void setQueryService(QueryService queryService) {
-		this.queryService = queryService;
-	}
+    @Override
+    public Query<UsagePoint> getUsagePointQuery() {
+        return getQueryService().wrap(
+                getOrmClient().getUsagePointFactory().with(
+                        getOrmClient().getServiceLocationFactory(),
+                        getOrmClient().getMeterActivationFactory(),
+                        //	getOrmClient().getChannelFactory(),
+                        getOrmClient().getMeterFactory()));
+    }
 
-	@Reference
-	public void setPartyService(PartyService partyService) {
-		this.partyService = partyService;
-	}
-	
-	public void activate(ComponentContext context) {
+    @Override
+    public Query<MeterActivation> getMeterActivationQuery() {
+        return getQueryService().wrap(
+                getOrmClient().getMeterActivationFactory().with(
+                        getOrmClient().getUsagePointFactory(),
+                        getOrmClient().getMeterFactory(),
+                        getOrmClient().getServiceLocationFactory()));
+    }
+
+    @Override
+    public Query<ServiceLocation> getServiceLocationQuery() {
+        return getQueryService().wrap(
+                getOrmClient().getServiceLocationFactory().with(
+                        getOrmClient().getUsagePointFactory(),
+                        getOrmClient().getMeterActivationFactory(),
+                        //getOrmClient().getChannelFactory(),
+                        getOrmClient().getMeterFactory()));
+    }
+
+    @Override
+    public OrmClient getOrmClient() {
+        return ormClient;
+    }
+
+    @Override
+    public ComponentCache getComponentCache() {
+        return componentCache;
+    }
+
+    @Override
+    public IdsService getIdsService() {
+        return idsService;
+    }
+
+    @Override
+    public QueryService getQueryService() {
+        return queryService;
+    }
+
+    @Override
+    public PartyService getPartyService() {
+        return partyService;
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
+        this.ormClient = new OrmClientImpl(dataModel);
+    }
+
+    @Reference(name = "ZCacheService")
+    public void setCacheService(CacheService cacheService) {
+        this.componentCache = cacheService.getComponentCache(ormClient.getDataModel());
+    }
+
+    @Reference
+    public void setIdsService(IdsService idsService) {
+        this.idsService = idsService;
+    }
+
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
+    @Reference
+    public void setPartyService(PartyService partyService) {
+        this.partyService = partyService;
+    }
+
+    public void activate(ComponentContext context) {
         Bus.setServiceLocator(this);
-	}
-	
-	public void deactivate(ComponentContext context) {
-		Bus.setServiceLocator(null);
-	}
-	
-	@Override
-	public Condition hasAccountability() {
-		return hasAccountability(new Date());
-	}
+    }
 
-	@Override
-	public Condition hasAccountability(Date when) {
-		return Expression.create(new HasAccountabilitiyFragment(when));
-	}
+    public void deactivate(ComponentContext context) {
+        Bus.setServiceLocator(null);
+    }
+
+    @Override
+    public Condition hasAccountability() {
+        return hasAccountability(new Date());
+    }
+
+    @Override
+    public Condition hasAccountability(Date when) {
+        return Expression.create(new HasAccountabilitiyFragment(when));
+    }
 
     public Clock getClock() {
         return clock;
