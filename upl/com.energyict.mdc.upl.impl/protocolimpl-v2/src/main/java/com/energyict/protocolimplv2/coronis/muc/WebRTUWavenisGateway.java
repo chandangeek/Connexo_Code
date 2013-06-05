@@ -18,7 +18,6 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.AbstractGateway;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 
 import java.io.IOException;
@@ -40,11 +39,14 @@ public class WebRTUWavenisGateway extends AbstractGateway {
     private NoSecuritySupport securitySupport;
     private RegisterReader registerReader;
     private DeviceIdentifier deviceIdentifier;
+    private Messaging messaging;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         if (comChannel.getClass().isAssignableFrom(WavenisGatewayComChannel.class)) {
-            //this.wavenisStack = ((WavenisGatewayComChannel) comChannel).getWavenisStack();
+            this.wavenisStack = ((WavenisGatewayComChannel) comChannel).getWavenisStack();
+        } else {
+            throw MdcManager.getComServerExceptionFactory().createUnexpectedComChannel(WavenisGatewayComChannel.class.getSimpleName(), comChannel.getClass().getSimpleName());
         }
         this.offlineDevice = offlineDevice;
     }
@@ -83,7 +85,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
         try {
             return WavenisStackUtils.readClock(wavenisStack);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, 1);
         }
     }
 
@@ -92,7 +94,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
         try {
             WavenisStackUtils.syncClock(wavenisStack);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, 1);
         }
     }
 
@@ -135,28 +137,29 @@ public class WebRTUWavenisGateway extends AbstractGateway {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return null;
-
+        return getMessaging().format(propertySpec, messageAttribute);
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
-
+        return getMessaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
+        return getMessaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        List<DeviceMessageSpec> result = new ArrayList<>();
-        result.add(ConfigurationChangeDeviceMessage.WriteExchangeStatus);
-        result.add(ConfigurationChangeDeviceMessage.WriteRadioAcknowledge);
-        result.add(ConfigurationChangeDeviceMessage.WriteRadioUserTimeout);
-        return result;
+        return getMessaging().getSupportedMessages();
+    }
+
+    private Messaging getMessaging() {
+        if (messaging == null) {
+            messaging = new Messaging(this);
+        }
+        return messaging;
     }
 
     @Override
@@ -166,7 +169,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
             try {
                 result.add(getRegisterReader().readRegister(register.getObisCode()));
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, 1);
             }
         }
         return result;
@@ -186,7 +189,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
         return collectedTopology;
     }
 
-    private DeviceIdentifier getDeviceIdentifier() {
+    public DeviceIdentifier getDeviceIdentifier() {
         if (deviceIdentifier == null) {
             deviceIdentifier = new DeviceIdentifierBySerialNumber(offlineDevice.getSerialNumber());
         }

@@ -36,7 +36,7 @@ public class DeviceMessageConstants {
     public static final String loadProfileAttributeName = "loadProfile";
     public static final String fromDateAttributeName = "from";
     public static final String toDateAttributeName = "to";
-    public static final String WriteExchangeStatus = "WriteWavecardParameters.exchangeStatus";
+    public static final String WriteExchangeStatus = "WriteWavecardParameters.writeExchangeStatus";
     public static final String WriteRadioAcknowledge = "WriteWavecardParameters.writeRadioAcknowledge";
     public static final String WriteRadioUserTimeout = "WriteWavecardParameters.writeRadioUserTimeout";
 }

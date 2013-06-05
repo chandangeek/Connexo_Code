@@ -49,6 +49,11 @@ insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_
 
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('DeviceMessageCategories.CONFIGURATION_CHANGE', 'Configuration changes', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('ConfigurationChangeDeviceMessage.WriteWavecardParameters', 'Write Wavecard parameter', 'L', 'Y', 'N', 'MDW', sysdate);
-insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.exchangeStatus', 'Write exchange status', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.writeExchangeStatus', 'Write exchange status', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.writeRadioAcknowledge', 'Write radio acknowledge', 'L', 'Y', 'N', 'MDW', sysdate);
 insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.writeRadioUserTimeout', 'Write radio user timeout', 'L', 'Y', 'N', 'MDW', sysdate);
+
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('Messages.notSupported', 'Message is not supported by the protocol', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.writeExchangeStatusFailed', 'Could not write the exchange status parameter: {0}', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.writeRadioAcknowledgeFailed', 'Could not write the radio acknowledge parameter: {0}', 'L', 'Y', 'N', 'MDW', sysdate);
+insert into nlsstrings (key, english, usage, fullclient, webclient, module, mod_date) values ('WriteWavecardParameters.writeRadioUserTimeoutFailed', 'Could not write the radio user timeout parameter: {0}', 'L', 'Y', 'N', 'MDW', sysdate);
