@@ -15,7 +15,15 @@ public final class Interval {
             throw new IllegalArgumentException("Start cannot be later than end.");
         }
 	}
-		
+
+    private Interval(long start, long end) {
+        this.start = start;
+        this.end = end;
+        if (this.start > this.end) {
+            throw new IllegalArgumentException("Start cannot be later than end.");
+        }
+    }
+
     public static Interval startAt(Date start) {
         return new Interval(start, null);
     }
@@ -30,8 +38,12 @@ public final class Interval {
 	
 	public boolean isCurrent(Clock clock) {
 		long now = clock.now().getTime();
-		return start <= now && now < end;
+		return contains(now);
 	}
+
+    private boolean contains(long now) {
+        return start <= now && now < end;
+    }
 
     public boolean overlaps(Interval other) {
         return other.end > start && end > other.start;
@@ -73,5 +85,17 @@ public final class Interval {
                 "start=" + getStart() +
                 ", end=" + getEnd() +
                 '}';
+    }
+
+    public boolean contains(Date date) {
+        return contains(date.getTime());
+    }
+
+    public Interval withEnd(Date date) {
+        return new Interval(start,  getEndValue(date));
+    }
+
+    public Interval withStart(Date date) {
+        return new Interval(getStartValue(date), end);
     }
 }

@@ -1,9 +1,8 @@
 package com.elster.jupiter.util.units;
 
-import java.math.BigDecimal;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.math.BigDecimal;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(QuantityAdapter.class)
@@ -42,7 +41,7 @@ public final class Quantity {
 		return multiplier;
 	}
 	
-	private String getCode(int exponent,boolean asciiOnly) {
+	private String getCode(int exponent, boolean asciiOnly) {
 		switch(exponent) {
 			case -12:
 				return "p";
