@@ -5,4 +5,7 @@ package com.elster.jupiter.orm;
  */
 public class NotUniqueException extends RuntimeException {
 
+	public NotUniqueException() {
+		System.out.println("Not Unique");
+	}
 }

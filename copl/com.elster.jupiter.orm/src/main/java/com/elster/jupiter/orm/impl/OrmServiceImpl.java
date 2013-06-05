@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.plumbing.ServiceLocator;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -49,11 +50,11 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	}
 	
 	@Override
-	public DataModel getDataModel(String name) {
+	public Optional<DataModel> getDataModel(String name) {
 		try {
-			return getOrmClient().getDataModelFactory().getExisting(name);
+			return getOrmClient().getDataModelFactory().get(name);
 		} catch (PersistenceException ex) {
-			return null;
+			return Optional.absent();
 		}
 	}
 	

@@ -5,4 +5,7 @@ package com.elster.jupiter.orm;
  */
 public class DoesNotExistException extends RuntimeException {
 
+	public DoesNotExistException() {
+		System.out.println("Does not exist");
+	}
 }
