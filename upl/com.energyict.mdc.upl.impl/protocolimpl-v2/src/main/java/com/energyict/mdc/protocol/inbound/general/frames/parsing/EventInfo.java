@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.general.frames.parsing;
 
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.cpo.Environment;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -42,7 +43,7 @@ public class EventInfo {
             } catch (ParseException e) {
                 return null;
             }
-            return new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventCode, eventDescription, UNKNOWN, UNKNOWN);
+            return new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventCode, EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), eventDescription, UNKNOWN, UNKNOWN);
         }
         return null;
     }

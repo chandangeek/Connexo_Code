@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdw.core.Device;
@@ -61,6 +62,7 @@ public class EventPOFrame extends AbstractInboundFrame {
                             new MeterProtocolEvent(timeStamp,
                                     MeterEvent.POWERDOWN,
                                     UNKNOWN,
+                                    EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.POWERDOWN),
                                     "Last gas power outage",
                                     UNKNOWN,
                                     UNKNOWN)
