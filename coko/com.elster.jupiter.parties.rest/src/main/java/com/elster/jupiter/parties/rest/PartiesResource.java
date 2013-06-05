@@ -2,11 +2,15 @@ package com.elster.jupiter.parties.rest;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.google.common.base.Optional;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -48,9 +52,30 @@ public class PartiesResource {
     @GET
     @Path("/{id}/roles")
     @Produces(MediaType.APPLICATION_JSON)
-    public PartyInRoleInfos getRoles(@PathParam("id") long id, @Context UriInfo uriInfo) {
+    public PartyInRoleInfos getRoles(@PathParam("id") long id) {
         Party party = partyWithId(id);
         return new PartyInRoleInfos(party.getPartyInRoles());
+    }
+
+    @POST
+    @Path("/{id}/roles")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public PartyInRoleInfos addRole(@PathParam("id") long id, PartyInRoleInfo info) {
+        PartyInRoleInfos result = new PartyInRoleInfos();
+        result.add(Bus.getTransactionService().execute(new AddRoleTransaction(id, info)));
+        return result;
+    }
+
+    @PUT
+    @Path("/{id}/roles/{roleId}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public PartyInRoleInfos updatePartyInRole(PartyInRoleInfo info, @PathParam("id") long id,  @PathParam("roleId") long roleId) {
+        info.partyId = id;
+        info.id = roleId;
+        PartyInRole partyInRole = Bus.getTransactionService().execute(new TerminatePartyRoleTransaction(info));
+        return new PartyInRoleInfos(partyInRole);
     }
 
     private int determineTotal(QueryParameters queryParameters, List<Party> list) {
