@@ -13,6 +13,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -168,6 +169,22 @@ abstract class PartyImpl implements Party {
         partyInRoles.add(candidate);
         Bus.getOrmClient().getPartyInRoleFactory().persist(candidate);
         return candidate;
+    }
+
+    @Override
+    public PartyInRole terminateRole(PartyInRole partyInRole, Date date) {
+        PartyInRoleImpl toUpdate = null;
+        for (PartyInRole candidate : getPartyInRoles()) {
+            if (candidate.equals(partyInRole)) {
+                toUpdate = (PartyInRoleImpl) candidate; // safe cast as we only ever add that type.
+            }
+        }
+        if (toUpdate == null || !partyInRole.getInterval().contains(date)) {
+            throw new IllegalArgumentException();
+        }
+        toUpdate.terminate(date);
+        Bus.getOrmClient().getPartyInRoleFactory().update(toUpdate);
+        return toUpdate;
     }
 
     @Override

@@ -4,6 +4,9 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.UtcInstant;
+
+import java.util.Date;
 
 public class PartyInRoleImpl implements PartyInRole {
 	
@@ -14,7 +17,12 @@ public class PartyInRoleImpl implements PartyInRole {
 	
 	private Party party;
 	private PartyRole role;
-	
+
+    private long version;
+    private UtcInstant createTime;
+    private UtcInstant modTime;
+    private String userName;
+
 	@SuppressWarnings("unused")
 	private PartyInRoleImpl() {
 	}
@@ -64,6 +72,13 @@ public class PartyInRoleImpl implements PartyInRole {
         return role.equals(other.getRole()) && party.equals(other.getParty()) && interval.overlaps(other.getInterval());
     }
 
+    void terminate(Date date) {
+        if (!interval.contains(date)) {
+            throw new IllegalArgumentException();
+        }
+        interval = interval.withEnd(date);
+    }
+
     @Override
     public String toString() {
         return "PartyInRole{" +
@@ -71,5 +86,41 @@ public class PartyInRoleImpl implements PartyInRole {
                 ", role=" + role +
                 ", interval=" + interval +
                 '}';
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public UtcInstant getCreateTime() {
+        return createTime;
+    }
+
+    public UtcInstant getModTime() {
+        return modTime;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PartyInRoleImpl)) {
+            return false;
+        }
+
+        PartyInRoleImpl that = (PartyInRoleImpl) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 }

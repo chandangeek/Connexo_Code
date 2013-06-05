@@ -3,6 +3,7 @@ package com.elster.jupiter.parties;
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.util.time.Interval;
 
+import java.util.Date;
 import java.util.List;
 
 public interface Party {
@@ -33,5 +34,5 @@ public interface Party {
 
     PartyInRole addRole(PartyRole role, Interval interval);
 
-
+    PartyInRole terminateRole(PartyInRole role, Date date);
 }
