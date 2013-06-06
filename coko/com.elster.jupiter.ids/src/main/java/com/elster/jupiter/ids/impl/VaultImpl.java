@@ -477,8 +477,7 @@ public class VaultImpl implements Vault {
 			builder.append(",?");			
 		}
 		for (int i = 0 ; i < fieldSpecs.size() ; i++) {
-			builder.append(",?");
-			builder.append(i);
+			builder.append(",?");			
 		}
 		builder.append(")");
 		return builder.toString();
