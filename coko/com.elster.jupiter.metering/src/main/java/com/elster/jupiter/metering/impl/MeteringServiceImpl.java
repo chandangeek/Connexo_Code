@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.time.Clock;
@@ -44,6 +45,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     private volatile QueryService queryService;
     private volatile PartyService partyService;
     private volatile Clock clock;
+    private volatile UserService userService;
 
 
     @Override
@@ -140,6 +142,12 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         return partyService;
     }
 
+	@Override
+	public UserService getUserService() {
+		return userService;
+	}
+	
+
     @Reference
     public void setOrmService(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
@@ -169,6 +177,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         this.partyService = partyService;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+    	this.userService = userService;
+    }
+    
     public void activate(ComponentContext context) {
         Bus.setServiceLocator(this);
     }

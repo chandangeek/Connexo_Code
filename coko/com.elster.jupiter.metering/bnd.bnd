@@ -2,5 +2,6 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.metering.impl,\
 	com.elster.jupiter.metering.plumbing
-Export-Package: com.elster.jupiter.metering
+Export-Package: com.elster.jupiter.metering,\
+	com.elster.jupiter.metering.security
 

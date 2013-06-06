@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.plumbing;
 
-import java.util.Calendar;
+import java.lang.reflect.Field;
+import java.util.*;
 
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.ids.*;
@@ -10,7 +11,9 @@ import static com.elster.jupiter.ids.FieldType.*;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.impl.ReadingTypeImpl;
 import com.elster.jupiter.metering.impl.ServiceCategoryImpl;
+import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.users.UserService;
 
 import static com.elster.jupiter.metering.plumbing.Bus.*;
 
@@ -29,6 +32,7 @@ public class InstallerImpl {
 		createServiceCategories();
 		createReadingTypes();		
 		createPartyRoles(Bus.getPartyService());
+		createPrivileges(Bus.getUserService());
 	}
 	
 	private void createVaults(IdsService idsService) {
@@ -121,6 +125,24 @@ public class InstallerImpl {
 		for (MarketRoleKind role : MarketRoleKind.values()) {
 			partyService.createRole(Bus.COMPONENTNAME, role.name(), role.getDisplayName() , null , null);
 		}
+	}
+	private void createPrivileges(UserService userService) {
+		for (String each : getPrivileges()) {
+			userService.createPrivilege(Bus.COMPONENTNAME, each , "");
+		}
+	}
+	
+	private List<String> getPrivileges() {
+		Field[] fields = Privileges.class.getFields();
+		List<String> result = new ArrayList<>(fields.length);
+		for (Field each : fields) {
+			try {
+				result.add((String) each.get(null));
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return result;
 	}
 
 	

@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 
 public interface ServiceLocator {
@@ -13,5 +14,6 @@ public interface ServiceLocator {
 	QueryService getQueryService();
 	PartyService getPartyService();
 	Clock getClock();
+	UserService getUserService();
 }
 
