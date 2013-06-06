@@ -84,7 +84,7 @@ public class GroupImpl implements Group {
 	
 	@Override
 	public void grant(String privilegeName) {
-		Privilege privilege = Bus.getOrmClient().getPrivilegeFactory().get(privilegeName);
+		Privilege privilege = Bus.getOrmClient().getPrivilegeFactory().getExisting(privilegeName);
 		add(privilege);
 	}
 	
