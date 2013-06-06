@@ -40,7 +40,7 @@ public class ConsumerSpecImpl implements ConsumerSpec {
 	@Override
 	public DestinationSpec getDestination() {
 		if (destination == null) {
-			destination = Bus.getOrmClient().getDestinationSpecFactory().get(destinationName);
+			destination = Bus.getOrmClient().getDestinationSpecFactory().getExisting(destinationName);
 		}
 		return destination;
 	}

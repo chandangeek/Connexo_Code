@@ -53,7 +53,7 @@ public class DestinationSpecImpl implements DestinationSpec {
 	@Override
 	public QueueTableSpec getQueueTableSpec() {
 		if (queueTableSpec == null) {
-			queueTableSpec = Bus.getOrmClient().getQueueTableSpecFactory().get(queueTableName);
+			queueTableSpec = Bus.getOrmClient().getQueueTableSpecFactory().getExisting(queueTableName);
 		}
 		return queueTableSpec;
 	}
