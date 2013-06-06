@@ -58,8 +58,12 @@ public class UserImpl implements User {
 		new UserInGroup(this,group).persist();
 	}
 	
-	void persist() {
-		Bus.getOrmClient().getUserFactory().persist(this);
+	void save() {
+		if (id == 0) {
+			Bus.getOrmClient().getUserFactory().persist(this);
+		} else {
+			Bus.getOrmClient().getUserFactory().update(this);
+		}
 	}
 
 	public Date getCreateDate() {

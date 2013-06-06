@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.time.UtcInstant;
 
 
@@ -54,7 +53,11 @@ public class GroupImpl implements Group {
 		return result;
 	}
 	
-	void addPrivilege(Privilege privilege) {
+	void add(User user) {
+		new UserInGroup(user, this).persist();
+	}
+	
+	void add(Privilege privilege) {
 		new PrivilegeInGroup(this,privilege).persist();
 	}
 	
@@ -77,5 +80,19 @@ public class GroupImpl implements Group {
 	@Override
 	public String toString() {
 		return "Group: " + getName();
+	}
+	
+	@Override
+	public void grant(String privilegeName) {
+		Privilege privilege = Bus.getOrmClient().getPrivilegeFactory().get(privilegeName);
+		add(privilege);
+	}
+	
+	void save() {
+		if (id == 0) {
+			Bus.getOrmClient().getGroupFactory().persist(this);
+		} else {
+			Bus.getOrmClient().getGroupFactory().update(this);
+		}
 	}
 }

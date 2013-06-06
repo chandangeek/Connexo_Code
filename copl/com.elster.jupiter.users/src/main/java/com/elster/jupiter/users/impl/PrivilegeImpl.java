@@ -1,12 +1,15 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.util.time.UtcInstant;
 
 class PrivilegeImpl implements Privilege {
 	// persistent fields
 	private String componentName;
 	private String name;
 	private String description;
+	@SuppressWarnings("unused")
+	private UtcInstant createTime;
 
 	@SuppressWarnings("unused")
 	private PrivilegeImpl() {		

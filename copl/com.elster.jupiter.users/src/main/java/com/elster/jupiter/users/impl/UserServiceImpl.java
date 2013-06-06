@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService , InstallService, ServiceLoc
 	@Override
 	public User createUser(String authenticationName, String firstName,String lastName) {
 		UserImpl result = new UserImpl(authenticationName,firstName,lastName);
-		result.persist();
+		result.save();
 		return result;
 	}
 
@@ -81,14 +81,12 @@ public class UserServiceImpl implements UserService , InstallService, ServiceLoc
 	}
 
 	@Override
-	public User findUser(String authenticationName) {
-		/*
+	public User findUser(String authenticationName) {		
 		User user = Bus.getOrmClient().getUserFactory().getUnique("authenticationName",authenticationName);
 		if (user == null) {
 			System.out.println("User " + authenticationName + " not found");
 		}
-		*/
-		return new UserImpl(authenticationName,"Karel","Haeck");
+		return user;		
 	}
 
 	@Override
@@ -122,7 +120,7 @@ public class UserServiceImpl implements UserService , InstallService, ServiceLoc
 
 	@Override
 	public void install() {
-		ormClient.install(true,true);
+		new InstallerImpl().install();		
 	}
 
 }
