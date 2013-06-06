@@ -1,14 +1,18 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.users.*;
+import com.elster.jupiter.util.time.UtcInstant;
 
 public class UserInGroup {
 	// persistent fields
 	@SuppressWarnings("unused")
 	private long userId;
 	private long groupId;
+	@SuppressWarnings("unused")
+	private UtcInstant createTime;
 	// associations
 	private Group group;
+
 	
 	@SuppressWarnings("unused")
 	private UserInGroup() {		

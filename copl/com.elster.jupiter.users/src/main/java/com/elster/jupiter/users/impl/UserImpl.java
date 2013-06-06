@@ -9,8 +9,7 @@ public class UserImpl implements User {
 	// persistent fields
 	private long id;
 	private String authenticationName;
-	private String firstName;
-	private String lastName;
+	private String description;
 	private long versionCount;
 	private UtcInstant createTime;
 	private UtcInstant modTime;
@@ -19,10 +18,9 @@ public class UserImpl implements User {
 	private UserImpl() {		
 	}
 	
-	UserImpl(String authenticationName, String firstName , String lastName) {
-		this.authenticationName = authenticationName;
-		this.firstName = firstName;
-		this.lastName = lastName;
+	UserImpl(String authenticationName, String description) {
+		this.authenticationName = authenticationName;		
+		this.description = description;
 	}
 	
 	@Override
@@ -43,6 +41,11 @@ public class UserImpl implements User {
 	@Override 
 	public String getName() {
 		return authenticationName;
+	}
+	
+	@Override
+	public String getDescription() {
+		return description;
 	}
 	
 	List<Group> getGroups() {
@@ -80,7 +83,7 @@ public class UserImpl implements User {
 	
 	@Override 
 	public String toString() {
-		return " User " + authenticationName + " ( " + firstName + " " + lastName + " )";
+		return " User " + authenticationName;
 	}
 
 	@Override

@@ -26,7 +26,7 @@ public class InstallerImpl {
 	}
 	
 	private void createAdmin(GroupImpl administrators) {
-		UserImpl user = new UserImpl("admin", "NN" , "NN");
+		UserImpl user = new UserImpl("admin", "System Administrator");
 		user.save();
 		administrators.add(user);
 	}

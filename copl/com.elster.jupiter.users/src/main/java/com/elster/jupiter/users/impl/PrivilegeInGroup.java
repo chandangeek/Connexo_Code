@@ -1,12 +1,15 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.users.*;
+import com.elster.jupiter.util.time.UtcInstant;
 
 class PrivilegeInGroup {
 	// persistent fields
 	@SuppressWarnings("unused")
 	private long groupId;
 	private String privilegeName;
+	@SuppressWarnings("unused")
+	private UtcInstant createTime;
 	
 	// associations
 	Privilege privilege;

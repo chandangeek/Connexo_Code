@@ -30,8 +30,7 @@ public enum TableSpecs {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
 			Column authenticationNameColumn = table.addColumn("AUTHNAME", "varchar2(80)" , true , NOCONVERSION , "authenticationName");
-			table.addColumn("FIRSTNAME", "varchar2(80)" , true , NOCONVERSION , "firstName");
-			table.addColumn("LASTNAME", "varchar2(80)" , true , NOCONVERSION , "lastName");
+			table.addColumn("DESCRIPTION", "varchar2(256)" , true , NOCONVERSION , "description");			
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "versionCount");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");

@@ -48,8 +48,8 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 	}
 	
 	@Override
-	public User createUser(String authenticationName, String firstName,String lastName) {
-		UserImpl result = new UserImpl(authenticationName,firstName,lastName);
+	public User createUser(String authenticationName, String description) {
+		UserImpl result = new UserImpl(authenticationName,description);
 		result.save();
 		return result;
 	}

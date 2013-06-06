@@ -6,4 +6,5 @@ public interface User extends Principal {
 	long getId();
 	boolean hasPrivilege(String privilege);
 	boolean isMemberOf(String groupName);
+	String getDescription();
 }
