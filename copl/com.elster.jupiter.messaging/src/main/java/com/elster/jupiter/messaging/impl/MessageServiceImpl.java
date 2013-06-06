@@ -20,12 +20,9 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 	
 	@Reference
 	public void setOrmService(OrmService ormService) {
-		DataModel dataModel = ormService.getDataModel(Bus.COMPONENTNAME);
-		if (dataModel == null) {
-			dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Jupiter Messaging");
-			for (TableSpecs each : TableSpecs.values()) {
-				each.addTo(dataModel);
-			}
+		DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Jupiter Messaging");
+		for (TableSpecs each : TableSpecs.values()) {
+			each.addTo(dataModel);
 		}
 		this.ormClient = new OrmClientImpl(dataModel);
 	}
@@ -91,19 +88,19 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 
 	@Override
 	public QueueTableSpec getQueueTableSpec(String name) {
-		return Bus.getOrmClient().getQueueTableSpecFactory().get(name);
+		return Bus.getOrmClient().getQueueTableSpecFactory().getExisting(name);
 	}
 
 	@Override
 	public DestinationSpec getDestinationSpec(String name) {		
-		return Bus.getOrmClient().getDestinationSpecFactory().get(name);
+		return Bus.getOrmClient().getDestinationSpecFactory().getExisting(name);
 	}
 	
 	@Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
 	public void addResource(MessageHandlerFactory factory, Map<String, Object> map) {
 		String destinationName = (String) map.get("destination");
 		String subscriberName = (String) map.get("subscriber");
-		ConsumerSpec spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName,subscriberName);
+		ConsumerSpec spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName,subscriberName).get();
 		if (spec != null) {
 			((ConsumerSpecImpl) spec).start(factory);
 		}
