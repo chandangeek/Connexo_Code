@@ -10,6 +10,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -17,7 +18,6 @@ import com.energyict.mdw.offline.*;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.common.AbstractGateway;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 
 import java.io.IOException;
@@ -191,7 +191,7 @@ public class WebRTUWavenisGateway extends AbstractGateway {
 
     public DeviceIdentifier getDeviceIdentifier() {
         if (deviceIdentifier == null) {
-            deviceIdentifier = new DeviceIdentifierBySerialNumber(offlineDevice.getSerialNumber());
+            deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
         }
         return deviceIdentifier;
     }

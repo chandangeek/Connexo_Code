@@ -43,6 +43,7 @@ public class WavenisStackUtils {
                 //Parameter doesn't exist, move on
                 break;
             }
+            count++;
         }
     }
 
@@ -57,6 +58,7 @@ public class WavenisStackUtils {
                 }
                 delay();
             }
+            count++;
         }
     }
 
@@ -74,6 +76,7 @@ public class WavenisStackUtils {
                 //Parameter doesn't exist, move on
                 break;
             }
+            count++;
         }
         return new Date();      //Wavecard doesn't have a clock, move on
     }
@@ -94,6 +97,7 @@ public class WavenisStackUtils {
                 //Parameter doesn't exist, move on
                 break;
             }
+            count++;
         }
     }
 
@@ -113,6 +117,7 @@ public class WavenisStackUtils {
                 //Parameter doesn't exist, move on
                 break;
             }
+            count++;
         }
     }
 

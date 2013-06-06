@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Copyrights EnergyICT
@@ -38,25 +39,24 @@ public class RegisterReader {
         try {
             if (OBISCODE_FIRMWARE.equals(obisCode)) {
                 collectedRegister.setCollectedData(WavenisStackUtils.readFirmwareVersion(wavenisStack));
-                return collectedRegister;
             } else if (OBISCODE_RADIO_USER_TIMEOUT.equals(obisCode)) {
                 int timeout = getWaveCard().getRadioUserTimeoutInSeconds();
                 collectedRegister.setCollectedData(new Quantity(timeout, Unit.get(BaseUnit.SECOND)), "");
-                return collectedRegister;
             } else if (OBISCODE_RADIO_ACKNOWLEDGE.equals(obisCode)) {
                 Boolean radioAcknowledge = getWaveCard().isRadioAcknowledge();
                 collectedRegister.setCollectedData(radioAcknowledge.toString());
-                return collectedRegister;
             } else if (OBISCODE_EXCHANGE_STATUS.equals(obisCode)) {
                 int exchangeStatus = getWaveCard().getExchangeStatus();
                 collectedRegister.setCollectedData(new Quantity(exchangeStatus, Unit.get(BaseUnit.UNITLESS)), "");
+            } else {
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(obisCode, "Obiscode not supported by protocol", obisCode));
                 return collectedRegister;
             }
         } catch (WavenisParameterException e) {
             collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(obisCode, "Parameter not supported by Wavecard: " + e.getMessage(), obisCode));
             return collectedRegister;
         }
-        collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(obisCode, "Obiscode not supported by protocol", obisCode));
+        collectedRegister.setReadTime(new Date());
         return collectedRegister;
     }
 
