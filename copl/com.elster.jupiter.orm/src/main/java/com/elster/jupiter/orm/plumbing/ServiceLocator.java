@@ -1,5 +1,6 @@
 package com.elster.jupiter.orm.plumbing;
 
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.util.time.Clock;
 
 import java.security.Principal;
@@ -12,4 +13,5 @@ public interface ServiceLocator {
 	Principal getPrincipal();
 	void publish(Object event);
     Clock getClock();
+	Table getTable(String component, String tableName);
 }

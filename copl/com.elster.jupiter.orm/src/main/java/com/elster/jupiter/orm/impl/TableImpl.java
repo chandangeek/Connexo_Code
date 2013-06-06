@@ -335,7 +335,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	@Override
 	public TableConstraint addForeignKeyConstraint(String name, String component , String referencedTableName, DeleteRule deleteRule , String fieldName, Column... columns) {
-		Table referencedTable = Bus.getOrmClient().getTableFactory().getExisting(component, referencedTableName);
+		Table referencedTable = Bus.getTable(component, referencedTableName);	
 		return addForeignKeyConstraint(name, referencedTable, deleteRule , new AssociationMapping(fieldName), columns); 					
 	}
 

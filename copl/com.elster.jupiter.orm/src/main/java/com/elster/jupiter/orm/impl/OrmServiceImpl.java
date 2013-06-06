@@ -1,9 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.PersistenceException;
-import com.elster.jupiter.orm.TransactionRequiredException;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.orm.plumbing.OrmClient;
@@ -23,6 +20,7 @@ import javax.sql.DataSource;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Component (name = "com.elster.jupiter.orm", immediate = true, service = { OrmService.class , InstallService.class } , property="name=" + Bus.COMPONENTNAME)
@@ -33,6 +31,8 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
     private AtomicReference<Publisher> publisherHolder = new AtomicReference<>();
+    private final Map<String,DataModel> dataModels = Collections.synchronizedMap(new HashMap<String,DataModel>());
+
 
     public OrmServiceImpl() {
 	}
@@ -52,7 +52,11 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	@Override
 	public Optional<DataModel> getDataModel(String name) {
 		try {
-			return getOrmClient().getDataModelFactory().get(name);
+			Optional<DataModel> modelHolder = getOrmClient().getDataModelFactory().get(name);
+			if (modelHolder.isPresent()) {
+				dataModels.put(name,modelHolder.get());
+			}
+			return modelHolder;
 		} catch (PersistenceException ex) {
 			return Optional.absent();
 		}
@@ -62,7 +66,9 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	
 	@Override
 	public DataModel newDataModel(String name,String description) {		
-		return new DataModelImpl(name, description);
+		DataModel result = new DataModelImpl(name, description);
+		dataModels.put(name, result);
+		return result;
 	}
 
 	 @Override
@@ -127,5 +133,21 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	public void deactivate(ComponentContext context) {
 		Bus.setServiceLocator(null);
 	}
+	
+	@Override
+	public Table getTable(String componentName, String tableName) {
+		DataModel dataModel = dataModels.get(componentName);
+		if (dataModel == null) {
+			throw new RuntimeException("Component " + componentName + " not found");
+		} else {
+			Table result = dataModel.getTable(tableName);
+			if (result == null) {
+				throw new RuntimeException("Table " + tableName + " not found in component " + componentName);
+			} else {
+				return result;
+			}		
+		}
+	}
+
 
 }
