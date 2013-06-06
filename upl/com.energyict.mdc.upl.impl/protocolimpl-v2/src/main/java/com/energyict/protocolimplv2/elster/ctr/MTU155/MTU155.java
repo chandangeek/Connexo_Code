@@ -10,6 +10,7 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.NoOpCollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
@@ -213,17 +214,17 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return null;  //ToDo
+        return new ArrayList<>();   //TODO
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;  //ToDo
+        return new NoOpCollectedMessageList();  //TODO
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;  //ToDo
+        return new NoOpCollectedMessageList();  //TODO
     }
 
     @Override
