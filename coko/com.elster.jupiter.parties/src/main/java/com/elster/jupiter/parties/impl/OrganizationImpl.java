@@ -11,6 +11,7 @@ public final class OrganizationImpl extends PartyImpl implements Organization {
 	private PostalAddress postalAddress;
 	private StreetAddress streetAddress;
 	
+	@SuppressWarnings("unused")
 	private OrganizationImpl() {
 		super();
 	}
