@@ -159,7 +159,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Reference(name = "ZCacheService")
     public void setCacheService(CacheService cacheService) {
-        this.componentCache = cacheService.getComponentCache(ormClient.getDataModel());
+        this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
     }
 
     @Reference
