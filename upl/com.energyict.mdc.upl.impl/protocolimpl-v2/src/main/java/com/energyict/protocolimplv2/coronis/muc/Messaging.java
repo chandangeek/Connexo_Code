@@ -53,10 +53,8 @@ public class Messaging implements DeviceMessageSupport {
                     collectedMessage = writeExchangeStatus(pendingMessage);
                 } else if (isWriteRadioAcknowledge(pendingMessage)) {
                     collectedMessage = witeRadioAcknowledge(pendingMessage);
-                    result.addCollectedMessages(collectedMessage);
                 } else if (isWriteRadioUserTimeout(pendingMessage)) {
                     collectedMessage = writeRadioUserTimeout(pendingMessage);
-                    result.addCollectedMessages(collectedMessage);
                 } else {
                     collectedMessage = createCollectedMessage(pendingMessage);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(pendingMessage, "Messages.notSupported"));
@@ -113,15 +111,15 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     private boolean isWriteExchangeStatus(OfflineDeviceMessage pendingMessage) {
-        return pendingMessage.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteExchangeStatus.getPrimaryKey());
+        return pendingMessage.getDeviceMessageSpecPrimaryKey().getValue().equals(ConfigurationChangeDeviceMessage.WriteExchangeStatus.getPrimaryKey().getValue());
     }
 
     private boolean isWriteRadioAcknowledge(OfflineDeviceMessage pendingMessage) {
-        return pendingMessage.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteRadioAcknowledge.getPrimaryKey());
+        return pendingMessage.getDeviceMessageSpecPrimaryKey().getValue().equals(ConfigurationChangeDeviceMessage.WriteRadioAcknowledge.getPrimaryKey().getValue());
     }
 
     private boolean isWriteRadioUserTimeout(OfflineDeviceMessage pendingMessage) {
-        return pendingMessage.getDeviceMessageSpecPrimaryKey().equals(ConfigurationChangeDeviceMessage.WriteRadioUserTimeout.getPrimaryKey());
+        return pendingMessage.getDeviceMessageSpecPrimaryKey().getValue().equals(ConfigurationChangeDeviceMessage.WriteRadioUserTimeout.getPrimaryKey().getValue());
     }
 
     @Override
