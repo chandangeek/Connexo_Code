@@ -16,7 +16,7 @@ public class QueryParameters implements MultivaluedMap<String, String> {
         this.map = map;
     }
 
-    public static QueryParameters wrap(MultivaluedMap map) {
+    public static QueryParameters wrap(MultivaluedMap<String,String> map) {
         return new QueryParameters(map);
     }
 
