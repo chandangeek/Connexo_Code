@@ -18,6 +18,7 @@ public class PartyInRoleInfo {
     @XmlJavaTypeAdapter(JsonDateAdapter.class)
     public Date end;
     public PartyRoleInfo partyRoleInfo;
+    public long version;
 
     PartyInRoleInfo() {
     }
@@ -28,6 +29,7 @@ public class PartyInRoleInfo {
         id = partyInRole.getId();
         start = partyInRole.getInterval().getStart();
         end = partyInRole.getInterval().getEnd();
+        version = partyInRole.getVersion();
     }
 
 }
