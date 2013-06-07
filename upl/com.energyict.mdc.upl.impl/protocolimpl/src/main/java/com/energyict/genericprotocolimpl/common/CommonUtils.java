@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.common;
 
 import com.energyict.cbo.BusinessException;
-//import com.energyict.mdw.amr.GenericProtocol;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.core.Device;
@@ -17,8 +16,9 @@ import com.energyict.protocol.InvalidPropertyException;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
+
+//import com.energyict.mdw.amr.GenericProtocol;
 
 /**
  *
@@ -240,15 +240,11 @@ public final class CommonUtils {
      * @return true if the list contains the RegisterGroup from the given Register, false otherwise
      */
     public static boolean isInRegisterGroup(List<RegisterGroup> groups, Register rr) {
-        if (rr.getGroup() == null) {
-            if (groups.size() == 0) {
-                return true;
-            }
-            return false;
+        if (rr.getRegisterGroup() == null) {
+            return groups.size() == 0;
         }
-        Iterator<RegisterGroup> it = groups.iterator();
-        while (it.hasNext()) {
-            if (rr.getGroup().equals(it.next())) {
+        for (RegisterGroup group : groups) {
+            if (rr.getRegisterGroup().equals(group)) {
                 return true;
             }
         }
