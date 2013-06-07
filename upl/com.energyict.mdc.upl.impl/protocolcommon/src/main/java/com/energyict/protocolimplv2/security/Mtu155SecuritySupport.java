@@ -200,7 +200,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec());
+            return Arrays.<PropertySpec>asList(getEncryptionKeyCPropertySpec());
         }
     }
 
@@ -218,10 +218,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            return Arrays.<PropertySpec>asList(getEncryptionKeyTPropertySpec());
         }
     }
 
@@ -239,10 +236,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(
-                    DeviceSecurityProperty.CLIENT_MAC_ADDRESS.getPropertySpec(),
-                    DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(),
-                    DeviceSecurityProperty.AUTHENTICATION_KEY.getPropertySpec());
+            return Arrays.<PropertySpec>asList(getEncryptionKeyFPropertySpec());
         }
     }
 }
