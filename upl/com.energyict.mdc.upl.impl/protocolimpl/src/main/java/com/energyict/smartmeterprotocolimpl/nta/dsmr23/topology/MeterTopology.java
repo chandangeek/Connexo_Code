@@ -54,7 +54,7 @@ public class MeterTopology implements MasterMeter {
     /**
      * A list of MbusMeter <CODE>DeviceMappings</CODE>
      */
-    private List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
+    protected List<DeviceMapping> mbusMap = new ArrayList<DeviceMapping>();
 
     private Device rtu;
 
@@ -97,7 +97,7 @@ public class MeterTopology implements MasterMeter {
         return new ComposedCosemObject(this.protocol.getDlmsSession(), this.protocol.supportsBulkRequests(), dlmsAttributes);
     }
 
-    private void discoverMbusDevices() throws ConnectionException {
+    protected void discoverMbusDevices() throws ConnectionException {
         log(Level.FINE, "Starting discovery of MBusDevices");
         // get an MbusDeviceMap
         this.mbusMap = getMbusMapper();
@@ -225,7 +225,7 @@ public class MeterTopology implements MasterMeter {
      *
      * @param mbusDeviceMap a List of Mbus DeviceMappings
      */
-    private void checkToUpdateMbusMeters(List<DeviceMapping> mbusDeviceMap) {
+    protected void checkToUpdateMbusMeters(List<DeviceMapping> mbusDeviceMap) {
 
         for (DeviceMapping deviceMapping : mbusDeviceMap) {
             if (!ignoreZombieMbusDevice.equals(deviceMapping.getSerialNumber())) {
@@ -332,7 +332,7 @@ public class MeterTopology implements MasterMeter {
      *
      * @return the Device
      */
-    private Device getRtuFromDatabaseBySerialNumber() {
+    protected Device getRtuFromDatabaseBySerialNumber() {
         if (rtu == null) {
             String serial = this.protocol.getSerialNumber();
             this.rtu = ProtocolTools.mw().getDeviceFactory().findBySerialNumber(serial).get(0);
@@ -340,7 +340,7 @@ public class MeterTopology implements MasterMeter {
         return rtu;
     }
 
-    private final void log(Level level, String message) {
+    protected final void log(Level level, String message) {
         this.protocol.getLogger().log(level, message);
     }
 }

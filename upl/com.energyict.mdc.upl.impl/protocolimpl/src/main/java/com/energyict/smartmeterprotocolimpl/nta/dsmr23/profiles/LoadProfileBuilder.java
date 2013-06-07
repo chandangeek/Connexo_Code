@@ -1,18 +1,37 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
 
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileConfigurationException;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -102,10 +121,10 @@ public class LoadProfileBuilder {
      * @throws java.io.IOException when error occurred during dataFetching or -Parsing
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
-        this.expectedLoadProfileReaders = loadProfileReaders;
+        this.expectedLoadProfileReaders = filterOutAllInvalidLoadProfiles(loadProfileReaders);
         this.loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
 
-        ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(loadProfileReaders, this.meterProtocol.supportsBulkRequests());
+        ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(expectedLoadProfileReaders, this.meterProtocol.supportsBulkRequests());
         List<CapturedRegisterObject> capturedObjectRegisterList = createCapturedObjectRegisterList(ccoLpConfigs);
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, this.meterProtocol.supportsBulkRequests());
 
@@ -133,6 +152,27 @@ public class LoadProfileBuilder {
             this.loadProfileConfigurationList.add(lpc);
         }
         return this.loadProfileConfigurationList;
+    }
+
+    /**
+     * From the given list of LoadProfileReaders, filter out all invalid ones. <br></br>
+     * A LoadProfileReader is invalid if the physical address of the device, owning the loadProfileReader, could not be fetched.
+     * This is the case, when an Mbus device is linked to a master in EIMaster, but in reality not physically connected. <br></br>
+     * E.g.: This is the case when the Mbus device in the field has been swapped for a new one, but without changing/correcting the EIMaster configuration.
+     * @param loadProfileReaders    the complete list of loadProfileReaders
+     * @return  the validated list containing all valid loadProfileReaders
+     */
+    private List<LoadProfileReader> filterOutAllInvalidLoadProfiles(List<LoadProfileReader> loadProfileReaders) {
+        List<LoadProfileReader> validLoadProfileReaders = new ArrayList<LoadProfileReader>();
+
+        for (LoadProfileReader loadProfileReader : loadProfileReaders) {
+            if (this.meterProtocol.getPhysicalAddressFromSerialNumber(loadProfileReader.getMeterSerialNumber()) != -1) {
+                validLoadProfileReaders.add(loadProfileReader);
+            } else {
+                this.meterProtocol.getLogger().severe("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
+            }
+        }
+        return validLoadProfileReaders;
     }
 
     /**

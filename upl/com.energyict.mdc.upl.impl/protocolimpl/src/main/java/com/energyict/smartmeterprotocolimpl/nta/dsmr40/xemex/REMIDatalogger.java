@@ -7,11 +7,13 @@ import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.eventhandling.XemexEventProfile;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.messages.XemexMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.profiles.XemexLoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.topology.XemexMeterTopology;
 
 import java.io.IOException;
 
@@ -92,6 +94,14 @@ public class REMIDatalogger extends E350 {
             return ProtocolTools.setObisCodeField(obisCode, ObisCodeBFieldIndex, (byte) address);
         }
         return null;
+    }
+
+    @Override
+    public MeterTopology getMeterTopology() {
+        if (this.meterTopology == null) {
+            this.meterTopology = new XemexMeterTopology(this);
+        }
+        return meterTopology;
     }
 
     @Override

@@ -3,8 +3,14 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.genericprotocolimpl.common.EncryptionStatus;
@@ -17,7 +23,10 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem.a
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -27,15 +36,31 @@ import java.util.*;
 public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
 
     public static final ObisCode MbusEncryptionStatus_New = ObisCode.fromString("0.x.24.1.0.13");   // ObisCode from MbusSetup object with AttributeNr. as F-field
-    public static final ObisCode MbusKeyStatusObisCode = ObisCode.fromString("0.x.24.1.0.15"); // ObisCode from MbusSetup object with AttributNr. as F-field
+    public static final ObisCode MbusKeyStatusObisCode = ObisCode.fromString("0.x.24.1.0.14"); // ObisCode from MbusSetup object with AttributNr. as F-field
 
     public static final ObisCode SecurityPolicyObisCode = ObisCode.fromString("0.0.43.0.0.2");
     public static final ObisCode HighLevelSecurityObisCode = ObisCode.fromString("0.0.40.0.0.6");
+    public static final ObisCode GPRSNetworkInformation = ObisCode.fromString("0.1.94.31.4.255");
 
     public static final ObisCode AdministrativeStatusObisCode = ObisCode.fromString("0.1.94.31.0.255");
+    private static final int BULK_RESQUEST_LIMIT = 16;  //DSMR4.0 meters don't support more than 16 registers in 1 bulk request
 
     public DSMR40RegisterFactory(final AbstractSmartNtaProtocol protocol) {
         super(protocol);
+    }
+
+    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
+        registers = filterOutAllInvalidRegisters(registers);
+        List<Register> toRead;
+        List<RegisterValue> result = new ArrayList<RegisterValue>();
+        int count = 0;
+        while (((count + 1) * BULK_RESQUEST_LIMIT) <= registers.size()) {    //Read out in steps of 16 registers
+            toRead = registers.subList(count * BULK_RESQUEST_LIMIT, (count + 1) * BULK_RESQUEST_LIMIT);
+            result.addAll(super.readRegisters(toRead));
+            count++;
+        }
+        result.addAll(super.readRegisters(registers.subList(count * BULK_RESQUEST_LIMIT, registers.size()))); //Read out the remaining registers
+        return result;
     }
 
     /**
@@ -91,12 +116,12 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
     @Override
     protected RegisterValue convertCustomAbstractObjectsToRegisterValues(final Register register, AbstractDataType abstractDataType) throws IOException {
         ObisCode rObisCode = getCorrectedRegisterObisCode(register);
-        if (rObisCode.equals(MbusEncryptionStatus_New) || rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {     // if they still use the old obiscode, then read the new object
+        if (rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus_New) || rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {     // if they still use the old obiscode, then read the new object
             long encryptionValue = abstractDataType.longValue();
             Quantity quantity = new Quantity(BigDecimal.valueOf(encryptionValue), Unit.getUndefined());
             String text = EncryptionStatus.forValue((int) encryptionValue).getLabelKey();
             return new RegisterValue(register, quantity, null, null, null, new Date(), 0, text);
-        } else if (rObisCode.equals(MbusKeyStatusObisCode)) {
+        } else if (rObisCode.equalsIgnoreBChannel(MbusKeyStatusObisCode)) {
             int state = ((TypeEnum) abstractDataType).getValue();
             return new RegisterValue(register, new Quantity(BigDecimal.valueOf(state), Unit.getUndefined()), null, null, null, new Date(), 0, MbusKeyStatus.getDescriptionForValue(state));
         } else if (rObisCode.equals(SecurityPolicyObisCode)) {
@@ -124,9 +149,11 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
 
     private enum MbusKeyStatus {
 
-        No_Keys(0, "No Keys Available"),
-        Keys_Received_From_CS(1, "Keys received from Central System"),
-        Keys_Forward_To_Mbus(2, "Keys forwarded to Mbus device");
+        No_Keys(0, "No encryption key"),
+        Encryption_Key_Set(1, "Encryption key is set"),
+        Encryption_Key_Transferred(2, "Encryption key is transferred to the MBus device"),
+        Encryption_Key_Set_And_Transferred(3, "Encryption key is set and transferred to the MBus device"),
+        Encryption_Key_In_Use(4, "Encryption key is in use");
 
         private final int value;
         private final String description;
@@ -142,7 +169,7 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
                     return mbusKeyStatus.getDescription();
                 }
             }
-            return "UnKnown State";
+            return "Unknown State";
         }
 
         private int getValue() {
@@ -170,7 +197,7 @@ public class DSMR40RegisterFactory extends Dsmr23RegisterFactory {
 
         public static String getDescriptionForValue(int value) {
             for (AdministrativeStatus administrativeStatus : values()) {
-                if(administrativeStatus.getValue() == value){
+                if (administrativeStatus.getValue() == value) {
                     return administrativeStatus.getDescription();
                 }
             }

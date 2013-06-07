@@ -2,21 +2,42 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
+import com.energyict.dlms.cosem.attributes.DataAttributes;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.DisconnectControlAttribute;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.genericprotocolimpl.common.EncryptionStatus;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.BulkRegisterProtocol;
+import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedRegister;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -40,6 +61,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
     public static final ObisCode CONNECT_CONTROL_BREAKER_STATE = ObisCode.fromString("0.0.96.3.130.255");
     public static final ObisCode ISKRA_MBUS_ENCRYPTION_STATUS = ObisCode.fromString("0.0.97.98.1.255");
     public static final ObisCode GSM_SIGNAL_STRENGTH = ObisCode.fromString("0.0.96.12.5.255");
+    public static final ObisCode MbusClientObisCode = ObisCode.fromString("0.x.24.1.0.255");
 
     // Mbus Registers
     public static final ObisCode MbusEncryptionStatus = ObisCode.fromString("0.x.24.50.0.255");
@@ -76,7 +98,8 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
      * @return List<RegisterValue> for an List of ObisCodes
      * @throws java.io.IOException Thrown in case of an exception
      */
-    public List<RegisterValue> readRegisters(final List<Register> registers) throws IOException {
+    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
+        registers = filterOutAllInvalidRegisters(registers);
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
         ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(registers, this.protocol.supportsBulkRequests());
         for (Register register : registers) {
@@ -97,7 +120,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                 }
             } catch (IOException e) {
                 this.protocol.getLogger().log(Level.WARNING, "Failed to fetch register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "]");
-            } catch (IndexOutOfBoundsException e){
+            } catch (IndexOutOfBoundsException e) {
                 this.protocol.getLogger().log(Level.SEVERE, "Parsing error while fetch register with ObisCode " + register.getObisCode() + "[" + register.getSerialNumber() + "]");
             }
             if (rv != null) {
@@ -105,6 +128,27 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
             }
         }
         return registerValues;
+    }
+
+    /**
+     * From the given list of registers, filter out all invalid ones. <br></br>
+     * A register is invalid if the physical address of the device, owning the register, could not be fetched.
+     * This is the case, when an Mbus device is linked to a master in EIMaster, but in reality not physically connected. <br></br>
+     * E.g.: This is the case when the Mbus device in the field has been swapped for a new one, but without changing/correcting the EIMaster configuration.
+     * @param registers    the complete list of registers
+     * @return  the validated list containing all valid registers
+     */
+    protected List<Register> filterOutAllInvalidRegisters(List<Register> registers) {
+        List<Register> validRegisters = new ArrayList<Register>();
+
+        for (Register register : registers) {
+            if (this.protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) != -1) {
+                validRegisters.add(register);
+            } else {
+                this.protocol.getLogger().severe(register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device.");
+            }
+        }
+        return validRegisters;
     }
 
     /**
@@ -178,7 +222,7 @@ public class Dsmr23RegisterFactory implements BulkRegisterProtocol {
                     } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectOutputState)) {
                         this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(rObisCode), DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
                         dlmsAttributes.add(this.registerMap.get(register));
-                    } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE)){
+                    } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE)) {
                         this.registerMap.put(register, new DLMSAttribute(CORE_FIRMWARE_SIGNATURE, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                         dlmsAttributes.add(this.registerMap.get(register));
                     } else {
