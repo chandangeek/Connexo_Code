@@ -28,9 +28,9 @@ public class WavenisSerialComChannel extends SynchroneousComChannel {
      * Close the serial port
      */
     @Override
-    public void close() {
+    public void doClose() {
         try {
-            super.close();
+            super.doClose();
         } finally {
             if (this.serialPort != null) {
                 this.serialPort.close();

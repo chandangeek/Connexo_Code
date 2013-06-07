@@ -37,10 +37,10 @@ public class WavenisGatewayComChannel extends SocketComChannel {
     }
 
     @Override
-    public void close() {
+    public void doClose() {
         if (wavenisStack != null) {
             wavenisStack.stop();
         }
-        super.close();
+        super.doClose();
     }
 }
