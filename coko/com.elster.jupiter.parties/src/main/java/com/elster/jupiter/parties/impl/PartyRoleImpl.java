@@ -11,7 +11,6 @@ class PartyRoleImpl implements PartyRole {
 	private String name;
 	private String aliasName;
 	private String description;
-	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
 	private UtcInstant createTime;

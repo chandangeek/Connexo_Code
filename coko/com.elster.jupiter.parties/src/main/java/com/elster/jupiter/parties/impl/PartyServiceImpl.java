@@ -129,7 +129,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     @Reference(name = "ZCacheService")
     public void setCacheService(CacheService cacheService) {
-        this.cache = cacheService.getComponentCache(ormClient.getDataModel());
+        this.cache = cacheService.createComponentCache(ormClient.getDataModel());
     }
 
     @Reference
