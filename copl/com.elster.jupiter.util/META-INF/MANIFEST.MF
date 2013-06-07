@@ -9,3 +9,4 @@ Export-Package: com.elster.jupiter.util.conditions,
  com.elster.jupiter.util.sql,
  com.elster.jupiter.util.time,
  com.elster.jupiter.util.units
+Service-Component: OSGI-INF/service.xml
