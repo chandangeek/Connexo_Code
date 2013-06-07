@@ -88,6 +88,7 @@ public class PartyInRoleImpl implements PartyInRole {
                 '}';
     }
 
+    @Override
     public long getVersion() {
         return version;
     }

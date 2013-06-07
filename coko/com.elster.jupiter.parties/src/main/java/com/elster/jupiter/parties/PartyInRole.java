@@ -14,4 +14,6 @@ public interface PartyInRole {
      * @return true if the argument defines the same role for the same party, and its interval overlaps this instance's interval.
      */
 	boolean conflictsWith(PartyInRole partyInRole);
+
+    long getVersion();
 }
