@@ -48,13 +48,13 @@ public class AbstractModemTests {
         }
 
         @Override
-        public int write(byte[] bytes) {
+        public int doWrite(byte[] bytes) {
             // nothing else to do
             return bytes.length;
         }
 
         @Override
-        public int read() {
+        public int doRead() {
             if (responses.size() > counter) {
                 return (int) responses.get(counter).charAt(index++);
             }
