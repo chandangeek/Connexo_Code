@@ -4,7 +4,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 
-public class Bus {
+public enum Bus {
+	;
+	
 	private static volatile ServiceLocator locator;
 	
 	static void setServiceLocator(ServiceLocator serviceLocator) {
@@ -27,8 +29,4 @@ public class Bus {
         return locator.getTransactionService();
     }
 
-    private Bus() {
-		throw new UnsupportedOperationException();
-	}
-	
 }
