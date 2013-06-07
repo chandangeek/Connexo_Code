@@ -161,14 +161,18 @@ abstract class PartyImpl implements Party {
     @Override
     public PartyInRole addRole(PartyRole role, Interval interval) {
         PartyInRoleImpl candidate = new PartyInRoleImpl(this, role, interval);
+        validateAdding(candidate);
+        partyInRoles.add(candidate);
+        Bus.getOrmClient().getPartyInRoleFactory().persist(candidate);
+        return candidate;
+    }
+
+    private void validateAdding(PartyInRoleImpl candidate) {
         for (PartyInRole partyInRole : getPartyInRoles()) {
             if (candidate.conflictsWith(partyInRole)) {
                 throw new IllegalArgumentException("Conflicts with existing Role : " + partyInRole);
             }
         }
-        partyInRoles.add(candidate);
-        Bus.getOrmClient().getPartyInRoleFactory().persist(candidate);
-        return candidate;
     }
 
     @Override
