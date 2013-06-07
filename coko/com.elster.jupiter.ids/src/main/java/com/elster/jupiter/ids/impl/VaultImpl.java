@@ -58,7 +58,7 @@ public class VaultImpl implements Vault {
 		this.regular = regular;
 		this.localTime = regular;
 		this.journal = true;
-		this.partition = true;
+		this.partition = false; // Part of Oracle 11g Enterprise edition, but it is not part of the Standard Edition.
 		this.active = false;		
 		this.minTime = new UtcInstant(0);
 	}
