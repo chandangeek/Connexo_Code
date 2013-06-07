@@ -35,6 +35,9 @@ public class TerminatePartyRoleTransaction implements Transaction<PartyInRole> {
     private PartyInRole getPartyInRole(Party party) {
         for (PartyInRole partyInRole : party.getPartyInRoles()) {
             if (partyInRole.getId() == info.id) {
+                if (partyInRole.getVersion() != info.version) {
+                    throw new WebApplicationException(Response.Status.CONFLICT);
+                }
                 return partyInRole;
             }
         }
