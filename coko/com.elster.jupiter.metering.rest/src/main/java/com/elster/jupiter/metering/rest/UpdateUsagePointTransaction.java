@@ -10,7 +10,7 @@ import javax.ws.rs.core.Response;
 
 final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
 
-    final private UsagePointInfo info;
+    private final UsagePointInfo info;
 
     UpdateUsagePointTransaction(UsagePointInfo info) {
         this.info = info;
