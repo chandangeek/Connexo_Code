@@ -24,10 +24,10 @@ import java.util.Map;
 
 @LiteralSql
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
-	final private boolean overrules;
-	final private Map<RecordSpecInVault,SlaveTimeSeriesDataStorer> storerMap = new HashMap<>();
+	private final boolean overrules;
+	private final Map<RecordSpecInVault,SlaveTimeSeriesDataStorer> storerMap = new HashMap<>();
 	final StorerStatsImpl stats = new StorerStatsImpl();
-	final private Map<Long, TimeSeries> lockedTimeSeriesMap = new HashMap<>();
+	private final Map<Long, TimeSeries> lockedTimeSeriesMap = new HashMap<>();
 
 	public TimeSeriesDataStorerImpl(boolean overrules) {
 		this.overrules = overrules;
@@ -255,8 +255,8 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	}
 
 	private static class SingleTimeSeriesStorer {
-		final private List<TimeSeriesEntryImpl> newEntries = new ArrayList<>();
-		final private List<TimeSeriesEntryImpl> oldEntries = new ArrayList<>();
+		private final List<TimeSeriesEntryImpl> newEntries = new ArrayList<>();
+		private final List<TimeSeriesEntryImpl> oldEntries = new ArrayList<>();
 		private Date minDate;
 		private Date maxDate;
 		private int insertCount = 0;

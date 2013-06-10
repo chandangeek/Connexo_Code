@@ -8,11 +8,11 @@ import java.sql.*;
 import com.elster.jupiter.ids.*;
 
 public class TimeSeriesEntryImpl implements TimeSeriesEntry {
-	final private TimeSeries timeSeries;
-	final private long timeStamp;
-	final private long version;
-	final private long recordTime;		
-	final private Object[] values;
+	private final TimeSeries timeSeries;
+	private final long timeStamp;
+	private final long version;
+	private final long recordTime;
+	private final Object[] values;
 	
 	TimeSeriesEntryImpl(TimeSeries timeSeries, ResultSet resultSet) throws SQLException {		
 		this.timeSeries = timeSeries;

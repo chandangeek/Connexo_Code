@@ -58,7 +58,7 @@ public class VaultImpl implements Vault {
 		this.regular = regular;
 		this.localTime = regular;
 		this.journal = true;
-		this.partition = true;
+		this.partition = false;
 		this.active = false;		
 		this.minTime = new UtcInstant(0);
 	}
