@@ -1,7 +1,8 @@
 package com.elster.jupiter.metering;
 
-public interface AmrSystem {
+import com.elster.jupiter.util.HasName;
+
+public interface AmrSystem extends HasName {
 	int getId();
-	String getName();
 	Meter newMeter(String mRid);
 }

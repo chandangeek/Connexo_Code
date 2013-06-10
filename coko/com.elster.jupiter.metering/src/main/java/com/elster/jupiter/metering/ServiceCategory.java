@@ -1,8 +1,9 @@
 package com.elster.jupiter.metering;
 
-public interface ServiceCategory {	
+import com.elster.jupiter.util.HasName;
+
+public interface ServiceCategory extends HasName {
 	int getId();
-	String getName();
 	String getAliasName();
 	String getDescription();
 	ServiceKind getKind();

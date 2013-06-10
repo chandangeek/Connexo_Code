@@ -9,7 +9,7 @@ import com.elster.jupiter.metering.plumbing.Bus;
 
 public class ReadingStorerImpl implements ReadingStorer {
 	
-	final private TimeSeriesDataStorer storer;
+	private final TimeSeriesDataStorer storer;
 
 	public ReadingStorerImpl(boolean overrules) {
 		this.storer = Bus.getIdsService().createStorer(overrules);

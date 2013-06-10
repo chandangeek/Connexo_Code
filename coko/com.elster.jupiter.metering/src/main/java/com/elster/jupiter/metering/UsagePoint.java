@@ -1,19 +1,19 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.units.Quantity;
+
 import java.util.Date;
 import java.util.List;
 
-import com.elster.jupiter.cbo.*;
-import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.util.units.Quantity;
-
-public interface UsagePoint {
+public interface UsagePoint extends HasName {
 	long getId();
 	String getAliasName();
 	String getDescription();
 	String getMRID();
-	String getName();
 	AmiBillingReadyKind getAmiBillingReady();
 	boolean isCheckBilling();
 	UsagePointConnectedKind getConnectionState();

@@ -1,8 +1,9 @@
 package com.elster.jupiter.metering;
 
-public interface ReadingType {
+import com.elster.jupiter.util.HasName;
+
+public interface ReadingType extends HasName {
 	String getMRID();
-	String getName();
 	String getAliasName();
 	boolean isCumulativeReadingType(ReadingType readingType);
 }

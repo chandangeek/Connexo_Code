@@ -12,8 +12,8 @@ class IntervalLength {
 	private static final int DAYCIMCODE = 11;
 	private static final int MONTHCIMCODE = 13;
 	
-	final private int length;
-	final private IntervalLengthUnit unit;
+	private final int length;
+	private final IntervalLengthUnit unit;
 	
 	private IntervalLength(int length , IntervalLengthUnit unit) {
 		this.length = length;

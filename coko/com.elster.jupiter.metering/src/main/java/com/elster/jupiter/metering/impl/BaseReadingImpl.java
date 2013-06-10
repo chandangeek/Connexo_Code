@@ -9,8 +9,8 @@ import com.elster.jupiter.metering.*;
 
 
 abstract public class BaseReadingImpl implements BaseReading {
-	final private Channel channel;
-	final private TimeSeriesEntry entry; 
+	private final Channel channel;
+	private final TimeSeriesEntry entry;
 	
 	BaseReadingImpl(Channel channel , TimeSeriesEntry entry) {
 		this.channel = channel;
