@@ -96,7 +96,9 @@ abstract public class JoinDataMapper<T> {
 			if (uniqueName.length() > 30) {
 				uniqueName = uniqueName.substring(0, 30);
 			}
-			builder.append(uniqueName);			
+			builder.append("\"");
+			builder.append(uniqueName);
+			builder.append("\"");
 			separator = ", ";		
 		}
 		return separator;
