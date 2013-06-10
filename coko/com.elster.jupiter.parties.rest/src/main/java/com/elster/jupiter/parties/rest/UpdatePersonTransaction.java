@@ -39,7 +39,7 @@ class UpdatePersonTransaction implements Transaction<Person> {
     private Person fetchPerson() {
         Optional<Party> party = Bus.getPartyService().findParty(info.id);
         if (party.isPresent() && party.get() instanceof Person) {
-            return (Person) party;
+            return (Person) party.get();
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
