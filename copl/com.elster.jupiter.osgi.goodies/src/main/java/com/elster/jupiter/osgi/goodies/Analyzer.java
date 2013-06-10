@@ -8,7 +8,7 @@ import org.osgi.service.packageadmin.*;
 
 @SuppressWarnings("deprecation")
 public class Analyzer {
-	final private List<BundleInfo> bundleInfos = new ArrayList<>();
+	private final List<BundleInfo> bundleInfos = new ArrayList<>();
 	private String[] includeFilters;
 	private String[] excludeFilters;
 	

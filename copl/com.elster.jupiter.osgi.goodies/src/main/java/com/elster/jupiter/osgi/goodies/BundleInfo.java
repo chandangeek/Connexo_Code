@@ -8,9 +8,9 @@ import org.osgi.service.packageadmin.*;
 
 @SuppressWarnings("deprecation")
 public class BundleInfo {
-	final private Bundle bundle;
-	final private ExportedPackage[] exports;
-	final private Set<Bundle> dependents = new HashSet<>();
+	private final Bundle bundle;
+	private final ExportedPackage[] exports;
+	private final Set<Bundle> dependents = new HashSet<>();
 	
 	BundleInfo(Bundle bundle,ExportedPackage[] exports) {
 		this.bundle = bundle;
