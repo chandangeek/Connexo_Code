@@ -1,9 +1,13 @@
 package com.elster.jupiter.orm.plumbing;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.DeleteRule.*;
+import com.elster.jupiter.orm.AssociationMapping;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 
-import com.elster.jupiter.orm.*;
+import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
 	
@@ -41,7 +45,7 @@ public enum TableSpecs {
 			table.addColumn("SEQUENCENAME", CATALOGDBTYPE , false , NOCONVERSION , "sequenceName");
 			table.addColumn("INSERTVALUE", "varchar2(80)" , false , NOCONVERSION , "insertValue");
 			table.addColumn("UPDATEVALUE", "varchar2(80)" , false , NOCONVERSION , "updateValue");		
-			table.addPrimaryKeyConstraint("ORM_PK_COLUMNS", new Column[] { componentName , tableName , nameColumn });
+			table.addPrimaryKeyConstraint("ORM_PK_COLUMNS", componentName, tableName, nameColumn);
 			table.addUniqueConstraint("ORM_U_COLUMNSPOSITION", componentName , tableName , positionColumn);
 			table.addUniqueConstraint("ORM_U_COLUMNSFIELDNAME", componentName , tableName , fieldNameColumn);
 			table.addForeignKeyConstraint("ORM_FK_COLUMNSTABLES", ORM_TABLE.name() , CASCADE, new AssociationMapping("table" , "columns" ,"position") , componentName , tableName );
