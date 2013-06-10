@@ -56,7 +56,7 @@ public enum MarketRoleKind {
 	TRADERESPONSIBLEPARTY("Trade Responsible Party"),
 	TRANSMISSIONCAPACITYALLOCATOR("Transmission Capacity Allocator");
 		
-	final private String displayName;
+	private final String displayName;
 	
 	private MarketRoleKind(String displayName) {
 		this.displayName = displayName;

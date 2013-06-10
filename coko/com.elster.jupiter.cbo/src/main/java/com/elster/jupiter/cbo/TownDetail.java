@@ -1,6 +1,8 @@
 package com.elster.jupiter.cbo;
 
-public final class TownDetail implements Cloneable {
+import com.elster.jupiter.util.HasName;
+
+public final class TownDetail implements Cloneable, HasName {
 	
 	private String code;
 	private String country;

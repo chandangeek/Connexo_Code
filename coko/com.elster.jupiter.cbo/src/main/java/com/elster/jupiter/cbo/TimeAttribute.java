@@ -33,8 +33,8 @@ public enum TimeAttribute {
 	REQUIRES (29,"Must"),
 	START (30,"Start");
 	
-	final private int id;
-	final private String description;
+	private final int id;
+	private final String description;
 	
 	private TimeAttribute(int id, String description)  {
 		this.id = id;
