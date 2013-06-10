@@ -20,7 +20,7 @@ public class DeleteOrganizationTransaction extends VoidTransaction {
 
     @Override
     protected void doPerform() {
-        Organization organization = fetchPerson();
+        Organization organization = fetchOrganization();
         validateDelete(organization);
         doDelete(organization);
     }
@@ -35,7 +35,7 @@ public class DeleteOrganizationTransaction extends VoidTransaction {
         }
     }
 
-    private Organization fetchPerson() {
+    private Organization fetchOrganization() {
         Optional<Party> party = Bus.getPartyService().findParty(info.id);
         if (party.isPresent() || !(party.get() instanceof Organization)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);

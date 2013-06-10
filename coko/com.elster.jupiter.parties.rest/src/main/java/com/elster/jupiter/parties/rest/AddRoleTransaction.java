@@ -11,11 +11,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 
-/**
- * Copyrights EnergyICT
- * Date: 4/06/13
- * Time: 14:09
- */
 public class AddRoleTransaction implements Transaction<PartyInRole> {
 
     private final PartyInRoleInfo info;

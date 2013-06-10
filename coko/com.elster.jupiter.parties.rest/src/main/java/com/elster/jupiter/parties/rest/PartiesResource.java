@@ -30,7 +30,7 @@ public class PartiesResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Party> parties = getPartyRestQuery().select(queryParameters);
         PartyInfos infos = new PartyInfos(parties);
-        infos.total = determineTotal(queryParameters, parties);
+        infos.total = queryParameters.determineTotal(parties.size());
         return infos;
     }
 
@@ -76,14 +76,6 @@ public class PartiesResource {
         info.id = roleId;
         PartyInRole partyInRole = Bus.getTransactionService().execute(new TerminatePartyRoleTransaction(info));
         return new PartyInRoleInfos(partyInRole);
-    }
-
-    private int determineTotal(QueryParameters queryParameters, List<Party> list) {
-        int total = queryParameters.getStart() + list.size();
-        if (list.size() == queryParameters.getLimit()) {
-            total++;
-        }
-        return total;
     }
 
     private RestQuery<Party> getPartyRestQuery() {

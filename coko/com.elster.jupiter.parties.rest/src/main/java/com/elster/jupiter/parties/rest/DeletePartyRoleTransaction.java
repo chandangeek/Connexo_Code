@@ -7,11 +7,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 3/06/13
- * Time: 14:20
- */
 public class DeletePartyRoleTransaction extends VoidTransaction {
 
     private final PartyRoleInfo info;

@@ -66,7 +66,7 @@ public class OrganizationsResource {
             organizations.add((Organization) party);
         }
         OrganizationInfos infos = new OrganizationInfos(organizations);
-        infos.total = determineTotal(queryParameters, list);
+        infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }
 
@@ -78,14 +78,6 @@ public class OrganizationsResource {
         info.id = id;
         Bus.getTransactionService().execute(new UpdateOrganizationTransaction(info));
         return getOrganization(info.id);
-    }
-
-    private int determineTotal(QueryParameters queryParameters, List<Party> list) {
-        int total = queryParameters.getStart() + list.size();
-        if (list.size() == queryParameters.getLimit()) {
-            total++;
-        }
-        return total;
     }
 
     private RestQuery<Party> getPartyRestQuery() {

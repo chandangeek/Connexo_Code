@@ -8,11 +8,6 @@ import com.google.common.base.Optional;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-/**
- * Copyrights EnergyICT
- * Date: 5/06/13
- * Time: 10:10
- */
 public class TerminatePartyRoleTransaction implements Transaction<PartyInRole> {
 
     private final PartyInRoleInfo info;
