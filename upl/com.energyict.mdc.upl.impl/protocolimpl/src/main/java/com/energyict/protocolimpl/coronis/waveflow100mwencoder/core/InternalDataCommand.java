@@ -51,12 +51,12 @@ public class InternalDataCommand extends AbstractRadioCommand {
 		switch(getEncoderGenericHeader().getEncoderModelInfos()[portId].getEncoderModelType()) {
 			case ActarisMBusWater: {
 				byte[] encoderDataPortA = WaveflowProtocolUtils.getSubArray(data, offset, size);
-				internalDatas[portId] = new ActarisMBusInternalData(encoderDataPortA,getWaveFlow100mW().getLogger());
+				internalDatas[portId] = new ActarisMBusInternalData(encoderDataPortA,getWaveFlow100mW().getLogger(), portId);
 			} break;
 				
 			case ServenTrent: {
 				byte[] encoderDataPortA = WaveflowProtocolUtils.getSubArray(data, offset, size);
-				internalDatas[portId] = new EncoderInternalData(encoderDataPortA,getWaveFlow100mW().getLogger());
+				internalDatas[portId] = new EncoderInternalData(encoderDataPortA,getWaveFlow100mW().getLogger(), portId);
 			} break;
 		}
 	}

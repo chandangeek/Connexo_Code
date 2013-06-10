@@ -1,9 +1,12 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.core;
 
+import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimpl.coronis.waveflow.core.EventStatusAndDescription;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 
 import java.io.*;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class EncoderInternalData extends InternalData {
@@ -87,7 +90,8 @@ public class EncoderInternalData extends InternalData {
 		return encoderInternalData;
 	}
 
-	final public String getUserId() {
+    @Override
+    public String getSerialNumber() {
 		return userId;
 	}
 
@@ -139,11 +143,34 @@ public class EncoderInternalData extends InternalData {
 		return noflowCount;
 	}
 
+    public List<MeterEvent> getMeterEvents() {
+        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        if ((status & 0x01) == 0x01) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, portId == 0 ? EventStatusAndDescription.EVENTCODE_CELL_LOW_A : EventStatusAndDescription.EVENTCODE_CELL_LOW_B, "Cell low" + getPortInfo()));
+        }
+        if ((status & 0x02) == 0x02) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, portId == 0 ? EventStatusAndDescription.EVENTCODE_EEPROM_FAULT_A : EventStatusAndDescription.EVENTCODE_EEPROM_FAULT_B, "EEPROM fault" + getPortInfo()));
+        }
+        if (dryCount > 0) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, portId == 0 ? EventStatusAndDescription.EVENTCODE_DRY_A : EventStatusAndDescription.EVENTCODE_DRY_B, dryCount + " dry electrode event(s)" + getPortInfo()));
+        }
+        if (leakCount > 0) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, portId == 0 ? EventStatusAndDescription.EVENTCODE_LEAK_A : EventStatusAndDescription.EVENTCODE_LEAK_B, leakCount + " leak event(s)" + getPortInfo()));
+        }
+        if (tamperCount > 0) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, portId == 0 ? EventStatusAndDescription.EVENTCODE_TAMPER_A : EventStatusAndDescription.EVENTCODE_TAMPER_B, tamperCount + " tamper event(s)" + getPortInfo()));
+        }
+        if (noflowCount > 0) {
+            meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, portId == 0 ? EventStatusAndDescription.EVENTCODE_NOFLOW_A : EventStatusAndDescription.EVENTCODE_NOFLOW_B, noflowCount + " no-flow event(s)" + getPortInfo()));
+        }
+        return meterEvents;
+    }
+
 	public String toString() {
         // Generated code by ToStringBuilder
         StringBuffer strBuff = new StringBuffer();
         strBuff.append("EncoderInternalData:\n");
-        strBuff.append("   userId="+getUserId()+"\n");
+        strBuff.append("   userId=" + getSerialNumber() + "\n");
         strBuff.append("   totalizerSerial="+getTotalizerSerial()+"\n");
         strBuff.append("   transducerSerial="+getTransducerSerial()+"\n");
         strBuff.append("   version="+getVersion()+"\n");
@@ -159,12 +186,12 @@ public class EncoderInternalData extends InternalData {
         return strBuff.toString();
     }
 
-	EncoderInternalData(final byte[] data, final Logger logger) throws IOException {
-		
+    EncoderInternalData(final byte[] data, final Logger logger, int portId) throws IOException {
+        this.portId = portId;
+
 		if (data.length != ENCODER_INTERNAL_DATA_LENGTH) {
 			throw new WaveFlow100mwEncoderException("Invalid encoder internal data length. Expected length ["+ENCODER_INTERNAL_DATA_LENGTH+"], received length ["+data.length+"]");
 		}
-		
 		
 		encoderInternalData = new String(data);
 		

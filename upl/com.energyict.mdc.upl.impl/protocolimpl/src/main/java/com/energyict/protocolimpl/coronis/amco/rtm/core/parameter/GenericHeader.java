@@ -40,7 +40,9 @@ public class GenericHeader {
     }
 
     public double getShortLifeCounter() {
-        return 100 - (((getInitialBatteryCount(radioAddress) * 100) - (shortLifeCounter * 100)) / getInitialBatteryCount(radioAddress));
+        double shortLifeCounter = 100 - (((getInitialBatteryCount(radioAddress) * 100) - (this.shortLifeCounter * 100)) / getInitialBatteryCount(radioAddress));
+        shortLifeCounter = Math.round(shortLifeCounter * 100.0) / 100.0;
+        return shortLifeCounter;
     }
 
     public GenericHeader(byte[] radioAddress) {

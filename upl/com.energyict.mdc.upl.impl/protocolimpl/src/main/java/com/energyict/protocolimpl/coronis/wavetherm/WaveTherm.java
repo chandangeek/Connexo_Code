@@ -200,7 +200,7 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
         AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
-        alarmFrame.parse(event.getBytes());
+        alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()));
 		statusAndEvents.add(alarmFrame.getResponse());
 		statusAndEvents.add(alarmFrame.getMeterEvents());
 		return statusAndEvents;

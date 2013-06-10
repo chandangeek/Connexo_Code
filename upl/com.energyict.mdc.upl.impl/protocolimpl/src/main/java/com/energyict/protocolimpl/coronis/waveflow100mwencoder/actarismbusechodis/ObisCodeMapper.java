@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechodis;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.ActarisMBusInternalData;
@@ -61,6 +63,12 @@ public class ObisCodeMapper {
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.254"), "MBUS header status byte");
 		registerMaps.put(ObisCode.fromString("0.1.96.99.255.255"), "MBUS header signature field");
 		
+        registerMaps.put(ObisCode.fromString("1.1.96.1.0.255"), "Meter serial number on port A");
+        registerMaps.put(ObisCode.fromString("1.2.96.1.0.255"), "Meter serial number on port B");
+
+        registerMaps.put(ObisCode.fromString("0.1.96.5.2.255"), "Alarm code for meter on port A");
+        registerMaps.put(ObisCode.fromString("0.2.96.5.2.255"), "Alarm code for meter on port B");
+
 		registerMaps.put(ObisCode.fromString("8.1.1.0.0.255"), "Port A current index");
 		registerMaps.put(ObisCode.fromString("8.2.1.0.0.255"), "Port B current index");
 		
@@ -74,7 +82,9 @@ public class ObisCodeMapper {
 	
 	private Echodis echodis;
 	
-    /** Creates a new instance of ObisCodeMapper */
+    /**
+     * Creates a new instance of ObisCodeMapper
+     */
     public ObisCodeMapper(final Echodis echodis) {
         this.echodis=echodis;
     }
@@ -106,7 +116,22 @@ public class ObisCodeMapper {
     
     public RegisterValue getRegisterValue(ObisCode obisCode) throws IOException {
 		try {
-
+            if (obisCode.equals(ObisCode.fromString("1.1.96.1.0.255")) || obisCode.equals(ObisCode.fromString("1.2.96.1.0.255"))) {
+                int portId = obisCode.getB() - 1;
+                ActarisMBusInternalData internalData = (ActarisMBusInternalData) echodis.readInternalDatas()[portId];
+                if (internalData == null) {
+                    throw new NoSuchRegisterException("No encoder connected to port " + (portId == 1 ? "A" : "B"));
+                }
+                return new RegisterValue(obisCode, null, null, null, null, new Date(), 0, internalData.getSerialNumber());
+            }
+            if (obisCode.equals(ObisCode.fromString("0.1.96.5.2.255")) || obisCode.equals(ObisCode.fromString("0.2.96.5.2.255"))) {
+                int portId = obisCode.getB() - 1;
+                ActarisMBusInternalData internalData = (ActarisMBusInternalData) echodis.readInternalDatas()[portId];
+                if (internalData == null) {
+                    throw new NoSuchRegisterException("No encoder connected to port " + (portId == 1 ? "A" : "B"));
+                }
+                return new RegisterValue(obisCode, new Quantity(internalData.getAlarmCode(), Unit.get("")));
+            }
 	    	if ((obisCode.equals(ObisCode.fromString("0.0.96.6.68.255"))) || (obisCode.equals(ObisCode.fromString("0.0.96.6.69.255")))) {
 	    		// encoder internal data
 	    		int portId = obisCode.getE()-68;

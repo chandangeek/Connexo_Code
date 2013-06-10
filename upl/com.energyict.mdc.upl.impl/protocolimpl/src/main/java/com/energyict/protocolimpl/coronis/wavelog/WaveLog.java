@@ -57,23 +57,23 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     }
 
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-    	try {
+        try {
             return profileDataReader.getProfileData(lastReading, new Date(), includeEvents);
-    	}
-    	catch(WaveFlowException e) {
-    		getLogger().warning("No profile data available." + "\n\r" + e.getMessage());
-    		return null;
-    	}
+        }
+        catch(WaveFlowException e) {
+            getLogger().warning("No profile data available." + "\n\r" + e.getMessage());
+            return null;
+        }
     }
 
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException, UnsupportedException {
         try {
             return profileDataReader.getProfileData(from, to, includeEvents);
-    	}
-    	catch(WaveFlowException e) {
-    		getLogger().warning("No profile data available." + "\n\r" + e.getMessage());
-    		return null;
-    	}
+        }
+        catch(WaveFlowException e) {
+            getLogger().warning("No profile data available." + "\n\r" + e.getMessage());
+            return null;
+        }
     }
 
 
@@ -185,9 +185,9 @@ public class WaveLog extends AbstractProtocol implements MessageProtocol, Protoc
     public List map2MeterEvent(String event) throws IOException {
         List statusAndEvents = new ArrayList();
         AlarmFrameParser alarmFrame = new AlarmFrameParser(this);
-        alarmFrame.parse(event.getBytes());
-		statusAndEvents.add(alarmFrame.getResponseAck());
-		statusAndEvents.add(alarmFrame.getMeterEvents());
-		return statusAndEvents;
+        alarmFrame.parse(ProtocolUtils.convert2ascii(event.getBytes()));
+        statusAndEvents.add(alarmFrame.getResponseAck());
+        statusAndEvents.add(alarmFrame.getMeterEvents());
+        return statusAndEvents;
     }
 }

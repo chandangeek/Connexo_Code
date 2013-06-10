@@ -26,7 +26,7 @@ public class CommunicationErrorReadingDate extends AbstractParameter {
 
 	@Override
 	ParameterId getParameterId() {
-		return portId==0?ParameterId.CommunicationErrorDetectionDatePortA:ParameterId.CommunicationErrorDetectionDatePortB;
+		return portId==0?ParameterId.CommunicationErrorReadingDatePortA:ParameterId.CommunicationErrorReadingDatePortB;
 	}
 
 	@Override

@@ -35,10 +35,9 @@ abstract public class AbstractParameter extends AbstractRadioCommand {
 		BackflowDetectionFlagsPortB(0x47,2,"Backflow detection flags port B"),
 		CommunicationErrorDetectionDatePortA(0x4C,7,"communication error detection date port A"),
 		CommunicationErrorDetectionDatePortB(0x4D,7,"communication error detection date port B"),
-		CommunicationErrorReadingDatePortA(0x4E,7,"communication error reading date port A"),
-		CommunicationErrorReadingDatePortB(0x4F,7,"communication error reading date port B"),
+		CommunicationErrorReadingDatePortA(0x4E,7,"reading error detection date port A"),
+		CommunicationErrorReadingDatePortB(0x4F,7,"reading error detection date port B"),
 		AlarmConfiguration(0x58,1,"Alarm configuration");
-		
 		
 		private int id;
 		private int length;

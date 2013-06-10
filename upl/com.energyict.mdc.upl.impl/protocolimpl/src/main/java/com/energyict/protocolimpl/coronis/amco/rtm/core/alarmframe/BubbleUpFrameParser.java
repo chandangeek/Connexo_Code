@@ -135,7 +135,8 @@ public class BubbleUpFrameParser {
         genericHeader = new GenericHeader(rtm, radioAddress);
         genericHeader.parse(data);
 
-        RegisterValue batteryRegister = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(genericHeader.getShortLifeCounter(), Unit.get("")), new Date());
+        double battery = genericHeader.getShortLifeCounter();
+        RegisterValue batteryRegister = new RegisterValue(ObisCode.fromString("0.0.96.6.0.255"), new Quantity(battery > 100 ? 100 : battery, Unit.get("")), new Date());
         registerValues.add(batteryRegister);
 
         double qos = genericHeader.getQos();

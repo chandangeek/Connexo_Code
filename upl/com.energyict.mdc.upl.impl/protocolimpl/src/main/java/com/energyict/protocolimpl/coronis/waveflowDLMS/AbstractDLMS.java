@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.coronis.waveflowDLMS;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.util.DateTime;
@@ -15,8 +16,7 @@ import java.util.Map.Entry;
 
 abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolLink, MessageProtocol, EventMapper, RegisterCache {
 
-
-    enum PairingMeterId {
+    protected enum PairingMeterId {
         AS253(1),
         AS1253(2),
         A1800(3);
@@ -30,20 +30,45 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
         PairingMeterId(final int id) {
             this.id = id;
         }
+    }
 
+    /**
+     * Validates if the serial number matches the utility ID (some kind of extended serial number) of the connected e-meter
+     */
+    @Override
+    protected void doConnect() throws IOException {
+        if (serialNumberA != null && serialNumberA.length() != 0) {
+            String meterSerialNumber;
+            try {
+                meterSerialNumber = readRegister(getUtilityIdObiscode()).getText().trim();
+            } catch (WaveFlowDLMSException e) {
+                getLogger().warning("Error while reading out the meter serial number: " + e.getMessage());
+                String msg = "Expected a meter with serial number '" + serialNumberA + "', but no meter is connected!";
+                getLogger().warning(msg);
+                IOException e1 = new IOException(msg);
+                throw new NestedIOException(e1);     //To get completion code 2 (IO Error) instead of code 3 (protocol error)
+            }
+            if (!serialNumberA.equalsIgnoreCase(meterSerialNumber)) {
+                String msg = "Serial number mismatch. Configured serial number for connected meter is '" + serialNumberA + "', while the actual serial number is '" + meterSerialNumber + "'";
+                getLogger().warning(msg);
+                IOException e = new IOException(msg);
+                throw new NestedIOException(e);     //To get completion code 2 (IO Error) instead of code 3 (protocol error)
+            }
+        }
     }
 
     static private final int EMETER_NR_OF_CHANNELS = 4;
+    protected static final String PROPERTY_LP_MULTIPLIER = "ApplyLoadProfileMultiplier";
 
+    protected abstract void doTheValidateProperties(Properties properties);
 
-    abstract void doTheValidateProperties(Properties properties);
+    protected abstract ObisCode getSerialNumberObisCodeForPairingRequest();
 
-    abstract ObisCode getSerialNumberObisCodeForPairingRequest();
+    protected abstract ObisCode getUtilityIdObiscode();
 
-    abstract Map<ObisCode, ObjectEntry> getObjectEntries();
+    protected abstract Map<ObisCode, ObjectEntry> getObjectEntries();
 
-
-    abstract PairingMeterId getPairingMeterId();
+    protected abstract PairingMeterId getPairingMeterId();
 
     public ObjectEntry findObjectByObiscode(final ObisCode obisCode) throws NoSuchRegisterException {
         ObjectEntry o = getObjectEntries().get(obisCode);
@@ -52,6 +77,10 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
         } else {
             return o;
         }
+    }
+
+    public boolean isOptimizeChangeContactorStatus() {
+        return optimizeChangeContactorStatus;
     }
 
     public Entry<ObisCode, ObjectEntry> findEntryByDescription(final String description) throws NoSuchRegisterException {
@@ -72,6 +101,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
      */
     private TransparantObjectAccessFactory transparantObjectAccessFactory;
 
+    private String serialNumberA;
 
     private ObisCodeMapper obisCodeMapper;
 
@@ -84,6 +114,12 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
      * the correctWaveflowTime property. The waveflow time will be set also with the setTime() mechanism as a default
      */
     private int correctWaveflowTime;
+
+    private int maxNumberOfIntervals = 0;
+
+    public int getMaxNumberOfIntervals() {
+        return maxNumberOfIntervals;
+    }
 
     /**
      * the load profile obis code custom property
@@ -100,6 +136,24 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
      */
     private boolean verifyProfileInterval = false;
 
+    /**
+     * Indicates if the AM700 module uses old or new firmware.
+     * Default is new firmware behaviour
+     */
+    private boolean isOldFirmware = false;
+
+    /**
+     * Check if the AM700 board has old (1.0.X or lower) firmware
+     * This is important for the parsing of the event code
+     */
+    public boolean isOldFirmware() {
+        return isOldFirmware;
+    }
+
+    /**
+     * Indicates whether or not to use the simple contactor change method
+     */
+    private boolean optimizeChangeContactorStatus = false;
 
     /**
      * Reference to the parameter factory
@@ -222,22 +276,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
     }
 
     @Override
-    protected void doConnect() throws IOException {
-//		System.out.println("Tune the Wavecard for Waveflow AC");
-//		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(1);
-//		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(20);
-//		escapeCommandFactory.setAndVerifyWavecardWakeupLength(110);    	
-    }
-
-
-    @Override
     protected void doDisConnect() throws IOException {
-        System.out.println("Restore Wavecard settings...");
-//		escapeCommandFactory.setAndVerifyWavecardRadiotimeout(2);
-//		escapeCommandFactory.setAndVerifyWavecardWakeupLength(1100);
-//		escapeCommandFactory.setAndVerifyWavecardAwakeningPeriod(10);
-
-
     }
 
     @Override
@@ -247,6 +286,11 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
         list.add("verifyProfileInterval");
         list.add("LoadProfileObisCode");
         list.add("WavenisEncryptionKey");
+        list.add("isOldFirmware");
+        list.add("optimizeChangeContactorStatus");
+        list.add("SerialNumberA");
+        list.add("MaxNumberOfIntervals");
+        list.add(PROPERTY_LP_MULTIPLIER);
         return list;
     }
 
@@ -275,6 +319,10 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
         correctTime = Integer.parseInt(properties.getProperty(MeterProtocol.CORRECTTIME, "0"));
         correctWaveflowTime = Integer.parseInt(properties.getProperty("correctWaveflowTime", "0"));
         verifyProfileInterval = Boolean.parseBoolean(properties.getProperty("verifyProfileInterval", "false"));
+        isOldFirmware = "1".equalsIgnoreCase(properties.getProperty("isOldFirmware", "0"));
+        optimizeChangeContactorStatus = "1".equalsIgnoreCase(properties.getProperty("optimizeChangeContactorStatus", "0"));
+        serialNumberA = properties.getProperty("SerialNumberA", "");
+        maxNumberOfIntervals = Integer.parseInt(properties.getProperty("MaxNumberOfIntervals", "0"));
 
         String temp = properties.getProperty("WavenisEncryptionKey");
         if (temp != null) {
@@ -456,7 +504,7 @@ abstract public class AbstractDLMS extends AbstractProtocol implements ProtocolL
 
     public List map2MeterEvent(String event) throws IOException {
         //FIXME: we should implement a new interface in the protocols to be used for the alarm ack return data...
-        AlarmFrameParser alarmFrame = new AlarmFrameParser(event.getBytes(), this);
+        AlarmFrameParser alarmFrame = new AlarmFrameParser(ProtocolUtils.convert2ascii(event.getBytes()), this);
         // this is tricky. We need to return the "alarmstatus" bytes to acknowledge the alarm.
         // so to avoid changing the signature of interfaceEventMapper in Ethernet, we add the return "alarmstatus" as first element in the list.
         List statusAndEvents = new ArrayList();

@@ -1,10 +1,7 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.cpo.Environment;
-import com.energyict.mdw.core.CommunicationProtocol;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -97,6 +94,16 @@ public final class ProtocolTools {
     public static String getHexStringFromInt(int value, int length, String prefix) {
         byte[] bytes = getBytesFromInt(value, length);
         return getHexStringFromBytes(bytes, prefix);
+    }
+
+    /**
+     * Check if the n-th bit is set of the value. The bit number is 0 based, so it can range from 0 to 31.
+     *
+     * @param bitNumber The number of the bit to test
+     * @return True if the bit was set, false if not.
+     */
+    public static boolean isBitSet(int value, int bitNumber) {
+        return ((value >> bitNumber) & 0x01) == 1;
     }
 
     /**

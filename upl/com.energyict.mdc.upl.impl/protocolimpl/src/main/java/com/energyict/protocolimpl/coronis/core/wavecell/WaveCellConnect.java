@@ -240,7 +240,7 @@ public class WaveCellConnect extends WaveFlowConnect {
      * Reads in a response from the WaveCell, parses the header and returns the frame.
      *
      * @return applicative data or null if there's none
-     * @throws java.io.IOException
+     * @throws IOException
      */
     public WaveCellFrame readInboundFrame() throws IOException {
         WaveCellFrame response = readWaveCellHeader();  //To check the WaveCell ID and the command
@@ -280,7 +280,7 @@ public class WaveCellConnect extends WaveFlowConnect {
     /**
      * Read in a full WaveCell frame
      *
-     * @throws java.io.IOException due to a timeout
+     * @throws IOException due to a timeout
      */
     private WaveCellFrame readWaveCellFrame(WaveCellFrame response) throws IOException {
         int length = readAndCheckLength();
@@ -334,7 +334,7 @@ public class WaveCellConnect extends WaveFlowConnect {
      * Reads in 2 actual bytes, representing the ascii notation of a hex byte.
      * E.g. reading [0x30 0x31] returns byte 01
      *
-     * @throws java.io.IOException timeout
+     * @throws IOException timeout
      */
     private int readOctet() throws IOException {
         return ProtocolTools.getBytesFromHexString(readCharacters(2), "")[0] & 0xFF;

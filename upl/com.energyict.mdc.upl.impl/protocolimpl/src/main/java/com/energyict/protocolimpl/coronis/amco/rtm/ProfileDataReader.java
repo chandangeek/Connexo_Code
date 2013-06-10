@@ -198,11 +198,7 @@ public class ProfileDataReader {
                 calendar.setTime(getTimeStampOfNewestRecordMonthly(toDate, lastLoggedValue));
             }
         }
-        if (monthly || (getProfileIntervalInSeconds() == WEEKLY)) {
-            calendar = roundTimeStamps(calendar, HOURLY);
-        } else {
-            calendar = roundTimeStamps(calendar, getProfileIntervalInSeconds());
-        }
+        calendar = roundTimeStamps(monthly, calendar, getProfileIntervalInSeconds());
 
 
         if (daily) {
@@ -241,11 +237,16 @@ public class ProfileDataReader {
         return profileData;
     }
 
-    private Calendar roundTimeStamps(Calendar calendar, int profileIntervalInSeconds) throws IOException {
+    private Calendar roundTimeStamps(boolean monthly, Calendar calendar, int profileIntervalInSeconds) throws IOException {
         if (rtm.isRoundDownToNearestInterval()) {
+            if (monthly || profileIntervalInSeconds == WEEKLY || profileIntervalInSeconds == DAILY) {
+                calendar.set(Calendar.HOUR, 0);
+                calendar.set(Calendar.MINUTE, 0);
+            } else {
             if (!ParseUtils.isOnIntervalBoundary(calendar, profileIntervalInSeconds)) {
                 ParseUtils.roundDown2nearestInterval(calendar, profileIntervalInSeconds);
             }
+        }
         }
         return calendar;
     }
