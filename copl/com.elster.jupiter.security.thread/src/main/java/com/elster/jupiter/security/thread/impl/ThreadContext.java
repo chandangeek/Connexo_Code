@@ -3,7 +3,7 @@ package com.elster.jupiter.security.thread.impl;
 import java.security.Principal;
 
 class ThreadContext {
-	final private Principal principal;
+	private final Principal principal;
 	private String module;
 	private String action;
 	
