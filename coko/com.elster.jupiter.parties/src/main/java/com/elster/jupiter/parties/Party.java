@@ -1,15 +1,15 @@
 package com.elster.jupiter.parties;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.Interval;
 
 import java.util.Date;
 import java.util.List;
 
-public interface Party {
+public interface Party extends HasName {
 	long getId();
 	String getMRID();
-	String getName();
 	String getAliasName();
 	ElectronicAddress getElectronicAddress();
     String getDescription();

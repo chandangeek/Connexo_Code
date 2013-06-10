@@ -1,9 +1,10 @@
 package com.elster.jupiter.parties;
 
-public interface PartyRole {
+import com.elster.jupiter.util.HasName;
+
+public interface PartyRole extends HasName {
 	String getComponentName();
 	String getMRID();
-	String getName();
 	String getAliasName();
 	String getDescription();
     long getVersion();
