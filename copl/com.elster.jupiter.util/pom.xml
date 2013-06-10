@@ -53,6 +53,11 @@
             <groupId>org.easytesting</groupId>
             <artifactId>fest-assert-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>14.0.1</version>
+        </dependency>
     </dependencies>
 
 </project>

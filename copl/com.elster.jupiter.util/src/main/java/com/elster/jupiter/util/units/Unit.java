@@ -6,13 +6,13 @@ import static java.math.BigDecimal.*;
 
 public final class Unit {
 	
-	final private String name;
-	final private String symbol;
-	final private String asciiSymbol;
-	final private Dimension dimension;
-	final private BigDecimal siMultiplier;
-	final private BigDecimal siDivisor;
-	final private BigDecimal siDelta;
+	private final String name;
+	private final String symbol;
+	private final String asciiSymbol;
+	private final Dimension dimension;
+	private final BigDecimal siMultiplier;
+	private final BigDecimal siDivisor;
+	private final BigDecimal siDelta;
 	
 	private Unit(String name, String symbol, String asciiSymbol, Dimension dimension , 	BigDecimal siMultiplier , BigDecimal siDivisor , BigDecimal siDelta) {
 		this.name = name;

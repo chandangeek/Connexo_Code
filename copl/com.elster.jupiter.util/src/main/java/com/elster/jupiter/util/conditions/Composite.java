@@ -5,7 +5,7 @@ import java.util.List;
 
 abstract public class Composite implements Condition {
 	
-	final private List<Condition> conditions = new ArrayList<>(); 
+	private final List<Condition> conditions = new ArrayList<>();
 	
 	Composite(Condition condition1 , Condition condition2) {
 		this.conditions.add(condition1);

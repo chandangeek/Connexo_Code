@@ -1,15 +1,17 @@
 package com.elster.jupiter.util.units;
 
-public final class Dimension {
+import com.elster.jupiter.util.HasName;
+
+public final class Dimension implements HasName {
 	
-	final private String name;
-	final private int lengthDimension;
-	final private int massDimension;
-	final private int timeDimension;
-	final private int currentDimension;
-	final private int temperatureDimension;
-	final private int amountDimension;
-	final private int luminousIntensityDimension;
+	private final String name;
+	private final int lengthDimension;
+	private final int massDimension;
+	private final int timeDimension;
+	private final int currentDimension;
+	private final int temperatureDimension;
+	private final int amountDimension;
+	private final int luminousIntensityDimension;
 	
 	private Dimension(String name, int lengthD, int massD, int timeD, int currentD, int temperatureD,int amountD,int luminousIntensityD) {
 		this.name = name;
