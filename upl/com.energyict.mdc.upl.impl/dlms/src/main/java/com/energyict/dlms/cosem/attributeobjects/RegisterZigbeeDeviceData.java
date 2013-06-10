@@ -23,13 +23,13 @@ public class RegisterZigbeeDeviceData extends Structure {
         validateAddress(address);
     }
 
-    private void validateAddress(ZigBeeIEEEAddress address) throws IOException {
+    protected void validateAddress(ZigBeeIEEEAddress address) throws IOException {
         if (address == null) {
             throw new IOException("ZigBeeIEEEAddress is required and cannot be 'null'");
         }
     }
 
-    private void validateLinkKey(OctetString linkKey) throws IOException {
+    protected void validateLinkKey(OctetString linkKey) throws IOException {
         if (linkKey == null) {
             throw new IOException("Link key is required and cannot be 'null'");
         }
@@ -39,5 +39,4 @@ public class RegisterZigbeeDeviceData extends Structure {
             throw new IOException("Link key length should be 16 bytes but was [" + length + "]!");
         }
     }
-
 }
