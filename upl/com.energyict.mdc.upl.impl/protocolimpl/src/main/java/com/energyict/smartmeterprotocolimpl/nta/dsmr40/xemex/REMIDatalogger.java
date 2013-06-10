@@ -106,6 +106,6 @@ public class REMIDatalogger extends E350 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2012-04-02 13:07:50 +0200 (ma, 02 apr 2012) $";
+        return "$Date$";
     }
 }
