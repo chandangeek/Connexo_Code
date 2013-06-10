@@ -1,8 +1,18 @@
 package com.elster.jupiter.users;
 
-public interface Group {
-	long getId();
-	String getName();	
-	boolean hasPrivilege(String privilegeName);
-	void grant(String privilegeName);	
+import com.elster.jupiter.util.HasName;
+
+public interface Group extends HasName {
+
+    long getId();
+
+    boolean hasPrivilege(String privilegeName);
+
+    void grant(String privilegeName);
+
+    long getVersion();
+
+    void save();
+
+    void delete();
 }

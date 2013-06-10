@@ -1,9 +1,13 @@
 package com.elster.jupiter.users.impl;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.DeleteRule.*;
+import com.elster.jupiter.orm.AssociationMapping;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 
-import com.elster.jupiter.orm.*;
+import static com.elster.jupiter.orm.ColumnConversion.NOCONVERSION;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 public enum TableSpecs {
 	USR_PRIVILEGE {
@@ -30,7 +34,7 @@ public enum TableSpecs {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
 			Column authenticationNameColumn = table.addColumn("AUTHNAME", "varchar2(80)" , true , NOCONVERSION , "authenticationName");
-			table.addColumn("DESCRIPTION", "varchar2(256)" , true , NOCONVERSION , "description");			
+			table.addColumn("DESCRIPTION", "varchar2(256)" , false , NOCONVERSION , "description");
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "versionCount");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");

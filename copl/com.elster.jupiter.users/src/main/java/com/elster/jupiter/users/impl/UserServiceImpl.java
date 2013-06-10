@@ -1,5 +1,8 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -24,6 +27,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     private volatile OrmClient ormClient;
     private volatile TransactionService transactionService;
+    private volatile QueryService queryService;
 
     @Override
     public OrmClient getOrmClient() {
@@ -81,18 +85,22 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     }
 
     @Override
-    public User findUser(String authenticationName) {
-		User user = Bus.getOrmClient().getUserFactory().getUnique("authenticationName",authenticationName);
-		if (user == null) {
-			System.out.println("User " + authenticationName + " not found");
-		}
-		return user;		
+    public Optional<User> findUser(String authenticationName) {
+        return Optional.of(userFactory().getUnique("authenticationName", authenticationName));
 	}
+
+    private DataMapper<User> userFactory() {
+        return Bus.getOrmClient().getUserFactory();
+    }
 
 
     @Override
-    public Group findGroup(String name) {
-        return Bus.getOrmClient().getGroupFactory().getUnique("name", name);
+    public Optional<Group> findGroup(String name) {
+        return Optional.of(groupFactory().getUnique("name", name));
+    }
+
+    private DataMapper<Group> groupFactory() {
+        return Bus.getOrmClient().getGroupFactory();
     }
 
     @Override
@@ -101,9 +109,9 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     }
 
     @Override
-    public User authenticateBase64(String base64) {
-        if (base64 == null || base64.length() == 0) {
-            return null;
+    public Optional<User> authenticateBase64(String base64) {
+        if (base64 == null || base64.isEmpty()) {
+            return Optional.absent();
         }
         String plainText = new String(DatatypeConverter.parseBase64Binary(base64));
         String[] names = plainText.split(":");
@@ -115,7 +123,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 		new InstallerImpl().install();		
 	}
 
-    public User authenticate(String userName, String password) {
+    public Optional<User> authenticate(String userName, String password) {
         return findUser(userName);
     }
 
@@ -124,5 +132,42 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
         return "Jupiter";
     }
 
+    @Override
+    public Optional<Group> getGroup(long id) {
+        return groupFactory().get(id);
+    }
 
+    @Override
+    public Optional<User> getUser(long id) {
+        return userFactory().get(id);
+    }
+
+    @Override
+    public Query<Group> getGroupQuery() {
+        return getQueryService().wrap(groupFactory().with(getOrmClient().getPrivilegeInGroupFactory(), getOrmClient().getPrivilegeFactory()));
+    }
+
+    @Override
+    public Query<User> getUserQuery() {
+        return getQueryService().wrap(userFactory().with());
+    }
+
+    public QueryService getQueryService() {
+        return queryService;
+    }
+
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
+    @Override
+    public Group newGroup(String name) {
+        return new GroupImpl(name);
+    }
+
+    @Override
+    public User newUser(String name) {
+        return new UserImpl(name);
+    }
 }

@@ -1,6 +1,8 @@
 package com.elster.jupiter.users;
 
-public interface Privilege {	
+import com.elster.jupiter.util.HasName;
+
+public interface Privilege extends HasName {
 	String getComponentName();
 	String getName();
 	String getDescription();

@@ -1,14 +1,21 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.To;
+import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.FluentIterable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.elster.jupiter.users.*;
-import com.elster.jupiter.util.time.UtcInstant;
+import static com.elster.jupiter.util.Checks.is;
 
 
-public class GroupImpl implements Group {
+class GroupImpl implements Group {
 	//persistent fields
 	private long id;
 	private String name;
@@ -21,10 +28,17 @@ public class GroupImpl implements Group {
 	}
 	
 	GroupImpl(String name) {
-		this.name = name;
+        validateName(name);
+        this.name = name;
 	}
 
-	@Override 
+    private void validateName(String name) {
+        if (is(name).emptyOrOnlyWhiteSpace()) {
+            throw new IllegalArgumentException("Group name cannot be empty.");
+        }
+    }
+
+    @Override
 	public long getId() {
 		return id;		
 	}
@@ -36,12 +50,7 @@ public class GroupImpl implements Group {
 
 	@Override
 	public boolean hasPrivilege(String privilegeName) {
-		for (Privilege each : getPrivileges()) {
-			if (each.getName().equals(privilegeName)) {
-				return true;
-			}			
-		}
-		return false;
+        return FluentIterable.from(getPrivileges()).transform(To.Name).contains(privilegeName);
 	}
 	
 	List<Privilege> getPrivileges() {
@@ -62,10 +71,14 @@ public class GroupImpl implements Group {
 	}
 	
 	void persist() {
-		Bus.getOrmClient().getGroupFactory().persist(this);
+		groupFactory().persist(this);
 	}
-	
-	public Date getCreateDate() {
+
+    private DataMapper<Group> groupFactory() {
+        return Bus.getOrmClient().getGroupFactory();
+    }
+
+    public Date getCreateDate() {
 		return createTime.toDate();
 	}
 	
@@ -88,11 +101,16 @@ public class GroupImpl implements Group {
 		add(privilege);
 	}
 	
-	void save() {
+	public void save() {
 		if (id == 0) {
-			Bus.getOrmClient().getGroupFactory().persist(this);
+			groupFactory().persist(this);
 		} else {
-			Bus.getOrmClient().getGroupFactory().update(this);
+			groupFactory().update(this);
 		}
 	}
+
+    @Override
+    public void delete() {
+        groupFactory().remove(this);
+    }
 }
