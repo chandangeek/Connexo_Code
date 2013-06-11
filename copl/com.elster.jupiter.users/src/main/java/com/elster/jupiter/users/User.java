@@ -3,6 +3,7 @@ package com.elster.jupiter.users;
 import com.elster.jupiter.util.HasName;
 
 import java.security.Principal;
+import java.util.List;
 
 public interface User extends Principal, HasName {
 
@@ -21,4 +22,20 @@ public interface User extends Principal, HasName {
     void save();
 
     void delete();
+
+    /**
+     * @param group
+     * @return true, if a new memebership was created, false if it already existed.
+     */
+    boolean join(Group group);
+
+    /**
+     * @param group
+     * @return true if the membership existed, false otherwise.
+     */
+    boolean leave(Group group);
+
+    boolean isMemberOf(Group group);
+
+    List<Group> getGroups();
 }

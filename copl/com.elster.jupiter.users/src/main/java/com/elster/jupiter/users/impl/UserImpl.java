@@ -71,8 +71,38 @@ public class UserImpl implements User {
 
     }
 
-    List<Group> getGroups() {
-        List<UserInGroup> userInGroups = Bus.getOrmClient().getUserInGroupFactory().find("userId", getId());
+    @Override
+    public boolean join(Group group) {
+        if (isMemberOf(group)) {
+            return false;
+        }
+        new UserInGroup(this, group).persist();
+        return true;
+    }
+
+    @Override
+    public boolean isMemberOf(Group group) {
+        return getGroups().contains(group);
+    }
+
+    @Override
+    public boolean leave(Group group) {
+        for (UserInGroup userInGroup : fetchMemberships()) {
+            if (group.equals(userInGroup.getGroup())) {
+                userInGroup.delete();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<UserInGroup> fetchMemberships() {
+        return Bus.getOrmClient().getUserInGroupFactory().find("userId", getId());
+    }
+
+    @Override
+    public List<Group> getGroups() {
+        List<UserInGroup> userInGroups = fetchMemberships();
         List<Group> result = new ArrayList<>(userInGroups.size());
         for (UserInGroup each : userInGroups) {
             result.add(each.getGroup());

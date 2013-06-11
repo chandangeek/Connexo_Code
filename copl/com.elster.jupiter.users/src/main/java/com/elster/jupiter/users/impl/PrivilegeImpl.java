@@ -40,19 +40,24 @@ class PrivilegeImpl implements Privilege {
 	void persist() {
 		Bus.getOrmClient().getPrivilegeFactory().persist(this);
 	}
-	
-	@Override
-	public boolean equals(Object other) {
-		if (other instanceof PrivilegeImpl) {
-			PrivilegeImpl o = (PrivilegeImpl) other;
-			return this.name.equals(o.name);
-		} else {
-			return false;
-		}
-	}
 
-	@Override
-	public int hashCode() {
-		return this.name.hashCode();
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Privilege)) {
+            return false;
+        }
+
+        Privilege privilege = (Privilege) o;
+
+        return name.equals(privilege.getName());
+
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 }

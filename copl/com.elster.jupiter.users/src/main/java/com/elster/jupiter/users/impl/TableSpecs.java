@@ -55,11 +55,11 @@ public enum TableSpecs {
 	USR_USERINGROUP {
 		void describeTable(Table table) {
 			Column userIdColumn = table.addColumn("USERID", "number" , true, NUMBER2LONG , "userId");
-			Column groupIdColumn = table.addColumn("GROUPID", "number" , true, NUMBER2LONG , "groupId");
+			Column groupIdColumn = table.addColumn("GROUPID", "number" , true, NUMBER2LONG, "groupId");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addPrimaryKeyConstraint("USR_PK_USERINGROUP", groupIdColumn , userIdColumn);		
-			table.addForeignKeyConstraint("FK_USERINGROUP2GROUP", USR_GROUP.name(), CASCADE, new AssociationMapping("group") , groupIdColumn);
-			table.addForeignKeyConstraint("FK_USERINGROUP2USER", USR_USER.name(), CASCADE, new AssociationMapping("user") , userIdColumn);
+			table.addForeignKeyConstraint("FK_USERINGROUP2GROUP", USR_GROUP.name(), CASCADE, new AssociationMapping("group"), groupIdColumn);
+			table.addForeignKeyConstraint("FK_USERINGROUP2USER", USR_USER.name(), CASCADE, new AssociationMapping("user"), userIdColumn);
 		}
 	};
 	

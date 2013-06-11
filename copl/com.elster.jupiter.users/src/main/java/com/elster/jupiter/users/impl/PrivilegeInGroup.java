@@ -34,5 +34,9 @@ class PrivilegeInGroup {
 	void persist() {
 		Bus.getOrmClient().getPrivilegeInGroupFactory().persist(this);
 	}
-	
+
+    public void delete() {
+        Bus.getOrmClient().getPrivilegeInGroupFactory().remove(this);
+
+    }
 }

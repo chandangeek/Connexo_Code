@@ -3,7 +3,6 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.To;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.FluentIterable;
@@ -15,7 +14,7 @@ import java.util.List;
 import static com.elster.jupiter.util.Checks.is;
 
 
-class GroupImpl implements Group {
+final class GroupImpl implements Group {
 	//persistent fields
 	private long id;
 	private String name;
@@ -52,25 +51,47 @@ class GroupImpl implements Group {
 	public boolean hasPrivilege(String privilegeName) {
         return FluentIterable.from(getPrivileges()).transform(To.Name).contains(privilegeName);
 	}
-	
-	List<Privilege> getPrivileges() {
-		List<PrivilegeInGroup> privilegeInGroups = Bus.getOrmClient().getPrivilegeInGroupFactory().find("groupId", getId());
+
+    @Override
+	public List<Privilege> getPrivileges() {
+		List<PrivilegeInGroup> privilegeInGroups = fetchPrivilegeInGroups();
 		List<Privilege> result = new ArrayList<>(privilegeInGroups.size());
 		for (PrivilegeInGroup each : privilegeInGroups) {
 			result.add(each.getPrivilege());
 		}
 		return result;
 	}
+
+    @Override
+    public boolean hasPrivilege(Privilege privilege) {
+        return getPrivileges().contains(privilege);
+    }
 	
-	void add(User user) {
-		new UserInGroup(user, this).persist();
-	}
-	
-	void add(Privilege privilege) {
+	@Override
+    public boolean grant(Privilege privilege) {
+        if (hasPrivilege(privilege)) {
+            return false;
+        }
 		new PrivilegeInGroup(this,privilege).persist();
+        return false;
 	}
-	
-	void persist() {
+
+    @Override
+    public boolean revoke(Privilege privilege) {
+        for (PrivilegeInGroup each : fetchPrivilegeInGroups()) {
+            if (each.getPrivilege().equals(privilege)) {
+                each.delete();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private List<PrivilegeInGroup> fetchPrivilegeInGroups() {
+        return Bus.getOrmClient().getPrivilegeInGroupFactory().find("groupId", getId());
+    }
+
+    void persist() {
 		groupFactory().persist(this);
 	}
 
@@ -98,7 +119,7 @@ class GroupImpl implements Group {
 	@Override
 	public void grant(String privilegeName) {
 		Privilege privilege = Bus.getOrmClient().getPrivilegeFactory().getExisting(privilegeName);
-		add(privilege);
+		grant(privilege);
 	}
 	
 	public void save() {
@@ -112,5 +133,25 @@ class GroupImpl implements Group {
     @Override
     public void delete() {
         groupFactory().remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Group)) {
+            return false;
+        }
+
+        Group group = (Group) o;
+
+        return id == group.getId();
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 }

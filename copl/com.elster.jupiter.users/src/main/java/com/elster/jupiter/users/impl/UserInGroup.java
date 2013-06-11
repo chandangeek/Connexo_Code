@@ -35,4 +35,9 @@ public class UserInGroup {
 	void persist() {
 		Bus.getOrmClient().getUserInGroupFactory().persist(this);
 	}
+
+    public void delete() {
+        Bus.getOrmClient().getUserInGroupFactory().remove(this);
+
+    }
 }
