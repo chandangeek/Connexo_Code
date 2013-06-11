@@ -1,6 +1,5 @@
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -21,7 +20,7 @@ public class UsersApplication extends Application implements ServiceLocator {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(GroupResource.class, UserResource.class);
+        return ImmutableSet.of(GroupResource.class, UserResource.class, PrivilegeResource.class);
     }
 
     public UserService getUserService() {
