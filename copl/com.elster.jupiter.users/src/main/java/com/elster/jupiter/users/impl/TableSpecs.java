@@ -23,7 +23,7 @@ public enum TableSpecs {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
 			Column nameColumn = table.addColumn("NAME", "varchar2(80)" , true , NOCONVERSION , "name");
-			table.addVersionCountColumn("VERSIONCOUNT", "number", "versionCount");
+			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
 			table.addPrimaryKeyConstraint("USR_PK_GROUP", idColumn);
@@ -35,7 +35,7 @@ public enum TableSpecs {
 			Column idColumn = table.addAutoIdColumn();
 			Column authenticationNameColumn = table.addColumn("AUTHNAME", "varchar2(80)" , true , NOCONVERSION , "authenticationName");
 			table.addColumn("DESCRIPTION", "varchar2(256)" , false , NOCONVERSION , "description");
-			table.addVersionCountColumn("VERSIONCOUNT", "number", "versionCount");
+			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
 			table.addPrimaryKeyConstraint("USR_PK_USER", idColumn);

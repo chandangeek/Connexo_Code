@@ -19,7 +19,7 @@ class GroupImpl implements Group {
 	//persistent fields
 	private long id;
 	private String name;
-	private long versionCount;
+	private long version;
 	private UtcInstant createTime;
 	private UtcInstant modTime;
 	
@@ -87,7 +87,7 @@ class GroupImpl implements Group {
 	}
 	
 	public long getVersion() {
-		return versionCount;
+		return version;
 	}
 	
 	@Override

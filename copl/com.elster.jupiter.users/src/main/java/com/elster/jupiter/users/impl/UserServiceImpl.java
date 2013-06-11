@@ -24,51 +24,27 @@ import javax.xml.bind.DatatypeConverter;
         immediate = true,
         property = "name=" + Bus.COMPONENTNAME)
 public class UserServiceImpl implements UserService, InstallService, ServiceLocator {
-
     private volatile OrmClient ormClient;
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
 
-    @Override
-    public OrmClient getOrmClient() {
-        return ormClient;
-    }
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "User Management");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
-        this.ormClient = new OrmClientImpl(dataModel);
-    }
-
 	public void activate(ComponentContext context) {
 		Bus.setServiceLocator(this);
 	}
-	
-	public void deactivate(ComponentContext context) {
-		Bus.setServiceLocator(null);
-	}
-	
-	@Override
-	public User createUser(String authenticationName, String description) {
-		UserImpl result = new UserImpl(authenticationName,description);
-		result.save();
-		return result;
-	}
+
+    public Optional<User> authenticate(String userName, String password) {
+        return findUser(userName);
+    }
 
     @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
+    public Optional<User> authenticateBase64(String base64) {
+        if (base64 == null || base64.isEmpty()) {
+            return Optional.absent();
+        }
+        String plainText = new String(DatatypeConverter.parseBase64Binary(base64));
+        String[] names = plainText.split(":");
+        return authenticate(names[0], names.length > 0 ? null : names[1]);
     }
-
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
 
     @Override
     public Group createGroup(String name) {
@@ -83,63 +59,31 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
         result.persist();
         return result;
     }
-
-    @Override
-    public Optional<User> findUser(String authenticationName) {
-        return Optional.of(userFactory().getUnique("authenticationName", authenticationName));
+	
+	@Override
+	public User createUser(String authenticationName, String description) {
+		UserImpl result = new UserImpl(authenticationName,description);
+		result.save();
+		return result;
 	}
-
-    private DataMapper<User> userFactory() {
-        return Bus.getOrmClient().getUserFactory();
-    }
-
+	
+	public void deactivate(ComponentContext context) {
+		Bus.setServiceLocator(null);
+	}
 
     @Override
     public Optional<Group> findGroup(String name) {
         return Optional.of(groupFactory().getUnique("name", name));
     }
 
-    private DataMapper<Group> groupFactory() {
-        return Bus.getOrmClient().getGroupFactory();
-    }
-
     @Override
-    public Optional<Privilege> getPrivilege(String privilegeName) {
-        return Bus.getOrmClient().getPrivilegeFactory().get(privilegeName);
-    }
-
-    @Override
-    public Optional<User> authenticateBase64(String base64) {
-        if (base64 == null || base64.isEmpty()) {
-            return Optional.absent();
-        }
-        String plainText = new String(DatatypeConverter.parseBase64Binary(base64));
-        String[] names = plainText.split(":");
-        return authenticate(names[0], names.length > 0 ? null : names[1]);
-    }
-
-
-	public void install() {
-		new InstallerImpl().install();		
+    public Optional<User> findUser(String authenticationName) {
+        return Optional.of(userFactory().getUnique("authenticationName", authenticationName));
 	}
-
-    public Optional<User> authenticate(String userName, String password) {
-        return findUser(userName);
-    }
-
-    @Override
-    public String getRealm() {
-        return "Jupiter";
-    }
 
     @Override
     public Optional<Group> getGroup(long id) {
         return groupFactory().get(id);
-    }
-
-    @Override
-    public Optional<User> getUser(long id) {
-        return userFactory().get(id);
     }
 
     @Override
@@ -148,18 +92,47 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     }
 
     @Override
-    public Query<User> getUserQuery() {
-        return getQueryService().wrap(userFactory().with());
+    public OrmClient getOrmClient() {
+        return ormClient;
+    }
+
+    @Override
+    public Optional<Privilege> getPrivilege(String privilegeName) {
+        return Bus.getOrmClient().getPrivilegeFactory().get(privilegeName);
+    }
+
+    @Override
+    public Query<Privilege> getPrivilegeQuery() {
+        return getQueryService().wrap(Bus.getOrmClient().getPrivilegeFactory().with());
     }
 
     public QueryService getQueryService() {
         return queryService;
     }
 
-    @Reference
-    public void setQueryService(QueryService queryService) {
-        this.queryService = queryService;
+    @Override
+    public String getRealm() {
+        return "Jupiter";
     }
+
+    @Override
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
+    @Override
+    public Optional<User> getUser(long id) {
+        return userFactory().get(id);
+    }
+
+    @Override
+    public Query<User> getUserQuery() {
+        return getQueryService().wrap(userFactory().with());
+    }
+
+	public void install() {
+		new InstallerImpl().install();		
+	}
 
     @Override
     public Group newGroup(String name) {
@@ -169,5 +142,32 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     @Override
     public User newUser(String name) {
         return new UserImpl(name);
+    }
+
+    @Reference
+    public void setOrmService(OrmService ormService) {
+        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "User Management");
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
+        this.ormClient = new OrmClientImpl(dataModel);
+    }
+
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    private DataMapper<Group> groupFactory() {
+        return Bus.getOrmClient().getGroupFactory();
+    }
+
+    private DataMapper<User> userFactory() {
+        return Bus.getOrmClient().getUserFactory();
     }
 }

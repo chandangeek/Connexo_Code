@@ -16,7 +16,7 @@ public class UserImpl implements User {
     private long id;
     private String authenticationName;
     private String description;
-    private long versionCount;
+    private long version;
     private UtcInstant createTime;
     private UtcInstant modTime;
 
@@ -101,7 +101,7 @@ public class UserImpl implements User {
     }
 
     public long getVersion() {
-        return versionCount;
+        return version;
     }
 
     @Override

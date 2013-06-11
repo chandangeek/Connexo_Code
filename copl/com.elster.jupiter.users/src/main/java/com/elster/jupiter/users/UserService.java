@@ -29,6 +29,8 @@ public interface UserService {
 
     Query<User> getUserQuery();
 
+    Query<Privilege> getPrivilegeQuery();
+
     Group newGroup(String name);
 
     User newUser(String name);
