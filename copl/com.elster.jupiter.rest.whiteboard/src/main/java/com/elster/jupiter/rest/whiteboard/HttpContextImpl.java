@@ -3,25 +3,21 @@ package com.elster.jupiter.rest.whiteboard;
 import java.io.IOException;
 import java.net.URL;
 import java.security.Principal;
-
+import org.osgi.service.http.HttpContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.osgi.service.http.*;
-
-import com.elster.jupiter.users.User;
-
 public class HttpContextImpl implements HttpContext {
 
-	@Override
-	public String getMimeType(String name) {
-		return null;
-	}
+    @Override
+    public String getMimeType(String name) {
+        return null;
+    }
 
-	@Override
-	public URL getResource(String name) {
-		return getClass().getResource(name);
-	}
+    @Override
+    public URL getResource(String name) {
+        return getClass().getResource(name);
+    }
 
 	@Override
 	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -33,15 +29,13 @@ public class HttpContextImpl implements HttpContext {
 			Principal user = verifyDigest(request.getMethod(), authentication.split(" ",2)[1]);
 			if (user == null) {
 			    return denyDigest(response);			    
-			}	
-			request.setAttribute(AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
-			request.setAttribute(ServiceLocator.USERPRINCIPAL,user);
-			request.setAttribute(REMOTE_USER,user.getName());
-			return true;
+			}	else {
+				return allow(request,user);
+			}			
 		}
 	}
 	
-	private boolean deny(HttpServletResponse response) {
+	private boolean denyBasic(HttpServletResponse response) {
 		 String realm = Bus.getUserService().getRealm();
 		 response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
 		 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -86,4 +80,11 @@ public class HttpContextImpl implements HttpContext {
 		}
 	}
 		
+    private boolean allow(HttpServletRequest request, Principal user) {
+        request.setAttribute(AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
+        request.setAttribute(ServiceLocator.USERPRINCIPAL, user);
+        request.setAttribute(REMOTE_USER, user.getName());
+        return true;
+    }
+
 }

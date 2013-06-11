@@ -6,7 +6,7 @@ import javax.ws.rs.core.SecurityContext;
 import com.elster.jupiter.users.User;
 
 public class SecurityContextImpl implements SecurityContext {
-	final private HttpServletRequest request;
+	private final HttpServletRequest request;
 	
 	SecurityContextImpl(HttpServletRequest request) {
 		this.request = request;
