@@ -1,9 +1,10 @@
 package com.elster.jupiter.users.impl;
 
-import java.lang.reflect.Field;
-import java.util.*;
+import com.elster.jupiter.users.security.Privileges;
 
-import com.elster.jupiter.users.security.*;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 public class InstallerImpl {	
 	
@@ -28,7 +29,7 @@ public class InstallerImpl {
 	private void createAdmin(GroupImpl administrators) {
 		UserImpl user = new UserImpl("admin", "System Administrator");
 		user.save();
-		administrators.add(user);
+		user.join(administrators);
 	}
 	
 	private void createPrivileges() {
