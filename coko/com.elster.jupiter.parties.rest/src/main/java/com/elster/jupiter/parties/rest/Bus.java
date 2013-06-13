@@ -3,6 +3,8 @@ package com.elster.jupiter.parties.rest;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 
 enum Bus {
     ;
@@ -22,5 +24,13 @@ enum Bus {
 
     public static PartyService getPartyService() {
         return serviceLocator.getPartyService();
+    }
+
+    public static UserService getUserService() {
+        return serviceLocator.getUserService();
+    }
+
+    public static Clock getClock() {
+        return serviceLocator.getClock();
     }
 }

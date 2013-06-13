@@ -67,6 +67,34 @@ public class PartiesResource {
         return result;
     }
 
+    @GET
+    @Path("/{id}/users")
+    @Produces(MediaType.APPLICATION_JSON)
+    public DelegateInfos getUsers(@PathParam("id") long id) {
+        Party party = partyWithId(id);
+        return new DelegateInfos(party.getCurrentDelegates());
+    }
+
+    @POST
+    @Path("/{id}/users")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DelegateInfos addUser(@PathParam("id") long id, DelegateInfo info) {
+        DelegateInfos result = new DelegateInfos();
+        result.addAll(Bus.getTransactionService().execute(new AddDelegateTransaction(id, info)));
+        return result;
+    }
+
+    @PUT
+    @Path("/{id}/users")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public DelegateInfos addremoveUser(@PathParam("id") long id, DelegateInfo info) {
+        DelegateInfos result = new DelegateInfos();
+        result.addAll(Bus.getTransactionService().execute(new TerminateDelegateTransaction(id, info)));
+        return result;
+    }
+
     @PUT
     @Path("/{id}/roles/{roleId}/")
     @Produces(MediaType.APPLICATION_JSON)

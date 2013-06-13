@@ -4,6 +4,8 @@ import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.parties.Party;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class PartyInfo {
@@ -15,6 +17,8 @@ public class PartyInfo {
     public String description;
     public ElectronicAddress electronicAddress;
     public long version;
+
+    public List<DelegateInfo> delegates = new ArrayList<>();
     
     public PartyInfo(Party party) {
         id = party.getId();

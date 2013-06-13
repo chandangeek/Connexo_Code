@@ -3,6 +3,8 @@ package com.elster.jupiter.parties.rest;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Clock;
 import com.google.common.collect.ImmutableSet;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
@@ -17,6 +19,8 @@ public class PartiesApplication extends Application implements ServiceLocator {
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile PartyService partyService;
+    private volatile UserService userService;
+    private volatile Clock clock;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -58,5 +62,25 @@ public class PartiesApplication extends Application implements ServiceLocator {
     @Reference
     public void setPartyService(PartyService partyService) {
         this.partyService = partyService;
+    }
+
+    @Override
+    public UserService getUserService() {
+        return userService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
+    @Override
+    public Clock getClock() {
+        return clock;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 }
