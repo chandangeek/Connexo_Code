@@ -55,7 +55,7 @@ public class UpdatePostDialCommandTest {
 			
 			rtyTypeName = "RtuTypeName" + System.currentTimeMillis();
 			rtuName = "RtuName" + System.currentTimeMillis();
-			rtuType = RtuTypeCRUD.findOrCreateRtuType(rtyTypeName, 0);
+			rtuType = RtuTypeCRUD.findOrCreateRtuType(rtyTypeName, 0, 900);
 			rtu = RtuCRUD.findOrCreateRtu(rtuType, rtuName, 900);
 			
 		} catch (BusinessException e) {
