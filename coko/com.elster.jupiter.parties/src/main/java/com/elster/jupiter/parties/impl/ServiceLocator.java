@@ -1,6 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.orm.cache.ComponentCache;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 
 import java.security.Principal;
@@ -10,4 +11,6 @@ public interface ServiceLocator {
 	Principal getPrincipal();
 	ComponentCache getCache();
     Clock getClock();
+
+    UserService getUserService();
 }

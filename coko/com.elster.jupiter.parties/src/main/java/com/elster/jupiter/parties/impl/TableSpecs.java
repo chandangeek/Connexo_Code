@@ -91,7 +91,7 @@ public enum TableSpecs {
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			Column partyIdColumn = table.addColumn("PARTYID", "number", true , NUMBER2LONG, "partyId");			
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("PRT_PK_PARTYREP", delegateColumn , intervalColumns.get(1) , intervalColumns.get(0) , partyIdColumn);
+			table.addPrimaryKeyConstraint("PRT_PK_PARTYREP", delegateColumn , partyIdColumn , intervalColumns.get(0));
 			table.addForeignKeyConstraint("PRT_FKPARTYREP", PRT_PARTY.name(), DeleteRule.CASCADE, new AssociationMapping("party"),partyIdColumn);
 		}		
 	},

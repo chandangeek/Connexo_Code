@@ -8,19 +8,20 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.Person;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 abstract class PartyImpl implements Party {
-
     // ORM inheritance map
-	static final Map<String,Class<? extends Party>> implementers = ImmutableMap.<String, Class<? extends Party>>of(Organization.TYPE_IDENTIFIER, OrganizationImpl.class, Person.TYPE_IDENTIFIER, PersonImpl.class);
+	static final Map<String, Class<? extends Party>> implementers = ImmutableMap.<String, Class<? extends Party>>of(Organization.TYPE_IDENTIFIER, OrganizationImpl.class, Person.TYPE_IDENTIFIER, PersonImpl.class);
 
     // associations
 	List<PartyInRole> partyInRoles;
@@ -38,6 +39,40 @@ abstract class PartyImpl implements Party {
     private UtcInstant createTime;
     private UtcInstant modTime;
     private String userName;
+
+    @Override
+    public void appointDelegate(User user, Date start) {
+        Interval interval = Interval.startAt(start);
+        validateAddingDelegate(user, interval);
+        partyRepresentationFactory().persist(new PartyRepresentationImpl(this, user, interval));
+    }
+
+    @Override
+    public PartyInRole assumeRole(PartyRole role, Date start) {
+        PartyInRoleImpl candidate = new PartyInRoleImpl(this, role, Interval.startAt(start));
+        validateAddingRole(candidate);
+        partyInRoles.add(candidate);
+        Bus.getOrmClient().getPartyInRoleFactory().persist(candidate);
+        return candidate;
+    }
+
+    public void delete() {
+        partyFactory().remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Party)) {
+            return false;
+        }
+
+        Party party = (Party) o;
+
+        return id == party.getId();
+    }
 
     @Override
 	public String getAliasName() {
@@ -94,16 +129,17 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    @Override
     public void save() {
         if (getId() == 0) {
             partyFactory().persist(this);
         } else {
             partyFactory().update(this);
         }
-    }
-
-    public void delete() {
-        partyFactory().remove(this);
     }
 
 	@Override
@@ -139,42 +175,6 @@ abstract class PartyImpl implements Party {
 		this.phone2 = phone2 == null ? null : phone2.copy();
 	}
 
-    PartyImpl() {
-	}
-
-    UtcInstant getCreateTime() {
-        return createTime;
-    }
-
-    UtcInstant getModTime() {
-        return modTime;
-    }
-
-    String getUserName() {
-        return userName;
-    }
-
-    private DataMapper<Party> partyFactory() {
-        return Bus.getOrmClient().getPartyFactory();
-    }
-
-    @Override
-    public PartyInRole addRole(PartyRole role, Interval interval) {
-        PartyInRoleImpl candidate = new PartyInRoleImpl(this, role, interval);
-        validateAdding(candidate);
-        partyInRoles.add(candidate);
-        Bus.getOrmClient().getPartyInRoleFactory().persist(candidate);
-        return candidate;
-    }
-
-    private void validateAdding(PartyInRoleImpl candidate) {
-        for (PartyInRole partyInRole : getPartyInRoles()) {
-            if (candidate.conflictsWith(partyInRole)) {
-                throw new IllegalArgumentException("Conflicts with existing Role : " + partyInRole);
-            }
-        }
-    }
-
     @Override
     public PartyInRole terminateRole(PartyInRole partyInRole, Date date) {
         PartyInRoleImpl toUpdate = null;
@@ -192,31 +192,79 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Party)) {
-            return false;
-        }
-
-        Party party = (Party) o;
-
-        return id == party.getId();
-
-    }
-
-    @Override
-    public int hashCode() {
-        return (int) (id ^ (id >>> 32));
-    }
-
-    @Override
     public String toString() {
         return "Party{" +
                 "id=" + id +
                 ", mRID='" + mRID + '\'' +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    @Override
+    public void unappointDelegate(User user, Date end) {
+        List<PartyRepresentationImpl> representations = getRepresentations();
+        for (PartyRepresentationImpl representation : representations) {
+            if (representation.getDelegate().equals(user) && representation.getInterval().contains(end)) {
+                representation.setInterval(representation.getInterval().withEnd(end));
+                Bus.getOrmClient().getPartyRepresentationFactory().update(representation);
+                save();
+                return;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
+    @Override
+    public List<User> getCurrentDelegates() {
+        List<User> currentUsers = new ArrayList<>();
+        for (PartyRepresentationImpl representation : getRepresentations()) {
+            if (representation.isCurrent()) {
+                currentUsers.add(representation.getDelegate());
+            }
+        }
+        return currentUsers;
+    }
+
+    PartyImpl() {
+	}
+
+    UtcInstant getCreateTime() {
+        return createTime;
+    }
+
+    UtcInstant getModTime() {
+        return modTime;
+    }
+    
+    List<PartyRepresentationImpl> getRepresentations() {
+        return Bus.getOrmClient().getPartyRepresentationFactory().find("party", this);
+    }
+
+    String getUserName() {
+        return userName;
+    }
+
+    private DataMapper<Party> partyFactory() {
+        return Bus.getOrmClient().getPartyFactory();
+    }
+
+    private DataMapper<PartyRepresentationImpl> partyRepresentationFactory() {
+        return Bus.getOrmClient().getPartyRepresentationFactory();
+    }
+
+    private void validateAddingDelegate(User user, Interval interval) {
+        for (PartyRepresentationImpl representation : getRepresentations()) {
+            if (representation.getDelegate().equals(user) && interval.overlaps(representation.getInterval())) {
+                throw new IllegalArgumentException();
+            }
+        }
+    }
+
+    private void validateAddingRole(PartyInRoleImpl candidate) {
+        for (PartyInRole partyInRole : getPartyInRoles()) {
+            if (candidate.conflictsWith(partyInRole)) {
+                throw new IllegalArgumentException("Conflicts with existing Role : " + partyInRole);
+            }
+        }
     }
 }

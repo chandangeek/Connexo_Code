@@ -13,6 +13,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
@@ -30,6 +31,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile ComponentCache cache;
     private volatile Clock clock;
+    private volatile UserService userService;
 
     private volatile QueryService queryService;
 
@@ -154,6 +156,16 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     @Reference
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Override
+    public UserService getUserService() {
+        return userService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override

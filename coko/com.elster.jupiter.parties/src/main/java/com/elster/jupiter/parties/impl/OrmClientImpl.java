@@ -47,6 +47,4 @@ class OrmClientImpl implements OrmClient {
 	public void install(boolean executeDdl,boolean saveMappings) {
 		dataModel.install(executeDdl,saveMappings);		
 	}
-
-
 }

@@ -1,13 +1,14 @@
 package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
-import java.util.Date;
-
 class PartyRepresentationImpl  {
+
 	private String delegate;
+
 	private long partyId;
 	private Interval interval;
 	@SuppressWarnings("unused")
@@ -21,23 +22,38 @@ class PartyRepresentationImpl  {
 	
 	// associations
 	private Party party;
-	
+    private User delegateUser;
+
 	@SuppressWarnings("unused")
 	private PartyRepresentationImpl() {	
 	}
 	
-	PartyRepresentationImpl(String delegate , Party party , Date at) {
+	PartyRepresentationImpl(Party party, User delegate, Interval interval) {
+        validateParty(party);
+        validateUser(delegate);
+        this.partyId = party.getId();
+		this.party = party;
+		this.delegate = delegate.getName();
+		this.interval = interval;
+	}
+
+    private void validateUser(User delegate) {
+        if (delegate == null) {
+            throw new IllegalArgumentException("User as delegate, can not be null.");
+        }
+    }
+
+    private void validateParty(Party party) {
         if (party == null) {
             throw new IllegalArgumentException("Party cannot be null");
         }
-		this.partyId = party.getId();
-		this.party = party;
-		this.delegate = delegate;
-		this.interval = Interval.startAt(at);
-	}
+    }
 
-	public String getDelegate() {	
-		return delegate;
+    public User getDelegate() {
+        if (delegateUser == null) {
+            delegateUser = Bus.getUserService().findUser(delegate).orNull();
+        }
+		return delegateUser;
 	}
 
 	public Party getParty() {
@@ -46,17 +62,16 @@ class PartyRepresentationImpl  {
 		}			
 		return party;
 	}
-	
-	public Date getStart() {
-		return interval.getStart();
-	}
 
-	public Date getEnd() {
-		return interval.getEnd();
-	}
+    public Interval getInterval() {
+        return interval;
+    }
 
-	public boolean isCurrent() {
+    public boolean isCurrent() {
 		return interval.isCurrent(Bus.getClock());
 	}
 
+    void setInterval(Interval interval) {
+        this.interval = interval;
+    }
 }

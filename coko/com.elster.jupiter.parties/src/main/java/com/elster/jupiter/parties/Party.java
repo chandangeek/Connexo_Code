@@ -1,17 +1,22 @@
 package com.elster.jupiter.parties;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.time.Interval;
 
 import java.util.Date;
 import java.util.List;
 
 public interface Party extends HasName {
-	long getId();
-	String getMRID();
-	String getAliasName();
-	ElectronicAddress getElectronicAddress();
+
+    long getId();
+
+    String getMRID();
+
+    String getAliasName();
+
+    ElectronicAddress getElectronicAddress();
+
     String getDescription();
 
     void setMRID(String mRID);
@@ -32,7 +37,13 @@ public interface Party extends HasName {
 
     List<PartyInRole> getPartyInRoles();
 
-    PartyInRole addRole(PartyRole role, Interval interval);
+    PartyInRole assumeRole(PartyRole role, Date start);
 
-    PartyInRole terminateRole(PartyInRole role, Date date);
+    PartyInRole terminateRole(PartyInRole role, Date end);
+
+    void appointDelegate(User user, Date start);
+
+    void unappointDelegate(User user, Date end);
+
+    List<User> getCurrentDelegates();
 }
