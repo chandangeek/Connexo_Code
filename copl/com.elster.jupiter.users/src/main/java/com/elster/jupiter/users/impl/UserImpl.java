@@ -153,4 +153,24 @@ public class UserImpl implements User {
     public void delete() {
         Bus.getOrmClient().getUserFactory().remove(this);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User)) {
+            return false;
+        }
+
+        User user = (User) o;
+
+        return id == user.getId();
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
 }
