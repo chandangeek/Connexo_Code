@@ -12,7 +12,6 @@ import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbus
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -68,24 +67,6 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
      */
     public void addProperties(final Properties properties) {
         //TODO implement proper functionality.
-    }
-
-    /**
-     * Returns a list of required property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getRequiredKeys() {
-        return new ArrayList<>();
-    }
-
-    /**
-     * Returns a list of optional property keys
-     *
-     * @return a List of String objects
-     */
-    public List<String> getOptionalKeys() {
-        return new ArrayList<>();
     }
 
     public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {

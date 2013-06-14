@@ -1,9 +1,24 @@
 package com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.Pluggable;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.SmartMeterProtocol;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 
@@ -11,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -230,5 +246,23 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         throw new UnsupportedException("The Mbus device does not read his own loadProfiles, his master will doe this for him");
     }
+    /**
+     * Returns a list of required property keys
+     *
+     * @return a List of String objects
+     */
+    public List<String> getRequiredKeys() {
+        return new ArrayList<>();
+    }
 
+    /**
+     * Returns a list of optional property keys
+     *
+     * @return a List of String objects
+     */
+    public List<String> getOptionalKeys() {
+        final ArrayList<String> optionals = new ArrayList<>(1);
+        optionals.add(DlmsProtocolProperties.NTA_SIMULATION_TOOL);
+        return optionals;
+    }
 }
