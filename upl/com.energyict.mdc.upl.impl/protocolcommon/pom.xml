@@ -23,6 +23,21 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict.dataconcentrator.communicationdrivers</groupId>
+            <artifactId>wavenis-driver</artifactId>
+            <version>1.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.energyict</groupId>
+                    <artifactId>mdw</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.energyict</groupId>
+                    <artifactId>mdwimpl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.easytesting</groupId>
             <artifactId>fest-assert-core</artifactId>
             <scope>test</scope>

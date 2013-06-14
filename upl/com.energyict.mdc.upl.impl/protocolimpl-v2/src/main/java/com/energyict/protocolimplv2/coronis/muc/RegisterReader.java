@@ -2,12 +2,12 @@ package com.energyict.protocolimplv2.coronis.muc;
 
 import com.energyict.cbo.*;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.*;
-import com.energyict.mdc.WavenisStackUtils;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.io.IOException;

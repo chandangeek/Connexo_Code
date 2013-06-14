@@ -12,9 +12,7 @@ import com.energyict.protocol.ProtocolUtils;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  *
@@ -324,7 +322,7 @@ public class ParseUtils {
 		}
     }
     
-    public static void roundDown2nearestInterval(Calendar cal, int profileInterval) throws IOException {
+    public static void roundDown2nearestInterval(Calendar cal, int profileInterval) {
         int rest = (int)(cal.getTime().getTime()/1000) % profileInterval;
         if (rest > 0) {
 			cal.add(Calendar.SECOND,(-1)*rest);

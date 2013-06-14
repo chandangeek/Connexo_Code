@@ -16,6 +16,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * Super class for every gateway protocol that implements the DeviceProtocol interface
+ * <p/>
  * Copyrights EnergyICT
  * Date: 29/05/13
  * Time: 17:03

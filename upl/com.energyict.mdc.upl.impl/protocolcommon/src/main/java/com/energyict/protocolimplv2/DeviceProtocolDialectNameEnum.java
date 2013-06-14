@@ -19,7 +19,8 @@ public enum DeviceProtocolDialectNameEnum {
     SDK_SAMPLE_LOAD_PROFILE_DEVICE_PROTOCOL_DIALECT_NAME("SDKLoadProfileDialect"),
     SDK_SAMPLE_TIME_DEVICE_PROTOCOL_DIALECT_NAME("SDKTimeDialect"),
     SDK_SAMPLE_TOPOLOGY_DIALECT_NAME("SDKTopologyDialect"),
-    ACE4000_DEVICE_PROTOCOL_DIALECT_NAME("ACE4000GprsDialect")
+    ACE4000_DEVICE_PROTOCOL_DIALECT_NAME("ACE4000GprsDialect"),
+    NO_PARAMETERS_PROTOCOL_DIALECT_NAME("NoParamsDialect")
     ;
 
     DeviceProtocolDialectNameEnum(String uniqueName) {

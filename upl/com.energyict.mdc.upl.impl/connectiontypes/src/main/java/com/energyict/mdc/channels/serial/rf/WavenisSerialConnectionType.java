@@ -6,15 +6,16 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.dynamicattributes.BigDecimalFactory;
 import com.energyict.dynamicattributes.StringFactory;
-import com.energyict.mdc.*;
-import com.energyict.mdc.channels.serial.BaudrateValue;
-import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.ManagerFactory;
+import com.energyict.mdc.SerialComponentFactory;
+import com.energyict.mdc.channels.serial.*;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -38,6 +39,7 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
     @Override
     public ComChannel connect(ComPort comPort, List<ConnectionTaskProperty> properties) throws ConnectionException {
         SerialPortConfiguration serialConfiguration = super.createSerialConfiguration(comPort, properties);
+        serialConfiguration.setFlowControl(FlowControl.NONE);
         SerialComponentFactory serialComponentFactory = ManagerFactory.getCurrent().getSerialComponentFactory();
         SioSerialPort serialPort = serialComponentFactory.newSioSerialPort(serialConfiguration);
         serialPort.openAndInit();
@@ -48,7 +50,19 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
             return new WavenisSerialComChannel(waveModuleLinkAdaptor.getInputStream(), waveModuleLinkAdaptor.getOutputStream(), serialPort);
         } catch (IOException e) {
             wavenisStack.stop();
-            throw new ConnectionException("Error while starting the Wavenis stack: " + e.getMessage(), e);
+            throw new ConnectionException("Error while starting the Wavenis stack", e);
+        }
+    }
+
+    @Override
+    public PropertySpec getPropertySpec(String name) {
+        PropertySpec superPropertySpec = super.getPropertySpec(name);
+        if (superPropertySpec != null) {
+            return superPropertySpec;
+        } else if (RF_ADDRESS.equals(name)) {
+            return this.rfAddressPropertySpec();
+        } else {
+            return null;
         }
     }
 
@@ -97,7 +111,6 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
         return PropertySpecBuilder.
                 forClass(String.class, new StringFactory()).
                 name(RF_ADDRESS).
-                markExhaustive().
                 setDefaultValue("").
                 finish();
     }

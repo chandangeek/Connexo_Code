@@ -1,10 +1,10 @@
 package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
-import com.energyict.mdc.WavenisStackUtils;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

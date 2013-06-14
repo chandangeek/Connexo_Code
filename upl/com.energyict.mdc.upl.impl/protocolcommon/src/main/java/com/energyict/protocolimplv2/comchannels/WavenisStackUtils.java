@@ -1,7 +1,9 @@
-package com.energyict.mdc;
+package com.energyict.protocolimplv2.comchannels;
 
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.*;
+import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.*;
 import java.util.Date;
@@ -17,6 +19,7 @@ import java.util.Date;
 public class WavenisStackUtils {
 
     private static final String FRIENDLY_NAME = "MUC___";
+    public static final String RF_ADDRESS = "RFAddress";
 
     public static WavenisStack start(InputStream inputStream, OutputStream outputStream) throws IOException {
         WavenisStack wavenisStack = WavenisStackImpl.getInstance(FRIENDLY_NAME, 1, null);
@@ -133,24 +136,25 @@ public class WavenisStackUtils {
         }
     }
 
-    private static void validateRadioAddress(String radioAddress, String[] repeaterRadioAddresses) throws IOException {
+    private static void validateRadioAddress(String radioAddress, String[] repeaterRadioAddresses, String fullRFAddress) {
+        ComServerExecutionException invalidPropertyFormatException = MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(RF_ADDRESS, fullRFAddress, "Each radio address should consist out of 12 hexadecimal characters.");
         if (radioAddress.length() != 12) {
-            throw new IOException("Invalid radio address [" + radioAddress + "]");
+            throw invalidPropertyFormatException;
         } else {
             try {
                 Long.parseLong(radioAddress, 16);
             } catch (NumberFormatException e) {
-                throw new IOException("Invalid radio address [" + radioAddress + "]");
+                throw invalidPropertyFormatException;
             }
             if (repeaterRadioAddresses != null) {
                 for (String repeaterRadioAddress : repeaterRadioAddresses) {
                     if (repeaterRadioAddress.length() != 12) {
-                        throw new IOException("Invalid radio repeater address [" + repeaterRadioAddress + "]");
+                        throw invalidPropertyFormatException;
                     }
                     try {
                         Long.parseLong(repeaterRadioAddress, 16);
                     } catch (NumberFormatException e) {
-                        throw new IOException("Invalid radio repeater address [" + repeaterRadioAddress + "]");
+                        throw invalidPropertyFormatException;
                     }
                 }
             }
@@ -176,31 +180,42 @@ public class WavenisStackUtils {
         }
     }
 
-    public static WavenisRoute getWavenisRoute(String networkId) throws IOException {
+    private static WavenisRoute getWavenisRoute(String fullRFAddress) {
 
         //radioaddress[_repeater1][,repeater2][,repeater3]
         //001122334455_001122334455,001122334455,001122334455
 
-        String[] splitNetworkId = networkId.split("_");
+        String[] splitNetworkId = fullRFAddress.split("_");
         String radioAddress = splitNetworkId[0];
         String[] repeaterRadioAddresses = null;
 
         if (splitNetworkId.length > 1) {
             repeaterRadioAddresses = splitNetworkId[1].split(",");
         }
-        validateRadioAddress(radioAddress, repeaterRadioAddresses);
+        validateRadioAddress(radioAddress, repeaterRadioAddresses, fullRFAddress);
         return new WavenisRoute(radioAddress, repeaterRadioAddresses);
     }
 
     /**
      * Use the Wavenis stack to create a link to the RF module. The resulting link contains an inputstream and an outputstream.
      */
-    public static WaveModuleLinkAdaptor createLink(String rfAddress, WavenisStack wavenisStack) throws IOException {
-        WavenisRoute radioAddress = getWavenisRoute(rfAddress);
-        WaveModule waveModule = wavenisStack.getWaveModuleFactory().find(radioAddress.getRadioAddress());
+    public static WaveModuleLinkAdaptor createLink(String fullRFAddress, WavenisStack wavenisStack) {
+        WavenisRoute radioAddress = getWavenisRoute(fullRFAddress);
+        WaveModule waveModule = null;
+        try {
+            waveModule = wavenisStack.getWaveModuleFactory().find(radioAddress.getRadioAddress());
+        } catch (IOException e) {
+            //Underlying implementation never throws an IOException...
+        }
         WaveModuleLinkAdaptor waveModuleLinkAdaptor = new WaveModuleLinkAdaptor();
         if (radioAddress.getRepeaterAddresses() != null) {
-            waveModule.changeRoute(radioAddress.getRepeaterAddresses());
+            try {
+                if (waveModule != null) {
+                    waveModule.changeRoute(radioAddress.getRepeaterAddresses());
+                }
+            } catch (IOException e) {
+                throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(RF_ADDRESS, fullRFAddress, "Each radio address should consist out of 12 hexadecimal characters.");
+            }
         }
         //TODO waveModule.setConfigRFResponseTimeoutInMs(); ?
         waveModuleLinkAdaptor.init(waveModule);
