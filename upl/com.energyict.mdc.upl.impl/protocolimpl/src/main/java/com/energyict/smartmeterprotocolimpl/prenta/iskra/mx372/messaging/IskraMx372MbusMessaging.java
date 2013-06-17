@@ -1,8 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging;
 
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
@@ -78,11 +87,11 @@ public class IskraMx372MbusMessaging  extends GenericMessaging implements Messag
         return MessageResult.createFailed(messageEntry);
     }
 
-    public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LoadProfileRegisterMessageBuilder();
+    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return new LegacyLoadProfileRegisterMessageBuilder();
     }
 
-    public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new PartialLoadProfileMessageBuilder();
+    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return new LegacyPartialLoadProfileMessageBuilder();
     }
 }

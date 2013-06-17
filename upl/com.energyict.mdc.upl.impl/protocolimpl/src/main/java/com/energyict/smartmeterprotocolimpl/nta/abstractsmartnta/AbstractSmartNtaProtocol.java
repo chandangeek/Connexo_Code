@@ -17,12 +17,12 @@ import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.WakeUpProtocolSupport;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -442,12 +442,12 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
         return true;
     }
 
-    public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new PartialLoadProfileMessageBuilder();
+    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return new LegacyPartialLoadProfileMessageBuilder();
     }
 
-    public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LoadProfileRegisterMessageBuilder();
+    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return new LegacyLoadProfileRegisterMessageBuilder();
     }
 
     /**

@@ -39,14 +39,14 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.WakeUpProtocolSupport;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
 import com.energyict.protocol.messaging.MessageAttributeSpec;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageSpec;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
 import com.energyict.protocolimpl.mbus.core.ValueInformationfieldCoding;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
@@ -261,12 +261,12 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         return msgSpec;
     }
 
-    public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LoadProfileRegisterMessageBuilder();
+    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return new LegacyLoadProfileRegisterMessageBuilder();
     }
 
-    public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new PartialLoadProfileMessageBuilder();
+    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return new LegacyPartialLoadProfileMessageBuilder();
     }
 
     /**
@@ -368,10 +368,10 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
                     infoLog("Sending WakeUpAddNumbers message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     addPhoneToWhiteList(messageEntry);
                     infoLog("WakeUpAddNumbers message successful.");
-                } else if (isItThisMessage(messageEntry, LoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
+                } else if (isItThisMessage(messageEntry, LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
                     infoLog("Sending LoadProfileRegister message for meter with serialnumber: " + messageEntry.getSerialNumber());
                     msgResult = doReadLoadProfileRegisters(messageEntry);
-                } else if (isItThisMessage(messageEntry, PartialLoadProfileMessageBuilder.getMessageNodeTag())) {
+                } else if (isItThisMessage(messageEntry, LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag())) {
                     infoLog("Sending PartialLoadProfile message. for meter with serialnumber: " + messageEntry.getSerialNumber());
                     msgResult = doReadPartialLoadProfile(messageEntry);
                 } else {
@@ -837,8 +837,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
     public MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
-            LoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
-            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            LegacyLoadProfileRegisterMessageBuilder builder = getLoadProfileRegisterMessageBuilder();
+            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
             LoadProfileReader reader = builder.getLoadProfileReader();
 
             // The LoadProfileReader loaded from the xml doesn't contain any channelInfo.
@@ -905,8 +905,8 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
 
     public MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
-            PartialLoadProfileMessageBuilder builder = getPartialLoadProfileMessageBuilder();
-            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
+            LegacyPartialLoadProfileMessageBuilder builder = getPartialLoadProfileMessageBuilder();
+            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
             this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));

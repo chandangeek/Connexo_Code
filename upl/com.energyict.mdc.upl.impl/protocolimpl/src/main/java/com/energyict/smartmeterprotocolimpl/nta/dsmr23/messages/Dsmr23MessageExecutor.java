@@ -80,8 +80,8 @@ import com.energyict.protocol.MeterDataMessageResult;
 import com.energyict.protocol.MeterReadingData;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
+import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -169,8 +169,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 boolean disableAuthLevelP0 = messageHandler.getType().equals(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0);
                 boolean enableAuthLevelP3 = messageHandler.getType().equals(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P3);
                 boolean disableAuthLevelP3 = messageHandler.getType().equals(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P3);
-                boolean partialLoadProfile = messageHandler.getType().equals(PartialLoadProfileMessageBuilder.getMessageNodeTag());
-                boolean loadProfileRegisterRequest = messageHandler.getType().equals(LoadProfileRegisterMessageBuilder.getMessageNodeTag());
+                boolean partialLoadProfile = messageHandler.getType().equals(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag());
+                boolean loadProfileRegisterRequest = messageHandler.getType().equals(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag());
                 boolean resetAlarmRegisterRequest = messageHandler.getType().equals(RtuMessageConstant.RESET_ALARM_REGISTER);
                 boolean isChangeDefaultResetWindow = messageHandler.getType().equals(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
 
@@ -301,8 +301,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
-            LoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
-            builder = (LoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
+            LegacyLoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
+            builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), msgEntry);
             final List<LoadProfileConfiguration> loadProfileConfigurations = this.protocol.fetchLoadProfileConfiguration(Arrays.asList(lpr));
@@ -350,8 +350,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     private MessageResult doReadPartialLoadProfile(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read Partial LoadProfile.");
-            PartialLoadProfileMessageBuilder builder = this.protocol.getPartialLoadProfileMessageBuilder();
-            builder = (PartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
+            LegacyPartialLoadProfileMessageBuilder builder = this.protocol.getPartialLoadProfileMessageBuilder();
+            builder = (LegacyPartialLoadProfileMessageBuilder) builder.fromXml(msgEntry.getContent());
 
             LoadProfileReader lpr = builder.getLoadProfileReader();
 

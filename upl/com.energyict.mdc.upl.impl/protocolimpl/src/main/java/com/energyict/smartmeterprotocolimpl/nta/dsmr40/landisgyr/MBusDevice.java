@@ -3,9 +3,9 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
-import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
 import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
@@ -51,12 +51,12 @@ public class MBusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
     public void addProperties(TypedProperties properties) {
     }
 
-    public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LoadProfileRegisterMessageBuilder();
+    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return new LegacyLoadProfileRegisterMessageBuilder();
     }
 
-    public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new PartialLoadProfileMessageBuilder();
+    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return new LegacyPartialLoadProfileMessageBuilder();
     }
 
     @Override

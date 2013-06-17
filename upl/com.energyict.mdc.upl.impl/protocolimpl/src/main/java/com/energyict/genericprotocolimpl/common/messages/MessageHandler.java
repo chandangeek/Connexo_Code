@@ -1,8 +1,8 @@
 
 package com.energyict.genericprotocolimpl.common.messages;
 
-import com.energyict.protocol.messaging.LoadProfileRegisterMessageBuilder;
-import com.energyict.protocol.messaging.PartialLoadProfileMessageBuilder;
+import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.xml.sax.Attributes;
@@ -187,11 +187,11 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.CHANGE_OF_SUPPLIER.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CHANGE_OF_SUPPLIER);
             handleChangeOfSupplierParameters(attrbs);
-        } else if(PartialLoadProfileMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
-            setType(PartialLoadProfileMessageBuilder.getMessageNodeTag());
+        } else if(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
+            setType(LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag());
             isXmlInContent = true;
-        } else if(LoadProfileRegisterMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
-            setType(LoadProfileRegisterMessageBuilder.getMessageNodeTag());
+        } else if(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag().equalsIgnoreCase(qName)){
+            setType(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag());
             isXmlInContent = true;
         } else if(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW.equalsIgnoreCase(qName)) {
             setType(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);

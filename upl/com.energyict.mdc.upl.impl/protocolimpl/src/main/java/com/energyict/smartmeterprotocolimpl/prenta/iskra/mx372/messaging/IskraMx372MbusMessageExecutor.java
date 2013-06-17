@@ -9,7 +9,10 @@ import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
+import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
+import com.energyict.protocol.messaging.LoadProfileRegisterMessaging;
+import com.energyict.protocol.messaging.PartialLoadProfileMessaging;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import org.xml.sax.SAXException;
@@ -67,10 +70,10 @@ public class IskraMx372MbusMessageExecutor extends GenericMessageExecutor implem
                 infoLog("Sending MbusSetVif message for meter with serialnumber: "+messageEntry.getSerialNumber());
                 mbusSetVif(messageEntry);
                 infoLog("MbusSetVif message successful.");
-            } else if (isItThisMessage(messageEntry, LoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
+            } else if (isItThisMessage(messageEntry, LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag())) {
                 infoLog("Sending LoadProfileRegister message for meter with serialnumber: "+messageEntry.getSerialNumber());
                 msgResult = doReadLoadProfileRegisters(messageEntry);
-            } else if (isItThisMessage(messageEntry, PartialLoadProfileMessageBuilder.getMessageNodeTag())) {
+            } else if (isItThisMessage(messageEntry, LegacyPartialLoadProfileMessageBuilder.getMessageNodeTag())) {
                 infoLog("Sending PartialLoadProfile message for meter with serialnumber: "+messageEntry.getSerialNumber());
                 msgResult = doReadPartialLoadProfile(messageEntry);
             } else {
@@ -125,12 +128,12 @@ public class IskraMx372MbusMessageExecutor extends GenericMessageExecutor implem
         return iskraMx372.getMessageProtocol().doReadPartialLoadProfile(msgEntry);
     }
 
-    public LoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
-        return new LoadProfileRegisterMessageBuilder();
+    public LegacyLoadProfileRegisterMessageBuilder getLoadProfileRegisterMessageBuilder() {
+        return new LegacyLoadProfileRegisterMessageBuilder();
     }
 
-    public PartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
-        return new PartialLoadProfileMessageBuilder();
+    public LegacyPartialLoadProfileMessageBuilder getPartialLoadProfileMessageBuilder() {
+        return new LegacyPartialLoadProfileMessageBuilder();
     }
 
     private int getMbusAddress(String serialNumber) throws IOException {
