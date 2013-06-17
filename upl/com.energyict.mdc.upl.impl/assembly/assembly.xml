@@ -30,7 +30,7 @@
 			
 			<binaries>
 				<unpack>false</unpack>
-				<outputDirectory>protocol</outputDirectory>
+				<outputDirectory>bin-all/protocol</outputDirectory>
 				<includeDependencies>true</includeDependencies>
 			</binaries>
 		</moduleSet>
