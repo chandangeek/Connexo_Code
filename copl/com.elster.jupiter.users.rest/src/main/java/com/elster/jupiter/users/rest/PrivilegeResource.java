@@ -18,7 +18,7 @@ public class PrivilegeResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public PrivilegeInfos getUsers(@Context UriInfo uriInfo) {
+    public PrivilegeInfos getPrivileges(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Privilege> list = getPrivilegeRestQuery().select(queryParameters);
         PrivilegeInfos infos = new PrivilegeInfos(list);
