@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.coronis.common.escapecommands;
 
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.coronis.core.EscapeCommandException;
-import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.coronis.common.WaveFlowConnect;
+import com.energyict.protocolimplv2.coronis.common.WaveflowProtocolUtils;
 
 abstract class AbstractEscapeCommand {
 

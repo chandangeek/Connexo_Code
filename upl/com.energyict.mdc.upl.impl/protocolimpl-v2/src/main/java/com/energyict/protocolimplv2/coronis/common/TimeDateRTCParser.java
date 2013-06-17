@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.coronis.common;
 
-import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
-
 import java.util.Calendar;
 import java.util.TimeZone;
 

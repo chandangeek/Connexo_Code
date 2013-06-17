@@ -63,11 +63,11 @@ public class ProfileType extends AbstractParameter {
     }
 
     public boolean supportsSimpleBackflowDetection() {
-        return (getType() == com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType.REEDINPUT_AND_SIMPLE_BACKFLOW);
+        return (getType() == ProfileType.REEDINPUT_AND_SIMPLE_BACKFLOW);
     }
 
     public boolean supportsAdvancedBackflowDetection() {
-        return (getType() == com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType.REEDINPUT_AND_ADVANCED_BACKFLOW) || (getType() == com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType.CYBLEINPUT_AND_ADVANCED_BACKFLOW) || (getType() == com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType.REEDINPUT_AND_ADVANCED_BACKFLOW_AND_VALVE_CONTROL);
+        return (getType() == ProfileType.REEDINPUT_AND_ADVANCED_BACKFLOW) || (getType() == ProfileType.CYBLEINPUT_AND_ADVANCED_BACKFLOW) || (getType() == ProfileType.REEDINPUT_AND_ADVANCED_BACKFLOW_AND_VALVE_CONTROL);
     }
 
     public boolean supportsReedFaultDetection() {
@@ -75,7 +75,7 @@ public class ProfileType extends AbstractParameter {
     }
 
     public boolean isOfType4Iputs() {
-        return (getType() == com.energyict.protocolimpl.coronis.waveflow.core.parameter.ProfileType.TYPE_4INPUTS);
+        return (getType() == ProfileType.TYPE_4INPUTS);
     }
 
     public boolean supportsWaterValveControl() {

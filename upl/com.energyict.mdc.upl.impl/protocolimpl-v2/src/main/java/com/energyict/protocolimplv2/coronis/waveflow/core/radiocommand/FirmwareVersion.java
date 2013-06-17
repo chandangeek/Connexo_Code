@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand;
 
-import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.coronis.common.WaveflowProtocolUtils;
 import com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 
 public class FirmwareVersion extends AbstractRadioCommand {

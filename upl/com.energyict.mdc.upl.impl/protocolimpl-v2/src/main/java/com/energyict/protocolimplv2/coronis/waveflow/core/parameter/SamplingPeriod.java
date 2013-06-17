@@ -38,7 +38,6 @@ public class SamplingPeriod extends AbstractParameter {
          *
          * @param samplingPeriodInSeconds
          * @return sampling period to be programmed in the waveflow module
-         * @throws com.energyict.protocolimpl.coronis.core.WaveFlowException
          *
          */
         static int fromSamplingPeriodInSeconds(int samplingPeriodInSeconds) {

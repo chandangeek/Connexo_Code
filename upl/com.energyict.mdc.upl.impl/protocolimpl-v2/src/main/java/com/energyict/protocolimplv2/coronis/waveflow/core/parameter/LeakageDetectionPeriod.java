@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.coronis.waveflow.core.parameter;
 
-import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
+import com.energyict.protocolimplv2.coronis.common.WaveflowProtocolUtils;
 import com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 
 public class LeakageDetectionPeriod extends AbstractParameter {
