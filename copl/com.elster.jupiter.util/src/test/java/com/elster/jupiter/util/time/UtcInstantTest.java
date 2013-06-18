@@ -1,6 +1,6 @@
 package com.elster.jupiter.util.time;
 
-import com.elster.jupiter.test.util.EqualsContractTest;
+import com.elster.jupiter.tasks.impl.test.util.EqualsContractTest;
 import org.junit.Before;
 import org.junit.Test;
 

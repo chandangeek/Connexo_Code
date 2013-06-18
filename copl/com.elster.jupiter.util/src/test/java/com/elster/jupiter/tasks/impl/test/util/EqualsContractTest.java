@@ -1,4 +1,4 @@
-package com.elster.jupiter.test.util;
+package com.elster.jupiter.tasks.impl.test.util;
 
 import org.junit.After;
 import org.junit.Before;
