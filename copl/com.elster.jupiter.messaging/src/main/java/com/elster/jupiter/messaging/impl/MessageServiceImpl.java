@@ -1,16 +1,25 @@
 package com.elster.jupiter.messaging.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
-
-import org.osgi.service.component.annotations.*;
-import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.google.common.base.Optional;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
 
 @Component(name = "com.elster.jupiter.messaging" , service = { MessageService.class , InstallService.class } ,
 	property = { "name=" + Bus.COMPONENTNAME , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable" , "osgi.command.function=aqdroptable" } )
@@ -42,7 +51,7 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 	}
 	
 	@Deactivate
-	public void deAcitvate() {
+	public void deactivate() {
 		Bus.setServiceLocator(null);
 	}
 	
@@ -100,13 +109,13 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 	public void addResource(MessageHandlerFactory factory, Map<String, Object> map) {
 		String destinationName = (String) map.get("destination");
 		String subscriberName = (String) map.get("subscriber");
-		ConsumerSpec spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName,subscriberName).get();
-		if (spec != null) {
-			((ConsumerSpecImpl) spec).start(factory);
+		Optional<SubscriberSpec> spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName, subscriberName);
+		if (spec.isPresent()) {
+			((SubscriberSpecImpl) spec.get()).start(factory);
 		}
 	}
 		
-	public void removeResource(MessageHandlerFactory factory) {		
+	public void removeResource(MessageHandlerFactory factory) {
 	}
 	
 }

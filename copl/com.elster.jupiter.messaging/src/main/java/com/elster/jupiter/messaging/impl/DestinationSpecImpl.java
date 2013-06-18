@@ -37,7 +37,7 @@ public class DestinationSpecImpl implements DestinationSpec {
 	
 	// associations
 	private QueueTableSpec queueTableSpec;
-	private List<ConsumerSpec> consumers;
+	private List<SubscriberSpec> consumers;
 		
 	@SuppressWarnings("unused")
 	private DestinationSpecImpl() {		
@@ -59,11 +59,11 @@ public class DestinationSpecImpl implements DestinationSpec {
 	}
 	
 	@Override
-	public List<ConsumerSpec> getConsumers() {
+	public List<SubscriberSpec> getConsumers() {
 		return getConsumers(true);
 	}
 	
-	private List<ConsumerSpec> getConsumers(boolean protect) {
+	private List<SubscriberSpec> getConsumers(boolean protect) {
 		if (consumers == null) {
 			consumers = Bus.getOrmClient().getConsumerSpecFactory().find("destination",this);
 		}
@@ -234,9 +234,9 @@ public class DestinationSpecImpl implements DestinationSpec {
 	}
 	
 	@Override
-	public ConsumerSpec subscribe(String name , int workerCount) {
-		List<ConsumerSpec> currentConsumers = getConsumers(false);
-		for (ConsumerSpec each : currentConsumers) {
+	public SubscriberSpec subscribe(String name , int workerCount) {
+		List<SubscriberSpec> currentConsumers = getConsumers(false);
+		for (SubscriberSpec each : currentConsumers) {
 			if (each.getName().equals(name)) {
 				throw new RuntimeException("Duplicate name");
 			}
@@ -244,7 +244,7 @@ public class DestinationSpecImpl implements DestinationSpec {
 		if (isQueue() && !currentConsumers.isEmpty()) {
 			throw new RuntimeException("Queues can only have one suscriber");
 		}
-		ConsumerSpecImpl result = new ConsumerSpecImpl(this, name, workerCount);
+		SubscriberSpecImpl result = new SubscriberSpecImpl(this, name);
 		result.subscribe();
 		Bus.getOrmClient().getConsumerSpecFactory().persist(result);
 		return result;

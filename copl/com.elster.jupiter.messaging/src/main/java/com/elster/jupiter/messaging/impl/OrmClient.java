@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.DataMapper;
 public interface OrmClient {
 	DataMapper<QueueTableSpec> getQueueTableSpecFactory();
 	DataMapper<DestinationSpec> getDestinationSpecFactory();
-	DataMapper<ConsumerSpec> getConsumerSpecFactory();
+	DataMapper<SubscriberSpec> getConsumerSpecFactory();
 	Connection getConnection() throws SQLException;
 	void install();
 }

@@ -1,20 +1,22 @@
 package com.elster.jupiter.messaging.impl;
 
-import java.sql.*;
-
-import oracle.jdbc.OracleConnection;
-import oracle.jdbc.aq.*;
-
-import com.elster.jupiter.messaging.ConsumerSpec;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.consumer.*;
+import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.messaging.consumer.MessageHandler;
+import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
 import com.elster.jupiter.util.time.UtcInstant;
+import oracle.jdbc.OracleConnection;
+import oracle.jdbc.aq.AQDequeueOptions;
+import oracle.jdbc.aq.AQMessage;
 
-public class ConsumerSpecImpl implements ConsumerSpec {
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class SubscriberSpecImpl implements SubscriberSpec {
 	private String name;
 	private String destinationName;
-	private int workerCount;
-	
+
 	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
@@ -27,14 +29,13 @@ public class ConsumerSpecImpl implements ConsumerSpec {
 	private DestinationSpec destination;
 	
 	@SuppressWarnings("unused")
-	private ConsumerSpecImpl() {
+	private SubscriberSpecImpl() {
 	}
 	
-	ConsumerSpecImpl(DestinationSpec destination, String name , int workerCount) {
+	SubscriberSpecImpl(DestinationSpec destination, String name) {
 		this.destination = destination;
 		this.destinationName = destination.getName();
 		this.name = name;
-		this.workerCount = workerCount;
 	}
 	
 	@Override
@@ -51,12 +52,6 @@ public class ConsumerSpecImpl implements ConsumerSpec {
 		return name;
 	}
 
-	@Override
-	public int getWorkerCount() {
-		return workerCount;
-	}
-
-		
 	AQMessage receive() throws SQLException {
 		try (Connection connection = Bus.getConnection()) {
 			OracleConnection oraConnection= connection.unwrap(OracleConnection.class);
@@ -123,11 +118,9 @@ public class ConsumerSpecImpl implements ConsumerSpec {
 	}
 	
 	void start(MessageHandlerFactory factory) {
-		for (int i = 0 ; i < workerCount ; i++) {
 			MessageHandler handler = factory.newMessageHandler();
 			MessageHandlerTask task = new MessageHandlerTask(this,handler);
 			new Thread(task).start();
-		}
 	}
 }
 

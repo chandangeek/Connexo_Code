@@ -1,16 +1,16 @@
 package com.elster.jupiter.messaging.impl;
 
-import java.sql.SQLException;
-
 import com.elster.jupiter.messaging.consumer.MessageHandler;
 import com.elster.jupiter.transaction.Transaction;
 
+import java.sql.SQLException;
+
 public class MessageHandlerTask implements Runnable , Transaction<Void> {
 	
-	private final ConsumerSpecImpl consumerSpec;
+	private final SubscriberSpecImpl consumerSpec;
 	private final MessageHandler handler;
 	
-	MessageHandlerTask(ConsumerSpecImpl consumerSpec,MessageHandler handler) {
+	MessageHandlerTask(SubscriberSpecImpl consumerSpec,MessageHandler handler) {
 		this.consumerSpec = consumerSpec;
 		this.handler = handler;
 	}

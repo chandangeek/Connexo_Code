@@ -26,8 +26,8 @@ public class OrmClientImpl implements OrmClient {
 	}
 	
 	@Override
-	public DataMapper<ConsumerSpec> getConsumerSpecFactory() {
-		return dataModel.getDataMapper(ConsumerSpec.class, ConsumerSpecImpl.class, TableSpecs.MSG_CONSUMERSPEC.name());
+	public DataMapper<SubscriberSpec> getConsumerSpecFactory() {
+		return dataModel.getDataMapper(SubscriberSpec.class, SubscriberSpecImpl.class, TableSpecs.MSG_CONSUMERSPEC.name());
 	}
 	@Override
 	public Connection getConnection() throws SQLException {

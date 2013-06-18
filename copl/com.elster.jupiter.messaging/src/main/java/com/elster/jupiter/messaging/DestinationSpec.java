@@ -1,9 +1,9 @@
 package com.elster.jupiter.messaging;
 
+import oracle.jdbc.aq.AQMessage;
+
 import java.sql.SQLException;
 import java.util.List;
-
-import oracle.jdbc.aq.AQMessage;
 
 public interface DestinationSpec {
 	QueueTableSpec getQueueTableSpec();
@@ -17,6 +17,6 @@ public interface DestinationSpec {
 	void send(String text);	
 	void send(byte[] bytes);
 	void send(AQMessage message) throws SQLException;
-	List<ConsumerSpec> getConsumers();
-	ConsumerSpec subscribe(String name, int workerCount);	
+	List<SubscriberSpec> getConsumers();
+	SubscriberSpec subscribe(String name, int workerCount);
 }
