@@ -27,7 +27,29 @@ public enum SecurityPropertySpecName {
      * Indicates whether the password should be represented as ASCII or as Binary
      */
     BINARY_PASSWORD("PasswordBinary"),
-    ANSI_CALLED_AP_TITLE("AnsiCalledAPTitle");
+    ANSI_CALLED_AP_TITLE("AnsiCalledAPTitle"),
+
+    /* Below are incremental properties for the different clients of DLMSSecuritySuportPerClient */
+    PASSWORD_PUBLIC("PasswordPublic"),
+    PASSWORD_DATA("PasswordData"),
+    PASSWORD_EXT_DATA("PasswordExtData"),
+    PASSWORD_MANAGEMENT("PasswordManagement"),
+    PASSWORD_FIRMWARE("PasswordFirmware"),
+    PASSWORD_MANUFACTURER("PasswordManufacturer"),
+
+    ENCRYPTION_KEY_PUBLIC("EncryptionKeyPublic"),
+    ENCRYPTION_KEY_DATA("EncryptionKeyData"),
+    ENCRYPTION_KEY_EXT_DATA("EncryptionKeyExtData"),
+    ENCRYPTION_KEY_MANAGEMENT("EncryptionKeyManagement"),
+    ENCRYPTION_KEY_FIRMWARE("EncryptionKeyFirmware"),
+    ENCRYPTION_KEY_MANUFACTURER("EncryptionKeyManufacturer"),
+
+    AUTHENTICATION_KEY_PUBLIC("AuthenticationKeyPublic"),
+    AUTHENTICATION_KEY_DATA("AuthenticationKeyData"),
+    AUTHENTICATION_KEY_EXT_DATA("AuthenticationKeyExtData"),
+    AUTHENTICATION_KEY_MANAGEMENT("AuthenticationKeyManagement"),
+    AUTHENTICATION_KEY_FIRMWARE("AuthenticationKeyFirmware"),
+    AUTHENTICATION_KEY_MANUFACTURER("AuthenticationKeyManufacturer");
 
     private final String name;
 
