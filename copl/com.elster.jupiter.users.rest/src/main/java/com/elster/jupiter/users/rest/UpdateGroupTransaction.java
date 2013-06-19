@@ -26,16 +26,22 @@ public class UpdateGroupTransaction implements Transaction<Group> {
     }
 
     private Group doUpdate(Group group) {
-        group.save();
-        updateMemberships(group);
+        boolean updated = updateMemberships(group);
+        if (updated) {
+            group.save();
+        }
         return group;
     }
 
-    private void updateMemberships(Group group) {
+    private boolean updateMemberships(Group group) {
         Set<Privilege> current = new LinkedHashSet<>(group.getPrivileges());
         Set<Privilege> target = targetGrants();
+        if (target.equals(current)) {
+            return false;
+        }
         revoke(group, current, target);
         grant(group, current, target);
+        return true;
     }
 
     private void grant(Group group, Set<Privilege> current, Set<Privilege> target) {
