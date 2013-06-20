@@ -1,15 +1,17 @@
 package com.elster.jupiter.messaging.impl;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public class OrmClientImpl implements OrmClient {
 	
-	final private DataModel dataModel;
+	private final DataModel dataModel;
 	
 	public OrmClientImpl(DataModel dataModel) {
 		this.dataModel = dataModel;
@@ -34,7 +36,6 @@ public class OrmClientImpl implements OrmClient {
 		return dataModel.getConnection(false);
 	}
 
-	
 	@Override
 	public void install() {
 		dataModel.install(true,true);		
