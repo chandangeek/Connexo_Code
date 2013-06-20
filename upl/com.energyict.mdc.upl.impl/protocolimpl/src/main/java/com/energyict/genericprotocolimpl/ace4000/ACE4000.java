@@ -2,18 +2,32 @@ package com.energyict.genericprotocolimpl.ace4000;
 
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.*;
+import com.energyict.cpo.Environment;
 import com.energyict.genericprotocolimpl.ace4000.objects.ObjectFactory;
 import com.energyict.genericprotocolimpl.common.AbstractGenericProtocol;
 import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.core.*;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterReadingData;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 
 import javax.naming.ConfigurationException;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -570,7 +584,8 @@ public class ACE4000 extends AbstractGenericProtocol {
     public boolean isMasterMeter(String serialNumber) throws ConfigurationException {
 
         // find by CallHomeID, unique in database
-        List meterList = mw().getDeviceFactory().findByDialHomeId("ACE4000" + serialNumber);
+//        List meterList = mw().getDeviceFactory().findByDialHomeId("ACE4000" + serialNumber);
+        List meterList = new ArrayList(0);  // TODO: warning - API call no longer exists (cause DialHomeId is no longer managed by device)
 
         if (meterList.size() == 1) {    // we found him, take him down boys ....
             setMasterMeter((Device) meterList.get(0));
@@ -594,7 +609,8 @@ public class ACE4000 extends AbstractGenericProtocol {
     public boolean isSlaveMeter(String serialNumber) throws ConfigurationException {
 
         // find by CallHomeID, unique in database
-        List meterList = mw().getDeviceFactory().findByDialHomeId("ACE4000MB" + serialNumber);
+//        List meterList = mw().getDeviceFactory().findByDialHomeId("ACE4000MB" + serialNumber);
+        List meterList = new ArrayList(0);  // TODO: warning - API call no longer exists (cause DialHomeId is no longer managed by device)
 
         if (meterList.size() == 1) {    // we found him, take him down boys ....
             getMBusMetersMap().put(serialNumber, (Device) meterList.get(0));

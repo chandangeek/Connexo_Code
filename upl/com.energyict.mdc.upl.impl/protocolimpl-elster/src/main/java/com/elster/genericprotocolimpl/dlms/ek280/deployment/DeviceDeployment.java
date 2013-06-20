@@ -12,6 +12,7 @@ import com.energyict.mdw.shadow.DeviceShadow;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -44,7 +45,8 @@ public class DeviceDeployment {
     public Device deployDevice(DeviceDiscoverInfo info) throws IOException {
         String callHomeId = info.getCallHomeId();
         if (callHomeId != null) {
-            List<Device> rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(callHomeId);
+//            List<Device> rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(callHomeId);   //TODO: Warning - changed, cause findByDialHomeId no longer exists
+            List<Device> rtus = new ArrayList<>(0); // TODO: warning - API call no longer exists (cause DialHomeId is no longer managed by device)
             if (rtus.isEmpty()) {
                 if (properties.isFastDeployment()) {
                     getLogger().warning("Device with call home id [" + callHomeId + "] not found! Starting deployment ...");

@@ -3,8 +3,8 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,8 +25,9 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier {
 
     @Override
     public Device findDevice() {
-        List<Device> devicesByDialHomeId = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(this.callHomeID);
-        if (devicesByDialHomeId.isEmpty()) {
+//        List<Device> devicesByDialHomeId = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(this.callHomeID);
+        List<Device> devicesByDialHomeId = new ArrayList<>(0);  // TODO: warning - API call no longer exists (cause DialHomeId is no longer managed by device)
+        if (devicesByDialHomeId.isEmpty()) {                    //TODO: just a commit to fix broken build - but still need to implement real behavior!
             return null;
         } else {
             if (devicesByDialHomeId.size() > 1) {
