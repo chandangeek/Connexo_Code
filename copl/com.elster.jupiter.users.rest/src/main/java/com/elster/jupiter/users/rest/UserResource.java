@@ -48,9 +48,9 @@ public class UserResource {
     public UserInfos getUser(@PathParam("id") long id) {
         Optional<User> party = Bus.getUserService().getUser(id);
         if (party.isPresent()) {
-            return new UserInfos((User) party.get());
+            return new UserInfos(party.get());
         }
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
     @GET
@@ -77,6 +77,5 @@ public class UserResource {
         Query<User> query = Bus.getUserService().getUserQuery();
         return Bus.getRestQueryService().wrap(query);
     }
-
 
 }
