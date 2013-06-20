@@ -1,5 +1,6 @@
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 
@@ -10,7 +11,7 @@ public class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     private String cronString;
     private String name;
     private String payload;
-    private String destination;
+    private DestinationSpec destination;
 
     public DefaultRecurrentTaskBuilder(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
@@ -23,7 +24,7 @@ public class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     }
 
     @Override
-    public RecurrentTaskBuilder setDestination(String destination) {
+    public RecurrentTaskBuilder setDestination(DestinationSpec destination) {
         this.destination = destination;
         return this;
     }
@@ -34,6 +35,7 @@ public class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
         return this;
     }
 
+    @Override
     public RecurrentTaskBuilder setName(String name) {
         this.name = name;
         return this;

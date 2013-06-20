@@ -4,8 +4,7 @@ import java.util.Date;
 
 class QuartzCronExpressionAdapter implements CronExpression {
 
-
-    private final QuartzCronExpression quartzCronExpression;
+	private final QuartzCronExpression quartzCronExpression;
 
     public QuartzCronExpressionAdapter(String expression) {
         this.quartzCronExpression = new QuartzCronExpression(expression);
@@ -20,4 +19,10 @@ class QuartzCronExpressionAdapter implements CronExpression {
     public boolean matches(Date date) {
         return quartzCronExpression.isSatisfiedBy(date);
     }
+    
+    @Override
+	public String toString() {
+		return quartzCronExpression.getCronExpression();
+	}
+
 }

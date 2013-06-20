@@ -22,6 +22,7 @@ final class TaskScheduler implements Runnable {
 
     @Override
     public void run() {
+    	System.out.println("Schedule again");
         scheduledExecutorService.scheduleAtFixedRate(taskOccurrenceLauncher, 0, period, timeUnit);
         while (!Thread.currentThread().isInterrupted()) {
             try {
@@ -31,13 +32,11 @@ final class TaskScheduler implements Runnable {
                 Thread.currentThread().interrupt();
             }
         }
+        scheduledExecutorService.shutdown();
     }
 
     public void scheduleNow() {
         scheduleNowRequests.release();
     }
 
-    public void shutDown() {
-        scheduledExecutorService.shutdown();
-    }
 }

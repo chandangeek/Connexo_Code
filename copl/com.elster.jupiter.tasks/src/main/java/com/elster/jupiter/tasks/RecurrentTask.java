@@ -1,5 +1,6 @@
 package com.elster.jupiter.tasks;
 
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.Clock;
 
@@ -14,7 +15,7 @@ public interface RecurrentTask extends HasName {
 
     void updateNextExecution(Clock clock);
 
-    String getDestination();
+    DestinationSpec getDestination();
 
     String getPayLoad();
 
