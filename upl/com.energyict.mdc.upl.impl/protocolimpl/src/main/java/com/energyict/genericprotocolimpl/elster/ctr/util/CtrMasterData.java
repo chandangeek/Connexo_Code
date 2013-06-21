@@ -89,11 +89,9 @@ public class CtrMasterData {
         List<RegisterMapping> mappings = factory.findAll();
         for (RegisterMapping mapping : mappings) {
             RegisterSpecShadow specShadow = new RegisterSpecShadow();
-            specShadow.setDeviceChannelIndex(0);
             specShadow.setRegisterMappingId(mapping.getId());
             specShadow.setNumberOfDigits(9);
             specShadow.setNumberOfFractionDigits(4);
-            specShadow.setIntegral(false);
             // TODO change this in order to work properly
 //            rtuTypeShadow.getRegisterSpecShadows().add(specShadow);
         }

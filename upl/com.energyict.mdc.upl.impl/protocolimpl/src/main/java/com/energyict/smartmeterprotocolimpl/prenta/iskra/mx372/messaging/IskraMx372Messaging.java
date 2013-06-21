@@ -1022,7 +1022,7 @@ public class IskraMx372Messaging extends ProtocolMessages implements PartialLoad
         } else {
             // we don't create any meters anymore!
             return null;
-//            return createMeter(getProperties().getRtuType(), customerID);
+//            return createMeter(getProperties().getDeviceType(), customerID);
         }
     }
 

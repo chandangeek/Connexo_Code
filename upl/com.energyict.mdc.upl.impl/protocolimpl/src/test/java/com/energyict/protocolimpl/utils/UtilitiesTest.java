@@ -89,7 +89,6 @@ public class UtilitiesTest {
         assertEquals(1, result.size());
         assertEquals(testRtu, result.get(0).getShadow().getName());
         assertEquals(javaClassName, result.get(0).getShadow().getCommunicationProtocolShadow().getName());
-        assertEquals(6, result.get(0).getShadow().getChannelCount());
     }
 
     @Test

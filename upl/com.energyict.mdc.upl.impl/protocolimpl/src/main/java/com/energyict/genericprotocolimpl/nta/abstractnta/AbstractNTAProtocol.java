@@ -1007,7 +1007,7 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
 //            return null;
 //        }
 //
-//        DeviceType rtuType = getRtuType();
+//        DeviceType rtuType = getDeviceType();
 //        if (rtuType == null) {
 //            return null;
 //        } else {

@@ -579,7 +579,7 @@ public class IskraMx37x implements ProtocolLink, CacheMechanism, Messaging, HHUE
         } else {
             // we don't create any meters anymore!
             return null;
-//            return createMeter(rtu, getRtuType(), customerID);
+//            return createMeter(rtu, getDeviceType(), customerID);
         }
     }
 // we don't create any meters anymore!

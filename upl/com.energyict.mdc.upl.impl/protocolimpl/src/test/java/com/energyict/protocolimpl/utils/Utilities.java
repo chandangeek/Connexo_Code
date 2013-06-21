@@ -104,7 +104,6 @@ public class Utilities {
      */
     public static DeviceType createRtuType(CommunicationProtocol commProtocol, String name, int channelCount) throws SQLException, BusinessException {
         DeviceTypeShadow rtuTypeShadow = new DeviceTypeShadow();
-        rtuTypeShadow.setChannelCount(channelCount);
         rtuTypeShadow.setName(name);
         rtuTypeShadow.setProtocolId(commProtocol.getId());
         DeviceType rtuType = mw().getDeviceTypeFactory().create(rtuTypeShadow);

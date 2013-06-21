@@ -334,13 +334,7 @@ public class WebRTUGenericGateway {
     }
 
     private ObisCode getCorrectedObisCode(Register slaveRegister) {
-        ObisCode obisCode = slaveRegister.getRegisterSpec().getDeviceObisCode();
-        if (obisCode == null) {
-            obisCode = slaveRegister.getRegisterMapping().getObisCode();
-            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) (slaveRegister.getRegisterSpec().getDeviceChannelIndex() & 0x0FF));
-        } else {
-            return obisCode;
-        }
+        return slaveRegister.getRegisterSpec().getDeviceObisCode();
     }
 
     private void stopWavenisStack() {

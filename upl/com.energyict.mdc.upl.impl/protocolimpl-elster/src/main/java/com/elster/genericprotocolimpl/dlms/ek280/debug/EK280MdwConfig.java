@@ -114,7 +114,7 @@ public class EK280MdwConfig {
             //TODO fix with the correct DeviceConfig in order for this to work
 //            ShadowList<RegisterSpecShadow> registerSpecShadows = shadow.getRegisterSpecShadows();
 //            RegisterSpecShadow registerSpecShadow = new RegisterSpecShadow();
-//            registerSpecShadow.setRtuTypeId(getRtuType().getId());
+//            registerSpecShadow.setRtuTypeId(getDeviceType().getId());
 //            registerSpecShadow.setDeviceChannelIndex(obis.getB());
 //            registerSpecShadow.setDeviceObisCode(obis);
 //            registerSpecShadow.setLoadprofileChannelIndex(-1);

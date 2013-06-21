@@ -28,12 +28,7 @@ public class RegisterTaskExecutor extends AbstractExecutor<RegisterTaskExecutor.
             RegisterSpec registerSpec = register.getRegisterSpec();
             ObisCode obis = registerSpec.getDeviceObisCode();
             ObisCode obisToRead;
-            if (obis == null) {
-                obis = register.getRegisterMapping().getObisCode();
-                obisToRead = ProtocolTools.setObisCodeField(obis, 1, (byte) (registerSpec.getDeviceChannelIndex() & 0x0FF));
-            } else {
                 obisToRead = ObisCode.fromByteArray(obis.getLN());
-            }
             try {
                 RegisterValue registerValue = getDlmsProtocol().readRegister(obisToRead);
                 getStoreObject().add(register, ProtocolTools.setRegisterValueObisCode(registerValue, obis));
