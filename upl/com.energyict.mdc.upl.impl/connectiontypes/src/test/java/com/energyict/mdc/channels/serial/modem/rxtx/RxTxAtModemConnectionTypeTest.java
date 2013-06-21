@@ -1,14 +1,20 @@
 package com.energyict.mdc.channels.serial.modem.rxtx;
 
 import com.energyict.cbo.TimeDuration;
-import com.energyict.mdc.*;
+import com.energyict.mdc.ManagerFactory;
+import com.energyict.mdc.SerialComponentFactory;
+import com.energyict.mdc.ServerManager;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialPort;
-import com.energyict.mdc.channels.serial.modem.*;
+import com.energyict.mdc.channels.serial.modem.AbstractAtModemProperties;
+import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
+import com.energyict.mdc.channels.serial.modem.AtModemComponent;
+import com.energyict.mdc.channels.serial.modem.TypedAtModemProperties;
 import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 import org.junit.Before;
@@ -20,7 +26,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -102,8 +110,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         return comPort;
     }
 
-    //@Test(timeout = TEST_TIMEOUT_MILLIS, expected = AtModemException.class)
-    @Test(expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void readTimeOutExceptionTest() throws Exception {
         AbstractModemTests.TestableSerialComChannel serialComChannel = getTestableComChannel();
         RxTxSerialPort rxTxSerialPort = mock(RxTxSerialPort.class);
@@ -115,15 +122,15 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         RxTxAtModemConnectionType atModemConnectionType = new RxTxAtModemConnectionType();
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-204")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating the hang up of the modem failed, but was " + e.getMessage());
             }
             throw e;
         }
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testHangUpModemFails() throws Exception {
         AbstractModemTests.TestableSerialComChannel serialComChannel = getTestableComChannel();
         serialComChannel.setResponses(Arrays.asList("   ", "NotValidResponse"));
@@ -137,11 +144,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-204")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             throw e;
         }
     }
@@ -178,7 +185,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         verify(atModemComponent, times(1)).reStoreProfile(comChannel);
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testRestoreDefaultProfileFails() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "NokToDefaultProfileRestore"));
@@ -192,16 +199,16 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-206")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-206")) {
                 fail("Should have gotten exception indicating that the modem could not restore his default profile, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName, "ATZ", "NokToDefaultProfileRestore");
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName, "ATZ", "NokToDefaultProfileRestore");
             throw e;
         }
     }
 
-    @Test(timeout = 10000, expected = ModemException.class)
+    @Test(timeout = 10000, expected = ConnectionException.class)
     public void testRetriesExceededForHangUp() throws Exception {
         AbstractModemTests.TimeoutSerialComChannel comChannel = getTimeoutSerialComChannel(COMMAND_TIMEOUT_VALUE + 10);
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "First_Not_CorrectAnswer", "Second_Not_CorrectAnswer", "Third_Not_CorrectAnswer"));
@@ -223,11 +230,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         final int numberOfTries = 3;
         try {
             atModemConnectionType.connect(comPort, properties);
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-204")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-204")) {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             verify(atModemComponent, times(numberOfTries)).readAndVerify(any(ComChannel.class), any(String.class), any(Long.class));
             throw e;
         }
@@ -249,7 +256,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         verify(atModemComponent, times(1)).sendInitStrings(comChannel);
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void writeFailingInitStringTest() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "Not_CorrectAnswer"));
@@ -263,11 +270,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-207")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-207")) {
                 fail("Should have gotten exception indicating that the modem init string could not be sent, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName, "Not_CorrectAnswer", "ATS0=0E0V1");
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName, "Not_CorrectAnswer", "ATS0=0E0V1");
             throw e;
         }
     }
@@ -322,7 +329,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         verify(atModemComponent, times(3)).writeSingleInitString(any(ComChannel.class), any(String.class));
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void busyErrorTest() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "BUSY"));
@@ -335,11 +342,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-208")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-208")) {
                 fail("Should have gotten exception indicating that the modem received a BUSY signal, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             verify(atModemComponent, times(1)).hangUpComChannel(comChannel);
             verify(atModemComponent, times(1)).reStoreProfile(comChannel);
             verify(atModemComponent, never()).sendInitStrings(comChannel);
@@ -347,7 +354,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         }
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void errorAnswerTest() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "ERROR"));
@@ -360,11 +367,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-209")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-209")) {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             verify(atModemComponent, times(1)).hangUpComChannel(comChannel);
             verify(atModemComponent, times(1)).reStoreProfile(comChannel);
             verify(atModemComponent, never()).sendInitStrings(comChannel);
@@ -372,7 +379,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         }
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void noAnswerErrorTest() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "NO ANSWER"));
@@ -385,11 +392,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-210")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-210")) {
                 fail("Should have gotten exception indicating that the modem received a NO ANSWER signal, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             verify(atModemComponent, times(1)).hangUpComChannel(comChannel);
             verify(atModemComponent, times(1)).reStoreProfile(comChannel);
             verify(atModemComponent, never()).sendInitStrings(comChannel);
@@ -398,7 +405,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
     }
 
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void noCarrierErrorTest() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "NO CARRIER"));
@@ -411,11 +418,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-211")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-211")) {
                 fail("Should have gotten exception indicating that the modem received a NO CARRIER signal, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             verify(atModemComponent, times(1)).hangUpComChannel(comChannel);
             verify(atModemComponent, times(1)).reStoreProfile(comChannel);
             verify(atModemComponent, never()).sendInitStrings(comChannel);
@@ -423,7 +430,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         }
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void noDialtoneErrorTest() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "NO DIALTONE"));
@@ -436,11 +443,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-212")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-212")) {
                 fail("Should have gotten exception indicating that the modem received a NO DIALTONE signal, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             verify(atModemComponent, times(1)).hangUpComChannel(comChannel);
             verify(atModemComponent, times(1)).reStoreProfile(comChannel);
             verify(atModemComponent, never()).sendInitStrings(comChannel);
@@ -464,7 +471,7 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
         verify(atModemComponent, times(1)).dialModem(comChannel);
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void verifyConnectBusy() throws Exception {
         AbstractModemTests.TestableSerialComChannel comChannel = getTestableComChannel();
         comChannel.setResponses(Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "BUSY", "OK", "OK"));
@@ -477,11 +484,11 @@ public class RxTxAtModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             atModemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-208")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-208")) {
                 fail("Should have gotten exception indicating that the connect failed with a busy command, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             verify(atModemComponent, times(1)).dialModem(comChannel);
             throw e;
         }

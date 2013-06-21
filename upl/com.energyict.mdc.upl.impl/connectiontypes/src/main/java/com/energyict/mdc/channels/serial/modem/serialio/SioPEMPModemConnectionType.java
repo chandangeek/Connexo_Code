@@ -32,7 +32,12 @@ public class SioPEMPModemConnectionType extends SioSerialConnectionType {
        create the serial ComChannel and set all property values
         */
         ComChannel comChannel = super.connect(comPort, properties);
-        pempModemComponent.connect(comPort.getName(), (SerialComChannel) comChannel);
+        try {
+            pempModemComponent.connect(comPort.getName(), (SerialComChannel) comChannel);
+        } catch (Exception e) {
+            comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
+            throw new ConnectionException(e);
+        }
         return comChannel;
     }
 

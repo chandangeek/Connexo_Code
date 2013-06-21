@@ -2,12 +2,20 @@ package com.energyict.mdc.channels.serial.modem.serialio;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.dialer.coreimpl.PEMPModemConfiguration;
-import com.energyict.mdc.*;
-import com.energyict.mdc.channels.serial.*;
+import com.energyict.mdc.ManagerFactory;
+import com.energyict.mdc.SerialComponentFactory;
+import com.energyict.mdc.ServerManager;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.channels.serial.SignalController;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
-import com.energyict.mdc.channels.serial.modem.*;
+import com.energyict.mdc.channels.serial.modem.AbstractModemTests;
+import com.energyict.mdc.channels.serial.modem.AbstractPEMPModemProperties;
+import com.energyict.mdc.channels.serial.modem.PEMPModemComponent;
+import com.energyict.mdc.channels.serial.modem.TypedPEMPModemProperties;
 import com.energyict.mdc.exceptions.ModemException;
 import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
 import org.junit.Before;
@@ -34,7 +42,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
 
-    private static final int TEST_TIMEOUT_MILLIS = 5000;
+    private static final int TEST_TIMEOUT_MILLIS = 8000;
     private static final int DTR_TOGGLE_DELAY_VALUE = 100;
     private static final String MODEM_CONFIGURATION_KEY = PEMPModemConfiguration.WWS.getKey();
 
@@ -97,7 +105,7 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         return comPort;
     }
 
-    @Test(expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testInitializePEMPCommandStateFails() throws Exception {
         PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties()));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
@@ -114,16 +122,16 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
 
         try {
             modemConnectionType.connect(comPort, getProperProperties());
-        } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-215")) {
+        } catch (ConnectionException e) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-215")) {
                 fail("Should have gotten exception indicating that the modem could not initialize the command prompt, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             throw e;
         }
     }
 
-    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ModemException.class)
+    @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
     public void testInitializePEMPCommandStateFailsWithTimeout() throws Exception {
         PEMPModemComponent modemComponent = new PEMPModemComponent(new TypedPEMPModemProperties(getProperProperties()));
         when(this.serialComponentFactory.newPEMPModemComponent(any(AbstractPEMPModemProperties.class))).thenReturn(modemComponent);
@@ -137,10 +145,10 @@ public class SioPEMPModemConnectionTypeTest extends AbstractModemTests{
         try {
             modemConnectionType.connect(comPort, getProperProperties());
         } catch (ModemException e) {
-            if (!e.getMessageId().equals("CSM-COM-205")) {
+            if (!((ModemException) e.getCause()).getMessageId().equals("CSM-COM-205")) {
                 fail("Should have gotten exception indicating a timeout, but was " + e.getMessage());
             }
-            assertThat(e.getMessageArguments()).contains(comPortName);
+            assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
             throw e;
         }
     }
