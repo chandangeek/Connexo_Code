@@ -182,8 +182,8 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         public static int getSimpleEncryptionAccessLevelForClientMacAndNewAccessLevel(final int clientId, final int newAccessLevel){
             for (EncryptionAccessLevelIds encryptionAccessLevelId : values()) {
                 final int offset = ((encryptionAccessLevelId.clientId / clientIDMultiple) - 1) * numberOfLevelsPerClient;
-                if(encryptionAccessLevelId.clientId == clientId && (encryptionAccessLevelId.accessLevel - offset) == newAccessLevel){
-                    return encryptionAccessLevelId.accessLevel;
+                if(encryptionAccessLevelId.clientId == clientId && encryptionAccessLevelId.accessLevel == newAccessLevel){
+                    return encryptionAccessLevelId.accessLevel - offset;
                 }
             }
             return 0;
