@@ -1,9 +1,13 @@
 package com.elster.jupiter.messaging.impl;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.DeleteRule.*;
+import com.elster.jupiter.orm.AssociationMapping;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 
-import com.elster.jupiter.orm.*;
+import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
 	MSG_QUEUETABLESPEC {
@@ -31,7 +35,6 @@ public enum TableSpecs {
 		void describeTable(Table table) {
 			Column destinationNameColumn = table.addColumn("DESTINATION","varchar2(30)",true,NOCONVERSION,"destinationName");
 			Column nameColumn = table.addColumn("NAME","varchar2(30)",true,NOCONVERSION,"name");
-			table.addColumn("WORKERCOUNT" , "number" , true, NUMBER2INT , "workerCount");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MSG_PK_CONSUMERSPEC", destinationNameColumn , nameColumn);
 			table.addForeignKeyConstraint("MSG_FK_CONSUMERSPEC", MSG_DESTINATIONSPEC.name() , CASCADE , new AssociationMapping("destination","consumers") , destinationNameColumn);				
