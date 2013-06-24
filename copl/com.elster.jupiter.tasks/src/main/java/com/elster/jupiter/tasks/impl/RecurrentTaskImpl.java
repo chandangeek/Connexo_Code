@@ -92,7 +92,6 @@ class RecurrentTaskImpl implements RecurrentTask {
         Bus.getOrmClient().getRecurrentTaskFactory().remove(this);
     }
 
-
     @Override
     public String getName() {
         return name;
@@ -100,5 +99,17 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     public void setNextExecution(Date nextExecution) {
         this.nextExecution = nextExecution;
+    }
+
+    @Override
+    public void resume() {
+        updateNextExecution(Bus.getClock());
+        save();
+    }
+
+    @Override
+    public void suspend() {
+        this.nextExecution = null;
+        save();
     }
 }

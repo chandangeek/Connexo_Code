@@ -10,6 +10,8 @@ public interface RecurrentTaskBuilder {
 
     RecurrentTaskBuilder setPayLoad(String payLoad);
 
+    RecurrentTaskBuilder scheduleImmediately();
+
     RecurrentTask build();
 
 	RecurrentTaskBuilder setName(String string);

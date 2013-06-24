@@ -26,4 +26,8 @@ public interface RecurrentTask extends HasName {
     void save();
 
     void delete();
+
+    void suspend();
+
+    void resume();
 }

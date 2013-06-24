@@ -30,7 +30,6 @@ public class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
         for (RecurrentTask recurrentTask : getDueTasks()) {
             TaskOccurrence taskOccurrence = recurrentTask.createTaskOccurrence(Bus.getClock());
             recurrentTask.getDestination().send(taskOccurrence.getPayLoad());
-            taskOccurrence.save();
             recurrentTask.updateNextExecution(Bus.getClock());
             recurrentTask.save();
         }

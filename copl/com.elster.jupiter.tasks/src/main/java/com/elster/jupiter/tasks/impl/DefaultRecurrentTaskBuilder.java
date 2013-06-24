@@ -12,6 +12,7 @@ public class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     private String name;
     private String payload;
     private DestinationSpec destination;
+    private boolean scheduleImmediately;
 
     public DefaultRecurrentTaskBuilder(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
@@ -42,7 +43,17 @@ public class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     }
 
     @Override
+    public RecurrentTaskBuilder scheduleImmediately() {
+        scheduleImmediately = true;
+        return this;
+    }
+
+    @Override
     public RecurrentTask build() {
-        return new RecurrentTaskImpl(name, cronExpressionParser.parse(cronString), destination, payload);
+        RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(name, cronExpressionParser.parse(cronString), destination, payload);
+        if (scheduleImmediately) {
+            recurrentTask.updateNextExecution(Bus.getClock());
+        }
+        return recurrentTask;
     }
 }
