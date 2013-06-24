@@ -239,12 +239,12 @@ public abstract class AbstractNtaMbusDevice implements SimpleMeter, SmartMeterPr
 
     @Override
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) throws IOException {
-        throw new UnsupportedException("The Mbus device does not fetch his own loadProfiles configs, his master will doe this for him");
+        throw new UnsupportedException("The Mbus device does not fetch his own loadProfiles configs, his master will do this for him");
     }
 
     @Override
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
-        throw new UnsupportedException("The Mbus device does not read his own loadProfiles, his master will doe this for him");
+        throw new UnsupportedException("The Mbus device does not read his own loadProfiles, his master will do this for him");
     }
     /**
      * Returns a list of required property keys
