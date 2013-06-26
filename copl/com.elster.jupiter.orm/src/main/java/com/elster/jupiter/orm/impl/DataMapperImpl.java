@@ -52,7 +52,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 				builder.append(next);
 			}
 		}
-		return builder.length() == 0 ? "a" : builder.toString().toLowerCase();
+        if (builder.length() == 0) {
+            builder.append('a');
+        }
+        builder.insert(0, '\"');
+        builder.append('\"');
+		return builder.toString().toLowerCase();
 	}
 	
 	public String getAlias() {
