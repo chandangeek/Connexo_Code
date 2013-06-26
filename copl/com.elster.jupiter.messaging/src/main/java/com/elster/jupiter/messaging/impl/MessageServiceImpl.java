@@ -101,8 +101,8 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 	}
 
 	@Override
-	public DestinationSpec getDestinationSpec(String name) {		
-		return Bus.getOrmClient().getDestinationSpecFactory().getExisting(name);
+	public Optional<DestinationSpec> getDestinationSpec(String name) {		
+		return Bus.getOrmClient().getDestinationSpecFactory().get(name);
 	}
 	
 	@Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
