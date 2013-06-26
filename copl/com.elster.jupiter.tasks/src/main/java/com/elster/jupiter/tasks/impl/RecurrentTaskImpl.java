@@ -56,7 +56,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public DestinationSpec getDestination() {
         if (destinationSpec == null) {
-            destinationSpec = Bus.getMessageService().getDestinationSpec(destination);
+            destinationSpec = Bus.getMessageService().getDestinationSpec(destination).get();
         }
         return destinationSpec;
     }

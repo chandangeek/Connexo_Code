@@ -6,6 +6,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,8 +55,8 @@ public class TaskOccurrenceLauncherTest {
         when(serviceLocator.getClock()).thenReturn(clock);
 
         when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME1)).thenReturn(destinationSpec1);
-        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME2)).thenReturn(destinationSpec2);
+        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME1)).thenReturn(Optional.of(destinationSpec1));
+        when(serviceLocator.getMessageService().getDestinationSpec(DS_NAME2)).thenReturn(Optional.of(destinationSpec2));
         when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(recurrentTask1, recurrentTask2));
         when(recurrentTask1.getDestination()).thenReturn(destinationSpec1);
         when(recurrentTask1.createTaskOccurrence(clock)).thenReturn(taskOccurrence1);
