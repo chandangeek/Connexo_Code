@@ -1,12 +1,13 @@
 package com.elster.jupiter.fileimport.impl;
 
-import java.nio.file.Path;
+import java.io.File;
+import java.util.Iterator;
 
-public interface FolderScanner extends AutoCloseable {
+public interface FolderScanner {
 
     /**
      * @return the next new file in the scanned folder.
      */
-    Path next() throws InterruptedException;
+    Iterator<File> getFiles();
 
 }

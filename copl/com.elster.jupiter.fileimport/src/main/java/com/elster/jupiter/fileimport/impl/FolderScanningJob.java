@@ -1,27 +1,23 @@
 package com.elster.jupiter.fileimport.impl;
 
+import java.io.File;
+import java.util.Iterator;
+
 public class FolderScanningJob implements Runnable {
 
     private final FolderScanner scanner;
-    private final PathHandler handler;
+    private final FileHandler handler;
 
-    public FolderScanningJob(FolderScanner scanner, PathHandler handler) {
+    public FolderScanningJob(FolderScanner scanner, FileHandler handler) {
         this.handler = handler;
         this.scanner = scanner;
     }
 
     @Override
     public void run() {
-        while (!Thread.currentThread().isInterrupted()) {
-            handleNext();
+        for (Iterator<File> files = scanner.getFiles(); files.hasNext();) {
+            handler.handle(files.next());
         }
     }
 
-    private void handleNext() {
-        try {
-            handler.handle(scanner.next());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
 }
