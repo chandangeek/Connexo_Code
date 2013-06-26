@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package: com.elster.jupiter.fileimport.impl
+Export-Package: com.elster.jupiter.fileimport
