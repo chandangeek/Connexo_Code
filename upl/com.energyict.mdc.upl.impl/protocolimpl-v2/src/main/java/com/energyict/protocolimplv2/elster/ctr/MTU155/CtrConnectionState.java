@@ -10,6 +10,7 @@ public enum CtrConnectionState {
     WAIT_FOR_STX,
     READ_MIN_LENGTH,
     READ_EXTENDED_LENGTH,
+    READ_FRAME,
     FRAME_RECEIVED
 
 }

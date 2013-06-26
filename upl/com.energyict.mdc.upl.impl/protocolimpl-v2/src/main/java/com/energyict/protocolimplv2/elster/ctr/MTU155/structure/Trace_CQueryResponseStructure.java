@@ -129,7 +129,9 @@ public class Trace_CQueryResponseStructure extends Data<Trace_CQueryResponseStru
         ptr += obj.getLength();
 
         //Parse the remaining objects
-        while (ptr <= rawData.length - traceData.get(0).getBytes().length) {
+        //Note: trace_data field is fixed 100 bytes in size, sometimes dummy intervals are padded at the end. These can be ignored.
+        int remainingValidTraces = obj.getLength() != 0 ? ((100 / obj.getLength()) - 1) : 0;
+        while ((ptr <= rawData.length - traceData.get(0).getBytes().length) && (remainingValidTraces-- > 0)) {
             obj = factory.parse(rawData, ptr, type, id.toString());
             traceData.add(obj);
             ptr += obj.getBytes().length;

@@ -3,6 +3,10 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
+import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
+import com.energyict.mdc.channels.sms.ProximusSmsComChannel;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
@@ -10,7 +14,6 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.meterdata.NoOpCollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
@@ -18,13 +21,15 @@ import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.tasks.CTRDeviceProtocolDialect;
 import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.CtrDeviceProtocolDialect;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -33,14 +38,12 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
 import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 
@@ -63,7 +66,6 @@ public class MTU155 implements DeviceProtocol {
     public static final String REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME = "RemoveDayProfileOffset";
 
     private final DeviceProtocolSecurityCapabilities securityCapabilities = new Mtu155SecuritySupport();
-
 
     /**
      * The offline rtu
@@ -90,9 +92,10 @@ public class MTU155 implements DeviceProtocol {
      */
     private Logger protocolLogger;
     private TypedProperties allProperties;
-    private DeviceIdentifierBySerialNumber deviceIdentifier;
+    private DeviceIdentifier deviceIdentifier;
     private ObisCodeMapper obisCodeMapper;
     private LoadProfileBuilder loadProfileBuilder;
+    private Messaging messaging;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -112,13 +115,13 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> required = new ArrayList<PropertySpec>();
+        List<PropertySpec> required = new ArrayList<>();
         return required;
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optional = new ArrayList<PropertySpec>();
+        List<PropertySpec> optional = new ArrayList<>();
         optional.add(debugPropertySpec());
         optional.add(channelBacklogPropertySpec());
         optional.add(extractInstallationDatePropertySpec());
@@ -145,6 +148,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public void logOn() {
         // not needed
+        //TODO: should we read the identification structure out? Should we verify the DST settings?
     }
 
     @Override
@@ -175,12 +179,19 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        this.deviceCache = deviceProtocolCache;     // Remark: for CTR protocol, the cache object is not used and is always empty.
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {   //TODO: WARNING - seems not to work
+        if (deviceProtocolCache == null) {
+            this.deviceCache = new CTRDeviceProtocolCache();
+        } else {
+            this.deviceCache = deviceProtocolCache;
+        }
     }
 
     @Override
     public DeviceProtocolCache getDeviceCache() {
+        if (requestFactory instanceof SmsRequestFactory) {
+            ((CTRDeviceProtocolCache) this.deviceCache).setSmsWriteDataBlockID(((SmsRequestFactory) requestFactory).getWriteDataBlockID());
+        }
         return this.deviceCache;
     }
 
@@ -199,8 +210,9 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
+    public List<CollectedLoadProfile>
+    getLoadProfileData(List<LoadProfileReader> loadProfiles) {
+        return getLoadProfileBuilder().getLoadProfileData(loadProfiles);    //TODO: verify StartOfGasDayParser for EK155
     }
 
     @Override
@@ -214,28 +226,28 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return new ArrayList<>();   //TODO
+        return getMessaging().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return new NoOpCollectedMessageList();  //TODO
+        return getMessaging().executePendingMessages(pendingMessages);
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return new NoOpCollectedMessageList();  //TODO
+        return getMessaging().updateSentMessages(sentMessages);
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return "";  //Todo change body of implemented methods use File | Settings | File Templates.
+        return getMessaging().format(propertySpec, messageAttribute);
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        List<DeviceProtocolDialect> dialects = new ArrayList<DeviceProtocolDialect>(1);
-        dialects.add(new CtrDeviceProtocolDialect());
+        List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
+        dialects.add(new CTRDeviceProtocolDialect());
         return dialects;
     }
 
@@ -250,65 +262,7 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> rtuRegisters) {
-        /** While reading one of the registers, a blocking issue was encountered; this indicates it makes no sense to try to read out the other registers **/
-        boolean blockingIssueEncountered = false;
-        /** The blocking Communication Exception **/
-        ComServerExecutionException blockingIssue = null;
-
-        List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
-        for (OfflineRegister register : rtuRegisters) {
-            if (!blockingIssueEncountered) {
-                try {
-                    RegisterValue registerValue = getObisCodeMapper().readRegister(register.getObisCode());
-
-                    CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));
-                    deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-                    deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
-                    collectedRegisters.add(deviceRegister);
-                } catch (NoSuchRegisterException e) {   // Register with obisCode ... is not supported.
-                    CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
-                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
-                    collectedRegisters.add(defaultDeviceRegister);
-                } catch (CTRException e) {  // See list of possible error messages
-                    CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
-                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXissue", register.getObisCode(), e));
-                    collectedRegisters.add(defaultDeviceRegister);
-                } catch (ComServerExecutionException e) {    // CommunicationException.numberOfRetriesReached or CommunicationException.cipheringException
-                    blockingIssueEncountered = true;
-                    blockingIssue = e;
-                    CollectedRegister deviceRegister = createBlockingIssueDeviceRegister(register, blockingIssue);
-                    collectedRegisters.add(deviceRegister);
-                }
-            } else {
-                CollectedRegister deviceRegister = createBlockingIssueDeviceRegister(register, blockingIssue);
-                collectedRegisters.add(deviceRegister);
-            }
-        }
-        return collectedRegisters;
-    }
-
-    /**
-     * Note: All possible CTR error messages occuring when reading registers:
-     * Installation date cannot be read as a regular register.
-     * Expected requestedId but received receivedId while reading registers.
-     * Expected ... ResponseStructure but was
-     * Query for register with id: " + idObject.toString() + " failed. Meter response was empty
-     * Expected RegisterResponseStructure but was ...
-     * Received no suitable data for this register
-     * <p/>
-     * Invalid Data: Qualifier was 0xFF at register reading for ID: regMap (Obiscode: obisCode.)
-     * Invalid Measurement at register reading for ID: regMap (Obiscode: obisCode.)
-     * Meter is subject to maintenance at register reading for ID: regMap (Obiscode: obisCode.)
-     * Qualifier is 'Reserved' at register reading for ID: regMap (Obiscode: obisCode.)
-     * <p/>
-     * CTRParsingException
-     */
-
-    private CollectedRegister createBlockingIssueDeviceRegister(OfflineRegister register, ComServerExecutionException e) {
-        CollectedRegister defaultDeviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
-        CTRException cause = (CTRException) e.getCause();
-        defaultDeviceRegister.setFailureInformation(ResultType.Other, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXBlockingIssue", register.getObisCode(), cause));
-        return defaultDeviceRegister;
+        return getObisCodeMapper().readRegisters(rtuRegisters);
     }
 
     /**
@@ -316,7 +270,7 @@ public class MTU155 implements DeviceProtocol {
      */
     protected ObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            obisCodeMapper = new ObisCodeMapper(getRequestFactory());
+            obisCodeMapper = new ObisCodeMapper(this);
         }
         return obisCodeMapper;
     }
@@ -328,6 +282,13 @@ public class MTU155 implements DeviceProtocol {
         return loadProfileBuilder;
     }
 
+    public Messaging getMessaging() {
+        if (messaging == null) {
+            this.messaging = new Messaging(this);
+        }
+        return messaging;
+    }
+
     @Override
     public CollectedTopology getDeviceTopology() {
         final CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
@@ -337,7 +298,7 @@ public class MTU155 implements DeviceProtocol {
 
     public DeviceIdentifier getDeviceIdentifier() {
         if (deviceIdentifier == null) {
-            this.deviceIdentifier = new DeviceIdentifierBySerialNumber(offlineDevice.getSerialNumber());
+            this.deviceIdentifier = new DeviceIdentifierById(offlineDevice.getId());
         }
         return deviceIdentifier;
     }
@@ -364,18 +325,30 @@ public class MTU155 implements DeviceProtocol {
     }
 
     private void updateRequestFactory(ComChannel comChannel) {
-        this.requestFactory = new GprsRequestFactory(new ComChannelInputStreamAdapter(comChannel),
-                new ComChannelOutputStreamAdapter(comChannel),
-                getLogger(),
-                getMTU155Properties(),
-                getTimeZone());
+        if (comChannel instanceof ProximusSmsComChannel) {
+            this.requestFactory = new SmsRequestFactory(new ComChannelInputStreamAdapter(comChannel),
+                    new ComChannelOutputStreamAdapter(comChannel),
+                    getLogger(),
+                    getMTU155Properties(),
+                    getTimeZone(),
+                    ((CTRDeviceProtocolCache) deviceCache).getSmsWriteDataBlockID(),
+                    false);
+
+        } else {
+            this.requestFactory = new GprsRequestFactory(new ComChannelInputStreamAdapter(comChannel),
+                    new ComChannelOutputStreamAdapter(comChannel),
+                    getLogger(),
+                    getMTU155Properties(),
+                    getTimeZone(),
+                    false);
+        }
     }
 
     public RequestFactory getRequestFactory() {
         return requestFactory;
     }
 
-    public Logger getLogger() {       //ToDo: this is a temporary solution - should be removed again & substituted by a proper replacement
+    public Logger getLogger() {
         if (protocolLogger == null) {
             protocolLogger = Logger.getLogger(this.getClass().getName());
         }
@@ -383,35 +356,42 @@ public class MTU155 implements DeviceProtocol {
     }
 
     public TimeZone getTimeZone() {
-        return TimeZone.getTimeZone((String) offlineDevice.getAllProperties().getProperty("TimeZone")); // TODO should make sure the timeZone is defined as property
+        return offlineDevice.getTimeZone();
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
-        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), new DeviceIdentifierBySerialNumber(offlineRtuRegister.getSerialNumber()));
+        return new RegisterDataIdentifierByObisCodeAndDevice(offlineRtuRegister.getObisCode(), new DeviceIdentifierById(offlineDevice.getId()));
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        List<CollectedLogBook> collectedLogBooks = new ArrayList<CollectedLogBook>(1);
+        List<CollectedLogBook> collectedLogBooks = new ArrayList<>(1);
         CollectedLogBook collectedLogBook;
 
-        LogBookReader logBook = logBooks.get(0);
-        try {
-            Date lastLogBookReading = logBook.getLastLogBook();
-            CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
-            List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
-                    meterEvent.getMeterEvents(lastLogBookReading));
-            collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
-            collectedLogBook.setMeterEvents(meterProtocolEvents);
-        } catch (CTRException e) {
-            collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
-            collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(logBook, "logBookXissue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
-        } catch (ComServerExecutionException e) {                                                                                           //ToDO: add DB key to todo-resources.sql
-            collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
-            collectedLogBook.setFailureInformation(ResultType.Other, MdcManager.getIssueCollector().addProblem(logBook, "logBookXBlockingIssue", null, e));  //ToDo: replace 'null' by the correct representation of the logBook (e.g.: ObisCode)?
-        }                                                                                                                               //ToDO: add DB key to todo-resources.sql
+        for (LogBookReader logBook : logBooks) {
+            if (logBook.getLogBookObisCode().equals(LogBookTypeFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
+                try {
+                    Date lastLogBookReading = logBook.getLastLogBook();
+                    CTRMeterEvent meterEvent = new CTRMeterEvent(getRequestFactory());
+                    List<MeterProtocolEvent> meterProtocolEvents = MeterEvent.mapMeterEventsToMeterProtocolEvents(
+                            meterEvent.getMeterEvents(lastLogBookReading));
+                    collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+                    collectedLogBook.setMeterEvents(meterProtocolEvents);
+                } catch (CTRException e) {
+                    collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+                    collectedLogBook.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(logBook, "logBookXissue", logBook.getLogBookObisCode(), e));
+                } catch (ComServerExecutionException e) {
+                    collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+                    collectedLogBook.setFailureInformation(ResultType.Other, MdcManager.getIssueCollector().addProblem(logBook, "logBookXBlockingIssue", logBook.getLogBookObisCode(), e));
+                }
 
-        collectedLogBooks.add(collectedLogBook);
+                collectedLogBooks.add(collectedLogBook);
+            } else {
+                collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBook.getLogBookIdentifier());
+                collectedLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(logBook, "logBookXnotsupported", logBook.getLogBookObisCode()));
+                collectedLogBooks.add(collectedLogBook);
+            }
+        }
         return collectedLogBooks;
     }
 
@@ -442,11 +422,26 @@ public class MTU155 implements DeviceProtocol {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        //TODO provide proper functionality so your protocol can make proper use of the security properties
+
+        Mtu155SecuritySupport mtu155SecuritySupport = new Mtu155SecuritySupport();
+        TypedProperties securityProperties = mtu155SecuritySupport.convertToTypedProperties(deviceProtocolSecurityPropertySet);
+        if (this.allProperties != null) {
+            this.allProperties.setAllProperties(securityProperties); // this will add the dialectProperties to the deviceProperties
+        } else {
+            this.allProperties = securityProperties;
+        }
     }
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return new ArrayList<>();
+        List<ConnectionType> connectionTypes = new ArrayList<>();
+        connectionTypes.add(new CTRInboundDialHomeIdConnectionType());
+        connectionTypes.add(new SioOpticalConnectionType());
+        connectionTypes.add(new OutboundProximusSmsConnectionType());
+        return connectionTypes;
+    }
+
+    public OfflineDevice getOfflineDevice() {
+        return offlineDevice;
     }
 }

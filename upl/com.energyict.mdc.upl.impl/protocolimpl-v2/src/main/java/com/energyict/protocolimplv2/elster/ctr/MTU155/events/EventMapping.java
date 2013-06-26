@@ -39,6 +39,7 @@ public enum EventMapping {
     HLT_CALC(0x4B, MeterEvent.OTHER, "Halt volume calculation at standard therm. cond."),
     MOD_OF_SEC_PARAM(0x4C, MeterEvent.COMMUNICATION_ERROR_MBUS, "Modification of security parameters"),
     REPLACE_BATT(0x4D, MeterEvent.REPLACE_BATTERY, "Replace batteries"),
+    INSTALLATION_ARCHIVE(0x82, MeterEvent.OTHER, "Installation archive snapshot"),
     UNKNOWN(0x00, MeterEvent.OTHER, "Unknown event");
 
     private final int eisCode;

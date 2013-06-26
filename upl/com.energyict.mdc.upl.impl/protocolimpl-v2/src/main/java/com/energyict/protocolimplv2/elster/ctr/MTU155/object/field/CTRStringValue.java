@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.object.field;
 
 import com.energyict.cbo.Unit;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
 
@@ -38,7 +39,7 @@ public class CTRStringValue extends CTRAbstractValue{
     }
 
     public String getValue() {
-        return value.replace("\0", "");
+        return ProtocolTools.getAsciiFromBytes(value.getBytes(), ' ').trim();
     }
 
     public void setValue(Object value) {

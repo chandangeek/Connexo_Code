@@ -36,7 +36,7 @@ public class ComChannelOutputStreamAdapter extends OutputStream {
 
     @Override
     public void flush () throws IOException {
-        // No flushing for now
+        comChannel.flush();
     }
 
     @Override

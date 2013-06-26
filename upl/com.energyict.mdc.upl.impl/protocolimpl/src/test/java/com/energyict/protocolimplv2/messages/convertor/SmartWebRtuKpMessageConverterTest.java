@@ -696,7 +696,7 @@ public class SmartWebRtuKpMessageConverterTest {
         when(activationDateAttribute.getName()).thenReturn(activityCalendarActivationDateAttributeName);
         when(activationDateAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(millis));
         when(activityCalendarConfiguration.getDeviceMessageAttributes()).thenReturn(Arrays.asList(activityCalendarNameMessageAttribute, codeTableMessageAttribute, activationDateAttribute));
-        when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE.getPrimaryKey());
+        when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.getPrimaryKey());
 
         // business method
         final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(activityCalendarConfiguration);

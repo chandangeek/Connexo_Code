@@ -1,17 +1,31 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.events;
 
+import com.energyict.cbo.Unit;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.DeviceStatus;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRBINValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Index_Q;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import static com.energyict.protocolimpl.utils.MeterEventUtils.appendToEventMessage;
 import static com.energyict.protocolimpl.utils.MeterEventUtils.changeEventDate;
@@ -25,10 +39,10 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.getIntFromByte;
  */
 public class CTRMeterEvent {
 
-    private final RequestFactory requestFactory;
-    private CTRAbstractValue[][] eventRecords;
-    private List<CTRAbstractValue[]> allEventRecords = new ArrayList();
-    private final TimeZone timeZone;
+    protected final RequestFactory requestFactory;
+    protected CTRAbstractValue[][] eventRecords;
+    protected List<CTRAbstractValue[]> allEventRecords = new ArrayList();
+    protected final TimeZone timeZone;
 
     public CTRMeterEvent(RequestFactory requestFactory) {
         this.requestFactory = requestFactory;
@@ -84,7 +98,7 @@ public class CTRMeterEvent {
         return avoidDuplicateTimeStamps(meterEvents);
     }
 
-    private List<MeterEvent> avoidDuplicateTimeStamps(List<MeterEvent> meterEvents) {
+    protected List<MeterEvent> avoidDuplicateTimeStamps(List<MeterEvent> meterEvents) {
         Collections.sort(
                 meterEvents,
                 new Comparator<MeterEvent>() {
@@ -114,7 +128,7 @@ public class CTRMeterEvent {
         return uniqueItems;
     }
 
-    private TimeZone getTimeZone() {
+    protected TimeZone getTimeZone() {
         return timeZone;
     }
 
@@ -124,13 +138,13 @@ public class CTRMeterEvent {
      * @param event: the CTR Event object
      * @return date object
      */
-    private Date getDateFromBytes(CTRAbstractValue[] event) {
+    public Date getDateFromBytes(CTRAbstractValue[] event) {
         Calendar cal = Calendar.getInstance(getTimeZone());
         cal.set(Calendar.YEAR, event[0].getIntValue() + 2000);
-        cal.set(Calendar.MONTH, event[1].getIntValue() - 1);
-        cal.set(Calendar.DAY_OF_MONTH, event[2].getIntValue());
-        cal.set(Calendar.HOUR_OF_DAY, event[3].getIntValue());
-        cal.set(Calendar.MINUTE, event[4].getIntValue());
+        cal.set(Calendar.MONTH, (event[1].getIntValue() % 16) - 1);     //  Bits 0-3 contain the month - bits 4-7 indicate the operator
+        cal.set(Calendar.DAY_OF_MONTH, (event[2].getIntValue() % 32));  //  Bits 0-4 contain the day - bits 5-7 indicate the profile
+        cal.set(Calendar.HOUR_OF_DAY, (event[3].getIntValue()) % 30);   // hour + 30, if in DST
+        cal.set(Calendar.MINUTE, (event[4].getIntValue()) % 60);        // minutes + 60, if time shift is in progress
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
@@ -149,7 +163,6 @@ public class CTRMeterEvent {
             int code = eventRecord[7].getIntValue();
             if ((seq != 0) && (code != 0)) {
                 Date date = getDateFromBytes(eventRecord);
-                date = fixDate(date);
                 MeterEvent meterEvent = EventMapping.getMeterEventFromDeviceCode(code, date);
                 meterEvent = appendToEventMessage(meterEvent, getAdditionalInfo(eventRecord));
                 meterEvent = appendToEventMessage(meterEvent, " [" + seq + "]");
@@ -161,7 +174,7 @@ public class CTRMeterEvent {
         return meterEvents;
     }
 
-    private String getAdditionalInfo(CTRAbstractValue[] eventRecord) {
+    protected String getAdditionalInfo(CTRAbstractValue[] eventRecord) {
         int code = eventRecord[7].getIntValue();
         byte[] add1 = eventRecord[9].getBytes();
         byte[] add2 = eventRecord[10].getBytes();
@@ -197,33 +210,38 @@ public class CTRMeterEvent {
                 case 0x05: return " [Password]";
                 default: return " ["+ProtocolTools.getHexStringFromBytes(add2)+"]";
             }
+        } else if (code == 0x82) {
+            try {
+                String info;
+                CTRObjectFactory factory = new CTRObjectFactory();
+                AttributeType attributeType = new AttributeType();
+                attributeType.setHasQualifier(true);
+                attributeType.setHasValueFields(true);
+
+                byte[] rawData = ProtocolTools.concatByteArrays(eventRecord[8].getBytes(), eventRecord[9].getBytes());
+                AbstractCTRObject object = factory.parse(rawData, 0, attributeType, "2.1.0");
+                CTRBINValue tot_Vb = (CTRBINValue) object.getValue(0);
+                Unit unit = tot_Vb.getUnit();
+                BigDecimal amount = tot_Vb.getValue();
+                amount = amount.movePointRight(object.getQlf().getKmoltFactor());
+
+                info = " [Tot_Vb: " + amount + " " + unit;
+                info += " - ";
+
+                attributeType.setHasQualifier(false);
+                rawData = eventRecord[10].getBytes();
+                object = factory.parse(rawData, 0, attributeType, "2.0.0");
+                CTRBINValue tot_Vm = (CTRBINValue) object.getValue(0);
+                unit = tot_Vm.getUnit();
+                amount = tot_Vm.getValue();
+
+                info += "Tot_Vm: " + amount + " " + unit +"]";
+                return info;
+            } catch (CTRParsingException e) {
+                return "";
+            }
         }
         return "";
-    }
-
-    /**
-     * Checks if the hours / minutes have an overflow. This indicates that a time shift is in progress.
-     *
-     * @param date: the date that needs to be checked
-     * @return the real date without the overflow
-     */
-    private Date fixDate(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minutes = cal.get(Calendar.MINUTE);
-
-
-        if (hour > 23) {
-            hour -= 30;
-            cal.set(Calendar.HOUR_OF_DAY, hour);
-        }
-        if (minutes > 59) {
-            minutes -= 60;
-            cal.set(Calendar.MINUTE, minutes);
-        }
-
-        return cal.getTime();
     }
 
     /**
@@ -232,10 +250,23 @@ public class CTRMeterEvent {
      * @param date: the date that needs to be checked
      * @return boolean, whether or not the date is valid
      */
-    private boolean isValidDate(Date date) {
+    protected boolean isValidDate(Date date) {
         Calendar calCurrent = Calendar.getInstance();
         Date dateCurrent = calCurrent.getTime();
         return !date.after(dateCurrent);
     }
 
+    /**
+     * Retrieve all raw CTR event records, relating to the installation archive (having event code 0x82)
+     * @return a list of all events, who belong to the installation archive
+     */
+    public List<CTRAbstractValue[]> getInstallationArchiveEventRecords() {
+        List<CTRAbstractValue[]> installationArchiveRecords = new ArrayList();
+        for (CTRAbstractValue[] each : allEventRecords) {
+            if (each[7].getIntValue() == 0x82) {
+                installationArchiveRecords.add(each);
+            }
+        }
+        return installationArchiveRecords;
+    }
 }

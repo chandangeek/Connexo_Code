@@ -8,8 +8,13 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
@@ -139,6 +144,51 @@ public class CodeTableXmlParsing {
             root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(codeTable.getYearTo())));
             root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(codeTable.getSeasonSetId())));
             root.appendChild(createSingleElement(document, rootPassiveCalendarActivationTime, String.valueOf(activationTime)));
+
+            Element rootActCalendar = document.createElement(rootActCodeTable);
+            rootActCalendar.appendChild(convertSeasonProfileToXml(ctp.getSeasonProfiles(), document));
+            rootActCalendar.appendChild(convertWeekProfileToXml(ctp.getWeekProfiles(), document));
+            rootActCalendar.appendChild(convertDayProfileToXml(ctp.getDayProfiles(), document));
+            root.appendChild(rootActCalendar);
+
+            Element rootSpdCalendar = document.createElement(rootSpDCodeTable);
+            rootSpdCalendar.appendChild(convertSpecialDayProfileToXml(ctp.getSpecialDaysProfile(), document));
+            root.appendChild(rootSpdCalendar);
+
+            document.appendChild(root);
+            return getXmlWithoutDocType(document);
+        } catch (ParserConfigurationException e) {
+            logger.error(e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * Parse the given CodeTable to a proper xml format for the ActivityCalendar AND SpecialDayTable.
+     *
+     * @param codeTable     the {@link com.energyict.mdw.core.Code codeTable}
+     * @return the complete xml for the RTUMessage
+     * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
+     */
+    public static String parseActivityCalendarAndSpecialDayTable(Code codeTable) throws ParserConfigurationException {
+        CodeTableParser ctp = new CodeTableParser(codeTable);
+        try {
+
+            ctp.parse();
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.newDocument();
+            Element root = document.createElement(rootTOUMessage);
+
+            root.appendChild(createSingleElement(document, rootActCalendarName, codeTable.getName()));
+            root.appendChild(createSingleElement(document, codeTableDefinitionTimeZone, codeTable.getDefinitionTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableDestinationTimeZone, codeTable.getDestinationTimeZone().getDisplayName()));
+            root.appendChild(createSingleElement(document, codeTableInterval, Integer.toString(codeTable.getIntervalInSeconds())));
+            root.appendChild(createSingleElement(document, codeTableFromYear, Integer.toString(codeTable.getYearFrom())));
+            root.appendChild(createSingleElement(document, codeTableToYear, Integer.toString(codeTable.getYearTo())));
+            root.appendChild(createSingleElement(document, codeTableSeasonSetId, Integer.toString(codeTable.getSeasonSetId())));
 
             Element rootActCalendar = document.createElement(rootActCodeTable);
             rootActCalendar.appendChild(convertSeasonProfileToXml(ctp.getSeasonProfiles(), document));

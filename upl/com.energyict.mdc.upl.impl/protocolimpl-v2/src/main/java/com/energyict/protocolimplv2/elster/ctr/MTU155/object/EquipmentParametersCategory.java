@@ -106,7 +106,10 @@ public class EquipmentParametersCategory extends AbstractStringObject {
                 case 0: valueLength = new int[]{2}; break;
                 case 1: valueLength = new int[]{6}; break;
             }  break;
-            case 5: valueLength = new int[]{1,4,1,1,1,1,2}; break;
+            case 5: switch (z) {
+                    case 2: valueLength = new int[]{1}; break;
+                    default: valueLength = new int[]{1, 4, 1, 1, 1, 1, 2}; break;
+                }
         }
         return valueLength;
     }

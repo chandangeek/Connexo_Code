@@ -9,7 +9,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.Qualifier;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryResponseStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.PeriodTrace_C;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,13 +25,13 @@ import static com.energyict.protocolimpl.utils.ProtocolTools.isInDST;
  */
 public class TraceCProfileParser {
 
-    private static final int START_OF_GASDAY = 6;
-
     private final Trace_CQueryResponseStructure response;
     private final TimeZone deviceTimeZone;
     private Calendar fromCalendar = null;
     private Calendar toCalendar = null;
     private boolean removeDailyProfileOffset = false;
+    private StartOfGasDayParser startOfGasDayParser;
+    private int maximumNumberOfEntries = -1;
 
     /**
      * This class parses the content from a Trace_CQueryResponseStructure to a list of intervalData items
@@ -40,7 +39,7 @@ public class TraceCProfileParser {
      * @param rawPacket      The raw packet, containing the Trace_CQueryResponseStructure, received from the meter
      * @param deviceTimeZone The device timezone, used to calculate the timeStamps of the intervals
      */
-    public TraceCProfileParser(byte[] rawPacket, TimeZone deviceTimeZone) {
+    public TraceCProfileParser(byte[] rawPacket, TimeZone deviceTimeZone, StartOfGasDayParser startOfGasDayParser) {
         if (rawPacket == null) {
             throw new IllegalArgumentException("Parameter [Trace_CQueryResponseStructure response] cannot be null!");
         }
@@ -58,6 +57,7 @@ public class TraceCProfileParser {
         }
 
         this.deviceTimeZone = (deviceTimeZone == null ? TimeZone.getDefault() : deviceTimeZone);
+        this.startOfGasDayParser = startOfGasDayParser;
     }
 
     /**
@@ -66,12 +66,13 @@ public class TraceCProfileParser {
      * @param response       The Trace_CQueryResponseStructure, received from the meter
      * @param deviceTimeZone The device timezone, used to calculate the timeStamps of the intervals
      */
-    public TraceCProfileParser(Trace_CQueryResponseStructure response, TimeZone deviceTimeZone, boolean removeDailyProfileOffset) {
+    public TraceCProfileParser(Trace_CQueryResponseStructure response, TimeZone deviceTimeZone, StartOfGasDayParser startOfGasDayParser, boolean removeDailyProfileOffset) {
         if (response == null) {
             throw new IllegalArgumentException("Parameter [Trace_CQueryResponseStructure response] cannot be null!");
         }
         this.response = response;
         this.deviceTimeZone = (deviceTimeZone == null ? TimeZone.getDefault() : deviceTimeZone);
+        this.startOfGasDayParser = startOfGasDayParser;
         this.removeDailyProfileOffset = removeDailyProfileOffset;
     }
 
@@ -184,8 +185,28 @@ public class TraceCProfileParser {
     private Calendar getTimeStamp(int valueIndex) {
         checkValueIndex(valueIndex);
         Calendar timeStamp = (Calendar) getFromCalendar().clone();
+        boolean beforeInDst = isInDST(timeStamp);
         timeStamp.add(Calendar.SECOND, getIntervalInSeconds() * valueIndex);
+        boolean afterInDst = isInDST(timeStamp);
+        checkCorrectDailyTimeStamp(timeStamp, beforeInDst, afterInDst);
         return timeStamp;
+    }
+
+    private void checkCorrectDailyTimeStamp(Calendar timeStamp, boolean beforeInDst, boolean afterInDst) {
+        if (getPeriod().isDaily()) {
+            if (removeDailyProfileOffset) {
+                if (beforeInDst && !afterInDst) {
+                    timeStamp.add(Calendar.HOUR_OF_DAY, 1);
+                }
+                timeStamp.set(Calendar.HOUR, 0);
+            } else if (getStartOfGasDayParser().isDstEnabled()) {
+                if (!getStartOfGasDayParser().isEk155ExpressedInUTC() && beforeInDst && !afterInDst) {
+                    timeStamp.add(Calendar.HOUR, 1);
+                } else if (!getStartOfGasDayParser().isEk155ExpressedInUTC() && !beforeInDst && afterInDst) {
+                    timeStamp.add(Calendar.HOUR, -1);
+                }
+            }
+        }
     }
 
     /**
@@ -196,20 +217,28 @@ public class TraceCProfileParser {
     public Calendar getFromCalendar() {
         if (fromCalendar == null) {
             fromCalendar = response.getDate().getCalendar(deviceTimeZone);
-            fromCalendar.add(Calendar.HOUR_OF_DAY, response.getEndOfDayTime().getIntValue());
+            int traceCEndOfDayTime = response.getEndOfDayTime().getIntValue();
+            int hour = getStartOfGasDayParser().getStartOfGasDayHour(fromCalendar, traceCEndOfDayTime);
+            fromCalendar.set(Calendar.HOUR_OF_DAY, hour);
             boolean fromTimeDST = isInDST(fromCalendar);
             if (getPeriod().isHourly()) {
+                fromCalendar.add(Calendar.SECOND, getIntervalInSeconds());
+            } else if (getPeriod().isHourlyFistPart()) {
+                // First interval retrieved is value for OFG + 1
+                fromCalendar.add(Calendar.SECOND, getIntervalInSeconds());
+            } else if (getPeriod().isHourlySecondPart()) {
+                // First interval retrieved is value for OFG + 1 + 12
+                fromCalendar.add(Calendar.HOUR_OF_DAY, 12);
                 fromCalendar.add(Calendar.SECOND, getIntervalInSeconds());
             } else if (getPeriod().isDaily()) {
                 fromCalendar.add(Calendar.SECOND, getIntervalInSeconds());
                 fromCalendar.add(Calendar.SECOND, -(getIntervalInSeconds() * getMaxValueIndex()));
             } else if (getPeriod().isMonthly()) {
-                // TODO: Aanvullen
                 throw new IllegalArgumentException("Invalid period: " + getPeriod() + ". Monthly periods not yet supported.");
             } else {
                 throw new IllegalArgumentException("Invalid period: " + getPeriod());
             }
-            if (fromTimeDST != isInDST(fromCalendar)) {
+            if ((fromTimeDST != isInDST(fromCalendar)) && !getStartOfGasDayParser().isEk155ExpressedInUTC()) {
                 if (isInDST(fromCalendar)) {
                     fromCalendar.add(Calendar.HOUR, -1);
                 } else {
@@ -232,7 +261,10 @@ public class TraceCProfileParser {
     public Calendar getToCalendar() {
         if (toCalendar == null) {
             toCalendar = (Calendar) getFromCalendar().clone();
+            boolean beforeInDst = isInDST(toCalendar);
             toCalendar.add(Calendar.SECOND, getIntervalInSeconds() * getMaxValueIndex());
+            boolean afterInDst = isInDST(toCalendar);
+            checkCorrectDailyTimeStamp(toCalendar, beforeInDst, afterInDst);
         }
         return toCalendar;
     }
@@ -269,12 +301,38 @@ public class TraceCProfileParser {
 
     /**
      * Get the maximum number of entries a Trace_C object can contain.
-     * This depends on the type of data thats requested from the meter
+     * This depends on the type of data that is requested from the meter
      *
      * @return
      */
     private int getMaxNumberOfEntries() {
-        return getPeriod().getTraceCIntervalCount();
+        if (maximumNumberOfEntries == -1) {
+            int traceCIntervalCount = getPeriod().getTraceCIntervalCount();
+            if (getPeriod().isHourly() || getPeriod().isHourlyFistPart() || getPeriod().isHourlySecondPart()) {
+                Calendar fromCal = (Calendar) getFromCalendar().clone();
+                Calendar toCal = (Calendar) getFromCalendar().clone();
+                toCal.set(Calendar.HOUR, toCal.get(Calendar.HOUR) + getPeriod().getTraceCIntervalCount());
+
+                if (getStartOfGasDayParser().isDstEnabled() &&
+                        !getStartOfGasDayParser().isEk155ExpressedInUTC() &&
+                        !fromCal.getTimeZone().inDaylightTime(fromCal.getTime()) &&
+                        toCal.getTimeZone().inDaylightTime(toCal.getTime())) {
+                    // DST Begin (WinterTime -> SummerTime): one entry less than usual
+                    maximumNumberOfEntries = getPeriod().getTraceCIntervalCount() - 1;
+                } else if (getStartOfGasDayParser().isDstEnabled() &&
+                        !getStartOfGasDayParser().isEk155ExpressedInUTC() &&
+                        fromCal.getTimeZone().inDaylightTime(fromCal.getTime()) &&
+                        !toCal.getTimeZone().inDaylightTime(toCal.getTime())) {
+                    // DST End (SummerTime -> WinterTime): one entry more than usual
+                    maximumNumberOfEntries = getPeriod().getTraceCIntervalCount() + 1;
+                } else {
+                    maximumNumberOfEntries = traceCIntervalCount;
+                }
+            } else {
+                maximumNumberOfEntries = traceCIntervalCount;
+            }
+        }
+        return maximumNumberOfEntries;
     }
 
     /**
@@ -286,30 +344,7 @@ public class TraceCProfileParser {
         return response.getPeriod();
     }
 
-    public static ReferenceDate calcRefDate(Calendar from, PeriodTrace_C period) {
-        ReferenceDate date = new ReferenceDate();
-        if (period.isHourly()) {
-            date.parse(getStartOfGasDay(from));
-        } else if (period.isDaily()) {
-            Calendar startDay = getStartOfGasDay(from);
-            startDay.add(Calendar.DAY_OF_YEAR, period.getTraceCIntervalCount() - 1);
-            date.parse(startDay);
-        } else if (period.isMonthly()) {
-            date.parse(getStartOfGasDay(from));
-        }
-        return date;
+    private StartOfGasDayParser getStartOfGasDayParser() {
+        return startOfGasDayParser;
     }
-
-    public static Calendar getStartOfGasDay(Calendar from) {
-        Calendar startOfGasDay = (Calendar) from.clone();
-        if (from.get(Calendar.HOUR_OF_DAY) < START_OF_GASDAY) {
-            startOfGasDay.add(Calendar.DAY_OF_YEAR, -1);
-        }
-        startOfGasDay.set(Calendar.HOUR_OF_DAY, START_OF_GASDAY);
-        startOfGasDay.set(Calendar.MINUTE, 0);
-        startOfGasDay.set(Calendar.SECOND, 0);
-        startOfGasDay.set(Calendar.MILLISECOND, 0);
-        return startOfGasDay;
-    }
-
 }

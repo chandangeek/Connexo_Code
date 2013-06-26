@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +20,25 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
     WriteExchangeStatus(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
     WriteRadioAcknowledge(PropertySpecFactory.booleanPropertySpecWithoutThreeState(DeviceMessageConstants.WriteRadioAcknowledge)),
-    WriteRadioUserTimeout(PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout));
+    WriteRadioUserTimeout(PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
+    EnableOrDisableDST(PropertySpecFactory.booleanPropertySpecWithoutThreeState(DeviceMessageConstants.enableDSTAttributeName)),
+    WriteNewPDRNumber(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.newPDRAttributeName)),
+    ConfigureConverterMasterData(
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.converterTypeAttributeName, "VOL1", "VOL2", "VEN1", "VEN2"),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.converterSerialNumberAttributeName)),
+    ConfigureGasMeterMasterData(
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.meterTypeAttributeName, "MASS", "USON", "CORI", "VENT", "MEMB", "TURB", "ROTO", "Axxx"),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterCaliberAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterSerialNumberAttributeName)),
+    ConfigureGasParameters(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.gasDensityAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.airDensityAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.relativeDensityAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.molecularNitrogenAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.carbonDioxideAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.molecularHydrogenAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName)),
+    ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 

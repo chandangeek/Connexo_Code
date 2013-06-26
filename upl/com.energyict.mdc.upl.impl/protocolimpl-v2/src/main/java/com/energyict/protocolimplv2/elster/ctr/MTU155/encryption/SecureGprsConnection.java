@@ -22,6 +22,7 @@ public class SecureGprsConnection extends GprsConnection {
 
     private Logger logger = null;
     private CTREncryption ctrEncryption;
+    private boolean debug;
 
     /**
      * 
@@ -33,6 +34,7 @@ public class SecureGprsConnection extends GprsConnection {
     public SecureGprsConnection(InputStream in, OutputStream out, MTU155Properties properties, Logger logger) {
         super(in, out, properties);
         this.ctrEncryption = new CTREncryption(properties);
+        this.debug = properties.isDebug();
         this.logger = logger;
     }
 
@@ -68,6 +70,14 @@ public class SecureGprsConnection extends GprsConnection {
         } catch (CTRCipheringException e) {
             throw MdcManager.getComServerExceptionFactory().createCipheringException(e);
         }
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     /**

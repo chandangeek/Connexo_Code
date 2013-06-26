@@ -222,7 +222,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.<DeviceMessageSpec>asList(
                 ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND,
-                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATE,
+                ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME,
                 ContactorDeviceMessage.CONTACTOR_ARM,
                 ContactorDeviceMessage.CONTACTOR_CLOSE,
                 ContactorDeviceMessage.CONTACTOR_OPEN,

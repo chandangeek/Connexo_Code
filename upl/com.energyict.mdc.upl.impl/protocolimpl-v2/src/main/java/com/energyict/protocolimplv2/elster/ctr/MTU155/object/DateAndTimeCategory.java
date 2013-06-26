@@ -7,6 +7,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by IntelliJ IDEA.
@@ -86,6 +87,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
                 case 2: valueLength = new int[]{2}; break;
                 case 3: valueLength = new int[]{1}; break;
                 case 4: valueLength = new int[]{1,1,1,1,1,1,1}; break;
+                case 15: valueLength = new int[]{1,1}; break;
             } break;
             case 2: valueLength = new int[]{1,1,1,1,1}; break;
             case 3: valueLength = new int[]{1,1,1,1,1,1}; break;
@@ -160,14 +162,25 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
         return unit;
     }
 
+    /**
+     * Construct a proper java.util.Date out of the value fields
+     *
+     * @return a Date, expressed in local time zone
+     *         WARNING: the produced date is only valid when the device timezone and local timezone are the same!
+     */
+    @Deprecated
+    private Date getDate() throws IndexOutOfBoundsException {
+        return getDate(TimeZone.getDefault());
+    }
 
     /**
+     * Construct a proper java.util.Date out of the value fields
      *
-     * @return
+     * @return a Date, expressed in the given timezone
      */
-    public Date getDate() throws IndexOutOfBoundsException{
+    public Date getDate(TimeZone timeZone) throws IndexOutOfBoundsException{
         if (getId().is("8.0.1")) {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.set(Calendar.YEAR, getValue(0).getIntValue() + 2000);
             cal.set(Calendar.MONTH, getValue(1).getIntValue() - 1);
             cal.set(Calendar.DAY_OF_MONTH, getValue(2).getIntValue());
@@ -189,7 +202,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
             return cal.getTime();
 
         } else if (getId().is("8.0.2")) {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             cal.set(Calendar.YEAR, getValue(1).getIntValue() + 2000);
             cal.set(Calendar.MONTH, getValue(2).getIntValue() - 1);
             cal.set(Calendar.DAY_OF_MONTH, getValue(3).getIntValue());
@@ -200,7 +213,7 @@ public class DateAndTimeCategory extends AbstractSignedBINObject {
             return cal.getTime();
             
         } else if (getId().is("8.0.0")) {
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(timeZone);
             int ptr = 0;
             int year = getValue(ptr++).getIntValue() + 2000;
             int month = getValue(ptr++).getIntValue() - 1;

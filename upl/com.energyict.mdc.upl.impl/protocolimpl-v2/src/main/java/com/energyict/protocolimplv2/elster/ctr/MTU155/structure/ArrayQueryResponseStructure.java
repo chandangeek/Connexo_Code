@@ -1,10 +1,20 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.*;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Coda;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Counter_Q;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.DataArray;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Index_Q;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Type;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -19,6 +29,7 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
     private Type type;
     private Coda coda;
     private DataArray data;
+    private List<AbstractCTRObject> arrayData;
 
     public ArrayQueryResponseStructure(boolean longFrame) {
         super(longFrame);
@@ -45,6 +56,8 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
      */
     @Override
     public ArrayQueryResponseStructure parse(byte[] rawData, int offset) throws CTRParsingException {
+        CTRObjectFactory factory = new CTRObjectFactory();
+        AttributeType attributeType;
 
         int ptr = offset;
 
@@ -53,6 +66,8 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
 
         type = new Type().parse(rawData, ptr);
         ptr += type.getLength();
+
+        attributeType = createAttributeTypeConformType(type);
 
         index_A = new Index_Q().parse(rawData, ptr);
         ptr += index_A.getLength();
@@ -64,9 +79,41 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
         ptr += coda.getLength();
 
         data = new DataArray(rawData.length - ptr).parse(rawData, ptr);
-        //TODO: parse the data array into objects
+
+        //Check the length of the objects by parsing the first object
+        arrayData = new ArrayList<AbstractCTRObject>();
+        AbstractCTRObject obj = factory.parse(rawData, ptr, attributeType, id.toString());
+        arrayData.add(obj);
+        ptr += obj.getLength();
+
+        //Parse the remaining objects
+        int remainingValidElements = counter_A.getCounter_Q() - 1;
+        while ((ptr <= rawData.length - arrayData.get(0).getBytes().length) && (remainingValidElements-- >= 0)) {
+            obj = factory.parse(rawData, ptr, attributeType, id.toString());
+            arrayData.add(obj);
+            ptr += obj.getBytes().length;
+        }
 
         return this;
+    }
+
+    private AttributeType createAttributeTypeConformType(Type type) throws CTRParsingException {
+        AttributeType attributeType = new AttributeType(0x00);
+        attributeType.setHasIdentifier(false);
+
+        switch (type.getType()) {
+            case 2:
+                attributeType.setHasQualifier(true);
+                attributeType.setHasValueFields(true);
+                break;
+            case 3:
+                attributeType.setHasQualifier(false);
+                attributeType.setHasValueFields(true);
+                break;
+            default:
+                throw new CTRParsingException("Format of array elements (" + type.getType() + ") not yet supported.");
+        }
+        return attributeType;
     }
 
     public Index_Q getIndex_A() {
@@ -115,5 +162,13 @@ public class ArrayQueryResponseStructure extends Data<ArrayQueryResponseStructur
 
     public void setData(DataArray data) {
         this.data = data;
+    }
+
+    public List<AbstractCTRObject> getArrayData() {
+        return arrayData;
+    }
+
+    public void setArrayData(List<AbstractCTRObject> arrayData) {
+        this.arrayData = arrayData;
     }
 }

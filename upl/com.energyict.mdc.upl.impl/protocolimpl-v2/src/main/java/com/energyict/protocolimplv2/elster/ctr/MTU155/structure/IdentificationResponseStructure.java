@@ -7,6 +7,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.IdentificationProcessIdentify;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,7 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
     private AbstractCTRObject net;
     private AbstractCTRObject sd;
     private AbstractCTRObject pukS;
+    private IdentificationProcessIdentify identify;
 
     public IdentificationResponseStructure(boolean longFrame) {
         super(longFrame);
@@ -97,8 +99,8 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         objects.add(nem);
         objects.add(nea);
         objects.add(net);
-        objects.add(pukS);
         objects.add(sd);
+        objects.add(pukS);
         return objects;
     }
 
@@ -172,11 +174,18 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
         this.pukS = factory.parse(rawData, ptr, valueAttributeType, "D.6.3");
         ptr += pukS.getLength();
 
+        ptr += 9;   // ID-PT
+        ptr += 11;  // ID-SFTW
+        ptr += 10;  // Reserved field
+
+        this.identify = new IdentificationProcessIdentify().parse(rawData, ptr);
+        ptr += identify.getLength();
+
         return this;
     }
 
     public CTRAbstractValue<String> getPdr() {
-        return pdr != null ? pdr.getValue(0) : null;
+        return pdr.getValue(0);
     }
 
     /**
@@ -245,6 +254,10 @@ public class IdentificationResponseStructure extends AbstractTableQueryResponseS
 
     public AbstractCTRObject getSd() {
         return sd;
+    }
+
+    public IdentificationProcessIdentify getIdentify() {
+        return identify;
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,16 +21,42 @@ import java.util.List;
  */
 public enum SecurityMessage implements DeviceMessageSpec {
 
-    ACTIVATE_DLMS_ENCRYPTION(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.encryptionLevelAttributeName,
+    ACTIVATE_DLMS_ENCRYPTION(PropertySpecFactory.stringPropertySpecWithValues(
+            DeviceMessageConstants.encryptionLevelAttributeName,
             DlmsEncryptionLevelMessageValues.getNames())),
-    CHANGE_DLMS_AUTHENTICATION_LEVEL(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.authenticationLevelAttributeName,
+    CHANGE_DLMS_AUTHENTICATION_LEVEL(PropertySpecFactory.stringPropertySpecWithValues(
+            DeviceMessageConstants.authenticationLevelAttributeName,
             DlmsAuthenticationLevelMessageValues.getNames())),
     CHANGE_ENCRYPTION_KEY,
     CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
     CHANGE_AUTHENTICATION_KEY,
     CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)),
     CHANGE_PASSWORD,
-    CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName));
+    CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),
+    ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(
+            PropertySpecFactory.booleanPropertySpecWithoutThreeState(DeviceMessageConstants.keyTActivationStatusAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.timeDurationAttributeName)),
+    CHANGE_EXECUTION_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionKeyAttributeName)),
+    CHANGE_TEMPORARY_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.temporaryKeyAttributeName)),
+    BREAK_OR_RESTORE_SEALS(
+            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.eventLogResetSealAttributeName),
+            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealAttributeName),
+            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName),
+            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.statusChangeSealAttributeName),
+            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName),
+            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName),
+            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.downloadProgramSealAttributeName),
+            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName)),
+    TEMPORARY_BREAK_SEALS(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName, new BigDecimal(0)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName, new BigDecimal(0)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName, new BigDecimal(0)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.statusChangeSealBreakTimeAttributeName, new BigDecimal(0)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.remoteConversionParametersConfigSealBreakTimeAttributeName, new BigDecimal(0)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeName, new BigDecimal(0)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.downloadProgramSealBreakTimeAttributeName, new BigDecimal(0)),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName, new BigDecimal(0)))
+    ;
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 

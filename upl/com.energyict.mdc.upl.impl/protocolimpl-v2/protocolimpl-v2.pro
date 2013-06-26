@@ -58,3 +58,5 @@
 -keepnames class com.energyict.mdc.protocol.inbound.DlmsSerialNumberDiscover
 -keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
 -keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol
+
+-keepnames class com.energyict.protocolimplv2.elster.ctr.MTU155.CTRDeviceProtocolCache

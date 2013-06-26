@@ -12,9 +12,11 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingExcept
  */
 public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
 
-    private static final int HOURLY = 1;
-    private static final int DAILY = 2;
-    private static final int MONTHLY = 3;
+    public static final int HOURLY = 1;
+    public static final int DAILY = 2;
+    public static final int MONTHLY = 3;
+    public static final int HOURLY_FIRST_PART = 0x80;
+    public static final int HOURLY_SECOND_PART = 0x81;
 
     private static final int LENGTH = 1;
     private static final TimeDuration HOUR = new TimeDuration(1, TimeDuration.HOURS);
@@ -42,6 +44,14 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
 
     public static PeriodTrace_C getHourly() {
         return new PeriodTrace_C(HOURLY);
+    }
+
+    public static int getHourlyFirstPart() {
+        return HOURLY_FIRST_PART;
+    }
+
+    public static int getHourlySecondPart() {
+        return HOURLY_SECOND_PART;
     }
 
     public static PeriodTrace_C getDaily() {
@@ -80,6 +90,10 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
         switch (period) {
             case HOURLY:
                 return "yy, mm, dd";
+            case HOURLY_FIRST_PART:
+                return "yy, mm, dd";
+            case HOURLY_SECOND_PART:
+                return "yy, mm, dd";
             case DAILY:
                 return "yy, mm, dd";
             case MONTHLY:
@@ -100,6 +114,10 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
         switch (period) {
             case HOURLY:
                 return "All 1h traces on the specified day";
+            case HOURLY_FIRST_PART:
+                return "12 1h traces on the specified day (from OFG+1 to OFG+12)";
+            case HOURLY_SECOND_PART:
+                return "12 1h traces on the specified day (from OFG+13 to OFG+24)";
             case DAILY:
                 return "The 1-day traces for the last 15 days (that specified included)";
             case MONTHLY:
@@ -116,6 +134,10 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
         switch (period) {
             case HOURLY:
                 return HOUR.getSeconds();
+            case HOURLY_FIRST_PART:
+                return HOUR.getSeconds();
+            case HOURLY_SECOND_PART:
+                return HOUR.getSeconds();
             case DAILY:
                 return DAY.getSeconds();
             case MONTHLY:
@@ -128,11 +150,15 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
     public int getTraceCIntervalCount() {
         switch (period) {
             case HOURLY:
-                return 24; // 24 hours
+                return 24;  // 24 hours
+            case HOURLY_FIRST_PART:
+                return 12;  // 12 hours
+            case HOURLY_SECOND_PART:
+                return 12;  // 12 hours
             case DAILY:
-                return 15;   // 15 Days
+                return 15;  // 15 Days
             case MONTHLY:
-                return 12; // 12 Months
+                return 12;  // 12 Months
             default:
                 return 0;
         }
@@ -140,6 +166,14 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
 
     public boolean isHourly() {
         return period == HOURLY;
+    }
+
+    public boolean isHourlyFistPart() {
+        return period == HOURLY_FIRST_PART;
+    }
+
+    public boolean isHourlySecondPart() {
+        return period == HOURLY_SECOND_PART;
     }
 
     public boolean isDaily() {
@@ -151,7 +185,7 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
     }
 
     public boolean isInvalid() {
-        return !(isDaily() || isHourly() || isMonthly());
+        return !(isDaily() || isHourlyFistPart() || isHourlySecondPart() || isMonthly());
     }
 
 }

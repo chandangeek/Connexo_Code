@@ -16,6 +16,7 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.ProfileChannel;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.profile.StartOfGasDayParser;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.CTRObjectInfo;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
@@ -55,6 +56,11 @@ public class LoadProfileBuilder {
      */
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
 
+    /**
+     * The {@link StartOfGasDayParser} to use
+     */
+    protected StartOfGasDayParser startOfGasDayParser;
+
     public LoadProfileBuilder(MTU155 meterProtocol) {
         this.meterProtocol = meterProtocol;
     }
@@ -68,11 +74,11 @@ public class LoadProfileBuilder {
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
         expectedLoadProfileReaders = loadProfileReaders;
-        loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
+        loadProfileConfigurationList = new ArrayList<>();
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getSerialNumber());
+            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getOfflineDevice().getSerialNumber());
 
             try {
                 List<ChannelInfo> channelInfos = constructChannelInfos(lpr);
@@ -108,7 +114,7 @@ public class LoadProfileBuilder {
      * Construct a list of <CODE>ChannelInfos</CODE>.
      */
     private List<ChannelInfo> constructChannelInfos(LoadProfileReader lpr) throws IOException {
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
 
         for (int i = 0; i < lpr.getChannelInfos().size(); i++) {
             ChannelInfo lprChannelInfo = lpr.getChannelInfos().get(i);
@@ -119,7 +125,7 @@ public class LoadProfileBuilder {
                 Unit unit = CTRObjectInfo.getUnit(objectId.toString());
                 channelInfos.add(new ChannelInfo(i, obisCode.toString(), unit, lpr.getMeterSerialNumber()));
             } else {
-                throw new CTRException("Device register mapping with obiscode " + obisCode + " is not supported by this profile!");
+                throw new CTRException("Channel with obisCode " + obisCode + " is not supported by this profile!");
             }
         }
         return channelInfos;
@@ -130,7 +136,7 @@ public class LoadProfileBuilder {
         if (ctrRegisterMapping != null && ctrRegisterMapping.getObjectId() != null) {
             return ctrRegisterMapping.getObjectId();
         } else {
-            throw new CTRException("Device register mapping with obiscode " + obisCode + " is not supported by this profile!");
+            throw new CTRException("Channel with obisCode " + obisCode + " is not supported by this profile!");
         }
     }
 
@@ -155,7 +161,7 @@ public class LoadProfileBuilder {
         /** The blocking Communication Exception **/
         ComServerExecutionException blockingIssue = null;
 
-        List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<CollectedLoadProfile>();
+        List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<>();
         for (LoadProfileReader lpr : loadProfiles) {
             LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (!blockingIssueEncountered) {
@@ -163,26 +169,27 @@ public class LoadProfileBuilder {
                     List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
                     LoadProfileIdentifier loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(lpc.getObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
                     CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
-                    List<IntervalData> collectedIntervalData = new ArrayList<IntervalData>();
+                    List<IntervalData> collectedIntervalData = new ArrayList<>();
 
                     for (ChannelInfo channel : channelInfos) {
-                        List<IntervalData> channelIntervalData = new ArrayList<IntervalData>();
+                        List<IntervalData> channelIntervalData;
                         try {
-                            ProfileChannel profileChannel = new ProfileChannel(meterProtocol.getRequestFactory(), getChannelObjectID(channel.getChannelObisCode()), getProfileInterval(lpr.getProfileObisCode()), lpr.getStartReadingTime(), lpr.getEndReadingTime());
+                            ProfileChannel profileChannel = new ProfileChannel(meterProtocol.getRequestFactory(), getStartOfGasDayParser(), getChannelObjectID(channel.getChannelObisCode()), getProfileInterval(lpr.getProfileObisCode()), lpr.getStartReadingTime(), lpr.getEndReadingTime());
                             meterProtocol.getLogger().info("Reading profile for channel [" + channel.getName() + "]");
                             channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                             collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
-                        } catch (IOException e) {
-                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), channel.getName(), e);
+                        } catch (IOException e) {   // A non-blocking issue occurred during readout of this loadProfile, but it is still possible to read out the other loadProfiles.
+                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e);
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             collectedIntervalData.clear();
-                        } catch (ComServerExecutionException e) {
+                            break;
+                        } catch (ComServerExecutionException e) {   // A blocking issue which blocks the whole communication (e.g.: a timeout)
                             blockingIssueEncountered = true;
                             blockingIssue = e;
-                            CTRException cause = (CTRException) e.getCause();
-                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), cause);
-                            collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
+                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), (CTRException) e.getCause());
+                            collectedLoadProfile.setFailureInformation(ResultType.DataIncomplete, problem);
                             collectedIntervalData.clear();
+                            break;
                         }
                     }
 
@@ -226,7 +233,7 @@ public class LoadProfileBuilder {
             }
             return collectedIntervalData;
         } else {
-            throw new IOException("Failed to merge the channels intervalData.");
+            throw new IOException("Failed to merge the interval data of the different channels.");
         }
     }
 
@@ -243,5 +250,17 @@ public class LoadProfileBuilder {
             }
         }
         return null;
+    }
+
+    protected StartOfGasDayParser getStartOfGasDayParser() {
+        if (startOfGasDayParser == null) {
+            try {
+                startOfGasDayParser = new StartOfGasDayParser(meterProtocol.getRequestFactory());
+            } catch (CTRException e) {
+                meterProtocol.getLogger().severe("Failed to read DST parameters: " + e.getMessage());
+                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            }
+        }
+        return startOfGasDayParser;
     }
 }

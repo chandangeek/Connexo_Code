@@ -25,6 +25,9 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
     UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName),
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateVersionNumberAttributeName)),
     UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName)),
     UPGRADE_FIRMWARE_URL_AND_ACTIVATE(PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName),
             PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),;

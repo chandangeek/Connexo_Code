@@ -3,7 +3,12 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.structure;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRParsingException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.*;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Code;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Group;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Identify;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Segment;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 
 /**
  * Copyrights EnergyICT

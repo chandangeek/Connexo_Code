@@ -244,7 +244,7 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
      */
     public void setProperties(Properties properties)
             throws InvalidPropertyException, MissingPropertyException {
-        validateProperties(properties);
+        validateProperties(properties); //ToDo: seems EK280 blocks onto this
     }
 
     public void connect() throws IOException {

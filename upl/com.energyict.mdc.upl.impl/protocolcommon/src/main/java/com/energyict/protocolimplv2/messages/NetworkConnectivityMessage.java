@@ -29,7 +29,15 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.usernameAttributeName),
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
     // will be a semicolon separated string (maybe in the future this will be a StringListAspectEditor ...
-    ADD_PHONENUMBERS_TO_WHITE_LIST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName));
+    ADD_PHONENUMBERS_TO_WHITE_LIST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.whiteListPhoneNumbersAttributeName)),
+    CHANGE_SMS_CENTER_NUMBER(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.smsCenterPhoneNumberAttributeName)),
+    CHANGE_DEVICE_PHONENUMBER(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.devicePhoneNumberAttributeName)),
+    CHANGE_GPRS_IP_ADDRESS_AND_PORT(
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ipAddressAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.portNumberAttributeName)),
+    CHANGE_WAKEUP_FREQUENCY(
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.wakeupPeriodAttributeName, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+    );
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 

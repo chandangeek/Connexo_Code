@@ -73,7 +73,6 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                 delayAndFlushConnection(-1);
                 attempts++;
                 if (attempts > retries) {
-                    // throw new CTRConnectionException("Number of retries reached: [" + --attempts + "/" + retries + "].", e);
                     throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
                 }
             }
@@ -258,8 +257,4 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
         return null;
     }
 
-
-    public boolean isDebug() {
-        return debug;
-    }
 }

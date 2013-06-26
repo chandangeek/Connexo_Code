@@ -1,7 +1,9 @@
 package com.energyict.genericprotocolimpl.elster.ctr.messaging;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.genericprotocolimpl.elster.ctr.exception.*;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRConnectionException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRException;
+import com.energyict.genericprotocolimpl.elster.ctr.exception.CTRFirmwareUpgradeTimeOutException;
 import com.energyict.genericprotocolimpl.elster.ctr.info.SealStatusBit;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.field.Identify;
@@ -12,7 +14,9 @@ import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.text.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.Level;
 
@@ -115,6 +119,10 @@ public class MTU155FirmwareUpgradeMessage extends AbstractMTU155Message {
             DateFormat dateformat = new SimpleDateFormat("dd/MM/yy");
             activationDate.setTime(dateformat.parse(sDate));
         } catch (ParseException e) {
+            String errorMessage = "Failed to extract the Software Identifier and Activation Date from the TrackingId.";
+            super.getLogger().log(Level.WARNING, errorMessage);
+            throw new BusinessException(errorMessage);
+        } catch (ArrayIndexOutOfBoundsException e) {
             String errorMessage = "Failed to extract the Software Identifier and Activation Date from the TrackingId.";
             super.getLogger().log(Level.WARNING, errorMessage);
             throw new BusinessException(errorMessage);

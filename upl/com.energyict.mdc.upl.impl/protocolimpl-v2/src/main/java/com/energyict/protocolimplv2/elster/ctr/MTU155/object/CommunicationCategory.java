@@ -71,11 +71,20 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
                 valueLength = new int[]{1,2,1,1};
                 break;
             case 0x02:
-            case 0x03:
                 valueLength = new int[]{1, 21};
                 break;
+            case 0x03:
+                switch (id.getZ()) {
+                    case 0x02:
+                        valueLength = new int[]{1, 1, 4, 2, 7};
+                        break;
+                    default:
+                        valueLength = new int[]{1, 14};
+                        break;
+                }
+                break;
             case 0x04:
-                valueLength = new int[]{1, 20};
+                valueLength = new int[]{1, 14};
                 break;
             case 0x07:
                 valueLength = new int[]{2, 2, 4, 9};
@@ -98,7 +107,7 @@ public class CommunicationCategory<T extends CommunicationCategory> extends Abst
         Unit unit = Unit.get(BaseUnit.UNITLESS);
         switch (id.getY()) {
             case 0x0C:
-                unit = Unit.get(BaseUnit.UNITLESS); break; //TODO: decibell;
+                unit = Unit.get(BaseUnit.UNITLESS); break;
         }
         return unit;
 

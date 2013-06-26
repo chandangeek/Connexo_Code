@@ -8,7 +8,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.GPRSFrame;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +54,7 @@ public class CtrInboundDeviceProtocolTest {
         DeviceIdentifier deviceIdentifier = inboundDeviceProtocol.getDeviceIdentifier();
 
         assertEquals(InboundDeviceProtocol.DiscoverResultType.IDENTIFIER, discoverResultType);
-        assertTrue(deviceIdentifier instanceof DialHomeIdDeviceIdentifier);
+        assertTrue(deviceIdentifier instanceof CTRDialHomeIdDeviceIdentifier);
         assertEquals("device with call home id 66554433221100", deviceIdentifier.toString());
     }
 }

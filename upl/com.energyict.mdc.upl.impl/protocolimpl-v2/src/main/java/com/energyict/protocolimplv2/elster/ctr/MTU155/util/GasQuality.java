@@ -14,6 +14,13 @@ import java.util.logging.Logger;
  * Date: 24/02/11
  * Time: 9:54
  */
+
+/**
+ * @deprecated  Previous this object was used to launch a 'query for multiple registers'.
+ *              However, the concept of 'query for multiple registers' is now fully integrated in the requestFactory - making this object no longer useful.
+ * @see com.energyict.genericprotocolimpl.elster.ctr.RequestFactory#getObjects(java.lang.String...)
+ *
+ */
 public class GasQuality extends AbstractUtilObject {
 
     private static final String Z_COMP_METHOD_OBJ_ID = "A.B.2";
@@ -29,8 +36,6 @@ public class GasQuality extends AbstractUtilObject {
     private static final String INST_GAS_CO2_PERCENTAGE = "A.7.0";
     private static final String INST_GAS_H2_PERCENTAGE = "A.8.0";
     private static final String INST_HCV = "B.1.0";
-    private static final String INST_LCV = "B.2.0";
-    private static final String LCV_ATTRIBUTED = "B.2.6";
 
     private static final String[] OBJECTS_TO_REQUEST = new String[]{
             Z_COMP_METHOD_OBJ_ID,
@@ -45,9 +50,7 @@ public class GasQuality extends AbstractUtilObject {
             INST_GAS_N2_PERCENTAGE,
             INST_GAS_CO2_PERCENTAGE,
             INST_GAS_H2_PERCENTAGE,
-            INST_HCV,
-            INST_LCV,
-            LCV_ATTRIBUTED
+            INST_HCV
     };
 
     private List<AbstractCTRObject> ctrObjectList;

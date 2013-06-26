@@ -4,14 +4,15 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.field.Data;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.ConverterType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.MeterType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.DateAndTimeCategory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.NackStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 
@@ -77,7 +78,21 @@ public class MeterInfo extends AbstractUtilObject {
      */
     public Date getTime() throws CTRException {
         try {
-            return getDateFromObject(getMeterInfoObjects().get(0));
+            return getDateFromObject(getObjectFromMeterInfo(CLOCK_OBJECT_ID));
+        } catch (CTRException e) {
+            throw new CTRException("Unable to read Clock", e);
+        }
+    }
+
+    /**
+     * Gets the meter timezone offset.
+     *
+     * @return the meter time.
+     * @throws CTRException
+     */
+    public int getTimeZoneOffset() throws CTRException {
+        try {
+            return getTimeZoneOffsetFromObject(getObjectFromMeterInfo(CLOCK_OBJECT_ID));
         } catch (CTRException e) {
             throw new CTRException("Unable to read Clock", e);
         }
@@ -104,20 +119,6 @@ public class MeterInfo extends AbstractUtilObject {
         int timeZoneOffset = cal.getTimeZone().getRawOffset() / 3600000;
         int inDST = cal.getTimeZone().inDaylightTime(cal.getTime()) ? 1 : 0;
 
-/*
-        System.out.println(referenceDate);
-        System.out.println(mode);
-        System.out.println(year);
-        System.out.println(month);
-        System.out.println(day);
-        System.out.println(dayOfWeek);
-        System.out.println(hour);
-        System.out.println(minutes);
-        System.out.println(seconds);
-        System.out.println(timeZoneOffset);
-        System.out.println(inDST);
-*/
-
         byte[] data = new byte[10];
         data[0] = (byte) mode;
         data[1] = (byte) year;
@@ -133,10 +134,14 @@ public class MeterInfo extends AbstractUtilObject {
         ReferenceDate refDate = new ReferenceDate().parse(referenceDate, timeZone);
         refDate.addOneDay();
 
+        Data ackOrNack;
         try {
-            getRequestFactory().executeRequest(refDate, wdb, new CTRObjectID("11.0.1"), data);
+            ackOrNack = getRequestFactory().executeRequest(refDate, wdb, new CTRObjectID("11.0.1"), data);
         } catch (CTRException e) {
-            throw new CTRException("Unable to set the clock to ["+cal.getTime()+"]. " + e.getMessage());
+            throw new CTRException("Unable to set the clock to [" + cal.getTime() + "]. " + e.getMessage());
+        }
+        if ((ackOrNack != null) && ackOrNack instanceof NackStructure) {
+            throw new CTRException("Unable to set the clock to [" + cal.getTime() + "]. Received NACK.");
         }
     }
 
@@ -148,7 +153,7 @@ public class MeterInfo extends AbstractUtilObject {
      * @throws CTRException
      */
     public void setTime(Date time) throws CTRException {
-        Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance(timeZone);
         cal.setTime(time);
         setTime(getWriteTimeRefDate(), cal);
     }
@@ -167,14 +172,12 @@ public class MeterInfo extends AbstractUtilObject {
      */
     public String getMTUSerialNumber() {
         try {
-            if (getMeterInfoObjects().size() > 1) {
-                AbstractCTRObject ctrObject = getMeterInfoObjects().get(1);
-                CTRAbstractValue[] values = ctrObject.getValue();
-                if ((values != null) && (values.length > 0)) {
-                    Object value = values[0].getValue();
-                    if (value != null) {
-                        return value.toString().trim();
-                    }
+            AbstractCTRObject ctrObject = getObjectFromMeterInfo(MTU_SERIAL_OBJECT_ID);
+            CTRAbstractValue[] values = ctrObject.getValue();
+            if ((values != null) && (values.length > 0)) {
+                Object value = values[0].getValue();
+                if (value != null) {
+                    return value.toString().trim();
                 }
             }
             String msg = "Unable to read MTU SerialNumber. Returned register list was empty or object was null.";
@@ -194,15 +197,13 @@ public class MeterInfo extends AbstractUtilObject {
      */
     public String getConverterSerialNumber() {
         try {
-            if (getMeterInfoObjects().size() > 2) {
-                AbstractCTRObject ctrObject = getMeterInfoObjects().get(2);
-                if (ctrObject != null) {
-                    CTRAbstractValue[] values = ctrObject.getValue();
-                    if ((values != null) && (values.length > 1)) {
-                        Object value = values[1].getValue();
-                        if (value != null) {
-                            return value.toString().trim();
-                        }
+            AbstractCTRObject ctrObject = getObjectFromMeterInfo(CONVERTOR_MASTER_RECORD_OBJECT_ID);
+            if (ctrObject != null) {
+                CTRAbstractValue[] values = ctrObject.getValue();
+                if ((values != null) && (values.length > 1)) {
+                    Object value = values[1].getValue();
+                    if (value != null) {
+                        return value.toString().trim();
                     }
                 }
             }
@@ -223,19 +224,17 @@ public class MeterInfo extends AbstractUtilObject {
      */
     public ConverterType getConverterType() {
         try {
-            if (getMeterInfoObjects().size() > 2) {
-                AbstractCTRObject ctrObject = getMeterInfoObjects().get(2);
-                if (ctrObject != null) {
-                    CTRAbstractValue[] values = ctrObject.getValue();
-                    if ((values != null) && (values.length > 0)) {
-                        Object value = values[0].getValue();
-                        if ((value != null) && (value instanceof String)) {
-                            return ConverterType.fromString((String) value);
-                        }
+            AbstractCTRObject ctrObject = getObjectFromMeterInfo(CONVERTOR_MASTER_RECORD_OBJECT_ID);
+            if (ctrObject != null) {
+                CTRAbstractValue[] values = ctrObject.getValue();
+                if ((values != null) && (values.length > 0)) {
+                    Object value = values[0].getValue();
+                    if ((value != null) && (value instanceof String)) {
+                        return ConverterType.fromString((String) value);
                     }
                 }
             }
-            String msg = "Unable to read the convertor type. Returned register list was empty or object was null.";
+            String msg = "Unable to read the converter type. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
             throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
@@ -252,25 +251,23 @@ public class MeterInfo extends AbstractUtilObject {
      */
     public MeterType getMeterType() {
         try {
-            if (getMeterInfoObjects().size() > 3) {
-                AbstractCTRObject ctrObject = getMeterInfoObjects().get(3);
-                if (ctrObject != null) {
-                    CTRAbstractValue[] values = ctrObject.getValue();
-                    if ((values != null) && (values.length > 0)) {
-                        Object value = values[0].getValue();
-                        if ((value != null) && (value instanceof String)) {
-                            return MeterType.fromString((String) value);
-                        }
+            AbstractCTRObject ctrObject = getObjectFromMeterInfo(METER_MASTER_RECORD_OBJECT_ID);
+            if (ctrObject != null) {
+                CTRAbstractValue[] values = ctrObject.getValue();
+                if ((values != null) && (values.length > 0)) {
+                    Object value = values[0].getValue();
+                    if ((value != null) && (value instanceof String)) {
+                        return MeterType.fromString((String) value);
                     }
                 }
             }
             String msg = "Unable to read the meter type. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         } catch (CTRException e) {
             getLogger().severe("Unable to read the meter type: " + e.getMessage());
-                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -281,28 +278,26 @@ public class MeterInfo extends AbstractUtilObject {
      */
     public Quantity getMeterCaliber() {
         try {
-            if (getMeterInfoObjects().size() > 3) {
-                AbstractCTRObject ctrObject = getMeterInfoObjects().get(3);
-                if (ctrObject != null) {
-                    CTRAbstractValue[] values = ctrObject.getValue();
-                    if ((values != null) && (values.length > 1)) {
-                        Object value = values[1].getValue();
-                        if ((value != null) && (value instanceof Number)) {
-                            BigDecimal decimal = (BigDecimal) value;
-                            int kmoltFactor = ctrObject.getQlf().getKmoltFactor();
-                            decimal = decimal.movePointRight(kmoltFactor);
-                            return new Quantity(decimal, METER_CALIBER_UNIT);
-                        }
+            AbstractCTRObject ctrObject = getObjectFromMeterInfo(METER_MASTER_RECORD_OBJECT_ID);
+            if (ctrObject != null) {
+                CTRAbstractValue[] values = ctrObject.getValue();
+                if ((values != null) && (values.length > 1)) {
+                    Object value = values[1].getValue();
+                    if ((value != null) && (value instanceof Number)) {
+                        BigDecimal decimal = (BigDecimal) value;
+                        int kmoltFactor = ctrObject.getQlf().getKmoltFactor();
+                        decimal = decimal.movePointRight(kmoltFactor);
+                        return new Quantity(decimal, METER_CALIBER_UNIT);
                     }
                 }
             }
             String msg = "Unable to read the meter caliber. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         } catch (CTRException e) {
             getLogger().severe("Unable to read the meter caliber: " + e.getMessage());
-                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -313,28 +308,26 @@ public class MeterInfo extends AbstractUtilObject {
      */
     public Quantity getPulseWeightVm() {
         try {
-            if (getMeterInfoObjects().size() > 4) {
-                AbstractCTRObject ctrObject = getMeterInfoObjects().get(4);
-                if (ctrObject != null) {
-                    CTRAbstractValue[] values = ctrObject.getValue();
-                    if ((values != null) && (values.length > 0)) {
-                        Object value = values[0].getValue();
-                        if ((value != null) && (value instanceof Number)) {
-                            BigDecimal decimal = (BigDecimal) value;
-                            int kmoltFactor = ctrObject.getQlf().getKmoltFactor();
-                            decimal = decimal.movePointRight(kmoltFactor);
-                            return new Quantity(decimal, PULSE_WEIGHT_UNIT);
-                        }
+            AbstractCTRObject ctrObject = getObjectFromMeterInfo(VM_PULSE_WEIGHT);
+            if (ctrObject != null) {
+                CTRAbstractValue[] values = ctrObject.getValue();
+                if ((values != null) && (values.length > 0)) {
+                    Object value = values[0].getValue();
+                    if ((value != null) && (value instanceof Number)) {
+                        BigDecimal decimal = (BigDecimal) value;
+                        int kmoltFactor = ctrObject.getQlf().getKmoltFactor();
+                        decimal = decimal.movePointRight(kmoltFactor);
+                        return new Quantity(decimal, PULSE_WEIGHT_UNIT);
                     }
                 }
             }
             String msg = "Unable to read the pulseWeightVm. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         } catch (CTRException e) {
             getLogger().severe("Unable to read the pulseWeightVm: " + e.getMessage());
-                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -345,28 +338,26 @@ public class MeterInfo extends AbstractUtilObject {
      */
     public Quantity getPulseWeightVbs() {
         try {
-            if (getMeterInfoObjects().size() > 5) {
-                AbstractCTRObject ctrObject = getMeterInfoObjects().get(5);
-                if (ctrObject != null) {
-                    CTRAbstractValue[] values = ctrObject.getValue();
-                    if ((values != null) && (values.length > 0)) {
-                        Object value = values[0].getValue();
-                        if ((value != null) && (value instanceof Number)) {
-                            BigDecimal decimal = (BigDecimal) value;
-                            int kmoltFactor = ctrObject.getQlf().getKmoltFactor();
-                            decimal = decimal.movePointRight(kmoltFactor);
-                            return new Quantity(decimal, PULSE_WEIGHT_UNIT);
-                        }
+            AbstractCTRObject ctrObject = getObjectFromMeterInfo(VBS_PULSE_WEIGHT);
+            if (ctrObject != null) {
+                CTRAbstractValue[] values = ctrObject.getValue();
+                if ((values != null) && (values.length > 0)) {
+                    Object value = values[0].getValue();
+                    if ((value != null) && (value instanceof Number)) {
+                        BigDecimal decimal = (BigDecimal) value;
+                        int kmoltFactor = ctrObject.getQlf().getKmoltFactor();
+                        decimal = decimal.movePointRight(kmoltFactor);
+                        return new Quantity(decimal, PULSE_WEIGHT_UNIT);
                     }
                 }
             }
             String msg = "Unable to read the pulseWeightVbs. Returned register list was empty or object was null.";
             getLogger().severe(msg);
             CTRException e = new CTRException(msg);
-                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
+                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         } catch (CTRException e) {
             getLogger().severe("Unable to read the pulseWeightVbs: " + e.getMessage());
-                        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e); 
+            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         }
     }
 
@@ -407,6 +398,24 @@ public class MeterInfo extends AbstractUtilObject {
     }
 
     /**
+     * Parses an object and gets a date time object from it
+     *
+     * @param object
+     * @return date time
+     * @throws CTRException
+     */
+    private int getTimeZoneOffsetFromObject (AbstractCTRObject object) throws CTRException {
+        if (!(object instanceof DateAndTimeCategory)) {
+            throw new CTRException("Expected DateAndTimeCategory object!");
+        } else {
+            DateAndTimeCategory dateAndTime = (DateAndTimeCategory) object;
+            CTRAbstractValue<BigDecimal>[] values = dateAndTime.getValue();
+            int offset = values[7].getValue().intValue();
+            return offset;
+        }
+    }
+
+    /**
      * Gets the meter time and the converter and the meter's serial number (in one request).
      * Caches the result.
      *
@@ -415,10 +424,29 @@ public class MeterInfo extends AbstractUtilObject {
      */
     private List<AbstractCTRObject> getMeterInfoObjects() throws CTRException {
         if (ctrObjectList == null) {
-            AttributeType attributeType = new AttributeType(0x03);
-            ctrObjectList = getRequestFactory().queryRegisters(attributeType, OBJECTS_TO_REQUEST);
+            ctrObjectList = getRequestFactory().getObjects(OBJECTS_TO_REQUEST);
             time = System.currentTimeMillis();
         }
         return ctrObjectList;
+    }
+
+    /**
+     * Check if the requested object is in the MeterInfo object, and read it if it is
+     *
+     * @param objectId: the id of the requested CTR Object
+     * @return the matching CTR Object, if it is in the dec table
+     * @throws CTRException
+     */
+    protected AbstractCTRObject getObjectFromMeterInfo(String objectId) throws CTRException {
+        for (AbstractCTRObject ctrObject : getMeterInfoObjects()) {
+            if (ctrObject.getId().toString().equals(objectId)) {
+                return ctrObject;
+            }
+        }
+        return null;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 }

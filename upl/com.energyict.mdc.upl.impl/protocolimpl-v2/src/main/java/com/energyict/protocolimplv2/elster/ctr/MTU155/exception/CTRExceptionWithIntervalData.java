@@ -9,6 +9,8 @@ import java.util.List;
  * Copyrights EnergyICT
  * Date: 8/03/11
  * Time: 16:16
+ *
+ * @Deprecated  Not used anymore in V2
  */
 public class CTRExceptionWithIntervalData extends CTRException {
 

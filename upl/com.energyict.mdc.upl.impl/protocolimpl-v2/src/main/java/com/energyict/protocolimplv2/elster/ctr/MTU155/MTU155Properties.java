@@ -30,6 +30,7 @@ public class MTU155Properties {
     public static final String MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME = "MaxAllowedInvalidProfileResponses";
     public static final String EXTRACT_INSTALLATION_DATE_PROPERTY_NAME = "ExtractInstallationDate";
     public static final String REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME = "RemoveDayProfileOffset";
+    public static final String USE_LONG_FRAME_FORMAT_PROPERTY_NAME = "UseLongFrameFormat";
 
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
@@ -41,15 +42,20 @@ public class MTU155Properties {
     public static final String DEFAULT_PASSWORD = "000001";
     public static final BigDecimal DEFAULT_ADDRESS = new BigDecimal(0);
     public static final String DEFAULT_CHANNEL_CONFIG = "1.0.2:1.2.2:4.0.2:7.0.2:1.1.3:1.3.3:1.F.2:2.0.3:2.1.3:2.3.3:1.A.3";
-    public static final BigDecimal DEFAULT_SECURITY_LEVEL = new BigDecimal(1); // 0 == KeyT, 1 == KeyC, 2 == KeyF
+    public static final String DEFAULT_SECURITY_LEVEL = "1"; // 0 == KeyT, 1 == KeyC, 2 == KeyF
     public static final Boolean DEFAULT_DEBUG = false;
     public static final BigDecimal DEFAULT_CHANNEL_BACKLOG = new BigDecimal(85);
     public static final Boolean DEFAULT_SEND_END_OF_SESSION = true;
     public static final BigDecimal DEFAULT_MAX_ALLOWED_INVALID_PROFILE_RESPONSES = new BigDecimal(5);
     public static final Boolean DEFAULT_EXTRACT_INSTALLATION_DATE = true;
     public static final Boolean DEFAULT_REMOVE_DAY_PROFILE_OFFSET = false;
+    public static final String DEFAULT_USE_LONG_FRAME_FORMAT = "1";
 
     private TypedProperties typedProperties;
+
+    public MTU155Properties() {
+        this.typedProperties = TypedProperties.empty();
+    }
 
     public MTU155Properties(TypedProperties typedProperties) {
         this.typedProperties = typedProperties;
@@ -96,8 +102,7 @@ public class MTU155Properties {
     }
 
     public void updateKeyC(String keyC) {
-        // ToDo: update of Key C
-        throw new UnsupportedOperationException("Update of KeyC is not yet implemented!");
+        typedProperties.setProperty(ENCRTYPTION_KEY_C_PROPERTY_NAME, keyC);
     }
 
     public String getPassword() {
@@ -114,7 +119,7 @@ public class MTU155Properties {
     }
 
     public int getSecurityLevel() {
-        return ((BigDecimal) typedProperties.getProperty(SECURITY_LEVEL_PROPERTY_NAME, DEFAULT_SECURITY_LEVEL)).intValue();
+        return Integer.parseInt((String) typedProperties.getProperty(SECURITY_LEVEL_PROPERTY_NAME, DEFAULT_SECURITY_LEVEL));
     }
 
     public boolean isDebug() {
@@ -148,8 +153,20 @@ public class MTU155Properties {
         return (Boolean) typedProperties.getProperty(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME, DEFAULT_REMOVE_DAY_PROFILE_OFFSET);
     }
 
+    public boolean useLongFrameFormat() {
+        return (Boolean) typedProperties.getProperty(USE_LONG_FRAME_FORMAT_PROPERTY_NAME, DEFAULT_USE_LONG_FRAME_FORMAT);
+    }
+
+    public boolean isParseInstallationArchive() {
+        return false;
+   }
+
     private String getKeyValue(String propertyName, String defaultValue) {
         String key = (String) typedProperties.getProperty(propertyName, defaultValue);
+        if (key.length() == 0) {
+            key = defaultValue;
+        }
+
         if (key.length() == 16) {
             return ProtocolTools.getHexStringFromBytes(key.getBytes(), "");
         } else if (key.length() == 32) {

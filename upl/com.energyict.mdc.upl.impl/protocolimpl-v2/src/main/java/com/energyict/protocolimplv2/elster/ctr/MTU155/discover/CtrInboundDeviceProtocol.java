@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.protocolimplv2.MdcManager;
@@ -11,12 +13,12 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
+import java.util.List;
 import java.util.TimeZone;
 
 /**
- * Inbound device discovery created for the CTR protocol (as used by MTU155 and EK155 DeviceProtocols)
+ * Inbound device discovery created for the CTR protocol base (as used by MTU155 and EK155 DeviceProtocols)
  * In this case, a meter opens an inbound connection to the comserver but it doesn't send any frames.
  * We should send an unencrypted request for identification to know which RTU and schedule has to be executed.
  * Extra requests are sent in the normal protocol session (e.g. fetch meter data).
@@ -26,6 +28,10 @@ import java.util.TimeZone;
  * @since: 26/10/12 (11:40)
  */
 public class CtrInboundDeviceProtocol extends AbstractDiscover {
+
+    private static final String DEVICE_TYPE_KEY ="Device type";
+    private static final String MTU155_DEVICE_TYPE = "MTU155";
+    private static final String EK155_DEVICE_TYPE = "EK155";
 
     DeviceIdentifier deviceIdentifier;
     private RequestFactory requestFactory;
@@ -64,7 +70,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     protected void setCallHomeID(String callHomeID) {
-        this.deviceIdentifier = new DialHomeIdDeviceIdentifier(callHomeID);
+        this.deviceIdentifier = new CTRDialHomeIdDeviceIdentifier(callHomeID);
     }
 
     private RequestFactory getRequestFactory() {
@@ -73,13 +79,29 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
                     new ComChannelOutputStreamAdapter(getComChannel()),
                     getContext().getLogger(),
                     new MTU155Properties(getTypedProperties()),
-                    TimeZone.getDefault());
+                    TimeZone.getDefault(),
+                    isEK155Device());
         }
         return requestFactory;
     }
 
     protected void setRequestFactory(RequestFactory requestFactory) {
         this.requestFactory = requestFactory;
+    }
+
+    @Override
+    public List<PropertySpec> getRequiredProperties() {
+        List<PropertySpec> requiredProperties = super.getRequiredProperties();
+        requiredProperties.add(PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DEVICE_TYPE_KEY, MTU155_DEVICE_TYPE, MTU155_DEVICE_TYPE, EK155_DEVICE_TYPE));
+        return requiredProperties;
+    }
+
+    public String getDeviceTypeProperty() {
+        return getTypedProperties().getStringProperty(DEVICE_TYPE_KEY);
+    }
+
+    private boolean isEK155Device() {
+        return getDeviceTypeProperty().equals(EK155_DEVICE_TYPE);
     }
 
     @Override

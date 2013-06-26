@@ -5,6 +5,7 @@ import com.energyict.dialer.core.Link;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.SecureGprsConnection;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -23,6 +24,8 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.AckStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayEventsQueryRequestStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayEventsQueryResponseStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayQueryRequestStructure;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ArrayQueryResponseStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.DownloadRequestStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.EndOfSessionRequestStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.ExecuteRequestStructure;
@@ -41,6 +44,8 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.TraceQueryRespon
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryRequestStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.Trace_CQueryResponseStructure;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.AckAdditionalDownloadData;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.CIA;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Counter_Q;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Group;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Identify;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Index_Q;
@@ -51,6 +56,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.PeriodTrac
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.Segment;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.StartDate;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.VF;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.GasQuality;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.MeterInfo;
@@ -58,10 +64,12 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.util.MeterInfo;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -87,19 +95,25 @@ public class GprsRequestFactory implements RequestFactory {
     private MTU155Properties properties;
     private Logger logger;
     private TimeZone timeZone;
+    private int writeDataBlockID;
     private IdentificationResponseStructure identificationStructure = null;
     private Link link;
 
     private static final int REF_DATE_DAYS_AHEAD = 0;
-    public static final int LENGTH_CODE_PER_REQUEST = 1000; //Each Firmware upgrade request can contain up to 1000 bytes code.
+    public static final int LENGTH_CODE_PER_REQUEST_LONG_FRAMES = 1000;
+    public static final int LENGTH_CODE_PER_REQUEST_SHORT_FRAMES = 116;
+    private List<AbstractCTRObject> cachedObjects;
+    protected TableDECFQueryResponseStructure tableDECF;
+    protected TableDECQueryResponseStructure tableDEC;
+    protected boolean isEK155Protocol;
 
     /**
      * @param link
      * @param logger
      * @param properties
      */
-    public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone) {
-        this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone);
+    public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone, boolean isEK155Protocol) {
+        this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone, isEK155Protocol);
         this.link = link;
     }
 
@@ -109,25 +123,23 @@ public class GprsRequestFactory implements RequestFactory {
      * @param logger
      * @param properties
      */
-    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone) {
-        this(inputStream, outputStream, logger, properties, timeZone, null);
+    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone, boolean isEK155Protocol) {
+        this(inputStream, outputStream, logger, properties, timeZone, null, isEK155Protocol);
     }
 
     /**
-     *
      * @param link
      * @param logger
      * @param properties
      * @param timeZone
      * @param identificationStructure
      */
-    public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure) {
-        this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone, identificationStructure);
+    public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure, boolean isEK155Protocol) {
+        this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone, identificationStructure, isEK155Protocol);
         this.link = link;
     }
 
     /**
-     *
      * @param inputStream
      * @param outputStream
      * @param logger
@@ -135,30 +147,24 @@ public class GprsRequestFactory implements RequestFactory {
      * @param timeZone
      * @param identificationStructure
      */
-    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure) {
+    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure, boolean isEK155Protocol) {
         this.connection = new SecureGprsConnection(inputStream, outputStream, properties, logger);
         this.logger = logger;
         this.properties = properties;
         this.timeZone = timeZone;
         this.identificationStructure = identificationStructure;
+        this.cachedObjects = new ArrayList<>();
+        this.isEK155Protocol = isEK155Protocol;
     }
 
-    /**
-     * Getter for the connection
-     *
-     * @return
-     */
     public GprsConnection getConnection() {
         return connection;
     }
 
-    /**
-     * Getter for the logger object.
-     * If there is no logger, create a new one
-     *
-     * @return
-     */
     public Logger getLogger() {
+        if (this.logger == null) {
+            this.logger = Logger.getLogger(getClass().getName());
+        }
         return logger;
     }
 
@@ -166,34 +172,26 @@ public class GprsRequestFactory implements RequestFactory {
         return getProperties().getPassword().getBytes();
     }
 
-
-    /**
-     * Getter for the protocol properties
-     *
-     * @return
-     */
     public MTU155Properties getProperties() {
         if (properties == null) {
-            this.properties = new MTU155Properties(new TypedProperties());
+            this.properties = new MTU155Properties(TypedProperties.empty());
         }
         return properties;
     }
 
-    /**
-     * Create a new address, with a value from the protocolProperties
-     *
-     * @return
-     */
     public Address getAddress() {
         return new Address(getProperties().getAddress());
     }
 
     /**
      * Reads a meter for identification
+     *
      * @return the meter's response
      * @throws CTRException
      */
     private IdentificationResponseStructure readIdentificationStructure() throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("readIdentificationStructure"));
+
         GPRSFrame response = getConnection().sendFrameGetResponse(getIdentificationRequest());
         if (response.getData() instanceof IdentificationResponseStructure) {
             return (IdentificationResponseStructure) response.getData();
@@ -204,6 +202,7 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Creates a identification request for a meter
+     *
      * @return the identification request
      */
     public GPRSFrame getIdentificationRequest() {
@@ -220,8 +219,9 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Creates a register request structure
+     *
      * @param attributeType: sets the fields of the objects in the meter response
-     * @param objectId: the id's of the objects the meter should sent in it's response
+     * @param objectId:      the id's of the objects the meter should sent in it's response
      * @return the request
      * @throws CTRParsingException
      */
@@ -254,9 +254,10 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Create a trace request structure
-     * @param objectId: the id of the requested object
-     * @param period: the interval period (e.g. 15 minutes)
-     * @param startDate: the start date
+     *
+     * @param objectId:         the id of the requested object
+     * @param period:           the interval period (e.g. 15 minutes)
+     * @param startDate:        the start date
      * @param numberOfElements: the number of interval records that should be returned
      * @return a request structure
      * @throws CTRParsingException
@@ -283,8 +284,9 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Create a trace_c request structure
-     * @param objectId: the id of the requested object
-     * @param period: the interval period (e.g. 15 minutes)
+     *
+     * @param objectId:      the id of the requested object
+     * @param period:        the interval period (e.g. 15 minutes)
      * @param referenceDate: the reference date
      * @return a request structure
      * @throws CTRParsingException
@@ -309,13 +311,6 @@ public class GprsRequestFactory implements RequestFactory {
         return request;
     }
 
-    /**
-     * Requests a number of objects from the meter, via a query.
-     * @param attributeType: determines the fields of the objects in the meter's response
-     * @param objectId: the id's of the requested objects
-     * @return a list of objects, as requested
-     * @throws CTRException
-     */
     public List<AbstractCTRObject> queryRegisters(AttributeType attributeType, String... objectId) throws CTRException {
         CTRObjectID[] objectIds = new CTRObjectID[objectId.length];
         for (int i = 0; i < objectId.length; i++) {
@@ -326,6 +321,7 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Creates a request for a number of event records
+     *
      * @param index_Q: number of event records
      * @return a request structure
      * @throws CTRParsingException
@@ -348,12 +344,41 @@ public class GprsRequestFactory implements RequestFactory {
     }
 
     /**
+     * Creates a 'query against array' request for a number of records
+     *
+     * @param index_Q:   index of the first element to retrieve
+     * @param counter_q: number of elements to retrieve
+     * @return a request structure
+     * @throws CTRParsingException
+     */
+    public GPRSFrame getArrayRequest(CTRObjectID objectID, Index_Q index_Q, Counter_Q counter_q) throws CTRParsingException {
+        byte[] pssw = getPassword();
+
+        byte[] eventRequest = ProtocolTools.concatByteArrays(
+                pssw,
+                objectID.getBytes(),
+                index_Q.getBytes(),
+                counter_q.getBytes()
+        );
+
+        GPRSFrame request = new GPRSFrame();
+        request.setAddress(getAddress());
+        request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
+        request.getFunctionCode().setFunction(Function.QUERY);
+        request.getProfi().setLongFrame(false);
+        request.getStructureCode().setStructureCode(StructureCode.ARRAY);
+        request.setData(new ArrayQueryRequestStructure(false).parse(eventRequest, 0));
+        return request;
+    }
+
+    /**
      * Creates a request to write registers in the meter.
-     * @param validityDate: the validity date for the writing
-     * @param wdb: a unique number
-     * @param p_Session: the session configuration
+     *
+     * @param validityDate:  the validity date for the writing
+     * @param wdb:           a unique number
+     * @param p_Session:     the session configuration
      * @param attributeType: the fields of the object that needs to be written
-     * @param objects: the objects that need to be written
+     * @param objects:       the objects that need to be written
      * @return a request structure
      * @throws CTRParsingException
      */
@@ -386,11 +411,12 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Creates a request to write registers in the meter.
-     * @param validityDate: the validity date for the writing
-     * @param wdb: a unique number
-     * @param p_Session: the session configuration
+     *
+     * @param validityDate:  the validity date for the writing
+     * @param wdb:           a unique number
+     * @param p_Session:     the session configuration
      * @param attributeType: the fields of the object that needs to be written
-     * @param rawData: the rawData with the objects
+     * @param rawData:       the rawData with the objects
      * @return a request structure
      * @throws CTRParsingException
      */
@@ -420,10 +446,11 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Creates an execute request
+     *
      * @param validityDate: the validity date
-     * @param wdb: a unique number
-     * @param id: the id of the object that needs to be written
-     * @param data: the data one wants to write
+     * @param wdb:          a unique number
+     * @param id:           the id of the object that needs to be written
+     * @param data:         the data one wants to write
      * @return the request structure
      * @throws CTRParsingException
      */
@@ -448,6 +475,7 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Create a decf table request
+     *
      * @return the request structure
      * @throws CTRParsingException
      */
@@ -466,6 +494,7 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Creates a dec table request
+     *
      * @return the request structure
      * @throws CTRParsingException
      */
@@ -482,14 +511,30 @@ public class GprsRequestFactory implements RequestFactory {
         return request;
     }
 
-    /**
-     * Returns a list of requested objects
-     * @param attributeType: determines the fields of the objects
-     * @param objectId: the id's of the requested objects
-     * @return list of requested objects
-     * @throws com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException
-     */
+    public AbstractCTRObject queryRegister(String objectID) throws CTRException {
+        AbstractCTRObject objectFromCache = getObjectFromCache(objectID);
+        if (objectFromCache != null) {
+            return objectFromCache;
+        }
+
+        List<AbstractCTRObject> objects = queryRegisters(new AttributeType(0x03), objectID);
+        if ((objects != null) && (objects.size() > 0)) {
+            return objects.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public List<AbstractCTRObject> queryRegisters(CTRObjectID... objectId) throws CTRException {
+        return queryRegisters(new AttributeType(0x03), objectId);
+    }
+
     public List<AbstractCTRObject> queryRegisters(AttributeType attributeType, CTRObjectID... objectId) throws CTRException {
+        return queryRegisters(attributeType, false, objectId);
+    }
+
+    private List<AbstractCTRObject> queryRegisters(AttributeType attributeType, boolean recursive, CTRObjectID... objectId) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("queryRegisters", objectId));
 
         //Send the request with IDs, get the response containing objects
         GPRSFrame response = getConnection().sendFrameGetResponse(getRegisterRequest(attributeType, objectId));
@@ -499,16 +544,35 @@ public class GprsRequestFactory implements RequestFactory {
         RegisterQueryResponseStructure registerResponse;
         if (response.getData() instanceof RegisterQueryResponseStructure) {
             registerResponse = (RegisterQueryResponseStructure) response.getData();
+            List<AbstractCTRObject> objects = new ArrayList<AbstractCTRObject>();
+            objects.addAll(Arrays.asList(registerResponse.getObjects()));
+            CTRObjectID[] remainingObjectIDs = validateRegisterResponse(objects, objectId);
+            if (!recursive && remainingObjectIDs.length > 0) {
+                List<AbstractCTRObject> abstractCTRObjects = queryRegisters(attributeType, true, remainingObjectIDs);
+                objects.addAll(abstractCTRObjects);
+            }
+
+            cachedObjects.addAll(objects);
+            return objects;
+
+        } else if (response.getData() instanceof NackStructure) {
+            NackStructure nackStructure = (NackStructure) response.getData();
+            if (nackStructure.getReason().getReason() == 0x45) {    // Response to the Query (Overflow): More data items have been requested than the permitted number
+                List<AbstractCTRObject> objects = new ArrayList<AbstractCTRObject>();
+                // Split the query in 2 smaller queries and try again.
+                objects.addAll(queryRegisters(attributeType, false, getSubArray(objectId, 0, Math.abs(objectId.length / 2))));
+                objects.addAll(queryRegisters(attributeType, false, getSubArray(objectId, Math.abs(objectId.length / 2), objectId.length)));
+                return objects;
+            } else {
+                throw new CTRException("Expected RegisterResponseStructure but was " + response.getData().getClass().getSimpleName());
+            }
         } else {
             throw new CTRException("Expected RegisterResponseStructure but was " + response.getData().getClass().getSimpleName());
         }
-
-        List<AbstractCTRObject> objects = Arrays.asList(registerResponse.getObjects());
-        validateRegisterResponse(objects, objectId);
-        return objects;
     }
 
-    private void validateRegisterResponse(List<AbstractCTRObject> objects, CTRObjectID[] objectId) throws CTRException {
+    private CTRObjectID[] validateRegisterResponse(List<AbstractCTRObject> objects, CTRObjectID[] objectId) throws CTRException {
+        List<CTRObjectID> remainingObjectIdList = new ArrayList<CTRObjectID>();
         for (int i = 0; i < objectId.length; i++) {
             CTRObjectID requestedId = objectId[i];
             if (objects.size() > i) {
@@ -519,25 +583,55 @@ public class GprsRequestFactory implements RequestFactory {
                         throw new CTRException("Expected [" + requestedId.toString() + "] but received [" + receivedId.toString() + "] while reading registers.");
                     }
                 }
+            } else {
+                remainingObjectIdList.add(objectId[i]);
             }
         }
+        CTRObjectID[] remainingObjectIds = new CTRObjectID[remainingObjectIdList.size()];
+        return remainingObjectIdList.toArray(remainingObjectIds);
     }
 
-    /** ****** SECTION 'FIRMWARE UPGRADING' ****** **/
     /**
-     * Abort any previous ongoing download + initialize all download parameters with info of the new firmware image.
-     * @param newSoftwareIdentifier Firmware version of the image
-     * @param activationDate        Activation date of the image
-     * @param size                  Total number of bytes of the image
+     * retrieve the subArray [from, to[  out of the given array
+     *
+     * @param array
+     * @param from  Inclusive from
+     * @param to    Exclusive to
      * @return
-     * @throws CTRException
      */
-    public void doInitFirmwareUpgrade(Identify newSoftwareIdentifier, Calendar activationDate, int size) throws CTRException {
+    public static CTRObjectID[] getSubArray(final CTRObjectID[] array, final int from, final int to) {
+        CTRObjectID[] subArray;
+        if (isArrayIndexInRange(array, from) && isArrayIndexInRange(array, to - 1) && (from < to)) {
+            subArray = new CTRObjectID[to - from];
+            for (int i = 0; i < subArray.length; i++) {
+                subArray[i] = array[i + from];
+            }
+        } else {
+            subArray = new CTRObjectID[0];
+        }
+        return subArray;
+    }
+
+    /**
+     * @param array
+     * @param index
+     * @return
+     */
+    public static boolean isArrayIndexInRange(final CTRObjectID[] array, final int index) {
+        return (array != null) && (index >= 0) && (array.length > index);
+    }
+
+    /**
+     * ***** SECTION 'FIRMWARE UPGRADING' ****** *
+     */
+    public void doInitFirmwareUpgrade(Identify newSoftwareIdentifier, CIA cia, VF vf, Calendar activationDate, int size, boolean useLongFrameFormat) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("doInitFirmwareUpgrade"));
+
         // 1. Abort previous download progress and re-initializes all download parameters.
         //Not needed - in some cases this doesn't work -- executing Step 2 contains an implicit re-init.
 
         // 2. Send initialization command with new identify and all init parameters in formatted code field.
-        GPRSFrame response = getConnection().sendFrameGetResponse(getInitDownloadParametersRequest(newSoftwareIdentifier, activationDate, size));
+        GPRSFrame response = getConnection().sendFrameGetResponse(getInitDownloadParametersRequest(newSoftwareIdentifier, cia, vf, activationDate, size, useLongFrameFormat));
         response.doParse();
 
         //Check if the response is an ACK
@@ -552,64 +646,65 @@ public class GprsRequestFactory implements RequestFactory {
         }
     }
 
-    /**
-     * Send out 1 segment of the firmware image code. The response is analysed to see if the segment gets acked.
-     **/
-   public boolean doSendFirmwareSegment(Identify newSoftwareIdentifier, byte[] firmwareUpgradeFile, Segment lastAckedSegment) throws CTRException {
+    public boolean doSendFirmwareSegment(Identify newSoftwareIdentifier, byte[] firmwareUpgradeFile, Segment lastAckedSegment, boolean useLongFrameFormat) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("doSendFirmwareSegment") + " - Segment: " + (lastAckedSegment.getSegment() + 1));
+        GPRSFrame response = getConnection().sendFrameGetResponse(getFirmwareCodeTransferRequest(newSoftwareIdentifier, firmwareUpgradeFile, lastAckedSegment, useLongFrameFormat));
+        response.doParse();
 
-       GPRSFrame response = getConnection().sendFrameGetResponse(getFirmwareCodeTransferRequest(newSoftwareIdentifier, firmwareUpgradeFile, lastAckedSegment));
-       response.doParse();
+        //Check if the response is an ACK
+        Data downloadResponse;
+        if (response.getData() instanceof AckStructure) {
+            downloadResponse = response.getData();
+            AckAdditionalDownloadData ackAdditionalDownloadData = new AckAdditionalDownloadData().parse(((AckStructure) downloadResponse).getAdditionalData().getBytes(), 0);
 
-       //Check if the response is an ACK
-       Data downloadResponse;
-       if (response.getData() instanceof AckStructure) {
-           downloadResponse = response.getData();
-           AckAdditionalDownloadData ackAdditionalDownloadData = new AckAdditionalDownloadData().parse(((AckStructure) downloadResponse).getAdditionalData().getBytes(), 0);
+            // If The AckAdditionalDownloadData contains the segment number, we have guarantee the segment (and all previous ones) is correct received.
+            int segmentSend = lastAckedSegment.getSegment() + 1;
+            // System.out.println("Send out segment "+segmentSend +" to the meter. Meter acked segment :"+ ackAdditionalDownloadData.getSegment().getSegment()+".");
 
-           // If The AckAdditionalDownloadData contains the segment number, we have guarantee the segment (and all previous ones) is correct received.
-           int segmentSend = lastAckedSegment.getSegment() + 1;
-           // System.out.println("Send out segment "+segmentSend +" to the meter. Meter acked segment :"+ ackAdditionalDownloadData.getSegment().getSegment()+".");
+            if (ackAdditionalDownloadData.getSegment().getSegment() != segmentSend) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
 
-           if (ackAdditionalDownloadData.getSegment().getSegment() != segmentSend) {
-               return false;
-           }
-       } else {
-           return false;
-       }
-       return true;
-   }
-
-   /** ****** SECTION 'REQUEST MESSAGES SPECIFIC FOR FIRMWARE UPGRADING' ****** **/
+    /** ****** SECTION 'REQUEST MESSAGES SPECIFIC FOR FIRMWARE UPGRADING' ****** **/
     /**
      * FASE 1 [initialization step] of firmware upgrade process. This request will initialize the firmware upgrade procces.
      * This request will set the download parameters object in the MTU1555 corresponding to the information of the new firmware.
      * In FASE 2 [code transfer step] the actual firmware code will be sent.
      */
-    private GPRSFrame getInitDownloadParametersRequest(Identify newSoftwareIdentifier, Calendar activationDate, int size) throws CTRException {
+    private GPRSFrame getInitDownloadParametersRequest(Identify newSoftwareIdentifier, CIA cia, VF vf, Calendar activationDate, int size, boolean useLongFrameFormat) throws CTRException {
         Identify identify = newSoftwareIdentifier;
         identify.setIdentify(identify.getIdentify());
-        Group group_s = new Group(25);      // Not meaningful for MTU155
-        Group group_c = new Group(1);       // Different from 0
-        Segment segment = new Segment(0);   //This will be the first segment
+        Group group_s, group_c;
+        if (isEK155Protocol) {
+            group_s = new Group(0);
+            group_c = new Group(0);
+        } else {
+            group_s = new Group(25);      // Not meaningful for MTU155
+            group_c = new Group(1);       // Different from 0
 
-        // Construct special "Initialization code" field with all information of the new firmware
-        AbstractCTRObject info = queryRegister("9.0.2");    // Equipment Identification Code object
-        String CIA = info.getValue(0).getStringValue();     // CIA must be the Equipment Identification code
+            // Construct special "Initialization code" field with all information of the new firmware
+            List<AbstractCTRObject> objects = getObjects("9.0.2");
+            if ((objects == null) || (objects.size() <= 0)) {
+                throw new CTRException("Unable to read the equipment identification code! List of objects returned was empty or null.");
+            }
+            AbstractCTRObject info = objects.get(0);    // Equipment Identification Code object
+            String CIA = info.getValue(0).getStringValue();     // CIA must be the Equipment Identification code
+            cia = new CIA(CIA);
 
-//        String VF = "R0." + ((newSoftwareIdentifier.getIdentify() < 0x100)    // E.g.: "R0.075"
-//                ? "0" + ProtocolTools.getHexStringFromInt(newSoftwareIdentifier.getIdentify())
-//                : ProtocolTools.getHexStringFromInt(newSoftwareIdentifier.getIdentify()));
+            String VF = newSoftwareIdentifier.getHexIdentify();
+            while (VF.length() < 6) {
+                VF = "0" + VF;
+            }
+            vf = new VF(VF);
 
-//        String VF = "R0." + ((newSoftwareIdentifier.getIdentify() < 0x100)    // E.g.: "R0.075"
-//                ? "0" + newSoftwareIdentifier.getHexIdentify()
-//                : newSoftwareIdentifier.getHexIdentify());
-
-        String VF = newSoftwareIdentifier.getHexIdentify();
-        while (VF.length() < 6) {
-            VF = "0" + VF;
         }
-
-        InitialisationCode initialisationCode = new InitialisationCode(activationDate, CIA, VF, size);
+        Segment segment = new Segment(0);   //This will be the first segment
+        InitialisationCode initialisationCode = new InitialisationCode(activationDate, cia, vf, size, useLongFrameFormat);
 
         byte[] downloadRequest = ProtocolTools.concatByteArrays(
                 ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD).getBytes(),
@@ -634,19 +729,26 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * FASE 2 [code transfer step] request, which is used to send the actual code segments to the MTU155.
-     **/
-    private GPRSFrame getFirmwareCodeTransferRequest(Identify softwareIdentifier, byte[] firmwareUpgradeFile, Segment lastAckedSegment) throws CTRParsingException {
+     */
+    private GPRSFrame getFirmwareCodeTransferRequest(Identify softwareIdentifier, byte[] firmwareUpgradeFile, Segment lastAckedSegment, boolean useLongFrameFormat) throws CTRParsingException {
+        Group group_s, group_c;
+        int lengthCodePerRequest = useLongFrameFormat ? LENGTH_CODE_PER_REQUEST_LONG_FRAMES : LENGTH_CODE_PER_REQUEST_SHORT_FRAMES;
 
-        Group group_s = new Group(25);  // Not used for MTU155 - set to 25
-        Group group_c = new Group(1);   // Not used for MTU155 - set to 1
+        if (isEK155Protocol) {
+            group_s = new Group(1);
+            group_c = new Group(1);
+        } else {
+            group_s = new Group(25);  // Not used for MTU155 - set to 25
+            group_c = new Group(1);   // Not used for MTU155 - set to 1
+        }
 
-        byte[] code = new byte[LENGTH_CODE_PER_REQUEST];
-        int i = firmwareUpgradeFile.length - lastAckedSegment.getSegment() * LENGTH_CODE_PER_REQUEST;
-        System.arraycopy(firmwareUpgradeFile, lastAckedSegment.getSegment() * LENGTH_CODE_PER_REQUEST, code, 0, (i > LENGTH_CODE_PER_REQUEST) ? LENGTH_CODE_PER_REQUEST : i);
-        // E.g.: lastAckedSegment = 0 -> code will contain image bytes 0 to 999.
+        byte[] code = new byte[lengthCodePerRequest];
+        int i = firmwareUpgradeFile.length - lastAckedSegment.getSegment() * lengthCodePerRequest;
+        System.arraycopy(firmwareUpgradeFile, lastAckedSegment.getSegment() * lengthCodePerRequest, code, 0, (i > lengthCodePerRequest) ? lengthCodePerRequest : i);
+        // E.g.: lastAckedSegment = 0 -> code will contain image bytes 0 to 999 (when using long frame format).
         //       lastAckedSegment = 1 -> code will contain image bytes 1000 -> 1999.
 
-        Segment newSegmentNumber = new Segment(lastAckedSegment.getSegment() +1);   // Segment numbers are 1 based - 0 is reserved for special initialization segment.
+        Segment newSegmentNumber = new Segment(lastAckedSegment.getSegment() + 1);   // Segment numbers are 1 based - 0 is reserved for special initialization segment.
 
         byte[] downloadRequest = ProtocolTools.concatByteArrays(
                 ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD).getBytes(),
@@ -657,26 +759,24 @@ public class GprsRequestFactory implements RequestFactory {
                 newSegmentNumber.getBytes(),
                 code
         );
-        GPRSFrame request = new GPRSFrame(true);
+        GPRSFrame request = new GPRSFrame(useLongFrameFormat);
         request.setAddress(getAddress());
         request.getFunctionCode().setEncryptionStatus(EncryptionStatus.NO_ENCRYPTION);
-        request.getProfi().setLongFrame(true);
+        request.getProfi().setLongFrame(useLongFrameFormat);
 
         request.getFunctionCode().setFunction(Function.DOWNLOAD);
         request.getStructureCode().setStructureCode(0);
         request.setChannel(new Channel(0));
-        request.setData(new DownloadRequestStructure(true).parse(downloadRequest, 0));
+        request.setData(new DownloadRequestStructure(useLongFrameFormat).parse(downloadRequest, 0));
         return request;
     }
     /** ****** END OF SECTION 'REQUEST MESSAGES SPECIFIC FOR FIRMWARE UPGRADING' ****** **/
-    /** ****** END OF SECTION 'FIRMWARE UPGRADING' ****** **/
-
     /**
-     * Queries for a decf table. Returns the meter response.
-     * @return the meter response, being a decf table
-     * @throws CTRException, if the meter's answer was not a decf table
+     * ***** END OF SECTION 'FIRMWARE UPGRADING' ****** *
      */
+
     public TableDECFQueryResponseStructure queryTableDECF() throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("queryTableDECF"));
         GPRSFrame response = getConnection().sendFrameGetResponse(getTableDECFRequest());
         response.doParse();
 
@@ -689,12 +789,8 @@ public class GprsRequestFactory implements RequestFactory {
         return tableDECFresponse;
     }
 
-    /**
-     * Queries for a dec table. Returns the meter response.
-     * @return the meter response, being a dec table
-     * @throws CTRException, if the meter's answer was not a dec table
-     */
     public TableDECQueryResponseStructure queryTableDEC() throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("queryTableDEC"));
         GPRSFrame response = getConnection().sendFrameGetResponse(getTableDECRequest());
         response.doParse();
 
@@ -707,16 +803,8 @@ public class GprsRequestFactory implements RequestFactory {
         return tableDECresponse;
     }
 
-    /**
-     * Executes a certain request
-     * @param validityDate: the validity date
-     * @param wdb: a unique number
-     * @param id: the object's id
-     * @param data: data for the execute request
-     * @return the meter's response (ack or nack)
-     * @throws CTRException, when the meter's response was unexpected.
-     */
     public Data executeRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("executeRequest", id));
         GPRSFrame response = getConnection().sendFrameGetResponse(getExecuteRequest(validityDate, wdb, id, data));
         response.doParse();
 
@@ -737,17 +825,8 @@ public class GprsRequestFactory implements RequestFactory {
         return executeRequest(ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD), WriteDataBlock.getRandomWDB(), id, data);
     }
 
-    /**
-     * Writes to register(s) in the meter
-     * @param validityDate: the validity date
-     * @param wdb: a unique number
-     * @param p_Session: the session configuration
-     * @param attributeType: determines the fields of the objects
-     * @param objects: the objects that should be written in the meter
-     * @return: the meter's response (ack or nack)
-     * @throws CTRException, if the meter's response was not recognized
-     */
     public Data writeRegister(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("writeRegister", objects));
         GPRSFrame response = getConnection().sendFrameGetResponse(getRegisterWriteRequest(validityDate, wdb, p_Session, attributeType, objects));
 
         //Check the response: should be Ack or Nack
@@ -764,15 +843,8 @@ public class GprsRequestFactory implements RequestFactory {
         return writeRegisterResponse;
     }
 
-    /**
-     *
-     * @param attributeType: determines the fields of the objects
-     * @param numberOfObjects: the number of objects to write to the device
-     * @param rawData: the raw data containing the objects to write
-     * @return: the meter's response (ack or nack)
-     * @throws CTRException, if the meter's response was not recognized
-     */
     public Data writeRegister(AttributeType attributeType, int numberOfObjects, byte[] rawData) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("writeRegister", "A.3.6", "A.4.6", "A.5.6", "A.C.3", "A.C.4", "A.C.0", "A.C.8"));
         GPRSFrame registerWriteRequest = getRegisterWriteRequest(
                 ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD),
                 WriteDataBlock.getRandomWDB(),
@@ -797,30 +869,12 @@ public class GprsRequestFactory implements RequestFactory {
         return writeRegisterResponse;
     }
 
-    /**
-     * Writes to register(s) in the meter, using the default and most used write parameters
-     * DV = today + 14 days
-     * WDB = random
-     * PSession = 0x00 (open & close)
-     * AttributeType = Value and ObjectID
-     * @param objects: the objects that should be written in the meter
-     * @return: the meter's response (ack or nack)
-     * @throws CTRException, if the meter's response was not recognized
-     */
     public Data writeRegister(AbstractCTRObject... objects) throws CTRException {
         return writeRegister(ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD), WriteDataBlock.getRandomWDB(), P_Session.getOpenAndClosePSession(), AttributeType.getValueAndObjectId(), objects);
     }
 
-    /**
-     * Do a trace query
-     * @param id: the id of the object you need interval data from
-     * @param period: the interval period (e.g.: 15 minutes)
-     * @param startDate: the start date
-     * @param numberOfElements: the number of interval values returned
-     * @return: a list of objects
-     * @throws CTRException, when the meter's response was not recognized
-     */
     public List<AbstractCTRObject> queryTrace(CTRObjectID id, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("queryTrace", id));
 
         //Send the id, the period (15min, 1h, 1day, ...), and the start date.
         GPRSFrame response = getConnection().sendFrameGetResponse(getTraceRequest(id, period, startDate, numberOfElements));
@@ -837,23 +891,12 @@ public class GprsRequestFactory implements RequestFactory {
         return traceResponse.getTraceData();
     }
 
-    /**
-     * Queries for a number of events
-     * @param index_Q: number of events to query for
-     * @return the meter's response containing event records
-     * @throws CTRException, if the meter's response was not recognized
-     */
     public ArrayEventsQueryResponseStructure queryEventArray(int index_Q) throws CTRException {
         return queryEventArray(new Index_Q(index_Q));
     }
 
-    /**
-     * Queries for a number of events
-     * @param index_Q: number of events to query for
-     * @return the meter's response containing event records
-     * @throws CTRException, if the meter's response was not recognized
-     */
     public ArrayEventsQueryResponseStructure queryEventArray(Index_Q index_Q) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("queryEventArray") + " - Index_Q: " + index_Q);
 
         GPRSFrame response = getConnection().sendFrameGetResponse(getEventArrayRequest(index_Q));
 
@@ -870,15 +913,26 @@ public class GprsRequestFactory implements RequestFactory {
         return arrayResponse;
     }
 
-    /**
-     * Do a trace_C query
-     * @param id: the id of the requested object
-     * @param period: the interval period
-     * @param referenceDate: the reference date
-     * @return the meter's response
-     * @throws CTRException, if the meter's response was not recognized
-     */
+    public ArrayQueryResponseStructure queryArray(CTRObjectID objectID, Index_Q index_q, Counter_Q counter_q) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("queryArray", objectID) + " - Index_Q: " + index_q);
+
+        GPRSFrame response = getConnection().sendFrameGetResponse(getArrayRequest(objectID, index_q, counter_q));
+
+        //Parse the records in the response into objects.
+        response.doParse();
+        ArrayQueryResponseStructure arrayResponse;
+
+        if (response.getData() instanceof ArrayQueryResponseStructure) {
+            arrayResponse = (ArrayQueryResponseStructure) response.getData();
+        } else {
+            throw new CTRException("Expected ArrayEventsResponseStructure but was " + response.getData().getClass().getSimpleName());
+        }
+
+        return arrayResponse;
+    }
+
     public Trace_CQueryResponseStructure queryTrace_C(CTRObjectID id, PeriodTrace_C period, ReferenceDate referenceDate) throws CTRException {
+        logObjectIDInfo(getDebugObjectIDsInfo("queryTrace_C", id) + " - Reference date: " + referenceDate.getCalendar(getTimeZone()).getTime());
 
         //Send the id, the period (15min, 1h, 1day, ...), and the start date.
         GPRSFrame response = getConnection().sendFrameGetResponse(getTrace_CRequest(id, period, referenceDate));
@@ -897,7 +951,8 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Pads a byte array to a certain length, by appending zeroes
-     * @param length: the given length
+     *
+     * @param length:    the given length
      * @param fieldData: the byte array
      * @return: the padded data array
      */
@@ -911,19 +966,23 @@ public class GprsRequestFactory implements RequestFactory {
         return fieldData;
     }
 
-    /**
-     * The device timezone
-     *
-     * @return The device timezone
-     */
     public TimeZone getTimeZone() {
         return timeZone;
     }
 
-    /**
-     * Send an end of session to the device
-     */
+    public WriteDataBlock getNewWriteDataBlock() {
+        WriteDataBlock randomWDB = WriteDataBlock.getRandomWDB();
+        writeDataBlockID = randomWDB.getWdb();
+        return randomWDB;
+    }
+
+    public int getWriteDataBlockID() {
+        return writeDataBlockID;
+    }
+
     public void sendEndOfSession() {
+        logObjectIDInfo(getDebugObjectIDsInfo("sendEndOfSession"));
+
         getLogger().severe("Closing session. Sending End Of Session Request.");
         try {
             if (getConnection() != null) {
@@ -939,8 +998,6 @@ public class GprsRequestFactory implements RequestFactory {
 
     /**
      * Get a new EndOf session request
-     *
-     * @return
      */
     public GPRSFrame getEndOfSessionRequest() {
         GPRSFrame request = new GPRSFrame();
@@ -955,15 +1012,13 @@ public class GprsRequestFactory implements RequestFactory {
         return request;
     }
 
-    /**
-     * Getter for the cached IdentificationResponseStructure
-     *
-     * @return
-     * @throws CTRException
-     */
-    public IdentificationResponseStructure getIdentificationStructure() throws CTRException {
+    public IdentificationResponseStructure getIdentificationStructure() {
         if (identificationStructure == null) {
-            identificationStructure = readIdentificationStructure();
+            try {
+                identificationStructure = readIdentificationStructure();
+            } catch (CTRException e) {
+                getLogger().severe("Unable to get the IdentificationResponseStructure: " + e.getMessage());
+            }
         }
         return identificationStructure;
     }
@@ -972,10 +1027,6 @@ public class GprsRequestFactory implements RequestFactory {
         return link;
     }
 
-    /**
-     *
-     * @return
-     */
     public String getIPAddress() {
         //ToDo: getLink() will always return null! How should this be fixed?
         String ipAddress = null;
@@ -988,11 +1039,6 @@ public class GprsRequestFactory implements RequestFactory {
         return ipAddress == null ? "Unknown" : ipAddress;
     }
 
-    /**
-     * Get the cached meter info object. If not exist yet, create a new one.
-     *
-     * @return
-     */
     public MeterInfo getMeterInfo() {
         if (meterInfo == null) {
             meterInfo = new MeterInfo(this, getLogger(), getTimeZone());
@@ -1000,11 +1046,183 @@ public class GprsRequestFactory implements RequestFactory {
         return meterInfo;
     }
 
+    public void setMeterInfo(MeterInfo meterInfo) {
+        this.meterInfo = meterInfo;
+    }
+
+    public boolean isEK155Protocol() {
+        return isEK155Protocol;
+    }
+
+    public List<AbstractCTRObject> getObjects(String... objectIDs) {
+        CTRObjectID[] objectIds = new CTRObjectID[objectIDs.length];
+        for (int i = 0; i < objectIDs.length; i++) {
+            objectIds[i] = new CTRObjectID(objectIDs[i]);
+        }
+
+        return getObjects(objectIds);
+    }
+
+    public List<AbstractCTRObject> getObjects(CTRObjectID... objectIDs) {
+        List<AbstractCTRObject> objects = new ArrayList<>();
+
+        // List of objects who need to be queried for in a query for register structure.
+        List<CTRObjectID> objectIDsToQuery = new ArrayList<>();
+
+        for (int i = 0; i < objectIDs.length; i++) {
+            AbstractCTRObject object = null;
+            try {
+                if (object == null) {
+                    object = getObjectFromCache(objectIDs[i]);
+                }
+                if (object == null) {
+                    object = getObjectFromIdentificationTable(objectIDs[i]);
+                }
+                if (object == null) {
+                    object = getObjectFromDECFTable(objectIDs[i]);
+                }
+                if (object == null) {
+                    object = getObjectFromDECTable(objectIDs[i]);
+                }
+                if (object == null) {
+                    addObjectIdToListOfIDsToQuery(objectIDsToQuery, objectIDs[i]);
+                } else {
+                    objects.add(object);
+                    cachedObjects.add(object);
+                }
+            } catch (CTRException e) {
+                getLogger().log(Level.WARNING, "Encountered CTRException while reading object " + objectIDs[i].toString() + ": " + e.getMessage());
+            }
+        }
+
+        if (objectIDsToQuery.size() != 0) { // We have to query specific for these registers
+            try {
+                for (int y = 0; y < objectIDsToQuery.size(); y += 10) {  // Do not request more than 10 objects each time.
+                    CTRObjectID[] objectsToQuery = new CTRObjectID[0];
+                    int toIndex = objectIDsToQuery.size() < (y + 10) ? objectIDsToQuery.size() : (y + 10);
+                    List<AbstractCTRObject> objectsQueried = queryRegisters(objectIDsToQuery.subList(y, toIndex).toArray(objectsToQuery));
+                    objects.addAll(objectsQueried);
+                }
+            } catch (CTRException e) {
+                String objectIdsString = "";
+                for (int i = 0; i < objectIDsToQuery.size(); i++) {
+                    objectIdsString += objectIDsToQuery.get(i).toString() + ", ";
+                }
+                getLogger().log(Level.WARNING, "Encountered CTRException while reading objects " + objectIdsString + ": " + e.getMessage());
+            }
+        }
+        return objects;
+    }
+
+    private void addObjectIdToListOfIDsToQuery(List<CTRObjectID> objectIDsToQuery, CTRObjectID objectID) {
+        for (CTRObjectID each : objectIDsToQuery) {
+            if (each.toString().equals(objectID.toString()))  {
+                return; // The ObjectId is already in the list, so no need to add it again
+            }
+        }
+
+        objectIDsToQuery.add(objectID);
+    }
+
+    protected AbstractCTRObject getObjectFromCache(String idObject) {
+        return getObjectFromCache(new CTRObjectID(idObject));
+    }
+
+    protected AbstractCTRObject getObjectFromCache(CTRObjectID idObject) {
+        for (AbstractCTRObject each : cachedObjects) {
+            if (each.getId().toString().equals(idObject.toString())) {
+                return each;
+            }
+        }
+        return null;
+    }
+
     /**
-     * Get the cached GasQuality object. If not exist yet, create a new one.
+     * Check if the requested object is in the Identification table, and read it if it is
      *
-     * @return
+     * @param objectId: the id of the requested CTR Object
+     * @return the matching CTR Object, if it is in the Identification table.
+     * @throws CTRException
      */
+    protected AbstractCTRObject getObjectFromIdentificationTable(CTRObjectID objectId) throws CTRException {
+        if (IdentificationResponseStructure.containsObjectId(objectId)) {
+            for (AbstractCTRObject ctrObject : getIdentificationStructure().getObjects()) {
+                if (ctrObject.getId().toString().equals(objectId.toString())) {
+                    return ctrObject;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check if the requested object is in the DECF table, and read it if it is
+     *
+     * @param objectId: the id of the requested CTR Object
+     * @return the matching CTR Object, if it is in the decf table
+     * @throws CTRException
+     */
+    protected AbstractCTRObject getObjectFromDECFTable(CTRObjectID objectId) throws CTRException {
+        if (TableDECFQueryResponseStructure.containsObjectId(objectId)) {
+            for (AbstractCTRObject ctrObject : getTableDECF().getObjects()) {
+                if (ctrObject.getId().toString().equals(objectId.toString())) {
+                    return ctrObject;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check if the requested object is in the DEC table, and read it if it is
+     *
+     * @param objectId: the id of the requested CTR Object
+     * @return the matching CTR Object, if it is in the dec table
+     * @throws CTRException
+     */
+    protected AbstractCTRObject getObjectFromDECTable(CTRObjectID objectId) throws CTRException {
+        if (TableDECQueryResponseStructure.containsObjectId(objectId)) {
+            for (AbstractCTRObject ctrObject : getTableDEC().getObjects()) {
+                if (ctrObject.getId().toString().equals(objectId.toString())) {
+                    return ctrObject;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Check if the requested object is in the GasQuality object, and read it if it is
+     *
+     * @param objectId: the id of the requested CTR Object
+     * @return the matching CTR Object, if it is in the dec table
+     * @throws CTRException
+     */
+    protected AbstractCTRObject getObjectFromGasQuality(CTRObjectID objectId) throws CTRException {
+        if (GasQuality.containsObjectId(objectId)) {
+            for (AbstractCTRObject ctrObject : getGasQuality().getObjects()) {
+                if (ctrObject.getId().toString().equals(objectId.toString())) {
+                    return ctrObject;
+                }
+            }
+        }
+        return null;
+    }
+
+    public TableDECFQueryResponseStructure getTableDECF() throws CTRException {
+        if (tableDECF == null) {
+            tableDECF = queryTableDECF();
+        }
+        return tableDECF;
+    }
+
+    public TableDECQueryResponseStructure getTableDEC() throws CTRException {
+        if (tableDEC == null) {
+            tableDEC = queryTableDEC();
+        }
+        return tableDEC;
+    }
+
     public GasQuality getGasQuality() {
         if (gasQuality == null) {
             gasQuality = new GasQuality(this, getLogger());
@@ -1012,12 +1230,47 @@ public class GprsRequestFactory implements RequestFactory {
         return gasQuality;
     }
 
-    public AbstractCTRObject queryRegister(String objectID) throws CTRException {
-        List<AbstractCTRObject> objects = queryRegisters(new AttributeType(0x03), objectID);
-        if ((objects != null) && (objects.size() > 0)) {
-            return objects.get(0);
-        } else {
-            return null;
+    public String getDebugObjectIDsInfo(String method) {
+        return "Object access in method " + method;
+    }
+
+    public String getDebugObjectIDsInfo(String method, String... objectIDs) {
+        String msg = "Object access in method " + method + " for IDs ";
+        msg += "[";
+        msg += objectIDs[0];
+        for (int i = 1; i < objectIDs.length; i++) {
+            msg += ", " + objectIDs[i];
+        }
+        msg += "]";
+        return msg;
+    }
+
+    public String getDebugObjectIDsInfo(String method, CTRObjectID... objectIDs) {
+        String msg = "Object access in method " + method + " for " + (objectIDs.length == 1 ? "ID" : "IDs ");
+        msg += "[";
+        msg += objectIDs[0];
+        for (int i = 1; i < objectIDs.length; i++) {
+            msg += ", " + objectIDs[i];
+        }
+        msg += "]";
+        return msg;
+    }
+
+    public String getDebugObjectIDsInfo(String method, AbstractCTRObject... objects) {
+        String msg = "Object access in method " + method + " for IDs ";
+        msg += "[";
+        msg += objects[0].getId();
+        for (int i = 1; i < objects.length; i++) {
+            msg += ", " + objects[i].getId();
+        }
+        msg += "]";
+        return msg;
+    }
+
+    public void logObjectIDInfo(String msg) {
+        if (isEK155Protocol && ((EK155Properties) getProperties()).isLogObjectIDs()) {
+            System.out.println(msg);
+            getLogger().log(Level.FINEST, msg);
         }
     }
 }

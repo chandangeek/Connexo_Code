@@ -6,6 +6,9 @@ import com.energyict.protocol.ProfileData;
  * Copyrights EnergyICT
  * Date: 8/03/11
  * Time: 16:16
+ *
+ * @Deprecated  Not used anymore in V2
+ *
  */
 public class CTRExceptionWithProfileData extends CTRException {
 
