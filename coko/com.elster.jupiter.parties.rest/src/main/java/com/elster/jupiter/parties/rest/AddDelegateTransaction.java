@@ -25,7 +25,7 @@ public class AddDelegateTransaction implements Transaction<List<User>> {
     @Override
     public List<User> perform() {
         Party party = fetcher.fetchParty(partyId);
-        User user = fetcher.fetchUser(info.delegate);
+        User user = fetcher.fetchUser(info.delegate.authenticationName);
 
         party.appointDelegate(user, Bus.getClock().now());
         return party.getCurrentDelegates();

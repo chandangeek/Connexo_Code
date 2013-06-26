@@ -20,7 +20,7 @@ public class TerminateDelegateTransaction implements Transaction<List<User>> {
     @Override
     public List<User> perform() {
         Party party = fetcher.fetchParty(partyId);
-        User user = fetcher.fetchUser(info.delegate);
+        User user = fetcher.fetchUser(info.delegate.authenticationName);
         party.unappointDelegate(user, Bus.getClock().now());
         return party.getCurrentDelegates();
     }
