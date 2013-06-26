@@ -37,7 +37,7 @@ class DueTaskFetcher {
                 String payload = resultSet.getString(5);
                 String destination = resultSet.getString(6);
                 DestinationSpec destinationSpec = Bus.getMessageService().getDestinationSpec(destination);
-                RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(name, new DefaultCronExpressionParser().parse(cronString), destinationSpec, payload);
+                RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(name, Bus.getCronExpressionParser().parse(cronString), destinationSpec, payload);
                 recurrentTask.setNextExecution(nextExecution);
                 recurrentTask.setId(id);
                 result.add(recurrentTask);

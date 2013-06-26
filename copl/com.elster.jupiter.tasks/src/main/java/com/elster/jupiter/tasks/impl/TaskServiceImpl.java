@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Clock;
 
 import org.osgi.service.component.ComponentContext;
@@ -26,6 +27,8 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     private volatile LogService logService;
     private volatile QueryService queryService;
     private volatile TransactionService transactionService;
+    private volatile CronExpressionParser cronExpressionParser;
+
     private Thread schedulerThread;
 
     @Override
@@ -35,7 +38,7 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
 
     @Override
     public RecurrentTaskBuilder newBuilder() {
-        return new DefaultRecurrentTaskBuilder(new DefaultCronExpressionParser());
+        return new DefaultRecurrentTaskBuilder(getCronExpressionParser());
     }
 
     @Reference
@@ -95,6 +98,16 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Override
+    public CronExpressionParser getCronExpressionParser() {
+        return cronExpressionParser;
+    }
+
+    @Reference
+    public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
+        this.cronExpressionParser = cronExpressionParser;
     }
 
     public void activate(ComponentContext context) {

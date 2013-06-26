@@ -3,6 +3,7 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Clock;
 
 import java.util.logging.Handler;
@@ -70,7 +71,7 @@ public enum Bus {
     }
 
     public static CronExpressionParser getCronExpressionParser() {
-        return new DefaultCronExpressionParser();
+        return serviceLocator.getCronExpressionParser();
     }
 
     public static TransactionService getTransactionService() {

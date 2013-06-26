@@ -3,6 +3,7 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.Clock;
 
 import java.util.Date;
