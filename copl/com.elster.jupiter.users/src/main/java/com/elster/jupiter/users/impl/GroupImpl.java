@@ -49,7 +49,7 @@ final class GroupImpl implements Group {
 
 	@Override
 	public boolean hasPrivilege(String privilegeName) {
-        return FluentIterable.from(getPrivileges()).transform(To.Name).contains(privilegeName);
+        return FluentIterable.from(getPrivileges()).transform(To.NAME).contains(privilegeName);
 	}
 
     @Override
