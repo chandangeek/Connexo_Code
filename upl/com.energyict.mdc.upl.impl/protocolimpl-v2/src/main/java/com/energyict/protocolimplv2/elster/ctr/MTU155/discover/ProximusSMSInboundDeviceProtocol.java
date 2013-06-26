@@ -1,0 +1,315 @@
+package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
+
+import com.energyict.cbo.Sms;
+import com.energyict.mdc.meterdata.CollectedData;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Provides an implementation for the {@link com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol} interface
+ * that will support inbound SMS communication for the CTR protocols (MTU155 and EK155), using Proximus as telecom operator.
+ *
+ * @author sva
+ * @since 24/06/13 - 14:31
+ */
+public class ProximusSMSInboundDeviceProtocol extends AbstractSMSServletBasedInboundDeviceProtocol {
+
+    private static final int HEX = 16;
+    private static final int BITS = 8;
+
+    //Parameter names
+    private static final String TEXT = "text";
+    private static final String BINARY = "binary";
+    private static final String DCS = "dcs";
+    private static final String TYPE = "type";
+    private static final String MESSAGE = "message";
+    private static final String SENDER = "sender";
+    private static final String AUTH = "auth";
+    private static final String SOURCE = "source";
+    private static final String PID = "pid";
+    private static final String ID = "id";
+    private static final String RECIPIENT = "recipient";
+
+    //Response strings
+    private static final String XML_PREFIX = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<status>";
+    private static final String XML_SUFFIX = "\n</status>";
+    private static final String ERROR_PREFIX = "\n    <" + "error code=\"";
+    private static final String ERROR_SUFFIX = "</error>";
+
+
+    private ResultType resultType = ResultType.OK;
+
+    private DeviceIdentifier deviceIdentifier;
+    private List<CollectedData> collectedDataList = new ArrayList<>();
+
+    @Override
+    public DiscoverResultType doDiscovery() {
+        try {
+            Sms sms = readParameters(this.request);
+            if (!sms.getFrom().isEmpty()) {
+             //   this.deviceIdentifier = new CTRPhoneNumberDeviceIdentifier(sms.getFrom());    TODO
+            }
+
+//            collectedDataList = smsHandler.getCollectedData();
+
+            return DiscoverResultType.DATA;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();  // TODO
+        }
+        return DiscoverResultType.DATA;
+    }
+
+    /**
+     * Reads the parameters from the HTTP post or get.
+     * Creates an SMS object with the given data.
+     *
+     * @param request: containing the parameters
+     * @return the sms object
+     * @throws java.io.UnsupportedEncodingException
+     *
+     */
+    private Sms readParameters(HttpServletRequest request) throws UnsupportedEncodingException {
+        String auth = checkParameter(request.getParameter(AUTH), AUTH);
+        String source = checkParameter(request.getParameter(SOURCE), SOURCE);
+
+        if (!"".equals(auth)) {
+            if (!auth.equals(authenticationPropertyValue()) || !source.equals(sourcePropertyValue())) {
+                setResultType(ResultType.AUTHENTICATION_FAILURE);
+            }
+        }
+        String dcsString = isValidHexString(checkParameter(request.getParameter(DCS), DCS), DCS);
+        String pidString = isValidHexString(checkParameter(request.getParameter(PID), PID), PID);
+        if (resultTypeIs(ResultType.OK)) {
+            byte[] dcs = getBytesFromHexString(dcsString);
+            byte[] pid = getBytesFromHexString(pidString);
+        }
+        String type = checkParameter(request.getParameter(TYPE), TYPE);
+        String from = checkParameter(request.getParameter(SENDER), SENDER);
+        String id = checkParameter(request.getParameter(ID), ID);
+        String to = checkParameter(request.getParameter(RECIPIENT), RECIPIENT);
+        byte[] message = getMessageContent(checkParameter(request.getParameter(MESSAGE), MESSAGE), type, MESSAGE);
+        Date date = new Date();  //current date
+
+        Sms sms = new Sms(from, to, date, source, id, BITS, message);
+        return sms;
+    }
+
+    /**
+     * Decode a given url and extract the value of a parameter out of it
+     *
+     * @param text:      the url
+     * @param parameter: the name of the parameter in the url
+     * @return the decoded text
+     * @throws UnsupportedEncodingException
+     */
+    private String checkParameter(String text, String parameter) throws UnsupportedEncodingException {
+        if (text == null) {
+            text = "";
+            if (TYPE.equals(parameter)) {
+                text = TEXT;     //default type
+            }
+        }
+        if ("".equals(text) && isRelevantParameter(parameter)) {
+            setResultType(ResultType.MISSING_PARAMETER);
+            if (resultTypeIs(ResultType.MISSING_PARAMETER)) {
+                resultType.addAdditionInformation(parameter);
+            }
+            return "";
+        }
+        return text;
+    }
+
+    private boolean isRelevantParameter(String parameter) {
+        return (ID.equals(parameter)
+                || SOURCE.equals(parameter)
+                || SENDER.equals(parameter)
+                || RECIPIENT.equals(parameter)
+                || MESSAGE.equals(parameter));
+    }
+
+    private boolean resultTypeIs(ResultType resultType) {
+        return getResultType().getCode() == resultType.getCode();
+    }
+
+    /**
+     * Checks if the string contains invalid characters (non hexadecimal)
+     * or if the string's length is odd
+     *
+     * @param request:   a given string
+     * @param parameter: what parameter is the string? (for error description purposes)
+     * @return the valid string
+     */
+    private String isValidHexString(String request, String parameter) {
+        if ("".equals(request)) {
+            return request;
+        }
+        if ((request.length()) % 2 != 0) {
+            setResultType(ResultType.INVALID_PARAMETER);
+            if (resultTypeIs(ResultType.INVALID_PARAMETER)) {
+                resultType.addAdditionInformation(parameter);
+            }
+            return "";
+        }
+        if (!request.matches("\\p{XDigit}+")) {
+            setResultType(ResultType.INVALID_PARAMETER);
+            if (resultTypeIs(ResultType.INVALID_PARAMETER)) {
+                resultType.addAdditionInformation(parameter);
+            }
+            return "";
+        }
+        return request;
+    }
+
+    private byte[] getBytesFromHexString(final String hexString) {
+        ByteArrayOutputStream bb = new ByteArrayOutputStream();
+        for (int i = 0; i < hexString.length(); i += 2) {
+            bb.write(Integer.parseInt(hexString.substring(i, i + 2), HEX));
+        }
+        return bb.toByteArray();
+    }
+
+    /**
+     * convert a string message to a fitting byte array
+     *
+     * @param request:   the text string
+     * @param type:      the type (text or binary)
+     * @param parameter: the name of the parameter
+     * @return a byte array representing the text string
+     */
+    private byte[] getMessageContent(String request, String type, String parameter) {
+        if (request == null) {
+            return new byte[0];
+        }
+        if (TEXT.equals(type)) {
+            return request.getBytes();
+        } else if (BINARY.equals(type)) {
+            return getBytesFromHexString(isValidHexString(request, parameter));
+        } else {
+            setResultType(ResultType.INVALID_PARAMETER);
+            if (resultTypeIs(ResultType.INVALID_PARAMETER)) {
+                getResultType().addAdditionInformation(TYPE);
+            }
+            return new byte[0];
+        }
+    }
+
+
+    @Override
+    public void provideResponse(DiscoverResponseType responseType) {
+        try {
+            response.setContentType("text/xml; charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            response.setStatus(getResultType().getCode());
+            out.println(getReply());
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();  // TODO
+        }
+    }
+
+    /**
+     * Create an HTTP 1.1 Response
+     *
+     * @return the http 1.1 response
+     */
+    private String getReply() {
+        String reply = "";
+        if (resultTypeIs(ResultType.OK) && (additionalInformationIs("")) || additionalInformationIs(ResultType.OK.getDescription())) {
+            reply = XML_PREFIX + "\n    <" + ResultType.OK.getDescription() + "\">" + XML_SUFFIX;
+        } else {
+            reply = XML_PREFIX + ERROR_PREFIX + getResultType().getCode() + "\">" + getResultType().getMessage() + ERROR_SUFFIX + XML_SUFFIX;
+        }
+        return reply;
+    }
+
+    private boolean additionalInformationIs(String s) {
+        return s.equals(getResultType().getAdditionInformation());
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+
+    @Override
+    public List<CollectedData> getCollectedData() {
+        return collectedDataList;
+    }
+
+    public ResultType getResultType() {
+        return resultType;
+    }
+
+    public void setResultType(ResultType resultType) {
+        if (resultTypeIs(ResultType.OK)) {
+            this.resultType = resultType;
+            this.resultType.setAdditionInformation(""); //Clear the additional information section
+        }
+    }
+
+    public enum ResultType {
+
+        OK(200, "ok"),
+        INVALID_REQUEST(450, "Invalid request"),
+        AUTHENTICATION_FAILURE(451, "Authentication failure"),
+        MISSING_PARAMETER(452, "Missing parameter"),
+        INVALID_PARAMETER(453, "Invalid parameter"),
+        LIMIT_EXCEEDED(454, "SMS MT message limit exceeded"),
+        QUEUE_FULL(455, "PI internal queue full"),
+        CAPACITY_EXCEEDED(456, "Storage partition exceeded the allocated capacity"),
+        SERVICE_DISABLED(457, "Service disabled"),
+        INTERNAL_ERROR(550, "Internal error");
+
+        private int code;
+        private String description;
+        private String additionInformation;
+
+        private ResultType(int code, String description) {
+            this.code = code;
+            this.description = description;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public String getAdditionInformation() {
+            return additionInformation;
+        }
+
+        public void setAdditionInformation(String additionInformation) {
+            this.additionInformation = additionInformation;
+        }
+
+        public void addAdditionInformation(String additionInformation) {
+            if (this.additionInformation == null || this.additionInformation.isEmpty()) {
+                this.additionInformation = additionInformation;
+            } else {
+                this.additionInformation += (", " + additionInformation);
+            }
+        }
+
+        public String getMessage() {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(getDescription());
+            if (getAdditionInformation() != null && !getAdditionInformation().isEmpty()) {
+                buffer.append(": ");
+                buffer.append(additionInformation);
+            }
+            return buffer.toString();
+        }
+
+    }
+}
