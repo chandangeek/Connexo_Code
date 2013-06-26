@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Unit;
 
+import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Currency;
@@ -283,11 +284,28 @@ public enum ColumnConversionImpl {
 		public Object convert(String in) {
 			return Currency.getInstance(in);
 		}
-	};
+	},
+    CHAR2FILE {
+        @Override
+        public Object convert(String in) {
+            return new File(in);
+        }
 
-	abstract public Object convertToDb(Object value);
-	abstract public Object convertFromDb(ResultSet rs, int index) throws SQLException;
-	abstract public Object convert(String in);
+        @Override
+        public Object convertToDb(Object value) {
+            return ((File) value).getAbsolutePath();
+        }
+
+        @Override
+        public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+            String fileName = rs.getString(index);
+            return fileName == null ? null : convert(fileName);
+        }
+    };
+
+	public abstract Object convertToDb(Object value);
+	public abstract Object convertFromDb(ResultSet rs, int index) throws SQLException;
+	public abstract Object convert(String in);
 	
 	Long getTime(Object value) {	
 		if (value == null) {
