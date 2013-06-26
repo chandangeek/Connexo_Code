@@ -1,28 +1,22 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Clock;
-import oracle.jdbc.aq.AQMessage;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
-import java.io.File;
-import java.sql.SQLException;
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
+@Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
 public class FileImportServiceImpl implements InstallService, ServiceLocator, FileImportService {
 
     private volatile LogService logService;
@@ -96,89 +90,12 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
     public void activate(ComponentContext context) {
         try {
 			Bus.setServiceLocator(this);
-            CronExpression cronExpression = Bus.getCronExpressionParser().parse("0/10 * * * * ? *");
-            DestinationSpec spec = new DestinationSpec() {
-                @Override
-                public QueueTableSpec getQueueTableSpec() {
-                    //TODO automatically generated method body, provide implementation.
-                    return null;
-                }
-
-                @Override
-                public void activate() {
-                    //TODO automatically generated method body, provide implementation.
-
-                }
-
-                @Override
-                public void deactivate() {
-                    //TODO automatically generated method body, provide implementation.
-
-                }
-
-                @Override
-                public String getName() {
-                    //TODO automatically generated method body, provide implementation.
-                    return null;
-                }
-
-                @Override
-                public boolean isTopic() {
-                    //TODO automatically generated method body, provide implementation.
-                    return false;
-                }
-
-                @Override
-                public boolean isQueue() {
-                    //TODO automatically generated method body, provide implementation.
-                    return false;
-                }
-
-                @Override
-                public String getPayloadType() {
-                    //TODO automatically generated method body, provide implementation.
-                    return null;
-                }
-
-                @Override
-                public boolean isActive() {
-                    //TODO automatically generated method body, provide implementation.
-                    return false;
-                }
-
-                @Override
-                public void send(String text) {
-                    //TODO automatically generated method body, provide implementation.
-
-                }
-
-                @Override
-                public void send(byte[] bytes) {
-                    //TODO automatically generated method body, provide implementation.
-
-                }
-
-                @Override
-                public void send(AQMessage message) throws SQLException {
-                    //TODO automatically generated method body, provide implementation.
-
-                }
-
-                @Override
-                public List<SubscriberSpec> getConsumers() {
-                    //TODO automatically generated method body, provide implementation.
-                    return null;
-                }
-
-                @Override
-                public SubscriberSpec subscribe(String name, int workerCount) {
-                    //TODO automatically generated method body, provide implementation.
-                    return null;
-                }
-            };
-            ImportScheduleImpl importSchedule = new ImportScheduleImpl(cronExpression, spec, new File("C:/Users/tgr/Work/Temp/import"), new File("C:/Users/tgr/Work/Temp/inprogress"), new File("C:/Users/tgr/Work/Temp/error"), new File("C:/Users/tgr/Work/Temp/success"));
-            cronExpressionScheduler = new CronExpressionScheduler(1);
-            cronExpressionScheduler.submit(new ImportScheduleJob(importSchedule));
+            List<ImportSchedule> importSchedules = getOrmClient().getImportScheduleFactory().find();
+            int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
+            cronExpressionScheduler = new CronExpressionScheduler(poolSize);
+            for (ImportSchedule importSchedule : importSchedules) {
+                cronExpressionScheduler.submit(new ImportScheduleJob(importSchedule));
+            }
         } catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

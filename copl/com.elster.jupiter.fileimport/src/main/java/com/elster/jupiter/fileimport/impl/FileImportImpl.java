@@ -21,6 +21,9 @@ public class FileImportImpl implements FileImport {
     private State state;
     private transient InputStream inputStream;
 
+    private FileImportImpl() {
+    }
+
     public static FileImport create(ImportSchedule importSchedule, File file) {
         FileImportImpl fileImport = new FileImportImpl(importSchedule, file);
         fileImport.moveFile();

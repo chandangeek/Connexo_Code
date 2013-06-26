@@ -19,6 +19,9 @@ class ImportScheduleImpl implements ImportSchedule {
     private transient CronExpression cronExpression;
     private String cronString;
 
+    private ImportScheduleImpl() {
+    }
+
     ImportScheduleImpl(CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
         this.cronExpression = cronExpression;
         this.cronString = cronExpression.toString();
@@ -38,7 +41,7 @@ class ImportScheduleImpl implements ImportSchedule {
     @Override
     public DestinationSpec getDestination() {
         if (destination == null) {
-            destination = Bus.getMessageService().getDestinationSpec(destinationName);
+            destination = Bus.getMessageService().getDestinationSpec(destinationName).get();
         }
         return destination;
     }

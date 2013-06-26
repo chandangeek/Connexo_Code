@@ -1,7 +1,9 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
@@ -26,10 +28,11 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
-            table.addColumn("IMPORTSCHEDULEID", "varchar2(80)", true, NOCONVERSION, "destinationName");
-            table.addColumn("FILENAME", "varchar2(80)", true, CHAR2FILE, "importDirectory");
-            table.addColumn("STATE", "varchar2(80)", true, NUMBER2ENUM, "inProcessDirectory");
+            Column importScheduleColumn = table.addColumn("IMPORTSCHEDULE", "number", true, NOCONVERSION, "importScheduleId");
+            table.addColumn("FILENAME", "varchar2(80)", true, CHAR2FILE, "file");
+            table.addColumn("STATE", "number", true, NUMBER2ENUM, "state");
             table.addPrimaryKeyConstraint("FIM_PK_FILE_IMPORT", idColumn);
+            table.addForeignKeyConstraint("FIM_FKFILEIMPORT_SCHEDULE", FIM_IMPORT_SCHEDULE.name(), DeleteRule.CASCADE, new AssociationMapping("importSchedule"), importScheduleColumn);
         }
     };
 
