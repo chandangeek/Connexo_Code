@@ -27,6 +27,7 @@ public class FileImportImpl implements FileImport {
     public static FileImport create(ImportSchedule importSchedule, File file) {
         FileImportImpl fileImport = new FileImportImpl(importSchedule, file);
         fileImport.moveFile();
+        fileImport.save();
         return fileImport;
     }
 
@@ -43,7 +44,7 @@ public class FileImportImpl implements FileImport {
     }
 
     @Override
-    public InputStream getFile() {
+    public InputStream getContents() {
         try {
             if (inputStream == null) {
                 inputStream = new FileInputStream(file);
@@ -73,6 +74,29 @@ public class FileImportImpl implements FileImport {
         state = State.FAILURE;
         ensureStreamClosed();
         moveFile();
+        save();
+    }
+
+    @Override
+    public void markSuccess() {
+        validateState();
+        state = State.SUCCESS;
+        ensureStreamClosed();
+        moveFile();
+        save();
+    }
+
+    @Override
+    public String getFileName() {
+        return file.toPath().getFileName().toString();
+    }
+
+    void save() {
+        if (id == 0) {
+            Bus.getOrmClient().getFileImportFactory().persist(this);
+        } else {
+            Bus.getOrmClient().getFileImportFactory().update(this);
+        }
     }
 
     private void moveFile() {
@@ -112,14 +136,6 @@ public class FileImportImpl implements FileImport {
         } catch (IOException e) {
             throw new FileIOException(e);
         }
-    }
-
-    @Override
-    public void markSuccess() {
-        validateState();
-        state = State.SUCCESS;
-        ensureStreamClosed();
-        moveFile();
     }
 
     private void validateState() {

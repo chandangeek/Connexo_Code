@@ -10,7 +10,7 @@ public class ImportScheduleJob implements CronJob {
 
     public ImportScheduleJob(ImportSchedule importSchedule) {
         this.importSchedule = importSchedule;
-        folderScanningJob = new FolderScanningJob(new PollingFolderScanner(importSchedule.getImportDirectory().toPath()), new DefaultFileHandler());
+        folderScanningJob = new FolderScanningJob(new PollingFolderScanner(importSchedule.getImportDirectory().toPath()), new DefaultFileHandler(importSchedule));
     }
 
     @Override

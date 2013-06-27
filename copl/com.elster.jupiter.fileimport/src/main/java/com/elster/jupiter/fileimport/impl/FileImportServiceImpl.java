@@ -1,12 +1,15 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.consumer.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.component.ComponentContext;
@@ -24,6 +27,7 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
     private volatile CronExpressionParser cronExpressionParser;
     private volatile OrmClient ormClient;
     private volatile Clock clock;
+    private volatile TransactionService transactionService;
 
     private Thread thread;
     private CronExpressionScheduler cronExpressionScheduler;
@@ -87,6 +91,16 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
         this.clock = clock;
     }
 
+    @Override
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     public void activate(ComponentContext context) {
         try {
 			Bus.setServiceLocator(this);
@@ -116,5 +130,10 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
     @Override
     public ImportScheduleBuilder newBuilder() {
         return new DefaultImportScheduleBuilder();
+    }
+
+    @Override
+    public MessageHandler createMessageHandler(FileImporter fileImporter) {
+        return new StreamImportMessageHandler(fileImporter);
     }
 }

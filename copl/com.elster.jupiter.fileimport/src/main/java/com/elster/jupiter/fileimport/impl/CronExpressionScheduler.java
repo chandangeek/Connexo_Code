@@ -16,6 +16,10 @@ public class CronExpressionScheduler {
         scheduledExecutorService = Executors.newScheduledThreadPool(threadPoolSize);
     }
 
+    /**
+     * Schedules the given CronJob to execute once, at the next time its CronExpression matches.
+     * @param cronJob
+     */
     public void submitOnce(CronJob cronJob) {
         Date next = cronJob.getSchedule().nextAfter(Bus.getClock().now());
         if (next != null) {
@@ -24,6 +28,10 @@ public class CronExpressionScheduler {
         }
     }
 
+    /**
+     * Schedules the given CronJob to execute every time its CronExpression matches.
+     * @param cronJob
+     */
     public void submit(CronJob cronJob) {
         submitOnce(new SelfReschedulingCronJob(cronJob));
     }

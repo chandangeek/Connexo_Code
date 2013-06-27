@@ -28,7 +28,7 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
-            Column importScheduleColumn = table.addColumn("IMPORTSCHEDULE", "number", true, NOCONVERSION, "importScheduleId");
+            Column importScheduleColumn = table.addColumn("IMPORTSCHEDULE", "number", true, NUMBER2LONG, "importScheduleId");
             table.addColumn("FILENAME", "varchar2(80)", true, CHAR2FILE, "file");
             table.addColumn("STATE", "number", true, NUMBER2ENUM, "state");
             table.addPrimaryKeyConstraint("FIM_PK_FILE_IMPORT", idColumn);

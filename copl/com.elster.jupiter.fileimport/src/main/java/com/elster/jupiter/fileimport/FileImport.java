@@ -6,7 +6,9 @@ public interface FileImport {
 
     ImportSchedule getImportSchedule();
 
-    InputStream getFile();
+    InputStream getContents();
+
+    String getFileName();
 
     State getState();
 
