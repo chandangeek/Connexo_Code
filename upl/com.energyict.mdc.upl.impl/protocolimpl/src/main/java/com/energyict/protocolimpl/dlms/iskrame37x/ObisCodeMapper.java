@@ -13,7 +13,6 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.VisibleString;
-import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.Data;
@@ -113,69 +112,6 @@ public class ObisCodeMapper {
                 return registerValue;
             } // billing counter
 
-            if (obisCode.toString().indexOf("0.0.96.1.0.255") != -1) { // Meter ID
-                Data data = cof.getData(new ObisCode(0, 0, 96, 1, 0, 255));
-                OctetString octetString = data.getValueAttr().getOctetString();
-                if (octetString != null && octetString.stringValue() != null) {
-                    return new RegisterValue(obisCode, octetString.stringValue());
-                }
-            } // Meter ID
-
-
-            // *********************************************************************************
-            // Abstract ObisRegisters
-            if ((obisCode.getA() == 0) && (obisCode.getB() == 0)) {
-                CosemObject cosemObject = cof.getCosemObject(obisCode);
-
-                if (cosemObject == null) {
-                    throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
-                }
-
-                if ((obisCode.toString().indexOf("0.0.128.30.21.255") != -1)) { // Disconnector
-                    registerValue = new RegisterValue(obisCode,
-                            cosemObject.getQuantityValue(),
-                            null, null, null,
-                            new Date(), 0,
-                            cosemObject.getText());
-                    return registerValue;
-                }
-
-                Date captureTime = null;
-                Date billingDate = null;
-                String text = null;
-                Quantity quantityValue = null;
-
-                try {
-                    captureTime = cosemObject.getCaptureTime();
-                } catch (Exception e) {
-                }
-                try {
-                    billingDate = cosemObject.getBillingDate();
-                } catch (Exception e) {
-                }
-                try {
-                    quantityValue = cosemObject.getQuantityValue();
-                } catch (Exception e) {
-                }
-                try {
-                    text = cosemObject.getText();
-                } catch (Exception e) {
-                }
-
-                try {
-                    registerValue = new RegisterValue(
-                            obisCode, quantityValue,
-                            captureTime == null ? billingDate : captureTime,
-                            null, billingDate,
-                            new Date(), 0, text
-                    );
-
-                    return registerValue;
-                } catch (ClassCastException e) {
-                    throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
-                }
-            }
-
             // *********************************************************************************
             // Electricity related ObisRegisters
             if ((obisCode.getA() == 1) && ((obisCode.getB() == 0) || (obisCode.getB() >= 2))) {
@@ -197,7 +133,7 @@ public class ObisCodeMapper {
                 } // maximum demand values
             } // if ((obisCode.getA() == 1) && (obisCode.getB() == 0)) {
 
-            if (obisCode.getC() == 128) {
+            if (!((obisCode.getA() == 0) && (obisCode.getB() == 0)) && obisCode.getC() == 128) {
                 if ((obisCode.getD() == 50) && (obisCode.getE() == 0)) {
                     ExtendedRegister register = cof.getExtendedRegister(obisCode);
                     BigDecimal am = BigDecimal.valueOf(register.getValue());
@@ -241,6 +177,10 @@ public class ObisCodeMapper {
                     OctetString octetString = data.getValueAttr().getOctetString();
                     if (octetString != null && octetString.stringValue() != null) {
                         return new RegisterValue(obisCode, octetString.stringValue());
+                    }
+                    long longValue = data.getValueAttr().longValue();
+                    if (longValue != -1) {
+                        return new RegisterValue(obisCode, new Quantity(longValue, Unit.getUndefined()));
                     }
                 } else if (uo.getClassID() == DLMSClassId.REGISTER_MONITOR.getClassId()) {
                     RegisterMonitor registerMonitor = cof.getRegisterMonitor(obisCode);
