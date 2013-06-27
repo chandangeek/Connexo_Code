@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.NOCONVERSION;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2UTCINSTANT;
 
 enum TableSpecs {
@@ -27,7 +28,7 @@ enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
-            Column recurrentIdColumn = table.addColumn("RECURRENTTASKID", "number", true, NOCONVERSION, "recurrentTaskId");
+            Column recurrentIdColumn = table.addColumn("RECURRENTTASKID", "number", true, NUMBER2LONG, "recurrentTaskId");
             table.addColumn("TRIGGERTIME", "number", false, NUMBER2UTCINSTANT, "triggerTime");
             table.addForeignKeyConstraint("TSK_FKOCCURRENCE_TASK", TSK_RECURRENT_TASK.name(), DeleteRule.CASCADE, new AssociationMapping("recurrentTask"), recurrentIdColumn);
             table.addPrimaryKeyConstraint("TSK_PK_TASK_OCCURRENCE", idColumn);

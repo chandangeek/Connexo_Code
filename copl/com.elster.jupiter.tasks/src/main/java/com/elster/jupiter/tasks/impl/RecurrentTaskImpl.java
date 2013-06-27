@@ -5,6 +5,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Date;
 
@@ -14,7 +15,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String name;
     private transient CronExpression cronExpression;
     private String cronString;
-    private Date nextExecution;
+    private UtcInstant nextExecution;
     private String payload;
     private String destination;
     private transient DestinationSpec destinationSpec;
@@ -43,7 +44,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public void updateNextExecution(Clock clock) {
-        nextExecution = getCronExpression().nextAfter(clock.now());
+        nextExecution = new UtcInstant(getCronExpression().nextAfter(clock.now()));
     }
 
     private CronExpression getCronExpression() {
@@ -68,7 +69,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public Date getNextExecution() {
-        return nextExecution;
+        return nextExecution.toDate();
     }
 
     @Override
@@ -99,7 +100,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     public void setNextExecution(Date nextExecution) {
-        this.nextExecution = nextExecution;
+        this.nextExecution = new UtcInstant(nextExecution);
     }
 
     @Override

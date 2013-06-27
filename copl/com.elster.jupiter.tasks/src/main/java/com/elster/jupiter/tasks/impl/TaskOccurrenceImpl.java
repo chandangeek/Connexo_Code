@@ -2,6 +2,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Date;
 
@@ -10,7 +11,7 @@ public class TaskOccurrenceImpl implements TaskOccurrence {
     private long id;
     private long recurrentTaskId;
     private RecurrentTask recurrentTask;
-    private Date triggerTime;
+    private UtcInstant triggerTime;
 
     private TaskOccurrenceImpl() {
         // for persistence
@@ -19,7 +20,7 @@ public class TaskOccurrenceImpl implements TaskOccurrence {
     TaskOccurrenceImpl(RecurrentTask recurrentTask, Date triggerTime) {
         this.recurrentTask = recurrentTask;
         this.recurrentTaskId = recurrentTask.getId();
-        this.triggerTime = triggerTime;
+        this.triggerTime = new UtcInstant(triggerTime);
     }
 
     @Override
@@ -29,16 +30,19 @@ public class TaskOccurrenceImpl implements TaskOccurrence {
 
     @Override
     public String getPayLoad() {
-        return recurrentTask.getPayLoad();
+        return getRecurrentTask().getPayLoad();
     }
 
     @Override
     public Date getTriggerTime() {
-        return triggerTime;
+        return triggerTime.toDate();
     }
 
     @Override
     public RecurrentTask getRecurrentTask() {
+        if (recurrentTask == null) {
+            recurrentTask = Bus.getOrmClient().getRecurrentTaskFactory().getExisting(recurrentTaskId);
+        }
         return recurrentTask;
     }
 

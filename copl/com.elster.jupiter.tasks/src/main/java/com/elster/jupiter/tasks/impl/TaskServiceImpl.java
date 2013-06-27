@@ -2,10 +2,12 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.consumer.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -39,6 +41,11 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     @Override
     public RecurrentTaskBuilder newBuilder() {
         return new DefaultRecurrentTaskBuilder(getCronExpressionParser());
+    }
+
+    @Override
+    public MessageHandler createMessageHandler(TaskExecutor taskExecutor) {
+        return new TaskExecutionMessageHandler(taskExecutor);
     }
 
     @Reference
