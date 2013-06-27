@@ -113,6 +113,14 @@ public class ObisCodeMapper {
                 return registerValue;
             } // billing counter
 
+            if (obisCode.toString().indexOf("0.0.96.1.0.255") != -1) { // Meter ID
+                Data data = cof.getData(new ObisCode(0, 0, 96, 1, 0, 255));
+                OctetString octetString = data.getValueAttr().getOctetString();
+                if (octetString != null && octetString.stringValue() != null) {
+                    return new RegisterValue(obisCode, octetString.stringValue());
+                }
+            } // Meter ID
+
 
             // *********************************************************************************
             // Abstract ObisRegisters

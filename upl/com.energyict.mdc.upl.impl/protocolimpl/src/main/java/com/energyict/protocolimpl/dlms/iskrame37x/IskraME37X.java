@@ -1237,7 +1237,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             serialnr = getCosemObjectFactory().getGenericRead(uo).getString();
         }
         return serialnr;
-    } // public String getSerialNumber() throws IOException  
+    }
 
     public String getProtocolVersion() {
         return "$Date$";

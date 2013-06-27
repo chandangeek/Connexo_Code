@@ -1,7 +1,13 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.cbo.*;
-import com.energyict.dlms.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
@@ -62,7 +68,8 @@ public class Data extends AbstractCosemObject implements CosemObject {
     }
 
     /**
-     * Try to read the billing date from the value attribute. This method assumes that
+     * Try to read the billing date from the value attribute.<br></br>
+     * <b>Warning: </b>This method assumes that
      * the value attribute contains a date, represented as an {@link com.energyict.dlms.OctetString}. If this
      * is not the case, the method will throw an exception.
      *
