@@ -8,34 +8,34 @@ import com.google.common.base.Optional;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
-class DeletePersonTransaction extends VoidTransaction {
+public class DeletePartyTransaction extends VoidTransaction {
 
-    private final PersonInfo info;
+    private final PartyInfo info;
 
-    public DeletePersonTransaction(PersonInfo info) {
+    public DeletePartyTransaction(PartyInfo info) {
         this.info = info;
     }
 
     @Override
     protected void doPerform() {
-        Person person = fetchPerson();
-        validateDelete(person);
-        doDelete(person);
+        Party party = fetchParty();
+        validateDelete(party);
+        doDelete(party);
     }
 
-    private void doDelete(Person person) {
-        person.delete();
+    private void doDelete(Party party) {
+        party.delete();
     }
 
-    private void validateDelete(Person person) {
-        if (person.getVersion() != info.version) {
+    private void validateDelete(Party party) {
+        if (party.getVersion() != info.version) {
             throw new WebApplicationException(Response.Status.CONFLICT);
         }
     }
 
-    private Person fetchPerson() {
+    private Party fetchParty() {
         Optional<Party> party = Bus.getPartyService().findParty(info.id);
-        if (!party.isPresent() || !(party.get() instanceof Person)) {
+        if (!party.isPresent()) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         return (Person) party;

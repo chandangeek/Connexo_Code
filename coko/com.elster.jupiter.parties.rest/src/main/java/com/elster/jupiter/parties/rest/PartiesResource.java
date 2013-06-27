@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -24,6 +25,23 @@ import java.util.List;
 
 @Path("/prt/parties")
 public class PartiesResource {
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PartyInfos deleteParty(PartyInfo info, @PathParam("id") long id) {
+        info.id = id;
+        Bus.getTransactionService().execute(new DeletePartyTransaction(info));
+        return new PartyInfos();
+    }
+
+    @GET
+    @Path("/{id}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PartyInfos getParty(@PathParam("id") long id) {
+        return new PartyInfos(partyWithId(id));
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PartyInfos getParties(@Context UriInfo uriInfo) {
@@ -34,19 +52,22 @@ public class PartiesResource {
         return infos;
     }
 
-    @GET
-    @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON)
-    public PartyInfos getParties(@PathParam("id") long id) {
-        return new PartyInfos(partyWithId(id));
-    }
-
     private Party partyWithId(long id) {
         Optional<Party> party = Bus.getPartyService().findParty(id);
         if (party.isPresent()) {
             return party.get();
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+
+    @PUT
+    @Path("/{id}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public PartyInfos updateParty(PartyInfo info, @PathParam("id") long id) {
+        info.id = id;
+        Bus.getTransactionService().execute(new UpdatePartyTransaction(info));
+        return getParty(info.id);
     }
 
     @GET
@@ -64,34 +85,6 @@ public class PartiesResource {
     public PartyInRoleInfos addRole(@PathParam("id") long id, PartyInRoleInfo info) {
         PartyInRoleInfos result = new PartyInRoleInfos();
         result.add(Bus.getTransactionService().execute(new AddRoleTransaction(id, info)));
-        return result;
-    }
-
-    @GET
-    @Path("/{id}/users")
-    @Produces(MediaType.APPLICATION_JSON)
-    public DelegateInfos getUsers(@PathParam("id") long id) {
-        Party party = partyWithId(id);
-        return new DelegateInfos(party.getCurrentDelegates());
-    }
-
-    @POST
-    @Path("/{id}/users")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public DelegateInfos addUser(@PathParam("id") long id, DelegateInfo info) {
-        DelegateInfos result = new DelegateInfos();
-        result.addAll(Bus.getTransactionService().execute(new AddDelegateTransaction(id, info)));
-        return result;
-    }
-
-    @PUT
-    @Path("/{id}/users")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public DelegateInfos addremoveUser(@PathParam("id") long id, DelegateInfo info) {
-        DelegateInfos result = new DelegateInfos();
-        result.addAll(Bus.getTransactionService().execute(new TerminateDelegateTransaction(id, info)));
         return result;
     }
 
