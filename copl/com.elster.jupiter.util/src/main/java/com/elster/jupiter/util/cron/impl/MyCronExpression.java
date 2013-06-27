@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 class MyCronExpression implements CronExpression {
 
+    private static final Pattern SHORT_FORM_PATTERN = Pattern.compile("([^ ]+ ){5}[^ ]+]"); // only 6 fields instead of 7, omitting seconds
     private static final Pattern INTEGER = Pattern.compile("\\d+");
     private static final Pattern SINGLE_VALUE = Pattern.compile("[\\dA-Z]+");
     private static final Pattern RANGE = Pattern.compile("([\\dA-Z]+)\\-([\\dA-Z]+)");
@@ -191,7 +192,11 @@ class MyCronExpression implements CronExpression {
         if (expression == null) {
             throw new IllegalArgumentException("Expression cannot be null");
         }
-        this.expression = expression;
+        if (SHORT_FORM_PATTERN.matcher(expression).matches()) {
+            this.expression = "0 " + expression;
+        } else {
+            this.expression = expression;
+        }
 
         Field field = Field.SECONDS;
         Scanner scanner = new Scanner(expression);
