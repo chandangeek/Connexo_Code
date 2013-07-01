@@ -29,7 +29,8 @@
         <comserver.version>9.0.0-SNAPSHOT</comserver.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <proguard.maven.version>2.0.4</proguard.maven.version>
-        <proguard.version>4.8</proguard.version> <!-- Supports Java 7 from version 4.7 -->
+        <proguard.version>4.8</proguard.version>
+        <!-- Supports Java 7 from version 4.7 -->
         <fest-assertions.version>2.0M8</fest-assertions.version>
         <protocol.mockito.version>1.9.0</protocol.mockito.version>
     </properties>
@@ -68,6 +69,12 @@
                 <artifactId>mdwutil</artifactId>
                 <version>${eiserver.version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdwdevtools</artifactId>
+                <version>${eiserver.version}</version>
+                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>
