@@ -23,7 +23,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
 
-@Path("/prt/parties")
+@Path("/parties")
 public class PartiesResource {
 
     @DELETE

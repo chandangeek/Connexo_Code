@@ -24,7 +24,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-@Path("/prt/persons")
+@Path("/persons")
 public class PersonsResource {
 
     @POST
