@@ -2,10 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.dynamicattributes.BigDecimalFactory;
-import com.energyict.dynamicattributes.BooleanFactory;
-import com.energyict.dynamicattributes.EncryptedStringFactory;
-import com.energyict.dynamicattributes.StringFactory;
+import com.energyict.dynamicattributes.*;
 
 import java.math.BigDecimal;
 
@@ -24,14 +21,13 @@ public enum DeviceSecurityProperty {
     PASSWORD(PropertySpecBuilder
             .forClass(String.class, new EncryptedStringFactory()).
                     name(SecurityPropertySpecName.PASSWORD.toString()).
-                    setDefaultValue("").finish()),
+                    finish()),
     /**
      * A key used for encryption of bytes
      */
     ENCRYPTION_KEY(PropertySpecBuilder
             .forClass(String.class, new EncryptedStringFactory())
             .name(SecurityPropertySpecName.ENCRYPTION_KEY.toString())
-            .setDefaultValue("")
         .finish()),
     /**
      * A key used for authentication to a device
@@ -39,7 +35,6 @@ public enum DeviceSecurityProperty {
     AUTHENTICATION_KEY(PropertySpecBuilder
             .forClass(String.class, new EncryptedStringFactory())
             .name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
-            .setDefaultValue("")
         .finish()),
     /**
      * A DLMS clientMacAddress
@@ -55,7 +50,6 @@ public enum DeviceSecurityProperty {
     DEVICE_ACCESS_IDENTIFIER(PropertySpecBuilder
             .forClass(String.class, new StringFactory())
             .name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString())
-            .setDefaultValue("")
         .finish()),
     /**
      * A username for ANSI C12 protocols
@@ -63,7 +57,6 @@ public enum DeviceSecurityProperty {
     ANSI_C12_USER(PropertySpecBuilder
                 .forClass(String.class, new StringFactory())
                 .name(SecurityPropertySpecName.ANSI_C12_USER.toString())
-                .setDefaultValue("")
         .finish()),
     /**
      * A UserId for ANSI C12 protocols
@@ -87,7 +80,6 @@ public enum DeviceSecurityProperty {
     ANSI_CALLED_AP_TITLE(PropertySpecBuilder
             .forClass(String.class, new StringFactory())
             .name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString())
-            .setDefaultValue("")
         .finish());
 
     private final PropertySpec propertySpec;
