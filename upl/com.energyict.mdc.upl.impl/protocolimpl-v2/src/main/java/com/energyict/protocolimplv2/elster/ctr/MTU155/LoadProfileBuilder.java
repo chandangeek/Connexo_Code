@@ -39,6 +39,10 @@ public class LoadProfileBuilder {
     public static final ObisCode VOLUME_MEASUREMENT_PROFILE = ObisCode.fromString("0.0.99.2.0.255");
     public static final ObisCode TOTALIZERS_PROFILE = ObisCode.fromString("0.0.99.3.0.255");
 
+    public static final String[] FLOW_MEASUREMENT_OBJECT_IDS = new String[]{"1.0.0", "1.2.0", "4.0.0", "7.0.0"};
+    public static final String[] VOLUME_MEASUREMENT_OBJECT_IDS = new String[]{"1.1.0", "1.3.0", "1.F.0"};
+    public static final String[] TOTALIZERS_OBJECT_IDS = new String[]{"2.0.0", "2.1.0", "2.3.0", "1.2.3"};
+
     private MTU155 meterProtocol;
 
     /**
@@ -54,7 +58,7 @@ public class LoadProfileBuilder {
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<LoadProfileReader, List<ChannelInfo>>();
+    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
 
     /**
      * The {@link StartOfGasDayParser} to use
@@ -131,13 +135,17 @@ public class LoadProfileBuilder {
         return channelInfos;
     }
 
-    private CTRObjectID getChannelObjectID(ObisCode obisCode) throws CTRException {
+    private CTRObjectID getCorrectedChannelObjectID(ObisCode obisCode, int profileInterval) throws CTRException {
         CTRRegisterMapping ctrRegisterMapping = meterProtocol.getObisCodeMapper().searchRegisterMapping(obisCode);
-        if (ctrRegisterMapping != null && ctrRegisterMapping.getObjectId() != null) {
-            return ctrRegisterMapping.getObjectId();
-        } else {
-            throw new CTRException("Channel with obisCode " + obisCode + " is not supported by this profile!");
+        CTRObjectID instantValueObjectId = ctrRegisterMapping.getObjectId();    // This is the object ID of the instant register
+        if (ctrRegisterMapping != null && instantValueObjectId != null) {
+            if (profileInterval == 3600) {
+                return new CTRObjectID(instantValueObjectId.getX(), instantValueObjectId.getY(), 2);    // Y-field 2 for hourly profile
+            } else if (profileInterval == 86400) {
+                return new CTRObjectID(instantValueObjectId.getX(), instantValueObjectId.getY(), 3);    // Y-field 3 for daily profile
+            }
         }
+        throw new CTRException("Channel with obisCode " + obisCode + " is not supported by this profile!");
     }
 
     /**
@@ -174,7 +182,9 @@ public class LoadProfileBuilder {
                     for (ChannelInfo channel : channelInfos) {
                         List<IntervalData> channelIntervalData;
                         try {
-                            ProfileChannel profileChannel = new ProfileChannel(meterProtocol.getRequestFactory(), getStartOfGasDayParser(), getChannelObjectID(channel.getChannelObisCode()), getProfileInterval(lpr.getProfileObisCode()), lpr.getStartReadingTime(), lpr.getEndReadingTime());
+                            int profileInterval = getProfileInterval(lpr.getProfileObisCode());
+                            CTRObjectID objectID = getCorrectedChannelObjectID(channel.getChannelObisCode(), profileInterval);
+                            ProfileChannel profileChannel = new ProfileChannel(meterProtocol.getRequestFactory(), getStartOfGasDayParser(), objectID, profileInterval, lpr.getStartReadingTime(), lpr.getEndReadingTime());
                             meterProtocol.getLogger().info("Reading profile for channel [" + channel.getName() + "]");
                             channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                             collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
@@ -186,7 +196,7 @@ public class LoadProfileBuilder {
                         } catch (ComServerExecutionException e) {   // A blocking issue which blocks the whole communication (e.g.: a timeout)
                             blockingIssueEncountered = true;
                             blockingIssue = e;
-                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), (CTRException) e.getCause());
+                            Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXBlockingIssue", lpr.getProfileObisCode(), e.getCause());
                             collectedLoadProfile.setFailureInformation(ResultType.DataIncomplete, problem);
                             collectedIntervalData.clear();
                             break;
