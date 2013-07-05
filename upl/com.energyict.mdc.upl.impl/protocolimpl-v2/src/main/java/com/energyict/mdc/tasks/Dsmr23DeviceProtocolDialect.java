@@ -50,6 +50,11 @@ public class Dsmr23DeviceProtocolDialect extends AbstractDeviceProtocolDialect {
         return DeviceProtocolDialectNameEnum.DSMR23_DEVICE_PROTOCOL_DIALECT_NAME.getName();
     }
 
+    @Override
+    public String getDisplayName() {
+        return "DSRM 2.3";
+    }
+
     private PropertySpec securityLevelPropertySpec() {
         return PropertySpecFactory.stringPropertySpec(SECURITY_LEVEL_PROPERTY_NAME);
     }

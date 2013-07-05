@@ -25,6 +25,11 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     @Override
+    public String getDisplayName() {
+        return "SDK dialect for topology testing";
+    }
+
+    @Override
     public PropertySpec getPropertySpec(String name) {
         if (name.equals(slaveOneSerialNumberPropertyName)) {
             return getSlaveOneSerialNumber();

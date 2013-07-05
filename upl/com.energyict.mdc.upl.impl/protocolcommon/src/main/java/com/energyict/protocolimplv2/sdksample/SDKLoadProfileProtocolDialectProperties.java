@@ -30,6 +30,11 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
     }
 
     @Override
+    public String getDisplayName() {
+        return "SDK dialect for loadProfile testing";
+    }
+
+    @Override
     public PropertySpec getPropertySpec(String name) {
         if (name.equals(notSupportedLoadProfileObisCodePropertyName)) {
             return getNotSupportedLoadProfileObisCodePropertySpec();

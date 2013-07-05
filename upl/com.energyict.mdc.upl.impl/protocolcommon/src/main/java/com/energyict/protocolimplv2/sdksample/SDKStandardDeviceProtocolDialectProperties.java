@@ -28,6 +28,11 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
         return DeviceProtocolDialectNameEnum.SDK_SAMPLE_STANDARD_DEVICE_PROTOCOL_DIALECT_NAME.getName();
     }
 
+    @Override
+    public String getDisplayName() {
+        return "SDK dialect (default)";
+    }
+
     private PropertySpec getDoSomeThingPropertySpec() {
         return PropertySpecFactory.booleanPropertySpec(doSomeThingPropertyName);
     }

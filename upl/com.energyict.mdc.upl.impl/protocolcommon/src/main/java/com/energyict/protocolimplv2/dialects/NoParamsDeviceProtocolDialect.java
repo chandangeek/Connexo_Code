@@ -35,4 +35,9 @@ public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.NO_PARAMETERS_PROTOCOL_DIALECT_NAME.getName();
     }
+
+    @Override
+    public String getDisplayName() {
+        return "Default";
+    }
 }

@@ -34,6 +34,11 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
         return DeviceProtocolDialectNameEnum.CTR_DEVICE_PROTOCOL_DIALECT_NAME.getName();
     }
 
+    @Override
+    public String getDisplayName() {
+        return "CTR";
+    }
+
     private PropertySpec timeoutPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
     }

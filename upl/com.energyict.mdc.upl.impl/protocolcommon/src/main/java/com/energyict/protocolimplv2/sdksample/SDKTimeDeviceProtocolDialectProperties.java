@@ -29,6 +29,11 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     }
 
     @Override
+    public String getDisplayName() {
+        return "SDK dialect for time testing";
+    }
+
+    @Override
     public PropertySpec getPropertySpec(String name) {
         switch (name) {
             case clockOffsetToWritePropertyName:

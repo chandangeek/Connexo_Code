@@ -26,6 +26,11 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
         return DeviceProtocolDialectNameEnum.ACE4000_DEVICE_PROTOCOL_DIALECT_NAME.getName();
     }
 
+    @Override
+    public String getDisplayName() {
+        return "ACE 4000";
+    }
+
     private PropertySpec timeoutPropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(TIMEOUT_PROPERTY_NAME);
     }
