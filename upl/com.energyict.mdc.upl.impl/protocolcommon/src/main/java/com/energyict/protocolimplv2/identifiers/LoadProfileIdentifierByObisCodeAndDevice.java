@@ -47,6 +47,6 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
 
     @Override
     public String toString() {
-        return loadProfileObisCode.toString();
+        return "deviceIdentifier = " + deviceIdentifier + " and ObisCode = " + loadProfileObisCode;
     }
 }

@@ -50,6 +50,14 @@ public class RegisterDataIdentifierByObisCodeAndDevice implements RegisterIdenti
 
     @Override
     public String toString() {
-        return this.registerObisCode.toString();
+        return "deviceIdentifier = " + this.deviceIdentifier + " and ObisCode = " + this.registerObisCode.toString();
+    }
+
+    public ObisCode getRegisterObisCode() {
+        return registerObisCode;
+    }
+
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
     }
 }

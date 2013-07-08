@@ -79,7 +79,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
                     new ComChannelOutputStreamAdapter(getComChannel()),
                     getContext().getLogger(),
                     new MTU155Properties(getTypedProperties()),
-                    TimeZone.getDefault(),
+                    TimeZone.getDefault(),  //Timezone not known - using the default one
                     isEK155Device());
         }
         return requestFactory;

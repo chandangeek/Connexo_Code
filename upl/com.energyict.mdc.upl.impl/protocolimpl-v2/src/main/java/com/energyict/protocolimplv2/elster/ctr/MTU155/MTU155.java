@@ -5,6 +5,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType;
 import com.energyict.mdc.channels.sms.ProximusSmsComChannel;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
@@ -61,6 +62,7 @@ import java.util.logging.Logger;
 public class MTU155 implements DeviceProtocol {
 
     public static final String DEBUG_PROPERTY_NAME = "Debug";
+    public static final String TIMEZONE_PROPERTY_NAME = "TimeZone";
     public static final String CHANNEL_BACKLOG_PROPERTY_NAME = "ChannelBacklog";
     public static final String EXTRACT_INSTALLATION_DATE_PROPERTY_NAME = "ExtractInstallationDate";
     public static final String REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME = "RemoveDayProfileOffset";
@@ -93,13 +95,14 @@ public class MTU155 implements DeviceProtocol {
     private Logger protocolLogger;
     private TypedProperties allProperties;
     private DeviceIdentifier deviceIdentifier;
-    private ObisCodeMapper obisCodeMapper;
+    private GprsObisCodeMapper obisCodeMapper;
     private LoadProfileBuilder loadProfileBuilder;
     private Messaging messaging;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
+        this.addProperties(offlineDevice.getAllProperties());
         updateRequestFactory(comChannel);
     }
 
@@ -116,6 +119,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<PropertySpec> getRequiredProperties() {
         List<PropertySpec> required = new ArrayList<>();
+        required.add(timeZonePropertySpec());
         return required;
     }
 
@@ -129,8 +133,12 @@ public class MTU155 implements DeviceProtocol {
         return optional;
     }
 
+    private PropertySpec timeZonePropertySpec() {
+        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE_PROPERTY_NAME);
+    }
+
     private PropertySpec debugPropertySpec() {
-        return PropertySpecFactory.booleanPropertySpec(DEBUG_PROPERTY_NAME);
+        return PropertySpecFactory.booleanPropertySpecWithoutThreeState(DEBUG_PROPERTY_NAME);
     }
 
     private PropertySpec channelBacklogPropertySpec() {
@@ -148,7 +156,6 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public void logOn() {
         // not needed
-        //TODO: should we read the identification structure out? Should we verify the DST settings?
     }
 
     @Override
@@ -268,9 +275,9 @@ public class MTU155 implements DeviceProtocol {
     /**
      * @return
      */
-    protected ObisCodeMapper getObisCodeMapper() {
+    protected GprsObisCodeMapper getObisCodeMapper() {
         if (obisCodeMapper == null) {
-            obisCodeMapper = new ObisCodeMapper(this);
+            obisCodeMapper = new GprsObisCodeMapper(this);
         }
         return obisCodeMapper;
     }
@@ -356,7 +363,7 @@ public class MTU155 implements DeviceProtocol {
     }
 
     public TimeZone getTimeZone() {
-        return offlineDevice.getTimeZone();
+        return getMTU155Properties().getTimeZone();
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
@@ -438,6 +445,7 @@ public class MTU155 implements DeviceProtocol {
         connectionTypes.add(new CTRInboundDialHomeIdConnectionType());
         connectionTypes.add(new SioOpticalConnectionType());
         connectionTypes.add(new OutboundProximusSmsConnectionType());
+        connectionTypes.add(new InboundProximusSmsConnectionType());
         return connectionTypes;
     }
 

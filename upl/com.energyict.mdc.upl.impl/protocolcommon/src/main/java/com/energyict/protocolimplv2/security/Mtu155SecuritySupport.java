@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.security.SecurityProperty;
 
 import java.util.Arrays;
 import java.util.List;
@@ -97,6 +98,35 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), ""));
             typedProperties.setProperty("KeyF",
                     deviceProtocolSecurityPropertySet.getSecurityProperties().getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), ""));
+        }
+        return typedProperties;
+    }
+
+    public TypedProperties convertToTypedProperties(List<SecurityProperty> securityProperties) {
+        TypedProperties typedProperties = TypedProperties.empty();
+        if (!securityProperties.isEmpty()) {
+
+            TypedProperties typedSecurityProperties = TypedProperties.empty();
+            for (SecurityProperty property : securityProperties) {
+                typedSecurityProperties.setProperty(property.getName(), property.getValue());
+            }
+
+            // override the password (as it is provided as a Password object instead of a String
+            final Object property = typedSecurityProperties.getProperty(SecurityPropertySpecName.PASSWORD.toString(), new Password(""));
+            if (Password.class.isAssignableFrom(property.getClass())) {
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), ((Password) property).getValue());
+            } else {
+                typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.toString(), property);
+            }
+
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(securityProperties.get(0).getSecurityPropertySet().getEncryptionDeviceAccessLevel().getId()));
+            typedProperties.setProperty("KeyC",
+                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString(), ""));
+            typedProperties.setProperty("KeyT",
+                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString(), ""));
+            typedProperties.setProperty("KeyF",
+                    typedSecurityProperties.getProperty(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString(), ""));
+
         }
         return typedProperties;
     }

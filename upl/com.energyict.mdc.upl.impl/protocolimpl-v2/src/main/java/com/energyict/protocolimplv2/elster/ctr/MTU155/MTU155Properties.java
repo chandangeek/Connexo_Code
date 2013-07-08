@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
+import java.util.TimeZone;
 
 /**
  * Copyrights EnergyICT
@@ -13,6 +15,8 @@ import java.math.BigDecimal;
  */
 public class MTU155Properties {
 
+    public static final String TIMEZONE_PROPERTY_NAME = "TimeZone";
+    public static final String LEGACY_TIMEZONE_PROPERTY_NAME = "LegacyTimeZone";
     public static final String TIMEOUT_PROPERTY_NAME = "Timeout";
     public static final String RETRIES_PROPERTY_NAME = "Retries";
     public static final String DELAY_AFTER_ERROR_PROPERTY_NAME = "DelayAfterError";
@@ -32,6 +36,7 @@ public class MTU155Properties {
     public static final String REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME = "RemoveDayProfileOffset";
     public static final String USE_LONG_FRAME_FORMAT_PROPERTY_NAME = "UseLongFrameFormat";
 
+    public static final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
     public static final BigDecimal DEFAULT_DELAY_AFTER_ERROR = new BigDecimal(100);
@@ -59,6 +64,18 @@ public class MTU155Properties {
 
     public MTU155Properties(TypedProperties typedProperties) {
         this.typedProperties = typedProperties;
+    }
+
+    public TimeZone getTimeZone() {
+        TimeZoneInUse timeZoneInUse = (TimeZoneInUse) typedProperties.getProperty(TIMEZONE_PROPERTY_NAME);
+        String legacyTimeZone = (String) typedProperties.getProperty(LEGACY_TIMEZONE_PROPERTY_NAME);
+        if (timeZoneInUse != null) {
+            return timeZoneInUse.getTimeZone();
+        } else if (legacyTimeZone != null) {
+            return TimeZone.getTimeZone(legacyTimeZone);
+        } else {
+            return DEFAULT_TIMEZONE;
+        }
     }
 
     public int getTimeout() {

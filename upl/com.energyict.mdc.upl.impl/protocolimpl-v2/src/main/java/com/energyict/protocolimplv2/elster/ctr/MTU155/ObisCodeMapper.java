@@ -2,16 +2,14 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
+import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRConnectionException;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.DeviceStatus;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.Diagnostics;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.EquipmentClassInfo;
@@ -21,8 +19,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.info.ZCalculationMethod;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRAbstractValue;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.Qualifier;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationResponseStructure;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.math.BigDecimal;
@@ -31,7 +27,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -39,11 +34,11 @@ import java.util.logging.Logger;
  * Date: 13-okt-2010
  * Time: 10:20:17
  */
-public class ObisCodeMapper {
+public abstract class ObisCodeMapper {
 
     protected Logger logger;
+    protected DeviceIdentifier deviceIdentifier;
 
-    protected MTU155 protocol;
     protected RequestFactory requestFactory;
     protected boolean isEK155Protocol;
 
@@ -68,13 +63,6 @@ public class ObisCodeMapper {
     public static final String OBIS_IDENTIFIER_TARIFF_SCHEME = "0.0.13.0.0.255";
     public static final String OBIS_VOLUNTARY_PARAMETERS_PROFILE_0 = "0.1.25.9.0.255";
     public static final String OBIS_GASDAY_START_TIME = "7.0.0.9.3.255";
-
-    public ObisCodeMapper(MTU155 protocol) {
-        this.protocol = protocol;
-        this.requestFactory = protocol.getRequestFactory();
-        this.isEK155Protocol = false;
-        initRegisterMapping();
-    }
 
     /**
      * Maps the obiscodes to a CTR Object's ID
@@ -157,114 +145,7 @@ public class ObisCodeMapper {
 
     }
 
-    /**
-     * Read the registers from the device.
-     *
-     * @param rtuRegisters: the list of {@link OfflineRegister}s to read
-     * @return: a list containing all {@link CollectedRegister}s
-     */
-    public List<CollectedRegister> readRegisters(List<OfflineRegister> rtuRegisters) {
-        List<CollectedRegister> collectedRegisters = new ArrayList<>(rtuRegisters.size());
-
-        List<CTRObjectID> objectsToRequest = new ArrayList<>();
-        List<CTRRegisterMapping> registerMappings = new ArrayList<>();
-
-        for (OfflineRegister offlineRegister : rtuRegisters) {
-            ObisCode obisCode = offlineRegister.getObisCode();
-
-            CTRRegisterMapping regMap = searchRegisterMapping(obisCode);
-            if (regMap == null) {
-                collectedRegisters.add(createNotSupportedCollectedRegister(obisCode));
-                String message = "Register with obisCode [" + obisCode + "] is not supported by the meter.";
-                getLogger().log(Level.WARNING, message);
-            } else if (regMap.getObjectId() == null) {
-                try {
-                    collectedRegisters.add(createCollectedRegister(readSpecialRegister(regMap)));
-                } catch (NoSuchRegisterException e) {
-                    String message = "Register with obisCode [" + obisCode + "] is not supported by the meter.";
-                    collectedRegisters.add(createNotSupportedCollectedRegister(obisCode));
-                    getLogger().log(Level.WARNING, message);
-                }
-            } else {
-                registerMappings.add(regMap);
-                objectsToRequest.add(regMap.getObjectId());
-            }
-        }
-
-        if (!objectsToRequest.isEmpty()) {
-            CTRObjectID[] objectIDs = new CTRObjectID[objectsToRequest.size()];
-            List<AbstractCTRObject> ctrObjects = null;
-            try {
-                ctrObjects = getRequestFactory().getObjects(objectsToRequest.toArray(objectIDs));
-            } catch (CTRConnectionException e) {
-            }
-
-            for (CTRRegisterMapping mapping : registerMappings) {
-                CTRObjectID objectID = mapping.getObjectId();
-                ObisCode obisCode = mapping.getObisCode();
-                AbstractCTRObject object = getObjectFromList(ctrObjects, objectID);
-
-                if (object == null) {
-                    String message = "Received no suitable data at register reading for ID: " + objectID + " (Obiscode: " + obisCode.toString() + ")";
-                    collectedRegisters.add(createIncompatibleCollectedRegister(obisCode, message));
-                    getLogger().log(Level.WARNING, message);
-                    continue;
-                }
-
-                if (object.getQlf() == null) {
-                    object.setQlf(new Qualifier(0));
-                }
-
-                if (object.getQlf().isInvalid()) {
-                    String message = "Invalid Data: Qualifier was 0xFF at register reading for ID: " + objectID + " (Obiscode: " + obisCode.toString() + ")";
-                    collectedRegisters.add(createIncompatibleCollectedRegister(obisCode, message));
-                    getLogger().log(Level.WARNING, message);
-                } else if (object.getQlf().isInvalidMeasurement()) {
-                    String message = "Invalid Measurement at register reading for ID: " + objectID + " (Obiscode: " + obisCode.toString() + ")";
-                    collectedRegisters.add(createIncompatibleCollectedRegister(obisCode, message));
-                    getLogger().log(Level.WARNING, message);
-                } else if (object.getQlf().isSubjectToMaintenance()) {
-                    String message = "Meter is subject to maintenance at register reading for ID: " + objectID + " (Obiscode: " + obisCode.toString() + ")";
-                    collectedRegisters.add(createIncompatibleCollectedRegister(obisCode, message));
-                    getLogger().log(Level.WARNING, message);
-                } else if (object.getQlf().isReservedVal()) {
-                    String message = "Qualifier is 'Reserved' at register reading for ID: " + objectID + " (Obiscode: " + obisCode.toString() + ")";
-                    collectedRegisters.add(createIncompatibleCollectedRegister(obisCode, message));
-                    getLogger().log(Level.WARNING, message);
-                } else {
-                    collectedRegisters.add(createCollectedRegister(ProtocolTools.setRegisterValueObisCode(getRegisterValue(obisCode, mapping, object), obisCode)));
-                }
-            }
-        }
-
-        return collectedRegisters;
-    }
-
-    private CollectedRegister createCollectedRegister(RegisterValue registerValue) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), getProtocol().getDeviceIdentifier()));
-        deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-        deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
-        return deviceRegister;
-    }
-
-    private CollectedRegister createDeviceRegister(ObisCode obisCode) {
-        CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createBillingCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getProtocol().getDeviceIdentifier()));
-        return deviceRegister;
-    }
-
-    private CollectedRegister createNotSupportedCollectedRegister(ObisCode obisCode) {
-        CollectedRegister failedRegister = createDeviceRegister(obisCode);
-        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(obisCode, "registerXnotsupported", obisCode));
-        return failedRegister;
-    }
-
-    private CollectedRegister createIncompatibleCollectedRegister(ObisCode obisCode, String message) {
-        CollectedRegister failedRegister = createDeviceRegister(obisCode);
-        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(obisCode, "registerXincompatible", obisCode, message));
-        return failedRegister;
-    }
-
-    private AbstractCTRObject getObjectFromList(List<AbstractCTRObject> ctrObjects, CTRObjectID objectID) {
+    protected AbstractCTRObject getObjectFromList(List<AbstractCTRObject> ctrObjects, CTRObjectID objectID) {
         for (AbstractCTRObject each : ctrObjects) {
             if (each.getId().toString().equals(objectID.toString())) {
                 return each;
@@ -273,94 +154,10 @@ public class ObisCodeMapper {
         return null;
     }
 
-//    /**
-//     * Read the register from the device with a given obisCode.
-//     * Use the list of objects received from sms if smsObjects != null
-//     * @deprecated  To be used by the SmsHandler only
-//     *
-//     * @param obisCode: the given obiscode
-//     * @param smsObjects: the list of objects received from an SMS
-//     * @return: the register value
-//     * @throws NoSuchRegisterException
-//     * @throws CTRException
-//     */
-//    public RegisterValue readRegister(ObisCode obisCode, List<AbstractCTRObject> smsObjects) throws NoSuchRegisterException, CTRException {
-//        ObisCode obis = obisCode;
-//        if (!isEK155Protocol) {
-//            obis = ProtocolTools.setObisCodeField(obisCode, 1, (byte) 0x00);
-//        }
-//
-//        CTRRegisterMapping regMap = searchRegisterMapping(obis);
-//        if (regMap == null) {
-//            String message = "Register with obisCode [" + obis + "] is not supported.";
-//            getMeterAmrLogging().logRegisterFailure(message, obisCode);
-//            getLogger().log(Level.WARNING, message);
-//            throw new NoSuchRegisterException(message);
-//        }
-//
-//        if (regMap.getObjectId() == null) {
-//            return readSpecialRegister(regMap);
-//        }
-//
-//        AbstractCTRObject object = getObject(regMap.getObjectId(), smsObjects);
-//        if (object == null) {
-//            throw new NoSuchRegisterException("Received no suitable data for this register");
-//        }
-//
-//        if (object.getQlf() == null) {
-//            object.setQlf(new Qualifier(0));
-//        }
-//
-//        if (object.getQlf().isInvalid()) {
-//            String message = "Invalid Data: Qualifier was 0xFF at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")";
-//            getMeterAmrLogging().logRegisterFailure(message, obisCode);
-//            getLogger().log(Level.WARNING, message);
-//            throw new NoSuchRegisterException(message);
-//        } else if (object.getQlf().isInvalidMeasurement()) {
-//            String message = "Invalid Measurement at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")";
-//            getMeterAmrLogging().logRegisterFailure(message, obisCode);
-//            getLogger().log(Level.WARNING, message);
-//            throw new NoSuchRegisterException(message);
-//        } else if (object.getQlf().isSubjectToMaintenance()) {
-//            String message = "Meter is subject to maintenance at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")";
-//            getMeterAmrLogging().logRegisterFailure(message, obisCode);
-//            getLogger().log(Level.WARNING, message);
-//            throw new NoSuchRegisterException(message);
-//        } else if (object.getQlf().isReservedVal()) {
-//            String message = "Qualifier is 'Reserved' at register reading for ID: " + regMap.getId() + " (Obiscode: " + obisCode.toString() + ")";
-//            getMeterAmrLogging().logRegisterFailure(message, obisCode);
-//            getLogger().log(Level.WARNING, message);
-//            throw new NoSuchRegisterException(message);
-//        }
-//
-//        return ProtocolTools.setRegisterValueObisCode(getRegisterValue(obis, regMap, object), obisCode);
-//
-//    }
-
-    protected RegisterValue readSpecialRegister(CTRRegisterMapping registerMapping) throws NoSuchRegisterException {
-        RegisterValue registerValue = null;
-        ObisCode obis = ProtocolTools.setObisCodeField(registerMapping.getObisCode(), 1, (byte) 0x00);
-
-        if (isObis(obis, OBIS_MTU_IP_ADDRESS)) {
-            registerValue = new RegisterValue(obis, getRequestFactory().getIPAddress());
-        }
-
-        if (isObis(obis, OBIS_INSTALL_DATE)) {
-            getLogger().warning("Installation date cannot be read as a regular register.");
-            throw new NoSuchRegisterException("Installation date cannot be read as a regular register.");
-        }
-
-        if (registerValue == null) {
-            throw new NoSuchRegisterException("Register with obisCode [" + obis + "] is not supported.");
-        } else {
-            return ProtocolTools.setRegisterValueObisCode(registerValue, registerMapping.getObisCode());
-        }
-    }
-
     /**
      * Create a registerValue from the given value
      *
-     * @param oc: a given obsicode
+     * @param oc:     a given obsicode
      * @param regMap: the map linking obiscodes to CTR Object ID's
      * @param object: the CTR Object
      * @return the register value
@@ -393,17 +190,17 @@ public class ObisCodeMapper {
         } else if (isObis(oc, OBIS_MTU_PHONE_NR) || isObis(oc, OBIS_SMSC_NUMBER)) {
             byte[] phoneNumberArray = ProtocolTools.getSubArray(value.getBytes(), 0, 14);
             return new RegisterValue(oc, ProtocolTools.getAsciiFromBytes(phoneNumberArray, ' ').trim());
-        } else if(isObis(oc, OBIS_Z_CALC_METHOD)) {
+        } else if (isObis(oc, OBIS_Z_CALC_METHOD)) {
             Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
             String description = ZCalculationMethod.fromMethodNr(value.getIntValue()).getDescription();
             return new RegisterValue(oc, quantity, null, null, null, cal.getTime(), 0, description);
-        } else if(isObis(oc, OBIS_VOLUME_CALC_METHOD)) {
+        } else if (isObis(oc, OBIS_VOLUME_CALC_METHOD)) {
             Quantity quantity = new Quantity((BigDecimal) value.getValue(), value.getUnit());
             Calendar cal = Calendar.getInstance(TimeZone.getDefault());
             String description = VolumeCalculationMethod.fromMethodNr(value.getIntValue()).getDescription();
             return new RegisterValue(oc, quantity, null, null, null, cal.getTime(), 0, description);
-        } else if(isObis(oc, OBIS_HEAD_END_IP)) {
+        } else if (isObis(oc, OBIS_HEAD_END_IP)) {
             if (object.getValue(0).getIntValue() == 4) {    // Type = GPRS
                 String ipAddress;
                 byte[] ipAddressBytes;
@@ -426,13 +223,13 @@ public class ObisCodeMapper {
                 getLogger().info("Device is not in GPRS mode - unable to determine the head-end IP address.");
                 return new RegisterValue(oc, "Unknown");
             }
-        } else if(isObis(oc, OBIS_DATE_OF_CLOSURE_BILLING_PERIOD)) {
+        } else if (isObis(oc, OBIS_DATE_OF_CLOSURE_BILLING_PERIOD)) {
             int day = object.getValue(0).getIntValue();
             int period = object.getValue(1).getIntValue();
             int month = object.getValue(2).getIntValue();
             String info = "Day = " + day + " | Month = " + month + " | period = " + period;
             return new RegisterValue(oc, info);
-        } else if(isObis(oc, OBIS_WAKE_UP_PARAMTERS)) {
+        } else if (isObis(oc, OBIS_WAKE_UP_PARAMTERS)) {
             CTRAbstractValue[] values = object.getValue();
             String status = "On = " + values[0].getIntValue();
             status += " | Off = " + values[1].getIntValue();
@@ -443,14 +240,14 @@ public class ObisCodeMapper {
             status += " | Holiday = " + ProtocolTools.getIntFromByte(weekdayBytes[3]) + ":" + ProtocolTools.getIntFromByte(weekdayBytes[4]) + "}";
 
             return new RegisterValue(oc, status);
-        } else if(isObis(oc, OBIS_FREQUENCY_STRAGY_CLIENT_CONNECTION)) {
+        } else if (isObis(oc, OBIS_FREQUENCY_STRAGY_CLIENT_CONNECTION)) {
             CTRAbstractValue[] values = object.getValue();
             String status = "Delay = " + values[1].getIntValue();
             status += " | Method = 0x" + ProtocolTools.getHexStringFromInt(values[2].getIntValue(), 1, "");
             status += " | Retry = 0x" + ProtocolTools.getHexStringFromInt(values[3].getIntValue(), 1, "");
 
             return new RegisterValue(oc, status);
-        } else if(isObis(oc, OBIS_IDENTIFIER_TARIFF_SCHEME)) {
+        } else if (isObis(oc, OBIS_IDENTIFIER_TARIFF_SCHEME)) {
             CTRAbstractValue[] values = object.getValue();
             String status = "Curr. TariffPlanId = 0x" + ProtocolTools.getHexStringFromInt(values[0].getIntValue(), 2, "");
             status += " | Prev. TariffPlanId = 0x" + ProtocolTools.getHexStringFromInt(values[1].getIntValue(), 2, "");
@@ -464,7 +261,7 @@ public class ObisCodeMapper {
             }
 
             return new RegisterValue(oc, status);
-        } else if(isObis(oc, OBIS_VOLUNTARY_PARAMETERS_PROFILE_0)) {
+        } else if (isObis(oc, OBIS_VOLUNTARY_PARAMETERS_PROFILE_0)) {
             CTRAbstractValue[] values = object.getValue();
             String status = new String();
             for (int i = 0; i < 6; i++) {
@@ -490,8 +287,8 @@ public class ObisCodeMapper {
      * If not, the object is stored as text in te registerValue;
      *
      * @param obisCode: a given obsicode
-     * @param object: the CTR Object
-     * @param value: the raw register value
+     * @param object:   the CTR Object
+     * @param value:    the raw register value
      * @return the register value object
      */
     protected RegisterValue readGenericRegisterValue(ObisCode obisCode, AbstractCTRObject object, CTRAbstractValue value) {
@@ -523,45 +320,44 @@ public class ObisCodeMapper {
     }
 
     /**
-     * Try to get the requested object from different sources
-     * (DEC, DECF, SMS object list or registerQuery).
-     * @deprecated  To be used by the SmsHandler only
+     * Try to get the matching registerMapping for a given CTRObject
      *
-     * @param idObject: the CTR Object's ID
-     * @param smsObjects: a list of objects, received via SMS. Can be null in other cases.
-     * @return: The CTR Object
-     * @throws CTRException
-     * @throws NoSuchRegisterException
+     * @param objectId: the given CTRObjectID
+     * @return a matching Object ID
      */
-    protected AbstractCTRObject getObject(CTRObjectID idObject, List<AbstractCTRObject> smsObjects) throws CTRException, NoSuchRegisterException {
-        AbstractCTRObject object;
-        if (smsObjects == null) {
-            List<AbstractCTRObject> objects = getRequestFactory().getObjects(idObject);
-            if ((objects == null) || (objects.size() <= 0)) {
-                throw new CTRException("Unable to read object " + idObject.toString() + "! List of objects returned was empty or null.");
-            }
-            object = objects.get(0);
-        } else { //There's a given sms response containing data for several registers, find the right one
-            object = getObjectFromSMSList(idObject, smsObjects);
-        }
-
-        return object;
-    }
-
-    /**
-     * Get the object from a given list of objects, received using SMS
-     *
-     * @param idObject: the id of the requested CTR Object
-     * @param list: the list of objects, received via SMS
-     * @return: the requested CTR Object
-     */
-    protected AbstractCTRObject getObjectFromSMSList(CTRObjectID idObject, List<AbstractCTRObject> list) {
-        for (AbstractCTRObject ctrObject : list) {
-            if (idObject.toString().equals(ctrObject.getId().toString())) {    //find the object in the sms response, that fits the obiscode
-                return ctrObject;
+    public CTRRegisterMapping searchRegisterMapping(CTRObjectID objectId) {
+        for (CTRRegisterMapping ctrRegisterMapping : registerMapping) {
+            if (ctrRegisterMapping.getObjectId() != null && objectId.equals(ctrRegisterMapping.getObjectId())) {
+                return ctrRegisterMapping;
             }
         }
         return null;
+    }
+
+    protected CollectedRegister createDeviceRegister(ObisCode obisCode) {
+        CollectedRegister deviceRegister = new DefaultDeviceRegister(new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier()));
+        return deviceRegister;
+    }
+
+    protected CollectedRegister createCollectedRegister(RegisterValue registerValue) {
+        CollectedRegister deviceRegister = createDeviceRegister(registerValue.getObisCode());
+        deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
+        deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
+        return deviceRegister;
+    }
+
+    protected CollectedRegister createNotSupportedCollectedRegister(ObisCode obisCode) {
+        CollectedRegister failedRegister = createDeviceRegister(obisCode);
+        ProblemImpl<ObisCode> problem = new ProblemImpl<>(obisCode, "registerXnotsupported", obisCode);
+        failedRegister.setFailureInformation(ResultType.NotSupported, problem);
+        return failedRegister;
+    }
+
+    protected CollectedRegister createIncompatibleCollectedRegister(ObisCode obisCode, String message) {
+        CollectedRegister failedRegister = createDeviceRegister(obisCode);
+        ProblemImpl<ObisCode> problem = new ProblemImpl<>(obisCode, "registerXincompatible", obisCode, message);
+        failedRegister.setFailureInformation(ResultType.InCompatible, problem);
+        return failedRegister;
     }
 
     /**
@@ -581,16 +377,6 @@ public class ObisCodeMapper {
     }
 
     /**
-     * Get the IdentificationResponseStructure from the request factory.
-     * This object is cached in the request factory
-     *
-     * @return the IdentificationResponseStructure from the request factory
-     */
-    protected IdentificationResponseStructure getIdentificationTable() {
-        return getRequestFactory().getIdentificationStructure();
-    }
-
-    /**
      * Getter for the request factory
      *
      * @return the request factory
@@ -600,7 +386,7 @@ public class ObisCodeMapper {
     }
 
     /**
-     * @param obisCodeToCheck: the obiscode that needs to be checked
+     * @param obisCodeToCheck:  the obiscode that needs to be checked
      * @param constantObisCode: a second obiscode to compare the first obiscode to
      * @return boolean
      */
@@ -611,10 +397,10 @@ public class ObisCodeMapper {
     /**
      * Test is the MTU155 firmware version is below 0200.
      *
-     * @return  true if the version is below 0200
-     *          false if the version is equal or higher than 0200
+     * @return true if the version is below 0200
+     *         false if the version is equal or higher than 0200
      */
-    private Boolean firmwareBelow200() {
+    protected Boolean firmwareBelow200() {
         AbstractCTRObject vf = getRequestFactory().getIdentificationStructure().getVf();
         try {
             return (Integer.parseInt(vf.getValue(0).getStringValue().substring(3, 6)) < 200);
@@ -623,8 +409,12 @@ public class ObisCodeMapper {
         }
     }
 
-    public MTU155 getProtocol() {
-        return protocol;
+    public DeviceIdentifier getDeviceIdentifier() {
+        return deviceIdentifier;
+    }
+
+    public void setDeviceIdentifier(DeviceIdentifier deviceIdentifier) {
+        this.deviceIdentifier = deviceIdentifier;
     }
 
     public enum BillingPeriodClosureReason {

@@ -185,7 +185,6 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
     }
 
     public boolean isInvalid() {
-        return !(isDaily() || isHourlyFistPart() || isHourlySecondPart() || isMonthly());
+        return !(isHourly() || isHourlyFistPart() || isHourlySecondPart() || isDaily() ||isMonthly());
     }
-
 }

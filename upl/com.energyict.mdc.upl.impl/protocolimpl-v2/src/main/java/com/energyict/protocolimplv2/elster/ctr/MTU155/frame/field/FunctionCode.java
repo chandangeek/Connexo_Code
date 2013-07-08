@@ -22,8 +22,7 @@ public class FunctionCode extends AbstractField<FunctionCode> {
     }
 
     public EncryptionStatus getEncryptionStatus() {
-        int bits = (functionCode >> 6) & 0x03;
-        return EncryptionStatus.fromEncryptionBits(bits);
+        int bits = (functionCode >> 6) & 0x03;        return EncryptionStatus.fromEncryptionBits(bits);
     }
 
     public void setEncryptionStatus(EncryptionStatus encryptionStatus) {

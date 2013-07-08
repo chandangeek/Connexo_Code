@@ -93,7 +93,6 @@ public class ArrayEventsQueryResponseStructure extends Data<ArrayEventsQueryResp
         return this;
     }
 
-
     public AbstractCTRObject getPdr() {
         return pdr;
     }

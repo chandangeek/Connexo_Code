@@ -48,17 +48,17 @@ public class StartOfGasDayParser {
      *
      * @param isEK155
      * @param gasDayStartEndTime
-     * @param dayLightSavingEnabledValue
+     * @param dayLightSavingEnabled
      * @param ek155GasDayStartEndTime
-     * @param ek155TimeInUCTValue
+     * @param ek155TimeInUCT
      */
-    public StartOfGasDayParser(Boolean isEK155, int gasDayStartEndTime, int dayLightSavingEnabledValue, int ek155GasDayStartEndTime, int ek155TimeInUCTValue) {
+    public StartOfGasDayParser(Boolean isEK155, int gasDayStartEndTime, boolean dayLightSavingEnabled, int ek155GasDayStartEndTime, boolean ek155TimeInUCT) {
         this.requestFactory = null;
         this.isEK155 = isEK155;
         this.gasDayStartEndTime = gasDayStartEndTime;
-        this.dayLightSavingEnabledValue = dayLightSavingEnabledValue;
+        this.dayLightSavingEnabledValue = dayLightSavingEnabled ? 1 : 0;
         this.ek155GasDayStartEndTime = ek155GasDayStartEndTime;
-        this.ek155TimeInUCTValue = ek155TimeInUCTValue;
+        this.ek155TimeInUCTValue = ek155TimeInUCT ? 1 : 0;
     }
 
     public ReferenceDate calcRefDate(Calendar from, PeriodTrace_C period) {
