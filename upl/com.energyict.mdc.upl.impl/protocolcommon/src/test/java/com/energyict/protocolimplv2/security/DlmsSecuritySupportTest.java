@@ -318,13 +318,26 @@ public class DlmsSecuritySupportTest {
         assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(12);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testConvertTypedPropertiesToSecuritySetWithSecurityLevelIllegalFormat() throws Exception {
         DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
         TypedProperties securityProperties = TypedProperties.empty();
         securityProperties.setProperty("SecurityLevel", "12;21"); // illegal format
 
         dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
+    }
+
+    @Test
+    public void testConvertTypedPropertiesToSecuritySetWithoutEncryptionLevelDefaultsTo0() throws Exception {
+        DlmsSecuritySupport dlmsSecuritySupport = new DlmsSecuritySupport();
+        TypedProperties securityProperties = new TypedProperties();
+        securityProperties.setProperty("SecurityLevel", "13");
+
+        DeviceProtocolSecurityPropertySet securityPropertySet = dlmsSecuritySupport.convertFromTypedProperties(securityProperties);
+
+        assertThat(securityPropertySet).isNotNull();
+        assertThat(securityPropertySet.getEncryptionDeviceAccessLevel()).isEqualTo(0);
+        assertThat(securityPropertySet.getAuthenticationDeviceAccessLevel()).isEqualTo(13);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -145,7 +145,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
             securityLevelProperty = "0:0";
         }
         if (!securityLevelProperty.contains(":")) {
-            throw new IllegalStateException("Cannot convert TypedProperties: expected property " + SECURITY_LEVEL_PROPERTY_NAME + " to have format '<auth>:<encryption>', but found " + securityLevelProperty);
+            securityLevelProperty+=":0";
         }
         final int authenticationLevel = getAuthenticationLevel(securityLevelProperty);
         final int encryptionLevel = getEncryptionLevel(securityLevelProperty);
