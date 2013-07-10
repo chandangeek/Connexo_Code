@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.nta.elster;
 
-import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.protocolimplv2.common.TempDeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 
@@ -25,6 +25,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     public DeviceMessageSupport getMessageProtocol() {
         if (messageProtocol == null) {
             // messageProtocol = Dsmr23MbusMessaging(); ToDo
+            messageProtocol = new TempDeviceMessageSupport();
         }
         return messageProtocol;
     }
@@ -32,10 +33,5 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public String getVersion() {
         return "$Date$";
-    }
-
-    @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return null;  //Todo change body of implemented methods use File | Settings | File Templates.
     }
 }

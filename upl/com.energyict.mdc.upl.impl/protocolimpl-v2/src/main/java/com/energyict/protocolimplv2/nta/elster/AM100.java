@@ -13,10 +13,12 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.common.TempDeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,7 +108,7 @@ public class AM100 extends AbstractNtaProtocol {
 
     @Override
     public DeviceMessageSupport getMessageProtocol() {
-        return null;  //ToDo
+        return new TempDeviceMessageSupport();
     }
 
     @Override

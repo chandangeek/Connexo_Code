@@ -76,6 +76,13 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
      */
     public abstract DeviceLogBookSupport getDeviceLogBookFactory();
 
+    /**
+     * Provide the correct DeviceMessageSupport.
+     * Do NOT return null. If your implementation doesn't use message,
+     * then create an implementation which doesn't return any messages.
+     *
+     * @return the used DeviceMessageSupport
+     */
     public abstract DeviceMessageSupport getMessageProtocol();
 
     @Override
