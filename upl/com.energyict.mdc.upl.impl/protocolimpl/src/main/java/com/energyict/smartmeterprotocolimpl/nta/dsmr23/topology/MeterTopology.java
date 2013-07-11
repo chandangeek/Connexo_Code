@@ -34,10 +34,10 @@ import java.util.logging.Level;
  */
 public class MeterTopology implements MasterMeter {
 
-    private static final ObisCode MbusClientObisCode = ObisCode.fromString("0.0.24.1.0.255");
-    private static final int ObisCodeBFieldIndex = 1;
+    protected static final ObisCode MbusClientObisCode = ObisCode.fromString("0.0.24.1.0.255");
+    protected static final int ObisCodeBFieldIndex = 1;
     public static final int MaxMbusDevices = 4;
-    private static String ignoreZombieMbusDevice = "@@@0000000000000";
+    protected static String ignoreZombieMbusDevice = "@@@0000000000000";
 
     private final AbstractSmartNtaProtocol protocol;
 
@@ -340,7 +340,19 @@ public class MeterTopology implements MasterMeter {
         return rtu;
     }
 
-    protected final void log(Level level, String message) {
+    public AbstractSmartNtaProtocol getProtocol() {
+        return protocol;
+    }
+
+    public ComposedCosemObject getDiscoveryComposedCosemObject() {
+        return discoveryComposedCosemObject;
+    }
+
+    public void setDiscoveryComposedCosemObject(ComposedCosemObject discoveryComposedCosemObject) {
+        this.discoveryComposedCosemObject = discoveryComposedCosemObject;
+    }
+
+    protected void log(Level level, String message) {
         this.protocol.getLogger().log(level, message);
     }
 }

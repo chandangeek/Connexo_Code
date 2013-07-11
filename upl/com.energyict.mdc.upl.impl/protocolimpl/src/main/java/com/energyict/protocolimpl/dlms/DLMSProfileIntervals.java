@@ -200,7 +200,7 @@ public class DLMSProfileIntervals extends Array {
             if (dateTime == null) {
                 return dataType.intValue();
             } else {
-                return dateTime.getValue().getTimeInMillis();
+                return dateTime.getValue().getTimeInMillis() / 1000;
             }
         }
         return dataType.longValue();     //To avoid negative int values

@@ -34,6 +34,7 @@ public class XemexProperties extends Dsmr40Properties {
         optional.add(TIMEOUT);
         optional.add(RETRIES);
         optional.add(FORCED_DELAY);
+        optional.add(DSMR_40_HEX_PASSWORD);
         return optional;
     }
 

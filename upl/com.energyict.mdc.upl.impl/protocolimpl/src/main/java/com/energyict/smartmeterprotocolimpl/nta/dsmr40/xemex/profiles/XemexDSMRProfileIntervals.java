@@ -31,6 +31,8 @@ import java.util.TimeZone;
  */
 public class XemexDSMRProfileIntervals extends LGDLMSProfileIntervals {
 
+    private static final long EPOCH_SECONDS_01_JAN_2000_GMT = 946684800L;
+
     public XemexDSMRProfileIntervals(byte[] encodedData, ProfileIntervalStatusBits statusBits) throws IOException {
         super(encodedData, statusBits);
     }
@@ -134,7 +136,7 @@ public class XemexDSMRProfileIntervals extends LGDLMSProfileIntervals {
             IntervalValue intervalValue_CHN1 = (IntervalValue) intervalData.getIntervalValues().get(0);
             IntervalValue intervalValue_CHN2 = (IntervalValue) intervalData.getIntervalValues().get(1);
             if ((intervalValue_CHN1.getNumber().longValue() == 0L) &&
-                    (intervalValue_CHN2.getNumber().longValue() == 946684800000L)) {
+                    (intervalValue_CHN2.getNumber().longValue() == EPOCH_SECONDS_01_JAN_2000_GMT)) {
                 // IntervalData is not valid
                 return false;
             }
