@@ -5,8 +5,8 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.LoadProfileTypeFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.RegisterValue;
@@ -937,7 +937,7 @@ public class ObjectFactory {
     }
 
     public List<CollectedLoadProfile> createCollectedLoadProfiles() {
-        return createCollectedLoadProfiles(LoadProfileTypeFactory.GENERIC_LOAD_PROFILE_OBISCODE);
+        return createCollectedLoadProfiles(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
     }
 
     public List<CollectedLoadProfile> createCollectedLoadProfiles(ObisCode obisCode) {

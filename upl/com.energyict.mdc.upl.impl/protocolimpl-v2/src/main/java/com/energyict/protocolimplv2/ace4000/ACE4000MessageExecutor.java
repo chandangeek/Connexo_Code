@@ -4,8 +4,8 @@ import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.LoadProfileTypeFactory;
 import com.energyict.mdw.offline.OfflineLoadProfile;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -330,7 +330,7 @@ public class ACE4000MessageExecutor implements MessageProtocol {
         //Make a new loadProfileReader with the proper from and to date
         LoadProfileReader loadProfileReader = null;
         for (OfflineLoadProfile offlineLoadProfile : ace4000.getOfflineDevice().getMasterOfflineLoadProfiles()) {
-            if (offlineLoadProfile.getObisCode().equals(LoadProfileTypeFactory.GENERIC_LOAD_PROFILE_OBISCODE)) {
+            if (offlineLoadProfile.getObisCode().equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {
                 loadProfileReader = new LoadProfileReader(offlineLoadProfile.getObisCode(), fromDate, toDate, offlineLoadProfile.getLoadProfileId(), ace4000.getSerialNumber(), new ArrayList<ChannelInfo>());
             }
         }

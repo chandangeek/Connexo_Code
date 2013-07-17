@@ -15,10 +15,10 @@ import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.tasks.ACE4000DeviceProtocolDialect;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.core.LoadProfileTypeFactory;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -84,7 +84,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             if (isMaster(loadProfileReader.getMeterSerialNumber())) {     //Master device
                 ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
-                if (profileObisCode.equals(LoadProfileTypeFactory.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
+                if (profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
                     loadProfileConfiguration = new LoadProfileConfiguration(profileObisCode, getSerialNumber(), true);
                 } else {
                     loadProfileConfiguration = new LoadProfileConfiguration(profileObisCode, getSerialNumber(), false);
