@@ -1,23 +1,31 @@
 package com.elster.jupiter.messaging.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.*;
-
-import javax.jms.*;
-
-import com.elster.jupiter.messaging.*;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.time.UtcInstant;
-
-
-import oracle.AQ.*;
+import oracle.AQ.AQException;
+import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQEnqueueOptions;
 import oracle.jdbc.aq.AQFactory;
 import oracle.jdbc.aq.AQMessage;
 import oracle.jdbc.aq.AQMessageProperties;
-import oracle.jms.*;
+import oracle.jms.AQjmsDestination;
+import oracle.jms.AQjmsDestinationProperty;
+import oracle.jms.AQjmsQueueConnectionFactory;
+import oracle.jms.AQjmsSession;
+
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.QueueConnection;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 
 public class DestinationSpecImpl implements DestinationSpec {	
 	// persistent fields
@@ -135,7 +143,7 @@ public class DestinationSpecImpl implements DestinationSpec {
 	}
 	
 	private String dropSql() {
-		return "begin dbms_aqadm.stop_queue(?); dmsq_aqadm.drop_queue(?); end;";					
+		return "begin dbms_aqadm.stop_queue(?); dbms_aqadm.drop_queue(?); end;";
 	}
 	
 	private void doDeactivate() throws SQLException  {

@@ -48,22 +48,38 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return name;
 	}
 
 	AQMessage receive() throws SQLException {
 		try (Connection connection = Bus.getConnection()) {
 			OracleConnection oraConnection= connection.unwrap(OracleConnection.class);
-			AQDequeueOptions options = new AQDequeueOptions();
-			if (getDestination().isTopic()) {
-				options.setConsumerName(name);
-			}
-			return oraConnection.dequeue(destinationName, options , getDestination().getPayloadType());			
+            return oraConnection.dequeue(destinationName, basicOptions(), getDestination().getPayloadType());
 		}
 	}
-	
-	void subscribe() {
+
+    private AQDequeueOptions basicOptions() throws SQLException {
+        AQDequeueOptions options = new AQDequeueOptions();
+        if (getDestination().isTopic()) {
+            options.setConsumerName(name);
+        }
+        return options;
+    }
+
+    AQMessage receiveNow() throws SQLException {
+        try (Connection connection = Bus.getConnection()) {
+            OracleConnection oraConnection= connection.unwrap(OracleConnection.class);
+            return oraConnection.dequeue(destinationName, optionsNoWait(), getDestination().getPayloadType());
+        }
+    }
+
+    private AQDequeueOptions optionsNoWait() throws SQLException {
+        AQDequeueOptions options = basicOptions();
+        options.setWait(0);
+        return options;
+    }
+
+    void subscribe() {
 		if (getDestination().isQueue()) {
 			return;
 		}

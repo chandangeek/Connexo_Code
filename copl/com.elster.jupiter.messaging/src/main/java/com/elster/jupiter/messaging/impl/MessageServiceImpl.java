@@ -1,15 +1,16 @@
 package com.elster.jupiter.messaging.impl;
 
-import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Optional;
+import oracle.jdbc.aq.AQMessage;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -22,7 +23,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 @Component(name = "com.elster.jupiter.messaging" , service = { MessageService.class , InstallService.class } ,
-	property = { "name=" + Bus.COMPONENTNAME , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable" , "osgi.command.function=aqdroptable" } )
+	property = { "name=" + Bus.COMPONENTNAME , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable", "osgi.command.function=drain" } )
 public class MessageServiceImpl implements MessageService , InstallService , ServiceLocator {	
 	private volatile OrmClient ormClient;
 	private volatile TransactionService transactionService;
@@ -117,5 +118,32 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 		
 	public void removeResource(MessageHandlerFactory factory) {
 	}
-	
+
+    public void drain(String[] names) {
+        String subscriberName = names[0];
+        String destinationName = names[1];
+        Optional<SubscriberSpec> spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName, subscriberName);
+//        if (spec.isPresent()) {
+//            ((SubscriberSpecImpl) spec.get()).start(new MessageHandlerFactory() {
+//                @Override
+//                public MessageHandler newMessageHandler() {
+//                    return new MessageHandler() {
+//                        @Override
+//                        public void process(AQMessage message) throws SQLException {
+//                            System.out.println(new String(message.getPayload()));
+//                        }
+//                    };
+//                }
+//            });
+//        }
+        try {
+            AQMessage message = ((SubscriberSpecImpl) spec.get()).receiveNow();
+            while (message != null) {
+                System.out.println(new String(message.getPayload()));
+                message = ((SubscriberSpecImpl) spec.get()).receiveNow();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
