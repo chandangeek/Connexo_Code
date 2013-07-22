@@ -47,7 +47,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return SecurityMessage.class.getSimpleName() + "." + this.toString();
+        return DisplayDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override

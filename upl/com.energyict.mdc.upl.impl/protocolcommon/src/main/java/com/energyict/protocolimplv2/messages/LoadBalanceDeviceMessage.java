@@ -59,7 +59,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return FirmwareDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return LoadBalanceDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override

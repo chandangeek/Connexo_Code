@@ -64,7 +64,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return SecurityMessage.class.getSimpleName() + "." + this.toString();
+        return NetworkConnectivityMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
