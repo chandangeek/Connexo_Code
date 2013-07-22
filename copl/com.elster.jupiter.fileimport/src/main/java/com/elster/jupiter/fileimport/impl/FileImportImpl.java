@@ -101,10 +101,12 @@ public class FileImportImpl implements FileImport {
 
     private void moveFile() {
         try {
-            Path path = file.toPath();
-            Path target = targetPath(path);
-            Files.move(path, target);
-            file = target.toFile();
+            if (file.exists()) {
+                Path path = file.toPath();
+                Path target = targetPath(path);
+                Files.move(path, target);
+                file = target.toFile();
+            }
         } catch (IOException e) {
             throw new FileIOException(e);
         }
