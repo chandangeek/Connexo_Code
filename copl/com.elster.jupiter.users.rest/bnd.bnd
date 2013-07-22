@@ -1,4 +1,5 @@
 -classpath: target/classes
 -dsannotations: * 
-Private-Package: com.elster.jupiter.users.rest
 
+
+Export-Package: com.elster.jupiter.users.rest
