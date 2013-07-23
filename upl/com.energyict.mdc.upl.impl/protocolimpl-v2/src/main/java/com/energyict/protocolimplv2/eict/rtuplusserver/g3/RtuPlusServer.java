@@ -17,6 +17,9 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
+
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -104,7 +107,7 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.emptyList();
+        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect());
     }
 
     @Override
