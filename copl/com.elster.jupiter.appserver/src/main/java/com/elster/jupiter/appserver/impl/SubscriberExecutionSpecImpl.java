@@ -24,7 +24,6 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
         this.subscriberSpec = subscriberSpec;
         this.subscriberSpecName = subscriberSpec.getName();
         this.destinationSpecName = subscriberSpec.getDestination().getName();
-        this.destinationSpecName = subscriberSpec.getName();
         this.threadCount = threadCount;
     }
 
