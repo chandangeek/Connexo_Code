@@ -4,7 +4,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -15,12 +14,9 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 
 @Component(name = "com.elster.jupiter.messaging" , service = { MessageService.class , InstallService.class } ,
 	property = { "name=" + Bus.COMPONENTNAME , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable", "osgi.command.function=drain" } )
@@ -105,37 +101,16 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 	public Optional<DestinationSpec> getDestinationSpec(String name) {
 		return Bus.getOrmClient().getDestinationSpecFactory().get(name);
 	}
-	
-	@Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
-	public void addResource(MessageHandlerFactory factory, Map<String, Object> map) {
-		String destinationName = (String) map.get("destination");
-		String subscriberName = (String) map.get("subscriber");
-		Optional<SubscriberSpec> spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName, subscriberName);
-        if (spec.isPresent()) {
-			((SubscriberSpecImpl) spec.get()).start(factory);
-		}
-	}
-		
-	public void removeResource(MessageHandlerFactory factory) {
-	}
+
+    @Override
+    public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
+        return Bus.getOrmClient().getConsumerSpecFactory().get(destinationSpecName, name);
+    }
 
     public void drain(String[] names) {
         String subscriberName = names[0];
         String destinationName = names[1];
         Optional<SubscriberSpec> spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName, subscriberName);
-//        if (spec.isPresent()) {
-//            ((SubscriberSpecImpl) spec.get()).start(new MessageHandlerFactory() {
-//                @Override
-//                public MessageHandler newMessageHandler() {
-//                    return new MessageHandler() {
-//                        @Override
-//                        public void process(AQMessage message) throws SQLException {
-//                            System.out.println(new String(message.getPayload()));
-//                        }
-//                    };
-//                }
-//            });
-//        }
         try {
             AQMessage message = ((SubscriberSpecImpl) spec.get()).receiveNow();
             while (message != null) {

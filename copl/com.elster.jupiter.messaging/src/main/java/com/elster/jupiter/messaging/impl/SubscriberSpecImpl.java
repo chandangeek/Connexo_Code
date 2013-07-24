@@ -2,8 +2,6 @@ package com.elster.jupiter.messaging.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.messaging.consumer.MessageHandler;
-import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
 import com.elster.jupiter.util.time.UtcInstant;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
@@ -51,7 +49,8 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 		return name;
 	}
 
-	AQMessage receive() throws SQLException {
+	@Override
+    public AQMessage receive() throws SQLException {
 		try (Connection connection = Bus.getConnection()) {
 			OracleConnection oraConnection= connection.unwrap(OracleConnection.class);
             return oraConnection.dequeue(destinationName, basicOptions(), getDestination().getPayloadType());
@@ -133,10 +132,5 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 			"dbms_aqadm.remove_subscriber(?,subscriber); end;";		
 	}
 	
-	void start(MessageHandlerFactory factory) {
-			MessageHandler handler = factory.newMessageHandler();
-			MessageHandlerTask task = new MessageHandlerTask(this,handler);
-			new Thread(task).start();
-	}
 }
 
