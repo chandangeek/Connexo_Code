@@ -70,7 +70,7 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 	}
 
 	@Override
-	public QueueTableSpec createQueueTableSpec(String name, String payloadType,boolean multiConsumer) {
+	public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
 		QueueTableSpecImpl result = new QueueTableSpecImpl(name, payloadType, multiConsumer);
 		ormClient.getQueueTableSpecFactory().persist(result);
 		result.activate();
@@ -93,8 +93,8 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 	}
 
 	@Override
-	public QueueTableSpec getQueueTableSpec(String name) {
-		return Bus.getOrmClient().getQueueTableSpecFactory().getExisting(name);
+	public Optional<QueueTableSpec> getQueueTableSpec(String name) {
+		return Bus.getOrmClient().getQueueTableSpecFactory().get(name);
 	}
 
 	@Override

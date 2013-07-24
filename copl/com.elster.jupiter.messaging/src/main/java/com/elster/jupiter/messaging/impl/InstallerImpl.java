@@ -10,7 +10,7 @@ public class InstallerImpl {
 	}
 	
 	private void createQueueTables(MessageService service) {
-		service.createQueueTableSpec("MSG_RAWQUEUETABLE","RAW", false);
+		service.createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
 		service.createQueueTableSpec("MSG_RAWTOPICTABLE" , "RAW", true);
 	}
 	

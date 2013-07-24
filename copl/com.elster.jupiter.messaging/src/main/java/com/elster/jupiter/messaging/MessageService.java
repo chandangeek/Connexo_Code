@@ -6,7 +6,7 @@ public interface MessageService {
 
     QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer);
 
-    QueueTableSpec getQueueTableSpec(String name);
+    Optional<QueueTableSpec> getQueueTableSpec(String name);
 
     Optional<DestinationSpec> getDestinationSpec(String name);
 
