@@ -110,9 +110,9 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
             for (ImportSchedule importSchedule : importSchedules) {
                 cronExpressionScheduler.submit(new ImportScheduleJob(importSchedule));
             }
-        } catch (Exception e) {
-			// TODO Auto-generated catch block
+        } catch (RuntimeException e) {
 			e.printStackTrace();
+            throw e;
 		}
     }
 
