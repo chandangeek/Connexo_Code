@@ -20,11 +20,7 @@ public class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
         Bus.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                try {
-                    launchOccurrencesForDueTasks();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                launchOccurrencesForDueTasks();
             }
         });
     }
