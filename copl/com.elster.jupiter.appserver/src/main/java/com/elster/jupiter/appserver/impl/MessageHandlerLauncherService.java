@@ -1,5 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
@@ -11,10 +12,13 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.log.LogService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 @Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", immediate=true )
 public class MessageHandlerLauncherService {
@@ -23,6 +27,7 @@ public class MessageHandlerLauncherService {
     private volatile LogService logService;
 
     private Map<MessageHandlerFactory, ExecutorService> executors = new HashMap<>();
+    private Map<ExecutorService, List<Future<?>>> futures = new HashMap<>();
 
     public AppService getAppService() {
         return appService;
@@ -37,6 +42,17 @@ public class MessageHandlerLauncherService {
     }
 
     public void deactivate(ComponentContext context) {
+        for (ExecutorService executorService : executors.values()) {
+            for (Future<?> future : futures.get(executorService)) {
+                future.cancel(false);
+            }
+            executorService.shutdownNow();
+            try {
+				executorService.awaitTermination(1, TimeUnit.MINUTES);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+        }
         Bus.setServiceLocator(null);
     }
 
@@ -60,11 +76,18 @@ public class MessageHandlerLauncherService {
     }
 
     private void launch(MessageHandlerFactory factory, int threadCount, SubscriberSpec subscriberSpec) {
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        ExecutorService executorService = newExecutorService(threadCount);
         executors.put(factory, executorService);
+        List<Future<?>> submittedFutures = new ArrayList<>(threadCount);
         for (int i = 0; i < threadCount; i++) {
-            executorService.submit(newMessageHandlerTask(factory, subscriberSpec));
+            Future<?> future = executorService.submit(newMessageHandlerTask(factory, subscriberSpec));
+            submittedFutures.add(future);
         }
+        futures.put(executorService, submittedFutures);
+    }
+
+    private ExecutorService newExecutorService(int threadCount) {
+        return new MessageHandlerTaskExecutorService(threadCount);
     }
 
     private MessageHandlerTask newMessageHandlerTask(MessageHandlerFactory factory, SubscriberSpec subscriberSpec) {

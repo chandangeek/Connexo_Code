@@ -1,9 +1,9 @@
 package com.elster.jupiter.appserver;
 
-import java.util.List;
-
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.cron.CronExpression;
+
+import java.util.List;
 
 public interface AppServer {
 

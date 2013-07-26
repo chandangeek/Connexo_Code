@@ -3,8 +3,11 @@ package com.elster.jupiter.appserver.impl;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.consumer.MessageHandler;
 import com.elster.jupiter.transaction.VoidTransaction;
+import oracle.jdbc.aq.AQMessage;
 
 import java.sql.SQLException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 
 public class MessageHandlerTask implements Runnable {
 
@@ -30,13 +33,35 @@ public class MessageHandlerTask implements Runnable {
         }
     }
 
+    public void cancel() throws SQLException {
+        subscriberSpec.cancel();
+    }
+
+    public <T> RunnableFuture<T> newTask(T result) {
+        return new FutureTask<T>(this, result) {
+            @Override
+            public boolean cancel(boolean mayInterruptIfRunning) {
+                try {
+                    MessageHandlerTask.this.cancel();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                return super.cancel(mayInterruptIfRunning);
+            }
+        };
+    }
 
     private class ProcessTransaction extends VoidTransaction {
 
         @Override
         protected void doPerform() {
             try {
-                handler.process(subscriberSpec.receive());
+                AQMessage message = subscriberSpec.receive();
+                if (message == null) { // receive() got cancelled, by a shut down request
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                handler.process(message);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

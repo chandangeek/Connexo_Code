@@ -48,6 +48,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm.cache</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>14.0.1</version>

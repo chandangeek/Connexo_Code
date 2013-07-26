@@ -1,37 +1,57 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.messaging.consumer.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.cache.CacheService;
+import com.elster.jupiter.orm.cache.InvalidateCacheRequest;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
+import oracle.jdbc.aq.AQMessage;
+import org.osgi.framework.BundleException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 
 @Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + Bus.COMPONENTNAME, "osgi.command.scope=jupiter", "osgi.command.function=create", "osgi.command.function=executeSubscription"}, immediate = true)
-public class AppServiceImpl implements ServiceLocator, InstallService, AppService {
+public class AppServiceImpl implements ServiceLocator, InstallService, AppService, Subscriber {
 
     private static final String APPSERVER_NAME = "com.elster.jupiter.appserver.name";
     private static final String APP_SERVER = "AppServer";
     private static final String ALL_SERVERS = "AllServers";
+    private static final String COMPONENT_NAME = "componentName";
+    private static final String TABLE_NAME = "tableName";
 
     private volatile OrmClient ormClient;
     private volatile TransactionService transactionService;
@@ -39,9 +59,16 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private volatile CronExpressionParser cronExpressionParser;
     private volatile LogService logService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile ComponentContext context;
+    private volatile Publisher publisher;
+    private volatile CacheService cacheService;
+    private volatile JsonService jsonService;
 
     private AppServer appServer;
     private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
+    private SubscriberSpec appServerSubscriberSpec;
+    private SubscriberSpec allServerSubscriberSpec;
+    private List<Runnable> deactivateTasks = new ArrayList<>();
 
     @Override
     public OrmClient getOrmClient() {
@@ -50,6 +77,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
 
     public void activate(ComponentContext context) {
         try {
+            this.context = context;
             tryActivate(context);
         } catch (RuntimeException e) {
             e.printStackTrace();
@@ -80,9 +108,52 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         }
         appServer = foundAppServer.get();
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
+
+        listenForMessagesToAppServer();
+        listenForMesssagesToAllServers();
+
+        Dictionary<String, Object> dictionary = new Hashtable<>();
+        dictionary.put(Subscriber.TOPIC, new Class[] { InvalidateCacheRequest.class });
+        context.getBundleContext().registerService(Subscriber.class, this, dictionary);
+    }
+
+    private void listenForMesssagesToAllServers() {
+        Optional<SubscriberSpec> subscriberSpec = getMessageService().getSubscriberSpec(ALL_SERVERS, messagingName());
+        if (subscriberSpec.isPresent()) {
+            allServerSubscriberSpec = subscriberSpec.get();
+            final ExecutorService executorService = new MessageHandlerTaskExecutorService(1);
+            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler()));
+            deactivateTasks.add(new Runnable() {
+                @Override
+                public void run() {
+                    cancellableTask.cancel(false);
+                    executorService.shutdownNow();
+                }
+            });
+        }
+    }
+
+    private void listenForMessagesToAppServer() {
+        Optional<SubscriberSpec> subscriberSpec = getMessageService().getSubscriberSpec(messagingName(), messagingName());
+        if (subscriberSpec.isPresent()) {
+            appServerSubscriberSpec = subscriberSpec.get();
+            final ExecutorService executorService = new MessageHandlerTaskExecutorService(1);
+            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler()));
+            deactivateTasks.add(new Runnable() {
+                @Override
+                public void run() {
+                    cancellableTask.cancel(false);
+                    executorService.shutdownNow();
+                }
+            });
+        }
     }
 
     public void deactivate(ComponentContext context) {
+        this.context = null;
+        for (Runnable deactivateTask : deactivateTasks) {
+            deactivateTask.run();
+        }
     }
 
     @Reference
@@ -107,11 +178,11 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
                 AppServer server = new AppServerImpl(name, cronExpression);
                 getOrmClient().getAppServerFactory().persist(server);
                 QueueTableSpec defaultQueueTableSpec = getMessageService().getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-                DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(messagingName(name), 60);
-                destinationSpec.subscribe(messagingName(name), 1);
+                DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(messagingName(), 60);
+                destinationSpec.subscribe(messagingName(), 1);
                 Optional<DestinationSpec> allServersTopic = getMessageService().getDestinationSpec(ALL_SERVERS);
                 if (allServersTopic.isPresent()) {
-                    allServersTopic.get().subscribe(messagingName(name), 1);
+                    allServersTopic.get().subscribe(messagingName(), 1);
                 }
                 return server;
             }
@@ -119,7 +190,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     }
 
     public void executeSubscription(final String subscriberName, final String destinationName, final int threads) {
-    	if (appServer == null) {
+        if (appServer == null) {
             System.out.println("Cannot execute subscriptions from anonymous app server.");
             return;
         }
@@ -134,9 +205,9 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
             }
         });
     }
-    
-    private String messagingName(String name) {
-        return AppServiceImpl.APP_SERVER + '_' + name;
+
+    private String messagingName() {
+        return AppServiceImpl.APP_SERVER + '_' + appServer.getName();
     }
 
     @Override
@@ -190,6 +261,24 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         this.logService = logService;
     }
 
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    @Reference
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
+    public CacheService getCacheService() {
+        return cacheService;
+    }
+
+    @Reference
+    public void setCacheService(CacheService cacheService) {
+        this.cacheService = cacheService;
+    }
+
     @Override
     public AppServer getAppServer() {
         return appServer;
@@ -209,6 +298,15 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    public JsonService getJsonService() {
+        return jsonService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
     public void create(String name, String cronString) {
         getThreadPrincipalService().set(new Principal() {
             @Override
@@ -221,5 +319,58 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         } finally {
             getThreadPrincipalService().set(null);
         }
+    }
+
+    @Override
+    public void handle(Object event) {
+        if (event instanceof InvalidateCacheRequest) {
+            InvalidateCacheRequest invalidateCacheRequest = (InvalidateCacheRequest) event;
+            Properties properties = new Properties();
+            properties.put(COMPONENT_NAME, invalidateCacheRequest.getComponentName());
+            properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
+            AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
+
+            allServerSubscriberSpec.getDestination().message(getJsonService().serialize(command)).send();
+        }
+
+    }
+
+    private class CommandHandler implements MessageHandler {
+
+        @Override
+        public void process(AQMessage message) throws SQLException {
+            AppServerCommand command = getJsonService().deserialize(message.getPayload(), AppServerCommand.class);
+            switch (command.getCommand()) {
+                case STOP:
+                    stop();
+                    break;
+                case INVALIDATE_CACHE:
+                    Properties properties = command.getProperties();
+                    String componentName = properties.getProperty(COMPONENT_NAME);
+                    String tableName = properties.getProperty(TABLE_NAME);
+                    cacheService.refresh(componentName, tableName);
+                    break;
+                default:
+            }
+        }
+    }
+
+    public void stop() {
+        Thread stoppingThread = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            System.out.println("Stopping AppServer");
+
+                            context.getBundleContext().getBundle(0).stop();
+                            System.out.println("Stopped");
+                        } catch (BundleException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+        stoppingThread.start();
+        Thread.currentThread().interrupt();
     }
 }
