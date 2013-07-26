@@ -4,9 +4,7 @@ import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.messaging.consumer.MessageHandler;
 import oracle.jdbc.aq.AQMessage;
-import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 public class StreamImportMessageHandler implements MessageHandler {
@@ -35,11 +33,6 @@ public class StreamImportMessageHandler implements MessageHandler {
     }
 
     private FileImportMessage getFileImportMessage(AQMessage message) throws SQLException {
-        try {
-            return new ObjectMapper().readValue(message.getPayload(), FileImportMessage.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return Bus.getJsonService().deserialize(message.getPayload(), FileImportMessage.class);
     }
 }

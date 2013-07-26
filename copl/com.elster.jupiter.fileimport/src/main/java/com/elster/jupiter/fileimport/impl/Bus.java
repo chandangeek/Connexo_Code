@@ -3,6 +3,7 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.log.LogService;
 
@@ -43,5 +44,9 @@ public enum Bus {
 
     public static TransactionService getTransactionService() {
         return serviceLocator.getTransactionService();
+    }
+
+    public static JsonService getJsonService() {
+        return serviceLocator.getJsonService();
     }
 }

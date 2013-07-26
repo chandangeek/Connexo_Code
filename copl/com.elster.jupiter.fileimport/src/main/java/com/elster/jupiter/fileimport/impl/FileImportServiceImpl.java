@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
@@ -28,6 +29,7 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
     private volatile OrmClient ormClient;
     private volatile Clock clock;
     private volatile TransactionService transactionService;
+    private volatile JsonService jsonService;
 
     private Thread thread;
     private CronExpressionScheduler cronExpressionScheduler;
@@ -65,6 +67,16 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
     @Reference
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
+    }
+
+    @Override
+    public JsonService getJsonService() {
+        return jsonService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     @Override
