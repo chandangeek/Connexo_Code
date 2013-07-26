@@ -11,4 +11,6 @@ public interface SubscriberSpec {
     String getName();
 
     AQMessage receive() throws SQLException;
+
+    void cancel() throws SQLException;
 }

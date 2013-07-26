@@ -1,16 +1,14 @@
 package com.elster.jupiter.messaging.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.time.UtcInstant;
 import oracle.AQ.AQException;
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
-import oracle.jdbc.aq.AQEnqueueOptions;
-import oracle.jdbc.aq.AQFactory;
 import oracle.jdbc.aq.AQMessage;
-import oracle.jdbc.aq.AQMessageProperties;
 import oracle.jms.AQjmsDestination;
 import oracle.jms.AQjmsDestinationProperty;
 import oracle.jms.AQjmsQueueConnectionFactory;
@@ -20,7 +18,6 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -173,7 +170,6 @@ public class DestinationSpecImpl implements DestinationSpec {
 	
 	@Override
 	public String getPayloadType() {
-		// TODO Auto-generated method stub
 		return getQueueTableSpec().getPayloadType();
 	}
 	
@@ -183,62 +179,22 @@ public class DestinationSpecImpl implements DestinationSpec {
 	}
 	
 	@Override
-	public void send(byte[]  bytes)  {
-		try {
-			doSend(bytes);
-		} catch (SQLException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-	
-	void doSend(byte[] bytes) throws SQLException {
-		AQMessageProperties props = AQFactory.createAQMessageProperties();
-		AQMessage message = AQFactory.createAQMessage(props);
-		message.setPayload(bytes);
-		send(message);		
+	public MessageBuilder message(byte[] bytes)  {
+        return new BytesMessageBuilder(this, bytes);
 	}
 	
 	@Override
-	public void send(String text) {
+	public MessageBuilder message(String text) {
 		if (getQueueTableSpec().isJms()) {
-			sendJms(text);
+			throw new RuntimeException("JMS support not yet implemented.");
 		} else {
-			send(text.getBytes());
+			return new BytesMessageBuilder(this, text.getBytes());
 		}
 	}
-	
-	void sendJms(String text) {
-		 try {
-			 doSendJms(text);
-		 } catch (SQLException | JMSException ex) {
-			 throw new RuntimeException(ex);
-		 }
-	 }
-	 
-	void doSendJms(String text) throws JMSException, SQLException {
-		try (Connection connection = Bus.getConnection()) {
-			OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
-			QueueConnection queueConnection = AQjmsQueueConnectionFactory.createQueueConnection(oraConnection);
-			try {
-				queueConnection.start();
-				AQjmsSession session = (AQjmsSession) queueConnection.createSession(true, Session.AUTO_ACKNOWLEDGE);
-				TextMessage message = session.createTextMessage();
-				message.setText(text);
-				session.createSender(session.getQueue("kore", name)).send(message);				
-			} finally {
-				queueConnection.close();
-			}
-		}
-	}
-	
-	
 	
 	@Override
-	public void send(AQMessage message) throws SQLException {
-		try (Connection connection = Bus.getConnection()) {
-			OracleConnection oraConnection= connection.unwrap(OracleConnection.class);		
-			oraConnection.enqueue(name, new AQEnqueueOptions() , message);
-		}
+	public MessageBuilder message(AQMessage message) {
+        return new AQMessageOptionsBuilder(this, message);
 	}
 	
 	@Override
@@ -257,5 +213,5 @@ public class DestinationSpecImpl implements DestinationSpec {
 		Bus.getOrmClient().getConsumerSpecFactory().persist(result);
 		return result;
 	}
-	
+
 }

@@ -10,6 +10,7 @@ import oracle.jdbc.aq.AQMessage;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLTimeoutException;
 
 public class SubscriberSpecImpl implements SubscriberSpec {
 	private String name;
@@ -25,6 +26,10 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 	private String userName;
 	
 	private DestinationSpec destination;
+
+    private volatile OracleConnection cancellableConnection;
+
+    private Object cancelLock = new Object();
 	
 	@SuppressWarnings("unused")
 	private SubscriberSpecImpl() {
@@ -52,10 +57,25 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 	@Override
     public AQMessage receive() throws SQLException {
 		try (Connection connection = Bus.getConnection()) {
-			OracleConnection oraConnection= connection.unwrap(OracleConnection.class);
-            return oraConnection.dequeue(destinationName, basicOptions(), getDestination().getPayloadType());
-		}
-	}
+			cancellableConnection= connection.unwrap(OracleConnection.class);
+            return cancellableConnection.dequeue(destinationName, basicOptions(), getDestination().getPayloadType());
+        } catch (SQLTimeoutException e) {
+            // we don't specify a timeout, so this means the connection got a cancel() call, requesting we're shutting down, so we will
+            // no recovery needed, ignoring exception.
+		} finally {
+            cancellableConnection = null;
+        }
+        return null;
+    }
+
+    @Override
+    public void cancel() throws SQLException {
+        synchronized (cancelLock) {
+            if (cancellableConnection != null) {
+                cancellableConnection.cancel();
+            }
+        }
+    }
 
     private AQDequeueOptions basicOptions() throws SQLException {
         AQDequeueOptions options = new AQDequeueOptions();
