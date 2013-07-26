@@ -84,8 +84,8 @@ public class TaskOccurrenceLauncherTest {
     public void testRun() throws Exception {
         launcher.run();
 
-        verify(destinationSpec1).send(PAYLOAD_1);
-        verify(destinationSpec2).send(PAYLOAD_2);
+        verify(destinationSpec1).message(PAYLOAD_1).send();
+        verify(destinationSpec2).message(PAYLOAD_2).send();
         verify(taskOccurrence1).save();
         verify(taskOccurrence2).save();
     }

@@ -4,9 +4,7 @@ import com.elster.jupiter.messaging.consumer.MessageHandler;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import oracle.jdbc.aq.AQMessage;
-import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.IOException;
 import java.sql.SQLException;
 
 public class TaskExecutionMessageHandler implements MessageHandler {
@@ -30,12 +28,7 @@ public class TaskExecutionMessageHandler implements MessageHandler {
     }
 
     private TaskOccurrenceMessage getTaskOccurrenceMessage(AQMessage message) throws SQLException {
-        try {
-            return new ObjectMapper().readValue(message.getPayload(), TaskOccurrenceMessage.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return Bus.getJsonService().deserialize(message.getPayload(), TaskOccurrenceMessage.class);
 
     }
 }

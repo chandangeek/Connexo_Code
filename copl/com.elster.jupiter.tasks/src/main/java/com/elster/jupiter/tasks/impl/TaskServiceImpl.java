@@ -11,6 +11,7 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 
 import org.osgi.service.component.ComponentContext;
@@ -30,6 +31,7 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     private volatile QueryService queryService;
     private volatile TransactionService transactionService;
     private volatile CronExpressionParser cronExpressionParser;
+    private volatile JsonService jsonService;
 
     private Thread schedulerThread;
 
@@ -115,6 +117,16 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     @Reference
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
+    }
+
+    @Override
+    public JsonService getJsonService() {
+        return jsonService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     public void activate(ComponentContext context) {

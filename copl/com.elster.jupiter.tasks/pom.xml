@@ -74,10 +74,5 @@
             <groupId>org.easytesting</groupId>
             <artifactId>fest-assert-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.2</version>
-        </dependency>
     </dependencies>
 </project>

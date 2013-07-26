@@ -3,9 +3,6 @@ package com.elster.jupiter.tasks.impl;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.VoidTransaction;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import java.io.IOException;
 
 public class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
 
@@ -29,20 +26,18 @@ public class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
         for (RecurrentTask recurrentTask : getDueTasks()) {
             TaskOccurrence taskOccurrence = recurrentTask.createTaskOccurrence(Bus.getClock());
             String json = toJson(taskOccurrence);
-            recurrentTask.getDestination().send(json);
+            recurrentTask.getDestination().message(json).send();
             recurrentTask.updateNextExecution(Bus.getClock());
             recurrentTask.save();
         }
     }
 
     private String toJson(TaskOccurrence taskOccurrence) {
-        TaskOccurrenceMessage taskOccurrenceMessage = new TaskOccurrenceMessage(taskOccurrence);
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(taskOccurrenceMessage);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return Bus.getJsonService().serialize(asMessage(taskOccurrence));
+    }
+
+    private TaskOccurrenceMessage asMessage(TaskOccurrence taskOccurrence) {
+        return new TaskOccurrenceMessage(taskOccurrence);
     }
 
     private Iterable<RecurrentTask> getDueTasks() {
