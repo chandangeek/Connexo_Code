@@ -6,9 +6,10 @@ import com.elster.genericprotocolimpl.dlms.ek280.discovery.DeviceDiscoverInfo;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.ShadowList;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.DeviceConfiguration;
 import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.DeviceShadow;
+import com.energyict.mdw.task.CreateDeviceTransaction;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -39,29 +40,29 @@ public class DeviceDeployment {
      * we just received from the device during the discovery phase.
      *
      * @param info - data of request string from device
-     * @return reference to rtu object calling
+     * @return reference to Device calling
      * @throws java.io.IOException - in case of errors
      */
     public Device deployDevice(DeviceDiscoverInfo info) throws IOException {
         String callHomeId = info.getCallHomeId();
         if (callHomeId != null) {
-//            List<Device> rtus = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(callHomeId);   //TODO: Warning - changed, cause findByDialHomeId no longer exists
-            List<Device> rtus = new ArrayList<>(0); // TODO: warning - API call no longer exists (cause DialHomeId is no longer managed by device)
-            if (rtus.isEmpty()) {
+//            List<Device> devices = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(callHomeId);   //TODO: Warning - changed, cause findByDialHomeId no longer exists
+            List<Device> devices = new ArrayList<>(0); // TODO: warning - API call no longer exists (cause DialHomeId is no longer managed by device)
+            if (devices.isEmpty()) {
                 if (properties.isFastDeployment()) {
                     getLogger().warning("Device with call home id [" + callHomeId + "] not found! Starting deployment ...");
-                    Device newRtu = createRtuAndAddFields(info);
-                    setDeployed(newRtu != null);
-                    return newRtu;
+                    Device newDevice = createDeviceAndAddFields(info);
+                    setDeployed(newDevice != null);
+                    return newDevice;
                 } else {
                     String msg = "Unknown device [" + callHomeId + "]. Fast deployment disabled.";
                     getLogger().severe(msg);
                     throw new IOException(msg);
                 }
-            } else if (rtus.size() > 1) {
+            } else if (devices.size() > 1) {
                 throw new IOException("Duplicate call home id's: [" + callHomeId + "]");
             } else {
-                return rtus.get(0);
+                return devices.get(0);
             }
         } else {
             throw new IOException("Could not complete deployment: Incomplete discovery information, callHomeId was 'null'.");
@@ -69,13 +70,13 @@ public class DeviceDeployment {
     }
 
     /**
-     * Create a new rtu
+     * Create a new Device.
      *
      * @param info - data of request string from device
-     * @return reference to newly created rtu object for calling device
+     * @return The newly created device for calling device
      * @throws java.io.IOException - in case of errors
      */
-    private Device createRtuAndAddFields(DeviceDiscoverInfo info) throws IOException {
+    private Device createDeviceAndAddFields (DeviceDiscoverInfo info) throws IOException {
         setInvalidData(true);
         if (info.getRtuType() == null) {
             throw new IOException("DeviceType was 'null'. Unable to do discovery and create device without (valid) device type.");
@@ -84,9 +85,11 @@ public class DeviceDeployment {
         getLogger().warning("Creating new device of type [" + info.getRtuType() + "] ...");
 
         try {
-            DeviceShadow shadow = info.getRtuType().getConfigurations().get(0).newDeviceShadow();
+            DeviceConfiguration deviceConfiguration = info.getRtuType().getConfigurations().get(0);
+            CreateDeviceTransaction createDeviceTransaction = deviceConfiguration.newDeviceTransaction();
+            DeviceShadow shadow = createDeviceTransaction.getDeviceShadow();
             shadow.setName(createDeviceName(info)); // EK280 serial
-            shadow.setExternalName(createExternalName(info)); // "rtu/" + EK280serial
+            shadow.setExternalName(createExternalName(info)); // "device/" + EK280serial
 //            shadow.setDeviceId(createDeviceId(info)); // EK280 serial number
 //            shadow.setDialHomeId(createDialHomeId(info)); // EK280 serial number
 
@@ -113,13 +116,13 @@ public class DeviceDeployment {
                     throw new IOException("DeviceType [" + info.getRtuType().getName() + "] has no prototype AND no folder. Unable to create device.");
                 }
             }
-            Device rtu = MeteringWarehouse.getCurrent().getDeviceFactory().create(shadow);
+            Device device = createDeviceTransaction.execute();
             setInvalidData(false);
-            return rtu;
+            return device;
         } catch (SQLException e) {
-            throw new IOException("Unable to create rtu: " + e.getMessage());
+            throw new IOException("Unable to create device: " + e.getMessage());
         } catch (BusinessException e) {
-            throw new IOException("Unable to create rtu" + e.getMessage());
+            throw new IOException("Unable to create device" + e.getMessage());
         }
     }
 

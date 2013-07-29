@@ -4,12 +4,14 @@ import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceConfiguration;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.coreimpl.DeviceFactoryImpl;
 import com.energyict.mdw.shadow.DeviceShadow;
+import com.energyict.mdw.task.CreateDeviceTransaction;
 import com.energyict.metadata.Criterium;
 import com.energyict.metadata.TypeDescriptor;
 import com.energyict.protocol.InvalidPropertyException;
@@ -28,32 +30,32 @@ public final class CommonUtils {
 
     /**
      * Find an Device by it's serialNumber in the database. The serialnumber is not unique so if multiples were found, exceptions will be thrown.
-     * If no rtu was found we will try to create one using the given DeviceType. If the folderExtNameProperty is entered, then the new Device will be
+     * If no Device was found we will try to create one using the given DeviceType. If the folderExtNameProperty is entered, then the new Device will be
      * placed in that folder
      *
      * @param serialNumber          - the SerialNumber of the Device
-     * @param rtuTypeProperty       - the Prototype for the new Device if non was found
+     * @param deviceTypeProperty    - the Prototype for the new Device if non was found
      * @param folderExtNameProperty - the external name of the folder to place the new Device
      * @return an Device
      * @throws IOException       if multiple meters were found in the database
      * @throws SQLException      if database exception occurred
      * @throws BusinessException if business exception occurred
      */
-    public static Device findOrCreateDeviceBySerialNumber(String serialNumber, String rtuTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException {
-        List result = mw().getDeviceFactory().findBySerialNumber(serialNumber);
-        if (result.size() == 1) {        // we found the rtu so return it
-            return (Device) result.get(0);
+    public static Device findOrCreateDeviceBySerialNumber(String serialNumber, String deviceTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException {
+        List<Device> result = mw().getDeviceFactory().findBySerialNumber(serialNumber);
+        if (result.size() == 1) {        // we found the Device so return it
+            return result.get(0);
         } else if (result.size() > 1) {
             throw new IOException("Multple meters found in database with serialnumber " + serialNumber);
         } else {                    // no results were found, try to create it
-            DeviceType rtuType = getRtuType(rtuTypeProperty);
-            return createMeterWithSerialNumber(rtuType, serialNumber, folderExtNameProperty);
+            DeviceType deviceType = getDeviceType(deviceTypeProperty);
+            return createMeterWithSerialNumber(deviceType, serialNumber, folderExtNameProperty);
         }
     }
 
     /**
      * Find an Device by it's serialNumber in the database. The serialnumber is not unique so if multiples were found, exceptions will be thrown.
-     * If no rtu was found we will return 'null'
+     * If no Device was found we will return 'null'
      *
      * @param serialNumber - the SerialNumber of the Device
      * @return an Device
@@ -62,9 +64,9 @@ public final class CommonUtils {
      * @throws BusinessException if business exception occurred
      */
     public static Device findDeviceBySerialNumber(String serialNumber) throws IOException, SQLException, BusinessException {
-        List result = mw().getDeviceFactory().findBySerialNumber(serialNumber);
-        if (result.size() == 1) {        // we found the rtu so return it
-            return (Device) result.get(0);
+        List<Device> result = mw().getDeviceFactory().findBySerialNumber(serialNumber);
+        if (result.size() == 1) {        // we found the Device so return it
+            return result.get(0);
         } else if (result.size() > 1) {
             throw new IOException("Multple meters found in database with serialnumber " + serialNumber);
         } else {
@@ -74,26 +76,26 @@ public final class CommonUtils {
 
     /**
      * Find an Device by it's deviceId in the database. The deviceId is not unique so if multiples were found, exceptions will be thrown.
-     * If no rtu was found we will try to create one using the given DeviceType. If the folderExtNameProperty is entered, then the new Device will be
+     * If no Device was found we will try to create one using the given DeviceType. If the folderExtNameProperty is entered, then the new Device will be
      * placed in that folder
      *
      * @param deviceId              - the DeviceId of the Device
-     * @param rtuTypeProperty       - the Prototype for the new Device if non was found
+     * @param deviceTypeProperty    - the Prototype for the new Device if non was found
      * @param folderExtNameProperty - the external name of the folder to place the new Device
      * @return an Device
      * @throws IOException       if multiple meters were found in the database
      * @throws SQLException      if database exception occurred
      * @throws BusinessException if business exception occurred
      */
-    public static Device findOrCreateDeviceByDeviceId(String deviceId, String rtuTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException {
-        List result = mw().getDeviceFactory().findByDeviceId(deviceId);
-        if (result.size() == 1) {        // we found the rtu so return it
-            return (Device) result.get(0);
+    public static Device findOrCreateDeviceByDeviceId(String deviceId, String deviceTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException {
+        List<Device> result = mw().getDeviceFactory().findByDeviceId(deviceId);
+        if (result.size() == 1) {        // we found the Device so return it
+            return result.get(0);
         } else if (result.size() > 1) {
             throw new IOException("Multple meters found in database with deviceId " + deviceId);
         } else {                    // no results were found, try to create it
-            DeviceType rtuType = getRtuType(rtuTypeProperty);
-            return createMeterWithDeviceId(rtuType, deviceId, folderExtNameProperty);
+            DeviceType deviceType = getDeviceType(deviceTypeProperty);
+            return createMeterWithDeviceId(deviceType, deviceId, folderExtNameProperty);
         }
     }
 
@@ -104,15 +106,17 @@ public final class CommonUtils {
      * of the device and set the next reading date to now, when the
      * auto reschedule is enabled and the next reading date is NULL.
      *
-     * @param rtuType               - the {@link com.energyict.mdw.core.DeviceType} for the new Device
+     * @param deviceType            - the {@link com.energyict.mdw.core.DeviceType} for the new Device
      * @param serialNumber          - the serialNumber for the new Device
      * @param folderExtNameProperty - the folder to place the new Device
      * @return a new Device
      * @throws SQLException      if database exception occurred
      * @throws BusinessException if business exception occurred
      */
-    public static Device createMeterWithSerialNumber(DeviceType rtuType, String serialNumber, String folderExtNameProperty) throws SQLException, BusinessException {
-        DeviceShadow shadow = rtuType.getConfigurations().get(0).newDeviceShadow();
+    public static Device createMeterWithSerialNumber(DeviceType deviceType, String serialNumber, String folderExtNameProperty) throws SQLException, BusinessException {
+        DeviceConfiguration deviceConfiguration = deviceType.getConfigurations().get(0);
+        CreateDeviceTransaction createDeviceTransaction = deviceConfiguration.newDeviceTransaction();
+        DeviceShadow shadow = createDeviceTransaction.getDeviceShadow();
         shadow.setName(serialNumber);
         shadow.setSerialNumber(serialNumber);
 
@@ -120,12 +124,12 @@ public final class CommonUtils {
             Folder result = mw().getFolderFactory().findByExternalName(folderExtNameProperty);
             if (result != null) {
                 shadow.setFolderId(result.getId());
-            } // else the new rtu will be placed in the prototype folder
-        }// else the new rtu will be placed in the prototype folder
+            } // else the new Device will be placed in the prototype folder
+        }// else the new Device will be placed in the prototype folder
 
-        Device rtu = mw().getDeviceFactory().create(shadow);
-        setNextCommunications(rtu);
-        return rtu;
+        Device device = createDeviceTransaction.execute();
+        setNextCommunications(device);
+        return device;
     }
 
     /**
@@ -135,15 +139,17 @@ public final class CommonUtils {
      * of the device and set the next reading date to now, when the
      * auto reschedule is enabled and the next reading date is NULL.
      *
-     * @param rtuType               - the {@link com.energyict.mdw.core.DeviceType} for the new Device
+     * @param deviceType            - the {@link com.energyict.mdw.core.DeviceType} for the new Device
      * @param deviceId              - the deviceId for the new Device
      * @param folderExtNameProperty - the folder to place the new Device
      * @return a new Device
      * @throws SQLException      if database exception occurred
      * @throws BusinessException if business exception occurred
      */
-    public static Device createMeterWithDeviceId(DeviceType rtuType, String deviceId, String folderExtNameProperty) throws SQLException, BusinessException {
-        DeviceShadow shadow = rtuType.getConfigurations().get(0).newDeviceShadow();
+    public static Device createMeterWithDeviceId(DeviceType deviceType, String deviceId, String folderExtNameProperty) throws SQLException, BusinessException {
+        DeviceConfiguration deviceConfiguration = deviceType.getConfigurations().get(0);
+        CreateDeviceTransaction createDeviceTransaction = deviceConfiguration.newDeviceTransaction();
+        DeviceShadow shadow = createDeviceTransaction.getDeviceShadow();
         shadow.setName("Device - " + deviceId);
 //        shadow.setDeviceId(deviceId);
 
@@ -151,12 +157,12 @@ public final class CommonUtils {
             Folder result = mw().getFolderFactory().findByExternalName(folderExtNameProperty);
             if (result != null) {
                 shadow.setFolderId(result.getId());
-            } // else the new rtu will be placed in the prototype folder
-        }// else the new rtu will be placed in the prototype folder
+            } // else the new Device will be placed in the prototype folder
+        }// else the new Device will be placed in the prototype folder
 
-        Device rtu = mw().getDeviceFactory().create(shadow);
-        setNextCommunications(rtu);
-        return rtu;
+        Device device = createDeviceTransaction.execute();
+        setNextCommunications(device);
+        return device;
     }
 
     /**
@@ -180,22 +186,22 @@ public final class CommonUtils {
     }
 
     /**
-     * Find the DeviceType for the given RtuTypeName
+     * Find the DeviceType for the given DeviceTypeName
      *
-     * @param rtuTypeProperty - the name of the DeviceType
-     * @return the found rtuType
-     * @throws InvalidPropertyException when the name of the rtuType is null, when no DeviceType was found for the given name and when
+     * @param deviceTypeProperty - the name of the DeviceType
+     * @return the found DeviceType
+     * @throws InvalidPropertyException when the name of the DeviceType is null, when no DeviceType was found for the given name and when
      *                                  the found DeviceType doesn't have a prototype Device
      */
-    public static DeviceType getRtuType(String rtuTypeProperty) throws InvalidPropertyException {
-        if (rtuTypeProperty != null) {
-            DeviceType rtuType = mw().getDeviceTypeFactory().find(rtuTypeProperty);
-            if (rtuType == null) {
-                throw new InvalidPropertyException("No rtutype defined with name '" + rtuTypeProperty + "'.");
-            } else if (rtuType.getConfigurations().get(0).getPrototypeDevice() == null) {
-                throw new InvalidPropertyException("Rtutype '" + rtuTypeProperty + "' has no prototype rtu.");
+    public static DeviceType getDeviceType (String deviceTypeProperty) throws InvalidPropertyException {
+        if (deviceTypeProperty != null) {
+            DeviceType deviceType = mw().getDeviceTypeFactory().find(deviceTypeProperty);
+            if (deviceType == null) {
+                throw new InvalidPropertyException("No rtutype defined with name '" + deviceTypeProperty + "'.");
+            } else if (deviceType.getConfigurations().get(0).getPrototypeDevice() == null) {
+                throw new InvalidPropertyException("Rtutype '" + deviceTypeProperty + "' has no prototype rtu.");
             } else {
-                return rtuType;
+                return deviceType;
             }
         } else {
             throw new InvalidPropertyException("No automatic meter creation: no property DeviceType defined.");

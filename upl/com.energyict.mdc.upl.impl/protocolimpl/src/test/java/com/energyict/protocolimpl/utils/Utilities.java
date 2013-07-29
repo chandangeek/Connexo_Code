@@ -12,6 +12,7 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdw.core.Channel;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceConfiguration;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -22,6 +23,7 @@ import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.GroupShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
+import com.energyict.mdw.task.CreateDeviceTransaction;
 import com.energyict.protocolimpl.siemens7ED62.SCTMDumpData;
 
 import java.io.BufferedReader;
@@ -93,7 +95,7 @@ public class Utilities {
     }
 
     /**
-     * Create an DeviceType to use in future code as a basic to create new rtu's
+     * Create an DeviceType to use in future code as a basic to create new Devices
      *
      * @param commProtocol - the protocol
      * @param name         - name
@@ -102,98 +104,96 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static DeviceType createRtuType(CommunicationProtocol commProtocol, String name, int channelCount) throws SQLException, BusinessException {
-        DeviceTypeShadow rtuTypeShadow = new DeviceTypeShadow();
-        rtuTypeShadow.setName(name);
-        rtuTypeShadow.setProtocolId(commProtocol.getId());
-        DeviceType rtuType = mw().getDeviceTypeFactory().create(rtuTypeShadow);
-        return rtuType;
+    public static DeviceType createDeviceType (CommunicationProtocol commProtocol, String name, int channelCount) throws SQLException, BusinessException {
+        DeviceTypeShadow deviceTypeShadow = new DeviceTypeShadow();
+        deviceTypeShadow.setName(name);
+        deviceTypeShadow.setProtocolId(commProtocol.getId());
+        return mw().getDeviceTypeFactory().create(deviceTypeShadow);
     }
 
     /**
      * Create a basic Device with the serialNumber equal to "99999999, interval 3600s
      *
-     * @param rtuType - the metertype of your wanted rtu
-     * @return the newly created rtu
+     * @param deviceType - the DeviceType of your wanted Device
+     * @return the newly created Device
      * @throws SQLException
      * @throws BusinessException
      */
-    public static Device createRtu(DeviceType rtuType) throws SQLException, BusinessException {
-        return createRtu(rtuType, "99999999");
+    public static Device createDevice (DeviceType deviceType) throws SQLException, BusinessException {
+        return createDevice(deviceType, "99999999");
     }
 
     /**
      * Create a basic Device with you given serialnumber and an interval of 3600s
      *
-     * @param rtuType
-     * @param serial  of your rtu
-     * @return the newly created rtu
+     * @param deviceType
+     * @param serial The serial number of your Device
+     * @return the newly created Device
      * @throws SQLException
      * @throws BusinessException
      */
-    public static Device createRtu(DeviceType rtuType, String serial) throws SQLException, BusinessException {
-        return createRtu(rtuType, serial, 3600);
+    public static Device createDevice (DeviceType deviceType, String serial) throws SQLException, BusinessException {
+        return createDevice(deviceType, serial, 3600);
     }
 
     /**
      * Create your custom Device with a given serialnumber and interval
      *
-     * @param rtuType
-     * @param serial   of your rtu
+     * @param deviceType
+     * @param serial The serial number of your Device
      * @param interval in seconds
-     * @return the newly created rtu
+     * @return the newly created Device
      * @throws SQLException
      * @throws BusinessException
      */
-    public static Device createRtu(DeviceType rtuType, String serial, int interval) throws SQLException, BusinessException {
-        final DeviceShadow rtuShadow = rtuType.getConfigurations().get(0).newDeviceShadow();
-        rtuShadow.setRtuTypeId(rtuType.getId());
-        rtuShadow.setName(serial);
-        rtuShadow.setExternalName(serial);
-//        rtuShadow.setIntervalInSeconds(interval);
-        rtuShadow.setSerialNumber(serial);
-        Device rtu = mw().getDeviceFactory().create(rtuShadow);
-        return rtu;
+    public static Device createDevice (DeviceType deviceType, String serial, int interval) throws SQLException, BusinessException {
+        DeviceConfiguration deviceConfiguration = deviceType.getConfigurations().get(0);
+        CreateDeviceTransaction createDeviceTransaction = deviceConfiguration.newDeviceTransaction();
+        final DeviceShadow deviceShadow = createDeviceTransaction.getDeviceShadow();
+        deviceShadow.setRtuTypeId(deviceType.getId());
+        deviceShadow.setName(serial);
+        deviceShadow.setExternalName(serial);
+//        deviceShadow.setIntervalInSeconds(interval);
+        deviceShadow.setSerialNumber(serial);
+        return createDeviceTransaction.execute();
     }
 
     /**
-     * Add a custom property to your given rtu
+     * Add a custom property to your given Device
      *
-     * @param rtu
+     * @param device The Device
      * @param key   - String name of the property
      * @param value - Logically the value of the property
-     * @return the given rtu with the extra custom property
+     * @return the given device with the extra custom property
      * @throws SQLException
      * @throws BusinessException
      */
-    public static Device addPropertyToRtu(Device rtu, String key, String value) throws SQLException, BusinessException {
-        DeviceShadow rtuShadow = rtu.getShadow();
-        rtuShadow.getProperties().setProperty(key, value);
-        rtu.delete();
-        rtu = mw().getDeviceFactory().create(rtuShadow);
-        return rtu;
+    public static Device addPropertyToDevice (Device device, String key, String value) throws SQLException, BusinessException {
+        DeviceShadow shadow = device.getShadow();
+        shadow.getProperties().setProperty(key, value);
+        device.delete();
+        return mw().getDeviceFactory().create(shadow);
     }
 
     /**
-     * Adds a channel to the given rtu
+     * Adds a channel to the given Device
      *
-     * @param rtu
+     * @param device The Device
      * @param intervalIndex - Use '5' for Days and '2' for Months
      * @param profileIndex
-     * @return the given rtu with the extra channel
+     * @return the given device with the extra channel
      * @throws BusinessException
      * @throws SQLException
      */
-    public static Device addChannel(Device rtu, int intervalIndex, int profileIndex) throws BusinessException, SQLException {
-        DeviceShadow rtuShadow = rtu.getShadow();
+    public static Device addChannel(Device device, int intervalIndex, int profileIndex) throws BusinessException, SQLException {
+        DeviceShadow deviceShadow = device.getShadow();
         ChannelShadow channelShadow = new ChannelShadow();
         channelShadow.setName("Channel" + profileIndex);
         channelShadow.setInterval(new TimeDuration(1, intervalIndex));
         channelShadow.setLoadProfileIndex(profileIndex);
-        rtuShadow.add(channelShadow);
-        rtu.delete();
-        rtu = mw().getDeviceFactory().create(rtuShadow);
-        return rtu;
+        deviceShadow.add(channelShadow);
+        device.delete();
+        return mw().getDeviceFactory().create(deviceShadow);
     }
 
     /**
@@ -223,12 +223,12 @@ public class Utilities {
     /**
      * Get a {@link Channel} from a {@link com.energyict.mdw.core.Device}, using the channelindex
      *
-     * @param rtu
+     * @param device The Device
      * @param index
      * @return The {@link Channel}
      */
-    public static Channel getChannelWithProfileIndex(Device rtu, int index) {
-        Iterator it = rtu.getChannels().iterator();
+    public static Channel getChannelWithProfileIndex(Device device, int index) {
+        Iterator it = device.getChannels().iterator();
         while (it.hasNext()) {
             Channel chn = (Channel) it.next();
             if (chn.getLoadProfileIndex() == index) {
@@ -297,7 +297,7 @@ public class Utilities {
      * @throws SQLException
      * @throws BusinessException
      */
-    public static Group createEmptyRtuGroup() throws SQLException, BusinessException {
+    public static Group createEmptyDeviceGroup () throws SQLException, BusinessException {
         GroupShadow grs = new GroupShadow();
         grs.setName(emptyGroup);
         grs.setObjectType(MeteringWarehouse.FACTORYID_RTU);
@@ -313,7 +313,7 @@ public class Utilities {
      * @throws BusinessException
      * @throws SQLException
      */
-    public static Group createRtuTypeGroup() throws SQLException, BusinessException {
+    public static Group createDeviceTypeGroup () throws SQLException, BusinessException {
         GroupShadow grs = new GroupShadow();
         grs.setName(notEmptyGroup);
         grs.setObjectType(MeteringWarehouse.FACTORYID_RTU);
@@ -444,16 +444,16 @@ public class Utilities {
     /**
      * Set the lastReading of all channels from the given <CODE>Device</CODE> to null.
      *
-     * @param rtu the <CODE>Device</CODE> whos channels need to be cleared
+     * @param device the <CODE>Device</CODE> whos channels need to be cleared
      * @throws BusinessException
      * @throws SQLException
      */
-    public static void clearChannelsLastReading(Device rtu) throws BusinessException, SQLException {
-        DeviceShadow rShadow = rtu.getShadow();
+    public static void clearChannelsLastReading(Device device) throws BusinessException, SQLException {
+        DeviceShadow rShadow = device.getShadow();
         rShadow.setLastReading(new Date(1));
-        rtu.update(rShadow);
-        for (int i = 0; i < rtu.getChannels().size(); i++) {
-            Channel chn = rtu.getChannel(i);
+        device.update(rShadow);
+        for (int i = 0; i < device.getChannels().size(); i++) {
+            Channel chn = device.getChannel(i);
             chn.updateLastReading(null);
         }
     }

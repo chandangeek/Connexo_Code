@@ -16,6 +16,7 @@ import com.energyict.genericprotocolimpl.elster.ctr.object.AbstractCTRObject;
 import com.energyict.genericprotocolimpl.elster.ctr.object.field.CTRAbstractValue;
 import com.energyict.genericprotocolimpl.elster.ctr.structure.IdentificationResponseStructure;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceConfiguration;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.InfoType;
@@ -25,6 +26,7 @@ import com.energyict.mdw.coreimpl.DeviceFactoryImpl;
 import com.energyict.mdw.shadow.ChannelShadow;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.mdw.shadow.InfoTypeShadow;
+import com.energyict.mdw.task.CreateDeviceTransaction;
 import com.energyict.metadata.Criterium;
 import com.energyict.metadata.SearchFilter;
 import com.energyict.metadata.TypeDescriptor;
@@ -70,7 +72,7 @@ public class MTU155Discover {
     private Quantity weightVm;
     private Quantity weightVbs;
 
-    private DeviceType rtuType;
+    private DeviceType deviceType;
     private Folder lostAndFoundFolder;
 
     /**
@@ -83,10 +85,10 @@ public class MTU155Discover {
     }
 
     /**
-     * Fetch all the needed parameters from the rtu, validate them, check for duplicates in the database
-     * and if all the previous tests pass, create the new rtu in EIServer.
+     * Fetch all the needed parameters from the Device, validate them, check for duplicates in the database
+     * and if all the previous tests pass, create the new Device in EIServer.
      *
-     * @return The new created rtu
+     * @return The newly created Device
      * @throws CTRDiscoverException if there was a problem during the discovery process
      */
     public Device doDiscover() throws CTRDiscoverException {
@@ -96,13 +98,13 @@ public class MTU155Discover {
             fetchAndValidateMTUSerialNumber();
             fetchAndValidateConverterSerialNumber();
             fetchMeterCharacteristics();
-            validateExistingRtus();
-            Device rtu = createRtuAndAddFields();
-            if (rtu == null) {
+            validateExistingDevices();
+            Device device = createDeviceAndAddFields();
+            if (device == null) {
                 throw new CTRDiscoverException("Created RTU returned 'null'");
             }
             log("Discovered device: " + toString());
-            return rtu;
+            return device;
         } catch (CTRDiscoverException e) {
             throw new CTRDiscoverException("Unable to AutoDiscover device!", e);
         }
@@ -154,7 +156,7 @@ public class MTU155Discover {
      *
      * @throws CTRDiscoverException when there is a conflicting device in EIServer
      */
-    private void validateExistingRtus() throws CTRDiscoverException {
+    private void validateExistingDevices () throws CTRDiscoverException {
         DeviceFactoryImpl factory = (DeviceFactoryImpl) mw().getDeviceFactory();
         TypeDescriptor typeDescr = factory.getTypeDescriptor();
         SearchFilter filter = new SearchFilter(typeDescr);
@@ -168,11 +170,11 @@ public class MTU155Discover {
         List<Device> result = factory.findBySearchFilter(filter);
         if (result.size() > 0) {
             String ids = null;
-            for (Device rtu : result) {
+            for (Device device : result) {
                 if (ids == null) {
-                    ids = "" + rtu.getId();
+                    ids = "" + device.getId();
                 } else {
-                    ids += ", " + rtu.getId();
+                    ids += ", " + device.getId();
                 }
             }
             throw new CTRDiscoverException("Duplicate external name and/or pdr found for [" + result.size() + "] existing rtu(s) with id(s): [" + ids + "]");
@@ -196,10 +198,12 @@ public class MTU155Discover {
      * @return the created Device
      * @throws CTRDiscoverException when there is an error during the creation of the device in EIServer.
      */
-    private Device createRtuAndAddFields() throws CTRDiscoverException {
+    private Device createDeviceAndAddFields () throws CTRDiscoverException {
         try {
             checkAndCreateInfoFields();
-            DeviceShadow shadow = getRtuType().getConfigurations().get(0).newDeviceShadow();
+            DeviceConfiguration deviceConfiguration = getDeviceType().getConfigurations().get(0);
+            CreateDeviceTransaction createDeviceTransaction = deviceConfiguration.newDeviceTransaction();
+            DeviceShadow shadow = createDeviceTransaction.getDeviceShadow();
             shadow.setName(convertorSerial);
             shadow.setExternalName(createExternalName());
             shadow.setSerialNumber(meterSerial);
@@ -220,11 +224,11 @@ public class MTU155Discover {
             if (getFolder() != null) {
                 shadow.setFolderId(getFolder().getId());
             }
-            return mw().getDeviceFactory().create(shadow);
+            return createDeviceTransaction.execute();
         } catch (SQLException e) {
-            throw new CTRDiscoverException("Unable to create rtu", e);
+            throw new CTRDiscoverException("Unable to create device", e);
         } catch (BusinessException e) {
-            throw new CTRDiscoverException("Unable to create rtu", e);
+            throw new CTRDiscoverException("Unable to create device", e);
         }
 
     }
@@ -310,7 +314,7 @@ public class MTU155Discover {
     }
 
     /**
-     * The external name of the rtu should always have a given format: 'rtu/<convertorSerial>'
+     * The external name of the Device should always have a given format: 'rtu/<convertorSerial>'
      *
      * @return the external name that should be used while creating the new device in EIServer
      */
@@ -319,20 +323,20 @@ public class MTU155Discover {
     }
 
     /**
-     * Get the rtuType from EIServer that matches the rtuType given in the properties
+     * Get the DeviceType from EIServer that matches the DeviceType given in the properties
      *
      * @return
      * @throws CTRDiscoverException
      */
-    private DeviceType getRtuType() throws CTRDiscoverException {
-        if (rtuType == null) {
-            String rtuTypeName = getProperties().getRtuType();
-            rtuType = mw().getDeviceTypeFactory().find(rtuTypeName);
-            if (rtuType == null) {
-                throw new CTRDiscoverException("Unable to find DeviceType with name [" + rtuTypeName + "].");
+    private DeviceType getDeviceType () throws CTRDiscoverException {
+        if (deviceType == null) {
+            String deviceTypeName = getProperties().getRtuType();
+            deviceType = mw().getDeviceTypeFactory().find(deviceTypeName);
+            if (deviceType == null) {
+                throw new CTRDiscoverException("Unable to find DeviceType with name [" + deviceTypeName + "].");
             }
         }
-        return rtuType;
+        return deviceType;
     }
 
     /**
@@ -350,7 +354,7 @@ public class MTU155Discover {
     }
 
     /**
-     * Read the serial number of the (dump) gas meter from the rtu.
+     * Read the serial number of the (dump) gas meter from the Device.
      *
      * @throws CTRDiscoverException when the serial number could not be fetched, or has an invalid format
      */
@@ -391,7 +395,7 @@ public class MTU155Discover {
     }
 
     /**
-     * Check if the serial number ogf the rtu is a valid serial number,
+     * Check if the serial number ogf the Device is a valid serial number,
      * and if it is, format it to the correct 'ELSxxxxxx' format
      *
      * @throws CTRDiscoverException if the serial number is invalid

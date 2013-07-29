@@ -15,16 +15,12 @@ import com.energyict.mdw.coreimpl.DeviceImpl;
 import com.energyict.mdw.testutils.CommunicationProtocolCRUD;
 import com.energyict.mdw.testutils.RtuCRUD;
 import com.energyict.mdw.testutils.RtuTypeCRUD;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * This class just serves tests for functionality that will not be allowed in version 9.1
@@ -83,7 +79,7 @@ public class UtilitiesTest {
     public void createRtuTypeTest() throws BusinessException, SQLException {
         CommunicationProtocol commProtocol = Utilities.findOrcreateCommunicationProtocol(javaClassName);
 
-        Utilities.createRtuType(commProtocol, testRtu, 6);
+        Utilities.createDeviceType(commProtocol, testRtu, 6);
         List<DeviceType> result = Utilities.mw().getDeviceTypeFactory().findByName(testRtu);
 
         assertEquals(1, result.size());
@@ -105,9 +101,9 @@ public class UtilitiesTest {
         if (commProtocol == null) {
             commProtocol = Utilities.findOrcreateCommunicationProtocol(javaClassName);
         }
-        rtuType = Utilities.createRtuType(commProtocol, testRtu, 6);
+        rtuType = Utilities.createDeviceType(commProtocol, testRtu, 6);
 
-        Utilities.createRtu(rtuType);
+        Utilities.createDevice(rtuType);
         result = Utilities.mw().getDeviceFactory().findBySerialNumber("99999999");
 
         assertEquals(1, result.size());
@@ -121,9 +117,9 @@ public class UtilitiesTest {
         DeviceType rtuType;
         Device rtu = null;
         commProtocol = Utilities.findOrcreateCommunicationProtocol(javaClassName);
-        rtuType = Utilities.createRtuType(commProtocol, testRtu, 6);
+        rtuType = Utilities.createDeviceType(commProtocol, testRtu, 6);
 
-        Utilities.createRtu(rtuType);
+        Utilities.createDevice(rtuType);
         List result = Utilities.mw().getDeviceFactory().findBySerialNumber("99999999");
 
         assertEquals(1, result.size());
