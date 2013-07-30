@@ -2,8 +2,8 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.consumer.MessageHandler;
-import oracle.jdbc.aq.AQMessage;
 
 import java.sql.SQLException;
 
@@ -16,14 +16,14 @@ public class StreamImportMessageHandler implements MessageHandler {
     }
 
     @Override
-    public void process(AQMessage message) throws SQLException {
+    public void process(Message message) throws SQLException {
         FileImport fileImport = getFileImport(message);
         if (fileImport != null) {
             streamImporter.process(fileImport);
         }
     }
 
-    private FileImport getFileImport(AQMessage message) throws SQLException {
+    private FileImport getFileImport(Message message) throws SQLException {
         FileImport fileImport = null;
         FileImportMessage fileImportMessage = getFileImportMessage(message);
         if (fileImportMessage != null) {
@@ -32,7 +32,7 @@ public class StreamImportMessageHandler implements MessageHandler {
         return fileImport;
     }
 
-    private FileImportMessage getFileImportMessage(AQMessage message) throws SQLException {
+    private FileImportMessage getFileImportMessage(Message message) throws SQLException {
         return Bus.getJsonService().deserialize(message.getPayload(), FileImportMessage.class);
     }
 }

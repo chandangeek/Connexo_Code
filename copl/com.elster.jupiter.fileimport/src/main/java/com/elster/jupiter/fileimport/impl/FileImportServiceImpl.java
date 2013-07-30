@@ -20,7 +20,7 @@ import org.osgi.service.log.LogService;
 
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
+@Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + Bus.COMPONENTNAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, ServiceLocator, FileImportService {
 
     private volatile LogService logService;
@@ -119,13 +119,20 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
             List<ImportSchedule> importSchedules = getOrmClient().getImportScheduleFactory().find();
             int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
             cronExpressionScheduler = new CronExpressionScheduler(poolSize);
-            for (ImportSchedule importSchedule : importSchedules) {
-                cronExpressionScheduler.submit(new ImportScheduleJob(importSchedule));
-            }
         } catch (RuntimeException e) {
 			e.printStackTrace();
             throw e;
 		}
+    }
+
+    @Override
+    public void schedule(ImportSchedule importSchedule) {
+        cronExpressionScheduler.submit(new ImportScheduleJob(importSchedule));
+    }
+
+    @Override
+    public ImportSchedule getImportSchedule(long id) {
+        return getOrmClient().getImportScheduleFactory().get(id).get();
     }
 
     public void deactivate(ComponentContext context) {
