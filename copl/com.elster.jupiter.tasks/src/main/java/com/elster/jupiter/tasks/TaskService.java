@@ -8,4 +8,6 @@ public interface TaskService {
 
     MessageHandler createMessageHandler(TaskExecutor taskExecutor);
 
+    RecurrentTask getRecurrentTask(long id);
+
 }

@@ -6,6 +6,7 @@ import com.elster.jupiter.messaging.consumer.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskService;
@@ -48,6 +49,11 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     @Override
     public MessageHandler createMessageHandler(TaskExecutor taskExecutor) {
         return new TaskExecutionMessageHandler(taskExecutor);
+    }
+
+    @Override
+    public RecurrentTask getRecurrentTask(long id) {
+        return getOrmClient().getRecurrentTaskFactory().get(id).get();
     }
 
     @Reference
