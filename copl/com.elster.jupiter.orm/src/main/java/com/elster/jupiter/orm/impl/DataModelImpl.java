@@ -18,146 +18,156 @@ import java.util.List;
 import java.util.Map;
 
 
-public class DataModelImpl implements DataModel , PersistenceAware {
-	// persistent fields
-	private String name;
-	private String description;
-	
-	// associations
-	private List<Table> tables;
-	
-	@SuppressWarnings("unused")
-	private DataModelImpl() {
-	}
-	
-	public DataModelImpl(String name , String description) {
-		this.name = name;
-		this.description = description;
-		this.tables = new ArrayList<>();
-	}
+public class DataModelImpl implements DataModel, PersistenceAware {
 
-	@Override
-	public String getName() {		
-		return name;
-	}
-	
-	@Override
-	public String getDescription() {	
-		return description;
-	}
-	
-	@Override 
-	public List<Table> getTables() {
-		return getTables(true);
-	}
-	
-	public List<Table> getTables(boolean protect) {
-		if (tables == null) {
-			tables = getOrmClient().getTableFactory().find("component", this);			
-		}
-		return protect ? Collections.unmodifiableList(tables) : tables;
-	}
+    // persistent fields
+    private String name;
+    private String description;
 
-	@Override 
-	public Table getTable(String tableName) {
-		for (Table table : getTables()) {
-			if (table.getName().equals(tableName)) {
-				return table;
-			}
-		}
-		return null;
-	}
-		
-	@Override
-	public Table addTable(String tableName) {		
-		return addTable(null,tableName);
-	}
+    // associations
+    private List<Table> tables;
 
-	@Override
-	public Table addTable(String schema , String tableName) {
-		if (getTable(tableName) != null) {
-			throw new IllegalArgumentException("Component has already table " + tableName);
-		}
-		Table table = new TableImpl(this,schema,tableName);
-		add(table);
-		return table;
-	}
-	
-	@Override
-	public String toString() {
-		return "Component " + name; 
-	}
-	
-	private void add(Table table) {
-		getTables(false).add(table);
-	}
+    @SuppressWarnings("unused")
+    private DataModelImpl() {
+    }
 
-	public void persist() {
-		getOrmClient().getDataModelFactory().persist(this);
-		for ( Table table: getTables(false)) {
-			((TableImpl) table).persist();
-		}
-	}
-	
-	private OrmClient getOrmClient() {
-		return Bus.getOrmClient();
-	}
+    public DataModelImpl(String name, String description) {
+        this.name = name;
+        this.description = description;
+        this.tables = new ArrayList<>();
+    }
 
-	@Override
-	public void postLoad() {
-		getTables(false);		
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public <T> DataMapper<T> getDataMapper(Class<T> api, Class<? extends T> implementation, String tableName) {		
-		return getTable(tableName).getDataMapper(api, implementation);
-	}
+    @Override
+    public String getDescription() {
+        return description;
+    }
 
-	@Override
-	public <T> DataMapper<T> getDataMapper(Class<T> api, Map<String,Class<? extends T>> implementations, String tableName) {		
-		return getTable(tableName).getDataMapper(api, implementations);
-	}
-	
-	@Override
-	public void install(boolean executeDdl, boolean store) {
-		if (executeDdl) {
-			executeDdl();
-		} 
-		if (store) {
-			persist();
-		}
-		
-	}
-	
-	private void executeDdl() {
-		try {
-			doExecuteDdl();
-		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
-		}
-	}
-	
-	private void doExecuteDdl() throws SQLException {
-        try (Connection connection = Bus.getConnection(false)) {
-            try (Statement statement = connection.createStatement()) {
-                for (Table table : getTables()) {
-                    for (String each : ((TableImpl) table).getDdl()) {
-                        System.out.println(each);
-                        statement.execute(each);
-                    }
-                }
+    @Override
+    public List<Table> getTables() {
+        return getTables(true);
+    }
+
+    public List<Table> getTables(boolean protect) {
+        if (tables == null) {
+            tables = getOrmClient().getTableFactory().find("component", this);
+        }
+        return protect ? Collections.unmodifiableList(tables) : tables;
+    }
+
+    @Override
+    public Table getTable(String tableName) {
+        for (Table table : getTables()) {
+            if (table.getName().equals(tableName)) {
+                return table;
             }
         }
-	}
+        return null;
+    }
 
-	@Override
-	public Connection getConnection(boolean transactionRequired) throws SQLException {
-		return Bus.getConnection(transactionRequired);
-	}
+    @Override
+    public Table addTable(String tableName) {
+        return addTable(null, tableName);
+    }
 
-	@Override
-	public Principal getPrincipal() {
-		return Bus.getPrincipal();		
-	}
+    @Override
+    public Table addTable(String schema, String tableName) {
+        if (getTable(tableName) != null) {
+            throw new IllegalArgumentException("Component has already table " + tableName);
+        }
+        Table table = new TableImpl(this, schema, tableName);
+        add(table);
+        return table;
+    }
+
+    @Override
+    public String toString() {
+        return "Component " + name;
+    }
+
+    private void add(Table table) {
+        getTables(false).add(table);
+    }
+
+    public void persist() {
+        getOrmClient().getDataModelFactory().persist(this);
+        for (Table table : getTables(false)) {
+            ((TableImpl) table).persist();
+        }
+    }
+
+    private OrmClient getOrmClient() {
+        return Bus.getOrmClient();
+    }
+
+    @Override
+    public void postLoad() {
+        getTables(false);
+    }
+
+    @Override
+    public <T> DataMapper<T> getDataMapper(Class<T> api, Class<? extends T> implementation, String tableName) {
+        return getTable(tableName).getDataMapper(api, implementation);
+    }
+
+    @Override
+    public <T> DataMapper<T> getDataMapper(Class<T> api, Map<String, Class<? extends T>> implementations, String tableName) {
+        return getTable(tableName).getDataMapper(api, implementations);
+    }
+
+    @Override
+    public void install(boolean executeDdl, boolean store) {
+        if (executeDdl) {
+            executeDdl();
+        }
+        if (store) {
+            persist();
+        }
+
+    }
+
+    private void executeDdl() {
+        try {
+            doExecuteDdl();
+        } catch (SQLException ex) {
+            throw new PersistenceException(ex);
+        }
+    }
+
+    private void doExecuteDdl() throws SQLException {
+        try (
+                Connection connection = Bus.getConnection(false);
+                Statement statement = connection.createStatement()
+        ) {
+            doExecuteDdl(statement);
+        }
+    }
+
+    private void doExecuteDdl(Statement statement) throws SQLException {
+        for (Table table : getTables()) {
+            executeTableDdl(statement, (TableImpl) table);
+        }
+    }
+
+    private void executeTableDdl(Statement statement, TableImpl table) throws SQLException {
+        for (String each : table.getDdl()) {
+            System.out.println(each);
+            statement.execute(each);
+        }
+    }
+
+    @Override
+    public Connection getConnection(boolean transactionRequired) throws SQLException {
+        return Bus.getConnection(transactionRequired);
+    }
+
+    @Override
+    public Principal getPrincipal() {
+        return Bus.getPrincipal();
+    }
 
 }
