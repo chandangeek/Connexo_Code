@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -23,7 +24,7 @@ public class OrmClientImpl implements OrmClient {
 
 	@Override
 	public void install() {
-		dataModel.install(true,true);		
+		dataModel.install(true, true);
 	}
 
     @Override
@@ -34,6 +35,11 @@ public class OrmClientImpl implements OrmClient {
     @Override
     public DataMapper<SubscriberExecutionSpec> getSubscriberExecutionSpecFactory() {
         return dataModel.getDataMapper(SubscriberExecutionSpec.class, SubscriberExecutionSpecImpl.class, TableSpecs.APS_SUBSCRIBEREXECUTIONSPEC.name());
+    }
+
+    @Override
+    public DataMapper<ImportScheduleOnAppServer> getImportScheduleOnAppServerFactory() {
+        return dataModel.getDataMapper(ImportScheduleOnAppServer.class, ImportScheduleOnAppServerImpl.class, TableSpecs.APS_IMPORTSCHEDULEONSERVER.name());
     }
 
 }

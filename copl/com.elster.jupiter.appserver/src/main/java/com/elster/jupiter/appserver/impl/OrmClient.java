@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.orm.DataMapper;
 
@@ -17,4 +18,6 @@ public interface OrmClient {
     DataMapper<AppServer> getAppServerFactory();
 
     DataMapper<SubscriberExecutionSpec> getSubscriberExecutionSpecFactory();
+
+    DataMapper<ImportScheduleOnAppServer> getImportScheduleOnAppServerFactory();
 }

@@ -15,4 +15,5 @@ public interface AppServer {
 
 	SubscriberExecutionSpec createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
 
+    void sendCommand(AppServerCommand command);
 }

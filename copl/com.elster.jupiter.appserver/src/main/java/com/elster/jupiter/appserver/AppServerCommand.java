@@ -22,7 +22,9 @@ public class AppServerCommand {
     }
 
     public Properties getProperties() {
-        return new Properties(properties);
+        Properties properties = new Properties();
+        properties.putAll(this.properties);
+        return properties;
     }
 
     public Command getCommand() {

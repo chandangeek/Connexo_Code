@@ -1,9 +1,11 @@
 package com.elster.jupiter.appserver.impl;
 
 
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
 
 public enum Bus {
     ;
@@ -29,5 +31,13 @@ public enum Bus {
 
     public static void setServiceLocator(ServiceLocator serviceLocator) {
         Bus.serviceLocator = serviceLocator;
+    }
+
+    public static FileImportService getFileImportService() {
+        return serviceLocator.getFileImportService();
+    }
+
+    public static JsonService getJsonService() {
+        return serviceLocator.getJsonService();
     }
 }

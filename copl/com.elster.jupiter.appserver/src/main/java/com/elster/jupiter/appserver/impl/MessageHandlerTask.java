@@ -1,9 +1,9 @@
 package com.elster.jupiter.appserver.impl;
 
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.consumer.MessageHandler;
 import com.elster.jupiter.transaction.VoidTransaction;
-import oracle.jdbc.aq.AQMessage;
 
 import java.sql.SQLException;
 import java.util.concurrent.FutureTask;
@@ -56,7 +56,7 @@ public class MessageHandlerTask implements Runnable {
         @Override
         protected void doPerform() {
             try {
-                AQMessage message = subscriberSpec.receive();
+                Message message = subscriberSpec.receive();
                 if (message == null) { // receive() got cancelled, by a shut down request
                     Thread.currentThread().interrupt();
                     return;

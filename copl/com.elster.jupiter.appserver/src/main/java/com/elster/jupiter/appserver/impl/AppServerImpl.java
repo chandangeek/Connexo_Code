@@ -1,13 +1,19 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.ServerMessageQueueMissing;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.cron.CronExpression;
+import com.google.common.base.Optional;
 
 import java.util.List;
 
 public class AppServerImpl implements AppServer {
+
+    private static final String APP_SERVER = "AppServer";
 
     private String name;
     private String cronString;
@@ -47,5 +53,20 @@ public class AppServerImpl implements AppServer {
     public String getName() {
         return name;
     }
+
+    @Override
+    public void sendCommand(AppServerCommand command) {
+        Optional<DestinationSpec> destinationSpec = Bus.getMessageService().getDestinationSpec(messagingName());
+        if (!destinationSpec.isPresent()) {
+            throw new ServerMessageQueueMissing(messagingName());
+        }
+        String json = Bus.getJsonService().serialize(command);
+        destinationSpec.get().message(json).send();
+    }
+
+    String messagingName() {
+        return APP_SERVER + '_' + getName();
+    }
+
 
 }

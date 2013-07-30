@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.NOCONVERSION;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 
 public enum TableSpecs {
 
@@ -30,6 +31,15 @@ public enum TableSpecs {
             Column appServerColumn = table.addColumn("APPSERVER", "varchar2(80)", true, NOCONVERSION, "appServerName");
             table.addForeignKeyConstraint("APS_FKEXECUTIONSPECAPPSERVER", APS_APPSERVER.name(), DeleteRule.CASCADE, new AssociationMapping("appServer"), appServerColumn);
             table.addPrimaryKeyConstraint("APS_PK_SUBSCRIBEREXECUTIONSPEC", idColumn);
+        }
+    },
+    APS_IMPORTSCHEDULEONSERVER {
+        @Override
+        void describeTable(Table table) {
+            Column appServerColumn = table.addColumn("APPSERVER", "varchar2(80)", true, NOCONVERSION, "appServerName");
+            Column importScheduleColumn = table.addColumn("IMPORTSCHEDULE", "number", true, NUMBER2LONG, "importScheduleId");
+            table.addForeignKeyConstraint("APS_FKIMPORTSCHEDULEAPPSERVER", APS_APPSERVER.name(), DeleteRule.CASCADE, new AssociationMapping("appServer"), appServerColumn);
+            table.addPrimaryKeyConstraint("APS_PK_IMPORTSCHEDULEONSERVER", appServerColumn, importScheduleColumn);
         }
     };
 

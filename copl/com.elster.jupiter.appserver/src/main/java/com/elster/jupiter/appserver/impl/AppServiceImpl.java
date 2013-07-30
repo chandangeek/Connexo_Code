@@ -4,8 +4,12 @@ import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppServerCommand;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.Command;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -15,6 +19,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.InvalidateCacheRequest;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -25,7 +30,6 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
-import oracle.jdbc.aq.AQMessage;
 import org.osgi.framework.BundleException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
@@ -44,14 +48,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
-@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + Bus.COMPONENTNAME, "osgi.command.scope=jupiter", "osgi.command.function=create", "osgi.command.function=executeSubscription"}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + Bus.COMPONENTNAME, "osgi.command.scope=jupiter", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport"}, immediate = true)
 public class AppServiceImpl implements ServiceLocator, InstallService, AppService, Subscriber {
 
     private static final String APPSERVER_NAME = "com.elster.jupiter.appserver.name";
-    private static final String APP_SERVER = "AppServer";
     private static final String ALL_SERVERS = "AllServers";
     private static final String COMPONENT_NAME = "componentName";
     private static final String TABLE_NAME = "tableName";
+    private static final String ID = "id";
 
     private volatile OrmClient ormClient;
     private volatile TransactionService transactionService;
@@ -63,8 +67,9 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private volatile Publisher publisher;
     private volatile CacheService cacheService;
     private volatile JsonService jsonService;
+    private volatile FileImportService fileImportService;
 
-    private AppServer appServer;
+    private AppServerImpl appServer;
     private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
     private SubscriberSpec appServerSubscriberSpec;
     private SubscriberSpec allServerSubscriberSpec;
@@ -106,11 +111,30 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
             activateAnonymously();
             return;
         }
-        appServer = foundAppServer.get();
+        appServer = (AppServerImpl) foundAppServer.get();
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
+
+        List<ImportScheduleOnAppServer> importScheduleOnAppServers = getOrmClient().getImportScheduleOnAppServerFactory().find("appServer", appServer);
+        for (ImportScheduleOnAppServer importScheduleOnAppServer : importScheduleOnAppServers) {
+            getFileImportService().schedule(importScheduleOnAppServer.getImportSchedule());
+        }
 
         listenForMessagesToAppServer();
         listenForMesssagesToAllServers();
+        listenForInvalidateCacheRequests();
+    }
+
+    private void listenForInvalidateCacheRequests() {
+        new EventHandler<InvalidateCacheRequest>(InvalidateCacheRequest.class) {
+            public void onEvent(InvalidateCacheRequest request) {
+                Properties properties = new Properties();
+                properties.put(COMPONENT_NAME, request.getComponentName());
+                properties.put(TABLE_NAME, request.getTableName());
+                AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
+
+                allServerSubscriberSpec.getDestination().message(getJsonService().serialize(command)).send();
+            }
+        }.register(context.getBundleContext());
 
         Dictionary<String, Object> dictionary = new Hashtable<>();
         dictionary.put(Subscriber.TOPIC, new Class[] { InvalidateCacheRequest.class });
@@ -207,7 +231,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     }
 
     private String messagingName() {
-        return AppServiceImpl.APP_SERVER + '_' + appServer.getName();
+        return appServer.messagingName();
     }
 
     @Override
@@ -298,6 +322,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         this.threadPrincipalService = threadPrincipalService;
     }
 
+    @Override
     public JsonService getJsonService() {
         return jsonService;
     }
@@ -305,6 +330,16 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Override
+    public FileImportService getFileImportService() {
+        return fileImportService;
+    }
+
+    @Reference
+    public void setFileImportService(FileImportService fileImportService) {
+        this.fileImportService = fileImportService;
     }
 
     public void create(String name, String cronString) {
@@ -319,6 +354,37 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         } finally {
             getThreadPrincipalService().set(null);
         }
+    }
+
+    public void activateFileImport(long id, String appServerName) {
+        final AppServer appServerToActivateOn = getAppServerForActivation(appServerName);
+        if (appServerToActivateOn == null) {
+            System.out.println("AppServer not found.");
+            return;
+        }
+        final ImportSchedule importSchedule = getFileImportService().getImportSchedule(id);
+        getTransactionService().execute(new VoidTransaction() {
+            @Override
+            public void doPerform() {
+                doActivateFileImport(appServerToActivateOn, importSchedule);
+            }
+        });
+    }
+
+    private AppServer getAppServerForActivation(String appServerName) {
+        AppServer appServerToActivateOn = null;
+        if (appServer != null && appServer.getName().equals(appServerName)) {
+            appServerToActivateOn = appServer;
+        } else {
+            Optional<AppServer> found = getOrmClient().getAppServerFactory().get(appServerName);
+            appServerToActivateOn = found.orNull();
+        }
+        return appServerToActivateOn;
+    }
+
+    private void doActivateFileImport(AppServer appServerToActivateOn, ImportSchedule importSchedule) {
+        ImportScheduleOnAppServerImpl importScheduleOnAppServer = new ImportScheduleOnAppServerImpl(importSchedule, appServerToActivateOn);
+        importScheduleOnAppServer.save();
     }
 
     @Override
@@ -338,7 +404,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private class CommandHandler implements MessageHandler {
 
         @Override
-        public void process(AQMessage message) throws SQLException {
+        public void process(Message message) throws SQLException {
             AppServerCommand command = getJsonService().deserialize(message.getPayload(), AppServerCommand.class);
             switch (command.getCommand()) {
                 case STOP:
@@ -350,6 +416,10 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
                     String tableName = properties.getProperty(TABLE_NAME);
                     cacheService.refresh(componentName, tableName);
                     break;
+                case FILEIMPORT_ACTIVATED:
+                    String idAsString = command.getProperties().getProperty(ID);
+                    ImportSchedule importSchedule = getFileImportService().getImportSchedule(Long.valueOf(idAsString));
+                    getFileImportService().schedule(importSchedule);
                 default:
             }
         }
@@ -373,4 +443,5 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         stoppingThread.start();
         Thread.currentThread().interrupt();
     }
+
 }
