@@ -1,4 +1,4 @@
-package com.elster.jupiter.rest.whiteboard;
+package com.elster.jupiter.rest.whiteboard.impl;
 
 import com.sun.jersey.api.container.filter.ResourceDebuggingFilterFactory;
 import com.sun.jersey.api.container.filter.RolesAllowedResourceFilterFactory;
@@ -53,7 +53,7 @@ public class WhiteBoard {
         secureConfig.getProperties().put(ResourceConfig.PROPERTY_RESOURCE_FILTER_FACTORIES, resourceFilterFactories);
         try {
         	ServletContainer container = new ServletContainer(secureConfig);
-        	HttpServlet wrapper = new ServletWrapper(container);
+        	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container));
         	httpService.registerServlet(alias, wrapper, null, httpContext);
         } catch (ServletException | NamespaceException e) {
             e.printStackTrace();

@@ -1,4 +1,4 @@
-package com.elster.jupiter.rest.whiteboard;
+package com.elster.jupiter.rest.whiteboard.impl;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -24,7 +24,11 @@ class Bus {
 	static ThreadPrincipalService getThreadPrincipalService() {
 		return locator.getThreadPrincipalService();
 	}
-	
+
+    static void fire(Object event) {
+        locator.getPublisher().publish(event);
+    }
+
 	private Bus() {
 		throw new UnsupportedOperationException();
 	}
