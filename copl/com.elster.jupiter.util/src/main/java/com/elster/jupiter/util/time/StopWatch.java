@@ -5,7 +5,7 @@ import java.lang.management.ThreadMXBean;
 
 public final class StopWatch {
 	
-	private final static ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+	private static final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 	private final boolean measureCpu;
 	private long cpu;
 	private long elapsed;
