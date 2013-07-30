@@ -1,6 +1,7 @@
 package com.elster.jupiter.messaging.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.time.UtcInstant;
 import oracle.jdbc.OracleConnection;
@@ -30,17 +31,17 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     private volatile OracleConnection cancellableConnection;
 
     private Object cancelLock = new Object();
-	
-	@SuppressWarnings("unused")
+
+    @SuppressWarnings("unused")
 	private SubscriberSpecImpl() {
 	}
-	
+
 	SubscriberSpecImpl(DestinationSpec destination, String name) {
 		this.destination = destination;
 		this.destinationName = destination.getName();
 		this.name = name;
 	}
-	
+
 	@Override
 	public DestinationSpec getDestination() {
 		if (destination == null) {
@@ -55,10 +56,11 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 	}
 
 	@Override
-    public AQMessage receive() throws SQLException {
+    public Message receive() throws SQLException {
 		try (Connection connection = Bus.getConnection()) {
 			cancellableConnection= connection.unwrap(OracleConnection.class);
-            return cancellableConnection.dequeue(destinationName, basicOptions(), getDestination().getPayloadType());
+            AQMessage aqMessage = cancellableConnection.dequeue(destinationName, basicOptions(), getDestination().getPayloadType());
+            return new MessageImpl(aqMessage);
         } catch (SQLTimeoutException e) {
             // we don't specify a timeout, so this means the connection got a cancel() call, requesting we're shutting down, so we will
             // no recovery needed, ignoring exception.
@@ -75,6 +77,14 @@ public class SubscriberSpecImpl implements SubscriberSpec {
                 cancellableConnection.cancel();
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "SubscriberSpecImpl{" +
+                "name='" + name + '\'' +
+                ", destinationName='" + destinationName + '\'' +
+                '}';
     }
 
     private AQDequeueOptions basicOptions() throws SQLException {

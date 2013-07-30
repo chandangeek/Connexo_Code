@@ -1,9 +1,9 @@
 package com.elster.jupiter.messaging.impl;
 
+import com.elster.jupiter.transaction.TransactionService;
+
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import com.elster.jupiter.transaction.TransactionService;
 
 public class Bus {
 	static final String COMPONENTNAME = "MSG";
@@ -25,5 +25,9 @@ public class Bus {
 	public static TransactionService getTransactionService() {
 		return locator.getTransactionService();
 	}
+
+    static void fire(Object event) {
+        locator.getPublisher().publish(event);
+    }
 	
 }

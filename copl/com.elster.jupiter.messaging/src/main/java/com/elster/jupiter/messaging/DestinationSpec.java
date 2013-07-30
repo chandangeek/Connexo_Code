@@ -1,8 +1,5 @@
 package com.elster.jupiter.messaging;
 
-import oracle.jdbc.aq.AQMessage;
-
-import java.sql.SQLException;
 import java.util.List;
 
 public interface DestinationSpec {
@@ -26,8 +23,6 @@ public interface DestinationSpec {
     MessageBuilder message(String text);
 
     MessageBuilder message(byte[] bytes);
-
-    MessageBuilder message(AQMessage message) throws SQLException;
 
     List<SubscriberSpec> getConsumers();
 

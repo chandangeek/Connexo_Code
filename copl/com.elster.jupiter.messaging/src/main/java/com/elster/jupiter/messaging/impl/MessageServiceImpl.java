@@ -7,6 +7,7 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Optional;
 import oracle.jdbc.aq.AQMessage;
@@ -23,6 +24,7 @@ import java.sql.SQLException;
 public class MessageServiceImpl implements MessageService , InstallService , ServiceLocator {	
 	private volatile OrmClient ormClient;
 	private volatile TransactionService transactionService;
+    private volatile Publisher publisher;
 	
 	@Reference
 	public void setOrmService(OrmService ormService) {
@@ -105,6 +107,16 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
     @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
         return Bus.getOrmClient().getConsumerSpecFactory().get(destinationSpecName, name);
+    }
+
+    @Override
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    @Reference
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
     }
 
     public void drain(String[] names) {

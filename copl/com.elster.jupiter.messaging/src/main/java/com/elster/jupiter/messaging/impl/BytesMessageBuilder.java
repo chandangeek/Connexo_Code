@@ -1,6 +1,7 @@
 package com.elster.jupiter.messaging.impl;
 
 import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.messaging.MessageEnqueuedEvent;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQEnqueueOptions;
 import oracle.jdbc.aq.AQFactory;
@@ -58,6 +59,7 @@ class BytesMessageBuilder implements MessageBuilder {
         try (Connection connection = Bus.getConnection()) {
             OracleConnection oraConnection= connection.unwrap(OracleConnection.class);
             oraConnection.enqueue(destinationSpec.getName(), new AQEnqueueOptions() , message);
+            Bus.fire(new MessageEnqueuedEvent(message));
         }
     }
 }

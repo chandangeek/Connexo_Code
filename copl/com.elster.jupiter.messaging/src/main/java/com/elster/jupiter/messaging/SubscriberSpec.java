@@ -1,6 +1,5 @@
 package com.elster.jupiter.messaging;
 
-import oracle.jdbc.aq.AQMessage;
 
 import java.sql.SQLException;
 
@@ -10,7 +9,7 @@ public interface SubscriberSpec {
 
     String getName();
 
-    AQMessage receive() throws SQLException;
+    Message receive() throws SQLException;
 
     void cancel() throws SQLException;
 }

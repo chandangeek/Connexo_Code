@@ -8,7 +8,6 @@ import com.elster.jupiter.util.time.UtcInstant;
 import oracle.AQ.AQException;
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
-import oracle.jdbc.aq.AQMessage;
 import oracle.jms.AQjmsDestination;
 import oracle.jms.AQjmsDestinationProperty;
 import oracle.jms.AQjmsQueueConnectionFactory;
@@ -190,11 +189,6 @@ public class DestinationSpecImpl implements DestinationSpec {
 		} else {
 			return new BytesMessageBuilder(this, text.getBytes());
 		}
-	}
-	
-	@Override
-	public MessageBuilder message(AQMessage message) {
-        return new AQMessageOptionsBuilder(this, message);
 	}
 	
 	@Override
