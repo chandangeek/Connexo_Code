@@ -1,9 +1,10 @@
-package com.elster.jupiter.rest.whiteboard;
+package com.elster.jupiter.rest.whiteboard.impl;
 
-import java.security.Principal;
+import com.elster.jupiter.users.User;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.SecurityContext;
-import com.elster.jupiter.users.User;
+import java.security.Principal;
 
 public class SecurityContextImpl implements SecurityContext {
 	private final HttpServletRequest request;

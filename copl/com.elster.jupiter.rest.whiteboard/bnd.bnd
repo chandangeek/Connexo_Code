@@ -1,4 +1,5 @@
 -classpath: target/classes
--dsannotations: com.elster.jupiter.rest.whiteboard.ServiceLocatorImpl
-Private-Package: com.elster.jupiter.rest.whiteboard
+-dsannotations: *
+Private-Package: com.elster.jupiter.rest.whiteboard.impl
 Include-Resource: OSGI-INF/metatype/metatype.xml=OSGI-INF/metatype/metatype.xml
+Export-Package: com.elster.jupiter.rest.whiteboard

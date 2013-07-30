@@ -1,5 +1,6 @@
-package com.elster.jupiter.rest.whiteboard;
+package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 
@@ -27,6 +28,7 @@ public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
     private volatile boolean debug;
     private volatile BundleTracker<Bundle> tracker;
     private volatile WhiteBoard whiteBoard;
+    private volatile Publisher publisher;
 
     public ServiceLocatorImpl() {            
     }
@@ -85,8 +87,18 @@ public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
 	public boolean getDebug() {
 		return debug;
 	}
-	
-	private class JerseyBundleTrackerCustomizer implements BundleTrackerCustomizer<Bundle> {
+
+    @Override
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    @Reference
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
+    private class JerseyBundleTrackerCustomizer implements BundleTrackerCustomizer<Bundle> {
 		private final BundleContext bundleContext;
 		
 		JerseyBundleTrackerCustomizer(BundleContext context) {
@@ -95,8 +107,9 @@ public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
 
 		@Override
 		public Bundle addingBundle(Bundle bundle, BundleEvent event) {
-			if (!bundle.getSymbolicName().equals("com.sun.jersey.core"))
-				return null;
+			if (!"com.sun.jersey.core".equals(bundle.getSymbolicName())) {
+                return null;
+            }
 			if (bundle.getState() == Bundle.ACTIVE) {
 				startWhiteBoard(bundleContext);
 				return null;

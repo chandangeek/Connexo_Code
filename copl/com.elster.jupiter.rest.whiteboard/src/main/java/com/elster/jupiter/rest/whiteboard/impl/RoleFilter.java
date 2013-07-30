@@ -1,7 +1,9 @@
-package com.elster.jupiter.rest.whiteboard;
+package com.elster.jupiter.rest.whiteboard.impl;
+
+import com.sun.jersey.spi.container.ContainerRequest;
+import com.sun.jersey.spi.container.ContainerRequestFilter;
 
 import javax.servlet.http.HttpServletRequest;
-import com.sun.jersey.spi.container.*;
 
 public class RoleFilter implements ContainerRequestFilter {
 

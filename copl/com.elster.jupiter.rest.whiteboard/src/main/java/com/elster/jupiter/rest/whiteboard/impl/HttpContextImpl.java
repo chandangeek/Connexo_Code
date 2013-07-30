@@ -1,4 +1,4 @@
-package com.elster.jupiter.rest.whiteboard;
+package com.elster.jupiter.rest.whiteboard.impl;
 
 import com.elster.jupiter.users.User;
 import com.google.common.base.Optional;
