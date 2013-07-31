@@ -1,7 +1,8 @@
-package com.elster.jupiter.users.rest;
+package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.rest.UserInfo;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.WebApplicationException;

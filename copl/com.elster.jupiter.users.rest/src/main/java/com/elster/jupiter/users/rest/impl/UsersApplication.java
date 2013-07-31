@@ -1,4 +1,4 @@
-package com.elster.jupiter.users.rest;
+package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;

@@ -1,9 +1,10 @@
-package com.elster.jupiter.users.rest;
+package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.rest.PrivilegeInfos;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

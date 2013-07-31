@@ -1,9 +1,11 @@
-package com.elster.jupiter.users.rest;
+package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.rest.GroupInfo;
+import com.elster.jupiter.users.rest.GroupInfos;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.Consumes;
@@ -21,44 +23,43 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
-@Path("/users")
-public class UserResource {
-
+@Path("groups")
+public class GroupResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public UserInfos createUser(UserInfo info) {
-        UserInfos result = new UserInfos();
-        result.add(Bus.getTransactionService().execute(new CreateUserTransaction(info)));
+    public GroupInfos createOrganization(GroupInfo info) {
+        GroupInfos result = new GroupInfos();
+        result.add(Bus.getTransactionService().execute(new CreateGroupTransaction(info)));
         return result;
     }
 
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public UserInfos deleteUser(UserInfo info, @PathParam("id") long id) {
+    public GroupInfos deleteGroup(GroupInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new DeleteUserTransaction(info));
-        return new UserInfos();
+        Bus.getTransactionService().execute(new DeleteGroupTransaction(info));
+        return new GroupInfos();
     }
 
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
-    public UserInfos getUser(@PathParam("id") long id) {
-        Optional<User> party = Bus.getUserService().getUser(id);
-        if (party.isPresent()) {
-            return new UserInfos(party.get());
+    public GroupInfos getGroup(@PathParam("id") long id) {
+        Optional<Group> group = Bus.getUserService().getGroup(id);
+        if (group.isPresent()) {
+            return new GroupInfos(group.get());
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public UserInfos getUsers(@Context UriInfo uriInfo) {
+    public GroupInfos getGroups(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<User> list = getUserRestQuery().select(queryParameters);
-        UserInfos infos = new UserInfos(list);
+        List<Group> list = getGroupRestQuery().select(queryParameters);
+        GroupInfos infos = new GroupInfos(list);
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }
@@ -67,15 +68,17 @@ public class UserResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public UserInfos updateUser(UserInfo info, @PathParam("id") long id) {
+    public GroupInfos updateGroup(GroupInfo info, @PathParam("id") long id) {
         info.id = id;
-        Bus.getTransactionService().execute(new UpdateUserTransaction(info));
-        return getUser(info.id);
+        Bus.getTransactionService().execute(new UpdateGroupTransaction(info));
+        return getGroup(info.id);
     }
 
-    private RestQuery<User> getUserRestQuery() {
-        Query<User> query = Bus.getUserService().getUserQuery();
+
+    private RestQuery<Group> getGroupRestQuery() {
+        Query<Group> query = Bus.getUserService().getGroupQuery();
         return Bus.getRestQueryService().wrap(query);
     }
+
 
 }

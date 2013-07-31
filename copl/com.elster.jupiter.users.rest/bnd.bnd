@@ -3,3 +3,4 @@
 
 
 Export-Package: com.elster.jupiter.users.rest
+Private-Package: com.elster.jupiter.users.rest.impl

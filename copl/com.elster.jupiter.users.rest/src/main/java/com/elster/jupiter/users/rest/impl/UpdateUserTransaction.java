@@ -1,8 +1,10 @@
-package com.elster.jupiter.users.rest;
+package com.elster.jupiter.users.rest.impl;
 
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.rest.GroupInfo;
+import com.elster.jupiter.users.rest.UserInfo;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.WebApplicationException;

@@ -1,7 +1,6 @@
 package com.elster.jupiter.users.rest;
 
 import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.rest.PrivilegeInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -14,25 +13,25 @@ public class PrivilegeInfos {
 
     public List<PrivilegeInfo> privileges = new ArrayList<>();
 
-    PrivilegeInfos() {
+    public PrivilegeInfos() {
     }
 
-    PrivilegeInfos(Privilege privilege) {
+    public PrivilegeInfos(Privilege privilege) {
         add(privilege);
     }
 
-    PrivilegeInfos(List<Privilege> privileges) {
+    public PrivilegeInfos(List<Privilege> privileges) {
         addAll(privileges);
     }
 
-    PrivilegeInfo add(Privilege privilege) {
+    public PrivilegeInfo add(Privilege privilege) {
         PrivilegeInfo result = new PrivilegeInfo(privilege);
         privileges.add(result);
         total++;
         return result;
     }
 
-    void addAll(List<Privilege> privileges) {
+    public void addAll(List<Privilege> privileges) {
         for (Privilege each : privileges) {
             add(each);
         }

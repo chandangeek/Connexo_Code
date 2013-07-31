@@ -13,18 +13,18 @@ public class UserInfos {
 
     public List<UserInfo> users = new ArrayList<>();
 
-    UserInfos() {
+    public UserInfos() {
     }
 
-    UserInfos(User user) {
+    public UserInfos(User user) {
         add(user);
     }
 
-    UserInfos(List<User> users) {
+    public UserInfos(List<User> users) {
         addAll(users);
     }
 
-    UserInfo add(User user) {
+    public UserInfo add(User user) {
         UserInfo result = new UserInfo(user);
         users.add(result);
         total++;
