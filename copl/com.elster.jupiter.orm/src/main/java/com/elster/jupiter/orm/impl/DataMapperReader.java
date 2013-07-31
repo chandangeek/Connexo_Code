@@ -200,8 +200,8 @@ public class DataMapperReader<T> {
 	T construct(ResultSet rs, int startIndex) throws SQLException {		
 		T result = constructors == null ? newInstance(constructor) : newInstance(rs,startIndex);
 		DomainMapper mapper = constructors == null ? DomainMapper.FIELDSTRICT : DomainMapper.FIELDLENIENT;
-		for (Column column : getSqlGenerator().getColumns()) {						
-			mapper.set(result, column.getFieldName() , ((ColumnImpl) column).convertFromDb(rs, startIndex++));	
+		for (Column column : getSqlGenerator().getColumns()) {
+			mapper.set(result, column.getFieldName(), ((ColumnImpl) column).convertFromDb(rs, startIndex++));
 		}					
 		return result;
 	}
