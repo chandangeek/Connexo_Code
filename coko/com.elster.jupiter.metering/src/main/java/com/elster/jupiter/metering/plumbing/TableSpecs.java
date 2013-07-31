@@ -1,11 +1,16 @@
 package com.elster.jupiter.metering.plumbing;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.DeleteRule.*;
+import com.elster.jupiter.orm.AssociationMapping;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
 
 import java.util.List;
 
-import com.elster.jupiter.orm.*;
+import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
 public enum TableSpecs {
 	MTR_SERVICECATEGORY {
@@ -215,7 +220,7 @@ public enum TableSpecs {
 			table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
 			Column usagePointIdColumn = table.addColumn("USAGEPOINTID", "number", true , NUMBER2LONG , "usagePointId");
 			Column partyIdColumn = table.addColumn("PARTYID", "number", true , NUMBER2LONG, "partyId");			
-			Column roleMRIDColumn = table.addColumn("ROLEMRID", "varchar2(80)",  true,  NUMBER2INT, "roleMRID");
+			Column roleMRIDColumn = table.addColumn("ROLEMRID", "varchar2(80)",  true,  NOCONVERSION, "roleMRID");
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_UPACCOUNTABILITY", usagePointIdColumn , partyIdColumn , roleMRIDColumn , intervalColumns.get(0));

@@ -73,14 +73,23 @@ public class UsagePointAccountabilityImpl implements UsagePointAccountability {
 	}
 
 	public UsagePoint getUsagePoint() {
+        if (usagePoint == null) {
+            usagePoint = Bus.getOrmClient().getUsagePointFactory().get(usagePointId).get();
+        }
 		return usagePoint;
 	}
 
 	public Party getParty() {
-		return party;
+        if (party == null) {
+            party = Bus.getPartyService().findParty(partyId).get();
+        }
+        return party;
 	}
 
 	public PartyRole getRole() {
+        if (role == null) {
+            role = Bus.getPartyService().findPartyRoleByMRID(roleMRID).get();
+        }
 		return role;
 	}
 

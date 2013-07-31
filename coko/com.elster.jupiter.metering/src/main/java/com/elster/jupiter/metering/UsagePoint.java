@@ -3,6 +3,7 @@ package com.elster.jupiter.metering;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -37,7 +38,7 @@ public interface UsagePoint extends HasName {
 	long getServiceLocationId();
 	ServiceLocation getServiceLocation();
 	ServiceCategory getServiceCategory();
-	
+
 	void setServiceLocation(ServiceLocation serviceLocation);
 	void setServicePriority(String servicePriority);
 	void setServiceDeliveryRemark(String serviceDeliveryRemark);
@@ -56,22 +57,22 @@ public interface UsagePoint extends HasName {
 	void setConnectionState(UsagePointConnectedKind kind);
 	void setCheckBilling(boolean checkBilling);
 	void setAmiBillingReady(AmiBillingReadyKind kind);
-	
+
 	void setEstimatedLoad(Quantity estimatedLoad);
 	void setNominalServiceVoltage(Quantity nominalServiceVoltage);
 	void setRatedCurrent(Quantity ratedCurrent);
 	void setRatedPower(Quantity ratedPower);
-	
+
 	void save();
-	
+
 	Date getCreateDate();
 	Date getModificationDate();
 	long getVersion();
-	
+
 	MeterActivation activate(Date start);
 	List<UsagePointAccountability> getAccountabilities();
 	UsagePointAccountability addAccountability(PartyRole role, Party party, Date start);
 	Party getResponsibleParty(PartyRole role);
 
-		
+	boolean hasAccountability(User user);
 }
