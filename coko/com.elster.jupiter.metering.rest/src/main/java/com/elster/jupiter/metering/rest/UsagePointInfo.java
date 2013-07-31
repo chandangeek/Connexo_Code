@@ -1,22 +1,26 @@
 package com.elster.jupiter.metering.rest;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.cbo.PhaseCode;
+import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.util.units.Quantity;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class UsagePointInfo {	
 	private UsagePoint usagePoint;
 	
 	public long id;
-	public String mRID;
 	public ServiceKind serviceCategory;
-	public long serviceLocationId;
-	public String aliasName;
-	public String description;
-	public String name;
+    public long serviceLocationId;
+    public String aliasName;
+    public String description;
+    public String mRID;
+    public String name;
 	public AmiBillingReadyKind amiBillingReady;
 	public boolean checkBilling;
 	public UsagePointConnectedKind connectionState;
