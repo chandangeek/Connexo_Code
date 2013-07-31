@@ -123,7 +123,7 @@ public abstract class AbstractLogReader implements LogReader{
 		windowIndex--;
 		
 		while (windowIndex != startWindowIndex && ! doneReading) {
-			if (windowIndex <= 0) { //wrap awound
+			if (windowIndex < 0) { //wrap awound
 				windowIndex = largestWindowIndex;
 				ba = readLargestLogWindow();
 				if (ba.length >7){
