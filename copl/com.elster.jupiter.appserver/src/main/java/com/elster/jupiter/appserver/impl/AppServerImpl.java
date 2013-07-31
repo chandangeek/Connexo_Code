@@ -18,6 +18,7 @@ public class AppServerImpl implements AppServer {
     private String name;
     private String cronString;
     private transient CronExpression scheduleFrequency;
+    private boolean recurrentTaskActive;
 
     private AppServerImpl() {
     	
@@ -68,5 +69,11 @@ public class AppServerImpl implements AppServer {
         return APP_SERVER + '_' + getName();
     }
 
+    public boolean isRecurrentTaskActive() {
+        return recurrentTaskActive;
+    }
 
+    public void setRecurrentTaskActive(boolean recurrentTaskActive) {
+        this.recurrentTaskActive = recurrentTaskActive;
+    }
 }

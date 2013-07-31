@@ -6,9 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
-import static com.elster.jupiter.orm.ColumnConversion.NOCONVERSION;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.*;
 
 public enum TableSpecs {
 
@@ -17,6 +15,7 @@ public enum TableSpecs {
         void describeTable(Table table) {
             Column idColumn = table.addColumn("NAME", "varchar2(80)", true, NOCONVERSION, "name");
             table.addColumn("CRONSTRING", "varchar2(80)", true, NOCONVERSION, "cronString");
+            table.addColumn("RECURRENTTASKSACTIVE", "char(1)", true, CHAR2BOOLEAN, "recurrentTaskActive");
             table.addPrimaryKeyConstraint("APS_PK_APPSERVER", idColumn);
         }
 

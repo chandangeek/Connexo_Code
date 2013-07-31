@@ -23,6 +23,7 @@ import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -68,6 +69,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private volatile CacheService cacheService;
     private volatile JsonService jsonService;
     private volatile FileImportService fileImportService;
+    private volatile TaskService taskService;
 
     private AppServerImpl appServer;
     private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -114,14 +116,24 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         appServer = (AppServerImpl) foundAppServer.get();
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
 
+        launchFileImports();
+        launchTaskService();
+        listenForMessagesToAppServer();
+        listenForMesssagesToAllServers();
+        listenForInvalidateCacheRequests();
+    }
+
+    private void launchTaskService() {
+        if (appServer.isRecurrentTaskActive()) {
+            getTaskService().launch();
+        }
+    }
+
+    private void launchFileImports() {
         List<ImportScheduleOnAppServer> importScheduleOnAppServers = getOrmClient().getImportScheduleOnAppServerFactory().find("appServer", appServer);
         for (ImportScheduleOnAppServer importScheduleOnAppServer : importScheduleOnAppServers) {
             getFileImportService().schedule(importScheduleOnAppServer.getImportSchedule());
         }
-
-        listenForMessagesToAppServer();
-        listenForMesssagesToAllServers();
-        listenForInvalidateCacheRequests();
     }
 
     private void listenForInvalidateCacheRequests() {
@@ -399,6 +411,15 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
             allServerSubscriberSpec.getDestination().message(getJsonService().serialize(command)).send();
         }
 
+    }
+
+    public TaskService getTaskService() {
+        return taskService;
+    }
+
+    @Reference
+    public void setTaskService(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     private class CommandHandler implements MessageHandler {
