@@ -10,6 +10,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.TaskServiceAlreadyLaunched;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -137,11 +138,23 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
 
     public void activate(ComponentContext context) {
         Bus.setServiceLocator(this);
+    }
+
+    @Override
+    public void launch() {
+        if (isLaunched()) {
+            throw new TaskServiceAlreadyLaunched();
+        }
         TaskOccurrenceLauncher taskOccurrenceLauncher = new LoggingTaskOcurrenceLauncher(new DefaultTaskOccurrenceLauncher(new DueTaskFetcher()));
         TaskScheduler taskScheduler = new TaskScheduler(taskOccurrenceLauncher, 1, TimeUnit.MINUTES);
         schedulerThread = new Thread(taskScheduler);
         schedulerThread.setName("SchedulerThread");
         schedulerThread.start();
+    }
+
+    @Override
+    public boolean isLaunched() {
+        return schedulerThread != null;
     }
 
     public void deactivate(ComponentContext context) {

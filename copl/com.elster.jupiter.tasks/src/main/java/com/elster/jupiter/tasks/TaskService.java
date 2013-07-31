@@ -10,4 +10,7 @@ public interface TaskService {
 
     RecurrentTask getRecurrentTask(long id);
 
+    void launch();
+
+    boolean isLaunched();
 }
