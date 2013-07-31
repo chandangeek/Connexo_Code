@@ -60,4 +60,12 @@ class PrivilegeImpl implements Privilege {
     public int hashCode() {
         return name.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "PrivilegeImpl{" +
+                "componentName='" + componentName + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }
