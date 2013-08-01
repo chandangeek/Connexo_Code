@@ -31,7 +31,7 @@ public class TaskSchedulerTest {
     @Before
     public void setUp() {
         latch = new CountDownLatch(3);
-        doAnswer(new Answer() {
+        doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
                 latch.countDown();
