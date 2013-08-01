@@ -24,7 +24,7 @@ public abstract class EventHandler<T> implements Subscriber {
         if (type.isInstance(event)) {
             @SuppressWarnings("unchecked") // safe cast since we just checked through introspection
             T typedEvent = (T) event;
-            onEvent(typedEvent);
+            onEvent(typedEvent, eventDetails);
         }
     }
 

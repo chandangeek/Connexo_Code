@@ -23,7 +23,7 @@ public class PublisherImpl implements Publisher {
 	@Override
 	public void publish(Object event, Object... eventDetails) {
 		for (Subscription each : getSubscriptions()) {
-			each.handle(event);
+			each.handle(event, eventDetails);
 		}
 		Subscriber subscriber = threadSubscribers.get();
 		if (subscriber != null) {
