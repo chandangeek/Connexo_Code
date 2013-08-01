@@ -8,6 +8,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.security.thread.RunAs;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.base.Optional;
 import oracle.jdbc.aq.AQMessage;
@@ -16,6 +18,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -25,6 +28,7 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
 	private volatile OrmClient ormClient;
 	private volatile TransactionService transactionService;
     private volatile Publisher publisher;
+    private volatile ThreadPrincipalService threadPrincipalService;
 	
 	@Reference
 	public void setOrmService(OrmService ormService) {
@@ -119,7 +123,16 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
         this.publisher = publisher;
     }
 
-    public void drain(String[] names) {
+    public ThreadPrincipalService getThreadPrincipalService() {
+        return threadPrincipalService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    public void drain(String[] names) { // TODO move to own Command line component : here it is just clutter
         String subscriberName = names[0];
         String destinationName = names[1];
         Optional<SubscriberSpec> spec = Bus.getOrmClient().getConsumerSpecFactory().get(destinationName, subscriberName);
@@ -133,4 +146,5 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
             e.printStackTrace();
         }
     }
+
 }
