@@ -138,7 +138,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
 
     private void listenForInvalidateCacheRequests() {
         new EventHandler<InvalidateCacheRequest>(InvalidateCacheRequest.class) {
-            public void onEvent(InvalidateCacheRequest request) {
+            public void onEvent(InvalidateCacheRequest request, Object... eventDetails) {
                 Properties properties = new Properties();
                 properties.put(COMPONENT_NAME, request.getComponentName());
                 properties.put(TABLE_NAME, request.getTableName());
@@ -400,7 +400,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     }
 
     @Override
-    public void handle(Object event) {
+    public void handle(Object event, Object... eventDetails) {
         if (event instanceof InvalidateCacheRequest) {
             InvalidateCacheRequest invalidateCacheRequest = (InvalidateCacheRequest) event;
             Properties properties = new Properties();
