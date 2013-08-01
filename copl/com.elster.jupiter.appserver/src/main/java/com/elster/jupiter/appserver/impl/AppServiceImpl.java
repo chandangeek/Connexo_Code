@@ -27,6 +27,8 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -57,6 +59,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private static final String COMPONENT_NAME = "componentName";
     private static final String TABLE_NAME = "tableName";
     private static final String ID = "id";
+    private static final String BATCH_EXECUTOR = "batch executor";
 
     private volatile OrmClient ormClient;
     private volatile TransactionService transactionService;
@@ -70,6 +73,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private volatile JsonService jsonService;
     private volatile FileImportService fileImportService;
     private volatile TaskService taskService;
+    private volatile UserService userService;
 
     private AppServerImpl appServer;
     private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -125,6 +129,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
 
     private void launchTaskService() {
         if (appServer.isRecurrentTaskActive()) {
+            User batchExecutor = getUserService().findUser(BATCH_EXECUTOR).get();
             getTaskService().launch();
         }
     }
@@ -157,7 +162,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         Optional<SubscriberSpec> subscriberSpec = getMessageService().getSubscriberSpec(ALL_SERVERS, messagingName());
         if (subscriberSpec.isPresent()) {
             allServerSubscriberSpec = subscriberSpec.get();
-            final ExecutorService executorService = new MessageHandlerTaskExecutorService(1);
+            final ExecutorService executorService = new CancellableTaskExecutorService(1);
             final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler()));
             deactivateTasks.add(new Runnable() {
                 @Override
@@ -173,7 +178,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         Optional<SubscriberSpec> subscriberSpec = getMessageService().getSubscriberSpec(messagingName(), messagingName());
         if (subscriberSpec.isPresent()) {
             appServerSubscriberSpec = subscriberSpec.get();
-            final ExecutorService executorService = new MessageHandlerTaskExecutorService(1);
+            final ExecutorService executorService = new CancellableTaskExecutorService(1);
             final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler()));
             deactivateTasks.add(new Runnable() {
                 @Override
@@ -250,6 +255,13 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     public void install() {
         try {
             getOrmClient().install();
+            getTransactionService().execute(new VoidTransaction() {
+                @Override
+                protected void doPerform() {
+                    User user = getUserService().createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
+                    user.save();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -422,6 +434,16 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         this.taskService = taskService;
     }
 
+    @Override
+    public UserService getUserService() {
+        return userService;
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     private class CommandHandler implements MessageHandler {
 
         @Override
@@ -463,6 +485,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
                 });
         stoppingThread.start();
         Thread.currentThread().interrupt();
+
     }
 
 }

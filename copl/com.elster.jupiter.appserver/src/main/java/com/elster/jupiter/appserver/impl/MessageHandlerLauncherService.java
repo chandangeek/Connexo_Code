@@ -4,6 +4,8 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
+import com.elster.jupiter.security.thread.RunAs;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
@@ -12,6 +14,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.log.LogService;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +28,15 @@ public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
     private volatile LogService logService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private Map<MessageHandlerFactory, ExecutorService> executors = new HashMap<>();
     private Map<ExecutorService, List<Future<?>>> futures = new HashMap<>();
+
+    private Principal batchPrincipal;
+
+    public MessageHandlerLauncherService() {
+    }
 
     public AppService getAppService() {
         return appService;
@@ -43,15 +52,7 @@ public class MessageHandlerLauncherService {
 
     public void deactivate(ComponentContext context) {
         for (ExecutorService executorService : executors.values()) {
-            for (Future<?> future : futures.get(executorService)) {
-                future.cancel(false);
-            }
-            executorService.shutdownNow();
-            try {
-				executorService.awaitTermination(1, TimeUnit.MINUTES);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			}
+            shutDownServiceWithCancelling(executorService);
         }
         Bus.setServiceLocator(null);
     }
@@ -80,14 +81,27 @@ public class MessageHandlerLauncherService {
         executors.put(factory, executorService);
         List<Future<?>> submittedFutures = new ArrayList<>(threadCount);
         for (int i = 0; i < threadCount; i++) {
-            Future<?> future = executorService.submit(newMessageHandlerTask(factory, subscriberSpec));
+            MessageHandlerTask task = newMessageHandlerTask(factory, subscriberSpec);
+            Future<?> future = executorService.submit(withBatchPrincipal(task));
             submittedFutures.add(future);
         }
         futures.put(executorService, submittedFutures);
     }
 
+    private ProvidesCancellableFuture withBatchPrincipal(MessageHandlerTask task) {
+        return new RunMessageHandlerTaskAs(task, getThreadPrincipalService(), getBatchPrincipal());
+    }
+
+    private Principal getBatchPrincipal() {
+        if (batchPrincipal == null) {
+            String batchExecutroName = "batch executor";
+            batchPrincipal = Bus.getUserService().findUser(batchExecutroName).get();
+        }
+        return batchPrincipal;
+    }
+
     private ExecutorService newExecutorService(int threadCount) {
-        return new MessageHandlerTaskExecutorService(threadCount);
+        return new CancellableTaskExecutorService(threadCount);
     }
 
     private MessageHandlerTask newMessageHandlerTask(MessageHandlerFactory factory, SubscriberSpec subscriberSpec) {
@@ -105,8 +119,18 @@ public class MessageHandlerLauncherService {
 
     public void removeResource(MessageHandlerFactory factory) {
         ExecutorService executorService = executors.remove(factory);
-        if (executorService != null) {
-            executorService.shutdownNow();
+        shutDownServiceWithCancelling(executorService);
+    }
+
+    private void shutDownServiceWithCancelling(ExecutorService executorService) {
+        for (Future<?> future : futures.get(executorService)) {
+            future.cancel(false);
+        }
+        executorService.shutdownNow();
+        try {
+            executorService.awaitTermination(1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -118,6 +142,20 @@ public class MessageHandlerLauncherService {
     public void setLogService(LogService logService) {
         this.logService = logService;
     }
+
+    public ThreadPrincipalService getThreadPrincipalService() {
+        return threadPrincipalService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    private Runnable withPrincipal(Principal principal, Runnable runnable) {
+        return new RunAs(getThreadPrincipalService(), principal, runnable);
+    }
+
 
 
 }

@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 
-public class MessageHandlerTask implements Runnable {
+public class MessageHandlerTask implements ProvidesCancellableFuture {
 
     private final SubscriberSpec subscriberSpec;
     private final MessageHandler handler;
@@ -37,6 +37,7 @@ public class MessageHandlerTask implements Runnable {
         subscriberSpec.cancel();
     }
 
+    @Override
     public <T> RunnableFuture<T> newTask(T result) {
         return new FutureTask<T>(this, result) {
             @Override
