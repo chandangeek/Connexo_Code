@@ -12,6 +12,7 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
@@ -32,8 +33,8 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     private volatile ComponentCache cache;
     private volatile Clock clock;
     private volatile UserService userService;
-
     private volatile QueryService queryService;
+    private volatile Publisher publisher;
 
     public void activate(ComponentContext context) {
         Bus.setServiceLocator(this);
@@ -166,6 +167,16 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Override
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    @Reference
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
     }
 
     @Override

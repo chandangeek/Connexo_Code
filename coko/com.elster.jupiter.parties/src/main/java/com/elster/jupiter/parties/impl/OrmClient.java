@@ -8,12 +8,16 @@ import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
 
 public interface OrmClient {
-	DataModel getDataModel();
-	DataMapper<Party> getPartyFactory();
-	DataMapper<PartyRepresentationImpl> getPartyRepresentationFactory();
-	DataMapper<PartyInRole> getPartyInRoleFactory();
-	TypeCache<PartyRole> getPartyRoleFactory();
-	
-	
-	void install(boolean executeDdl , boolean saveMappings);
+
+    DataModel getDataModel();
+
+    DataMapper<Party> getPartyFactory();
+
+    DataMapper<PartyRepresentationImpl> getPartyRepresentationFactory();
+
+    DataMapper<PartyInRole> getPartyInRoleFactory();
+
+    TypeCache<PartyRole> getPartyRoleFactory();
+
+    void install(boolean executeDdl, boolean saveMappings);
 }
