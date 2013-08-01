@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DoesNotExistException;
+import com.elster.jupiter.orm.PersistenceEvent;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
@@ -106,6 +107,7 @@ public class ChannelImpl implements Channel {
 		this.timeSeries = createTimeSeries();
 		this.timeSeriesId = timeSeries.getId();
 		Bus.getOrmClient().getChannelFactory().persist(this);
+        Bus.getPublisher().publish(this, PersistenceEvent.CREATED);
 		persistReadingTypes();
 	}
 	

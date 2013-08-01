@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.plumbing.Bus;
+import com.elster.jupiter.orm.PersistenceEvent;
 import com.elster.jupiter.util.time.UtcInstant;
 
 public class MeterImpl implements Meter {
@@ -69,8 +70,10 @@ public class MeterImpl implements Meter {
 	public void save() {
 		if (id == 0) {
 			Bus.getOrmClient().getMeterFactory().persist(this);
-		} else { 
+            Bus.getPublisher().publish(this, PersistenceEvent.CREATED);
+        } else {
 			Bus.getOrmClient().getMeterFactory().update(this);
+            Bus.getPublisher().publish(this, PersistenceEvent.UPDATED);
 		}
 	}
 

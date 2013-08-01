@@ -1,13 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.ElectronicAddress;
+import com.elster.jupiter.cbo.Status;
+import com.elster.jupiter.cbo.StreetAddress;
+import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.plumbing.Bus;
+import com.elster.jupiter.orm.PersistenceEvent;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import java.util.Date;
+import java.util.List;
 
 public class ServiceLocationImpl implements ServiceLocation {
 	// persistent fields
@@ -207,8 +211,10 @@ public class ServiceLocationImpl implements ServiceLocation {
 	public void save() {
 		if (id == 0) {
 			Bus.getOrmClient().getServiceLocationFactory().persist(this);
+            Bus.getPublisher().publish(this, PersistenceEvent.CREATED);
 		} else { 
 			Bus.getOrmClient().getServiceLocationFactory().update(this);
+            Bus.getPublisher().publish(this, PersistenceEvent.UPDATED);
 		}
 	}
 	

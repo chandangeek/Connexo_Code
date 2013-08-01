@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.plumbing.Bus;
+import com.elster.jupiter.orm.PersistenceEvent;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
@@ -299,8 +300,10 @@ public class UsagePointImpl implements UsagePoint {
 	public void save() {
 		if (id == 0) {
 			Bus.getOrmClient().getUsagePointFactory().persist(this);
+            Bus.getPublisher().publish(this, PersistenceEvent.CREATED);
 		} else { 
 			Bus.getOrmClient().getUsagePointFactory().update(this);
+            Bus.getPublisher().publish(this, PersistenceEvent.UPDATED);
 		}
 	}
 

@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Expression;
@@ -46,6 +47,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     private volatile PartyService partyService;
     private volatile Clock clock;
     private volatile UserService userService;
+    private volatile Publisher publisher;
 
 
     @Override
@@ -181,7 +183,17 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     public void setUserService(UserService userService) {
     	this.userService = userService;
     }
-    
+
+    @Override
+    public Publisher getPublisher() {
+        return publisher;
+    }
+
+    @Reference
+    public void setPublisher(Publisher publisher) {
+        this.publisher = publisher;
+    }
+
     public void activate(ComponentContext context) {
         Bus.setServiceLocator(this);
     }
