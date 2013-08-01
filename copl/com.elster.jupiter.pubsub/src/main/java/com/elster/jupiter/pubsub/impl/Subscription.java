@@ -11,10 +11,10 @@ class Subscription {
 		this.classes = classes;
 	}
 	
-	void handle(Object event) {
+	void handle(Object event, Object... eventDetails) {
 		for (Class<?> clazz : classes) {
 			if (clazz.isInstance(event)) {
-				subscriber.handle(event);
+				subscriber.handle(event, eventDetails);
 				return;
 			}
 		}

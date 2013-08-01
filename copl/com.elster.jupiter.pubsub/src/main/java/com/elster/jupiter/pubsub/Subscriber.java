@@ -7,5 +7,5 @@ public interface Subscriber {
      */
     String TOPIC = "TOPIC";
 	
-	void handle(Object event);
+	void handle(Object event, Object... eventDetails);
 }

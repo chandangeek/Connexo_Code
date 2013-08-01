@@ -21,13 +21,13 @@ public class PublisherImpl implements Publisher {
 	private final ThreadLocal<Subscriber> threadSubscribers = new ThreadLocal<>();
 
 	@Override
-	public void publish(Object event) {	
+	public void publish(Object event, Object... eventDetails) {
 		for (Subscription each : getSubscriptions()) {
 			each.handle(event);
 		}
 		Subscriber subscriber = threadSubscribers.get();
 		if (subscriber != null) {
-			subscriber.handle(event);
+			subscriber.handle(event, eventDetails);
 		}
 	}
 
