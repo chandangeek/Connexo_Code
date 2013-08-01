@@ -127,7 +127,7 @@ public class DataMapperWriter<T> {
 		}
 		prepare(object,true,now);
 		Column[] versionCountColumns = sqlGenerator.getTable().getVersionColumns();
-		Map<Column,Long> versionCounts = new HashMap<Column,Long>();
+		Map<Column,Long> versionCounts = new HashMap<>();
 		try (Connection connection = getConnection(true)) {			
 			String sql = sqlGenerator.updateSql(columns);
 			try (PreparedStatement statement = connection.prepareStatement(sql)) {				
