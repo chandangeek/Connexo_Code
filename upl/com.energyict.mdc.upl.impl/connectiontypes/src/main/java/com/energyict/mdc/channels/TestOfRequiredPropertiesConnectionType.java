@@ -4,11 +4,17 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.VoidComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("unused") // Pluggable
 public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
@@ -56,7 +62,7 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
         specs.add(PropertySpecFactory.booleanPropertySpecWithoutThreeState("NoThreeStateBoolean"));
      //   specs.add(PropertySpecFactory.customCoordinatesPropertySpec("CustomCoordinates"));
         specs.add(PropertySpecFactory.dateTimePropertySpec("DateTime"));
-        specs.add(PropertySpecFactory.datePropertySpec("Date"));
+        specs.add(PropertySpecFactory.datePropertySpec("DateProp"));
      //   specs.add(PropertySpecFactory.ean13PropertySpec("Ean13"));
      //   specs.add(PropertySpecFactory.ean18PropertySpec("Ean18"));
      //   specs.add(PropertySpecFactory.encryptedStringPropertySpec("EncryptedString"));
