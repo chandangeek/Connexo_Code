@@ -18,8 +18,8 @@ import org.osgi.util.tracker.BundleTrackerCustomizer;
 import java.util.*;
 
 
-@Component (name = Bus.PID , immediate = true , service = {ManagedService.class} , property = { Constants.SERVICE_PID + "=" + Bus.PID} )
-public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
+@Component (name = Bus.PID , immediate = true , service = {}  )
+public class ServiceLocatorImpl implements  ServiceLocator {
 	
 	private static final String DEBUG = "debug";
 	
@@ -38,13 +38,28 @@ public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
     	this.whiteBoard = new WhiteBoard(httpService);
     }
     
-    public void activate(ComponentContext context) {
-    	Bus.setServiceLocator(this);      	
+    @Activate
+    public void activate(BundleContext context, Map<String,Object> properties) {    	
+    	Bus.setServiceLocator(this);
+    	configure(properties);
     	int stateMask = Bundle.ACTIVE | Bundle.START_TRANSIENT | Bundle.STARTING;
-    	tracker = new BundleTracker<>(context.getBundleContext(), stateMask , new JerseyBundleTrackerCustomizer(context.getBundleContext()));
+    	tracker = new BundleTracker<>(context, stateMask , new JerseyBundleTrackerCustomizer(context));
+    	tracker.open();
     }
     
-    public void deactivate(ComponentContext context) {
+  
+    public void configure(Map<String,Object> properties)  {
+    	debug = false;
+		if (properties != null) {
+			Object value = properties.get(DEBUG);
+			if (value != null && value instanceof Boolean) { 
+				debug = (Boolean) value;
+			}
+		}				    	    	
+	}
+    
+    @Deactivate
+    public void deactivate() {
     	tracker.close();    	
     	whiteBoard.close();    	
     	Bus.setServiceLocator(null);    	 	
@@ -70,8 +85,7 @@ public class ServiceLocatorImpl implements ManagedService , ServiceLocator {
 		this.threadPrincipalService = threadPrincipalService;
 	}
 
-	@Override
-	public void updated(Dictionary<String, ? > dict)  {	
+	public void configure(Dictionary<String, ? > dict)  {	
 		if (dict == null) {
 			debug = false;
 		} else {
