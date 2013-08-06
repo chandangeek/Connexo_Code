@@ -20,7 +20,7 @@ public class GroupInfos {
         add(group);
     }
 
-    public GroupInfos(List<Group> groups) {
+    public GroupInfos(Iterable<? extends Group> groups) {
         addAll(groups);
     }
 
@@ -31,7 +31,7 @@ public class GroupInfos {
         return result;
     }
 
-    void addAll(List<Group> groups) {
+    void addAll(Iterable<? extends Group> groups) {
         for (Group each : groups) {
             add(each);
         }

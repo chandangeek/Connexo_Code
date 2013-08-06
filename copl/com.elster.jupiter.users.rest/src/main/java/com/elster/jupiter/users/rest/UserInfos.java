@@ -20,7 +20,7 @@ public class UserInfos {
         add(user);
     }
 
-    public UserInfos(List<User> users) {
+    public UserInfos(Iterable<? extends User> users) {
         addAll(users);
     }
 
@@ -31,7 +31,7 @@ public class UserInfos {
         return result;
     }
 
-    void addAll(List<User> users) {
+    void addAll(Iterable<? extends User> users) {
         for (User each : users) {
             add(each);
         }

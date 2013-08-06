@@ -20,7 +20,7 @@ public class PrivilegeInfos {
         add(privilege);
     }
 
-    public PrivilegeInfos(List<Privilege> privileges) {
+    public PrivilegeInfos(Iterable<? extends Privilege> privileges) {
         addAll(privileges);
     }
 
@@ -31,7 +31,7 @@ public class PrivilegeInfos {
         return result;
     }
 
-    public void addAll(List<Privilege> privileges) {
+    public void addAll(Iterable<? extends Privilege> privileges) {
         for (Privilege each : privileges) {
             add(each);
         }

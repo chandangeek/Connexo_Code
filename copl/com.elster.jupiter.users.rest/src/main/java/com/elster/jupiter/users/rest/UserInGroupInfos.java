@@ -27,7 +27,7 @@ public class UserInGroupInfos {
         return result;
     }
 
-    void addAll(User user, List<Group> groups) {
+    void addAll(User user, Iterable<? extends Group> groups) {
         for (Group each : groups) {
             add(user, each);
         }
