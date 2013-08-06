@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.ReadingType;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @XmlRootElement
@@ -19,7 +18,7 @@ public class ReadingTypeInfos {
         add(usagePoint);
     }
 
-    ReadingTypeInfos(Collection<? extends ReadingType> readingTypes) {
+    ReadingTypeInfos(Iterable<? extends ReadingType> readingTypes) {
         addAll(readingTypes);
     }
 
@@ -30,7 +29,7 @@ public class ReadingTypeInfos {
         return result;
     }
 
-    void addAll(Collection<? extends ReadingType> usagePoints) {
+    void addAll(Iterable<? extends ReadingType> usagePoints) {
         for (ReadingType each : usagePoints) {
             add(each);
         }

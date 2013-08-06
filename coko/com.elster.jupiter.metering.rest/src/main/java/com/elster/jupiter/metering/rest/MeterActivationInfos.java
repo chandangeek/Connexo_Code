@@ -18,7 +18,7 @@ public class MeterActivationInfos {
         add(meterActivation);
     }
 
-    MeterActivationInfos(List<? extends MeterActivation> meterActivations) {
+    MeterActivationInfos(Iterable<? extends MeterActivation> meterActivations) {
         addAll(meterActivations);
     }
 
@@ -29,7 +29,7 @@ public class MeterActivationInfos {
         return result;
     }
 
-    void addAll(List<? extends MeterActivation> meterActivations) {
+    void addAll(Iterable<? extends MeterActivation> meterActivations) {
         for (MeterActivation each : meterActivations) {
             add(each);
         }

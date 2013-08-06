@@ -18,7 +18,7 @@ public class ChannelInfos {
         add(channel);
     }
 
-    ChannelInfos(List<Channel> channelInfos) {
+    ChannelInfos(Iterable<? extends Channel> channelInfos) {
         addAll(channelInfos);
     }
 
@@ -29,7 +29,7 @@ public class ChannelInfos {
         return result;
     }
 
-    void addAll(List<Channel> channels) {
+    void addAll(Iterable<? extends Channel> channels) {
         for (Channel each : channels) {
             add(each);
         }

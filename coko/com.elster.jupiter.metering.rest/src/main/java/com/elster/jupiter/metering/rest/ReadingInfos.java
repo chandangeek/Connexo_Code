@@ -18,7 +18,7 @@ public class ReadingInfos {
         add(reading);
     }
 
-    ReadingInfos(List<? extends BaseReading> readings) {
+    ReadingInfos(Iterable<? extends BaseReading> readings) {
         addAll(readings);
     }
 
@@ -29,7 +29,7 @@ public class ReadingInfos {
         return result;
     }
 
-    void addAll(List<? extends BaseReading> readings) {
+    void addAll(Iterable<? extends BaseReading> readings) {
         for (BaseReading each : readings) {
             add(each);
         }

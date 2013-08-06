@@ -18,7 +18,7 @@ public class UsagePointInfos {
 		add(usagePoint);		
 	}
 	
-	UsagePointInfos(List<? extends UsagePoint> usagePoints) {
+	UsagePointInfos(Iterable<? extends UsagePoint> usagePoints) {
 		addAll(usagePoints);
 	}
 	
@@ -29,7 +29,7 @@ public class UsagePointInfos {
 		return result;
 	}
 	
-	void addAll(List<? extends UsagePoint> usagePoints) {
+	void addAll(Iterable<? extends UsagePoint> usagePoints) {
 		for (UsagePoint each : usagePoints) {
 			add(each);
 		}
