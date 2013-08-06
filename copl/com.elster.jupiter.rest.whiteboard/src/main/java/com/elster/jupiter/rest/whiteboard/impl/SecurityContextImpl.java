@@ -17,13 +17,13 @@ public class SecurityContextImpl implements SecurityContext {
 	public String getAuthenticationScheme() {
 		switch (request.getAuthType()) {
 			case HttpServletRequest.BASIC_AUTH:
-				return BASIC_AUTH;
+				return SecurityContext.BASIC_AUTH;
 			case HttpServletRequest.CLIENT_CERT_AUTH:
 				return SecurityContext.CLIENT_CERT_AUTH;
 			case HttpServletRequest.DIGEST_AUTH:
 				return SecurityContext.DIGEST_AUTH;
 			case HttpServletRequest.FORM_AUTH:
-				return FORM_AUTH;
+				return SecurityContext.FORM_AUTH;
 			default:
 				return null;
 					

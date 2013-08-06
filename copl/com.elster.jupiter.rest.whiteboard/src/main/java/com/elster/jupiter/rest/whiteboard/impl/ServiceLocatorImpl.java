@@ -85,14 +85,6 @@ public class ServiceLocatorImpl implements  ServiceLocator {
 		this.threadPrincipalService = threadPrincipalService;
 	}
 
-	public void configure(Dictionary<String, ? > dict)  {	
-		if (dict == null) {
-			debug = false;
-		} else {
-			debug = (Boolean) dict.get(DEBUG);
-		}				
-    	tracker.open();    	
-	}
 	
 	void startWhiteBoard(BundleContext bundleContext) {		
 		whiteBoard.open(bundleContext);
