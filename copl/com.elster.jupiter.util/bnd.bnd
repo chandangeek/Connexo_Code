@@ -5,7 +5,8 @@ Export-Package: com.elster.jupiter.util.conditions,\
 	com.elster.jupiter.util.units,\
 	com.elster.jupiter.util,\
 	com.elster.jupiter.util.cron,\
-	com.elster.jupiter.util.json
+	com.elster.jupiter.util.json,\
+	com.elster.jupiter.util.collections
 -dsannotations: *
 Private-Package: com.elster.jupiter.util.time.impl,\
 	com.elster.jupiter.util.cron.impl,\
