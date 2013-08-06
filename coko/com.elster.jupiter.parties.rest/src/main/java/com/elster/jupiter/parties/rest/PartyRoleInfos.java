@@ -2,10 +2,9 @@ package com.elster.jupiter.parties.rest;
 
 import com.elster.jupiter.parties.PartyRole;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class PartyRoleInfos {
@@ -21,7 +20,7 @@ public class PartyRoleInfos {
         add(partyRole);
     }
 
-    PartyRoleInfos(List<PartyRole> partyRoles) {
+    PartyRoleInfos(Iterable<? extends PartyRole> partyRoles) {
         addAll(partyRoles);
     }
 
@@ -32,7 +31,7 @@ public class PartyRoleInfos {
         return result;
     }
 
-    void addAll(List<PartyRole> roles) {
+    void addAll(Iterable<? extends PartyRole> roles) {
         for (PartyRole each : roles) {
             add(each);
         }

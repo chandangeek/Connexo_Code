@@ -22,7 +22,7 @@ public class PersonInfos {
         add(person);
     }
 
-    PersonInfos(List<Person> persons) {
+    PersonInfos(Iterable<? extends Person> persons) {
         addAll(persons);
     }
 
@@ -33,7 +33,7 @@ public class PersonInfos {
         return result;
     }
 
-    void addAll(List<Person> persons) {
+    void addAll(Iterable<? extends Person> persons) {
         for (Person each : persons) {
             add(each);
         }

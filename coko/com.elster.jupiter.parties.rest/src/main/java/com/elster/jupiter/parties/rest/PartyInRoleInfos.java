@@ -20,7 +20,7 @@ public class PartyInRoleInfos {
         add(partyInRole);
     }
 
-    PartyInRoleInfos(List<PartyInRole> partyInRoles) {
+    PartyInRoleInfos(Iterable<? extends PartyInRole> partyInRoles) {
         addAll(partyInRoles);
     }
 
@@ -31,7 +31,7 @@ public class PartyInRoleInfos {
         return result;
     }
 
-    void addAll(List<PartyInRole> roles) {
+    void addAll(Iterable<? extends PartyInRole> roles) {
         for (PartyInRole each : roles) {
             add(each);
         }

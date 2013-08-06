@@ -20,7 +20,7 @@ public class OrganizationInfos {
         add(organization);
     }
 
-    OrganizationInfos(List<Organization> organizations) {
+    OrganizationInfos(Iterable<? extends Organization> organizations) {
         addAll(organizations);
     }
 
@@ -31,7 +31,7 @@ public class OrganizationInfos {
         return result;
     }
 
-    void addAll(List<Organization> organizations) {
+    void addAll(Iterable<? extends Organization> organizations) {
         for (Organization each : organizations) {
             add(each);
         }

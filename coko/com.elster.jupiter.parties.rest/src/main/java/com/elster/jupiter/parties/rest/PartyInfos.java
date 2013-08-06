@@ -20,7 +20,7 @@ public class PartyInfos {
         add(party);
     }
 
-    PartyInfos(List<Party> parties) {
+    PartyInfos(Iterable<? extends Party> parties) {
         addAll(parties);
     }
 
@@ -31,7 +31,7 @@ public class PartyInfos {
         return result;
     }
 
-    void addAll(List<Party> partys) {
+    void addAll(Iterable<? extends Party> partys) {
         for (Party each : partys) {
             add(each);
         }
