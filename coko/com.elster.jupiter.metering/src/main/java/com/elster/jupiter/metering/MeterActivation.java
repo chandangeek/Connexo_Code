@@ -16,4 +16,6 @@ public interface MeterActivation {
 	List<ReadingType> getReadingTypes();
 	List<BaseReading> getReadings(Date from , Date to, ReadingType readingType);
 	boolean isCurrent();
+
+    long getVersion();
 }

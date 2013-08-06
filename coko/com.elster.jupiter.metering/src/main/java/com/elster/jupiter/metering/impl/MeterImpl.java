@@ -17,11 +17,8 @@ public class MeterImpl implements Meter {
 	private String serialNumber;
 	private String utcNumber;
 	private ElectronicAddress electronicAddress;
-	@SuppressWarnings("unused")
 	private long version;
-	@SuppressWarnings("unused")
 	private UtcInstant createTime;
-	@SuppressWarnings("unused")
 	private UtcInstant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
@@ -99,5 +96,19 @@ public class MeterImpl implements Meter {
 		}
 		return amrSystem;
 	}
-	
+
+    @Override
+    public UtcInstant getCreateTime() {
+        return createTime;
+    }
+
+    @Override
+    public UtcInstant getModTime() {
+        return modTime;
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
 }

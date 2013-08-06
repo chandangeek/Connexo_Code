@@ -1,9 +1,9 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.ids.TimeSeries;
+
 import java.util.Date;
 import java.util.List;
-
-import com.elster.jupiter.ids.TimeSeries;
 
 public interface Channel {
 	long getId();
@@ -14,4 +14,6 @@ public interface Channel {
 	List<Reading> getRegisterReadings(Date from, Date to);
 	ReadingType getMainReadingType();
 	ReadingType getCumulativeReadingType();
+
+    long getVersion();
 }

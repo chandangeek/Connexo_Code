@@ -38,7 +38,6 @@ public class ChannelImpl implements Channel {
 	private long timeSeriesId;
 	private String mainReadingTypeMRID;
 	private String cumulativeReadingTypeMRID;
-	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
 	private UtcInstant createTime;
@@ -221,4 +220,9 @@ public class ChannelImpl implements Channel {
 		}
 		return cumulativeReadingType;
 	}
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
 }

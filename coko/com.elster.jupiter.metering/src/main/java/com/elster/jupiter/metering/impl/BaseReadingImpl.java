@@ -1,14 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.metering.BaseReading;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ReadingType;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.metering.*;
 
-
-abstract public class BaseReadingImpl implements BaseReading {
+public abstract class BaseReadingImpl implements BaseReading {
 	private final Channel channel;
 	private final TimeSeriesEntry entry;
 	
@@ -42,7 +45,16 @@ abstract public class BaseReadingImpl implements BaseReading {
 		return getValue(0);
 	}
 
-	@Override
+    @Override
+    public List<BigDecimal> getValues() {
+        List<BigDecimal> result = new ArrayList<>(entry.size() - getReadingTypeOffset());
+        for (int i = getReadingTypeOffset(); i < entry.size(); i++) {
+            result.add(entry.getBigDecimal(i));
+        }
+        return result;
+    }
+
+    @Override
 	public BigDecimal getValue(int offset) {
 		return entry.getBigDecimal(getReadingTypeOffset() + offset);
 	}

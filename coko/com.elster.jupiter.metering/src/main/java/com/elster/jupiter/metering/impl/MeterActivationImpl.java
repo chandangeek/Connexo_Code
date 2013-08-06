@@ -128,4 +128,8 @@ public class MeterActivationImpl implements MeterActivation {
 		return interval.isCurrent(Bus.getClock());
 	}
 
+    @Override
+    public long getVersion() {
+        return version;
+    }
 }

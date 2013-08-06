@@ -7,6 +7,7 @@ import java.util.List;
 public interface BaseReading {
 	Date getTimeStamp();
 	Date getReportedDateTime();
+    List<BigDecimal> getValues();
 	BigDecimal getValue();
 	BigDecimal getValue(int offset);
 	BigDecimal getValue(ReadingType readingType);

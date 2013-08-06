@@ -211,7 +211,7 @@ public enum TableSpecs {
 			Column positionColumn = table.addColumn("POSITION","number",true,NUMBER2INT,"position");
 			Column readingTypeMRidColumn = table.addColumn("READINGTYPEMRID","varchar2(80)",true,NOCONVERSION,"readingTypeMRID");
 			table.addPrimaryKeyConstraint("MTR_PK_READINGTYPEINCHANNEL", channelIdColumn , positionColumn);
-			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL1", MTR_CHANNEL.name(),CASCADE,new AssociationMapping(null),channelIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL1", MTR_CHANNEL.name(),CASCADE,new AssociationMapping("channel"),channelIdColumn);
 			table.addForeignKeyConstraint("MTR_FK_READINGTYPEINCHANNEL2", MTR_READINGTYPE.name(),RESTRICT,new AssociationMapping(null),readingTypeMRidColumn);
 		}
 	},
