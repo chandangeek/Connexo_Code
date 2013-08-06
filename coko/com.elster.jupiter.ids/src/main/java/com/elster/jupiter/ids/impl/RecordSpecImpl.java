@@ -1,11 +1,15 @@
 package com.elster.jupiter.ids.impl;
 
-import java.util.*;
-
-import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.FieldSpec;
+import com.elster.jupiter.ids.FieldType;
+import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class RecordSpecImpl implements RecordSpec {
 	// persistent fields
@@ -80,21 +84,27 @@ public class RecordSpecImpl implements RecordSpec {
 		}
 	}
 
-	@Override
-	public boolean equals(Object other) {
-		try {
-			RecordSpecImpl o = (RecordSpecImpl) other;
-			return this.componentName.equals(o.componentName) && this.id == o.id;
-		} catch (ClassCastException ex) {
-			return false;
-		}
-	}
-	
-	@Override
-	public int hashCode() {
-		return this.componentName.hashCode() ^ new Long(this.id).hashCode();
-	}
-		
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        RecordSpecImpl that = (RecordSpecImpl) o;
+
+        return id == that.id && componentName.equals(that.componentName);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = componentName.hashCode();
+        result = 31 * result + (int) (id ^ (id >>> 32));
+        return result;
+    }
 	private DataMapper<RecordSpec> getFactory() {
 		return Bus.getOrmClient().getRecordSpecFactory();		
 	}

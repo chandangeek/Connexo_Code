@@ -1,11 +1,18 @@
 package com.elster.jupiter.ids.impl;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.*;
-import java.sql.*;
+import com.elster.jupiter.ids.FieldSpec;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesEntry;
 
-import com.elster.jupiter.ids.*;
+import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class TimeSeriesEntryImpl implements TimeSeriesEntry {
 	private final TimeSeries timeSeries;
@@ -70,7 +77,12 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
 		return (Long) values[offset];
 	}
 
-	@Override
+    @Override
+    public int size() {
+        return values.length;
+    }
+
+    @Override
 	public String toString() {
 		return "TimeSeries entry for " + getTimeStamp() + " recorded at " + getRecordDateTime();
 	}
