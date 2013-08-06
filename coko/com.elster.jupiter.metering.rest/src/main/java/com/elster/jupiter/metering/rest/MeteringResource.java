@@ -4,12 +4,15 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReading;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.users.User;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
@@ -26,8 +29,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.elster.jupiter.metering.rest.Bus.getMeteringService;
 import static com.elster.jupiter.metering.rest.Bus.getQueryService;
@@ -106,7 +112,7 @@ public class MeteringResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/usagepoints/{id}/meterActivations")
+    @Path("/usagepoints/{id}/meteractivations")
     @Produces(MediaType.APPLICATION_JSON)
     public MeterActivationInfos getMeterActivations(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
@@ -115,7 +121,7 @@ public class MeteringResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/usagepoints/{id}/meterActivations/{activationId}/channels")
+    @Path("/usagepoints/{id}/meteractivations/{activationId}/channels")
     @Produces(MediaType.APPLICATION_JSON)
     public ChannelInfos getChannels(@PathParam("id") long id, @PathParam("activationId") long activationId, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
@@ -134,25 +140,73 @@ public class MeteringResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/usagepoints/{id}/meterActivations/{activationId}/channels/{channelId}/intervalreadings")
+    @Path("/usagepoints/{id}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
     @Produces(MediaType.APPLICATION_JSON)
     public ReadingInfos getIntervalReadings(@PathParam("id") long id, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
     	if (from == 0 || to == 0) {
     		throw new WebApplicationException(Response.Status.BAD_REQUEST);
     	}
+        return doGetIntervalreadings(id, activationId, channelId, securityContext, new Date(from), new Date(to));
+    }
+
+    private ReadingInfos doGetIntervalreadings(long id, long activationId, long channelId, SecurityContext securityContext, Date fromDate, Date toDate) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
         for (Channel channel : meterActivation.getChannels()) {
             if (channel.getId() == channelId) {
-                List<IntervalReading> intervalReadings = fetchIntervalReadings(channel, from, to);
+                List<IntervalReading> intervalReadings = channel.getIntervalReadings(fromDate, toDate);
                 return new ReadingInfos(intervalReadings);
             }
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 
-    private List<IntervalReading> fetchIntervalReadings(Channel channel, long from, long to) {
-        return channel.getIntervalReadings(new Date(from), new Date(to));
+    @GET
+    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    @Path("/usagepoints/{id}/readingtypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+        return new ReadingTypeInfos(collectReadingTypes(usagePoint));
+    }
+
+    @GET
+    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    @Path("/usagepoints/{id}/readingtypes/{mrid}/readings")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ReadingInfos getReadingTypeReadings(@PathParam("id") long id, @PathParam("mrid") String mRID, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
+        if (from == 0 || to == 0) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        return doGetReadingTypeReadings(id, mRID, new Date(from), new Date(to), securityContext);
+    }
+
+    private ReadingInfos doGetReadingTypeReadings(long id, String mRID, Date fromDate, Date toDate, SecurityContext securityContext) {
+        ReadingType readingType = null;
+        List<IntervalReading> readings = new ArrayList<>();
+        for (MeterActivation meterActivation : meterActivationsForReadingTypeWithMRID(id, mRID, securityContext)) {
+            if (readingType == null) {
+                readingType = FluentIterable.from(meterActivation.getReadingTypes()).firstMatch(new MRIDMatcher(mRID)).get();
+            }
+            for (Channel channel : meterActivation.getChannels()) {
+                readings.addAll(channel.getIntervalReadings(readingType, fromDate, toDate));
+            }
+        }
+        return new ReadingInfos(readings);
+    }
+
+    private FluentIterable<MeterActivation> meterActivationsForReadingTypeWithMRID(long id, String mRID, SecurityContext securityContext) {
+        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
+        return FluentIterable.from(usagePoint.getMeterActivations()).filter(new HasReadingType(mRID));
+    }
+
+    private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
+        Set<ReadingType> readingTypes = new LinkedHashSet<>();
+        List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
+        for (MeterActivation meterActivation : meterActivations) {
+            readingTypes.addAll(meterActivation.getReadingTypes());
+        }
+        return readingTypes;
     }
 
     private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
@@ -167,4 +221,31 @@ public class MeteringResource {
         return usagePoint;
     }
 
+    private static class HasReadingType implements Predicate<MeterActivation> {
+
+        private final MRIDMatcher mridMatcher;
+
+        public HasReadingType(String mRID) {
+            mridMatcher = new MRIDMatcher(mRID);
+        }
+
+        @Override
+        public boolean apply(MeterActivation input) {
+            return input != null && FluentIterable.from(input.getReadingTypes()).anyMatch(mridMatcher);
+        }
+    }
+
+    private static class MRIDMatcher implements Predicate<ReadingType> {
+
+        private final String mRID;
+
+        private MRIDMatcher(String mRID) {
+            this.mRID = mRID;
+        }
+
+        @Override
+        public boolean apply(ReadingType input) {
+            return input.getMRID().equals(mRID);
+        }
+    }
 }

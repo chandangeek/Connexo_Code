@@ -1,38 +1,28 @@
 package com.elster.jupiter.metering.rest;
 
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.DataQualifier;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MeasurementCategory;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.Phase;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.cbo.UnitOfMeasureCategory;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class ReadingTypeInfo {
 
-    private String mRID;
-    private String aliasName;
-    @SuppressWarnings("unused")
-    private long version;
-    @SuppressWarnings("unused")
-    private UtcInstant createTime;
-    @SuppressWarnings("unused")
-    private UtcInstant modTime;
-    @SuppressWarnings("unused")
-    private String userName;
+    public String mRID;
+    public String aliasName;
+    public String name;
+    public long version;
+    public UtcInstant createTime;
+    public UtcInstant modTime;
+    public String userName;
 
-    // transient fields
-    private TimeAttribute timeAttribute;
-    private DataQualifier dataQualifier;
-    private Accumulation accumulation;
-    private FlowDirection flowDirection;
-    private UnitOfMeasureCategory unitOfMeasureCategory;
-    private MeasurementCategory measurementCategory;
-    private Phase phase;
-    private MetricMultiplier metricMultiplier;
-    private ReadingTypeUnit baseUnit;
+    public ReadingTypeInfo() {
+    }
 
+    public ReadingTypeInfo(ReadingType readingType) {
+        this.mRID = readingType.getMRID();
+        this.aliasName = readingType.getAliasName();
+        this.version = readingType.getVersion();
+        this.name = readingType.getName();
+    }
 }
