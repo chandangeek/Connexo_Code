@@ -16,4 +16,6 @@ public interface Channel {
 	ReadingType getCumulativeReadingType();
 
     long getVersion();
+
+    List<IntervalReading> getIntervalReadings(ReadingType readingType, Date from, Date to);
 }

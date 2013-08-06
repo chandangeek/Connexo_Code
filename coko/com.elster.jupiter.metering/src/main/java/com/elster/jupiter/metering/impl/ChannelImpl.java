@@ -192,7 +192,18 @@ public class ChannelImpl implements Channel {
 		return result;
 	}
 
-	@Override
+    @Override
+    public List<IntervalReading> getIntervalReadings(ReadingType readingType, Date from, Date to) {
+        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+        List<IntervalReading> result = new ArrayList<>(entries.size());
+        for (TimeSeriesEntry entry : entries) {
+            IntervalReadingImpl reading = new IntervalReadingImpl(this, entry);
+            result.add(new FilteredReading(reading, getReadingTypes().indexOf(readingType)));
+        }
+        return result;
+    }
+
+    @Override
 	public List<Reading> getRegisterReadings(Date from, Date to) {
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
 		List<Reading> result = new ArrayList<>(entries.size());

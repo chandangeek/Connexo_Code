@@ -6,4 +6,6 @@ public interface ReadingType extends HasName {
 	String getMRID();
 	String getAliasName();
 	boolean isCumulativeReadingType(ReadingType readingType);
+
+    long getVersion();
 }

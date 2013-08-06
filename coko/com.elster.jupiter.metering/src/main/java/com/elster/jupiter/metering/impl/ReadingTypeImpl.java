@@ -129,23 +129,26 @@ public class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	IntervalLength getIntervalLength() {
 		return IntervalLength.forCimCode(timeAttribute.getId());
 	}
-	
-	@Override
-	public boolean equals(Object other) {
-		if  (other instanceof ReadingTypeImpl) {
-			ReadingTypeImpl o = (ReadingTypeImpl) other;
-			return this.mRID.equals(o.mRID);
-		} else {
-			return false;
-		}
-	}
-	
-	@Override
-	public int hashCode() {
-		return mRID.hashCode();
-	}
 
-	@Override
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        return mRID.equals(((ReadingTypeImpl) o).mRID);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return mRID.hashCode();
+    }
+
+    @Override
 	public boolean isCumulativeReadingType(ReadingType readingType) {
 		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
 		return 
@@ -153,4 +156,9 @@ public class ReadingTypeImpl implements ReadingType , PersistenceAware {
 			this.accumulation == Accumulation.INTERVALDATA &&
 			other.accumulation == Accumulation.CUMULATIVE;
 	}
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
 }
