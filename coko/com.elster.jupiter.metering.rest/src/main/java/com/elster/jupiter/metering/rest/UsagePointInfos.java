@@ -1,11 +1,10 @@
 package com.elster.jupiter.metering.rest;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.elster.jupiter.metering.UsagePoint;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
-import com.elster.jupiter.metering.UsagePoint;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class UsagePointInfos {
@@ -19,7 +18,7 @@ public class UsagePointInfos {
 		add(usagePoint);		
 	}
 	
-	UsagePointInfos(List<UsagePoint> usagePoints) {
+	UsagePointInfos(List<? extends UsagePoint> usagePoints) {
 		addAll(usagePoints);
 	}
 	
@@ -30,7 +29,7 @@ public class UsagePointInfos {
 		return result;
 	}
 	
-	void addAll(List<UsagePoint> usagePoints) {
+	void addAll(List<? extends UsagePoint> usagePoints) {
 		for (UsagePoint each : usagePoints) {
 			add(each);
 		}
