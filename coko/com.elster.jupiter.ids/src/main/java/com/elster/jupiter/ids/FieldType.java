@@ -45,6 +45,6 @@ public enum FieldType {
 		}
 	};		
 	
-	abstract public Object getValue(ResultSet resultSet, int i) throws SQLException;
-	abstract public void bind(PreparedStatement statement, int offset, Object object) throws SQLException;	
+	public abstract Object getValue(ResultSet resultSet, int i) throws SQLException;
+	public abstract void bind(PreparedStatement statement, int offset, Object object) throws SQLException;
 }
