@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.geo.Position;
 
 import java.util.Date;
 import java.util.List;
@@ -46,4 +47,5 @@ public interface ServiceLocation extends HasName {
 	Date getCreateDate();
 	Date getModificationDate();
 	long getVersion();
+	Position getPosition();
 }

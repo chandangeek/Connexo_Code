@@ -8,12 +8,15 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.PersistenceEvent;
+import com.elster.jupiter.util.geo.Position;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 public class ServiceLocationImpl implements ServiceLocation {
+	private final static String GOOGLE_GEOCODED = "GG";
 	// persistent fields
 	private long id;
 	private String aliasName;
@@ -236,5 +239,25 @@ public class ServiceLocationImpl implements ServiceLocation {
 	
 	public long getVersion() {
 		return version;
+	}
+	
+	public Position getPosition() {
+		if (geoInfoReference == null) {
+			return null;
+		}
+		String[] parts = geoInfoReference.split(",");
+		if (parts == null || parts.length == 0) {
+			return null;
+		}
+		switch (parts[0]) {
+			case GOOGLE_GEOCODED:
+				if (parts.length != 3) {
+					return null;
+				}
+				return new Position(new BigDecimal(parts[1]),new BigDecimal(parts[2]));
+				
+			default:
+				return null;
+		}
 	}
 }
