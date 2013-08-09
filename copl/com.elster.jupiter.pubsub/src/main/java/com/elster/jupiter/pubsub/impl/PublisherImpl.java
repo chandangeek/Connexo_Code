@@ -12,12 +12,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 @Component (name="com.elster.jupiter.pubsub", immediate = true )
 public class PublisherImpl implements Publisher {
 	
-	private List<Subscription> subscriptions = new ArrayList<>();
+	private final List<Subscription> subscriptions = new CopyOnWriteArrayList<>();
 	private final ThreadLocal<Subscriber> threadSubscribers = new ThreadLocal<>();
 
 	@Override
@@ -31,12 +32,12 @@ public class PublisherImpl implements Publisher {
 		}
 	}
 
-	synchronized private List<Subscription> getSubscriptions() {
+	private List<Subscription> getSubscriptions() {
 		return new ArrayList<>(subscriptions);
 	}
 	
-	@Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC) 
-	synchronized public void addHandler(Subscriber subscriber, Map<String, Object> properties) {
+	@Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addHandler(Subscriber subscriber, Map<String, Object> properties) {
 		Object filter = properties.get(Subscriber.TOPIC);
 		if (filter == null) {
 			return;
@@ -50,7 +51,7 @@ public class PublisherImpl implements Publisher {
 		this.subscriptions.add(new Subscription(subscriber, classes));
 	}
 	
-	synchronized public void removeHandler(Subscriber subscriber) {
+	public void removeHandler(Subscriber subscriber) {
 		Iterator<Subscription> it = subscriptions.iterator();
 		while (it.hasNext()) {
 			if (it.next().getSubscriber() == subscriber) {
