@@ -1,5 +1,7 @@
 package com.elster.jupiter.messaging;
 
+import com.elster.jupiter.orm.TransactionRequired;
+
 import java.util.List;
 
 public interface DestinationSpec {
@@ -26,5 +28,6 @@ public interface DestinationSpec {
 
     List<SubscriberSpec> getConsumers();
 
+    @TransactionRequired
     SubscriberSpec subscribe(String name, int workerCount);
 }
