@@ -1,0 +1,44 @@
+package com.elster.jupiter.util.collections;
+
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * Extension of the List interface. A DiffList is a list that can report on changes vs. its initial state.
+ *
+ * @author Bart
+ * @author tgr
+ * @since 1/26/13 6:01 PM
+ */
+public interface DiffList<E> extends List<E> {
+
+    /**
+     * @return a collection containing all elements in this list, not in the original.
+     */
+    public Collection<E> getAdditions();
+
+    /**
+     * @return a collection containing all elements not in this list, yet in the original.
+     */
+    public Collection<E> getRemovals();
+
+    /**
+     * @return a collection containing all elements in this list, also in the original.
+     */
+    public Collection<E> getRemaining();
+
+    /**
+     * Adds the element to the list WITHOUT considering it as a new element in the list.
+     * @param element The new element
+     */
+    void addAsOriginal(E element);
+
+    /**
+     * @return true if the list has removals or additions.
+     */
+    boolean hasChanged();
+
+    DiffList<E> immutableView();
+
+    List<E> originalList();
+}
