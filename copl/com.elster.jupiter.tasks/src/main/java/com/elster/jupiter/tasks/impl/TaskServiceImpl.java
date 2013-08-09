@@ -145,7 +145,7 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
         if (isLaunched()) {
             throw new TaskServiceAlreadyLaunched();
         }
-        TaskOccurrenceLauncher taskOccurrenceLauncher = new LoggingTaskOcurrenceLauncher(new DefaultTaskOccurrenceLauncher(new DueTaskFetcher()));
+        TaskOccurrenceLauncher taskOccurrenceLauncher = new LoggingTaskOccurrenceLauncher(new DefaultTaskOccurrenceLauncher(new DueTaskFetcher()));
         TaskScheduler taskScheduler = new TaskScheduler(taskOccurrenceLauncher, 1, TimeUnit.MINUTES);
         schedulerThread = new Thread(taskScheduler);
         schedulerThread.setName("SchedulerThread");

@@ -1,13 +1,11 @@
 package com.elster.jupiter.tasks.impl;
 
-import java.util.logging.Level;
-
-public class LoggingTaskOcurrenceLauncher implements TaskOccurrenceLauncher {
+public class LoggingTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
 
     private final TaskOccurrenceLauncher launcher;
     private int c = 0;
 
-    public LoggingTaskOcurrenceLauncher(TaskOccurrenceLauncher launcher) {
+    public LoggingTaskOccurrenceLauncher(TaskOccurrenceLauncher launcher) {
         this.launcher = launcher;
     }
 
