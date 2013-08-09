@@ -8,8 +8,8 @@ Export-Package: com.elster.jupiter.util.conditions,\
 	com.elster.jupiter.util.json,\
 	com.elster.jupiter.util.collections,\
 	com.elster.jupiter.util.beans
+	com.elster.jupiter.util.geo
 -dsannotations: *
 Private-Package: com.elster.jupiter.util.time.impl,\
 	com.elster.jupiter.util.cron.impl,\
-	com.elster.jupiter.util.json.impl,\
-    com.elster.jupiter.util.beans.impl
+	com.elster.jupiter.util.json.impl
