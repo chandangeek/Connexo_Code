@@ -7,7 +7,6 @@ import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.plumbing.Bus;
-import com.elster.jupiter.orm.PersistenceEvent;
 import com.elster.jupiter.util.geo.Position;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -214,12 +213,18 @@ public class ServiceLocationImpl implements ServiceLocation {
 	public void save() {
 		if (id == 0) {
 			Bus.getOrmClient().getServiceLocationFactory().persist(this);
-            Bus.getPublisher().publish(this, PersistenceEvent.CREATED);
-		} else { 
+            Bus.getEventService().postEvent(EventType.SERVICELOCATION_CREATED.topic(), this);
+		} else {
 			Bus.getOrmClient().getServiceLocationFactory().update(this);
-            Bus.getPublisher().publish(this, PersistenceEvent.UPDATED);
+            Bus.getEventService().postEvent(EventType.SERVICELOCATION_UPDATED.topic(), this);
 		}
 	}
+
+    @Override
+    public void delete() {
+        Bus.getOrmClient().getServiceLocationFactory().remove(this);
+        Bus.getEventService().postEvent(EventType.SERVICELOCATION_DELETED.topic(), this);
+    }
 	
 	@Override
 	public List<UsagePoint> getUsagePoints() {

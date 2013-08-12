@@ -48,4 +48,6 @@ public interface ServiceLocation extends HasName {
 	Date getModificationDate();
 	long getVersion();
 	Position getPosition();
+
+    void delete();
 }

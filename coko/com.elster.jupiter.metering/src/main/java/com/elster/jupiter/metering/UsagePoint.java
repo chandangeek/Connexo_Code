@@ -75,4 +75,6 @@ public interface UsagePoint extends HasName {
 	Party getResponsibleParty(PartyRole role);
 
 	boolean hasAccountability(User user);
+
+    void delete();
 }

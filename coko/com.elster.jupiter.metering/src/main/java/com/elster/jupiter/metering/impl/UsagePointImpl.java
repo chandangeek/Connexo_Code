@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.plumbing.Bus;
-import com.elster.jupiter.orm.PersistenceEvent;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
@@ -300,12 +299,18 @@ public class UsagePointImpl implements UsagePoint {
 	public void save() {
 		if (id == 0) {
 			Bus.getOrmClient().getUsagePointFactory().persist(this);
-            Bus.getPublisher().publish(this, PersistenceEvent.CREATED);
+            Bus.getEventService().postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
 		} else { 
 			Bus.getOrmClient().getUsagePointFactory().update(this);
-            Bus.getPublisher().publish(this, PersistenceEvent.UPDATED);
+            Bus.getEventService().postEvent(EventType.USAGEPOINT_UPDATED.topic(), this);
 		}
 	}
+
+    @Override
+    public void delete() {
+        Bus.getOrmClient().getUsagePointFactory().remove(this);
+        Bus.getEventService().postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
 
 	@Override
 	public void setEstimatedLoad(Quantity estimatedLoad) {

@@ -21,4 +21,6 @@ public interface Meter extends HasName {
     UtcInstant getModTime();
 
     long getVersion();
+
+    void delete();
 }

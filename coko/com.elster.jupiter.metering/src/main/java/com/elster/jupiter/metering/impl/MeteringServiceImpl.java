@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -23,7 +24,6 @@ import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Expression;
@@ -47,7 +47,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     private volatile PartyService partyService;
     private volatile Clock clock;
     private volatile UserService userService;
-    private volatile Publisher publisher;
+    private volatile EventService eventService;
 
 
     @Override
@@ -184,14 +184,13 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     	this.userService = userService;
     }
 
-    @Override
-    public Publisher getPublisher() {
-        return publisher;
+    public EventService getEventService() {
+        return eventService;
     }
 
     @Reference
-    public void setPublisher(Publisher publisher) {
-        this.publisher = publisher;
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     public void activate(ComponentContext context) {
