@@ -3,7 +3,11 @@ package com.elster.jupiter.util.beans.impl;
 import com.elster.jupiter.util.beans.BeanEvaluationException;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.NoSuchPropertyException;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -12,7 +16,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-@Component(name = "com.elster.jupiter.time.beans", service = { BeanService.class })
+@Component(name = "com.elster.jupiter.beans", service = { BeanService.class })
 public class BeanServiceImpl implements BeanService {
     @Override
     public Object get(Object bean, String property) {
@@ -30,6 +34,14 @@ public class BeanServiceImpl implements BeanService {
         invokeSetter(bean, setter(bean, property), value);
     }
 
+    @Activate
+    public void activate(BundleContext context) {
+    }
+    
+    @Deactivate
+    public void deactivate() {
+    }
+    
     private void invokeSetter(Object bean, Method setter, Object value) {
         try {
             setter.invoke(bean, value);

@@ -139,10 +139,10 @@ class MyCronExpression implements CronExpression {
         SECONDS(ALL_SIXTY, DateTimeFieldType.secondOfMinute()), MINUTES(ALL_SIXTY, DateTimeFieldType.minuteOfHour()), HOURS(ALL_24, DateTimeFieldType.hourOfDay()), DAY_OF_MONTH(ALL_31, DateTimeFieldType.dayOfMonth()), MONTH(ALL_12, DateTimeFieldType.monthOfYear(), Month.class), DAY_OF_WEEK(ALL_7, DateTimeFieldType.dayOfWeek(), DayOfWeek.class), YEAR(0, DateTimeFieldType.year());
 
         private final long mask;
-        private final Class<? extends Enum> stringParser;
+        private final Class<? extends Enum<?>> stringParser;
         private final DateTimeFieldType fieldType;
 
-        Field(long mask, DateTimeFieldType fieldType, Class<? extends Enum> stringParser) {
+        Field(long mask, DateTimeFieldType fieldType, Class<? extends Enum<?>> stringParser) {
             this.mask = mask;
             this.fieldType = fieldType;
             this.stringParser = stringParser;
@@ -506,6 +506,7 @@ class MyCronExpression implements CronExpression {
             return 0;
         }
         return Enum.valueOf(field.getStringParser(), singleValueExpression).ordinal() + 1;
+        		
     }
 
     @Override

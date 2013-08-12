@@ -12,4 +12,5 @@ Export-Package: com.elster.jupiter.util.conditions,\
 -dsannotations: *
 Private-Package: com.elster.jupiter.util.time.impl,\
 	com.elster.jupiter.util.cron.impl,\
-	com.elster.jupiter.util.json.impl
+	com.elster.jupiter.util.json.impl,\
+	com.elster.jupiter.util.beans.impl
