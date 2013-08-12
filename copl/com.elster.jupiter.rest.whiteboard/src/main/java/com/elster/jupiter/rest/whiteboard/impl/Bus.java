@@ -7,7 +7,7 @@ class Bus {
 	
 	static final String PID = "com.elster.jupiter.rest.whiteboard";
 	
-	private static ServiceLocator locator;
+	private static volatile ServiceLocator locator;
 	
 	static ServiceLocator getServiceLocator() {
 		return locator;
