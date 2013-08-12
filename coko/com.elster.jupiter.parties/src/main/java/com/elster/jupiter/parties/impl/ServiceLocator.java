@@ -1,7 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.cache.ComponentCache;
-import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 
@@ -19,5 +19,5 @@ public interface ServiceLocator {
 
     UserService getUserService();
 
-    Publisher getPublisher();
+    EventService getEventService();
 }

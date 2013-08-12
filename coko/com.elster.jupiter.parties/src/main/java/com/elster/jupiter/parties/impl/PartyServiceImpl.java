@@ -2,6 +2,7 @@ package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
@@ -12,7 +13,6 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
-import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
@@ -34,7 +34,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     private volatile Clock clock;
     private volatile UserService userService;
     private volatile QueryService queryService;
-    private volatile Publisher publisher;
+    private volatile EventService eventService;
 
     public void activate(ComponentContext context) {
         Bus.setServiceLocator(this);
@@ -169,14 +169,13 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
         this.userService = userService;
     }
 
-    @Override
-    public Publisher getPublisher() {
-        return publisher;
+    public EventService getEventService() {
+        return eventService;
     }
 
     @Reference
-    public void setPublisher(Publisher publisher) {
-        this.publisher = publisher;
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Override

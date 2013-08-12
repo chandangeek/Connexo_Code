@@ -3,7 +3,6 @@ package com.elster.jupiter.parties.impl;
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.PersistenceEvent;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
@@ -59,7 +58,7 @@ abstract class PartyImpl implements Party {
 
     public void delete() {
         partyFactory().remove(this);
-        Bus.getPublisher().publish(this, PersistenceEvent.DELETED);
+        Bus.getEventService().postEvent(EventType.PARTY_DELETED.topic(), this);
     }
 
     @Override
@@ -139,10 +138,10 @@ abstract class PartyImpl implements Party {
     public void save() {
         if (getId() == 0) {
             partyFactory().persist(this);
-            Bus.getPublisher().publish(this, PersistenceEvent.CREATED);
+            Bus.getEventService().postEvent(EventType.PARTY_CREATED.topic(), this);
         } else {
             partyFactory().update(this);
-            Bus.getPublisher().publish(this, PersistenceEvent.UPDATED);
+            Bus.getEventService().postEvent(EventType.PARTY_UPDATED.topic(), this);
         }
     }
 
