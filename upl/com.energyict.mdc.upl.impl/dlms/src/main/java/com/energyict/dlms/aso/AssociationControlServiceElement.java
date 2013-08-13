@@ -1,7 +1,9 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
@@ -917,7 +919,11 @@ public class AssociationControlServiceElement {
      * @return true if both challenges are the same, false otherwise.
      */
     public boolean hlsChallengeMatch() {
-        return Arrays.equals(getCallingAuthenticationValue(), getRespondingAuthenticationValue());
+        if (sc.getAuthenticationLevel() > 1) {          // SVA|17042012|For Authentication level 1, this check is not valid - ActarisSL7000 failed on this.
+            return Arrays.equals(getCallingAuthenticationValue(), getRespondingAuthenticationValue());
+        } else {
+            return false;
+        }
     }
 
     private class ACSEParsingException extends IOException {
