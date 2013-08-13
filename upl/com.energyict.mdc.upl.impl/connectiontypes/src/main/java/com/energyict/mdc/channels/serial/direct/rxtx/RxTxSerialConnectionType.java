@@ -3,13 +3,17 @@ package com.energyict.mdc.channels.serial.direct.rxtx;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.dynamicattributes.StringFactory;
-import com.energyict.mdc.channels.serial.*;
+import com.energyict.mdc.channels.serial.AbstractSerialConnectionType;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for Serial communication.
@@ -34,10 +38,12 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
         SerialPortConfiguration serialPortConfiguration = new SerialPortConfiguration(comPort.getName(), getBaudRateValue(), getNrOfDataBitsValue(),
                 getNrOfStopBitsValue(), getParityValue(), getFlowControlValue());
 
-        //------- The getters should have filled in the default values -------------
-        serialPortConfiguration.setSerialPortOpenTimeOut(getPortOpenTimeOutValue());
-        serialPortConfiguration.setSerialPortReadTimeOut(getPortReadTimeOutValue());
-
+        if (getPortOpenTimeOutValue() != null) {
+            serialPortConfiguration.setSerialPortOpenTimeOut(getPortOpenTimeOutValue());
+        }
+        if (getPortReadTimeOutValue() != null) {
+            serialPortConfiguration.setSerialPortReadTimeOut(getPortReadTimeOutValue());
+        }
 
         return newRxTxSerialConnection(serialPortConfiguration);
     }
