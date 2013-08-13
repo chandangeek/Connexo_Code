@@ -8,6 +8,7 @@ package com.energyict.protocolimpl.emon.ez7.core.command;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocolimpl.emon.ez7.core.EZ7CommandFactory;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.List;
@@ -64,9 +65,9 @@ public class RGLInfo extends AbstractCommand {
             vals[0][col]=Integer.parseInt((String)values.get(col),16);
         
         setGroupNumber(Integer.parseInt((String)values.get(0),16));
-        setLocationNumber(Integer.parseInt((String)values.get(1),16));
-        setDeviceId((String)values.get(5)+(String)values.get(6)+(String)values.get(7));
-        
+        setLocationNumber(Integer.parseInt((String) values.get(1), 16));
+        setDeviceId(extractIdentificationNumber(values));
+
         values = cp.getValues("LINE-2");
         for (int col=0;col<NR_OF_COLUMNS;col++)
             vals[1][col]=Integer.parseInt((String)values.get(col),16);
@@ -76,7 +77,21 @@ public class RGLInfo extends AbstractCommand {
         idrIdCode[1] = (byte)(Integer.parseInt((String)values.get(0),16)%0x100);
         setIdrIdCode(new String(idrIdCode));
         setCallInTypes(Integer.parseInt((String)values.get(1),16));
-        setSerialNumber((String)values.get(5)+(String)values.get(6)+(String)values.get(7));
+        setSerialNumber(extractIdentificationNumber(values));
+    }
+
+    protected String extractIdentificationNumber(List values) {
+        if (values.get(2).equals("0000") &&
+                values.get(3).equals("0000") &&
+                values.get(4).equals("0000")) {
+            // Numerical identification - e.g.: 0000 0000 0000 2300 1234 5678 is for "230012345678"
+            return (String) values.get(5) + (String) values.get(6) + (String) values.get(7);
+        } else {
+            // alpha-numerical identification represented as HEX - e.g.: 4241 3030 3031 3233 3334 3536 is for "BA0001233456"
+            String hexString = (String) values.get(2) +(String) values.get(3) +(String) values.get(4) +(String) values.get(5) + (String) values.get(6) + (String) values.get(7);
+            byte[] bytes = ProtocolTools.getBytesFromHexString(hexString, "");
+            return new String(bytes);
+        }
     }
     
     /**
