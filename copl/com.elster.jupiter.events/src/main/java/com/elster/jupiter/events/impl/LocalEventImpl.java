@@ -69,7 +69,7 @@ public class LocalEventImpl implements LocalEvent {
 
     private Object getValue(EventPropertyType eventPropertyType) {
         Object value = evaluateAccessPath(eventPropertyType);
-        if (!eventPropertyType.getValueType().getType().isInstance(value)) {
+        if (value != null && !eventPropertyType.getValueType().getType().isInstance(value)) {
             throw new InvalidPropertyType(source, eventPropertyType.getAccessPath(), eventPropertyType.getValueType().getType(), value.getClass());
         }
         return value;

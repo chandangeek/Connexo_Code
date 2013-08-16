@@ -17,7 +17,7 @@ public enum TableSpecs {
             table.addColumn("COMPONENT", "varchar(3)", true, NOCONVERSION, "component");
             table.addColumn("SCOPE", "varchar(80)", true, NOCONVERSION, "scope");
             table.addColumn("CATEGORY", "varchar(80)", true, NOCONVERSION, "category");
-            table.addColumn("NAPE", "varchar(80)", true, NOCONVERSION, "name");
+            table.addColumn("NAME", "varchar(80)", true, NOCONVERSION, "name");
             table.addColumn("PUBLISH", "char(1)", true, CHAR2BOOLEAN, "publish");
 
             table.addPrimaryKeyConstraint("EVT_PK_EVENTTYPE", topicColumn);
