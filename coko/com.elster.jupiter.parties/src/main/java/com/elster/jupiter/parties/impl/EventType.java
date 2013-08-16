@@ -38,7 +38,7 @@ public enum EventType {
                 .withProperty("id", ValueType.LONG, "id")
                 .withProperty("version", ValueType.LONG, "version");
         if (hasMRID) {
-            builder.withProperty("MRID", ValueType.STRING, "mRID");
+            builder.withProperty("MRID", ValueType.STRING, "MRID");
         }
         addCustomProperties(builder).create().save();
     }
