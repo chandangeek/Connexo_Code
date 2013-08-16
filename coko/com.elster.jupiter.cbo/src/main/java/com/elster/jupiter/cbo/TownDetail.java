@@ -77,8 +77,48 @@ public final class TownDetail implements Cloneable, HasName {
 	boolean isEmpty() {
 		return code == null && country == null && name == null && section == null && stateOrProvince == null;
 	}
-	
-	@Override
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TownDetail that = (TownDetail) o;
+
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (country != null ? !country.equals(that.country) : that.country != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (section != null ? !section.equals(that.section) : that.section != null) {
+            return false;
+        }
+        if (stateOrProvince != null ? !stateOrProvince.equals(that.stateOrProvince) : that.stateOrProvince != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = code != null ? code.hashCode() : 0;
+        result = 31 * result + (country != null ? country.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (section != null ? section.hashCode() : 0);
+        result = 31 * result + (stateOrProvince != null ? stateOrProvince.hashCode() : 0);
+        return result;
+    }
+
+    @Override
 	public String toString() {
 		return "" + getCode() + " " + getName() + " " + getStateOrProvince() + " " + getCountry();
 	}

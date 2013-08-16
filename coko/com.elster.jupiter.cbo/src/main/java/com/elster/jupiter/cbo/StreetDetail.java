@@ -110,8 +110,65 @@ public final class StreetDetail implements Cloneable, HasName {
 			throw new UnsupportedOperationException(e);
 		}
 	}
-	
-	@Override
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        StreetDetail that = (StreetDetail) o;
+
+        if (withinTownLimits != that.withinTownLimits) {
+            return false;
+        }
+        if (addressGeneral != null ? !addressGeneral.equals(that.addressGeneral) : that.addressGeneral != null) {
+            return false;
+        }
+        if (buildingName != null ? !buildingName.equals(that.buildingName) : that.buildingName != null) {
+            return false;
+        }
+        if (code != null ? !code.equals(that.code) : that.code != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (number != null ? !number.equals(that.number) : that.number != null) {
+            return false;
+        }
+        if (prefix != null ? !prefix.equals(that.prefix) : that.prefix != null) {
+            return false;
+        }
+        if (suffix != null ? !suffix.equals(that.suffix) : that.suffix != null) {
+            return false;
+        }
+        if (suiteNumber != null ? !suiteNumber.equals(that.suiteNumber) : that.suiteNumber != null) {
+            return false;
+        }
+        return !(type != null ? !type.equals(that.type) : that.type != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = addressGeneral != null ? addressGeneral.hashCode() : 0;
+        result = 31 * result + (buildingName != null ? buildingName.hashCode() : 0);
+        result = 31 * result + (code != null ? code.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (number != null ? number.hashCode() : 0);
+        result = 31 * result + (prefix != null ? prefix.hashCode() : 0);
+        result = 31 * result + (suffix != null ? suffix.hashCode() : 0);
+        result = 31 * result + (suiteNumber != null ? suiteNumber.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (withinTownLimits ? 1 : 0);
+        return result;
+    }
+
+    @Override
 	public String toString() {
 		return "" + getName() + " " + getNumber(); 
 	}

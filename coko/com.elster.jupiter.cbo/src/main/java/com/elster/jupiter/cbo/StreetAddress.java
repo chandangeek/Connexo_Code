@@ -58,8 +58,33 @@ public final class StreetAddress implements Cloneable {
 	public boolean isEmpty() {
 		return status.isEmpty() && townDetail.isEmpty() && streetDetail.isEmpty();
 	}
-	
-	@Override
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        StreetAddress that = (StreetAddress) o;
+
+        if (streetDetail != null ? !streetDetail.equals(that.streetDetail) : that.streetDetail != null) {
+            return false;
+        }
+        return !(townDetail != null ? !townDetail.equals(that.townDetail) : that.townDetail != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = streetDetail != null ? streetDetail.hashCode() : 0;
+        result = 31 * result + (townDetail != null ? townDetail.hashCode() : 0);
+        return result;
+    }
+
+    @Override
 	public String toString() {
 		return "" + getStreetDetail() + " " + getTownDetail();
 	}
