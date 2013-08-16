@@ -106,6 +106,15 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		}
 	}
 
+    @Override
+    public List<T> getJournal(Object... values) {
+        try {
+            return reader.findJournals(values);
+        } catch (SQLException e) {
+            throw new PersistenceException(e);
+        }
+    }
+
     public T construct(ResultSet rs, int startIndex) throws SQLException {
 		return reader.construct(rs,startIndex);
 	}
@@ -270,8 +279,9 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	
 	ForeignKeyConstraint getForeignKeyConstraintFor(String name) {
 		for (ForeignKeyConstraint each : getTable().getForeignKeyConstraints()) {
-			if (each.getFieldName().equals(name))
-				return each;
+			if (each.getFieldName().equals(name)) {
+                return each;
+            }
 		}
 		return null;
 	}

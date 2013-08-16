@@ -86,6 +86,10 @@ public class DataMapperReader<T> {
         }
         return result.isEmpty() ? Optional.<T>absent() : Optional.of(result.get(0));
 	}
+
+    List<T> findJournals(Object[] values) throws SQLException {
+        return findJournal(getPrimaryKeyFragments(values), null, false);
+    }
 	
 	int getPrimaryKeyLength() {
 		return getPrimaryKeyColumns().length;
@@ -123,58 +127,81 @@ public class DataMapperReader<T> {
 	}
 			
 	private List<T> find(List<SqlFragment> fragments, String[] orderColumns,boolean lock) throws SQLException {
-		List<Setter> setters = new ArrayList<>();
-		for (SqlFragment each : fragments) {
-			if (each instanceof Setter) {
-				setters.add((Setter) each);
-			}
-		}
-		List<T> result = new ArrayList<>();	
-		SqlBuilder builder = selectSql(fragments, orderColumns,lock);
-		SelectEventImpl selectEvent = new SelectEventImpl(builder.getText());
-		try (Connection connection = getConnection(false)) {
-			try(PreparedStatement statement = builder.prepare(connection)) {
-				try (ResultSet resultSet = statement.executeQuery()) {
-					while(resultSet.next()) {
-						result.add(construct(resultSet,setters));
-					}
-				}				
-			} 
-		} 
-		selectEvent.setRowCount(result.size());
-		Bus.publish(selectEvent);
-		return result;			
+        SqlBuilder builder = selectSql(fragments, orderColumns, lock);
+        return doFind(fragments, builder);
 	}
-	
-	private SqlBuilder selectSql(List<SqlFragment> fragments, String[] orderColumns , boolean lock) {
+
+    private List<T> findJournal(List<SqlFragment> fragments, String[] orderColumns,boolean lock) throws SQLException {
+        SqlBuilder builder = selectJournalSql(fragments, orderColumns, lock);
+        return doFind(fragments, builder);
+    }
+
+    private List<T> doFind(List<SqlFragment> fragments, SqlBuilder builder) throws SQLException {
+        List<Setter> setters = getSetters(fragments);
+        List<T> result = new ArrayList<>();
+        SelectEventImpl selectEvent = new SelectEventImpl(builder.getText());
+        try (Connection connection = getConnection(false)) {
+            try(PreparedStatement statement = builder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while(resultSet.next()) {
+                        result.add(construct(resultSet,setters));
+                    }
+                }
+            }
+        }
+        selectEvent.setRowCount(result.size());
+        Bus.publish(selectEvent);
+        return result;
+    }
+
+    private List<Setter> getSetters(List<SqlFragment> fragments) {
+        List<Setter> setters = new ArrayList<>();
+        for (SqlFragment each : fragments) {
+            if (each instanceof Setter) {
+                setters.add((Setter) each);
+            }
+        }
+        return setters;
+    }
+
+    private SqlBuilder selectSql(List<SqlFragment> fragments, String[] orderColumns , boolean lock) {
 		SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromClause(alias));
-		if (fragments.size() > 0) {
-			builder.append(" where ");
-			String separator = "";
-			for (SqlFragment each : fragments) {
-				builder.append(separator);
-				builder.add(each);
-				separator = " AND ";
-			}
-		}
-		if (orderColumns != null && orderColumns.length > 0) {
-			builder.append(" order by ");
-			String separator = "";
-			for (String each : orderColumns) {
-				builder.append(separator);
-				Column column = getColumnForField(each);
-				builder.append(column == null ? each : column.getName(alias));
-				separator = ", ";
-			}
-		}
-		if (lock) {
-			builder.append(" for update ");
-		}
-		return builder;
+        return doSelectSql(fragments, orderColumns, lock, builder);
 	}
-	
-	
-	private T newInstance(Constructor <? extends T> factory) {
+
+    private SqlBuilder selectJournalSql(List<SqlFragment> fragments, String[] orderColumns , boolean lock) {
+        SqlBuilder builder = new SqlBuilder(getSqlGenerator().getSelectFromJournalClause(alias));
+        return doSelectSql(fragments, orderColumns, lock, builder);
+    }
+
+    private SqlBuilder doSelectSql(List<SqlFragment> fragments, String[] orderColumns, boolean lock, SqlBuilder builder) {
+        if (fragments.size() > 0) {
+            builder.append(" where ");
+            String separator = "";
+            for (SqlFragment each : fragments) {
+                builder.append(separator);
+                builder.add(each);
+                separator = " AND ";
+            }
+        }
+        if (orderColumns != null && orderColumns.length > 0) {
+            builder.append(" order by ");
+            String separator = "";
+            for (String each : orderColumns) {
+                builder.append(separator);
+                Column column = getColumnForField(each);
+                builder.append(column == null ? each : column.getName(alias));
+                separator = ", ";
+            }
+        }
+        if (lock) {
+            builder.append(" for update ");
+        }
+        return builder;
+    }
+
+
+    private T newInstance(Constructor <? extends T> factory) {
 		try {			
 			return factory.newInstance();
 		} catch (ReflectiveOperationException e) {

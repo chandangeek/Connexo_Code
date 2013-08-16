@@ -18,6 +18,7 @@ public interface Finder<T> {
 	List<T> find(Map<String,Object> valueMap,String... orderBy);	
 	// get by primary key
 	Optional<T> get(Object... values);
+    List<T> getJournal(Object... values);
     T getExisting(Object... values);
     // get unique
 	T getUnique(String columnName, Object value);

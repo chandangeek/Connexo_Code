@@ -1,8 +1,8 @@
 package com.elster.jupiter.orm.impl;
 
-import java.util.List;
-
 import com.elster.jupiter.orm.Column;
+
+import java.util.List;
 
 public class TableSqlGenerator {
 	private final TableImpl table;
@@ -38,20 +38,41 @@ public class TableSqlGenerator {
 			sb.append(alias);
 		}			
 	}
-	
-	String getSelectFromClause(String alias) {		
+
+    public void appendJournalTable(StringBuilder sb, String separator , String alias) {
+        sb.append(separator);
+        sb.append(table.getJournalTableName());
+        if (alias != null ) {
+            sb.append(" ");
+            sb.append(alias);
+        }
+    }
+
+    String getSelectFromClause(String alias) {
 		return getSelectFromClause(allColumns,alias);
 	}
-	
-	String getSelectFromClause(Column[] columns , String alias) {				
+
+    String getSelectFromJournalClause(String alias) {
+        return getSelectFromJournalClause(allColumns,alias);
+    }
+
+    String getSelectFromClause(Column[] columns , String alias) {
 		StringBuilder sb = new StringBuilder("select");
 		appendColumns(sb, " " , alias , columns);		
 		sb.append(" from ");
 		appendTable(sb," ",alias);
 		return sb.toString();
 	}
-	
-	String refreshSql(Column[] columnsToRefresh) {
+
+    String getSelectFromJournalClause(Column[] columns , String alias) {
+        StringBuilder sb = new StringBuilder("select");
+        appendColumns(sb, " " , alias , columns);
+        sb.append(" from ");
+        appendJournalTable(sb," ",alias);
+        return sb.toString();
+    }
+
+    String refreshSql(Column[] columnsToRefresh) {
 		StringBuilder sb = new StringBuilder(getSelectFromClause(columnsToRefresh, null));
 		sb.append(" where ");
 		String separator = "";
