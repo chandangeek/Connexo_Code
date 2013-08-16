@@ -9,9 +9,9 @@ public enum EventType {
     SERVICELOCATION_CREATED("servicelocation/CREATED", true),
     SERVICELOCATION_UPDATED("servicelocation/UPDATED", true),
     SERVICELOCATION_DELETED("servicelocation/DELETED", true),
-    USAGEPOINT_CREATED("usagePoint/CREATED", true),
-    USAGEPOINT_UPDATED("usagePoint/UPDATED", true),
-    USAGEPOINT_DELETED("usagePoint/DELETED", true),
+    USAGEPOINT_CREATED("usagepoint/CREATED", true),
+    USAGEPOINT_UPDATED("usagepoint/UPDATED", true),
+    USAGEPOINT_DELETED("usagepoint/DELETED", true),
     CHANNEL_CREATED("channel/CREATED"),
     CHANNEL_UPDATED("channel/UPDATED"),
     CHANNEL_DELETED("channel/DELETED"),
@@ -47,7 +47,7 @@ public enum EventType {
                 .withProperty("id", ValueType.LONG, "id")
                 .withProperty("version", ValueType.LONG, "version");
         if (hasMRID) {
-            builder.withProperty("MRID", ValueType.STRING, "mRID");
+            builder.withProperty("MRID", ValueType.STRING, "MRID");
         }
         addCustomProperties(builder).create().save();
     }

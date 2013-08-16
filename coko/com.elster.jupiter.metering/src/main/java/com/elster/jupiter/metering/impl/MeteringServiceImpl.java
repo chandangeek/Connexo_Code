@@ -34,6 +34,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Date;
+import java.util.List;
 
 import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
 
@@ -117,6 +118,11 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
                         getOrmClient().getMeterActivationFactory(),
                         //getOrmClient().getChannelFactory(),
                         getOrmClient().getMeterFactory()));
+    }
+
+    @Override
+    public List<ServiceLocation> findServiceLocationJournal(long id) {
+        return getOrmClient().getServiceLocationFactory().getJournal(id);
     }
 
     @Override
