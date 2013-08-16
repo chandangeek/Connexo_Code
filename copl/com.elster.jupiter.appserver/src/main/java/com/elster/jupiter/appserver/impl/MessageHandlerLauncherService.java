@@ -5,7 +5,6 @@ import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
 import com.elster.jupiter.security.thread.RunAs;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
@@ -28,7 +27,6 @@ public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
     private volatile LogService logService;
-    private volatile ThreadPrincipalService threadPrincipalService;
 
     private Map<MessageHandlerFactory, ExecutorService> executors = new HashMap<>();
     private Map<ExecutorService, List<Future<?>>> futures = new HashMap<>();
@@ -89,7 +87,7 @@ public class MessageHandlerLauncherService {
     }
 
     private ProvidesCancellableFuture withBatchPrincipal(MessageHandlerTask task) {
-        return new RunMessageHandlerTaskAs(task, getThreadPrincipalService(), getBatchPrincipal());
+        return new RunMessageHandlerTaskAs(task, Bus.getThreadPrincipalService(), getBatchPrincipal());
     }
 
     private Principal getBatchPrincipal() {
@@ -143,17 +141,8 @@ public class MessageHandlerLauncherService {
         this.logService = logService;
     }
 
-    public ThreadPrincipalService getThreadPrincipalService() {
-        return threadPrincipalService;
-    }
-
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
     private Runnable withPrincipal(Principal principal, Runnable runnable) {
-        return new RunAs(getThreadPrincipalService(), principal, runnable);
+        return new RunAs(Bus.getThreadPrincipalService(), principal, runnable);
     }
 
 

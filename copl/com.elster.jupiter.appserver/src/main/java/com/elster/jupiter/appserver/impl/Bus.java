@@ -3,6 +3,7 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
@@ -44,5 +45,9 @@ public enum Bus {
 
     public static UserService getUserService() {
         return serviceLocator.getUserService();
+    }
+
+    public static ThreadPrincipalService getThreadPrincipalService() {
+        return serviceLocator.getThreadPrincipalService();
     }
 }
