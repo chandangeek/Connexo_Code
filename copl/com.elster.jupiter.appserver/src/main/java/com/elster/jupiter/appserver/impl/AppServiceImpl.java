@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
 
 @Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + Bus.COMPONENTNAME, "osgi.command.scope=jupiter", "osgi.command.function=create", "osgi.command.function=executeSubscription", "osgi.command.function=activateFileImport"}, immediate = true)
 public class AppServiceImpl implements ServiceLocator, InstallService, AppService, Subscriber {
@@ -107,13 +106,13 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     }
 
     private void activateAnonymously() {
-        getLogService().log(Level.WARNING.intValue(), "AppServer started anonymously.");
+        getLogService().log(LogService.LOG_WARNING, "AppServer started anonymously.");
     }
 
     private void activateAs(String appServerName) {
         Optional<AppServer> foundAppServer = Bus.getOrmClient().getAppServerFactory().get(appServerName);
         if (!foundAppServer.isPresent()) {
-            getLogService().log(Level.SEVERE.intValue(), "AppServer with name " + appServerName + " not found.");
+            getLogService().log(LogService.LOG_ERROR, "AppServer with name " + appServerName + " not found.");
             activateAnonymously();
             return;
         }
