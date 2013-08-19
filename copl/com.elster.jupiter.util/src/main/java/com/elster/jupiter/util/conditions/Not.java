@@ -1,5 +1,8 @@
 package com.elster.jupiter.util.conditions;
 
+/**
+ * Condition decorator that negates the decorated Condition.
+ */
 public class Not implements Condition {
 
 	private final Condition negated;

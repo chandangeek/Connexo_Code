@@ -5,6 +5,9 @@ import com.elster.jupiter.util.cron.CronExpression;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+/**
+ * Adapter around a QuartzCronExpression to implement CronExpression
+ */
 class QuartzCronExpressionAdapter implements CronExpression {
 
     private static final Pattern SHORT_FORM_PATTERN = Pattern.compile("([^ ]+ ){5}[^ ]+]"); // only 6 fields instead of 7, omitting seconds

@@ -1,5 +1,8 @@
 package com.elster.jupiter.util.conditions;
 
+/**
+ * Enumeration of TRUE and FALSE Conditions
+ */
 public enum Constant implements Condition {
 	TRUE {
 		@Override

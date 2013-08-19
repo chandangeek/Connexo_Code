@@ -1,6 +1,6 @@
 package com.elster.jupiter.util.conditions;
 
-public class Membership extends  Leaf {
+public class Membership extends Leaf {
 	
 	private final Subquery subquery;
 	private final ListOperator operator;

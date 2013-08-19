@@ -1,8 +1,11 @@
 package com.elster.jupiter.util.beans;
 
-public class BeanEvaluationException extends RuntimeException {
+import com.elster.jupiter.util.ExceptionTypes;
+import com.elster.jupiter.util.exception.BaseException;
+
+public final class BeanEvaluationException extends BaseException {
 
     public BeanEvaluationException(Object bean, Throwable cause) {
-        super("Exception occurred while evaluating bean " + bean.toString(), cause);
+        super(ExceptionTypes.BEAN_AVALUATION_FAILED, "Exception occurred while evaluating bean " + bean.toString(), cause);
     }
 }

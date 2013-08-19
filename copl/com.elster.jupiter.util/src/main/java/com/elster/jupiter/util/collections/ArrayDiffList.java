@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 /**
+ * DiffList implementation that uses ArrayLists.
+ *
  * @author Bart
  * @author tgr
  * @Since 1/26/13 7:46 PM
@@ -27,10 +29,20 @@ public class ArrayDiffList<E> implements DiffList<E> {
         this.list = new ArrayList<>(currentItems);
     }
 
+    /**
+     * Creates a new ArrayDiffList populated with the given collection, elements marked as elements from the original list.
+     *
+     * @param original collection of which the elements will be added to the list.
+     */
     public static <T> ArrayDiffList<T> fromOriginal(Collection<T> original) {
         return new ArrayDiffList<>(original, original);
     }
 
+    /**
+     * Creates a new ArrayDiffList populated with the given collection, elements marked as not elements from the original list.
+     *
+     * @param allNew collection of which the elements will be added to the list.
+     */
     public static <T> ArrayDiffList<T> withAllNew(Collection<T> allNew) {
         return new ArrayDiffList<>(Collections.<T>emptyList(), allNew);
     }

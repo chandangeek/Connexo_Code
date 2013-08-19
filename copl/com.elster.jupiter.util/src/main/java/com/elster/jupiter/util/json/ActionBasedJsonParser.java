@@ -10,6 +10,10 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ActionBasedJsonParser crawls all paths in the Json String and passes each path that has a value to the configured ActionForPaths, who may record, the value at that path, or perform some other action.
+ * ActionBasedJsonParser is actually a convenience class over an event based parsing approach.
+ */
 public final class ActionBasedJsonParser {
 
     private static final String OBJECT_MARKER = "{";
@@ -17,10 +21,16 @@ public final class ActionBasedJsonParser {
     private final List<ActionForPath> actionForPaths;
     private final JsonFactory jsonFactory = new JsonFactory();
 
+    /**
+     * @param actionForPaths the ActionForPath instances.
+     */
     public ActionBasedJsonParser(List<ActionForPath> actionForPaths) {
         this.actionForPaths = ImmutableList.copyOf(actionForPaths);
     }
 
+    /**
+     * @param actionForPaths the ActionForPath instances.
+     */
     public ActionBasedJsonParser(ActionForPath... actionForPaths) {
         this.actionForPaths = ImmutableList.copyOf(actionForPaths);
     }

@@ -38,7 +38,13 @@ public interface DiffList<E> extends List<E> {
      */
     boolean hasChanged();
 
+    /**
+     * @return a DiffList backed by this instance, which is unmodifiable.
+     */
     DiffList<E> immutableView();
 
+    /**
+     * @return a List representation of the original elements.
+     */
     List<E> originalList();
 }

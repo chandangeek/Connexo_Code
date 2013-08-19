@@ -1,5 +1,8 @@
 package com.elster.jupiter.util.conditions;
 
+/**
+ * Composite Condition that evaluates to the logical disjunction of its two composing Conditions.
+ */
 public class Or extends Composite {
 
 	Or(Condition condition1, Condition condition2) {

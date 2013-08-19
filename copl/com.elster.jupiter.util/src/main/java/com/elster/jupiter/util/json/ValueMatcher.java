@@ -2,10 +2,14 @@ package com.elster.jupiter.util.json;
 
 import java.util.List;
 
+/**
+ * Interface for classes that filters matching Json paths.
+ */
 public interface ValueMatcher {
-    List<String> getValues();
 
-    void addResult(String value);
-
+    /**
+     * @param path
+     * @return true if the given path matches this ValueMatcher, false otherwise.
+     */
     boolean matches(List<String> path);
 }

@@ -1,12 +1,12 @@
 package com.elster.jupiter.util.geo;
 
-import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.math.BigDecimal;
 
-@XmlRootElement
 @XmlJavaTypeAdapter(PositionAdapter.class)
-final public class Position {
+@XmlRootElement
+public final class Position {
 	private static final double MEANEARTHRADIUS = 6371009.0;
 	private final Latitude latitude;
 	private final Longitude longitude;

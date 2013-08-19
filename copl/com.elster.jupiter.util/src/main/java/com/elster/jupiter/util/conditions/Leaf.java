@@ -2,6 +2,9 @@ package com.elster.jupiter.util.conditions;
 
 import static com.elster.jupiter.util.conditions.Constant.*;
 
+/**
+ * Abstract superclass for Conditions that evaluate independently from other Conditions.
+ */
 public abstract class Leaf implements Condition {
 
 	@Override

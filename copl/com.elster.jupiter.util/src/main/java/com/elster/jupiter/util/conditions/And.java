@@ -1,5 +1,8 @@
 package com.elster.jupiter.util.conditions;
 
+/**
+ * Composite Condition that evaluates to the logical conjunction of its two composing Conditions.
+ */
 public class And extends Composite {
 
 	And(Condition condition1, Condition condition2) {

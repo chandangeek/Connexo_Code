@@ -16,6 +16,9 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * Component that implements the BeanService interface.
+ */
 @Component(name = "com.elster.jupiter.beans", service = { BeanService.class })
 public class BeanServiceImpl implements BeanService {
     @Override

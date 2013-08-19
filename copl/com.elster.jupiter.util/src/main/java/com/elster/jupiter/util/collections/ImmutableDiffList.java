@@ -6,6 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * Wrapper around a DiffList which decorates it to be Immutable.
+ *
+ * @param <E>
+ */
 public class ImmutableDiffList<E> implements DiffList<E> {
 
     private final DiffList<E> wrapped;

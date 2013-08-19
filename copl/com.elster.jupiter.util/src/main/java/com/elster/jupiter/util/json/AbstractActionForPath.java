@@ -2,6 +2,9 @@ package com.elster.jupiter.util.json;
 
 import java.util.List;
 
+/**
+ * Abstract ActionForPath implementation that filters paths using a ValueMatcher, and upon match call perform(), which is to be implemented by subclasses.
+ */
 public abstract class AbstractActionForPath implements ActionForPath {
 
     private final ValueMatcher valueMatcher;

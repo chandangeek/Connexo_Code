@@ -3,6 +3,9 @@ package com.elster.jupiter.util.conditions;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract Condition implementation that evaluates based on two composing Conditions.
+ */
 abstract public class Composite implements Condition {
 	
 	private final List<Condition> conditions = new ArrayList<>();

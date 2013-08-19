@@ -2,7 +2,7 @@ package com.elster.jupiter.util.geo;
 
 import java.math.BigDecimal;
 
-final public class Latitude extends Angle {
+public final class Latitude extends Angle {
 	
 	Latitude(BigDecimal value) {
 		super(value);

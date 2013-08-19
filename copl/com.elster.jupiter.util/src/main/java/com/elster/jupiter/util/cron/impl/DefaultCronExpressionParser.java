@@ -1,5 +1,6 @@
 package com.elster.jupiter.util.cron.impl;
 
+import com.elster.jupiter.util.cron.InvalidCronExpression;
 import org.osgi.service.component.annotations.Component;
 
 import com.elster.jupiter.util.cron.CronExpression;
@@ -10,6 +11,10 @@ public class DefaultCronExpressionParser implements CronExpressionParser {
 
     @Override
     public CronExpression parse(String expression) {
-        return new QuartzCronExpressionAdapter(expression);
+        try {
+            return new QuartzCronExpressionAdapter(expression);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidCronExpression(e).set("expression", expression);
+        }
     }
 }
