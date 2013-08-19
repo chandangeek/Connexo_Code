@@ -1,5 +1,8 @@
 package com.elster.jupiter.pubsub;
 
+/**
+ * A Subscriber service handles events synchronously.
+ */
 public interface Subscriber {
 
     /**

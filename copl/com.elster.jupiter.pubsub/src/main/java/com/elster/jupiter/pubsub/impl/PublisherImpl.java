@@ -72,7 +72,6 @@ public class PublisherImpl implements Publisher {
 	
 	@Reference
 	public void setLogService(LogService logService) {
-		//LogManager.getLogManager().reset();
 		Logger.getLogger("").addHandler(new LogHandler(logService));
 	}
 }
