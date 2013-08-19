@@ -19,7 +19,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
 import java.util.List;
-import java.util.logging.Level;
 
 @Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + Bus.COMPONENTNAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, ServiceLocator, FileImportService {
@@ -122,7 +121,7 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
             cronExpressionScheduler = new CronExpressionScheduler(poolSize);
         } catch (RuntimeException e) {
 			e.printStackTrace();
-            getLogService().log(Level.SEVERE.intValue(), "Could not start Import schedules, please check if FIM is installed properly.");
+            getLogService().log(LogService.LOG_ERROR, "Could not start Import schedules, please check if FIM is installed properly.");
 		}
     }
 
