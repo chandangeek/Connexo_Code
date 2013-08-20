@@ -1,9 +1,10 @@
 package com.elster.jupiter.orm.impl;
 
-import java.lang.reflect.*;
-
 import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.orm.MappingException;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 
 public enum DomainMapper {
 	FIELDSTRICT(true),
@@ -30,7 +31,7 @@ public enum DomainMapper {
 			try {
 				return field.get(target);
 			} catch (IllegalAccessException e) {
-				throw new PersistenceException(e);
+				throw new MappingException(e);
 			}
 		}
 	}
@@ -50,7 +51,7 @@ public enum DomainMapper {
 				}
 				return result;
 			} catch (ReflectiveOperationException e) {
-				throw new PersistenceException(e);
+				throw new MappingException(e);
 			}
 		}
 	}
@@ -82,7 +83,7 @@ public enum DomainMapper {
 			try {
 				field.set(target, value);
 			} catch (IllegalAccessException e) {
-				throw new PersistenceException(e);
+				throw new MappingException(e);
 			}		
 		}
 	}
@@ -124,7 +125,7 @@ public enum DomainMapper {
 	        current = current.getSuperclass();
 	    } while ( current != null );
 	    if (strict) {
-	    	throw new PersistenceException("Field " + fieldName + " not found in " + clazz);
+	    	throw new MappingException(clazz, fieldName);
 	    } else {
 	    	return null;
 	    }

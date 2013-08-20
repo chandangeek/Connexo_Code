@@ -3,9 +3,9 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.google.common.base.Optional;
 
@@ -79,7 +79,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		try {
 			return reader.findByPrimaryKey(values);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
@@ -93,7 +93,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		try {
 			return reader.lock(values);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
@@ -102,7 +102,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		try {
 			return reader.find(fieldNames,values,orderColumns);
 		} catch(SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 
@@ -111,7 +111,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         try {
             return reader.findJournals(values);
         } catch (SQLException e) {
-            throw new PersistenceException(e);
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
@@ -125,7 +125,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		try {
 			writer.persist(object);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 		
@@ -135,7 +135,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		try {
 			writer.persist(objects);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
@@ -167,7 +167,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		try {
 			writer.update(object,columns);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
@@ -186,7 +186,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		try {
 			writer.update(objects,columns);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		} 	
 	}
 	
@@ -195,7 +195,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		try {
 			writer.remove(object);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
@@ -204,7 +204,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 		try {
 			writer.remove(objects);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	

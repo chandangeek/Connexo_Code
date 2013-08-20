@@ -5,7 +5,7 @@ public class OptimisticLockException extends PersistenceException {
 	private static final long serialVersionUID = 1;
 	
 	public OptimisticLockException() {
-		super();
+		super(ExceptionTypes.OPTIMISTIC_LOCK, "Optimistic lock failed.");
 	}
 	
 }

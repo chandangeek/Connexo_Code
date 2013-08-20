@@ -2,8 +2,8 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.orm.plumbing.OrmClient;
@@ -134,7 +134,7 @@ public class DataModelImpl implements DataModel, PersistenceAware {
         try {
             doExecuteDdl();
         } catch (SQLException ex) {
-            throw new PersistenceException(ex);
+            throw new UnderlyingSQLFailedException(ex);
         }
     }
 

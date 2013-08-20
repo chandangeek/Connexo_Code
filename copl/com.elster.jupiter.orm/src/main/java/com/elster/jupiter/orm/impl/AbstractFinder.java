@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.Finder;
 import com.google.common.base.Optional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +91,7 @@ public abstract class AbstractFinder<T> implements Finder<T> {
         if (existing.isPresent()) {
             return existing.get();
         }
-        throw new DoesNotExistException();
+        throw new DoesNotExistException(Arrays.toString(values));
     }
 
 

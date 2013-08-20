@@ -2,8 +2,9 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.OptimisticLockException;
-import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -149,7 +150,7 @@ public class DataMapperWriter<T> {
 				int result = statement.executeUpdate();
 				if (result != 1) {
 					if (versionCountColumns.length == 0) {
-						throw new PersistenceException("Updated " + result + " rows");
+						throw new UnexpectedNumberOfUpdatesException(1, result, UnexpectedNumberOfUpdatesException.Operation.UPDATE);
 					} else {
 						throw new OptimisticLockException();
 					}
@@ -202,7 +203,7 @@ public class DataMapperWriter<T> {
 				}
 				int result = statement.executeUpdate();
 				if (result != 1) {
-					throw new PersistenceException("Deleted " + result + " rows");
+					throw new UnexpectedNumberOfUpdatesException(1, result, UnexpectedNumberOfUpdatesException.Operation.DELETE);
 				}
 			}							
 		} 	
@@ -276,7 +277,7 @@ public class DataMapperWriter<T> {
 					return entry.getKey();
 				}
 			}
-			throw new PersistenceException("No mapping for " + target.getClass());
+			throw new MappingException(target.getClass());
 		} else {			
 			return ((ColumnImpl) column).convertToDb(fieldMapper.get(target , column.getFieldName()));
 		}

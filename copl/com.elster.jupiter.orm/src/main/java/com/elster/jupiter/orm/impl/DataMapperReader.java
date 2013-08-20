@@ -2,8 +2,8 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.NotUniqueException;
-import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class DataMapperReader<T> {
 			constructor = implementation.getDeclaredConstructor();
 			constructor.setAccessible(true);			
 		} catch (ReflectiveOperationException ex) {
-			throw new PersistenceException(ex);			
+			throw new MappingException(ex);
 		}
 	}
 	
@@ -55,7 +56,7 @@ public class DataMapperReader<T> {
 				constructors.put(entry.getKey(),constructor);
 			}
 		} catch (ReflectiveOperationException ex) {
-			throw new PersistenceException(ex);			
+			throw new MappingException(ex);
 		}
 	}
 	
@@ -82,7 +83,7 @@ public class DataMapperReader<T> {
 	Optional<T> findByPrimaryKey (Object[] values) throws SQLException {
         List<T> result = find(getPrimaryKeyFragments(values), null, false);
         if (result.size() > 1) {
-            throw new NotUniqueException();
+            throw new NotUniqueException(Arrays.toString(values));
         }
         return result.isEmpty() ? Optional.<T>absent() : Optional.of(result.get(0));
 	}
@@ -205,7 +206,7 @@ public class DataMapperReader<T> {
 		try {			
 			return factory.newInstance();
 		} catch (ReflectiveOperationException e) {
-			throw new PersistenceException(e);
+			throw new MappingException(e);
 		}
 	}
 	
@@ -215,13 +216,13 @@ public class DataMapperReader<T> {
 				String typeString = rs.getString(startIndex + i);
 				Constructor<? extends T> factory = constructors.get(typeString);
 				if (factory == null) {
-					throw new PersistenceException("No type defined for typeField " + typeString);
+					throw MappingException.noMappingForSqlType(typeString);
 				} else {
 					return newInstance(factory);				
 				}
 			}
 		}
-		throw new PersistenceException("No discriminator column");
+		throw MappingException.noDiscriminatorColumn();
 	}
 	
 	T construct(ResultSet rs, int startIndex) throws SQLException {		

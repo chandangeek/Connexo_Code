@@ -1,13 +1,16 @@
 package com.elster.jupiter.orm.query.impl;
 
-import java.sql.SQLException;
-import java.util.List;
-
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlFragment;
+
+import java.sql.SQLException;
+import java.util.List;
 
 
 public class QueryExecutorImpl<T> implements QueryExecutor<T> {	
@@ -42,7 +45,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 		try {
 			return new JoinExecutor<>(root.copy(),from,to).select(condition,orderBy , eager, exceptions);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
