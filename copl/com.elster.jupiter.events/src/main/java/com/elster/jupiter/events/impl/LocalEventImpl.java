@@ -2,7 +2,7 @@ package com.elster.jupiter.events.impl;
 
 import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
-import com.elster.jupiter.events.InvalidPropertyType;
+import com.elster.jupiter.events.InvalidPropertyTypeException;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.messaging.DestinationSpec;
 import org.osgi.service.event.Event;
@@ -70,7 +70,7 @@ public class LocalEventImpl implements LocalEvent {
     private Object getValue(EventPropertyType eventPropertyType) {
         Object value = evaluateAccessPath(eventPropertyType);
         if (value != null && !eventPropertyType.getValueType().getType().isInstance(value)) {
-            throw new InvalidPropertyType(source, eventPropertyType.getAccessPath(), eventPropertyType.getValueType().getType(), value.getClass());
+            throw new InvalidPropertyTypeException(source, eventPropertyType.getAccessPath(), eventPropertyType.getValueType().getType(), value.getClass());
         }
         return value;
     }
