@@ -4,6 +4,9 @@ import com.elster.jupiter.util.exception.BaseException;
 
 import java.text.MessageFormat;
 
+/**
+ * Thrown when a property reached through an access path does not have the expected type.
+ */
 public class InvalidPropertyTypeException extends BaseException {
 
     public InvalidPropertyTypeException(Object bean, String accessPath, Class<?> expectedType, Class<?> actualType) {
