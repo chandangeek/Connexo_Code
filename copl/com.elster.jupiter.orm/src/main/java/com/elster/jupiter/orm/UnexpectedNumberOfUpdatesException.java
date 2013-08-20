@@ -2,6 +2,9 @@ package com.elster.jupiter.orm;
 
 import java.text.MessageFormat;
 
+/**
+ * An insert, update or delete statment did not result in the expected number of updates.
+ */
 public class UnexpectedNumberOfUpdatesException extends PersistenceException {
 
     public enum Operation { INSERT, UPDATE, DELETE }

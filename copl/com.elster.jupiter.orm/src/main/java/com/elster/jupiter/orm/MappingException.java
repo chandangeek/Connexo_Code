@@ -4,6 +4,9 @@ import com.elster.jupiter.util.exception.ExceptionType;
 
 import java.text.MessageFormat;
 
+/**
+ * Thrown when ORM mapping of persistent Objects fails.
+ */
 public class MappingException extends PersistenceException {
 
     public MappingException(IllegalAccessException cause) {

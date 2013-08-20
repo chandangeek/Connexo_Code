@@ -3,6 +3,9 @@ package com.elster.jupiter.orm;
 import com.elster.jupiter.util.exception.BaseException;
 import com.elster.jupiter.util.exception.ExceptionType;
 
+/**
+ * Abstract super class for all Persistence related Exceptions
+ */
 public abstract class PersistenceException extends BaseException {
 	
 	private static final long serialVersionUID = 1;
