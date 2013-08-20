@@ -13,7 +13,7 @@ public class DefaultCronExpressionParser implements CronExpressionParser {
     public CronExpression parse(String expression) {
         try {
             return new QuartzCronExpressionAdapter(expression);
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             throw new InvalidCronExpression(e).set("expression", expression);
         }
     }

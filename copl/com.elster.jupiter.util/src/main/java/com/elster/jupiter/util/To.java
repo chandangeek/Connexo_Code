@@ -5,6 +5,9 @@ import com.google.common.base.Function;
 import java.io.File;
 import java.nio.file.Path;
 
+/**
+ * Starting point for fluent API calls that produce Functions.
+ */
 public enum To {
     ;
 

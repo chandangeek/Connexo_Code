@@ -4,7 +4,7 @@ import java.util.List;
 
 public enum ListOperator {
 	IN ("IN") ,
-	NOTIN("NOT IN");
+	NOT_IN("NOT IN");
 	
 	private final String symbol;
 	

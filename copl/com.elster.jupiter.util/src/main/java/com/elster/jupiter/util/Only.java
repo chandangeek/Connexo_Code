@@ -5,6 +5,9 @@ import com.google.common.base.Predicate;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * Starting point for fluent API calls that produce Predicates.
+ */
 public enum Only {
     ;
 

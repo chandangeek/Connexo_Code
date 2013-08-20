@@ -2,387 +2,376 @@ package com.elster.jupiter.util.units;
 
 import java.math.BigDecimal;
 import java.util.*;
+
 import static java.math.BigDecimal.*;
 
-public final class Unit {
-	
-	private final String name;
-	private final String symbol;
-	private final String asciiSymbol;
-	private final Dimension dimension;
-	private final BigDecimal siMultiplier;
-	private final BigDecimal siDivisor;
-	private final BigDecimal siDelta;
-	
-	private Unit(String name, String symbol, String asciiSymbol, Dimension dimension , 	BigDecimal siMultiplier , BigDecimal siDivisor , BigDecimal siDelta) {
-		this.name = name;
-		this.symbol= symbol;
-		this.asciiSymbol = asciiSymbol;
-		this.dimension = dimension;
-		this.siMultiplier = siMultiplier;
-		this.siDivisor = siDivisor;
-		this.siDelta = siDelta;
-	}
+/**
+ *
+ */
+public enum Unit {
 
-	private Unit(String name, String symbol, String asciiSymbol, Dimension dimension, BigDecimal siMultiplier, BigDecimal siDivisor) {
-		this(name,symbol,asciiSymbol,dimension,siMultiplier,siDivisor,ZERO);
-	}
-	
-	private Unit(String name, String symbol, String asciiSymbol, Dimension dimension, BigDecimal siMultiplier) {
-		this(name,symbol,asciiSymbol,dimension,siMultiplier,ONE);
-	}
-	
-	private Unit(String name, String symbol, Dimension dimension , BigDecimal siMultiplier,BigDecimal siDivisor) {
-		this(name,symbol,symbol,dimension,siMultiplier,siDivisor);
-	}	
-	
-	private Unit(String name, String symbol, Dimension dimension, BigDecimal siMultiplier) {
-		this(name,symbol,symbol,dimension,siMultiplier);
-	}
-	
-	private Unit(String name, String symbol,String asciiSymbol, Dimension dimension) {
-		this(name,symbol,asciiSymbol,dimension,ONE);
-	}
-	
-	private Unit(String name, String symbol, Dimension dimension ) {
-		this(name,symbol,symbol,dimension);
-	}
-	
-	public static Unit valueOf(String symbol) {
-		for (Unit unit : UNITS.values()) {
-			if (unit.getSymbol().equals(symbol)) {
-				return unit;
-			}
-		}
-		throw new IllegalArgumentException(symbol);
-	}
-	
-	public static Unit get(String asciiSymbol) {
-		Unit unit = UNITS.get(asciiSymbol);
-		if (unit == null) {
-			throw new IllegalArgumentException(asciiSymbol);
-		} else {
-			return unit;
-		}
-	}
-	
-	public static Collection<Unit> available() {
-		return UNITS.values();
-	}
-	
-	private static final BigDecimal BD3600 = BigDecimal.valueOf(3600);
-	private static final BigDecimal BD86400 = BigDecimal.valueOf(86400);  // seconds per 24h day
-	private static final BigDecimal BD100 = BigDecimal.valueOf(100);
-	private static final BigDecimal BD1000 = BigDecimal.valueOf(1000);
-	private static final BigDecimal METERPERFOOT = BigDecimal.valueOf(3048,4);
-	private static final BigDecimal SQUAREMETERPERSQUAREFOOT = METERPERFOOT.multiply(METERPERFOOT);
-	private static final BigDecimal CUBICMETERPERCUBICFOOT = SQUAREMETERPERSQUAREFOOT.multiply(METERPERFOOT);
-	private static final BigDecimal JOULEPERTHERM = BigDecimal.valueOf(105505585257348L,6);
-	
-	public static final Unit UNITLESS = new Unit("unitless","",Dimension.DIMENSIONLESS);
-	public static final Unit METER = new Unit("meter","m",Dimension.LENGTH);
-	public static final Unit KILOGRAM = new Unit("kilogram","kg",Dimension.MASS);
-	public static final Unit GRAM = new Unit("gram","g","g",Dimension.MASS,ONE,BD1000,ZERO);
-	public static final Unit SECOND = new Unit("second","s",Dimension.TIME);
-	public static final Unit AMPERE = new Unit("ampere","A",Dimension.ELECTRICCURRENT);
-	public static final Unit KELVIN = new Unit("kelvin","K",Dimension.TEMPERATURE);
-	public static final Unit MOLE = new Unit("mole","mol",Dimension.AMOUNTOFSUBSTANCE);
-	public static final Unit CANDELA = new Unit("candela","cd",Dimension.LUMINOUSINTENSITY);
-	public static final Unit ROTATIONSPERSECOND = new Unit("rotations per second","rev/s",Dimension.FREQUENCY);
-	public static final Unit DEGREES = new Unit("degrees","\u00b0","deg",Dimension.DIMENSIONLESS);
-	public static final Unit RADIAN = new Unit("radian","rad",Dimension.DIMENSIONLESS);
-	public static final Unit STERADIAN = new Unit("steradian","sr",Dimension.DIMENSIONLESS);
-	public static final Unit GRAY = new Unit("gray","Gy",Dimension.ABSORBEDDOSE);
-	public static final Unit BECQUEREL = new Unit("becquerel","Bq",Dimension.RADIOACTIVITY);
-	public static final Unit DEGREESCELSIUS = new Unit("degrees Celsius","\u00b0C","deg C", Dimension.TEMPERATURE,ONE,ONE,BigDecimal.valueOf(27315, 2));
-	public static final Unit SIEVERT = new Unit("sievert","Sv",Dimension.DOSEEQUIVALENT);
-	public static final Unit FARAD = new Unit("farad","F",Dimension.ELECTRICCAPACITANCE);
-	public static final Unit COULOMB = new Unit("coulomb","C",Dimension.ELECTRICCHARGE);
-	public static final Unit HENRY = new Unit("henry","H",Dimension.ELECTRICINDUCTANCE);
-	public static final Unit VOLT = new Unit("volt","V",Dimension.ELECTRICPOTENTIAL);
-	public static final Unit OHM = new Unit("ohm","\u03a9","ohm",Dimension.ELECTRICRESISTANCE);
-	public static final Unit JOULE = new Unit("joule","J",Dimension.ENERGY);
-	public static final Unit NEWTON = new Unit("newton","N",Dimension.FORCE);
-	public static final Unit HERTZ = new Unit("hertz","Hz",Dimension.FREQUENCY);
-	public static final Unit LUX = new Unit("lux","lx",Dimension.ILLUMINANCE);
-	public static final Unit LUMEN = new Unit("lumen","Lm",Dimension.LUMINOUSFLUX);
-	public static final Unit WEBER = new Unit("weber","Wb",Dimension.MAGNETICFLUX);
-	public static final Unit TESLA = new Unit("tesla","T",Dimension.MAGNETICFLUXDENSITY);
-	public static final Unit WATT = new Unit("watt","W",Dimension.POWER);
-	public static final Unit PASCAL = new Unit("pascal","Pa",Dimension.PRESSURE);
-	public static final Unit SQUAREMETER = new Unit("square meter","m\u00b2","m2",Dimension.SURFACE);
-	public static final Unit CUBICMETER = new Unit("cubic meter","m\u00b3","m3",Dimension.VOLUME);
-	public static final Unit METERPERSECOND = new Unit("meter per second","m/s",Dimension.SPEED);
-	public static final Unit METERPERSECONDSQUARED = new Unit("meter per second squared","m/s\u00b2","m/s2",Dimension.ACCELERATION);
-	public static final Unit CUBICMETERPERSECOND = new Unit("cubic meter per second","m\u00b3/s","m3/s",Dimension.VOLUMEFLOW);
-	public static final Unit METERPERCUBICMETER = new Unit("meters per cubic meter","m/m\u00b3","m/m3",Dimension.FUELEFFICIENCY);
-	public static final Unit KILOGRAMMETER = new Unit("kilogram meter","M",Dimension.MOMENTOFMASS);
-	public static final Unit KILOGRAMPERCUBICMETER = new Unit("kilogram per cubic meter","kg/m\u00b3","kg/m3",Dimension.DENSITY);
-	public static final Unit METERSQUAREDPERSECOND = new Unit("meter squared per second","m\u00b2/s","m2/s",Dimension.VISCOSITY);
-	public static final Unit WATTPERMETERKELVIN = new Unit("watt per meter kelvin","W/mK",Dimension.THERMALCONDUCTIVITY);
-	public static final Unit JOULEPERKELVIN = new Unit("joule per kelvin","J/K",Dimension.HEATCAPACITY);
-	public static final Unit PARTSPERMILLION = new Unit("parts per million","ppm",Dimension.DIMENSIONLESS);
-	public static final Unit SIEMENS = new Unit("siemens","S",Dimension.ELECTRICCONDUCTANCE);
-	public static final Unit RADIANSPERSECOND = new Unit("radians per second","rad/s",Dimension.ANGULARSPEED);
-	public static final Unit VOLTAMPERE = new Unit("volt ampere","VA",Dimension.APPARENTPOWER);
-	public static final Unit VOLTAMPEREREACTIVE = new Unit("volt ampere reactive","VAr",Dimension.REACTIVEPOWER);
-	public static final Unit PHASEANGLE = new Unit("phase angle","\u03b8-Deg","theta degrees",Dimension.DIMENSIONLESS);
-	public static final Unit POWERFACTOR = new Unit("power factor","Cos \u03b8","cos theta",Dimension.DIMENSIONLESS);
-	public static final Unit VOLTSECONDS = new Unit("volt seconds","Vs",Dimension.MAGNETICFLUX);
-	public static final Unit VOLTSQUARED = new Unit("volt squared","V\u00b2","V2",Dimension.ELECTRICPOTENTIALSQUARED);
-	public static final Unit AMPERESECONDS = new Unit("ampere seconds","As",Dimension.ELECTRICCHARGE);
-	public static final Unit AMPERESQUARED = new Unit("ampere squared","A\u00b2","A2",Dimension.ELECTRICCURRENTSQUARED);
-	public static final Unit AMPERESQUAREDSECOND = new Unit("ampere squared second","A\u00b2s","A2s",Dimension.ELECTRICCURRENTSQUAREDTIME);
-	public static final Unit VOLTAMPEREHOUR = new Unit("volt ampere hours","VAh",Dimension.APPARENTENERGY,BD3600);
-	public static final Unit WATTHOUR = new Unit("watt hours","Wh",Dimension.ENERGY,BD3600);
-	public static final Unit VOLTAMPEREREACTIVEHOUR = new Unit("volt ampere reactive hours","VArh",Dimension.REACTIVEENERGY,BD3600);
-	public static final Unit VOLTPERHERTZ = new Unit("volts per hertz","V/Hz",Dimension.MAGNETICFLUX);
-	public static final Unit HERTZPERSECOND = new Unit("hertz per second","Hz/s",Dimension.FREQUENCYCHANGERATE);
-	public static final Unit CHARACTERS = new Unit("characters","char",Dimension.DIMENSIONLESS);
-	public static final Unit CHARACTERSPERSECOND = new Unit("characters per second","char/s",Dimension.FREQUENCY);
-	public static final Unit KILOGRAMMETERSQUARED = new Unit("kilogram meter squared","kgm\u00b2","kgm2",Dimension.TURBINEINERTIA);
-	public static final Unit DECIBEL = new Unit("decibel","dB",Dimension.DIMENSIONLESS);
-	public static final Unit MONEY = new Unit("money","\u00A4","money",Dimension.CURRENCY);
-	public static final Unit QUANTITYPOWER = new Unit("quantity power","Q",Dimension.DIMENSIONLESS); // TODO dimension
-	public static final Unit QUANTITYENERGY = new Unit("quantity energy","Qh",Dimension.DIMENSIONLESS); // TODO dimension
-	public static final Unit OHMMETER = new Unit("ohm meter","\u03a9m","ohmm", Dimension.ELECTRICRESISTIVITY);
-	public static final Unit AMPEREPERMETER = new Unit("ampere per meter","A/m",Dimension.MAGNETICFIELDSTRENGTH);
-	public static final Unit VOLTSQUAREDHOUR = new Unit("volt squared hour","V\u00b2h","V2h",Dimension.ELECTRICPOTENTIALSQUAREDTIME,BD3600);
-	public static final Unit AMPERESQUAREDHOUR = new Unit("ampere squared hour","A\u00b2h","A2h",Dimension.ELECTRICCURRENTSQUAREDTIME,BD3600);
-	public static final Unit AMPEREHOUR = new Unit("ampere hour","Ah",Dimension.ELECTRICCHARGE,BD3600);
-	public static final Unit WATTHOURPERCUBICMETER = new Unit("watt hour per cubic meter", "Wh/m\u00b3","Wh/m3",Dimension.ENERGYDENSITY,BD3600);
-	public static final Unit TIMESTAMP = new Unit("timestamp", "timeStamp",Dimension.DIMENSIONLESS);
-	public static final Unit BOOLEAN = new Unit("boolean", "status",Dimension.DIMENSIONLESS);
-	public static final Unit BOOLEANARRAY = new Unit("boolean array", "statuses",Dimension.DIMENSIONLESS);
-	public static final Unit COUNT = new Unit("count", "Count",Dimension.DIMENSIONLESS);
-	public static final Unit DECIBELMILLIWATT = new Unit("decibel milliwatt", "dBm",Dimension.POWER); // TO DO convert to SI
-	public static final Unit ENCODEDVALUE = new Unit("encoded value", "Code",Dimension.DIMENSIONLESS);
-	public static final Unit WATTHOURPERROTATION = new Unit("watt hours per rotation","Wh/rev",Dimension.ENERGY,BD3600);
-	public static final Unit VOLTAMPEREREACTIVEHOURPERROTATION = new Unit("volt ampere reactive hours per rotation","VArh/rev",Dimension.REACTIVEENERGY,BD3600);
-	public static final Unit VOLTAMPEREHOURPERROTATION = new Unit("volt ampere hours per rotation","VAh/rev",Dimension.APPARENTENERGY,BD3600);
-	public static final Unit ENDDEVICEEVENTCODE = new Unit("end device event code","MeCode",Dimension.DIMENSIONLESS);
-	
-	public static final Unit YEAR = new Unit("year","a",Dimension.TIME,BigDecimal.valueOf(3600L*24*365));
-	public static final Unit MONTH = new Unit("month","mo",Dimension.TIME,BigDecimal.valueOf(3600L*24*30));
-	public static final Unit DAY = new Unit("day","d",Dimension.TIME,BD86400);
-	public static final Unit HOUR = new Unit("hour","h",Dimension.TIME,BD3600);
-	public static final Unit MINUTE = new Unit("minute","min",Dimension.TIME,BigDecimal.valueOf(60));
-	public static final Unit NORMALCUBICMETER = new Unit("normal cubic meter","Nm\u00b3","Nm3",Dimension.VOLUME);
-	public static final Unit CUBICMETERPERHOUR = new Unit("cubic meter per hour","m\u00b3/h","m3/h",Dimension.VOLUMEFLOW,ONE,BD3600,ZERO);
-	public static final Unit NORMALCUBICMETERPERHOUR = new Unit("normal cubic meter per hour","Nm\u00b3/h","Nm3/h",Dimension.VOLUMEFLOW,ONE,BD3600,ZERO);
-	public static final Unit CUBICMETERPERDAY = new Unit("cubic meter per day","m\u00b3/d","m3/d",Dimension.VOLUMEFLOW,ONE,BD86400,ZERO);
-	public static final Unit NORMALCUBICMETERPERDAY = new Unit("normal cubic meter per day","Nm\u00b3/d","Nm3/d",Dimension.VOLUMEFLOW,ONE,BD86400,ZERO);
-	public static final Unit LITER = new Unit("liter","l",Dimension.VOLUME,ONE,BD1000);
-	
-	// following units still need to be added to UNITS map
-	
-	public static final Unit PERHOUR = new Unit("per hour","/h",Dimension.FREQUENCY,ONE,BD3600);
-	public static final Unit MOLEPERCENT = new Unit("mole percent hour","mol%/",Dimension.DIMENSIONLESS,ONE,BD100);
-	public static final Unit PERCENT = new Unit("percent","%",Dimension.DIMENSIONLESS,ONE,BD100);
-	public static final Unit JOULEPERNORMALCUBICMETER = new Unit("joule per normal cubic meter","J/Nm\u00b3","J/Nm3",Dimension.ENERGYDENSITY);
-	public static final Unit WATTHOURPERNORMALCUBICMETER = new Unit("watt hour per normal cubic meter","Wh/Nm\u00b3","Wh/Nm3",Dimension.ENERGYDENSITY,BD3600);
-	public static final Unit TON = new Unit("ton","t",Dimension.MASS,BD1000);
-	public static final Unit KILOGRAMPERHOUR = new Unit("kilogram per hour","kg/h",Dimension.MASSFLOW,ONE,BD3600);
-	public static final Unit TONPERHOUR = new Unit("ton per hour","t/h",Dimension.MASSFLOW,BD1000,BD3600);
-	public static final Unit LITERPERHOUR = new Unit("liter per hour","l/h",Dimension.VOLUMEFLOW,ONE,BD3600.multiply(BD1000));
-	// TODO verify and check UK AND US units from com.energyict.cbo.BaseUnit
-	public static final Unit FOOT = new Unit("foot","ft",Dimension.LENGTH,METERPERFOOT);
-	public static final Unit FOOTPERSECOND = new Unit("foot per second","ft/s",Dimension.SPEED,METERPERFOOT);
-	public static final Unit CUBICFOOT = new Unit("cubic foot","cf",Dimension.VOLUME,CUBICMETERPERCUBICFOOT);
-	public static final Unit CUBICFOOTPERHOUR = new Unit("cubic foot per hour","cf/h",Dimension.VOLUMEFLOW,CUBICMETERPERCUBICFOOT,BD3600);
-	public static final Unit CUBICFOOTPERDAY = new Unit("cubic foot per day","cf/d",Dimension.VOLUMEFLOW,CUBICMETERPERCUBICFOOT,BD86400);
-	public static final Unit THERM = new Unit("therm" ,"thm", Dimension.ENERGY,JOULEPERTHERM);
-	public static final Unit THERMPERHOUR = new Unit("therm per hour" ,"thm/h", Dimension.POWER, JOULEPERTHERM , BD3600);
-	public static final Unit THERMPERDAY = new Unit("therm per day" ,"thm/d" , Dimension.POWER, JOULEPERTHERM , BD86400);
-	
-	
-	private static final Map<String,Unit> UNITS = new HashMap<>();
-	
-	static {
-		UNITS.put(UNITLESS.asciiSymbol,UNITLESS);
-		UNITS.put(METER.asciiSymbol,METER);
-		UNITS.put(KILOGRAM.asciiSymbol,KILOGRAM);
-		UNITS.put(GRAM.asciiSymbol,GRAM);
-		UNITS.put(SECOND.asciiSymbol,SECOND);
-		UNITS.put(AMPERE.asciiSymbol,AMPERE);
-		UNITS.put(KELVIN.asciiSymbol,KELVIN);
-		UNITS.put(MOLE.asciiSymbol,MOLE);
-		UNITS.put(CANDELA.asciiSymbol,CANDELA);
-		UNITS.put(ROTATIONSPERSECOND.asciiSymbol,ROTATIONSPERSECOND);
-		UNITS.put(DEGREES.asciiSymbol,DEGREES);
-		UNITS.put(RADIAN.asciiSymbol,RADIAN);
-		UNITS.put(STERADIAN.asciiSymbol,STERADIAN);
-		UNITS.put(GRAY.asciiSymbol,GRAY);
-		UNITS.put(BECQUEREL.asciiSymbol,BECQUEREL);
-		UNITS.put(DEGREESCELSIUS.asciiSymbol,DEGREESCELSIUS);
-		UNITS.put(SIEVERT.asciiSymbol,SIEVERT);
-		UNITS.put(FARAD.asciiSymbol,FARAD);
-		UNITS.put(COULOMB.asciiSymbol,COULOMB);
-		UNITS.put(HENRY.asciiSymbol,HENRY);
-		UNITS.put(VOLT.asciiSymbol,VOLT);
-		UNITS.put(OHM.asciiSymbol,OHM);
-		UNITS.put(JOULE.asciiSymbol,JOULE);
-		UNITS.put(NEWTON.asciiSymbol,NEWTON);
-		UNITS.put(HERTZ.asciiSymbol,HERTZ);
-		UNITS.put(LUX.asciiSymbol,LUX);
-		UNITS.put(LUMEN.asciiSymbol,LUMEN);
-		UNITS.put(WEBER.asciiSymbol,WEBER);
-		UNITS.put(TESLA.asciiSymbol,TESLA);
-		UNITS.put(WATT.asciiSymbol,WATT);
-		UNITS.put(PASCAL.asciiSymbol,PASCAL);
-		UNITS.put(SQUAREMETER.asciiSymbol,SQUAREMETER);
-		UNITS.put(CUBICMETER.asciiSymbol,CUBICMETER);
-		UNITS.put(METERPERSECOND.asciiSymbol,METERPERSECOND);
-		UNITS.put(METERPERSECONDSQUARED.asciiSymbol,METERPERSECONDSQUARED);
-		UNITS.put(CUBICMETERPERSECOND.asciiSymbol,CUBICMETERPERSECOND);
-		UNITS.put(METERPERCUBICMETER.asciiSymbol,METERPERCUBICMETER);
-		UNITS.put(KILOGRAMMETER.asciiSymbol,KILOGRAMMETER);
-		UNITS.put(KILOGRAMPERCUBICMETER.asciiSymbol,KILOGRAMPERCUBICMETER);
-		UNITS.put(METERSQUAREDPERSECOND.asciiSymbol,METERSQUAREDPERSECOND);
-		UNITS.put(WATTPERMETERKELVIN.asciiSymbol,WATTPERMETERKELVIN);
-		UNITS.put(JOULEPERKELVIN.asciiSymbol,JOULEPERKELVIN);
-		UNITS.put(PARTSPERMILLION.asciiSymbol,PARTSPERMILLION);
-		UNITS.put(SIEMENS.asciiSymbol,SIEMENS);
-		UNITS.put(RADIANSPERSECOND.asciiSymbol,RADIANSPERSECOND);
-		UNITS.put(VOLTAMPERE.asciiSymbol,VOLTAMPERE);
-		UNITS.put(VOLTAMPEREREACTIVE.asciiSymbol,VOLTAMPEREREACTIVE);
-		UNITS.put(PHASEANGLE.asciiSymbol,PHASEANGLE);
-		UNITS.put(POWERFACTOR.asciiSymbol,POWERFACTOR);
-		UNITS.put(VOLTSECONDS.asciiSymbol,VOLTSECONDS);
-		UNITS.put(VOLTSQUARED.asciiSymbol,VOLTSQUARED);
-		UNITS.put(AMPERESECONDS.asciiSymbol,AMPERESECONDS);
-		UNITS.put(AMPERESQUARED.asciiSymbol,AMPERESQUARED);
-		UNITS.put(AMPERESQUAREDSECOND.asciiSymbol,AMPERESQUAREDSECOND);
-		UNITS.put(VOLTAMPEREHOUR.asciiSymbol,VOLTAMPEREHOUR);
-		UNITS.put(WATTHOUR.asciiSymbol,WATTHOUR);
-		UNITS.put(VOLTAMPEREREACTIVEHOUR.asciiSymbol,VOLTAMPEREREACTIVEHOUR);
-		UNITS.put(VOLTPERHERTZ.asciiSymbol,VOLTPERHERTZ);
-		UNITS.put(HERTZPERSECOND.asciiSymbol,HERTZPERSECOND);
-		UNITS.put(CHARACTERS.asciiSymbol,CHARACTERS);
-		UNITS.put(CHARACTERSPERSECOND.asciiSymbol,CHARACTERSPERSECOND);
-		UNITS.put(KILOGRAMMETERSQUARED.asciiSymbol,KILOGRAMMETERSQUARED);
-		UNITS.put(DECIBEL.asciiSymbol,DECIBEL);
-		UNITS.put(MONEY.asciiSymbol,MONEY);
-		UNITS.put(QUANTITYPOWER.asciiSymbol,QUANTITYPOWER);
-		UNITS.put(QUANTITYENERGY.asciiSymbol,QUANTITYENERGY);
-		UNITS.put(OHMMETER.asciiSymbol,OHMMETER);
-		UNITS.put(AMPEREPERMETER.asciiSymbol,AMPEREPERMETER);
-		UNITS.put(VOLTSQUAREDHOUR.asciiSymbol,VOLTSQUAREDHOUR);
-		UNITS.put(AMPERESQUAREDHOUR.asciiSymbol,AMPERESQUAREDHOUR);
-		UNITS.put(AMPEREHOUR.asciiSymbol,AMPEREHOUR);
-		UNITS.put(WATTHOURPERCUBICMETER.asciiSymbol,WATTHOURPERCUBICMETER);
-		UNITS.put(TIMESTAMP.asciiSymbol,TIMESTAMP);
-		UNITS.put(BOOLEAN.asciiSymbol,BOOLEAN);
-		UNITS.put(BOOLEANARRAY.asciiSymbol,BOOLEANARRAY);
-		UNITS.put(COUNT.asciiSymbol,COUNT);
-		UNITS.put(DECIBELMILLIWATT.asciiSymbol,DECIBELMILLIWATT);
-		UNITS.put(ENCODEDVALUE.asciiSymbol,ENCODEDVALUE);
-		UNITS.put(WATTHOURPERROTATION.asciiSymbol,WATTHOURPERROTATION);
-		UNITS.put(VOLTAMPEREREACTIVEHOURPERROTATION.asciiSymbol,VOLTAMPEREREACTIVEHOURPERROTATION);
-		UNITS.put(VOLTAMPEREHOURPERROTATION.asciiSymbol,VOLTAMPEREHOURPERROTATION);
-		UNITS.put(ENDDEVICEEVENTCODE.asciiSymbol,ENDDEVICEEVENTCODE);		
-		UNITS.put(YEAR.asciiSymbol,YEAR);
-		UNITS.put(MONTH.asciiSymbol,MONTH);
-		UNITS.put(DAY.asciiSymbol,DAY);
-		UNITS.put(HOUR.asciiSymbol,HOUR);
-		UNITS.put(MINUTE.asciiSymbol,MINUTE);
-		UNITS.put(NORMALCUBICMETER.asciiSymbol,NORMALCUBICMETER);
-		UNITS.put(CUBICMETERPERHOUR.asciiSymbol,CUBICMETERPERHOUR);
-		UNITS.put(NORMALCUBICMETERPERHOUR.asciiSymbol,NORMALCUBICMETERPERHOUR);
-		UNITS.put(CUBICMETERPERDAY.asciiSymbol,CUBICMETERPERDAY);
-		UNITS.put(NORMALCUBICMETERPERDAY.asciiSymbol,NORMALCUBICMETERPERDAY);
-		UNITS.put(LITER.asciiSymbol,LITER);		
-	}
-	
-	public String getName() {
-		return name;
-	}
+    UNITLESS("unitless", "", Dimension.DIMENSIONLESS),
+    METER("meter", "m", Dimension.LENGTH),
+    KILOGRAM("kilogram", "kg", Dimension.MASS),
+    GRAM("gram", "g", "g", Dimension.MASS, ONE, Constants.BD1000, ZERO),
+    SECOND("second", "s", Dimension.TIME),
+    AMPERE("ampere", "A", Dimension.ELECTRIC_CURRENT),
+    KELVIN("kelvin", "K", Dimension.TEMPERATURE),
+    MOLE("mole", "mol", Dimension.AMOUNT_OF_SUBSTANCE),
+    CANDELA("candela", "cd", Dimension.LUMINOUS_INTENSITY),
+    ROTATIONS_PER_SECOND("rotations per second", "rev/s", Dimension.FREQUENCY),
+    DEGREES("degrees", "\u00b0", "deg", Dimension.DIMENSIONLESS),
+    RADIAN("radian", "rad", Dimension.DIMENSIONLESS),
+    STERADIAN("steradian", "sr", Dimension.DIMENSIONLESS),
+    GRAY("gray", "Gy", Dimension.ABSORBED_DOSE),
+    BECQUEREL("becquerel", "Bq", Dimension.RADIOACTIVITY),
+    DEGREES_CELSIUS("degrees Celsius", "\u00b0C", "deg C", Dimension.TEMPERATURE, ONE, ONE, BigDecimal.valueOf(27315, 2)),
+    SIEVERT("sievert", "Sv", Dimension.DOSE_EQUIVALENT),
+    FARAD("farad", "F", Dimension.ELECTRIC_CAPACITANCE),
+    COULOMB("coulomb", "C", Dimension.ELECTRIC_CHARGE),
+    HENRY("henry", "H", Dimension.ELECTRIC_INDUCTANCE),
+    VOLT("volt", "V", Dimension.ELECTRIC_POTENTIAL),
+    OHM("ohm", "\u03a9", "ohm", Dimension.ELECTRIC_RESISTANCE),
+    JOULE("joule", "J", Dimension.ENERGY),
+    NEWTON("newton", "N", Dimension.FORCE),
+    HERTZ("hertz", "Hz", Dimension.FREQUENCY),
+    LUX("lux", "lx", Dimension.ILLUMINANCE),
+    LUMEN("lumen", "Lm", Dimension.LUMINOUS_FLUX),
+    WEBER("weber", "Wb", Dimension.MAGNETIC_FLUX),
+    TESLA("tesla", "T", Dimension.MAGNETIC_FLUX_DENSITY),
+    WATT("watt", "W", Dimension.POWER),
+    PASCAL("pascal", "Pa", Dimension.PRESSURE),
+    SQUARE_METER("square meter", "m\u00b2", "m2", Dimension.SURFACE),
+    CUBIC_METER("cubic meter", "m\u00b3", "m3", Dimension.VOLUME),
+    METER_PER_SECOND("meter per second", "m/s", Dimension.SPEED),
+    METER_PER_SECOND_SQUARED("meter per second squared", "m/s\u00b2", "m/s2", Dimension.ACCELERATION),
+    CUBIC_METER_PER_SECOND("cubic meter per second", "m\u00b3/s", "m3/s", Dimension.VOLUME_FLOW),
+    METER_PER_CUBIC_METER("meters per cubic meter", "m/m\u00b3", "m/m3", Dimension.FUEL_EFFICIENCY),
+    KILOGRAM_METER("kilogram meter", "M", Dimension.MOMENT_OF_MASS),
+    KILOGRAM_PER_CUBIC_METER("kilogram per cubic meter", "kg/m\u00b3", "kg/m3", Dimension.DENSITY),
+    METER_SQUARED_PER_SECOND("meter squared per second", "m\u00b2/s", "m2/s", Dimension.VISCOSITY),
+    WATT_PER_METER_KELVIN("watt per meter kelvin", "W/mK", Dimension.THERMAL_CONDUCTIVITY),
+    JOULE_PER_KELVIN("joule per kelvin", "J/K", Dimension.HEAT_CAPACITY),
+    PARTS_PER_MILLION("parts per million", "ppm", Dimension.DIMENSIONLESS),
+    SIEMENS("siemens", "S", Dimension.ELECTRICCONDUCTANCE),
+    RADIANS_PER_SECOND("radians per second", "rad/s", Dimension.ANGULAR_SPEED),
+    VOLT_AMPERE("volt ampere", "VA", Dimension.APPARENT_POWER),
+    VOLT_AMPERE_REACTIVE("volt ampere reactive", "VAr", Dimension.REACTIVE_POWER),
+    PHASE_ANGLE("phase angle", "\u03b8-Deg", "theta degrees", Dimension.DIMENSIONLESS),
+    POWER_FACTOR("power factor", "Cos \u03b8", "cos theta", Dimension.DIMENSIONLESS),
+    VOLT_SECONDS("volt seconds", "Vs", Dimension.MAGNETIC_FLUX),
+    VOLT_SQUARED("volt squared", "V\u00b2", "V2", Dimension.ELECTRIC_POTENTIAL_SQUARED),
+    AMPERE_SECONDS("ampere seconds", "As", Dimension.ELECTRIC_CHARGE),
+    AMPERE_SQUARED("ampere squared", "A\u00b2", "A2", Dimension.ELECTRIC_CURRENT_SQUARED),
+    AMPERE_SQUARED_SECOND("ampere squared second", "A\u00b2s", "A2s", Dimension.ELECTRIC_CURRENT_SQUARED_TIME),
+    VOLT_AMPERE_HOUR("volt ampere hours", "VAh", Dimension.APPARENT_ENERGY, Constants.BD3600),
+    WATT_HOUR("watt hours", "Wh", Dimension.ENERGY, Constants.BD3600),
+    VOLT_AMPERE_REACTIVE_HOUR("volt ampere reactive hours", "VArh", Dimension.REACTIVE_ENERGY, Constants.BD3600),
+    VOLT_PER_HERTZ("volts per hertz", "V/Hz", Dimension.MAGNETIC_FLUX),
+    HERTZ_PER_SECOND("hertz per second", "Hz/s", Dimension.FREQUENCY_CHANGE_RATE),
+    CHARACTERS("characters", "char", Dimension.DIMENSIONLESS),
+    CHARACTERS_PER_SECOND("characters per second", "char/s", Dimension.FREQUENCY),
+    KILOGRAM_METER_SQUARED("kilogram meter squared", "kgm\u00b2", "kgm2", Dimension.TURBINE_INERTIA),
+    DECIBEL("decibel", "dB", Dimension.DIMENSIONLESS),
+    MONEY("money", "\u00A4", "money", Dimension.CURRENCY),
+    QUANTITY_POWER("quantity power", "Q", Dimension.DIMENSIONLESS), // TODO dimension
+    QUANTITY_ENERGY("quantity energy", "Qh", Dimension.DIMENSIONLESS), // TODO dimension
+    OHM_METER("ohm meter", "\u03a9m", "ohmm", Dimension.ELECTRIC_RESISTIVITY),
+    AMPERE_PER_METER("ampere per meter", "A/m", Dimension.MAGNETIC_FIELD_STRENGTH),
+    VOLT_SQUARED_HOUR("volt squared hour", "V\u00b2h", "V2h", Dimension.ELECTRIC_POTENTIAL_SQUARED_TIME, Constants.BD3600),
+    AMPERE_SQUARED_HOUR("ampere squared hour", "A\u00b2h", "A2h", Dimension.ELECTRIC_CURRENT_SQUARED_TIME, Constants.BD3600),
+    AMPERE_HOUR("ampere hour", "Ah", Dimension.ELECTRIC_CHARGE, Constants.BD3600),
+    WATT_HOUR_PER_CUBIC_METER("watt hour per cubic meter", "Wh/m\u00b3", "Wh/m3", Dimension.ENERGY_DENSITY, Constants.BD3600),
+    TIMESTAMP("timestamp", "timeStamp", Dimension.DIMENSIONLESS),
+    BOOLEAN("boolean", "status", Dimension.DIMENSIONLESS),
+    BOOLEAN_ARRAY("boolean array", "statuses", Dimension.DIMENSIONLESS),
+    COUNT("count", "Count", Dimension.DIMENSIONLESS),
+    DECIBEL_MILLIWATT("decibel milliwatt", "dBm", Dimension.POWER), // TO DO convert to SI
+    ENCODED_VALUE("encoded value", "Code", Dimension.DIMENSIONLESS),
+    WATT_HOUR_PER_ROTATION("watt hours per rotation", "Wh/rev", Dimension.ENERGY, Constants.BD3600),
+    VOLT_AMPERE_REACTIVE_HOUR_PER_ROTATION("volt ampere reactive hours per rotation", "VArh/rev", Dimension.REACTIVE_ENERGY, Constants.BD3600),
+    VOLT_AMPERE_HOUR_PER_ROTATION("volt ampere hours per rotation", "VAh/rev", Dimension.APPARENT_ENERGY, Constants.BD3600),
+    END_DEVICE_EVENT_CODE("end device event code", "MeCode", Dimension.DIMENSIONLESS),
 
-	public String getSymbol() {
-		return symbol;
-	}
+    YEAR("year", "a", Dimension.TIME, BigDecimal.valueOf(3600L * 24 * 365)),
+    MONTH("month", "mo", Dimension.TIME, BigDecimal.valueOf(3600L * 24 * 30)),
+    DAY("day", "d", Dimension.TIME, Constants.BD86400),
+    HOUR("hour", "h", Dimension.TIME, Constants.BD3600),
+    MINUTE("minute", "min", Dimension.TIME, BigDecimal.valueOf(60)),
+    NORMAL_CUBIC_METER("normal cubic meter", "Nm\u00b3", "Nm3", Dimension.VOLUME),
+    CUBIC_METER_PER_HOUR("cubic meter per hour", "m\u00b3/h", "m3/h", Dimension.VOLUME_FLOW, ONE, Constants.BD3600, ZERO),
+    NORMAL_CUBIC_METER_PER_HOUR("normal cubic meter per hour", "Nm\u00b3/h", "Nm3/h", Dimension.VOLUME_FLOW, ONE, Constants.BD3600, ZERO),
+    CUBIC_METER_PER_DAY("cubic meter per day", "m\u00b3/d", "m3/d", Dimension.VOLUME_FLOW, ONE, Constants.BD86400, ZERO),
+    NORMAL_CUBIC_METER_PER_DAY("normal cubic meter per day", "Nm\u00b3/d", "Nm3/d", Dimension.VOLUME_FLOW, ONE, Constants.BD86400, ZERO),
+    LITER("liter", "l", Dimension.VOLUME, ONE, Constants.BD1000),
 
-	public String getAsciiSymbol() {
-		return asciiSymbol;
-	}
-	
-	public Dimension getDimension() {
-		return dimension;
-	}
+    // following units still need to be added to UNITS map
 
-	public BigDecimal getSiMultiplier() {
-		return siMultiplier;
-	}
-	
-	public BigDecimal getSiDivisor() {
-		return siDivisor;
-	}
+    PER_HOUR("per hour", "/h", Dimension.FREQUENCY, ONE, Constants.BD3600),
+    MOLE_PER_CENT("mole percent hour", "mol%/", Dimension.DIMENSIONLESS, ONE, Constants.BD100),
+    PERCENT("percent", "%", Dimension.DIMENSIONLESS, ONE, Constants.BD100),
+    JOULE_PER_NORMAL_CUBIC_METER("joule per normal cubic meter", "J/Nm\u00b3", "J/Nm3", Dimension.ENERGY_DENSITY),
+    WATT_HOUR_PER_NORMAL_CUBIC_METER("watt hour per normal cubic meter", "Wh/Nm\u00b3", "Wh/Nm3", Dimension.ENERGY_DENSITY, Constants.BD3600),
+    TON("ton", "t", Dimension.MASS, Constants.BD1000),
+    KILOGRAM_PER_HOUR("kilogram per hour", "kg/h", Dimension.MASSFLOW, ONE, Constants.BD3600),
+    TON_PER_HOUR("ton per hour", "t/h", Dimension.MASSFLOW, Constants.BD1000, Constants.BD3600),
+    LITER_PER_HOUR("liter per hour", "l/h", Dimension.VOLUME_FLOW, ONE, Constants.BD3600.multiply(Constants.BD1000)),
+    // TODO verify and check UK AND US units from com.energyict.cbo.BaseUnit
+    FOOT("foot", "ft", Dimension.LENGTH, Constants.METER_PER_FOOT),
+    FOOT_PER_SECOND("foot per second", "ft/s", Dimension.SPEED, Constants.METER_PER_FOOT),
+    CUBIC_FOOT("cubic foot", "cf", Dimension.VOLUME, Constants.CUBIC_METER_PER_CUBIC_FOOT),
+    CUBIC_FOOT_PER_HOUR("cubic foot per hour", "cf/h", Dimension.VOLUME_FLOW, Constants.CUBIC_METER_PER_CUBIC_FOOT, Constants.BD3600),
+    CUBIC_FOOT_PER_DAY("cubic foot per day", "cf/d", Dimension.VOLUME_FLOW, Constants.CUBIC_METER_PER_CUBIC_FOOT, Constants.BD86400),
+    THERM("therm", "thm", Dimension.ENERGY, Constants.JOULE_PER_THERM),
+    THERM_PER_HOUR("therm per hour", "thm/h", Dimension.POWER, Constants.JOULE_PER_THERM, Constants.BD3600),
+    THERM_PER_DAY("therm per day", "thm/d", Dimension.POWER, Constants.JOULE_PER_THERM, Constants.BD86400);
 
-	public BigDecimal getSiDelta() {
-		return siDelta;
-	}
-	
-	public String getSymbol(boolean asciiOnly) {
-		return asciiOnly ? asciiSymbol : symbol;
-	}
-	
-	public Quantity amount(BigDecimal value) {
-		return new Quantity(this, value);
-	}
-	
-	public Quantity amount(BigDecimal value,int exponent) {
-		return new Quantity(this, value, exponent);
-	}
-	
-	public String toString() {
-		return getSymbol();
-	}
-	
-	public boolean isDimensionLess() {
-		return dimension.isDimensionLess();
-	}
-	
-	public boolean hasSameDimensions(Unit other) {
-		return this.dimension.hasSameDimensions(other.dimension);
-	}
-	
-	public boolean isSICompliant() {
-		return 
-			siMultiplier.equals(BigDecimal.ONE) && siDivisor.equals(BigDecimal.ONE) && siDelta.equals(BigDecimal.ZERO) && !isDimensionLess();	 
-	}
-	
-	public static Unit getSIUnit(Dimension dimension) {
-		for (Unit each : available()) {
-			if (each.dimension.equals(dimension) && each.isSICompliant())
-				return each;
-		}
-		throw new IllegalArgumentException("" + dimension);
-	}
-	
-	BigDecimal siValue(BigDecimal value) {
-		BigDecimal newValue = value.multiply(siMultiplier);
-		newValue = newValue.divide(siDivisor,newValue.scale() + siDivisor.precision() + 6,BigDecimal.ROUND_HALF_UP);
-		newValue = newValue.add(siDelta);
-		return newValue.stripTrailingZeros();		
-	}
-	
-	public static void main(String[] args) {
-		List<Unit> units = new ArrayList<>(Unit.available());	
-		System.out.println(units.size());
-		Set<Unit> printed = new HashSet<>();
-		for (int i = 0 ; i < units.size(); i++) {
-			Unit each = units.get(i);
-			if (!printed.contains(each)) {
-				System.out.println(each.getName() + ": " + each.getSymbol() + " (" + each.getSymbol(true) + ") SI: " + each.isSICompliant());
-				for (int j = i+1 ; j < units.size(); j++) {
-					Unit other = units.get(j);
-					if (other.hasSameDimensions(each)) {
-						printed.add(other);
-						System.out.println("\t" + other.getName() + ": " + other.getSymbol() + " (" + other.getSymbol(true) + ")SI: " + other.isSICompliant());
-					}
-				}
-			}
-		}
-	}
-	
+    private final String name;
+    private final String symbol;
+    private final String asciiSymbol;
+    private final Dimension dimension;
+    private final BigDecimal siMultiplier;
+    private final BigDecimal siDivisor;
+    private final BigDecimal siDelta;
+
+    Unit(String name, String symbol, String asciiSymbol, Dimension dimension, BigDecimal siMultiplier, BigDecimal siDivisor, BigDecimal siDelta) {
+        this.name = name;
+        this.symbol = symbol;
+        this.asciiSymbol = asciiSymbol;
+        this.dimension = dimension;
+        this.siMultiplier = siMultiplier;
+        this.siDivisor = siDivisor;
+        this.siDelta = siDelta;
+    }
+
+    Unit(String name, String symbol, String asciiSymbol, Dimension dimension, BigDecimal siMultiplier, BigDecimal siDivisor) {
+        this(name, symbol, asciiSymbol, dimension, siMultiplier, siDivisor, ZERO);
+    }
+
+    Unit(String name, String symbol, String asciiSymbol, Dimension dimension, BigDecimal siMultiplier) {
+        this(name, symbol, asciiSymbol, dimension, siMultiplier, ONE);
+    }
+
+    Unit(String name, String symbol, Dimension dimension, BigDecimal siMultiplier, BigDecimal siDivisor) {
+        this(name, symbol, symbol, dimension, siMultiplier, siDivisor);
+    }
+
+    Unit(String name, String symbol, Dimension dimension, BigDecimal siMultiplier) {
+        this(name, symbol, symbol, dimension, siMultiplier);
+    }
+
+    Unit(String name, String symbol, String asciiSymbol, Dimension dimension) {
+        this(name, symbol, asciiSymbol, dimension, ONE);
+    }
+
+    Unit(String name, String symbol, Dimension dimension) {
+        this(name, symbol, symbol, dimension);
+    }
+
+    public static Unit unitForSymbol(String symbol) {
+        for (Unit unit : UNITS.values()) {
+            if (unit.getSymbol().equals(symbol)) {
+                return unit;
+            }
+        }
+        throw new IllegalArgumentException(symbol);
+    }
+
+    public static Unit get(String asciiSymbol) {
+        Unit unit = UNITS.get(asciiSymbol);
+        if (unit == null) {
+            throw new IllegalArgumentException(asciiSymbol);
+        } else {
+            return unit;
+        }
+    }
+
+    public static Collection<Unit> available() {
+        return UNITS.values();
+    }
+
+    private interface Constants {
+        BigDecimal BD3600 = BigDecimal.valueOf(3600);
+        BigDecimal BD86400 = BigDecimal.valueOf(86400);  // seconds per 24h day
+        BigDecimal BD100 = BigDecimal.valueOf(100);
+        BigDecimal BD1000 = BigDecimal.valueOf(1000);
+        BigDecimal METER_PER_FOOT = BigDecimal.valueOf(3048, 4);
+        BigDecimal SQUARE_METER_PER_SQUARE_FOOT = METER_PER_FOOT.multiply(METER_PER_FOOT);
+        BigDecimal CUBIC_METER_PER_CUBIC_FOOT = SQUARE_METER_PER_SQUARE_FOOT.multiply(METER_PER_FOOT);
+        BigDecimal JOULE_PER_THERM = BigDecimal.valueOf(105505585257348L, 6);
+    }
+
+    private static final Map<String, Unit> UNITS = fillUnits();
+
+    static Map<String, Unit> fillUnits() {
+        Map<String, Unit> units = new HashMap<>();
+        units.put(UNITLESS.asciiSymbol, UNITLESS);
+        units.put(METER.asciiSymbol, METER);
+        units.put(KILOGRAM.asciiSymbol, KILOGRAM);
+        units.put(GRAM.asciiSymbol, GRAM);
+        units.put(SECOND.asciiSymbol, SECOND);
+        units.put(AMPERE.asciiSymbol, AMPERE);
+        units.put(KELVIN.asciiSymbol, KELVIN);
+        units.put(MOLE.asciiSymbol, MOLE);
+        units.put(CANDELA.asciiSymbol, CANDELA);
+        units.put(ROTATIONS_PER_SECOND.asciiSymbol, ROTATIONS_PER_SECOND);
+        units.put(DEGREES.asciiSymbol, DEGREES);
+        units.put(RADIAN.asciiSymbol, RADIAN);
+        units.put(STERADIAN.asciiSymbol, STERADIAN);
+        units.put(GRAY.asciiSymbol, GRAY);
+        units.put(BECQUEREL.asciiSymbol, BECQUEREL);
+        units.put(DEGREES_CELSIUS.asciiSymbol, DEGREES_CELSIUS);
+        units.put(SIEVERT.asciiSymbol, SIEVERT);
+        units.put(FARAD.asciiSymbol, FARAD);
+        units.put(COULOMB.asciiSymbol, COULOMB);
+        units.put(HENRY.asciiSymbol, HENRY);
+        units.put(VOLT.asciiSymbol, VOLT);
+        units.put(OHM.asciiSymbol, OHM);
+        units.put(JOULE.asciiSymbol, JOULE);
+        units.put(NEWTON.asciiSymbol, NEWTON);
+        units.put(HERTZ.asciiSymbol, HERTZ);
+        units.put(LUX.asciiSymbol, LUX);
+        units.put(LUMEN.asciiSymbol, LUMEN);
+        units.put(WEBER.asciiSymbol, WEBER);
+        units.put(TESLA.asciiSymbol, TESLA);
+        units.put(WATT.asciiSymbol, WATT);
+        units.put(PASCAL.asciiSymbol, PASCAL);
+        units.put(SQUARE_METER.asciiSymbol, SQUARE_METER);
+        units.put(CUBIC_METER.asciiSymbol, CUBIC_METER);
+        units.put(METER_PER_SECOND.asciiSymbol, METER_PER_SECOND);
+        units.put(METER_PER_SECOND_SQUARED.asciiSymbol, METER_PER_SECOND_SQUARED);
+        units.put(CUBIC_METER_PER_SECOND.asciiSymbol, CUBIC_METER_PER_SECOND);
+        units.put(METER_PER_CUBIC_METER.asciiSymbol, METER_PER_CUBIC_METER);
+        units.put(KILOGRAM_METER.asciiSymbol, KILOGRAM_METER);
+        units.put(KILOGRAM_PER_CUBIC_METER.asciiSymbol, KILOGRAM_PER_CUBIC_METER);
+        units.put(METER_SQUARED_PER_SECOND.asciiSymbol, METER_SQUARED_PER_SECOND);
+        units.put(WATT_PER_METER_KELVIN.asciiSymbol, WATT_PER_METER_KELVIN);
+        units.put(JOULE_PER_KELVIN.asciiSymbol, JOULE_PER_KELVIN);
+        units.put(PARTS_PER_MILLION.asciiSymbol, PARTS_PER_MILLION);
+        units.put(SIEMENS.asciiSymbol, SIEMENS);
+        units.put(RADIANS_PER_SECOND.asciiSymbol, RADIANS_PER_SECOND);
+        units.put(VOLT_AMPERE.asciiSymbol, VOLT_AMPERE);
+        units.put(VOLT_AMPERE_REACTIVE.asciiSymbol, VOLT_AMPERE_REACTIVE);
+        units.put(PHASE_ANGLE.asciiSymbol, PHASE_ANGLE);
+        units.put(POWER_FACTOR.asciiSymbol, POWER_FACTOR);
+        units.put(VOLT_SECONDS.asciiSymbol, VOLT_SECONDS);
+        units.put(VOLT_SQUARED.asciiSymbol, VOLT_SQUARED);
+        units.put(AMPERE_SECONDS.asciiSymbol, AMPERE_SECONDS);
+        units.put(AMPERE_SQUARED.asciiSymbol, AMPERE_SQUARED);
+        units.put(AMPERE_SQUARED_SECOND.asciiSymbol, AMPERE_SQUARED_SECOND);
+        units.put(VOLT_AMPERE_HOUR.asciiSymbol, VOLT_AMPERE_HOUR);
+        units.put(WATT_HOUR.asciiSymbol, WATT_HOUR);
+        units.put(VOLT_AMPERE_REACTIVE_HOUR.asciiSymbol, VOLT_AMPERE_REACTIVE_HOUR);
+        units.put(VOLT_PER_HERTZ.asciiSymbol, VOLT_PER_HERTZ);
+        units.put(HERTZ_PER_SECOND.asciiSymbol, HERTZ_PER_SECOND);
+        units.put(CHARACTERS.asciiSymbol, CHARACTERS);
+        units.put(CHARACTERS_PER_SECOND.asciiSymbol, CHARACTERS_PER_SECOND);
+        units.put(KILOGRAM_METER_SQUARED.asciiSymbol, KILOGRAM_METER_SQUARED);
+        units.put(DECIBEL.asciiSymbol, DECIBEL);
+        units.put(MONEY.asciiSymbol, MONEY);
+        units.put(QUANTITY_POWER.asciiSymbol, QUANTITY_POWER);
+        units.put(QUANTITY_ENERGY.asciiSymbol, QUANTITY_ENERGY);
+        units.put(OHM_METER.asciiSymbol, OHM_METER);
+        units.put(AMPERE_PER_METER.asciiSymbol, AMPERE_PER_METER);
+        units.put(VOLT_SQUARED_HOUR.asciiSymbol, VOLT_SQUARED_HOUR);
+        units.put(AMPERE_SQUARED_HOUR.asciiSymbol, AMPERE_SQUARED_HOUR);
+        units.put(AMPERE_HOUR.asciiSymbol, AMPERE_HOUR);
+        units.put(WATT_HOUR_PER_CUBIC_METER.asciiSymbol, WATT_HOUR_PER_CUBIC_METER);
+        units.put(TIMESTAMP.asciiSymbol, TIMESTAMP);
+        units.put(BOOLEAN.asciiSymbol, BOOLEAN);
+        units.put(BOOLEAN_ARRAY.asciiSymbol, BOOLEAN_ARRAY);
+        units.put(COUNT.asciiSymbol, COUNT);
+        units.put(DECIBEL_MILLIWATT.asciiSymbol, DECIBEL_MILLIWATT);
+        units.put(ENCODED_VALUE.asciiSymbol, ENCODED_VALUE);
+        units.put(WATT_HOUR_PER_ROTATION.asciiSymbol, WATT_HOUR_PER_ROTATION);
+        units.put(VOLT_AMPERE_REACTIVE_HOUR_PER_ROTATION.asciiSymbol, VOLT_AMPERE_REACTIVE_HOUR_PER_ROTATION);
+        units.put(VOLT_AMPERE_HOUR_PER_ROTATION.asciiSymbol, VOLT_AMPERE_HOUR_PER_ROTATION);
+        units.put(END_DEVICE_EVENT_CODE.asciiSymbol, END_DEVICE_EVENT_CODE);
+        units.put(YEAR.asciiSymbol, YEAR);
+        units.put(MONTH.asciiSymbol, MONTH);
+        units.put(DAY.asciiSymbol, DAY);
+        units.put(HOUR.asciiSymbol, HOUR);
+        units.put(MINUTE.asciiSymbol, MINUTE);
+        units.put(NORMAL_CUBIC_METER.asciiSymbol, NORMAL_CUBIC_METER);
+        units.put(CUBIC_METER_PER_HOUR.asciiSymbol, CUBIC_METER_PER_HOUR);
+        units.put(NORMAL_CUBIC_METER_PER_HOUR.asciiSymbol, NORMAL_CUBIC_METER_PER_HOUR);
+        units.put(CUBIC_METER_PER_DAY.asciiSymbol, CUBIC_METER_PER_DAY);
+        units.put(NORMAL_CUBIC_METER_PER_DAY.asciiSymbol, NORMAL_CUBIC_METER_PER_DAY);
+        units.put(LITER.asciiSymbol, LITER);
+        return units;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public String getAsciiSymbol() {
+        return asciiSymbol;
+    }
+
+    public Dimension getDimension() {
+        return dimension;
+    }
+
+    public BigDecimal getSiMultiplier() {
+        return siMultiplier;
+    }
+
+    public BigDecimal getSiDivisor() {
+        return siDivisor;
+    }
+
+    public BigDecimal getSiDelta() {
+        return siDelta;
+    }
+
+    public String getSymbol(boolean asciiOnly) {
+        return asciiOnly ? asciiSymbol : symbol;
+    }
+
+    public Quantity amount(BigDecimal value) {
+        return new Quantity(this, value);
+    }
+
+    public Quantity amount(BigDecimal value, int exponent) {
+        return new Quantity(this, value, exponent);
+    }
+
+    public String toString() {
+        return getSymbol();
+    }
+
+    public boolean isDimensionLess() {
+        return dimension.isDimensionLess();
+    }
+
+    public boolean hasSameDimensions(Unit other) {
+        return this.dimension.hasSameDimensions(other.dimension);
+    }
+
+    public boolean isSICompliant() {
+        return
+                siMultiplier.equals(BigDecimal.ONE) && siDivisor.equals(BigDecimal.ONE) && siDelta.equals(BigDecimal.ZERO) && !isDimensionLess();
+    }
+
+    public static Unit getSIUnit(Dimension dimension) {
+        for (Unit each : available()) {
+            if (each.dimension.equals(dimension) && each.isSICompliant()) {
+                return each;
+            }
+        }
+        throw new IllegalArgumentException("" + dimension);
+    }
+
+    BigDecimal siValue(BigDecimal value) {
+        BigDecimal newValue = value.multiply(siMultiplier);
+        newValue = newValue.divide(siDivisor, newValue.scale() + siDivisor.precision() + 6, BigDecimal.ROUND_HALF_UP);
+        newValue = newValue.add(siDelta);
+        return newValue.stripTrailingZeros();
+    }
+
 }

@@ -67,7 +67,7 @@ public final class Pair<F, L> {
             return false;
         }
 
-        Pair other = (Pair) obj;
+        Pair<?, ?> other = (Pair<?, ?>) obj;
 
         return is(first).equalTo(other.first) && is(last).equalTo(other.last);
     }

@@ -8,7 +8,7 @@ import static com.elster.jupiter.util.conditions.Constant.*;
 public abstract class Leaf implements Condition {
 
 	@Override
-	final public Condition and(Condition condition) {
+    public final Condition and(Condition condition) {
         if (TRUE == condition) {
             return this;
         }
@@ -19,7 +19,7 @@ public abstract class Leaf implements Condition {
 	}
 
 	@Override
-	final public Condition or(Condition condition) {
+    public final Condition or(Condition condition) {
         if (TRUE == condition) {
             return TRUE;
         }
@@ -30,7 +30,7 @@ public abstract class Leaf implements Condition {
 	}
 
 	@Override
-	final public Condition not() {
+    public final Condition not() {
 		return new Not(this);
 	}
 }

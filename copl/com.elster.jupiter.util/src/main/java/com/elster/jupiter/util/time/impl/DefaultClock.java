@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
+ * Simple default implementation that delegates to System.currentTimeMillis and TimeZone.getDefault();
  */
 public class DefaultClock implements Clock {
 

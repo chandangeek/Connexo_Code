@@ -175,4 +175,9 @@ public class ImmutableDiffList<E> implements DiffList<E> {
     public List<E> originalList() {
         return wrapped.originalList();
     }
+
+    @Override
+    public String toString() {
+        return wrapped.toString();
+    }
 }

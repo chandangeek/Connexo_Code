@@ -6,15 +6,25 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-final public class SqlBuilder implements SqlFragment {
+/**
+ * Class that assists in building sql statements.
+ */
+public final class SqlBuilder implements SqlFragment {
 	
 	private final StringBuilder builder;
 	private final List<SqlFragment> fragments = new ArrayList<>();
-	
+
+    /**
+     * Creates a new empty instance.
+     */
 	public SqlBuilder() {
 		this.builder = new StringBuilder();
 	}
-	
+
+    /**
+     * Creates a new instance initialized with the given base.
+     * @param base
+     */
 	public SqlBuilder(String base) {
 		this.builder = new StringBuilder(base);
 	}

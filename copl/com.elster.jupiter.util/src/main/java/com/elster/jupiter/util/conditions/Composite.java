@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Abstract Condition implementation that evaluates based on two composing Conditions.
  */
-abstract public class Composite implements Condition {
+public abstract class Composite implements Condition {
 	
 	private final List<Condition> conditions = new ArrayList<>();
 	
@@ -16,7 +16,7 @@ abstract public class Composite implements Condition {
 	}
 	
 	@Override
-	final public Condition not() {
+    public final Condition not() {
 		return new Not(this);		
 	}
 	

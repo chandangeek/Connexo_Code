@@ -1,7 +1,7 @@
 package com.elster.jupiter.util.json;
 
 /**
- * Service interface for classes that serialize java Objects into Json Strings, and deserialze Json Strings into java Objects.
+ * Service interface for classes that serialize java Objects into Json Strings, and deserialize Json Strings into java Objects.
  */
 public interface JsonService {
 

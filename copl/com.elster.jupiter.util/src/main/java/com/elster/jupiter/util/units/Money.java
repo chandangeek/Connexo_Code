@@ -1,14 +1,16 @@
 package com.elster.jupiter.util.units;
 
-import java.math.BigDecimal;
-import java.util.Currency;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.math.BigDecimal;
+import java.util.Currency;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(MoneyAdapter.class)
 
+/**
+ * Immutable class representing an amount of money in one currency.
+ */
 public final class Money {
 	private final Currency currency;
 	private final BigDecimal value;
@@ -38,10 +40,4 @@ public final class Money {
 		return "" + value + " " + currency.getSymbol();
 	}
 	
-	public static void main(String[] args) {
-		for (Currency each : Currency.getAvailableCurrencies()) {
-			Money money = new Money(each, BigDecimal.valueOf(12.45));
-			System.out.println(money);
-		}
-	}
 }

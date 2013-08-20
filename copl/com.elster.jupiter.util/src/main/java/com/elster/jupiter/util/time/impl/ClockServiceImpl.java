@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
+ * Osgi component that implements the Clock interface.
  */
 @Component(name = "com.elster.jupiter.time.clock", service = { Clock.class }, immediate = true, property="name=" + Bus.COMPONENTNAME)
 public class ClockServiceImpl implements ServiceLocator, Clock {

@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 @XmlRootElement
 @XmlJavaTypeAdapter(QuantityAdapter.class)
 
+/**
+ * Immutable class representing a quantity in one unit.
+ */
 public final class Quantity {
 	private final Unit unit;
 	private final BigDecimal value;
@@ -104,7 +107,7 @@ public final class Quantity {
 	}
 	
 	public static Quantity create(BigDecimal value , String unitSymbol) {
-		return create(value,0,unitSymbol);
+		return create(value, 0, unitSymbol);
 	}
 	
 	public static void main(String[] args) {

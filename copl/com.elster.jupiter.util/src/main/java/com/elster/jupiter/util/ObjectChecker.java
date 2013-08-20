@@ -1,6 +1,7 @@
 package com.elster.jupiter.util;
 
 /**
+ * Part of fluent API, see Checks.
  */
 public class ObjectChecker<T> {
 
@@ -11,6 +12,6 @@ public class ObjectChecker<T> {
     }
 
     public boolean equalTo(Object other) {
-        return this == other || (toCheck != null && toCheck.equals(other));
+        return toCheck == other || (toCheck != null && toCheck.equals(other));
     }
 }

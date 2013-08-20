@@ -1,6 +1,7 @@
 package com.elster.jupiter.util;
 
 /**
+ * Part of fluent API, see Checks.
  */
 public class StringChecker extends ObjectChecker<String> {
 
