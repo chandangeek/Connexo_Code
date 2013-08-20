@@ -8,5 +8,6 @@ public class UnknownAppServerNameException extends BaseException {
 
     public UnknownAppServerNameException(String appServerName) {
         super(ExceptionTypes.UNKOWN_APPSERVER_NAME, MessageFormat.format("AppServer with name ''{0}'' is unknown", appServerName));
+        set("appSerevrName", appServerName);
     }
 }

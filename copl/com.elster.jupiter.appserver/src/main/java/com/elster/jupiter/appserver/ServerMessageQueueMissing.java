@@ -4,6 +4,9 @@ import com.elster.jupiter.util.exception.BaseException;
 
 import java.text.MessageFormat;
 
+/**
+ * Thrown when the server's message queue can not be found. Likely the app server module needs to be installed.
+ */
 public class ServerMessageQueueMissing extends BaseException {
 
     public ServerMessageQueueMissing(String destinationName) {
