@@ -3,6 +3,9 @@ package com.elster.jupiter.util.cron;
 import com.elster.jupiter.util.ExceptionTypes;
 import com.elster.jupiter.util.exception.BaseException;
 
+/**
+ * Thrown when parsing of a cron String fails.
+ */
 public final class InvalidCronExpression extends BaseException {
 
     public InvalidCronExpression(Throwable cause) {

@@ -5,6 +5,9 @@ import com.elster.jupiter.util.exception.BaseException;
 
 import java.text.MessageFormat;
 
+/**
+ * Thrown when a property of a bean is accessed, which it does not have.
+ */
 public final class NoSuchPropertyException extends BaseException {
 
     public NoSuchPropertyException(Object bean, String property) {

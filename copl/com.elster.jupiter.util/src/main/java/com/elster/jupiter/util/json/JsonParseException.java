@@ -3,6 +3,9 @@ package com.elster.jupiter.util.json;
 import com.elster.jupiter.util.ExceptionTypes;
 import com.elster.jupiter.util.exception.BaseException;
 
+/**
+ * Thrown when deserialization of an Object tree from a Json String fails.
+ */
 public class JsonParseException extends BaseException {
 
     public static final String JSON_STRING = "jsonString";
