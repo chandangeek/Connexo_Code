@@ -7,7 +7,7 @@ import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -61,7 +61,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 			stats.start();
 			doExecute();			
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		} finally {
 			stats.stop();
 		}

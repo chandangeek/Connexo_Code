@@ -10,6 +10,7 @@ import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.PersistenceException;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.sql.Connection;
@@ -143,7 +144,7 @@ public class VaultImpl implements Vault {
 		try {
 			doActivate(to);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 		this.active = true;
 		this.maxTime = new UtcInstant(to);
@@ -229,7 +230,7 @@ public class VaultImpl implements Vault {
 			try {
 				doAddPartition(to);
 			} catch (SQLException ex) {
-				throw new PersistenceException(ex);
+				throw new UnderlyingSQLFailedException(ex);
 			}
 		}
 		this.maxTime = new UtcInstant(to);
@@ -286,7 +287,7 @@ public class VaultImpl implements Vault {
 		try {
 			return doAdd(timeSeries,timeStamp.getTime(),overrule,values);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
@@ -419,7 +420,7 @@ public class VaultImpl implements Vault {
 		try {
 			return doGetEntries(timeSeries,from,to);
 		} catch (SQLException ex) {
-			throw new PersistenceException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 	
