@@ -82,7 +82,7 @@ public class ChannelImpl implements Channel {
             if (result.isPresent()) {
                 timeSeries = result.get();
             } else {
-                throw new DoesNotExistException();
+                throw new DoesNotExistException(String.valueOf(timeSeriesId));
             }
 		}
 		return timeSeries;
@@ -136,19 +136,21 @@ public class ChannelImpl implements Channel {
 	}
 
     private RecordSpec getRecordSpec(IntervalLength intervalLength) {
-        Optional<RecordSpec> result = getIdsService().getRecordSpec(COMPONENTNAME, intervalLength == null ? IRREGULARRECORDSPECID : REGULARRECORDSPECID);
+        int id = intervalLength == null ? IRREGULARRECORDSPECID : REGULARRECORDSPECID;
+        Optional<RecordSpec> result = getIdsService().getRecordSpec(COMPONENTNAME, id);
         if (result.isPresent()) {
         return result.get();
         }
-        throw new DoesNotExistException();
+        throw new DoesNotExistException(String.valueOf(id));
     }
 
     private Vault getVault(IntervalLength intervalLength) {
-        Optional<Vault> result = getIdsService().getVault(COMPONENTNAME, intervalLength == null ? IRREGULARVAULTID : REGULARVAULTID);
+        int id = intervalLength == null ? IRREGULARVAULTID : REGULARVAULTID;
+        Optional<Vault> result = getIdsService().getVault(COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
         }
-        throw new DoesNotExistException();
+        throw new DoesNotExistException(String.valueOf(id));
     }
 
     void persistReadingTypes() {
