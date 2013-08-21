@@ -28,8 +28,8 @@ import java.util.logging.Level;
 /**
  * The AM100 implementation of the NTA spec
  *
- * @author: sva
- * @since: 30/10/12 (9:58)
+ * @author sva
+ * @since 30/10/12 (9:58)
  */
 public class AM100 extends AbstractNtaProtocol {
 
@@ -57,8 +57,6 @@ public class AM100 extends AbstractNtaProtocol {
      * 1/ check if the cache exists, if it does exist, go to step 2, if not go to step 3    <br>
      * 2/ is the custom property forcedToReadCache enabled? If yes then go to step 3, else exit    <br>
      * 3/ readout the objectlist    <br>
-     *
-     * @throws java.io.IOException
      */
     @Override
     protected void checkCacheObjects() {
@@ -118,13 +116,12 @@ public class AM100 extends AbstractNtaProtocol {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> requiredSpecs = new ArrayList<PropertySpec>();
-        return requiredSpecs;
+        return new ArrayList<>();
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        List<PropertySpec> optionalSpecs = new ArrayList<PropertySpec>();
+        List<PropertySpec> optionalSpecs = new ArrayList<>();
         optionalSpecs.add(forcedToReadCachePropertySpec());
         return optionalSpecs;
     }
@@ -139,7 +136,7 @@ public class AM100 extends AbstractNtaProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        ArrayList<DeviceProtocolDialect> protocolDialects = new ArrayList<DeviceProtocolDialect>();
+        List<DeviceProtocolDialect> protocolDialects = new ArrayList<>();
         protocolDialects.add(new Dsmr23DeviceProtocolDialect());
         return protocolDialects;
     }

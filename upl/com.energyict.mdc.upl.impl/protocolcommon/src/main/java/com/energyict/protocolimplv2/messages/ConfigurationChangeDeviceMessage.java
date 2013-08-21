@@ -19,9 +19,9 @@ import java.util.List;
 public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
     WriteExchangeStatus(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
-    WriteRadioAcknowledge(PropertySpecFactory.booleanPropertySpecWithoutThreeState(DeviceMessageConstants.WriteRadioAcknowledge)),
+    WriteRadioAcknowledge(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge)),
     WriteRadioUserTimeout(PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
-    EnableOrDisableDST(PropertySpecFactory.booleanPropertySpecWithoutThreeState(DeviceMessageConstants.enableDSTAttributeName)),
+    EnableOrDisableDST(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
     WriteNewPDRNumber(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.newPDRAttributeName)),
     ConfigureConverterMasterData(
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.converterTypeAttributeName, "VOL1", "VOL2", "VEN1", "VEN2"),

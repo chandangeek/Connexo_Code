@@ -138,7 +138,7 @@ public class MTU155 implements DeviceProtocol {
     }
 
     private PropertySpec debugPropertySpec() {
-        return PropertySpecFactory.booleanPropertySpecWithoutThreeState(DEBUG_PROPERTY_NAME);
+        return PropertySpecFactory.booleanPropertySpec(DEBUG_PROPERTY_NAME);
     }
 
     private PropertySpec channelBacklogPropertySpec() {

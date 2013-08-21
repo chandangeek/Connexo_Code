@@ -34,7 +34,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
     CHANGE_PASSWORD,
     CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(
-            PropertySpecFactory.booleanPropertySpecWithoutThreeState(DeviceMessageConstants.keyTActivationStatusAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.keyTActivationStatusAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.timeDurationAttributeName)),
     CHANGE_EXECUTION_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionKeyAttributeName)),
     CHANGE_TEMPORARY_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.temporaryKeyAttributeName)),

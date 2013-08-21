@@ -1,11 +1,15 @@
 package com.energyict.protocolimplv2.coronis.waveflow;
 
-import com.energyict.cpo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -151,8 +155,8 @@ public class WaveFlowProperties {
         required.add(PropertySpecFactory.bigDecimalPropertySpec(PROP_MULTIPLIER_D));
         required.add(PropertySpecFactory.bigDecimalPropertySpec(APPLICATION_STATUS_VARIANT));
         required.add(PropertySpecFactory.bigDecimalPropertySpec(INITIAL_RF_COMMAND));
-        required.add(PropertySpecFactory.booleanPropertySpecWithoutThreeState(ROUND_DOWN_TO_NEAREST_INTERVAL));
-        required.add(PropertySpecFactory.booleanPropertySpecWithoutThreeState(ENABLE_MULTI_FRAME_MODE));
+        required.add(PropertySpecFactory.notNullableBooleanPropertySpec(ROUND_DOWN_TO_NEAREST_INTERVAL));
+        required.add(PropertySpecFactory.notNullableBooleanPropertySpec(ENABLE_MULTI_FRAME_MODE));
         required.add(PropertySpecFactory.stringPropertySpec(WAVENIS_BUBBLE_UP_INFO));
         return required;
     }

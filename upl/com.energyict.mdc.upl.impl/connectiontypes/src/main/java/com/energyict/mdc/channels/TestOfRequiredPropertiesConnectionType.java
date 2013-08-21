@@ -59,7 +59,7 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
         List<PropertySpec> specs = new ArrayList<>();
         specs.add(PropertySpecFactory.bigDecimalPropertySpec("BigDecimal"));
         specs.add(PropertySpecFactory.booleanPropertySpec("Boolean"));
-        specs.add(PropertySpecFactory.booleanPropertySpecWithoutThreeState("NoThreeStateBoolean"));
+        specs.add(PropertySpecFactory.notNullableBooleanPropertySpec("NoThreeStateBoolean"));
         specs.add(PropertySpecFactory.dateTimePropertySpec("DateTime"));
         specs.add(PropertySpecFactory.datePropertySpec("DateProp"));
         specs.add(PropertySpecFactory.ean13PropertySpec("Ean13"));
