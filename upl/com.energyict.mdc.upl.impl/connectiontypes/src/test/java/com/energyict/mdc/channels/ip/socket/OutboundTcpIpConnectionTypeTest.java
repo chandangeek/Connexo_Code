@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.cbo.TimeConstants;
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
@@ -80,7 +81,7 @@ public class OutboundTcpIpConnectionTypeTest {
         portProperty.setValue(new BigDecimal(port));
         properties.add(portProperty);
         ConnectionTaskPropertyImpl timeOutProperty = new ConnectionTaskPropertyImpl(OutboundIpConnectionType.CONNECTION_TIMEOUT_PROPERTY_NAME);
-        timeOutProperty.setValue(new BigDecimal(timeOut * TimeConstants.MILLISECONDS_IN_SECOND));
+        timeOutProperty.setValue(new TimeDuration(timeOut));
         properties.add(timeOutProperty);
         return properties;
     }
