@@ -47,14 +47,14 @@ public final class StopWatch {
     }
 
     /**
-     * Creates a StopWatch instances, that starts timing immediately.
+     * Creates a StopWatch instance, that starts timing immediately.
      */
     public StopWatch() {
 		this(false);			
 	}
 
     /**
-     * Creates a StopWatch instances, that starts timing immediately, and which will also register cpu timing.
+     * Creates a StopWatch instance, that starts timing immediately, and which will also register cpu timing.
      */
 	public StopWatch(boolean measureCpu) {
 		this.measureCpu = measureCpu;

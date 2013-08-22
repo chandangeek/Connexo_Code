@@ -35,4 +35,16 @@ public class JsonServiceImplTest {
         assertThat(deserialized.getProperties()).containsKey("id").containsValue("145").hasSize(1);
     }
 
+    @Test
+    public void testDummyFromBytes() {
+        Properties props = new Properties();
+        props.setProperty("id", "145");
+
+        String serialized = jsonService.serialize(new Dummy(props));
+
+        Dummy deserialized = jsonService.deserialize(serialized.getBytes(), Dummy.class);
+
+        assertThat(deserialized.getProperties()).containsKey("id").containsValue("145").hasSize(1);
+    }
+
 }

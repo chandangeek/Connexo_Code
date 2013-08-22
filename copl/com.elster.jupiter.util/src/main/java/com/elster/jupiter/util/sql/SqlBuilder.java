@@ -119,12 +119,12 @@ public final class SqlBuilder implements SqlFragment {
 		return result;
 	}
 	
-	abstract private static class SimpleFragment implements SqlFragment {
+	private abstract static class SimpleFragment implements SqlFragment {
 		SimpleFragment() {
 		}
 		
 		@Override
-		final public String getText() {
+        public final String getText() {
 			return " ? ";
 		}
 	}
@@ -138,8 +138,8 @@ public final class SqlBuilder implements SqlFragment {
 
 		@Override
 		public int bind(PreparedStatement statement, int position) throws SQLException {
-			statement.setObject(position++, value);
-			return position;
+			statement.setObject(position, value);
+			return position + 1;
 			
 		}
 		
@@ -155,8 +155,8 @@ public final class SqlBuilder implements SqlFragment {
 
 		@Override
 		public int bind(PreparedStatement statement, int position) throws SQLException {
-			statement.setInt(position++, value);
-			return position;				
+			statement.setInt(position, value);
+			return position + 1;
 		}
 			
 	}
@@ -170,8 +170,8 @@ public final class SqlBuilder implements SqlFragment {
 
 		@Override
 		public int bind(PreparedStatement statement, int position) throws SQLException {
-			statement.setLong(position++, value);
-			return position;				
+			statement.setLong(position, value);
+			return position + 1;
 		}
 
 			

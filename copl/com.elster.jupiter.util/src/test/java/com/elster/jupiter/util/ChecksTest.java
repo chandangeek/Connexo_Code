@@ -68,4 +68,16 @@ public class ChecksTest {
         String allWhitespaceCharacters = " \t\n\u000B\f\r\u001C\u001D\u001E\u001F";
         assertThat(Checks.is(allWhitespaceCharacters).emptyOrOnlyWhiteSpace()).isTrue();
     }
+
+    @Test
+    public void testOnlyWhiteSpaceOnNullIsFalse() {
+        assertThat(Checks.is((String) null).onlyWhiteSpace()).isFalse();
+    }
+
+    @Test
+    public void testOnlyWhiteSpaceOnAllWhiteSpaceStringIsTrue() {
+        String allWhitespaceCharacters = " \t\n\u000B\f\r\u001C\u001D\u001E\u001F";
+        assertThat(Checks.is(allWhitespaceCharacters).onlyWhiteSpace()).isTrue();
+    }
+
 }

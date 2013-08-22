@@ -76,8 +76,9 @@ public final class ActionBasedJsonParser {
             case VALUE_NUMBER_FLOAT:
             case VALUE_NUMBER_INT:
             case VALUE_STRING:
+                List<String> path = ImmutableList.copyOf(tokens);
                 for (ActionForPath actionForPath : actionForPaths) {
-                    actionForPath.action(tokens, parser.getText());
+                    actionForPath.action(path, parser.getText());
                 }
             default:
 
