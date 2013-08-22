@@ -9,7 +9,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.log.LogService;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -52,13 +51,14 @@ public class PublisherImpl implements Publisher {
 	}
 	
 	public void removeHandler(Subscriber subscriber) {
-		Iterator<Subscription> it = subscriptions.iterator();
-		while (it.hasNext()) {
-			if (it.next().getSubscriber() == subscriber) {
-				it.remove();				
-			}
-		}
-	}
+		List<Subscription> toRemove = new ArrayList<>();
+        for (Subscription subscription : subscriptions) {
+            if (subscription.getSubscriber().equals(subscriber)) {
+                toRemove.add(subscription);
+            }
+        }
+        subscriptions.removeAll(toRemove);
+    }
 
 	@Override
 	public void setThreadSubscriber(Subscriber subscriber) {		
