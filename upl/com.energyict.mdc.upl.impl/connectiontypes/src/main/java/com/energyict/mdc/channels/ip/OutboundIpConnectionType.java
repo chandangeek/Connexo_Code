@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.ip;
 
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.tasks.ConnectionTypeImpl;
@@ -34,7 +35,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec connectionTimeOutPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME);
+        return PropertySpecFactory.timeDurationPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME);
     }
 
     protected int portNumberPropertyValue() {
@@ -43,7 +44,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     protected int connectionTimeOutPropertyValue() {
-        BigDecimal value = (BigDecimal) this.getProperty(CONNECTION_TIMEOUT_PROPERTY_NAME);
+        TimeDuration value = (TimeDuration) this.getProperty(CONNECTION_TIMEOUT_PROPERTY_NAME);
         return this.intProperty(value);
     }
 
@@ -52,6 +53,14 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
             return 0;
         } else {
             return value.intValue();
+        }
+    }
+
+    protected int intProperty(TimeDuration value) {
+        if (value == null) {
+            return 0;
+        } else {
+            return (int) value.getMilliSeconds();
         }
     }
 
