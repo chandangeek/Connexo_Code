@@ -5,7 +5,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.pubsub.EventHandler;
 import com.elster.jupiter.util.Pair;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -48,13 +48,19 @@ final class LocalEventDispatcher extends EventHandler<LocalEvent> {
     }
 
     public void removeSubscription(TopicHandler topicHandler) {
-        for (Iterator<Pair<TopicMatcher, TopicHandler>> iterator = subscriptions.iterator(); iterator.hasNext(); ) {
-            Pair<TopicMatcher, TopicHandler> next = iterator.next();
-            if (next.getLast().equals(topicHandler)) {
-                iterator.remove();
-                return;
+        List<Pair<TopicMatcher, TopicHandler>> toRemove = collectAllToRemove(topicHandler);
+        subscriptions.removeAll(toRemove);
+    }
+
+    private List<Pair<TopicMatcher, TopicHandler>> collectAllToRemove(TopicHandler topicHandler) {
+        List<Pair<TopicMatcher, TopicHandler>> toRemove = new ArrayList<>();
+        for (Pair<TopicMatcher, TopicHandler> pair : subscriptions) {
+            if (pair.getLast().equals(topicHandler)) {
+                toRemove.add(pair);
+                break;
             }
         }
+        return toRemove;
     }
 
     private interface TopicMatcher {
