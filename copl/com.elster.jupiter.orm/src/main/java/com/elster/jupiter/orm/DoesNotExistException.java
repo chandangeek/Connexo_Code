@@ -11,5 +11,6 @@ public class DoesNotExistException extends BaseException {
 
 	public DoesNotExistException(String identification) {
 		super(ExceptionTypes.DOES_NOT_EXIST, MessageFormat.format("Entity with identification {0} does not exist.", identification));
+        set("identification", identification);
 	}
 }

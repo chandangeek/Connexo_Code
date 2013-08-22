@@ -11,5 +11,8 @@ public class UnexpectedNumberOfUpdatesException extends PersistenceException {
 
     public UnexpectedNumberOfUpdatesException(int expected, int actual, Operation operation) {
         super(ExceptionTypes.UNEXPECTED_NUMBER_OF_UPDATES, MessageFormat.format("Expected {0} rows to be updated, yet {1} rows were updated for operation {2}.", expected, actual, operation));
+        set("expected", expected);
+        set("actual", actual);
+        set("operation", operation);
     }
 }

@@ -19,6 +19,7 @@ public class MappingException extends PersistenceException {
 
     public MappingException(Class<?> unmappedClass) {
         super(ExceptionTypes.MAPPING_MISMATCH, MessageFormat.format("No mapping found for class {0}", unmappedClass.getName()));
+        set("class", unmappedClass);
     }
 
     public MappingException(Class<?> clazz, String fieldName) {
