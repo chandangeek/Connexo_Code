@@ -18,5 +18,6 @@ public class PropertyNotFoundException extends BaseException {
      */
     public PropertyNotFoundException(String propertyKey) {
         super(ExceptionTypes.PROPERTY_NOT_FOUND, MessageFormat.format("Property with key ''{0}'' not found", propertyKey));
+        set("propertyKey", propertyKey);
     }
 }
