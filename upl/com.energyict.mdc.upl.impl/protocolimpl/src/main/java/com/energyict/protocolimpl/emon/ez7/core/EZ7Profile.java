@@ -80,7 +80,7 @@ public class EZ7Profile {
         if (includeEvents) {
             List meterEvents = new ArrayList();
             meterEvents.addAll(ez7.getEz7CommandFactory().getEventGeneral().toMeterEvents());
-            meterEvents.addAll(ez7.getEz7CommandFactory().getFlagsStatus().toMeterEvents(from, to));
+            meterEvents.addAll(ez7.getEz7CommandFactory().getFlagsStatus().toMeterEvents(from, to == null ? new Date() : to));
             profileData.setMeterEvents(meterEvents);
             profileData.applyEvents(ez7.getProfileInterval()/60);
         }

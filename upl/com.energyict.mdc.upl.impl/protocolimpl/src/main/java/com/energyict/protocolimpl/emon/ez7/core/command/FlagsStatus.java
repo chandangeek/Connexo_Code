@@ -92,8 +92,8 @@ public class FlagsStatus extends AbstractCommand {
         }
 
         // Parse power failure info
-        int valueMMDD = values[2][1];
-        int valueHHMM = values[3][1];
+        int valueMMDD = Integer.parseInt((String) cp.getValues("LINE-2").get(2));
+        int valueHHMM = Integer.parseInt((String) cp.getValues("LINE-2").get(3));
         if (valueMMDD != 0 || valueHHMM != 0) {
             Calendar cal = ProtocolUtils.getCalendar(ez7CommandFactory.getEz7().getTimeZone());
             cal.set(Calendar.MONTH, (valueMMDD / 100) - 1);
@@ -103,8 +103,13 @@ public class FlagsStatus extends AbstractCommand {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             // no year indication is given in the timestamp information...
-            // so, if cal > currentCal, year=year-1
-            if (cal.getTime().after(calCurrent.getTime())) {
+            // so, if cal > current meter time, year=year-1
+            Date currentMeterTime = calCurrent.getTime();
+            try {
+                currentMeterTime = ez7CommandFactory.getRTC().getDate();
+            } catch (IOException e) {
+            }
+            if (cal.getTime().after(currentMeterTime)) {
                 cal.add(Calendar.YEAR, -1);
             }
             lastPowerFailure = cal.getTime();
