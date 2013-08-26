@@ -1,7 +1,10 @@
 package com.energyict.mdc.channels.serial.direct.serialio;
 
+import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import org.junit.Test;
+
+import java.math.BigDecimal;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -45,5 +48,26 @@ public class SioSerialConnectionTypeTest {
         assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
         assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.SERIAL_PORT_READ_TIMEOUT_NAME));
         assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.SERIAL_PORT_WRITE_TIMEOUT_NAME));
+    }
+
+    @Test
+    public void getPossibleValuesInCorrectOrderTest() {
+        SioSerialConnectionType serialConnectionType = new SioSerialConnectionType();
+
+        PropertySpec baudrate = serialConnectionType.getPropertySpec(SerialPortConfiguration.BAUDRATE_NAME);
+
+        assertThat(baudrate.getPossibleValues().getAllValues().get(0)).isEqualTo(new BigDecimal(150));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(1)).isEqualTo(new BigDecimal(300));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(2)).isEqualTo(new BigDecimal(600));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(3)).isEqualTo(new BigDecimal(1200));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(4)).isEqualTo(new BigDecimal(2400));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(5)).isEqualTo(new BigDecimal(4800));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(6)).isEqualTo(new BigDecimal(9600));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(7)).isEqualTo(new BigDecimal(19200));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(8)).isEqualTo(new BigDecimal(38400));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(9)).isEqualTo(new BigDecimal(57600));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(10)).isEqualTo(new BigDecimal(115200));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(11)).isEqualTo(new BigDecimal(230400));
+        assertThat(baudrate.getPossibleValues().getAllValues().get(12)).isEqualTo(new BigDecimal(460800));
     }
 }
