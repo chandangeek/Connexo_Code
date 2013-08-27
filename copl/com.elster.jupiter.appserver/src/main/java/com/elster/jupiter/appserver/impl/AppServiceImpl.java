@@ -33,6 +33,7 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleException;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
@@ -333,7 +334,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
 
     @Override
     public List<SubscriberExecutionSpec> getSubscriberExecutionSpecs() {
-        return subscriberExecutionSpecs;
+        return ImmutableList.copyOf(subscriberExecutionSpecs);
     }
 
     public ThreadPrincipalService getThreadPrincipalService() {
