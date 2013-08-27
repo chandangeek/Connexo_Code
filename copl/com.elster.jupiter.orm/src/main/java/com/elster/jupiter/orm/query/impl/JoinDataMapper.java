@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-abstract public class JoinDataMapper<T> {
+public abstract class JoinDataMapper<T> {
 	private final DataMapperImpl<T> dataMapper;
 	private final String alias;
 	private Map<Object,T> cache;
@@ -158,11 +158,11 @@ abstract public class JoinDataMapper<T> {
 	abstract boolean canRestrict();
 	abstract boolean appendFromClause(SqlBuilder builder , String parentAlias , boolean isMarked , boolean forceOuterJoin);
 
-	final public Boolean hasWhereField(String fieldName) {
+	public final Boolean hasWhereField(String fieldName) {
 		return canRestrict() && hasField(fieldName);
 	}
 
-	final public List<String> getQueryFields() {
+	public final List<String> getQueryFields() {
 		List<String> result = new ArrayList<>();
 		for (Column each : getTable().getColumns()) {
 			String fieldName = each.getFieldName();

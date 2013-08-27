@@ -292,8 +292,9 @@ public class DataMapperReader<T> {
 	
 	ForeignKeyConstraint getForeignKeyConstraintFor(String name) {
 		for (ForeignKeyConstraint each : getTable().getForeignKeyConstraints()) {
-			if (each.getFieldName().equals(name))
+			if (each.getFieldName().equals(name)) {
 				return each;
+            }
 		}
 		return null;
 	}

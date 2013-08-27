@@ -7,15 +7,15 @@ import java.util.Map;
 
 public interface Finder<T> {
 	// finder
-	List<T> find();
-	List<T> find(String columnName, Object value);
-	List<T> find(String columnName, Object value, String orderBy);
-	List<T> find(String columnName1, Object value1,String columnName2, Object value2);
-	List<T> find(String columnName1, Object value1,String columnName2, Object value2, String orderBy);
-	List<T> find(String[] fieldNames , Object[] values );
-	List<T> find(String[] fieldNames , Object[] values , String... orderBy);
-	List<T> find(Map<String,Object> valueMap);
-	List<T> find(Map<String,Object> valueMap,String... orderBy);	
+    List<T> find();
+    List<T> find(String columnName, Object value);
+    List<T> find(String columnName, Object value, String orderBy);
+    List<T> find(String columnName1, Object value1,String columnName2, Object value2);
+    List<T> find(String columnName1, Object value1,String columnName2, Object value2, String orderBy);
+    List<T> find(String[] fieldNames , Object[] values );
+    List<T> find(String[] fieldNames , Object[] values , String... orderBy);
+    List<T> find(Map<String,Object> valueMap);
+    List<T> find(Map<String,Object> valueMap,String... orderBy);
 	// get by primary key
 	Optional<T> get(Object... values);
     List<T> getJournal(Object... values);

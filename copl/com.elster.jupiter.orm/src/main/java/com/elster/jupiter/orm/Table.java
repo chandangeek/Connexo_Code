@@ -8,15 +8,15 @@ public interface Table {
 	String getSchema();	
 	String getName();
 	String getQualifiedName();
-	List<Column> getColumns();
-	List<TableConstraint> getConstraints();
+    List<Column> getColumns();
+    List<TableConstraint> getConstraints();
 	TableConstraint getPrimaryKeyConstraint();
-	List<ForeignKeyConstraint> getForeignKeyConstraints();
+    List<ForeignKeyConstraint> getForeignKeyConstraints();
 	ForeignKeyConstraint getConstraintForField(String fieldName);
 	String getComponentName();
 	Column getColumn(String name);	
 	Column getColumnForField(String fieldName);
-	List<Column> getPrimaryKeyColumns();
+    List<Column> getPrimaryKeyColumns();
 	<T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation);
 	<T> DataMapper<T> getDataMapper(Class<T> api , Map<String,Class<? extends T>> implementations);
 	Object getPrimaryKey(Object value);
@@ -38,13 +38,13 @@ public interface Table {
 	Column addModTimeColumn(String name, String fieldName);
 	Column addUserNameColumn(String name, String fieldName);
 	Column addAutoIdColumn();
-	List<Column> addAuditColumns();
+    List<Column> addAuditColumns();
 	void setJournalTableName(String journalTableName);
 	String getJournalTableName();
 	void makeIndexOrganized();
 	boolean isIndexOrganized();
 	boolean hasJournal();
-	List<Column> addQuantityColumns(String name, boolean notNull, String fieldName);
-	List<Column> addMoneyColumns(String name, boolean notNull, String fieldName);
-	List<Column> addIntervalColumns(String fieldName);
+    List<Column> addQuantityColumns(String name, boolean notNull, String fieldName);
+    List<Column> addMoneyColumns(String name, boolean notNull, String fieldName);
+    List<Column> addIntervalColumns(String fieldName);
 }

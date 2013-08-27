@@ -1,12 +1,16 @@
 package com.elster.jupiter.orm.query.impl;
 
-import java.sql.*;
-import java.util.*;
-
 import com.elster.jupiter.orm.impl.SelectEventImpl;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 final class JoinExecutor<T> {
 		
@@ -83,8 +87,9 @@ final class JoinExecutor<T> {
 	}
 	
 	private void appendOrderByClause(SqlBuilder builder, String[] orderBy) {
-		if (orderBy == null || orderBy.length == 0)
-			return;
+		if (orderBy == null || orderBy.length == 0) {
+            return;
+        }
 		builder.append(" order by ");
 		String separator = "";
 		for (String each : orderBy) {
@@ -99,7 +104,7 @@ final class JoinExecutor<T> {
 		return columnAndAlias == null ? fieldName : columnAndAlias.toString();		
 	}
 
-	List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {		
+    List<T> select(Condition condition,String[] orderBy , boolean eager, String[] exceptions) throws SQLException {
 		builder = new SqlBuilder();
 		if (eager) {
 			root.markAll();
@@ -116,7 +121,7 @@ final class JoinExecutor<T> {
 		new JoinTreeMarker(root).visit(condition);
 		appendSql(condition, orderBy);
 		SelectEventImpl selectEvent = new SelectEventImpl(builder.getText());
-		List<T> result = new ArrayList<>();	
+		List<T> result = new ArrayList<>();
 		int fetchCount = 0;
 		System.out.println(builder.getText());
 		try (Connection connection = Bus.getConnection(false)) {				
@@ -132,10 +137,10 @@ final class JoinExecutor<T> {
 		root.completeFind();
 		selectEvent.setRowCount(fetchCount);
 		Bus.publish(selectEvent);
-		return result;				
+		return result;
 	}
 	
-	private void construct(ResultSet rs,List<T> results) throws SQLException {		
+	private void construct(ResultSet rs,List<T> results) throws SQLException {
 		root.set(results, rs, 1);					
 	}
 

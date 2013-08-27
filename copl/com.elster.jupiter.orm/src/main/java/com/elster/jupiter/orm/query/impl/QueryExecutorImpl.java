@@ -92,7 +92,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 
 	@Override
-	public List<String> getQueryFieldNames() {		
+	public List<String> getQueryFieldNames() {
 		return root.getQueryFields();	
 	}
 }

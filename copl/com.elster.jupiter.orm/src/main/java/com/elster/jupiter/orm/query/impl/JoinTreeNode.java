@@ -1,11 +1,5 @@
 package com.elster.jupiter.orm.query.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
@@ -13,6 +7,13 @@ import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.google.common.collect.ImmutableList;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 final class JoinTreeNode<T>  {
 	
@@ -267,23 +268,23 @@ final class JoinTreeNode<T>  {
 			each.clear();
 		}			
 	}
-	
-	List<String> getQueryFields() {		
-		List<String> result = new ArrayList<>();
+
+    List<String> getQueryFields() {
 		if (!value.canRestrict()) {
-			return result;
+			return ImmutableList.of();
 		}
 		String localName = value.getName();
 		localName = (localName == null) ? "" : localName + ".";		
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
 		for (String each : value.getQueryFields()) {
-			result.add(localName+each);
+			builder.add(localName+each);
 		}		
 		for (JoinTreeNode<?> each : children) {
 			for (String field : each.getQueryFields()) {
-				result.add(localName + field);
+				builder.add(localName + field);
 			}
 		}
-		return result;		
+		return builder.build();
 	}
 	
 	boolean semiJoin() {

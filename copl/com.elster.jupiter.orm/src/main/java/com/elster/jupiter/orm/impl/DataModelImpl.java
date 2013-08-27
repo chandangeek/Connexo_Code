@@ -7,13 +7,13 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.orm.plumbing.OrmClient;
+import com.google.common.collect.ImmutableList;
 
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -49,14 +49,14 @@ public class DataModelImpl implements DataModel, PersistenceAware {
 
     @Override
     public List<Table> getTables() {
-        return getTables(true);
+        return ImmutableList.copyOf(doGetTables());
     }
 
-    public List<Table> getTables(boolean protect) {
+    public List<Table> doGetTables() {
         if (tables == null) {
             tables = getOrmClient().getTableFactory().find("component", this);
         }
-        return protect ? Collections.unmodifiableList(tables) : tables;
+        return tables;
     }
 
     @Override
@@ -90,12 +90,12 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     }
 
     private void add(Table table) {
-        getTables(false).add(table);
+        doGetTables().add(table);
     }
 
     public void persist() {
         getOrmClient().getDataModelFactory().persist(this);
-        for (Table table : getTables(false)) {
+        for (Table table : doGetTables()) {
             ((TableImpl) table).persist();
         }
     }
@@ -106,7 +106,7 @@ public class DataModelImpl implements DataModel, PersistenceAware {
 
     @Override
     public void postLoad() {
-        getTables(false);
+        doGetTables();
     }
 
     @Override

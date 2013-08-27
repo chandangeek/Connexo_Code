@@ -23,8 +23,8 @@ public interface DataModel {
 	
 	// meta data access
 	String getName();
-	String getDescription();	
-	List<Table> getTables();	
+	String getDescription();
+    List<Table> getTables();
 	Table getTable(String name);
 	
 	// install time api

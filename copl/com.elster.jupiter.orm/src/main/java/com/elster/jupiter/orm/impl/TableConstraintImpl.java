@@ -5,16 +5,16 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.plumbing.Bus;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-abstract public class TableConstraintImpl implements TableConstraint , PersistenceAware {
+public abstract class TableConstraintImpl implements TableConstraint , PersistenceAware {
 	
-	public final static Map<String,Class<? extends TableConstraint>> implementers =  createImplementers();
+	public static final Map<String,Class<? extends TableConstraint>> implementers =  createImplementers();
 	
 	static Map<String,Class<? extends TableConstraint>> createImplementers() {
 		Map<String,Class<? extends TableConstraint>> result = new HashMap<>();
@@ -54,10 +54,10 @@ abstract public class TableConstraintImpl implements TableConstraint , Persisten
 
 	@Override
 	public List<Column> getColumns() {
-		return getColumns(true);
+		return ImmutableList.copyOf(doGetColumns());
 	}
 	
-	private List<Column> getColumns(boolean protect) {
+	private List<Column> doGetColumns() {
 		if (columns == null) {
 			List<ColumnInConstraintImpl> columnsInConstraint = Bus.getOrmClient().getColumnInConstraintFactory().find(
 					new String[] {"componentName","tableName","constraintName"} ,
@@ -69,7 +69,7 @@ abstract public class TableConstraintImpl implements TableConstraint , Persisten
 				columns.add(columnInConstraint.getColumn());
 			}
 		}
-		return protect ? Collections.unmodifiableList(columns) : columns;
+		return columns;
 	}
 
 	@Override
@@ -83,16 +83,16 @@ abstract public class TableConstraintImpl implements TableConstraint , Persisten
 	@Override
 	public void postLoad() {	
 		// do eager initialization in order to be thread safe
-		getColumns(false);
+		doGetColumns();
 	}
 	
 	void add(Column column) {
-		getColumns(false).add(column);
+		doGetColumns().add(column);
 	}
 
 	void add(Column[] columns) {
 		for (Column column : columns) {
-			getColumns(false).add(column);
+			doGetColumns().add(column);
 		}
 	}
 	
@@ -123,14 +123,14 @@ abstract public class TableConstraintImpl implements TableConstraint , Persisten
 	void persist() {
 		Bus.getOrmClient().getTableConstraintFactory().persist(this);		
 		int position = 1;
-		for (Column column : getColumns(false)) {
+		for (Column column : doGetColumns()) {
 			new ColumnInConstraintImpl(this, column, position++).persist();
 		}
 	}
 	
 	@Override
 	public boolean isNotNull() {
-		for (Column each : getColumns(false)) {
+		for (Column each : doGetColumns()) {
 			if (!each.isNotNull())
 				return false;
 		}

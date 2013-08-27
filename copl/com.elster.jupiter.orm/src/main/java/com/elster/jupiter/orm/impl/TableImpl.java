@@ -17,9 +17,9 @@ import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
 import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.plumbing.Bus;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -76,31 +76,31 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 	
 	String getQualifiedName(String value) {
-		return schema == null || schema.length() == 0 ? value : schema + "." + value;
+		return is(schema).emptyOrOnlyWhiteSpace() ? value : schema + "." + value;
 	}
 	
 	@Override
 	public List<Column> getColumns() {
-		return getColumns(true);
+		return ImmutableList.copyOf(doGetColumns());
 	}
 	
-	private List<Column> getColumns(boolean protect) {
+	private List<Column> doGetColumns() {
 		if (columns ==  null) {
 			columns = Bus.getOrmClient().getColumnFactory().find("table",this);				
 		}
-		return protect ? Collections.unmodifiableList(columns) : columns;
+		return columns;
 	}
 	
 	@Override
 	public List<TableConstraint> getConstraints() {
-		return getConstraints(true);
+		return ImmutableList.copyOf(doGetConstraints());
 	}
 	
-	private List<TableConstraint> getConstraints(boolean protect) {
+	private List<TableConstraint> doGetConstraints() {
 		if (constraints ==  null) {
 			constraints = Bus.getOrmClient().getTableConstraintFactory().find("table",this);			
 		}
-		return protect ? Collections.unmodifiableList(constraints) : constraints;
+		return constraints;
 	}
 	
 	@Override
@@ -124,19 +124,19 @@ public class TableImpl implements Table , PersistenceAware  {
 	@Override
 	public void postLoad() {
 		// do eager initialization in order to be thread safe
-		getColumns(false);
-		getConstraints(false);
+		doGetColumns();
+		doGetConstraints();
 	}
 	
 	Column add(ColumnImpl column) {
-		getColumns(false).add(column);
-		column.setPosition(getColumns(false).size());
+		doGetColumns().add(column);
+		column.setPosition(doGetColumns().size());
 		return column;
 	}
 
 	@Override
 	public Column getColumn(String name) {
-		for (Column column : getColumns(false)) {		
+		for (Column column : doGetColumns()) {
 			if (column.getName().equalsIgnoreCase(name)) {
 				return column;
 			}
@@ -146,7 +146,7 @@ public class TableImpl implements Table , PersistenceAware  {
 
 	@Override 
 	public PrimaryKeyConstraint getPrimaryKeyConstraint() {
-		for (TableConstraint each : getConstraints(false)) {
+		for (TableConstraint each : doGetConstraints()) {
 			if (each.isPrimaryKey()) {	
 				return (PrimaryKeyConstraint) each;
 			}				
@@ -156,13 +156,13 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	@Override
 	public List<ForeignKeyConstraint> getForeignKeyConstraints() {
-		List<ForeignKeyConstraint> result = new ArrayList<>();
-		for (TableConstraint each : getConstraints(false)) {
+        ImmutableList.Builder<ForeignKeyConstraint> builder = ImmutableList.builder();
+		for (TableConstraint each : doGetConstraints()) {
 			if (each.isForeignKey()) {
-				result.add((ForeignKeyConstraint) each);
+				builder.add((ForeignKeyConstraint) each);
 			}				
 		}
-		return result;
+		return builder.build();
 	}
 	
 	@Override
@@ -176,19 +176,19 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 	
 	@Override
-	public List<Column> getPrimaryKeyColumns() {		
+	public List<Column> getPrimaryKeyColumns() {
 		TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
 		return primaryKeyConstraint == null ? null : primaryKeyConstraint.getColumns();				
 	}
 	
 	boolean isPrimaryKeyColumn(Column column) {
 		TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
-		return primaryKeyConstraint == null ? false : primaryKeyConstraint.getColumns().contains(column);	
+		return primaryKeyConstraint != null && primaryKeyConstraint.getColumns().contains(column);
 	}
 	
 	Column[] getVersionColumns() {
 		List<Column> result = new ArrayList<>();
-		for (Column column : getColumns(false)) {
+		for (Column column : doGetColumns()) {
 			if (column.isVersion()) {
 				result.add(column);
 			}
@@ -198,7 +198,7 @@ public class TableImpl implements Table , PersistenceAware  {
 
 	Column[] getInsertValueColumns() {
 		List<Column> result = new ArrayList<>();
-		for (Column column : getColumns(false)) {
+		for (Column column : doGetColumns()) {
 			if (column.hasInsertValue()) {
 				result.add(column);
 			}
@@ -208,7 +208,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	Column[] getUpdateValueColumns() {
 		List<Column> result = new ArrayList<>();
-		for (Column column : getColumns(false)) {
+		for (Column column : doGetColumns()) {
 			if (column.hasUpdateValue()) {
 				result.add(column);
 			}
@@ -218,7 +218,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	Column[] getStandardColumns() {
 		List<Column> result = new ArrayList<>();
-		for (Column column : getColumns(false)) {
+		for (Column column : doGetColumns()) {
 			if (((ColumnImpl) column).isStandard()) {
 				result.add(column);
 			}
@@ -228,7 +228,7 @@ public class TableImpl implements Table , PersistenceAware  {
 		
 	Column[] getAutoUpdateColumns() {
 		List<Column> result = new ArrayList<>();
-		for (Column column : getColumns(false)) {
+		for (Column column : doGetColumns()) {
 			if (((ColumnImpl) column).hasAutoValue(true)) {
 				result.add(column);
 			}
@@ -295,19 +295,19 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	@Override
 	public List<Column> addAuditColumns() {
-		List<Column> result = new ArrayList<>();
-		result.add(addVersionCountColumn("VERSIONCOUNT", "number" , "version"));
-		result.add(addCreateTimeColumn("CREATETIME", "createTime"));
-		result.add(addModTimeColumn("MODTIME", "modTime"));
-		result.add(addUserNameColumn("USERNAME", "userName"));
-		return result;
+        ImmutableList.Builder<Column> builder = ImmutableList.builder();
+		builder.add(addVersionCountColumn("VERSIONCOUNT", "number" , "version"));
+        builder.add(addCreateTimeColumn("CREATETIME", "createTime"));
+        builder.add(addModTimeColumn("MODTIME", "modTime"));
+        builder.add(addUserNameColumn("USERNAME", "userName"));
+		return builder.build();
 	}
 	
 	@Override
 	public TableConstraint addPrimaryKeyConstraint(String name, Column... columns) {
 		TableConstraintImpl constraint = new PrimaryKeyConstraintImpl(this, name );
 		constraint.add(columns);
-		getConstraints(false).add(constraint);
+		doGetConstraints().add(constraint);
 		return constraint;
 	}
 
@@ -315,7 +315,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	public TableConstraint addUniqueConstraint(String name, Column... columns) {
 		TableConstraintImpl constraint = new UniqueConstraintImpl(this,  name);
 		constraint.add(columns);
-		getConstraints(false).add(constraint);
+		doGetConstraints().add(constraint);
 		return constraint;	
 	}
 
@@ -323,7 +323,7 @@ public class TableImpl implements Table , PersistenceAware  {
 	public TableConstraint addForeignKeyConstraint(String name, Table referencedTable, DeleteRule deleteRule , AssociationMapping mapping , Column... columns) {
 		TableConstraintImpl constraint = new ForeignKeyConstraintImpl(this , name, referencedTable , deleteRule, mapping );
 		constraint.add(columns);
-		getConstraints(false).add(constraint);
+		doGetConstraints().add(constraint);
 		return constraint;	
 	}
 
@@ -352,17 +352,17 @@ public class TableImpl implements Table , PersistenceAware  {
 	
 	void persist() {
 		Bus.getOrmClient().getTableFactory().persist(this);
-		for (Column column : getColumns(false)) {
+		for (Column column : doGetColumns()) {
 			((ColumnImpl) column).persist();
 		}
-		for (TableConstraint tableConstraint : getConstraints(false)) {
+		for (TableConstraint tableConstraint : doGetConstraints()) {
 			((TableConstraintImpl) tableConstraint).persist();
 		}
 	}
 
 	@Override
 	public Column getColumnForField(String name) {
-		for (Column column : getColumns(false)) {		
+		for (Column column : doGetColumns()) {
 			if (name.equals(column.getFieldName())) {
 				return column;
 			}
@@ -392,27 +392,27 @@ public class TableImpl implements Table , PersistenceAware  {
 
 	@Override
 	public List<Column> addIntervalColumns(String fieldName) {
-		List<Column> result = new ArrayList<>();
-		result.add(addColumn("STARTTIME", "number",true, NUMBER2LONG , fieldName + ".start"));
-		result.add(addColumn("ENDTIME", "number",true, NUMBER2LONG , fieldName + ".end"));
-		return result;
+        ImmutableList.Builder<Column> builder = ImmutableList.builder();
+		builder.add(addColumn("STARTTIME", "number", true, NUMBER2LONG, fieldName + ".start"));
+		builder.add(addColumn("ENDTIME", "number", true, NUMBER2LONG, fieldName + ".end"));
+		return builder.build();
 	}
 	
 	@Override
 	public List<Column> addQuantityColumns(String name , boolean notNull , String fieldName) {
-		List<Column> result = new ArrayList<>();
-		result.add(addColumn(name + "VALUE", "number" , notNull , NOCONVERSION , fieldName + ".value"));
-		result.add(addColumn(name +  "MULTIPLIER", "number" , notNull , NUMBER2INTWRAPPER,  fieldName + ".multiplier"));
-		result.add(addColumn(name +  "UNIT", "varchar2(8)" , notNull , CHAR2UNIT, fieldName + ".unit"));
-		return result;
+        ImmutableList.Builder<Column> builder = ImmutableList.builder();
+		builder.add(addColumn(name + "VALUE", "number", notNull, NOCONVERSION, fieldName + ".value"));
+		builder.add(addColumn(name + "MULTIPLIER", "number", notNull, NUMBER2INTWRAPPER, fieldName + ".multiplier"));
+		builder.add(addColumn(name + "UNIT", "varchar2(8)", notNull, CHAR2UNIT, fieldName + ".unit"));
+		return builder.build();
 	}
 	
 	@Override
-	public List<Column> addMoneyColumns(String name , boolean notNull , String fieldName) {	
-		List<Column> result = new ArrayList<>();
-		result.add(addColumn(name + "VALUE", "number" , notNull , NOCONVERSION , fieldName + ".value"));
-		result.add(addColumn(name +  "CURRENCY", "number" , notNull , CHAR2CURRENCY,  fieldName + ".currency"));		
-		return result;
+	public ImmutableList<Column> addMoneyColumns(String name , boolean notNull , String fieldName) {
+        ImmutableList.Builder<Column> builder = ImmutableList.builder();
+		builder.add(addColumn(name + "VALUE", "number", notNull, NOCONVERSION, fieldName + ".value"));
+		builder.add(addColumn(name + "CURRENCY", "number", notNull, CHAR2CURRENCY, fieldName + ".currency"));
+		return builder.build();
 	}
 
     @Override
@@ -451,7 +451,7 @@ public class TableImpl implements Table , PersistenceAware  {
 		if (fieldName == null) {
 			return null;
 		}
-		for (Column each : getColumns(false)) {
+		for (Column each : doGetColumns()) {
 			if (fieldName.equals(each.getFieldName())) {
 				return FieldType.SIMPLE;
 			}
@@ -483,7 +483,7 @@ public class TableImpl implements Table , PersistenceAware  {
 		if (fieldName == null) {
 			return null;
 		}
-		for (Column each : getColumns(false)) {
+		for (Column each : doGetColumns()) {
 			if (fieldName.equals(each.getFieldName())) {
 				return new ColumnMapping(each);
 			}

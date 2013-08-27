@@ -1,10 +1,10 @@
 package com.elster.jupiter.orm;
 
-import java.util.*;
+import java.util.List;
 
 public interface TableConstraint {
 	String getName();
-	List<Column> getColumns();
+    List<Column> getColumns();
 	Table getTable();
 	boolean isPrimaryKey();
 	boolean isUnique();
