@@ -22,7 +22,7 @@ public class PublisherImpl implements Publisher {
 
 	@Override
 	public void publish(Object event, Object... eventDetails) {
-		for (Subscription each : getSubscriptions()) {
+        for (Subscription each : subscriptions) {
 			each.handle(event, eventDetails);
 		}
 		Subscriber subscriber = threadSubscribers.get();
@@ -31,11 +31,7 @@ public class PublisherImpl implements Publisher {
 		}
 	}
 
-	private List<Subscription> getSubscriptions() {
-		return new ArrayList<>(subscriptions);
-	}
-	
-	@Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addHandler(Subscriber subscriber, Map<String, Object> properties) {
 		Object filter = properties.get(Subscriber.TOPIC);
 		if (filter == null) {
