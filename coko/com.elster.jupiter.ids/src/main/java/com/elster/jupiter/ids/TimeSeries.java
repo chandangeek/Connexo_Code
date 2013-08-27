@@ -1,6 +1,8 @@
 package com.elster.jupiter.ids;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 public interface TimeSeries {
 	long getId();
@@ -15,7 +17,7 @@ public interface TimeSeries {
 	Vault getVault();
 	RecordSpec getRecordSpec();
 	boolean add(Date dateTime , boolean overrule , Object... values);
-	List<TimeSeriesEntry> getEntries(Date from , Date to);
+    List<TimeSeriesEntry> getEntries(Date from , Date to);
 	boolean isValidDateTime(Date date);
 	TimeZone getTimeZone();
 }

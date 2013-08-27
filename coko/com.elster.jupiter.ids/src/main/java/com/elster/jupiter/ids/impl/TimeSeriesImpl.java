@@ -8,6 +8,7 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -245,7 +246,7 @@ public class TimeSeriesImpl implements TimeSeries {
 	
 	@Override
 	public List<TimeSeriesEntry> getEntries(Date from , Date to) {
-		return ((VaultImpl) getVault()).getEntries(this,from,to);
+		return ImmutableList.copyOf(((VaultImpl) getVault()).getEntries(this, from, to));
 	}
 	
 	TimeSeries lock() {

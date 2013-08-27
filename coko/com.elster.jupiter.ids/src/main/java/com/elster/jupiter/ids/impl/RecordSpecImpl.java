@@ -6,9 +6,9 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class RecordSpecImpl implements RecordSpec {
@@ -55,31 +55,31 @@ public class RecordSpecImpl implements RecordSpec {
 	}
 
 	@Override
-	public List<FieldSpec> getFieldSpecs() {		
-		return getFieldSpecs(true);
+	public List<FieldSpec> getFieldSpecs() {
+		return ImmutableList.copyOf(doGetFieldSpecs());
 	}
 	
-	private List<FieldSpec> getFieldSpecs(boolean protect) {
+	private List<FieldSpec> doGetFieldSpecs() {
 		if (fieldSpecs == null) {
 			fieldSpecs = Bus.getOrmClient().getFieldSpecFactory().find("recordSpec", this);
 			for (FieldSpec each : fieldSpecs) {
 				((FieldSpecImpl) each).doSetRecordSpec(this);
 			}
 		}
-		return protect ? Collections.unmodifiableList(fieldSpecs) : fieldSpecs;
+		return fieldSpecs;
 	}
 
 	@Override
 	public FieldSpec addFieldSpec(String name, FieldType fieldType) {		
 		FieldSpec fieldSpec = new FieldSpecImpl(this,name, fieldType);
-		getFieldSpecs(false).add(fieldSpec);
-		((FieldSpecImpl) fieldSpec).doSetPosition(getFieldSpecs(false).size());
+		doGetFieldSpecs().add(fieldSpec);
+		((FieldSpecImpl) fieldSpec).doSetPosition(doGetFieldSpecs().size());
 		return fieldSpec;
 	}
 	
 	public void persist() {
 		getFactory().persist(this);
-		for (FieldSpec fieldSpec : getFieldSpecs(false)) {
+		for (FieldSpec fieldSpec : doGetFieldSpecs()) {
 			((FieldSpecImpl) fieldSpec).persist();
 		}
 	}
