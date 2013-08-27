@@ -11,9 +11,9 @@ import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -110,13 +110,17 @@ abstract class PartyImpl implements Party {
 
 	@Override
     public List<PartyInRole> getPartyInRoles() {
-		if (partyInRoles == null) {
-			partyInRoles = Bus.getOrmClient().getPartyInRoleFactory().find("party",this);
-		}
-		return Collections.unmodifiableList(partyInRoles);
+        return ImmutableList.copyOf(doGetPartyInRoles());
 	}
 
-	public TelephoneNumber getPhone1() {
+    private List<PartyInRole> doGetPartyInRoles() {
+        if (partyInRoles == null) {
+            partyInRoles = Bus.getOrmClient().getPartyInRoleFactory().find("party",this);
+        }
+        return Collections.unmodifiableList(partyInRoles);
+    }
+
+    public TelephoneNumber getPhone1() {
 		return phone1 == null ? null : phone1.copy();
 	}
 
@@ -219,13 +223,13 @@ abstract class PartyImpl implements Party {
 
     @Override
     public List<User> getCurrentDelegates() {
-        List<User> currentUsers = new ArrayList<>();
+        ImmutableList.Builder<User> currentUsers = ImmutableList.builder();
         for (PartyRepresentationImpl representation : getRepresentations()) {
             if (representation.isCurrent()) {
                 currentUsers.add(representation.getDelegate());
             }
         }
-        return currentUsers;
+        return currentUsers.build();
     }
 
     PartyImpl() {
@@ -238,7 +242,7 @@ abstract class PartyImpl implements Party {
     UtcInstant getModTime() {
         return modTime;
     }
-    
+
     List<PartyRepresentationImpl> getRepresentations() {
         return Bus.getOrmClient().getPartyRepresentationFactory().find("party", this);
     }

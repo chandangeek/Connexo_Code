@@ -17,12 +17,12 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME)
@@ -68,13 +68,13 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     @Override
     public List<Party> getParties() {
         List<PartyRepresentationImpl> representations = ormClient.getPartyRepresentationFactory().find("delegate", getPrincipal().getName());
-        List<Party> result = new ArrayList<>();
+        ImmutableList.Builder<Party> builder = ImmutableList.builder();
         for (PartyRepresentationImpl representation : representations) {
             if (representation.isCurrent()) {
-                result.add(representation.getParty());
+                builder.add(representation.getParty());
             }
         }
-        return result;
+        return builder.build();
     }
 
     @Override
