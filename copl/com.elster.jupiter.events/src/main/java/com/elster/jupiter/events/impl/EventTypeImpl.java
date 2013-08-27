@@ -8,9 +8,9 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class EventTypeImpl implements EventType, PersistenceAware {
@@ -64,7 +64,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
 
     @Override
     public List<EventPropertyType> getPropertyTypes() {
-        return Collections.unmodifiableList(propertyTypes());
+        return ImmutableList.copyOf(propertyTypes());
     }
 
     void setCategory(String category) {
