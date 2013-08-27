@@ -3,6 +3,7 @@ package com.elster.jupiter.messaging.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.UtcInstant;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
@@ -91,6 +92,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         AQDequeueOptions options = new AQDequeueOptions();
         if (getDestination().isTopic()) {
             options.setConsumerName(name);
+            options.setNavigation(AQDequeueOptions.NavigationOption.FIRST_MESSAGE);
         }
         return options;
     }
@@ -115,7 +117,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 		try {
 			doSubscribe();
 		} catch (SQLException ex) {
-			throw new RuntimeException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 
@@ -133,7 +135,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 		try {
 			doUnSubscribe(name);
 		} catch (SQLException ex) {
-			throw new RuntimeException(ex);
+			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
 

@@ -7,8 +7,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public interface ServiceLocator {
-	Connection getConnection() throws SQLException;
-	OrmClient getOrmClient();
-	TransactionService getTransactionService();
-	Publisher getPublisher();
+
+    Connection getConnection() throws SQLException;
+
+    OrmClient getOrmClient();
+
+    TransactionService getTransactionService();
+
+    Publisher getPublisher();
+
+    AQFacade getAQFacade();
 }

@@ -29,5 +29,8 @@ public class Bus {
     static void fire(Object event) {
         locator.getPublisher().publish(event);
     }
-	
+
+    static AQFacade getAQFacade() {
+        return locator.getAQFacade();
+    }
 }
