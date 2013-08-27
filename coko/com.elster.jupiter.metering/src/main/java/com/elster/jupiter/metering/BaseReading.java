@@ -13,6 +13,6 @@ public interface BaseReading {
 	BigDecimal getValue(ReadingType readingType);
 	ReadingType getReadingType();
 	ReadingType getReadingType(int offset);
-	List<ReadingType> getReadingTypes();
+    List<ReadingType> getReadingTypes();
 	long getProcessingFlags();
 }

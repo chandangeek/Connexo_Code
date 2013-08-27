@@ -4,9 +4,9 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReading;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -47,11 +47,11 @@ public abstract class BaseReadingImpl implements BaseReading {
 
     @Override
     public List<BigDecimal> getValues() {
-        List<BigDecimal> result = new ArrayList<>(entry.size() - getReadingTypeOffset());
+        ImmutableList.Builder<BigDecimal> builder = ImmutableList.builder();
         for (int i = getReadingTypeOffset(); i < entry.size(); i++) {
-            result.add(entry.getBigDecimal(i));
+            builder.add(entry.getBigDecimal(i));
         }
-        return result;
+        return builder.build();
     }
 
     @Override

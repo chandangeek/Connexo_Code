@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -173,45 +174,45 @@ public class ChannelImpl implements Channel {
 	
 	@Override
 	public List<ReadingType> getReadingTypes() {
-		List<ReadingType> result = new ArrayList<>();
-		result.add(getMainReadingType());
+        ImmutableList.Builder<ReadingType> builder = ImmutableList.builder();
+        builder.add(getMainReadingType());
 		ReadingType next = getCumulativeReadingType();
 		if (next != null) {
-			result.add(next);
+			builder.add(next);
 		}
-		result.addAll(getAdditionalReadingTypes());
-		return result;
+		builder.addAll(getAdditionalReadingTypes());
+		return builder.build();
 	}
 
 	@Override
 	public List<IntervalReading> getIntervalReadings(Date from, Date to) {
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
-		List<IntervalReading> result = new ArrayList<>(entries.size());
+		ImmutableList.Builder<IntervalReading> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
-			result.add(new IntervalReadingImpl(this, entry));
+			builder.add(new IntervalReadingImpl(this, entry));
 		}
-		return result;
+		return builder.build();
 	}
 
     @Override
     public List<IntervalReading> getIntervalReadings(ReadingType readingType, Date from, Date to) {
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
-        List<IntervalReading> result = new ArrayList<>(entries.size());
+        ImmutableList.Builder<IntervalReading> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             IntervalReadingImpl reading = new IntervalReadingImpl(this, entry);
-            result.add(new FilteredReading(reading, getReadingTypes().indexOf(readingType)));
+            builder.add(new FilteredReading(reading, getReadingTypes().indexOf(readingType)));
         }
-        return result;
+        return builder.build();
     }
 
     @Override
 	public List<Reading> getRegisterReadings(Date from, Date to) {
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
-		List<Reading> result = new ArrayList<>(entries.size());
+		ImmutableList.Builder <Reading> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
-			result.add(new ReadingImpl(this, entry));
+			builder.add(new ReadingImpl(this, entry));
 		}
-		return result;	
+		return builder.build();
 	}
 	
 	@Override

@@ -9,9 +9,9 @@ public interface Channel {
 	long getId();
 	MeterActivation getMeterActivation();
 	TimeSeries getTimeSeries();
-	List<ReadingType> getReadingTypes();
-	List<IntervalReading> getIntervalReadings(Date from , Date to);
-	List<Reading> getRegisterReadings(Date from, Date to);
+    List<ReadingType> getReadingTypes();
+    List<IntervalReading> getIntervalReadings(Date from , Date to);
+    List<Reading> getRegisterReadings(Date from, Date to);
 	ReadingType getMainReadingType();
 	ReadingType getCumulativeReadingType();
 

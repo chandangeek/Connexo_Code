@@ -12,9 +12,9 @@ public interface MeterActivation {
 	Date getStart();
 	Date getEnd();
 	Channel createChannel(ReadingType... readingTypes);
-	List<Channel> getChannels();
-	List<ReadingType> getReadingTypes();
-	List<BaseReading> getReadings(Date from , Date to, ReadingType readingType);
+    List<Channel> getChannels();
+    List<ReadingType> getReadingTypes();
+    List<BaseReading> getReadings(Date from , Date to, ReadingType readingType);
 	boolean isCurrent();
 
     long getVersion();

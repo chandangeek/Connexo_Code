@@ -15,6 +15,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Quantity;
+import com.google.common.collect.ImmutableList;
 
 import java.util.Date;
 import java.util.List;
@@ -335,10 +336,10 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override
 	public List<MeterActivation> getMeterActivations() {
-		return getMeterActivations(true);
+		return ImmutableList.copyOf(doGetMeterActivations());
 	}
 	
-	private  List<MeterActivation> getMeterActivations(boolean protect) {
+	private  List<MeterActivation> doGetMeterActivations() {
 		if (meterActivations == null) {
 			meterActivations = Bus.getOrmClient().getMeterActivationFactory().find("usagePoint",this);
 		}
@@ -354,7 +355,7 @@ public class UsagePointImpl implements UsagePoint {
 				currentMeterActivation = null;
 			}
 		} else {
-			for (MeterActivation each : getMeterActivations(false)) {
+			for (MeterActivation each : doGetMeterActivations()) {
 				if (each.isCurrent()) {
 					return each;
 				}
@@ -377,13 +378,17 @@ public class UsagePointImpl implements UsagePoint {
 	
 	@Override
 	public List<UsagePointAccountability> getAccountabilities() {
-		if (accountabilities == null) {
-			accountabilities = Bus.getOrmClient().getUsagePointAccountabilityFactory().find("usagePoint",this);
-		}
-		return accountabilities;
+        return ImmutableList.copyOf(doGetUsagePointAccountabilities());
 	}
 
-	@Override
+    private List<UsagePointAccountability> doGetUsagePointAccountabilities() {
+        if (accountabilities == null) {
+            accountabilities = Bus.getOrmClient().getUsagePointAccountabilityFactory().find("usagePoint",this);
+        }
+        return accountabilities;
+    }
+
+    @Override
 	public MeterActivation activate(Date start) {
 		MeterActivation result = new MeterActivationImpl(this, start);
 		Bus.getOrmClient().getMeterActivationFactory().persist(result);

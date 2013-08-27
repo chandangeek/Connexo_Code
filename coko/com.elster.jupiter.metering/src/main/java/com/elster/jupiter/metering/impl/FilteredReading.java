@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.IntervalReading;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.collections.KPermutation;
+import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
 import java.util.Date;

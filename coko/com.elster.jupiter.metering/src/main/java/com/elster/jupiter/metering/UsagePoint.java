@@ -32,7 +32,7 @@ public interface UsagePoint extends HasName {
 	String getReadRoute();
 	String getServiceDeliveryRemark();
 	String getServicePriority();
-	List<MeterActivation> getMeterActivations();
+    List<MeterActivation> getMeterActivations();
 	MeterActivation getCurrentMeterActivation();
 
 	long getServiceLocationId();
@@ -70,7 +70,7 @@ public interface UsagePoint extends HasName {
 	long getVersion();
 
 	MeterActivation activate(Date start);
-	List<UsagePointAccountability> getAccountabilities();
+    List<UsagePointAccountability> getAccountabilities();
 	UsagePointAccountability addAccountability(PartyRole role, Party party, Date start);
 	Party getResponsibleParty(PartyRole role);
 

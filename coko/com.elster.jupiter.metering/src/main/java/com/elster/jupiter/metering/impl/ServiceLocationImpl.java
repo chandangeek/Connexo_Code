@@ -9,13 +9,14 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.util.geo.Position;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 public class ServiceLocationImpl implements ServiceLocation {
-	private final static String GOOGLE_GEOCODED = "GG";
+	private static final String GOOGLE_GEOCODED = "GG";
 	// persistent fields
 	private long id;
 	private String aliasName;
@@ -228,13 +229,17 @@ public class ServiceLocationImpl implements ServiceLocation {
 	
 	@Override
 	public List<UsagePoint> getUsagePoints() {
-		if (usagePoints == null) {
-			usagePoints = Bus.getOrmClient().getUsagePointFactory().find("serviceLocation",this);
-		}
-		return usagePoints;
+        return ImmutableList.copyOf(doGetUsagePoints());
 	}
-	
-	public Date getCreateDate() {
+
+    private List<UsagePoint> doGetUsagePoints() {
+        if (usagePoints == null) {
+            usagePoints = Bus.getOrmClient().getUsagePointFactory().find("serviceLocation",this);
+        }
+        return usagePoints;
+    }
+
+    public Date getCreateDate() {
 		return createTime.toDate();
 	}
 	

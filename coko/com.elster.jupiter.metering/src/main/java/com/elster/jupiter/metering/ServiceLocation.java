@@ -43,7 +43,7 @@ public interface ServiceLocation extends HasName {
 	void setMRID(String mRID);
 	void setDescription(String description);
 	void save();
-	List<UsagePoint> getUsagePoints();
+    List<UsagePoint> getUsagePoints();
 	Date getCreateDate();
 	Date getModificationDate();
 	long getVersion();

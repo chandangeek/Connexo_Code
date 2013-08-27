@@ -10,9 +10,8 @@ import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -81,14 +80,14 @@ public class MeterActivationImpl implements MeterActivation {
 	
 	@Override
 	public List<Channel> getChannels() {
-		return getChannels(true);
+		return ImmutableList.copyOf(doGetChannels());
 	}
 
-	private List<Channel> getChannels(boolean protect) {
+	private List<Channel> doGetChannels() {
 		if (channels == null) {
 			channels = Bus.getOrmClient().getChannelFactory().find("meterActivation",this);
 		}
-		return protect ? Collections.unmodifiableList(channels) : channels;
+		return channels;
 	}
 	
 	@Override
@@ -110,11 +109,11 @@ public class MeterActivationImpl implements MeterActivation {
 
 	@Override
 	public List<ReadingType> getReadingTypes() {
-		List<ReadingType> result = new ArrayList<>();
-		for (Channel channel : getChannels(false)) {
-			result.addAll(channel.getReadingTypes());
+        ImmutableList.Builder<ReadingType> builder = ImmutableList.builder();
+		for (Channel channel : doGetChannels()) {
+			builder.addAll(channel.getReadingTypes());
 		}
-		return result;
+		return builder.build();
 	}
 
 	@Override
