@@ -3,8 +3,8 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableList;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -103,11 +103,11 @@ public class UserImpl implements User {
     @Override
     public List<Group> getGroups() {
         List<UserInGroup> userInGroups = fetchMemberships();
-        List<Group> result = new ArrayList<>(userInGroups.size());
+        ImmutableList.Builder<Group> builder = ImmutableList.builder();
         for (UserInGroup each : userInGroups) {
-            result.add(each.getGroup());
+            builder.add(each.getGroup());
         }
-        return result;
+        return builder.build();
     }
 
     void addGroup(Group group) {

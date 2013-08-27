@@ -25,7 +25,7 @@ public interface User extends Principal, HasName {
 
     /**
      * @param group
-     * @return true, if a new memebership was created, false if it already existed.
+     * @return true, if a new membership was created, false if it already existed.
      */
     boolean join(Group group);
 

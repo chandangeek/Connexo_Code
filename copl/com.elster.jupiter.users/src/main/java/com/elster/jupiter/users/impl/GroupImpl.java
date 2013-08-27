@@ -6,8 +6,8 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.To;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -55,11 +55,11 @@ final class GroupImpl implements Group {
     @Override
 	public List<Privilege> getPrivileges() {
 		List<PrivilegeInGroup> privilegeInGroups = fetchPrivilegeInGroups();
-		List<Privilege> result = new ArrayList<>(privilegeInGroups.size());
+        ImmutableList.Builder<Privilege> builder = ImmutableList.builder();
 		for (PrivilegeInGroup each : privilegeInGroups) {
-			result.add(each.getPrivilege());
+			builder.add(each.getPrivilege());
 		}
-		return result;
+		return builder.build();
 	}
 
     @Override
