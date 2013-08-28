@@ -1,6 +1,7 @@
 package com.elster.jupiter.messaging.impl;
 
 import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.Connection;
@@ -17,4 +18,6 @@ public interface ServiceLocator {
     Publisher getPublisher();
 
     AQFacade getAQFacade();
+
+    ThreadPrincipalService getThreadPrincipalService();
 }

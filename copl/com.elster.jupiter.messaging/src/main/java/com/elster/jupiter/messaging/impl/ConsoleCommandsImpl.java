@@ -2,15 +2,16 @@ package com.elster.jupiter.messaging.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.security.thread.RunAs;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.google.common.base.Optional;
 import oracle.jdbc.aq.AQMessage;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
+import java.security.Principal;
 import java.sql.SQLException;
 
 /**
@@ -61,12 +62,21 @@ public class ConsoleCommandsImpl {
         Bus.getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-
-                Optional<DestinationSpec> destination = Bus.getOrmClient().getDestinationSpecFactory().get(destinationName);
-                if (!destination.isPresent()) {
-                    System.err.println("No such destination " + destinationName);
-                }
-                SubscriberSpec subscriberSpec = destination.get().subscribe(subscriberName);
+                new RunAs(Bus.getThreadPrincipalService(), new Principal() {
+                    @Override
+                    public String getName() {
+                        return "Command line";
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        Optional<DestinationSpec> destination = Bus.getOrmClient().getDestinationSpecFactory().get(destinationName);
+                        if (!destination.isPresent()) {
+                            System.err.println("No such destination " + destinationName);
+                        }
+                        SubscriberSpec subscriberSpec = destination.get().subscribe(subscriberName);
+                    }
+                }).run();
             }
         });
     }

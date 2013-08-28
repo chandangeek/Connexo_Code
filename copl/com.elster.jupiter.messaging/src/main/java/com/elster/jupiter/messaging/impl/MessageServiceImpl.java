@@ -24,7 +24,7 @@ import java.sql.SQLException;
  */
 @Component(name = "com.elster.jupiter.messaging" , service = { MessageService.class , InstallService.class } ,
 	property = { "name=" + Bus.COMPONENTNAME } )
-public class MessageServiceImpl implements MessageService , InstallService , ServiceLocator {
+public class MessageServiceImpl implements MessageService, InstallService , ServiceLocator {
 
     private final DefaultAQFacade defaultAQMessageFactory = new DefaultAQFacade();
     private volatile OrmClient ormClient;
@@ -108,6 +108,7 @@ public class MessageServiceImpl implements MessageService , InstallService , Ser
         this.publisher = publisher;
     }
 
+    @Override
     public ThreadPrincipalService getThreadPrincipalService() {
         return threadPrincipalService;
     }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.messaging.impl;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.Connection;
@@ -32,5 +33,9 @@ public class Bus {
 
     static AQFacade getAQFacade() {
         return locator.getAQFacade();
+    }
+
+    public static ThreadPrincipalService getThreadPrincipalService() {
+        return locator.getThreadPrincipalService();
     }
 }
