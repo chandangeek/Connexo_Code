@@ -4,6 +4,9 @@ import com.elster.jupiter.fileimport.FileImport;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Message wrapper around a FileImport id.
+ */
 @XmlRootElement
 class FileImportMessage {
 

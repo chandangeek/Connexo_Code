@@ -8,10 +8,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class CronExpressionScheduler {
+/**
+ * Wrapper around a ScheduledExecutorService that allows scheduling CronJobs according to their CronExpression.
+ */
+class CronExpressionScheduler {
 
     private final ScheduledExecutorService scheduledExecutorService;
 
+    /**
+     * Creates a new CronExpressionScheduler with the given size of thread pool.
+     * @param threadPoolSize
+     */
     public CronExpressionScheduler(int threadPoolSize) {
         scheduledExecutorService = Executors.newScheduledThreadPool(threadPoolSize);
     }
@@ -56,10 +63,16 @@ public class CronExpressionScheduler {
         }
     }
 
+    /**
+     * @see ScheduledExecutorService
+     */
     public List<Runnable> shutdownNow() {
         return scheduledExecutorService.shutdownNow();
     }
 
+    /**
+     * @see ScheduledExecutorService
+     */
     public void shutdown() {
         scheduledExecutorService.shutdown();
     }
