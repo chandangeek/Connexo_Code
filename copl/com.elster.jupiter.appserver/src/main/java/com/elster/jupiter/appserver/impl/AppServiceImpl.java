@@ -13,7 +13,7 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.messaging.consumer.MessageHandler;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
@@ -220,10 +220,10 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
                 getOrmClient().getAppServerFactory().persist(server);
                 QueueTableSpec defaultQueueTableSpec = getMessageService().getQueueTableSpec("MSG_RAWQUEUETABLE").get();
                 DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(messagingName(), 60);
-                destinationSpec.subscribe(messagingName(), 1);
+                destinationSpec.subscribe(messagingName());
                 Optional<DestinationSpec> allServersTopic = getMessageService().getDestinationSpec(ALL_SERVERS);
                 if (allServersTopic.isPresent()) {
-                    allServersTopic.get().subscribe(messagingName(), 1);
+                    allServersTopic.get().subscribe(messagingName());
                 }
                 return server;
             }

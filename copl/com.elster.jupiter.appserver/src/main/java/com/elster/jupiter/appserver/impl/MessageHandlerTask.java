@@ -2,7 +2,8 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.messaging.consumer.MessageHandler;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.sql.SQLException;
@@ -56,15 +57,15 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
 
         @Override
         protected void doPerform() {
-            try {
                 Message message = subscriberSpec.receive();
                 if (message == null) { // receive() got cancelled, by a shut down request
                     Thread.currentThread().interrupt();
                     return;
                 }
+            try {
                 handler.process(message);
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new UnderlyingSQLFailedException(e);
             }
         }
     }

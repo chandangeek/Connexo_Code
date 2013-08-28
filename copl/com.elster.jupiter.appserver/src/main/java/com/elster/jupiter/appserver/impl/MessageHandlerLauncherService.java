@@ -3,7 +3,7 @@ package com.elster.jupiter.appserver.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.messaging.consumer.MessageHandlerFactory;
+import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.security.thread.RunAs;
 import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
