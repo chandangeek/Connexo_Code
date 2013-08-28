@@ -2,6 +2,7 @@ package com.elster.jupiter.messaging.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.google.common.base.Optional;
 import oracle.jdbc.aq.AQMessage;
 
@@ -56,11 +57,17 @@ public class ConsoleCommandsImpl {
         }
     }
 
-    public void subscribe(String subscriberName, String destinationName) {
-        Optional<DestinationSpec> destination = Bus.getOrmClient().getDestinationSpecFactory().get(destinationName);
-        if (!destination.isPresent()) {
-            System.err.println("No such destination " + destinationName);
-        }
-        SubscriberSpec subscriberSpec = destination.get().subscribe(subscriberName);
+    public void subscribe(final String subscriberName, final String destinationName) {
+        Bus.getTransactionService().execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+
+                Optional<DestinationSpec> destination = Bus.getOrmClient().getDestinationSpecFactory().get(destinationName);
+                if (!destination.isPresent()) {
+                    System.err.println("No such destination " + destinationName);
+                }
+                SubscriberSpec subscriberSpec = destination.get().subscribe(subscriberName);
+            }
+        });
     }
 }
