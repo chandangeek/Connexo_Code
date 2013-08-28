@@ -1,6 +1,6 @@
 package com.elster.jupiter.fileimport;
 
-import com.elster.jupiter.messaging.consumer.MessageHandler;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
 
 public interface FileImportService {
 

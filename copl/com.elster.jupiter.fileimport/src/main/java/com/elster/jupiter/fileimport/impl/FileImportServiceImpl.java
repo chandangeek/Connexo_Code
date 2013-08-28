@@ -5,7 +5,7 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.messaging.consumer.MessageHandler;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;

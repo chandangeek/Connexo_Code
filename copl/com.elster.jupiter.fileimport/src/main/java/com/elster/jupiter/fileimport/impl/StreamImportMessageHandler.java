@@ -3,7 +3,7 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.FileImport;
 import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.consumer.MessageHandler;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
 
 import java.sql.SQLException;
 
