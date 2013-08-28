@@ -1,7 +1,7 @@
 package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.Message;
-import com.elster.jupiter.messaging.consumer.MessageHandler;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
