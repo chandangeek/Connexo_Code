@@ -1,5 +1,6 @@
 package com.elster.jupiter.messaging.impl;
 
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.google.common.base.Optional;
 import oracle.jdbc.aq.AQMessage;
@@ -14,7 +15,7 @@ import java.sql.SQLException;
 /**
  * MSG console commands
  */
-@Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class, property = { "name=" + Bus.COMPONENTNAME + "2" , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable", "osgi.command.function=drain" } )
+@Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class, property = { "name=" + Bus.COMPONENTNAME + "2" , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable", "osgi.command.function=drain", "osgi.command.function=subscribe" } )
 public class ConsoleCommandsImpl {
 
 	@Activate
@@ -55,5 +56,11 @@ public class ConsoleCommandsImpl {
         }
     }
 
-
+    public void subscribe(String subscriberName, String destinationName) {
+        Optional<DestinationSpec> destination = Bus.getOrmClient().getDestinationSpecFactory().get(destinationName);
+        if (!destination.isPresent()) {
+            System.err.println("No such destination " + destinationName);
+        }
+        SubscriberSpec subscriberSpec = destination.get().subscribe(subscriberName);
+    }
 }
