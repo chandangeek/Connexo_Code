@@ -5,6 +5,9 @@ import oracle.jdbc.aq.AQMessage;
 
 import java.sql.SQLException;
 
+/**
+ * A Message implementation which is a simple wrapper around the payload.
+ */
 public class MessageImpl implements Message {
 
     private final byte[] payload;

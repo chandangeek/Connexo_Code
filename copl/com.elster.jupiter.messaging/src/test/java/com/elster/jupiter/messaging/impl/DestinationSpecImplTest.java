@@ -50,7 +50,7 @@ public class DestinationSpecImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ServiceLocator serviceLocator;
     @Mock
-    private DataMapper<SubscriberSpec> consumerSpecFactory;
+    private DataMapper<SubscriberSpec> subscriberSpecFactory;
     @Mock
     private OracleConnection connection;
     @Mock
@@ -66,7 +66,7 @@ public class DestinationSpecImplTest {
     @Mock
     private AQjmsDestination destination;
     @Mock
-    private SubscriberSpec consumer1, consumer2;
+    private SubscriberSpec subscriber1, subscriber2;
     @Mock
     private SubscriberSpec subscriber;
 
@@ -74,7 +74,7 @@ public class DestinationSpecImplTest {
     public void setUp() throws Exception {
         Bus.setServiceLocator(serviceLocator);
 
-        when(serviceLocator.getOrmClient().getConsumerSpecFactory()).thenReturn(consumerSpecFactory);
+        when(serviceLocator.getOrmClient().getConsumerSpecFactory()).thenReturn(subscriberSpecFactory);
         when(serviceLocator.getConnection()).thenReturn(connection);
         when(serviceLocator.getAQFacade().createQueueConnection(connection)).thenReturn(queueConnection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
@@ -122,7 +122,7 @@ public class DestinationSpecImplTest {
 
     @Test(expected = InactiveDestinationException.class)
     public void testSubscribeOnInactiveDestinationThrowsException() {
-        destinationSpec.subscribe(SUBSCRIBER, 2);
+        destinationSpec.subscribe(SUBSCRIBER);
     }
 
     @Test
@@ -181,17 +181,17 @@ public class DestinationSpecImplTest {
 
     @Test
     public void testGetConsumers() {
-        ImmutableList<SubscriberSpec> subscribers = ImmutableList.of(consumer1, consumer2);
+        ImmutableList<SubscriberSpec> subscribers = ImmutableList.of(subscriber1, subscriber2);
 
-        when(consumerSpecFactory.find("destination", destinationSpec)).thenReturn(subscribers);
+        when(subscriberSpecFactory.find("destination", destinationSpec)).thenReturn(subscribers);
 
-        assertThat(destinationSpec.getConsumers()).isEqualTo(subscribers);
+        assertThat(destinationSpec.getSubscribers()).isEqualTo(subscribers);
     }
 
     @Test(expected = DuplicateSubscriberNameException.class)
     public void testSubscribeDuplicate() throws SQLException {
         when(queueTableSpec.isJms()).thenReturn(false);
-        when(consumerSpecFactory.find("destination", destinationSpec)).thenReturn(ImmutableList.of(subscriber));
+        when(subscriberSpecFactory.find("destination", destinationSpec)).thenReturn(ImmutableList.of(subscriber));
 
         destinationSpec.activate();
 
@@ -199,14 +199,14 @@ public class DestinationSpecImplTest {
 
         Mockito.reset(preparedStatement); // clear interactions that may have occurred in activate
 
-        destinationSpec.subscribe(SUBSCRIBER, 3);
+        destinationSpec.subscribe(SUBSCRIBER);
     }
 
     @Test(expected = AlreadyASubscriberForQueueException.class)
     public void testSubscribeMultipleOnQueue() throws SQLException {
         when(queueTableSpec.isJms()).thenReturn(false);
         when(queueTableSpec.isMultiConsumer()).thenReturn(false);
-        when(consumerSpecFactory.find("destination", destinationSpec)).thenReturn(ImmutableList.of(subscriber));
+        when(subscriberSpecFactory.find("destination", destinationSpec)).thenReturn(ImmutableList.of(subscriber));
 
         destinationSpec.activate();
 
@@ -214,14 +214,14 @@ public class DestinationSpecImplTest {
 
         Mockito.reset(preparedStatement); // clear interactions that may have occurred in activate
 
-        destinationSpec.subscribe(SUBSCRIBER + "2", 3);
+        destinationSpec.subscribe(SUBSCRIBER + "2");
     }
 
     @Test
     public void testSubscribeSuccess() throws SQLException {
         when(queueTableSpec.isJms()).thenReturn(false);
         when(queueTableSpec.isMultiConsumer()).thenReturn(false);
-        when(consumerSpecFactory.find("destination", destinationSpec)).thenReturn(ImmutableList.<SubscriberSpec>of());
+        when(subscriberSpecFactory.find("destination", destinationSpec)).thenReturn(ImmutableList.<SubscriberSpec>of());
 
         destinationSpec.activate();
 
@@ -229,9 +229,9 @@ public class DestinationSpecImplTest {
 
         Mockito.reset(preparedStatement); // clear interactions that may have occurred in activate
 
-        SubscriberSpec subscriberSpec = destinationSpec.subscribe(SUBSCRIBER, 3);
+        SubscriberSpec subscriberSpec = destinationSpec.subscribe(SUBSCRIBER);
 
-        verify(consumerSpecFactory).persist(subscriberSpec);
+        verify(subscriberSpecFactory).persist(subscriberSpec);
 
         assertThat(subscriberSpec.getName()).isEqualTo(SUBSCRIBER);
         assertThat(subscriberSpec.getDestination()).isEqualTo(destinationSpec);

@@ -1,4 +1,4 @@
-package com.elster.jupiter.messaging.consumer;
+package com.elster.jupiter.messaging.subscriber;
 
 public interface MessageHandlerFactory {
 

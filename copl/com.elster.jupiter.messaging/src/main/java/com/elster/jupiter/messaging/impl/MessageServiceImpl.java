@@ -19,6 +19,9 @@ import org.osgi.service.component.annotations.Reference;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Osgi Component class.
+ */
 @Component(name = "com.elster.jupiter.messaging" , service = { MessageService.class , InstallService.class } ,
 	property = { "name=" + Bus.COMPONENTNAME } )
 public class MessageServiceImpl implements MessageService , InstallService , ServiceLocator {

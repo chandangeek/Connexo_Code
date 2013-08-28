@@ -5,7 +5,7 @@ import com.elster.jupiter.util.exception.BaseException;
 import java.text.MessageFormat;
 
 /**
- * Thrown when attempting to create a second subscriber on a single consumer queue.
+ * Thrown when attempting to create a second subscriber on a single subscriber queue.
  */
 public class AlreadyASubscriberForQueueException extends BaseException {
 

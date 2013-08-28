@@ -31,13 +31,13 @@ public enum TableSpecs {
 			table.addForeignKeyConstraint("MSG_FK_DESTINATIONSPEC", MSG_QUEUETABLESPEC.name() , RESTRICT, new AssociationMapping("queueTable") , queueTableNameColumn);				
 		}
 	}, 
-	MSG_CONSUMERSPEC {
+	MSG_SUBSCRIBERSPEC {
 		void describeTable(Table table) {
 			Column destinationNameColumn = table.addColumn("DESTINATION","varchar2(30)",true,NOCONVERSION,"destinationName");
 			Column nameColumn = table.addColumn("NAME","varchar2(30)",true,NOCONVERSION,"name");
 			table.addAuditColumns();
-			table.addPrimaryKeyConstraint("MSG_PK_CONSUMERSPEC", destinationNameColumn , nameColumn);
-			table.addForeignKeyConstraint("MSG_FK_CONSUMERSPEC", MSG_DESTINATIONSPEC.name() , CASCADE , new AssociationMapping("destination","consumers") , destinationNameColumn);				
+			table.addPrimaryKeyConstraint("MSG_PK_SUBSCRIBERSPEC", destinationNameColumn , nameColumn);
+			table.addForeignKeyConstraint("MSG_FK_SUBSCRIBERSPEC", MSG_DESTINATIONSPEC.name() , CASCADE , new AssociationMapping("destination","subscribers") , destinationNameColumn);
 		}
 	};
 	

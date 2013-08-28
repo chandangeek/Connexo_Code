@@ -67,7 +67,7 @@ public class MessageServiceImplTest {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.getDataMapper(QueueTableSpec.class, QueueTableSpecImpl.class, TableSpecs.MSG_QUEUETABLESPEC.name())).thenReturn(queueTableSpecFactory);
         when(dataModel.getDataMapper(DestinationSpec.class, DestinationSpecImpl.class, TableSpecs.MSG_DESTINATIONSPEC.name())).thenReturn(destinationSpecFactory);
-        when(dataModel.getDataMapper(SubscriberSpec.class, SubscriberSpecImpl.class, TableSpecs.MSG_CONSUMERSPEC.name())).thenReturn(subscriberSpecFactory);
+        when(dataModel.getDataMapper(SubscriberSpec.class, SubscriberSpecImpl.class, TableSpecs.MSG_SUBSCRIBERSPEC.name())).thenReturn(subscriberSpecFactory);
         when(dataModel.addTable(anyString())).thenReturn(table);
         when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);

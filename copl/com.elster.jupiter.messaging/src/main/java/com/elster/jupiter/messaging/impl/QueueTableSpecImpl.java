@@ -49,6 +49,9 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 
     @Override
     public void activate() {
+        if (isActive()) {
+            return;
+        }
         if (isJms()) {
             doActivateJms();
         } else {
@@ -103,6 +106,9 @@ public class QueueTableSpecImpl implements QueueTableSpec {
 
     @Override
     public void deactivate() {
+        if (!isActive()) {
+            return;
+        }
         try {
             doDeactivate();
         } catch (SQLException ex) {

@@ -45,7 +45,7 @@ class DestinationSpecImpl implements DestinationSpec {
 
     // associations
     private QueueTableSpec queueTableSpec;
-    private List<SubscriberSpec> consumers;
+    private List<SubscriberSpec> subscribers;
 
 
     @Override
@@ -71,7 +71,7 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     @Override
-    public List<SubscriberSpec> getConsumers() {
+    public List<SubscriberSpec> getSubscribers() {
         return ImmutableList.copyOf(doGetConsumers());
     }
 
@@ -123,7 +123,7 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     @Override
-    public SubscriberSpec subscribe(String name, int workerCount) {
+    public SubscriberSpec subscribe(String name) {
         if (!isActive()) {
             throw new InactiveDestinationException(this, name);
         }
@@ -218,9 +218,9 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     private List<SubscriberSpec> doGetConsumers() {
-        if (consumers == null) {
-            consumers = Bus.getOrmClient().getConsumerSpecFactory().find("destination", this);
+        if (subscribers == null) {
+            subscribers = Bus.getOrmClient().getConsumerSpecFactory().find("destination", this);
         }
-        return consumers;
+        return subscribers;
     }
 }

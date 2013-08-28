@@ -10,6 +10,9 @@ import javax.jms.QueueConnection;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Default implementation that simply hides the static calls to AQFactory and AQjmsQueueConnectionFactory behind the AQFacade interface.
+ */
 public class DefaultAQFacade implements AQFacade {
 
     @Override
@@ -23,7 +26,7 @@ public class DefaultAQFacade implements AQFacade {
     }
 
     @Override
-    public QueueConnection createQueueConnection(Connection oracleConnection) throws JMSException {
-        return AQjmsQueueConnectionFactory.createQueueConnection(oracleConnection);
+    public QueueConnection createQueueConnection(Connection connection) throws JMSException {
+        return AQjmsQueueConnectionFactory.createQueueConnection(connection);
     }
 }

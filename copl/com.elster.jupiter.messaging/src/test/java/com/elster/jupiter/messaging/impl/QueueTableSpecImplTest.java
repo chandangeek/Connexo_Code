@@ -94,6 +94,14 @@ public class QueueTableSpecImplTest {
         assertThat(queueTableSpec.isActive()).isTrue();
     }
 
+    @Test
+    public void testActivateSecondTimeHasNoEffect() throws JMSException, AQException {
+        queueTableSpec.activate();
+        queueTableSpec.activate();
+
+        verify(aqJmsSession, atMost(1)).createQueueTable(eq("kore"), eq(NAME), any(AQQueueTableProperty.class));
+    }
+
     @Test(expected = UnderlyingJmsException.class)
     public void testActivateJmsWithJmsException() throws JMSException, AQException {
         doThrow(JMSException.class).when(aqFacade).createQueueConnection(connection);

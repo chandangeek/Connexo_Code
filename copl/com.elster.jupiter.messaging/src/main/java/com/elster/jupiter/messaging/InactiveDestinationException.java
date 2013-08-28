@@ -4,6 +4,9 @@ import com.elster.jupiter.util.exception.BaseException;
 
 import java.text.MessageFormat;
 
+/**
+ * Thrown when trying to perform an operation on a DestinationSpec which requires it to be active, when it isn't.
+ */
 public class InactiveDestinationException extends BaseException {
 
     public InactiveDestinationException(DestinationSpec destinationSpec, String subscriberName) {

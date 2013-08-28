@@ -21,6 +21,10 @@ class BytesMessageBuilder implements MessageBuilder {
     private final byte[] bytes;
     private DestinationSpec destinationSpec;
 
+    /**
+     * @param destinationSpec the intented DestinationSpec
+     * @param bytes the payload.
+     */
     BytesMessageBuilder(DestinationSpec destinationSpec, byte[] bytes) {
         this.destinationSpec = destinationSpec;
         this.bytes = bytes;
