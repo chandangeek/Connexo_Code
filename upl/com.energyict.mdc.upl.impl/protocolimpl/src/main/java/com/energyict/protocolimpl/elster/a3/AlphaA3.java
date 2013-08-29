@@ -23,6 +23,7 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
@@ -203,11 +204,15 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     	securityKey = properties.getProperty(SECURITY_KEY, "");
     	securityMode = properties.getProperty(SECURITY_MODE, "");
 
-        if (getInfoTypePassword() != null && getInfoTypePassword().length() > 20) {
-            throw new InvalidPropertyException("Length of password cannot be higher than 20. Please correct this first.");
+        if (getInfoTypePassword() != null) {
+            if (passwordBinary == 0 && getInfoTypePassword().length() > 20) {
+                throw new InvalidPropertyException("Length of password cannot be higher than 20 ASCII characters. Please correct first.");
+            } else if (passwordBinary == 1 && getInfoTypePassword().length() > 40) {
+                throw new InvalidPropertyException("Length of password cannot be higher than 40 binary values. Please correct first.");
+            }
         }
     }
-    
+
     protected List doGetOptionalKeys() {
         List result = new ArrayList();
         
@@ -222,8 +227,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         return result;
     }
     
-    protected C1222Buffer checkForC1222()
-    {
+    protected C1222Buffer checkForC1222() throws IOException {
     	C1222Buffer result = null;
 
     	if (securityMode != null)
@@ -245,7 +249,8 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
     		c1222 = true;
     		result.setCalledApTitle(calledAPTitle);
     		result.setSecurityKey(securityKey);
-            String password = new String(ParseUtils.extendWithWhiteSpace(getInfoTypePassword().getBytes(), 20));
+            byte[] passwordBytes = passwordBinary == 0 ? getInfoTypePassword().getBytes() : ProtocolUtils.convert2ascii(getInfoTypePassword().getBytes());
+            String password = new String(ParseUtils.extendWithWhiteSpace(passwordBytes, 20));
             result.setPassword(password);
     	}
 
@@ -308,7 +313,7 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         return 0;
     }
 
-    
+    /* The protocol version */
     public String getProtocolVersion() {
         return "$Date$";
     }
