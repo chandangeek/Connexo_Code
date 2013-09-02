@@ -28,9 +28,10 @@ class CronExpressionScheduler {
      * @param cronJob
      */
     public void submitOnce(CronJob cronJob) {
-        Date next = cronJob.getSchedule().nextAfter(Bus.getClock().now());
+        Date now = Bus.getClock().now();
+        Date next = cronJob.getSchedule().nextAfter(now);
         if (next != null) {
-            long delay = next.getTime() - Bus.getClock().now().getTime();
+            long delay = next.getTime() - now.getTime();
             scheduledExecutorService.schedule(cronJob, delay, TimeUnit.MILLISECONDS);
         }
     }

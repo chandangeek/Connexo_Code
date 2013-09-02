@@ -6,14 +6,12 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.State;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class FileImportImpl implements FileImport {
+
     private long id;
     private ImportSchedule importSchedule;
     private long importScheduleId;
@@ -26,16 +24,24 @@ public class FileImportImpl implements FileImport {
 
     public static FileImport create(ImportSchedule importSchedule, File file) {
         FileImportImpl fileImport = new FileImportImpl(importSchedule, file);
-        fileImport.moveFile();
-        fileImport.save();
         return fileImport;
+    }
+
+    @Override
+    public void prepareProcessing() {
+        if (!State.NEW.equals(getState())) {
+            throw new IllegalStateException();
+        }
+        this.state = State.PROCESSING;
+        moveFile();
+        save();
     }
 
     private FileImportImpl(ImportSchedule importSchedule, File file) {
         this.file = file;
         this.importSchedule = importSchedule;
         this.importScheduleId = importSchedule.getId();
-        this.state = State.PROCESSING;
+        this.state = State.NEW;
     }
 
     @Override
@@ -45,14 +51,10 @@ public class FileImportImpl implements FileImport {
 
     @Override
     public InputStream getContents() {
-        try {
-            if (inputStream == null) {
-                inputStream = new FileInputStream(file);
-            }
-            return inputStream;
-        } catch (FileNotFoundException e) {
-            throw new FileIOException(e);
+        if (inputStream == null) {
+            inputStream = Bus.getFileSystem().getInputStream(file);
         }
+        return inputStream;
     }
 
     @Override
@@ -100,15 +102,11 @@ public class FileImportImpl implements FileImport {
     }
 
     private void moveFile() {
-        try {
-            if (file.exists()) {
-                Path path = file.toPath();
-                Path target = targetPath(path);
-                Files.move(path, target);
-                file = target.toFile();
-            }
-        } catch (IOException e) {
-            throw new FileIOException(e);
+        if (file.exists()) {
+            Path path = file.toPath();
+            Path target = targetPath(path);
+            Bus.getFileSystem().move(path, target);
+            file = target.toFile();
         }
     }
 

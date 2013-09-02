@@ -5,8 +5,6 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 
-import java.sql.SQLException;
-
 public class StreamImportMessageHandler implements MessageHandler {
 
     private final FileImporter streamImporter;
@@ -16,14 +14,14 @@ public class StreamImportMessageHandler implements MessageHandler {
     }
 
     @Override
-    public void process(Message message) throws SQLException {
+    public void process(Message message) {
         FileImport fileImport = getFileImport(message);
         if (fileImport != null) {
             streamImporter.process(fileImport);
         }
     }
 
-    private FileImport getFileImport(Message message) throws SQLException {
+    private FileImport getFileImport(Message message) {
         FileImport fileImport = null;
         FileImportMessage fileImportMessage = getFileImportMessage(message);
         if (fileImportMessage != null) {
@@ -32,7 +30,7 @@ public class StreamImportMessageHandler implements MessageHandler {
         return fileImport;
     }
 
-    private FileImportMessage getFileImportMessage(Message message) throws SQLException {
+    private FileImportMessage getFileImportMessage(Message message) {
         return Bus.getJsonService().deserialize(message.getPayload(), FileImportMessage.class);
     }
 }

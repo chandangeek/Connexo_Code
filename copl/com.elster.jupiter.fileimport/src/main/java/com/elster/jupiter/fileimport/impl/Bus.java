@@ -2,6 +2,7 @@ package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Predicates;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
@@ -35,7 +36,7 @@ public enum Bus {
     }
 
     public static FileNameCollisionResolver getFileNameCollisionResolver() {
-        return new SimpleFileNameCollisionResolver();
+        return serviceLocator.getFileNameCollisionResollver();
     }
 
     public static Clock getClock() {
@@ -48,5 +49,13 @@ public enum Bus {
 
     public static JsonService getJsonService() {
         return serviceLocator.getJsonService();
+    }
+
+    public static FileSystem getFileSystem() {
+        return serviceLocator.getFileSystem();
+    }
+
+    public static Predicates getPredicates() {
+        return serviceLocator.getPredicates();
     }
 }

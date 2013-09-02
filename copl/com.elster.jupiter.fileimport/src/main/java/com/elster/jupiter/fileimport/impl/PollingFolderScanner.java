@@ -1,13 +1,11 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileIOException;
-import com.elster.jupiter.util.Only;
 import com.elster.jupiter.util.To;
 import com.google.common.collect.FluentIterable;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 
@@ -22,14 +20,14 @@ public class PollingFolderScanner implements FolderScanner {
     @Override
     public Iterator<File> getFiles() {
         try {
-            return directoryContent().filter(Only.FILES).transform(To.FILE).iterator();
+            return directoryContent().filter(Bus.getPredicates().onlyFiles()).transform(To.FILE).iterator();
         } catch (IOException e) {
             throw new FileIOException(e);
         }
     }
 
     private FluentIterable<Path> directoryContent() throws IOException {
-        return FluentIterable.from(Files.newDirectoryStream(directory));
+        return FluentIterable.from(Bus.getFileSystem().newDirectoryStream(directory));
     }
 
 }

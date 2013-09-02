@@ -10,19 +10,28 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Only;
+import com.elster.jupiter.util.Predicates;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
-import org.osgi.service.component.ComponentContext;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + Bus.COMPONENTNAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, ServiceLocator, FileImportService {
 
+    private static final Logger logger = Logger.getLogger(FileImportServiceImpl.class.getName());
+
+    private final DefaultFileSystem defaultFileSystem = new DefaultFileSystem();
     private volatile LogService logService;
     private volatile MessageService messageService;
     private volatile CronExpressionParser cronExpressionParser;
@@ -31,7 +40,6 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
     private volatile TransactionService transactionService;
     private volatile JsonService jsonService;
 
-    private Thread thread;
     private CronExpressionScheduler cronExpressionScheduler;
 
     @Override
@@ -113,7 +121,8 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
         this.transactionService = transactionService;
     }
 
-    public void activate(ComponentContext context) {
+    @Activate
+    public void activate(BundleContext context) {
         Bus.setServiceLocator(this);
         try {
             List<ImportSchedule> importSchedules = getOrmClient().getImportScheduleFactory().find();
@@ -121,7 +130,7 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
             cronExpressionScheduler = new CronExpressionScheduler(poolSize);
         } catch (RuntimeException e) {
 			e.printStackTrace();
-            getLogService().log(LogService.LOG_ERROR, "Could not start Import schedules, please check if FIM is installed properly.");
+            logger.log(Level.SEVERE, "Could not start Import schedules, please check if FIM is installed properly.");
 		}
     }
 
@@ -135,14 +144,9 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
         return getOrmClient().getImportScheduleFactory().get(id).get();
     }
 
-    public void deactivate(ComponentContext context) {
-        thread.interrupt();
+    @Deactivate
+    public void deactivate() {
         cronExpressionScheduler.shutdown();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
         Bus.setServiceLocator(null);
     }
 
@@ -154,5 +158,20 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
     @Override
     public MessageHandler createMessageHandler(FileImporter fileImporter) {
         return new StreamImportMessageHandler(fileImporter);
+    }
+
+    @Override
+    public FileSystem getFileSystem() {
+        return defaultFileSystem;
+    }
+
+    @Override
+    public FileNameCollisionResolver getFileNameCollisionResollver() {
+        return new SimpleFileNameCollisionResolver();
+    }
+
+    @Override
+    public Predicates getPredicates() {
+        return new Only();
     }
 }

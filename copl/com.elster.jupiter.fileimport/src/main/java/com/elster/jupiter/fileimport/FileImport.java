@@ -17,4 +17,6 @@ public interface FileImport {
     void markFailure();
 
     long getId();
+
+    void prepareProcessing();
 }
