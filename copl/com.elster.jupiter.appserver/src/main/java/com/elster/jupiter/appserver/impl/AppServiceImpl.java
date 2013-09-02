@@ -385,7 +385,12 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
             System.out.println("AppServer not found.");
             return;
         }
-        final ImportSchedule importSchedule = getFileImportService().getImportSchedule(id);
+        Optional<ImportSchedule> found = getFileImportService().getImportSchedule(id);
+        if (!found.isPresent()) {
+            System.out.println("ImportSchedule not found.");
+            return;
+        }
+        final ImportSchedule importSchedule = found.get();
         getTransactionService().execute(new VoidTransaction() {
             @Override
             public void doPerform() {
@@ -460,7 +465,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
                     break;
                 case FILEIMPORT_ACTIVATED:
                     String idAsString = command.getProperties().getProperty(ID);
-                    ImportSchedule importSchedule = getFileImportService().getImportSchedule(Long.valueOf(idAsString));
+                    ImportSchedule importSchedule = getFileImportService().getImportSchedule(Long.valueOf(idAsString)).get();
                     getFileImportService().schedule(importSchedule);
                 default:
             }

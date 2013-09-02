@@ -28,7 +28,7 @@ public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer 
     @Override
     public ImportSchedule getImportSchedule() {
         if (importSchedule == null) {
-            importSchedule = Bus.getFileImportService().getImportSchedule(importScheduleId);
+            importSchedule = Bus.getFileImportService().getImportSchedule(importScheduleId).get();
         }
         return importSchedule;
     }
