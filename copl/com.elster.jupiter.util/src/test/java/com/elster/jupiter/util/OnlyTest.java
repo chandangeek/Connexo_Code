@@ -10,12 +10,12 @@ public class OnlyTest {
 
     @Test
     public void testFolder() {
-        assertThat(Only.FILES.apply(Paths.get("\\"))).isFalse();
+        assertThat(new Only().onlyFiles().apply(Paths.get("\\"))).isFalse();
     }
 
     @Test
     public void test() {
-        assertThat(Only.FILES.apply(Paths.get("\\"))).isFalse();
+        assertThat(new Only().onlyFiles().apply(Paths.get("\\"))).isFalse();
     }
 
 
