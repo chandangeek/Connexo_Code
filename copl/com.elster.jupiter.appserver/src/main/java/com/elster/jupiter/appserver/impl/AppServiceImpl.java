@@ -41,7 +41,6 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -447,7 +446,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private class CommandHandler implements MessageHandler {
 
         @Override
-        public void process(Message message) throws SQLException {
+        public void process(Message message) {
             AppServerCommand command = getJsonService().deserialize(message.getPayload(), AppServerCommand.class);
             switch (command.getCommand()) {
                 case STOP:
