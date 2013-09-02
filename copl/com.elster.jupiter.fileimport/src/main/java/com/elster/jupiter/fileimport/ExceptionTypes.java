@@ -3,6 +3,9 @@ package com.elster.jupiter.fileimport;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.util.exception.ExceptionType;
 
+/**
+ * Enumeration of all the FIM module exception types.
+ */
 enum ExceptionTypes implements ExceptionType {
     FILE_IO(1001);
 

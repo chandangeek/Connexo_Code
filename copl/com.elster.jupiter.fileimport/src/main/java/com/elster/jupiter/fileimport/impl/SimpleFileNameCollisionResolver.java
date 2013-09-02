@@ -3,6 +3,9 @@ package com.elster.jupiter.fileimport.impl;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * FileNameCollisionResolver that resolves conflicts by appending a number to the original file name in case of a conflict.
+ */
 public class SimpleFileNameCollisionResolver implements FileNameCollisionResolver {
 
     @Override

@@ -15,6 +15,7 @@ import com.elster.jupiter.util.Predicates;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -140,8 +141,8 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
     }
 
     @Override
-    public ImportSchedule getImportSchedule(long id) {
-        return getOrmClient().getImportScheduleFactory().get(id).get();
+    public Optional<ImportSchedule> getImportSchedule(long id) {
+        return getOrmClient().getImportScheduleFactory().get(id);
     }
 
     @Deactivate

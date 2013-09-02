@@ -7,6 +7,9 @@ import com.elster.jupiter.util.cron.CronExpression;
 
 import java.io.File;
 
+/**
+ * ImportSchedule implementation.
+ */
 class ImportScheduleImpl implements ImportSchedule {
 
     private long id;

@@ -3,6 +3,9 @@ package com.elster.jupiter.fileimport.impl;
 import java.io.File;
 import java.util.Iterator;
 
+/**
+ * Runnable that passes the files of a FolderScanner to the configured FileHandler
+ */
 public class FolderScanningJob implements Runnable {
 
     private final FolderScanner scanner;

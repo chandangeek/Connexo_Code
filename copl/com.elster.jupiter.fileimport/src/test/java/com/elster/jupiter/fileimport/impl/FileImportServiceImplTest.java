@@ -94,7 +94,8 @@ public class FileImportServiceImplTest {
 
     @Test
     public void testGetImportSchedule() {
-        assertThat(fileImportService.getImportSchedule(15L)).isEqualTo(importSchedule);
+        assertThat(fileImportService.getImportSchedule(15L).isPresent()).isTrue();
+        assertThat(fileImportService.getImportSchedule(15L).get()).isEqualTo(importSchedule);
     }
 
     @Test

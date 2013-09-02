@@ -30,6 +30,7 @@ public class DefaultFileHandler implements FileHandler {
 
     private void doHandle(File file) {
         FileImport fileImport = importSchedule.createFileImport(file);
+        fileImport.prepareProcessing();
         DestinationSpec destination = importSchedule.getDestination();
 
         String json = Bus.getJsonService().serialize(new FileImportMessage(fileImport));

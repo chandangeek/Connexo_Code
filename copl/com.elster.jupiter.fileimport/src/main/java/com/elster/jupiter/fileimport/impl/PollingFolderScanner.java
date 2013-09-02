@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Iterator;
 
+/**
+ * FolderScanner that simply lists the files in the Folder.
+ */
 public class PollingFolderScanner implements FolderScanner {
 
     private final Path directory;
