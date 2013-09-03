@@ -1,14 +1,16 @@
 package com.energyict.mdc.protocol.inbound.general.frames;
 
 import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.RegisterInfo;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,13 +24,15 @@ import java.util.List;
  */
 public class RegisterFrame extends AbstractInboundFrame {
 
+    private CollectedRegisterList collectedRegisterList;
+
     @Override
     protected FrameType getType() {
         return FrameType.REGISTER;
     }
 
-    public RegisterFrame(String frame) {
-        super(frame);
+    public RegisterFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
+        super(frame, serialNumberPlaceHolder);
     }
 
     @Override
@@ -36,7 +40,7 @@ public class RegisterFrame extends AbstractInboundFrame {
         List<RegisterValue> registers = new ArrayList<RegisterValue>();
         this.parseParameters(registers);
         for (RegisterValue register : registers) {
-            getCollectedDatas().add(this.processRegister(register));
+            getCollectedRegisterList().addCollectedRegister(this.processRegister(register));
         }
     }
 
@@ -86,8 +90,20 @@ public class RegisterFrame extends AbstractInboundFrame {
         return deviceRegister;
     }
 
+    private CollectedRegisterList getCollectedRegisterList(){
+        if(this.collectedRegisterList == null){
+            this.collectedRegisterList = MdcManager.getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
+            getCollectedDatas().add(this.collectedRegisterList);
+        }
+        return this.collectedRegisterList;
+    }
+
     private RegisterIdentifier getRegisterIdentifier(ObisCode registerObisCode){
-        return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, new DeviceIdentifierBySerialNumber("PLEASE_CORRECT_MY_SERIALNUMBER"));
+        return new RegisterDataIdentifierByObisCodeAndDevice(registerObisCode, getDeviceIdentifier());
+    }
+
+    private DeviceIdentifierBySerialNumberPlaceHolder getDeviceIdentifier() {
+        return new DeviceIdentifierBySerialNumberPlaceHolder(serialNumberPlaceHolder);
     }
 
 }

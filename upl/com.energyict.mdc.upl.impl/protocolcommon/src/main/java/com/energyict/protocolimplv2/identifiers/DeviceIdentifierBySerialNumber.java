@@ -21,6 +21,7 @@ import java.util.List;
 public class DeviceIdentifierBySerialNumber implements DeviceIdentifier {
 
     private String serialNumber;
+    private Device device;
 
     public DeviceIdentifierBySerialNumber(String serialNumber) {
         super();
@@ -29,18 +30,22 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier {
 
     @Override
     public Device findDevice () {
-        List<Device> devicesBySerialNumber = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(this.serialNumber);
-        if (devicesBySerialNumber.isEmpty()) {
-            return null;
-        }
-        else {
-            if (devicesBySerialNumber.size() > 1) {
-                throw new NotFoundException("More than one device found with serialnumber " + this.serialNumber);
+        //lazyload the device
+        if(this.device == null){
+            List<Device> devicesBySerialNumber = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(this.serialNumber);
+            if (devicesBySerialNumber.isEmpty()) {
+                return null;
             }
             else {
-                return devicesBySerialNumber.get(0);
+                if (devicesBySerialNumber.size() > 1) {
+                    throw new NotFoundException("More than one device found with serialnumber " + this.serialNumber);
+                }
+                else {
+                    this.device = devicesBySerialNumber.get(0);
+                }
             }
         }
+        return this.device;
     }
 
     @Override

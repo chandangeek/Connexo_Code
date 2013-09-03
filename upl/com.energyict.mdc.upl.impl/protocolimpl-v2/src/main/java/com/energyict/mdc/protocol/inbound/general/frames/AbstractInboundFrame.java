@@ -5,6 +5,8 @@ import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.general.frames.parsing.InboundParameters;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactoryProvider;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
+import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,8 @@ import java.util.List;
  */
 public abstract class AbstractInboundFrame {
 
+    protected final SerialNumberPlaceHolder serialNumberPlaceHolder;
+
     public enum FrameType {
         REQUEST,
         EVENT,
@@ -33,10 +37,12 @@ public abstract class AbstractInboundFrame {
     private InboundParameters inboundParameters = null;
     private List<CollectedData> collectedDatas;
     private String[] parameters = new String[0];
+    private DeviceIdentifierBySerialNumberPlaceHolder deviceIdentifierBySerialNumberPlaceHolder;
 
     protected abstract FrameType getType();
 
-    public AbstractInboundFrame(String frame) {
+    public AbstractInboundFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
+        this.serialNumberPlaceHolder = serialNumberPlaceHolder;
         this.frame = frame;
         parse();
     }
@@ -88,27 +94,10 @@ public abstract class AbstractInboundFrame {
      *         false if no unique device could be found
      */
     private boolean findDevice() {
-        String serialNumber = getInboundParameters().getSerialNumber();
-        boolean found;
-
-        List<Device> devices = DeviceFactoryProvider.instance.get().getDeviceFactory().findBySerialNumber(serialNumber);
-        if (devices.size() != 1) {
-            device = null;
-            found = false;
-        } else {
-            device = devices.get(0);
-            found = true;
-        }
-
+        this.serialNumberPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
+        device = getDeviceIdentifierBySerialNumberPlaceHolder().findDevice();
         Environment.getDefault().closeConnection();
-        return found;
-    }
-
-    public int getDeviceId() {
-        if (device == null) {
-            return 0;
-        }
-        return device.getId();
+        return device != null;
     }
 
     public abstract void doParse();   //Parsing of meter data is specific for every sub class
@@ -147,5 +136,12 @@ public abstract class AbstractInboundFrame {
         for (String parameter : fullParameters) {
             parameters[count++] = parameter.trim();
         }
+    }
+
+    DeviceIdentifierBySerialNumberPlaceHolder getDeviceIdentifierBySerialNumberPlaceHolder(){
+        if(this.deviceIdentifierBySerialNumberPlaceHolder == null){
+            this.deviceIdentifierBySerialNumberPlaceHolder = new DeviceIdentifierBySerialNumberPlaceHolder(serialNumberPlaceHolder);
+        }
+        return this.deviceIdentifierBySerialNumberPlaceHolder;
     }
 }

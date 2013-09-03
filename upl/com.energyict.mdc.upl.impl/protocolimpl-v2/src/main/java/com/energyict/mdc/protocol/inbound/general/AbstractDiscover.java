@@ -70,6 +70,7 @@ public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
 
     protected void setSerialNumber (String serialNumber) {
         setDeviceIdentifier(new DeviceIdentifierBySerialNumber(serialNumber));
+        getInboundConnection().updateSerialNumberPlaceHolder(serialNumber);
     }
 
     protected void setDeviceIdentifier(DeviceIdentifier deviceIdentifier) {

@@ -11,6 +11,7 @@ import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.identifiers.LogBookIdentifierById;
+import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,8 +36,8 @@ public class EventPOFrame extends AbstractInboundFrame {
         return FrameType.EVENTP0;
     }
 
-    public EventPOFrame(String frame) {
-        super(frame);
+    public EventPOFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
+        super(frame, serialNumberPlaceHolder);
     }
 
     @Override

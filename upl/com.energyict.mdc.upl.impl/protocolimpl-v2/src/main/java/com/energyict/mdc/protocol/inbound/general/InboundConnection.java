@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.inbound.general.frames.EventPOFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RegisterFrame;
 import com.energyict.mdc.protocol.inbound.general.frames.RequestFrame;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class InboundConnection {
     private static final String EVENTPO = "EVENTPO";
     private static final int DEFAULT_DELAY_MILLIS = 10;
 
+    private final SerialNumberPlaceHolder serialNumberPlaceHolder = new SerialNumberPlaceHolder();
     private ComChannel comChannel;
     private int timeout;
     private int retries;
@@ -97,7 +99,7 @@ public class InboundConnection {
 
     private void shouldAck(AbstractInboundFrame inboundFrame) {
         if (framesToAck == null) {
-            framesToAck = new ArrayList<AbstractInboundFrame>();
+            framesToAck = new ArrayList<>();
         }
         framesToAck.add(inboundFrame);
     }
@@ -142,19 +144,19 @@ public class InboundConnection {
      */
     private AbstractInboundFrame parseInboundFrame(String frame) {
         if (frame.contains(REQUEST_TAG)) {
-            return new RequestFrame(frame);
+            return new RequestFrame(frame, serialNumberPlaceHolder);
         }
         if (frame.contains(EVENT_TAG)) {
-            return new EventFrame(frame);
+            return new EventFrame(frame, serialNumberPlaceHolder);
         }
         if (frame.contains(EVENTPO_TAG)) {
-            return new EventPOFrame(frame);
+            return new EventPOFrame(frame, serialNumberPlaceHolder);
         }
         if (frame.contains(DEPLOY_TAG)) {
-            return new DeployFrame(frame);
+            return new DeployFrame(frame, serialNumberPlaceHolder);
         }
         if (frame.contains(REGISTER_TAG)) {
-            return new RegisterFrame(frame);
+            return new RegisterFrame(frame, serialNumberPlaceHolder);
         }
         throw MdcManager.getComServerExceptionFactory().createUnExpectedInboundFrame(frame, "Unexpected frame type: '" + getFrameTag(frame) + "'. Expected REQUEST, DEPLOY, EVENT, EVENTPO or REGISTER");
     }
@@ -263,5 +265,9 @@ public class InboundConnection {
 
     private byte[] createAck(String frameTag) {
         return ("<" + frameTag + ">" + "OK" + "</" + frameTag + ">").getBytes();
+    }
+
+    public void updateSerialNumberPlaceHolder(String serialNumber) {
+        this.serialNumberPlaceHolder.setSerialNumber(serialNumber);
     }
 }

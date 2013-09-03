@@ -4,6 +4,7 @@ import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
 
 /**
  * Copyrights EnergyICT
@@ -18,8 +19,8 @@ public class DeployFrame extends AbstractInboundFrame {
         return FrameType.DEPLOY;
     }
 
-    public DeployFrame(String frame) {
-        super(frame);
+    public DeployFrame(String frame, SerialNumberPlaceHolder serialNumberPlaceHolder) {
+        super(frame, serialNumberPlaceHolder);
     }
 
     @Override
