@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.MeteringWarehouse;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class DeviceIdentifierBySerialNumberPlaceHolder implements DeviceIdentifi
     public Device findDevice() {
         // lazy load the device
         if(this.device == null){
-            List<Device> devicesBySerialNumber = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(serialNumberPlaceHolder.getSerialNumber());
+            List<Device> devicesBySerialNumber = DeviceFactoryProvider.instance.get().getDeviceFactory().findBySerialNumber(serialNumberPlaceHolder.getSerialNumber());
             if (devicesBySerialNumber.isEmpty()) {
                 return null;
             }
