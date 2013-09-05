@@ -7,6 +7,7 @@ import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
 import com.sun.jersey.spi.container.ResourceFilterFactory;
 import com.sun.jersey.spi.container.servlet.ServletContainer;
+import com.sun.jersey.api.json.*;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -51,6 +52,7 @@ public class WhiteBoard {
         	resourceFilterFactories.add(ResourceDebuggingFilterFactory.class);
         }
         secureConfig.getProperties().put(ResourceConfig.PROPERTY_RESOURCE_FILTER_FACTORIES, resourceFilterFactories);
+        secureConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
         try {
         	ServletContainer container = new ServletContainer(secureConfig);
         	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container));
@@ -80,7 +82,7 @@ public class WhiteBoard {
 		}
 
 		@Override
-		public void modifiedService(ServiceReference<Application> refernce, Application application) {						
+		public void modifiedService(ServiceReference<Application> reference, Application application) {						
 		}
 
 		@Override
