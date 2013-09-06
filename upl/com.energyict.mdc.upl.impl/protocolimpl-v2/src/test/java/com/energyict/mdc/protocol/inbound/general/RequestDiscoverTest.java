@@ -10,6 +10,7 @@ import com.energyict.mdc.meterdata.CollectedDataFactory;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedRegisterList;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.meterdata.NoLogBooksCollectedData;
 import com.energyict.mdc.meterdata.ResultType;
@@ -78,6 +79,8 @@ public class RequestDiscoverTest {
     protected IssueCollectorProvider issueCollectorProvider;
     @Mock
     protected IssueCollector issueCollector;
+    @Mock
+    private CollectedRegisterList collectedRegisterList;
 
     protected int count;
     protected byte[] inboundFrame;
@@ -105,6 +108,7 @@ public class RequestDiscoverTest {
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
 
         when(issueCollectorProvider.getIssueCollector()).thenReturn(issueCollector);
+        when(collectedDataFactory.createCollectedRegisterList(any(DeviceIdentifier.class))).thenReturn(this.collectedRegisterList);
         IssueCollectorProvider.instance.set(issueCollectorProvider);
     }
 
@@ -123,7 +127,7 @@ public class RequestDiscoverTest {
 
         assertThat(discoverResultType).isEqualTo(InboundDeviceProtocol.DiscoverResultType.DATA);
         assertThat(requestDiscover.getCollectedData()).isNotNull();
-        assertThat(requestDiscover.getCollectedData()).hasSize(2);
+        assertThat(requestDiscover.getCollectedData()).hasSize(1);
         assertThat(requestDiscover.getDeviceIdentifier().toString()).contains("204006174");
         verify(maxDemandCollectedRegister).setCollectedData(argThat(new ArgumentMatcher<Quantity>() {
             @Override
