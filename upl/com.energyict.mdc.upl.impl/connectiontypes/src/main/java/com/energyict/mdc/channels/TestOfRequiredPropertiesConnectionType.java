@@ -26,7 +26,7 @@ public class TestOfRequiredPropertiesConnectionType extends ConnectionTypeImpl {
     private final static PropertySpec<BigDecimal> BIG_DECIMAL_PROPERTY_SPEC  = PropertySpecFactory.bigDecimalPropertySpec("BigDecimal");
     private final static PropertySpec<Boolean> BOOLEAN_PROPERTY_SPEC = PropertySpecFactory.booleanPropertySpec("Boolean");
     private final static PropertySpec<Date> DATE_TIME_PROPERTY_SPEC = PropertySpecFactory.dateTimePropertySpec("DateTime");
-    private final static PropertySpec<Date> DATE_PROPERTY_SPEC = PropertySpecFactory.datePropertySpec("Date");
+    private final static PropertySpec<Date> DATE_PROPERTY_SPEC = PropertySpecFactory.datePropertySpec("MyDate");
     private final static PropertySpec<Ean13> EAN_13_PROPERTY_SPEC = PropertySpecFactory.ean13PropertySpec("Ean13");
     private final static PropertySpec<Ean18> EAN_18_PROPERTY_SPEC = PropertySpecFactory.ean18PropertySpec("Ean18");
     private final static PropertySpec<String> ENCRYPTED_STRING_PROPERTY_SPEC = PropertySpecFactory.encryptedStringPropertySpec("EncryptedString");
