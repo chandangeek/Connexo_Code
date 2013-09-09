@@ -46,8 +46,6 @@ public class SioSerialConnectionTypeTest {
         // asserts
         assertThat(serialConnectionType.getOptionalProperties()).isNotEmpty();
         assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
-        assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.SERIAL_PORT_READ_TIMEOUT_NAME));
-        assertThat(serialConnectionType.getOptionalProperties()).contains(serialConnectionType.getPropertySpec(SerialPortConfiguration.SERIAL_PORT_WRITE_TIMEOUT_NAME));
     }
 
     @Test

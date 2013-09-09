@@ -3,7 +3,6 @@ package com.energyict.mdc.channels.serial;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
-import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dynamicattributes.BigDecimalFactory;
 import com.energyict.dynamicattributes.StringFactory;
 import com.energyict.mdc.ports.ComPortType;
@@ -54,9 +53,6 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
         propertySpecs.put(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, this.nrOfStopBitsPropertySpec());
         propertySpecs.put(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, this.nrOfDataBitsPropertySpec());
         propertySpecs.put(SerialPortConfiguration.FLOW_CONTROL_NAME, this.flowControlPropertySpec());
-        propertySpecs.put(SerialPortConfiguration.SERIAL_PORT_OPEN_TIMEOUT_NAME, this.portOpenTimeOutSpec());
-        propertySpecs.put(SerialPortConfiguration.SERIAL_PORT_READ_TIMEOUT_NAME, this.portReadTimeOutSpec());
-        propertySpecs.put(SerialPortConfiguration.SERIAL_PORT_WRITE_TIMEOUT_NAME, this.portWriteTimeOutSpec());
     }
 
     protected PropertySpec<String> flowControlPropertySpec() {
@@ -108,18 +104,6 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
                 finish();
     }
 
-    protected PropertySpec portOpenTimeOutSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(SerialPortConfiguration.SERIAL_PORT_OPEN_TIMEOUT_NAME, SerialPortConfiguration.DEFAULT_SERIAL_PORT_OPEN_TIMEOUT);
-    }
-
-    protected PropertySpec portReadTimeOutSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(SerialPortConfiguration.SERIAL_PORT_READ_TIMEOUT_NAME, SerialPortConfiguration.DEFAULT_SERIAL_PORT_READ_TIMEOUT);
-    }
-
-    protected PropertySpec portWriteTimeOutSpec() {
-        return PropertySpecFactory.timeDurationPropertySpec(SerialPortConfiguration.SERIAL_PORT_WRITE_TIMEOUT_NAME, SerialPortConfiguration.DEFAULT_SERIAL_PORT_WRITE_TIMEOUT);
-    }
-
     protected Parities getParityValue() {
         return Parities.valueFor((String) getProperty(SerialPortConfiguration.PARITY_NAME));
     }
@@ -141,18 +125,11 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     }
 
     protected BigDecimal getPortOpenTimeOutValue() {
-        TimeDuration value = (TimeDuration) getProperty(SerialPortConfiguration.SERIAL_PORT_OPEN_TIMEOUT_NAME);
-        return this.nrOfMilliSecondsOfTimeDuration(value);
+        return this.nrOfMilliSecondsOfTimeDuration(SerialPortConfiguration.DEFAULT_SERIAL_PORT_OPEN_TIMEOUT);
     }
 
     protected BigDecimal getPortReadTimeOutValue() {
-        TimeDuration value = (TimeDuration) getProperty(SerialPortConfiguration.SERIAL_PORT_READ_TIMEOUT_NAME);
-        return this.nrOfMilliSecondsOfTimeDuration(value);
-    }
-
-    protected BigDecimal getPortWriteTimeOutValue() {
-        TimeDuration value = (TimeDuration) getProperty(SerialPortConfiguration.SERIAL_PORT_WRITE_TIMEOUT_NAME);
-        return this.nrOfMilliSecondsOfTimeDuration(value);
+        return this.nrOfMilliSecondsOfTimeDuration(SerialPortConfiguration.DEFAULT_SERIAL_PORT_READ_TIMEOUT);
     }
 
     protected BigDecimal nrOfMilliSecondsOfTimeDuration(TimeDuration value) {

@@ -12,7 +12,6 @@ import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,7 +54,7 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        List<PropertySpec> propertySpecs = new ArrayList<PropertySpec>(4);
+        List<PropertySpec> propertySpecs = new ArrayList<>(4);
         propertySpecs.add(this.baudRatePropertySpec());
         propertySpecs.add(this.nrOfStopBitsPropertySpec());
         propertySpecs.add(this.parityPropertySpec());
@@ -65,10 +64,9 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(
-                this.flowControlPropertySpec(),
-                this.portOpenTimeOutSpec(),
-                this.portReadTimeOutSpec());
+        List<PropertySpec> propertySpecs = new ArrayList<>(1);
+        propertySpecs.add(this.flowControlPropertySpec());
+        return propertySpecs;
     }
 
     /**

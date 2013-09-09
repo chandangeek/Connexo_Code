@@ -3,13 +3,20 @@ package com.energyict.mdc.channels.serial.direct.serialio;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.dynamicattributes.BigDecimalFactory;
-import com.energyict.mdc.channels.serial.*;
+import com.energyict.mdc.channels.serial.AbstractSerialConnectionType;
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.tasks.ConnectionType} interface for Serial communication.
@@ -40,12 +47,6 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
         }
         SerialPortConfiguration serialPortConfiguration = new SerialPortConfiguration(comPort.getName(), getBaudRateValue(), getNrOfDataBitsValue(),
                 getNrOfStopBitsValue(), getParityValue(), getFlowControlValue());
-        if (getPortReadTimeOutValue() != null) {
-            serialPortConfiguration.setSerialPortReadTimeOut(getPortReadTimeOutValue());
-        }
-        if(getPortWriteTimeOutValue() != null){
-            serialPortConfiguration.setSerialPortWriteTimeOut(getPortWriteTimeOutValue());
-        }
         return serialPortConfiguration;
     }
 
@@ -114,9 +115,8 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return Arrays.asList(
-                this.flowControlPropertySpec(),
-                this.portReadTimeOutSpec(),
-                this.portWriteTimeOutSpec());
+        List<PropertySpec> propertySpecs = new ArrayList<>(1);
+        propertySpecs.add(this.flowControlPropertySpec());
+        return propertySpecs;
     }
 }

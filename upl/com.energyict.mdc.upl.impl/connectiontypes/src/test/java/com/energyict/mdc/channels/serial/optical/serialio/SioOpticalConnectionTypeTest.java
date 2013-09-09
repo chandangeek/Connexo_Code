@@ -43,8 +43,6 @@ public class SioOpticalConnectionTypeTest {
         // asserts
         assertThat(sioOpticalConnectionType.getOptionalProperties()).isNotEmpty();
         assertThat(sioOpticalConnectionType.getOptionalProperties()).contains(sioOpticalConnectionType.getPropertySpec(SerialPortConfiguration.FLOW_CONTROL_NAME));
-        assertThat(sioOpticalConnectionType.getOptionalProperties()).contains(sioOpticalConnectionType.getPropertySpec(SerialPortConfiguration.SERIAL_PORT_READ_TIMEOUT_NAME));
-        assertThat(sioOpticalConnectionType.getOptionalProperties()).contains(sioOpticalConnectionType.getPropertySpec(SerialPortConfiguration.SERIAL_PORT_WRITE_TIMEOUT_NAME));
     }
 
 }
