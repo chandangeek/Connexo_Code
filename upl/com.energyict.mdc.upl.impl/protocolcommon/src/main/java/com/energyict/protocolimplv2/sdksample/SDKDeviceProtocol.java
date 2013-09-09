@@ -106,7 +106,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+        return Arrays.asList(DeviceProtocolCapabilities.values());
     }
 
     @Override
