@@ -229,6 +229,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     // Rtu+ Server
     RtuServer(196, "com.energyict.rtuprotocol.RtuServer", FamilyRule.EICT_RTU_EMS, FamilyRule.ELSTER_PLC, FamilyRule.IDIS_P1),
 
+    EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", FamilyRule.EICT_RTU_EMS),
+
     // Deprecated
     AS300D_ELSTER(10000, "com.energyict.protocolimpl.dlms.elster.as300d.AS300D"),
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

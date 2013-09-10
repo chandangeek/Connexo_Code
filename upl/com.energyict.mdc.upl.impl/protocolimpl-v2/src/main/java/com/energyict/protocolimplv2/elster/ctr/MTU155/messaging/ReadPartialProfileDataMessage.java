@@ -68,7 +68,7 @@ public class ReadPartialProfileDataMessage extends AbstractMTU155Message {
                 throw new CTRException("LoadProfile returned no data.");
             } else {
                 for (CollectedLoadProfile collectedLoadProfile : collectedLoadProfiles) {
-                    if (collectedLoadProfile.getIssue().isProblem() || collectedLoadProfile.getCollectedIntervalData().size() == 0) {
+                    if (collectedLoadProfile.getIssues().get(0).isProblem() || collectedLoadProfile.getCollectedIntervalData().size() == 0) {
                         throw new CTRException("LoadProfile returned no interval data.");
                     }
                 }

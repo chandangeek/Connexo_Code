@@ -23,12 +23,12 @@ public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect
 
     @Override
     public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<PropertySpec>(0);
+        return new ArrayList<>(0);
     }
 
     @Override
     public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<PropertySpec>(0);
+        return new ArrayList<>(0);
     }
 
     @Override
@@ -38,6 +38,6 @@ public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect
 
     @Override
     public String getDisplayName() {
-        return "Default";
+        return "Default with no properties";
     }
 }

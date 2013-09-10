@@ -205,7 +205,7 @@ public class SmsHandlerTest {
         assertEquals("Wrong channelInfo name", "7.0.43.0.0.255", channelInfo.getName());
         assertEquals("Wrong channelInfo unit", "m3/h", channelInfo.getUnit().toString());
 
-        assertEquals("Expecting no issues", null, collectedProfile.getIssue());
+        assertEquals("Expecting no issues", null, collectedProfile.getIssues());
         assertTrue("Expecting doStoreOlderValues to be true", collectedProfile.doStoreOlderValues());
         assertEquals("Expecting resultType 'Supported'", ResultType.Supported.ordinal(), collectedProfile.getResultType().ordinal());
     }
@@ -258,7 +258,7 @@ public class SmsHandlerTest {
         assertEquals("Wrong channelInfo name", "7.0.42.0.0.255", channelInfo.getName());
         assertEquals("Wrong channelInfo unit", "bar", channelInfo.getUnit().toString());
 
-        assertEquals("Expecting no issues", null, collectedProfile.getIssue());
+        assertEquals("Expecting no issues", null, collectedProfile.getIssues());
         assertTrue("Expecting doStoreOlderValues to be true", collectedProfile.doStoreOlderValues());
         assertEquals("Expecting resultType 'Supported'", ResultType.Supported.ordinal(), collectedProfile.getResultType().ordinal());
     }
@@ -278,7 +278,7 @@ public class SmsHandlerTest {
         } else {
             assertTrue("Unexpected register text", text.equals(deviceRegister.getText()));
         }
-        assertEquals("No issues expected", null, deviceRegister.getIssue());
+        assertEquals("No issues expected", null, deviceRegister.getIssues());
         assertEquals("ResultType doesn't match", 0, deviceRegister.getResultType().ordinal());
     }
 
