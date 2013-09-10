@@ -8,7 +8,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class OrmClientImpl implements OrmClient {
+class OrmClientImpl implements OrmClient {
 
     private final DataModel dataModel;
 

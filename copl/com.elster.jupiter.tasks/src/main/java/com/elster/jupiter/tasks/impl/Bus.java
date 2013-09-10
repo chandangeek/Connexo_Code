@@ -7,23 +7,10 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
-public enum Bus {
+enum Bus {
     ;
 
     public static final String COMPONENTNAME = "TSK";
-
-    private static final Logger LOGGER = initLogger();
-
-    private static Logger initLogger() {
-        Logger logger = Logger.getLogger(COMPONENTNAME);
-        logger.setLevel(Level.ALL);
-        return logger;
-    }
 
     private static volatile ServiceLocator serviceLocator;
 
@@ -32,26 +19,6 @@ public enum Bus {
     }
 
     public static void setServiceLocator(final ServiceLocator serviceLocator) {
-        if (serviceLocator == null) {
-            for (Handler handler : LOGGER.getHandlers()) {
-                LOGGER.removeHandler(handler);
-            }
-        } else {
-            LOGGER.addHandler(new Handler() {
-                @Override
-                public void publish(LogRecord record) {
-                    serviceLocator.getLogService().log(record.getLevel().intValue(), record.getMessage(), record.getThrown());
-                }
-
-                @Override
-                public void flush() {
-                }
-
-                @Override
-                public void close() throws SecurityException {
-                }
-            });
-        }
         Bus.serviceLocator = serviceLocator;
     }
 
@@ -65,10 +32,6 @@ public enum Bus {
 
     public static QueryService getQueryService() {
         return serviceLocator.getQueryService();
-    }
-
-    public static Logger getLogger() {
-        return LOGGER;
     }
 
     public static CronExpressionParser getCronExpressionParser() {

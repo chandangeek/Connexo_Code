@@ -2,7 +2,6 @@ package com.elster.jupiter.tasks;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.util.HasName;
-import com.elster.jupiter.util.time.Clock;
 
 import java.util.Date;
 
@@ -13,7 +12,7 @@ public interface RecurrentTask extends HasName {
 
     long getId();
 
-    void updateNextExecution(Clock clock);
+    void updateNextExecution();
 
     DestinationSpec getDestination();
 
@@ -21,7 +20,7 @@ public interface RecurrentTask extends HasName {
 
     Date getNextExecution();
 
-    TaskOccurrence createTaskOccurrence(Clock clock);
+    TaskOccurrence createTaskOccurrence();
 
     void save();
 

@@ -7,7 +7,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface OrmClient {
+interface OrmClient {
     DataMapper<RecurrentTask> getRecurrentTaskFactory();
     DataMapper<TaskOccurrence> getTaskOccurrenceFactory();
     Connection getConnection() throws SQLException;

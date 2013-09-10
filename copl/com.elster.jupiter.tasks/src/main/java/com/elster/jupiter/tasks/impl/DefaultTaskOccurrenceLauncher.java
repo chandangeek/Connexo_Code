@@ -4,10 +4,16 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.VoidTransaction;
 
-public class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
+/**
+ * TaskOccurrenceLauncher that queries for due tasks and creates a TaskOccurrence for each, then posts a message
+ */
+class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
 
     private final DueTaskFetcher dueTaskFetcher;
 
+    /**
+     * @param dueTaskFetcher
+     */
     public DefaultTaskOccurrenceLauncher(DueTaskFetcher dueTaskFetcher) {
         this.dueTaskFetcher = dueTaskFetcher;
     }
@@ -24,10 +30,10 @@ public class DefaultTaskOccurrenceLauncher implements TaskOccurrenceLauncher {
 
     private void launchOccurrencesForDueTasks() {
         for (RecurrentTask recurrentTask : getDueTasks()) {
-            TaskOccurrence taskOccurrence = recurrentTask.createTaskOccurrence(Bus.getClock());
+            TaskOccurrence taskOccurrence = recurrentTask.createTaskOccurrence();
             String json = toJson(taskOccurrence);
             recurrentTask.getDestination().message(json).send();
-            recurrentTask.updateNextExecution(Bus.getClock());
+            recurrentTask.updateNextExecution();
             recurrentTask.save();
         }
     }

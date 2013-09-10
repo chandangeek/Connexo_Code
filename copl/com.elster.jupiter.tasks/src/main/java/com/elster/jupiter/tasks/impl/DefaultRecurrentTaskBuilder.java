@@ -5,7 +5,10 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 
-public class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
+/**
+ * RecurrentTaskBuilder implementation that builds instances of RecurrentTaskImpl
+ */
+class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
 
     private final CronExpressionParser cronExpressionParser;
 
@@ -53,7 +56,7 @@ public class DefaultRecurrentTaskBuilder implements RecurrentTaskBuilder {
     public RecurrentTask build() {
         RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(name, cronExpressionParser.parse(cronString), destination, payload);
         if (scheduleImmediately) {
-            recurrentTask.updateNextExecution(Bus.getClock());
+            recurrentTask.updateNextExecution();
         }
         return recurrentTask;
     }

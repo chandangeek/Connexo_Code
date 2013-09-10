@@ -1,5 +1,5 @@
 package com.elster.jupiter.tasks.impl;
 
-public interface TaskOccurrenceLauncher extends Runnable {
+interface TaskOccurrenceLauncher extends Runnable {
 
 }

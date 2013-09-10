@@ -2,13 +2,13 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
-import java.sql.SQLException;
-
-public class TaskExecutionMessageHandler implements MessageHandler {
+/**
+ * Handles Messages that contain a TaskOccurrenceMessage and passes the matching TaskOccurrence instance to the configured TaskExecutor
+ */
+class TaskExecutionMessageHandler implements MessageHandler {
 
     private final TaskExecutor taskExecutor;
 
@@ -25,14 +25,10 @@ public class TaskExecutionMessageHandler implements MessageHandler {
     }
 
     private TaskOccurrence getTaskOccurrence(Message message) {
-        try {
-            return Bus.getOrmClient().getTaskOccurrenceFactory().get(getTaskOccurrenceMessage(message).taskOccurrenceId).get();
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
+        return Bus.getOrmClient().getTaskOccurrenceFactory().get(getTaskOccurrenceMessage(message).taskOccurrenceId).get();
     }
 
-    private TaskOccurrenceMessage getTaskOccurrenceMessage(Message message) throws SQLException {
+    private TaskOccurrenceMessage getTaskOccurrenceMessage(Message message) {
         return Bus.getJsonService().deserialize(message.getPayload(), TaskOccurrenceMessage.class);
 
     }

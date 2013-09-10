@@ -6,7 +6,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Date;
 
-public class TaskOccurrenceImpl implements TaskOccurrence {
+class TaskOccurrenceImpl implements TaskOccurrence {
 
     private long id;
     private long recurrentTaskId;

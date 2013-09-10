@@ -4,7 +4,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.cron.CronExpression;
-import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Date;
@@ -43,8 +42,8 @@ class RecurrentTaskImpl implements RecurrentTask {
     }
 
     @Override
-    public void updateNextExecution(Clock clock) {
-        nextExecution = new UtcInstant(getCronExpression().nextAfter(clock.now()));
+    public void updateNextExecution() {
+        nextExecution = new UtcInstant(getCronExpression().nextAfter(Bus.getClock().now()));
     }
 
     private CronExpression getCronExpression() {
@@ -69,12 +68,12 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public Date getNextExecution() {
-        return nextExecution.toDate();
+        return nextExecution == null ? null : nextExecution.toDate();
     }
 
     @Override
-    public TaskOccurrence createTaskOccurrence(Clock clock) {
-        TaskOccurrence occurrence = new TaskOccurrenceImpl(this, clock.now());
+    public TaskOccurrence createTaskOccurrence() {
+        TaskOccurrence occurrence = new TaskOccurrenceImpl(this, Bus.getClock().now());
         occurrence.save();
         return occurrence;
     }
@@ -105,7 +104,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public void resume() {
-        updateNextExecution(Bus.getClock());
+        updateNextExecution();
         save();
     }
 

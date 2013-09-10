@@ -65,11 +65,11 @@ public class TaskOccurrenceLauncherTest {
         when(serviceLocator.getJsonService()).thenReturn(jsonService);
         when(dueTaskFetcher.dueTasks()).thenReturn(Arrays.asList(recurrentTask1, recurrentTask2));
         when(recurrentTask1.getDestination()).thenReturn(destinationSpec1);
-        when(recurrentTask1.createTaskOccurrence(clock)).thenReturn(taskOccurrence1);
+        when(recurrentTask1.createTaskOccurrence()).thenReturn(taskOccurrence1);
         when(taskOccurrence1.getId()).thenReturn(1L);
         when(taskOccurrence2.getId()).thenReturn(2L);
         when(recurrentTask2.getDestination()).thenReturn(destinationSpec2);
-        when(recurrentTask2.createTaskOccurrence(clock)).thenReturn(taskOccurrence2);
+        when(recurrentTask2.createTaskOccurrence()).thenReturn(taskOccurrence2);
         when(destinationSpec1.message(anyString())).thenReturn(messageBuilder);
         when(destinationSpec2.message(anyString())).thenReturn(messageBuilder);
 

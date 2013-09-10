@@ -8,7 +8,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.log.LogService;
 
-public interface ServiceLocator {
+interface ServiceLocator {
 
     Clock getClock();
 
