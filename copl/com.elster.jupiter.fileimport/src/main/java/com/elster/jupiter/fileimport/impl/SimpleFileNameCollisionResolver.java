@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 /**
  * FileNameCollisionResolver that resolves conflicts by appending a number to the original file name in case of a conflict.
  */
-public class SimpleFileNameCollisionResolver implements FileNameCollisionResolver {
+class SimpleFileNameCollisionResolver implements FileNameCollisionResolver {
 
     @Override
     public Path resolve(Path path) {

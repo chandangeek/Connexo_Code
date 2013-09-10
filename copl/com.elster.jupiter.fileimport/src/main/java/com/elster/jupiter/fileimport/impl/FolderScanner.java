@@ -6,7 +6,7 @@ import java.util.Iterator;
 /**
  * Scans a folder for files to be imported.
  */
-public interface FolderScanner {
+interface FolderScanner {
 
     /**
      * @return the next new file in the scanned folder.

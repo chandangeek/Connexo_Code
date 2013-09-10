@@ -8,7 +8,7 @@ import com.elster.jupiter.orm.DataModel;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class OrmClientImpl implements OrmClient {
+class OrmClientImpl implements OrmClient {
 
     private final DataModel dataModel;
 

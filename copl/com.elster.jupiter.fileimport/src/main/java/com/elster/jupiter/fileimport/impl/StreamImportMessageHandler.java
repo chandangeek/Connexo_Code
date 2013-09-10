@@ -8,7 +8,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 /**
  * MessageHandler that interprets messages to contain FileImportMessages, and that consequently passes the matching FileImport instance to the configured FileImporter.
  */
-public class StreamImportMessageHandler implements MessageHandler {
+class StreamImportMessageHandler implements MessageHandler {
 
     private final FileImporter streamImporter;
 

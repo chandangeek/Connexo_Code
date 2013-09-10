@@ -5,7 +5,7 @@ import java.nio.file.Path;
 /**
  * Abstraction for algorithms to generate a Path name that does not exist yet in a directory, so a new File can be created with the generated Path
  */
-public interface FileNameCollisionResolver {
+interface FileNameCollisionResolver {
 
     /**
      * @param path path pointing to a file.

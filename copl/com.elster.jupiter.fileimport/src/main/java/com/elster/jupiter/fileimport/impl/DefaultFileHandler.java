@@ -10,7 +10,7 @@ import java.io.File;
 /**
  * FileHandler implementation that handles files by creating a FileImport and posting a message on the fileImport queue with the FileImport id.
  */
-public class DefaultFileHandler implements FileHandler {
+class DefaultFileHandler implements FileHandler {
 
     private final ImportSchedule importSchedule;
 

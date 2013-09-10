@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * Interface for classes that can handle Files to import.
  */
-public interface FileHandler {
+interface FileHandler {
 
     void handle(File path);
 }

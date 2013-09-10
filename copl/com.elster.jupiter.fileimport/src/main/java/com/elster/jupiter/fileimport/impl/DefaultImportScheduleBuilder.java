@@ -7,7 +7,7 @@ import com.elster.jupiter.util.cron.CronExpression;
 
 import java.io.File;
 
-public class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
+class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
     private transient DestinationSpec destination;
     private File importDirectory;

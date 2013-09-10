@@ -6,7 +6,7 @@ import java.util.Iterator;
 /**
  * Runnable that passes the files of a FolderScanner to the configured FileHandler
  */
-public class FolderScanningJob implements Runnable {
+class FolderScanningJob implements Runnable {
 
     private final FolderScanner scanner;
     private final FileHandler handler;

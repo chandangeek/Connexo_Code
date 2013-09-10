@@ -12,7 +12,7 @@ import java.util.Iterator;
 /**
  * FolderScanner that simply lists the files in the Folder.
  */
-public class PollingFolderScanner implements FolderScanner {
+class PollingFolderScanner implements FolderScanner {
 
     private final Path directory;
 

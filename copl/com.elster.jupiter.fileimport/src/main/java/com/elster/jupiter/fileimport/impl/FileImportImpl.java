@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-public class FileImportImpl implements FileImport {
+class FileImportImpl implements FileImport {
 
     private long id;
     private ImportSchedule importSchedule;

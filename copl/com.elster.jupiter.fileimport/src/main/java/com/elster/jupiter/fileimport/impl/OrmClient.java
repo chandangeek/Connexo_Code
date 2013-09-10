@@ -7,7 +7,7 @@ import com.elster.jupiter.orm.DataMapper;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public interface OrmClient {
+interface OrmClient {
 
     DataMapper<ImportSchedule> getImportScheduleFactory();
 

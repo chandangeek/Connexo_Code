@@ -11,7 +11,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class DefaultFileSystem implements FileSystem {
+class DefaultFileSystem implements FileSystem {
 
     @Override
     public InputStream getInputStream(File file) throws FileIOException {

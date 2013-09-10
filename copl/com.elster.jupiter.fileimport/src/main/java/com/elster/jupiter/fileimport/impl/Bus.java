@@ -8,7 +8,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.log.LogService;
 
-public enum Bus {
+enum Bus {
     ;
 
     static final String COMPONENTNAME = "FIM";
