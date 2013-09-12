@@ -1,39 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <assembly>
-	<id>protocols</id>
-	
-	<formats>
-		<!-- 
-			Disable the zip or in fact any archived format due to broken duplicate file detection in the assembly plugin.
-			
-			http://jira.codehaus.org/browse/MASSEMBLY-285
-		 -->
-		<!--<format>zip</format>-->
-		
-		<format>dir</format>
-	</formats>
-	
-	<includeBaseDirectory>false</includeBaseDirectory>
-	
-	<moduleSets>
-		<!--  moduleSet for the commServer regarding ProtocolImpl and DLMS -->
-		<moduleSet>
-			<includes>
-				<include>com.energyict:dlms</include>
-				<include>com.energyict:connectiontypes</include>
-				<include>com.energyict:protocolimpl</include>
-				<include>com.energyict:protocolimpl-v2</include>
+    <id>protocols</id>
+
+    <formats>
+        <!--
+            Disable the zip or in fact any archived format due to broken duplicate file detection in the assembly plugin.
+
+            http://jira.codehaus.org/browse/MASSEMBLY-285
+         -->
+        <!--<format>zip</format>-->
+
+        <format>dir</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <moduleSets>
+        <!--  moduleSet for the commServer regarding ProtocolImpl and DLMS -->
+        <moduleSet>
+            <includes>
+                <include>com.energyict:dlms</include>
+                <include>com.energyict:connectiontypes</include>
+                <include>com.energyict:protocolimpl</include>
+                <include>com.energyict:protocolimpl-v2</include>
                 <include>com.energyict:protocolcommon</include>
                 <include>com.energyict:protocolimpl-elster</include>
-			</includes>
-			
-			<binaries>
-				<unpack>false</unpack>
-				<outputDirectory>bin-all/protocol</outputDirectory>
-				<includeDependencies>true</includeDependencies>
-			</binaries>
-		</moduleSet>
-			
-	</moduleSets>
+            </includes>
+
+            <binaries>
+                <unpack>false</unpack>
+                <outputDirectory>lib/protocol</outputDirectory>
+                <dependencySets>
+                    <dependencySet>
+                        <excludes>
+                            <exclude>com.energyict:*</exclude>
+                            <exclude>com.energyict.comserver:*</exclude>
+                            <exclude>org.aspectj:*</exclude>
+                            <exclude>org.perf4j:*</exclude>
+                            <exclude>org.json:*</exclude>
+                        </excludes>
+                        <useTransitiveDependencies>true</useTransitiveDependencies>
+                        <useTransitiveFiltering>true</useTransitiveFiltering>
+                    </dependencySet>
+                </dependencySets>
+                <includeDependencies>true</includeDependencies>
+            </binaries>
+        </moduleSet>
+
+    </moduleSets>
 </assembly>
