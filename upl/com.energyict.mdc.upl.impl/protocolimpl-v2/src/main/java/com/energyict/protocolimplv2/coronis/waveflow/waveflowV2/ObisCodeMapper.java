@@ -105,7 +105,7 @@ public class ObisCodeMapper implements DeviceRegisterSupport {
                 collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(this, "Module doesn't have valve support"));
             }
         } else {
-            return waveFlow.getCommonObisCodeMapper().getRegisterValue(obisCode);
+            collectedRegister = waveFlow.getCommonObisCodeMapper().getRegisterValue(obisCode);
         }
         collectedRegister.setReadTime(new Date());
         return collectedRegister;
