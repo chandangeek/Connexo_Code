@@ -158,9 +158,17 @@ public class PacketBuilder {
 
         this.logger.finest("DataLen  = " + this.contentLength);
 
+        StringBuilder dataStringBuilder = new StringBuilder();
         for (int i = 0; i < this.data.length; i++) {
-            this.logger.finest(Integer.toHexString(this.data[i] & LOWER_BYTE_BIT_MASK) + " ");
+            dataStringBuilder.append(Integer.toHexString(this.data[i] & LOWER_BYTE_BIT_MASK) + " ");
         }
+        this.logger.finest(limitToVarchar2Length(dataStringBuilder));
+    }
+
+    private String limitToVarchar2Length(StringBuilder dataStringBuilder) {
+        String data = dataStringBuilder.toString();
+        int subStringLength = data.length() >= 4000?4000: data.length();
+        return data.substring(0, subStringLength);
     }
 
     public void parse(String id, String seq, String utc, String code, String statebits, String mask, String value, String ip, String sn, String xmlctr)
