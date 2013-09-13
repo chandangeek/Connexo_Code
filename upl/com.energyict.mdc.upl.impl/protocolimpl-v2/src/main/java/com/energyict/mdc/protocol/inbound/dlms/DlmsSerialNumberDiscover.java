@@ -11,9 +11,11 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.InboundDeviceProtocol;
-import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
 import com.energyict.mdc.protocol.inbound.dlms.aso.SimpleApplicationServiceObject;
+import com.energyict.mdc.protocol.inbound.general.AbstractDiscover;
+import com.energyict.mdc.protocol.inbound.general.InboundConnection;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
@@ -52,6 +54,7 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
     @Override
     public InboundDeviceProtocol.DiscoverResultType doDiscovery() {
         try {
+            setInboundConnection();
             init();
             connect();
             try {
@@ -64,6 +67,11 @@ public class DlmsSerialNumberDiscover extends AbstractDiscover {
         }
 
         return DiscoverResultType.IDENTIFIER;
+    }
+
+    private void setInboundConnection() {
+        ComChannel comChannel = this.getComChannel();
+        this.setInboundConnection(new InboundConnection(comChannel, getTimeOutProperty(), getRetriesProperty()));
     }
 
     public void init() throws IOException {
