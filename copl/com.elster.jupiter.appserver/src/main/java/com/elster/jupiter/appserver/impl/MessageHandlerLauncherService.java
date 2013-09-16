@@ -4,14 +4,12 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.security.thread.RunAs;
 import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.log.LogService;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -22,11 +20,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-@Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", immediate=true )
+@Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", immediate = true)
 public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
-    private volatile LogService logService;
 
     private Map<MessageHandlerFactory, ExecutorService> executors = new HashMap<>();
     private Map<ExecutorService, List<Future<?>>> futures = new HashMap<>();
@@ -55,15 +52,10 @@ public class MessageHandlerLauncherService {
         Bus.setServiceLocator(null);
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(MessageHandlerFactory factory, Map<String, Object> map) {
-        try {
-            String subscriberName = (String) map.get("subscriber");
-            addMessageHandlerFactory(subscriberName, factory);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            throw e;
-        }
+        String subscriberName = (String) map.get("subscriber");
+        addMessageHandlerFactory(subscriberName, factory);
     }
 
     private void addMessageHandlerFactory(String subscriberName, MessageHandlerFactory factory) {
@@ -92,8 +84,8 @@ public class MessageHandlerLauncherService {
 
     private Principal getBatchPrincipal() {
         if (batchPrincipal == null) {
-            String batchExecutroName = "batch executor";
-            batchPrincipal = Bus.getUserService().findUser(batchExecutroName).get();
+            String batchExecutorName = "batch executor";
+            batchPrincipal = Bus.getUserService().findUser(batchExecutorName).get();
         }
         return batchPrincipal;
     }
@@ -115,11 +107,6 @@ public class MessageHandlerLauncherService {
         return Optional.absent();
     }
 
-    public void removeResource(MessageHandlerFactory factory) {
-        ExecutorService executorService = executors.remove(factory);
-        shutDownServiceWithCancelling(executorService);
-    }
-
     private void shutDownServiceWithCancelling(ExecutorService executorService) {
         for (Future<?> future : futures.get(executorService)) {
             future.cancel(false);
@@ -131,20 +118,6 @@ public class MessageHandlerLauncherService {
             Thread.currentThread().interrupt();
         }
     }
-
-    LogService getLogService() {
-        return logService;
-    }
-
-    @Reference
-    public void setLogService(LogService logService) {
-        this.logService = logService;
-    }
-
-    private Runnable withPrincipal(Principal principal, Runnable runnable) {
-        return new RunAs(Bus.getThreadPrincipalService(), principal, runnable);
-    }
-
 
 
 }

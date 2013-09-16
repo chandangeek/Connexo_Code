@@ -5,11 +5,14 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.transaction.VoidTransaction;
 
-import java.sql.SQLException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MessageHandlerTask implements ProvidesCancellableFuture {
+
+    private static final Logger logger = Logger.getLogger(MessageHandlerTask.class.getName());
 
     private final SubscriberSpec subscriberSpec;
     private final MessageHandler handler;
@@ -26,14 +29,13 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
             try {
                 Bus.getTransactionService().execute(processTransaction);
             } catch (RuntimeException e) {
-                e.printStackTrace();
-                System.out.println("Message handler stopped");
-                throw e;
+                logger.log(Level.SEVERE, "Message handler failed", e);
+                // transaction has been rolled back, message will be reoffered after a delay or moved to dead letter queue as configured, we can just continue with the next message
             }
         }
     }
 
-    public void cancel() throws SQLException {
+    public void cancel() {
         subscriberSpec.cancel();
     }
 
@@ -42,11 +44,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
         return new FutureTask<T>(this, result) {
             @Override
             public boolean cancel(boolean mayInterruptIfRunning) {
-                try {
-                    MessageHandlerTask.this.cancel();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                MessageHandlerTask.this.cancel();
                 return super.cancel(mayInterruptIfRunning);
             }
         };
