@@ -1,11 +1,13 @@
 package com.elster.jupiter.transaction;
 
+import com.elster.jupiter.util.exception.BaseException;
+
 import java.sql.SQLException;
 
 /**
  * Thrown when a database commit fails, throwing a SQLException.
  */
-public class CommitException extends RuntimeException {
+public class CommitException extends BaseException {
 	
 	private static final long serialVersionUID = 1;
 
@@ -13,6 +15,6 @@ public class CommitException extends RuntimeException {
      * @param ex the cause
      */
 	public CommitException(SQLException ex) {
-		super(ex);
+		super(ExceptionTypes.COMMIT_FAILED, ex);
 	}
 }

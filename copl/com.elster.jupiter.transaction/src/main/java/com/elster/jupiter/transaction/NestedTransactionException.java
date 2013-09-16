@@ -1,13 +1,15 @@
 package com.elster.jupiter.transaction;
 
+import com.elster.jupiter.util.exception.BaseException;
+
 /**
  * Thrown when attempting to execute a nested transaction.
  */
-public class NestedTransactionException extends RuntimeException {
+public class NestedTransactionException extends BaseException {
 	
 	private static final long serialVersionUID = 1;
 	
 	public NestedTransactionException() {
-        super("Nested transactions are not allowed.");
+        super(ExceptionTypes.NESTED_TRANSACTION, "Nested transactions are not allowed.");
 	}
 }

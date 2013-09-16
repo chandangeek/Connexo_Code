@@ -12,8 +12,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
 
 @Component (name = "com.elster.jupiter.datasource" )
-public class
-        TransactionalDataSource implements DataSource {
+public class TransactionalDataSource implements DataSource {
 	private volatile TransactionServiceImpl transactionManager;
 	
 	public TransactionalDataSource() {

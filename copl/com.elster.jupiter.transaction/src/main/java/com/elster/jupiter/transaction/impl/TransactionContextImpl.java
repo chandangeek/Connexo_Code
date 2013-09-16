@@ -6,7 +6,7 @@ import java.sql.SQLException;
 class TransactionContextImpl {	
 	private final TransactionServiceImpl  transactionService;
 	private Connection connection;
-	private boolean rollback = false;
+	private boolean rollback;
 	
 	TransactionContextImpl(TransactionServiceImpl transactionService) {
 		this.transactionService = transactionService;

@@ -24,12 +24,12 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	
 	@Override
-	public <T> T execute(Transaction<T> runnable) {
+	public <T> T execute(Transaction<T> transaction) {
         if (isInTransaction()) {
             throw new NestedTransactionException();
         }
         try {
-            return doExecute(runnable);
+            return doExecute(transaction);
         } catch (SQLException ex) {
             throw new CommitException(ex);
         }
