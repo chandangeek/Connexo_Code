@@ -3,8 +3,6 @@ package com.elster.jupiter.messaging;
 
 import com.elster.jupiter.util.HasName;
 
-import java.sql.SQLException;
-
 /**
  * Models a Subscriber on a Destination.
  */
@@ -23,7 +21,6 @@ public interface SubscriberSpec extends HasName {
 
     /**
      * Other threads may safely invoke this method to cancel a blocking receive().
-     * @throws SQLException
      */
-    void cancel() throws SQLException;
+    void cancel();
 }
