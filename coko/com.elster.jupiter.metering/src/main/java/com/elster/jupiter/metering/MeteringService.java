@@ -10,7 +10,7 @@ import java.util.List;
 public interface MeteringService {
 	Optional<ReadingType> getReadingType(String mRid);
 	ServiceLocation newServiceLocation();
-	ServiceLocation findServiceLocation(String mRid);
+	Optional<ServiceLocation> findServiceLocation(String mRid);
 	Optional<ServiceLocation> findServiceLocation(long id);
 	Optional<ServiceCategory> getServiceCategory(ServiceKind kind);
 	Optional<UsagePoint> findUsagePoint(long id);

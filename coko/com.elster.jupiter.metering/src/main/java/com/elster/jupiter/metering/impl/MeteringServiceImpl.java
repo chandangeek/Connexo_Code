@@ -72,7 +72,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Override
-    public ServiceLocation findServiceLocation(String mRID) {
+    public Optional<ServiceLocation> findServiceLocation(String mRID) {
         return getOrmClient().getServiceLocationFactory().getUnique("mRID", mRID);
     }
 
