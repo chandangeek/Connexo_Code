@@ -79,7 +79,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     @Override
     public Optional<Party> getParty(String mRID) {
-        return Optional.fromNullable(ormClient.getPartyFactory().getUnique("mRID", mRID));
+        return ormClient.getPartyFactory().getUnique("mRID", mRID);
     }
 
     @Override
