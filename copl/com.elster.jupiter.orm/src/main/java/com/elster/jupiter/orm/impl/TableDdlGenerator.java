@@ -99,7 +99,7 @@ class TableDdlGenerator {
 		// cache 1000 for performance in RAC environments
 		return 
 			"create sequence " +
-		    column.getSequenceName() +
+		   column.getQualifiedSequenceName() +
 		    " cache 1000";
 	}
 	

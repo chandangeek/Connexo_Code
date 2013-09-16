@@ -51,7 +51,7 @@ public class DataMapperWriter<T> {
 				int index = 1;	
 				for (Column column : getColumns())  {
 					if (column.isAutoIncrement()) {						
-						autoIncrements.put(column, getNext(connection, column.getSequenceName()));
+						autoIncrements.put(column, getNext(connection, column.getQualifiedSequenceName()));
 						statement.setObject(index++, autoIncrements.get(column));
 					} else if (!column.hasInsertValue()) {						
 						statement.setObject(index++, getValue(object,column));

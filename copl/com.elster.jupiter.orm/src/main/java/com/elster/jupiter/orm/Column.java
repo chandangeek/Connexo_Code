@@ -1,6 +1,13 @@
 package com.elster.jupiter.orm;
-
+/**
+ * 
+ * Describes a column mapping
+ *
+ */
 public interface Column {
+	/**
+	 * The dummy fieldname of a discriminator column 
+	 */
 	public static final String TYPEFIELDNAME = "class";
 	
 	Table getTable();
@@ -11,6 +18,7 @@ public interface Column {
     boolean isPrimaryKeyColumn();
 	boolean isAutoIncrement();
 	String getSequenceName();
+	String getQualifiedSequenceName();
 	boolean isVersion();
 	String getInsertValue();
 	String getUpdateValue();

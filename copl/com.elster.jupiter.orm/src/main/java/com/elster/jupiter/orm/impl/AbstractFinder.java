@@ -1,7 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.DoesNotExistException;
-import com.elster.jupiter.orm.Finder;
+import com.elster.jupiter.orm.*;
 import com.google.common.base.Optional;
 
 import java.util.Arrays;
@@ -61,20 +60,23 @@ public abstract class AbstractFinder<T> implements Finder<T> {
     }
 
     @Override
-    public final T getUnique(String fieldName, Object value) {
+    public final Optional<T> getUnique(String fieldName, Object value) {
         return getUnique(new String[]{fieldName}, new Object[]{value});
     }
 
 
     @Override
-    public final T getUnique(String fieldName1, Object value1, String fieldName2, Object value2) {
+    public final Optional<T> getUnique(String fieldName1, Object value1, String fieldName2, Object value2) {
         return getUnique(new String[]{fieldName1, fieldName2}, new Object[]{value1, value2});
     }
 
     @Override
-    public final T getUnique(String[] fieldNames, Object[] values) {
+    public final Optional<T> getUnique(String[] fieldNames, Object[] values) {
         List<T> candidates = find(fieldNames, values);
-        return candidates.isEmpty() ? null : candidates.get(0);
+        if (candidates.size() > 1) {
+        	throw new NotUniqueException(Arrays.toString(values));
+        }        
+        return candidates.isEmpty() ? Optional.<T> absent() : Optional.of(candidates.get(0));
     }
 
     @Override

@@ -118,6 +118,11 @@ public class ColumnImpl implements Column  {
 	public String getSequenceName() {
 		return sequenceName;
 	}
+
+	@Override
+	public String getQualifiedSequenceName() {
+		return sequenceName == null ? null : ((TableImpl) getTable()).getQualifiedName(sequenceName);		
+	}
 	
 	@Override
 	public String getInsertValue() {

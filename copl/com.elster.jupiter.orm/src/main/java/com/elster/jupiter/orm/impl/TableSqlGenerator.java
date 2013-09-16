@@ -100,7 +100,7 @@ public class TableSqlGenerator {
 		for (Column each : allColumns) {		
 			sb.append(separator);
 			if (useNextVal && each.isAutoIncrement()) {
-				sb.append(each.getSequenceName());
+				sb.append(each.getQualifiedSequenceName());
 				sb.append(".nextval");
 			} else if (each.hasInsertValue()) {
 				sb.append(each.getInsertValue());
