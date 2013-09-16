@@ -3,7 +3,7 @@ package com.elster.jupiter.transaction;
 import com.elster.jupiter.util.exception.ExceptionType;
 
 enum ExceptionTypes implements ExceptionType {
-    NESTED_TRANSACTION(1001), COMMIT_FAILED(1002);
+    NESTED_TRANSACTION(1001), COMMIT_FAILED(1002), NOT_IN_TRANSACTION(1003);
 
     private final int number;
 
