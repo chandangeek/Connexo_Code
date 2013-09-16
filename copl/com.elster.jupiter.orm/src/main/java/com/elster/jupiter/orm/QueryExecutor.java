@@ -5,6 +5,9 @@ import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.util.List;
 
+/**
+ * This interface is only intended for use by com.elster.jupiter.domain.util.Query
+ */
 public interface QueryExecutor<T> {
 	<R> void add(DataMapper<R> dataMapper);
     List<T> select(Condition condition, String[] orderBy, boolean eager , String[] exceptions);

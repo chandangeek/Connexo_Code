@@ -5,6 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * documentation annotation to mark a class as containing literal sql fragments
+ */
 @Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.TYPE})
 public @interface LiteralSql {

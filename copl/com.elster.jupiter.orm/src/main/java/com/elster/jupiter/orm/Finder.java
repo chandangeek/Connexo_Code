@@ -56,17 +56,16 @@ public interface Finder<T> {
 	 */
     List<T> getJournal(Object... values);
     /**
-     * Finde object by primary key
+     * Find object by primary key
      * @throws DoesNotExistException if not found
      */
     T getExisting(Object... values);
     /**
-     * Currently the getUnique methods do not check if the resultset contains exactly one tuple
-     * This may change
-     * @return may be null   
+     * Find object where fieldName equals value
+     * @throws NotUniqueException   
      */
-	Optional<T> getUnique(String columnName, Object value);
-	Optional<T> getUnique(String columnName1, Object value1, String columnName2,Object value2);
+	Optional<T> getUnique(String fieldName, Object value);
+	Optional<T> getUnique(String fieldName1, Object value1, String fieldName2,Object value2);
 	Optional<T> getUnique(String[] fieldNames , Object[] values);
 	
 }

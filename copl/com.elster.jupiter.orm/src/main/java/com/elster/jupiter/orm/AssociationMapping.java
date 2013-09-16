@@ -1,5 +1,20 @@
 package com.elster.jupiter.orm;
 
+/**
+ * 
+ * Describes the various mapping of a foreign key to instance fields
+ * 
+ * Terminology:
+ *   Child object: object matching tuple in referencing table. That is the table that has the foreign key constraint
+ *   Parent object: object matching tuple in referenced table.
+ * 
+ * fieldName: The name of the field in the child object that contains the reference to the parent object
+ * reverseFieldName: Name of the field in the parent object that contains the reference to the child objects. This must be of type java.util.List
+ * reverseOrderFieldName: Name of the field in the child object used to order the list in the parent object
+ * reverseCurrentFieldName: Name of the field in the parent object that holds the current instance of the child object. Only
+ * applicable if the child has interval columns (STARTTIME and ENDTIME), and if a parent can have only one child at a given time.   
+ *
+ */
 public final class AssociationMapping {
 	private final String fieldName;
 	private final String reverseFieldName;
