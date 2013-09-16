@@ -73,12 +73,12 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public Optional<Group> findGroup(String name) {
-        return Optional.of(groupFactory().getUnique("name", name));
+        return groupFactory().getUnique("name", name);
     }
 
     @Override
     public Optional<User> findUser(String authenticationName) {
-        return Optional.of(userFactory().getUnique("authenticationName", authenticationName));
+        return userFactory().getUnique("authenticationName", authenticationName);
 	}
 
     @Override
