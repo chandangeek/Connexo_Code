@@ -79,10 +79,10 @@ public class SourceInfo {
         uomEntryBitField = sourceDefinitionTable.getSourceDefinitionEntries()[sourceIndex].getUomEntryBitField();
 
         BigDecimal multiplier = null;
+        BigDecimal ct= null;;
+        BigDecimal vt= null;;
 
-        
-        
-        // STEP 1 
+        // STEP 1
         // ST15[MT17.multiplierIndex].multiplier * MT17.getMultiplier() 
         // ST15[MT17.multiplierIndex].multiplier forgotten in the "How to read an A3 meter" doc
         if ((loadProfile) && ((uomEntryBitField.getIdCode()>=0) || (uomEntryBitField.getIdCode()<=3))) { //(!sourceDefinitionTable.getSourceDefinitionEntries()[sourceIndex].isConstantST15Applied()) {
@@ -92,23 +92,21 @@ public class SourceInfo {
         else
            multiplier = BigDecimal.valueOf(1); 
         multiplier = apply10Scaler(multiplier, uomEntryBitField.getMultiplier());
+//System.out.println("STEP 1.5 multiplier="+multiplier);
 
-        
-        // STEP 2   
+        // STEP 2
         if (!((ElectricConstants)alphaA3.getStandardTableFactory().getConstantsTable().getConstants()[multiplierSelect]).getSet1Constants().isSetAppliedBit()) {
         	if (energy || uomEntryBitField.getIdCode()<15) {
         		
             int scale = alphaA3.getManufacturerTableFactory().getFactoryDefaultMeteringInformation().getInstrumentationScale();
-            BigDecimal ct;
             ct = (BigDecimal)((ElectricConstants)alphaA3.getStandardTableFactory().getConstantsTable().getConstants()[multiplierSelect]).getSet1Constants().getRatioF1();
             ct = apply10Scaler(ct, scale);
             
-            BigDecimal vt;
-            vt = (BigDecimal)((ElectricConstants)alphaA3.getStandardTableFactory().getConstantsTable().getConstants()[multiplierSelect]).getSet1Constants().getRatioF1();
+            vt = (BigDecimal)((ElectricConstants)alphaA3.getStandardTableFactory().getConstantsTable().getConstants()[multiplierSelect]).getSet1Constants().getRatioP1();
             vt = apply10Scaler(vt, scale);
             multiplier = multiplier.multiply(ct);
             multiplier = multiplier.multiply(vt);
-//System.out.println("STEP 2 multiplier="+multiplier);  
+//System.out.println("STEP 2 multiplier="+multiplier + " CT: " + ct + " PT: " + vt);
         	}
         }
         
@@ -116,7 +114,7 @@ public class SourceInfo {
         BigDecimal externalMultiplier = BigDecimal.valueOf(alphaA3.getManufacturerTableFactory().getPrimaryMeteringInformation().getExternalMultiplier());
         externalMultiplier = apply10Scaler(externalMultiplier, alphaA3.getManufacturerTableFactory().getPrimaryMeteringInformation().getExternalMultiplierScaleFactor());
         multiplier = multiplier.multiply(externalMultiplier);
-//System.out.println("STEP 3 multiplier="+multiplier);           
+//System.out.println("STEP 3 multiplier="+multiplier + " external multiplier: " + externalMultiplier);
         
         // parse idCode, netflow & quadrants
         switch(uomEntryBitField.getIdCode()) {
@@ -143,6 +141,9 @@ public class SourceInfo {
             } 
 
             case 8: { // RMS volts
+            	if(ct!=null) {
+            		multiplier = multiplier.divide(ct);
+            	}
                 return bd.multiply(multiplier);
             }
 
@@ -155,7 +156,10 @@ public class SourceInfo {
             } 
 
             case 12: { // RMS amps
-                return bd.multiply(multiplier);
+            	if(vt!=null) {
+            		multiplier = multiplier.divide(vt);
+            	}
+            	return bd.multiply(multiplier);
             }
 
             case 14: { // RMS amps squared A²
