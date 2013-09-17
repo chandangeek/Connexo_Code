@@ -48,6 +48,11 @@
                 <version>2.0M8</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>net.jcip</groupId>
+                <artifactId>jcip-annotations</artifactId>
+                <version>1.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
