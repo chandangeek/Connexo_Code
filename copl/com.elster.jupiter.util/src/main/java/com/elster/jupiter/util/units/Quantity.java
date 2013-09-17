@@ -82,7 +82,7 @@ public final class Quantity {
 	}
 	
 	public Quantity asSi() {
-		if (unit.isDimensionLess() || unit.isSICompliant()) {
+		if (unit.isDimensionLess() || unit.isCoherentSiUnit()) {
 			return this;
 		}
 		BigDecimal newValue = unit.siValue(value.scaleByPowerOfTen(multiplier));		
@@ -111,8 +111,8 @@ public final class Quantity {
 	}
 	
 	public static void main(String[] args) {
-		for (Unit each : Unit.available()) {
-			if (!each.isDimensionLess() && !each.isSICompliant()) {
+		for (Unit each : Unit.values()) {
+			if (!each.isDimensionLess() && !each.isCoherentSiUnit()) {
 				Quantity q = each.amount(BigDecimal.ONE,3);
 				try {
 					System.out.println("" + q + " : " + q.asSi());
