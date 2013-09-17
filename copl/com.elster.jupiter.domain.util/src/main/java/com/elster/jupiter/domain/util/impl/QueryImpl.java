@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.google.common.base.Optional;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ class QueryImpl<T> implements Query<T> {
     }
 
     @Override
-    public T get(Object... key) {
+    public Optional<T> get(Object... key) {
         // override default eager behavior
         return queryExecutor.get(key, eager == null ? true : eager, exceptions);
     }
