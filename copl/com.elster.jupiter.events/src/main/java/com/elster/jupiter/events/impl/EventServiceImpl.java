@@ -4,6 +4,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.NoSuchTopicException;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
@@ -160,7 +161,7 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
     public void postEvent(String topic, Object source) {
         Optional<EventType> found = getOrmClient().getEventTypeFactory().get(topic);
         if (!found.isPresent()) {
-            throw new IllegalArgumentException("No such topic");
+            throw new NoSuchTopicException(topic);
         }
         EventType eventType = found.get();
         LocalEvent localEvent = eventType.create(source);

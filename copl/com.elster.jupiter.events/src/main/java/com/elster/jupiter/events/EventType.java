@@ -24,5 +24,7 @@ public interface EventType {
 
     EventPropertyType addProperty(String name, ValueType valueType, String accessPath);
 
+    void removePropertyType(EventPropertyType eventPropertyType);
+
     void save();
 }

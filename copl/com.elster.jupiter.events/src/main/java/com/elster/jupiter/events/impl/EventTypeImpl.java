@@ -75,10 +75,6 @@ public class EventTypeImpl implements EventType, PersistenceAware {
         this.component = component;
     }
 
-    void setEventPropertyTypes(List<EventPropertyType> eventPropertyTypes) {
-        this.eventPropertyTypes = eventPropertyTypes;
-    }
-
     void setName(String name) {
         this.name = name;
     }
@@ -120,15 +116,20 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     }
 
     @Override
+    public void removePropertyType(EventPropertyType eventPropertyType) {
+        propertyTypes().remove(eventPropertyType);
+    }
+
+    @Override
     public void postLoad() {
-        getPropertyTypes();
+        propertyTypes();
     }
 
     @Override
     public void save() {
         if (fromDB) {
             Bus.getOrmClient().getEventTypeFactory().update(this);
-            DiffList<EventPropertyType> diffList = new ArrayDiffList<EventPropertyType>(loadPropertyTypes(), eventPropertyTypes);
+            DiffList<EventPropertyType> diffList = new ArrayDiffList<>(loadPropertyTypes(), eventPropertyTypes);
             for (EventPropertyType eventPropertyType : diffList.getRemovals()) {
                 propertyFactory().remove(eventPropertyType);
             }
@@ -137,7 +138,7 @@ public class EventTypeImpl implements EventType, PersistenceAware {
             }
         } else {
             Bus.getOrmClient().getEventTypeFactory().persist(this);
-            for (EventPropertyType eventPropertyType : eventPropertyTypes) {
+            for (EventPropertyType eventPropertyType : propertyTypes()) {
                 propertyFactory().persist(eventPropertyType);
             }
             fromDB = true;
