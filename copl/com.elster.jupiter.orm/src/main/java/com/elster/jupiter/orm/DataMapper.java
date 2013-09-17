@@ -42,11 +42,13 @@ public interface DataMapper<T> extends Finder<T> {
 	 */
 	void remove(List<T> objects);
 	/**
-	 * create a query executor that can join with the tables server by the arguments
+	 * create a query executor that can join with the tables served by the arguments
+	 * There must be a (direct or indirect) foreign key relationship between the receiver's type and the 
+	 * types mapped by the arguments. 
 	 */
 	QueryExecutor<T> with(DataMapper<?> ... tupleHandlers);
 	/**
-	 * @return the table served by this mapper
+	 * @return the table served by the receiver
 	 */
 	Table getTable();
 }

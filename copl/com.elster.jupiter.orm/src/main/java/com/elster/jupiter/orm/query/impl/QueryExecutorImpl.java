@@ -1,16 +1,14 @@
 package com.elster.jupiter.orm.query.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.google.common.base.Optional;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.util.*;
 
 
 public class QueryExecutorImpl<T> implements QueryExecutor<T> {	
@@ -77,7 +75,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	}
 
 	@Override
-	public T get(Object[] key , boolean eager , String[] exceptions) {
+	public Optional<T> get(Object[] key , boolean eager , String[] exceptions) {
 		List<Column> primaryKeyColumns = this.root.getTable().getPrimaryKeyColumns();
 		if (primaryKeyColumns.size() != key.length) {
 			throw new IllegalArgumentException("Key mismatch");
@@ -88,7 +86,10 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 			condition = condition.and(Operator.EQUAL.compare(column.getFieldName(),key[i++]));
 		}
 		List<T> result = this.select(condition, null , eager , exceptions);
-		return result.isEmpty() ? null : result.get(0);
+		if (result.size() > 1) {
+			throw new NotUniqueException(Arrays.toString(key));
+		}
+		return result.isEmpty() ? Optional.<T>absent() : Optional.of(result.get(0));
 	}
 
 	@Override
