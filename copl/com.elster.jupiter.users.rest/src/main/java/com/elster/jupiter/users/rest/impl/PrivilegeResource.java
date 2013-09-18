@@ -20,16 +20,7 @@ public class PrivilegeResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public PrivilegeInfos getPrivileges(@Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<Privilege> list = getPrivilegeRestQuery().select(queryParameters);
-        PrivilegeInfos infos = new PrivilegeInfos(list);
-        infos.total = queryParameters.determineTotal(list.size());
-        return infos;
-    }
-
-    private RestQuery<Privilege> getPrivilegeRestQuery() {
-        Query<Privilege> query = Bus.getUserService().getPrivilegeQuery();
-        return Bus.getRestQueryService().wrap(query);
+        return new PrivilegeInfos(Bus.getUserService().getPrivileges());        
     }
 
 

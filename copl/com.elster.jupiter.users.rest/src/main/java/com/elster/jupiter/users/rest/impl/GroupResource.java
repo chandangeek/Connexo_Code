@@ -57,11 +57,7 @@ public class GroupResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public GroupInfos getGroups(@Context UriInfo uriInfo) {
-        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<Group> list = getGroupRestQuery().select(queryParameters);
-        GroupInfos infos = new GroupInfos(list);
-        infos.total = queryParameters.determineTotal(list.size());
-        return infos;
+    	return new GroupInfos(Bus.getUserService().getGroups());
     }
 
     @PUT
@@ -74,11 +70,6 @@ public class GroupResource {
         return getGroup(info.id);
     }
 
-
-    private RestQuery<Group> getGroupRestQuery() {
-        Query<Group> query = Bus.getUserService().getGroupQuery();
-        return Bus.getRestQueryService().wrap(query);
-    }
 
 
 }
