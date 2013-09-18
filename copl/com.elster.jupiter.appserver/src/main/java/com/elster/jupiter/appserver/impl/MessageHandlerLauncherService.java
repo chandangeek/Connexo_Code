@@ -12,10 +12,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -25,8 +22,8 @@ public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
 
-    private Map<MessageHandlerFactory, ExecutorService> executors = new HashMap<>();
-    private Map<ExecutorService, List<Future<?>>> futures = new HashMap<>();
+    private Map<MessageHandlerFactory, ExecutorService> executors = Collections.synchronizedMap(new HashMap<MessageHandlerFactory,ExecutorService>());
+    private Map<ExecutorService, List<Future<?>>> futures = Collections.synchronizedMap(new HashMap<ExecutorService,List<Future<?>>>());
 
     private Principal batchPrincipal;
 
@@ -56,6 +53,10 @@ public class MessageHandlerLauncherService {
     public void addResource(MessageHandlerFactory factory, Map<String, Object> map) {
         String subscriberName = (String) map.get("subscriber");
         addMessageHandlerFactory(subscriberName, factory);
+    }
+    
+    public void removeResource(MessageHandlerFactory factory) {
+    	// TODO What if active message handler's service disappears ? 
     }
 
     private void addMessageHandlerFactory(String subscriberName, MessageHandlerFactory factory) {
