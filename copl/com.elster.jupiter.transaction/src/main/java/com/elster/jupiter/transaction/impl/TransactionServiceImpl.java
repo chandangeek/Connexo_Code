@@ -18,7 +18,7 @@ import java.sql.SQLException;
 public class TransactionServiceImpl implements TransactionService {
 	private volatile ThreadPrincipalService threadPrincipalService;
 	private volatile DataSource dataSource;
-	private final ThreadLocal<TransactionContextImpl> transactionContexts = new ThreadLocal<>();
+	private final ThreadLocal<TransactionContextImpl> transactionContextHolder = new ThreadLocal<>();
 	
 	public TransactionServiceImpl() {		
 	}
@@ -42,7 +42,7 @@ public class TransactionServiceImpl implements TransactionService {
 	
 	public void setRollbackOnly() {
         if (isInTransaction()) {
-            transactionContexts.get().setRollbackOnly();
+            transactionContextHolder.get().setRollbackOnly();
         } else {
             throw new NotInTransactionException();
         }
@@ -54,7 +54,7 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	
 	Connection getConnection() throws SQLException {
-        return isInTransaction() ? transactionContexts.get().getConnection() : newConnection(true);
+        return isInTransaction() ? transactionContextHolder.get().getConnection() : newConnection(true);
 	}
 	
 	DataSource getDataSource() {
@@ -70,20 +70,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     private <T> T doExecute(Transaction<T> transaction) throws SQLException {
 		TransactionContextImpl transactionContext = new TransactionContextImpl(this);
-		transactionContexts.set(transactionContext);
+		transactionContextHolder.set(transactionContext);
         T result = null;
 		boolean commit = false;
 		try {
 			result = transaction.perform();
 			commit = true;
 		} finally {
-			transactionContexts.remove();
+			transactionContextHolder.remove();
 			transactionContext.terminate(commit);						
 		}
         return result;
 	}
 
     private boolean isInTransaction() {
-        return transactionContexts.get() != null;
+        return transactionContextHolder.get() != null;
     }
 }
