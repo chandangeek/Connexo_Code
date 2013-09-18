@@ -16,7 +16,7 @@ class TransactionContextImpl {
 		if (connection == null) {
 			connection = transactionService.newConnection(false);			
 		}
-		return new ConnectionWrapper(connection);
+		return new ConnectionInTransaction(connection);
 	}
 	
 	void terminate(boolean commit) throws SQLException {
