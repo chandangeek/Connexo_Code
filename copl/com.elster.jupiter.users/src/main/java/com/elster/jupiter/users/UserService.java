@@ -1,5 +1,7 @@
 package com.elster.jupiter.users;
 
+import java.util.List;
+
 import com.elster.jupiter.domain.util.Query;
 import com.google.common.base.Optional;
 
@@ -25,13 +27,13 @@ public interface UserService {
 
     String getRealm();
 
-    Query<Group> getGroupQuery();
+    List<Group> getGroups();
 
     Query<User> getUserQuery();
-
-    Query<Privilege> getPrivilegeQuery();
 
     Group newGroup(String name);
 
     User newUser(String name);
+
+	List<Privilege> getPrivileges();
 }

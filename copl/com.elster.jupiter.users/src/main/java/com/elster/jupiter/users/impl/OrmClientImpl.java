@@ -1,6 +1,7 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.users.*;
 
 import static com.elster.jupiter.users.impl.TableSpecs.*;
@@ -14,13 +15,13 @@ class OrmClientImpl implements OrmClient {
 	}
 	
 	@Override
-	public DataMapper<Privilege> getPrivilegeFactory() {
-		return dataModel.getDataMapper(Privilege.class, PrivilegeImpl.class, USR_PRIVILEGE.name());
+	public TypeCache<Privilege> getPrivilegeFactory() {
+		return Bus.getComponentCache().getTypeCache(Privilege.class, PrivilegeImpl.class, USR_PRIVILEGE.name());
 	}
 
 	@Override
-	public DataMapper<Group> getGroupFactory() {
-		return dataModel.getDataMapper(Group.class, GroupImpl.class, USR_GROUP.name());
+	public TypeCache<Group> getGroupFactory() {
+		return Bus.getComponentCache().getTypeCache(Group.class, GroupImpl.class, USR_GROUP.name());
 	}
 	
 	@Override
@@ -41,6 +42,11 @@ class OrmClientImpl implements OrmClient {
 	@Override
 	public void install(boolean executeDdl,boolean saveMappings) {
 		dataModel.install(executeDdl,saveMappings);		
+	}
+
+	@Override
+	public DataModel getDataModel() {
+		return dataModel;
 	}
 	
 }

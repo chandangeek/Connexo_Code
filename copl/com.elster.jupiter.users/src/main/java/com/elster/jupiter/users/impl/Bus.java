@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.transaction.TransactionService;
 
 enum Bus {
@@ -19,6 +20,10 @@ enum Bus {
 
     static TransactionService getTransactionService() {
         return locator.getTransactionService();
+    }
+    
+    static ComponentCache getComponentCache() {
+    	return locator.getComponentCache();
     }
 
 }

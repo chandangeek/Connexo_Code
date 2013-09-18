@@ -1,6 +1,8 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.util.To;
@@ -14,13 +16,16 @@ import java.util.List;
 import static com.elster.jupiter.util.Checks.is;
 
 
-final class GroupImpl implements Group {
+final class GroupImpl implements Group , PersistenceAware {
 	//persistent fields
 	private long id;
 	private String name;
 	private long version;
 	private UtcInstant createTime;
 	private UtcInstant modTime;
+	
+	//transient fields
+	private List<Privilege> privileges;
 	
 	@SuppressWarnings("unused")
 	private GroupImpl() {		
@@ -54,12 +59,15 @@ final class GroupImpl implements Group {
 
     @Override
 	public List<Privilege> getPrivileges() {
-		List<PrivilegeInGroup> privilegeInGroups = fetchPrivilegeInGroups();
-        ImmutableList.Builder<Privilege> builder = ImmutableList.builder();
-		for (PrivilegeInGroup each : privilegeInGroups) {
-			builder.add(each.getPrivilege());
-		}
-		return builder.build();
+    	if (privileges == null) {
+    		List<PrivilegeInGroup> privilegeInGroups = fetchPrivilegeInGroups();
+    		ImmutableList.Builder<Privilege> builder = ImmutableList.builder();
+    		for (PrivilegeInGroup each : privilegeInGroups) {
+    			builder.add(each.getPrivilege());
+    		}
+    		privileges = builder.build();
+    	}
+    	return privileges;
 	}
 
     @Override
@@ -95,7 +103,7 @@ final class GroupImpl implements Group {
 		groupFactory().persist(this);
 	}
 
-    private DataMapper<Group> groupFactory() {
+    private TypeCache<Group> groupFactory() {
         return Bus.getOrmClient().getGroupFactory();
     }
 
@@ -154,4 +162,9 @@ final class GroupImpl implements Group {
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
     }
+
+	@Override
+	public void postLoad() {
+		getPrivileges();
+	}
 }

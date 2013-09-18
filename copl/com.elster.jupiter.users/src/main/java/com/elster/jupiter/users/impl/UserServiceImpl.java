@@ -1,10 +1,13 @@
 package com.elster.jupiter.users.impl;
 
+import java.util.List;
+
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.cache.*;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
@@ -25,6 +28,7 @@ import javax.xml.bind.DatatypeConverter;
         property = "name=" + Bus.COMPONENTNAME)
 public class UserServiceImpl implements UserService, InstallService, ServiceLocator {
     private volatile OrmClient ormClient;
+    private volatile ComponentCache componentCache;
     private volatile TransactionService transactionService;
     private volatile QueryService queryService;
 
@@ -73,7 +77,12 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public Optional<Group> findGroup(String name) {
-        return groupFactory().getUnique("name", name);
+    	for (Group group : getGroups()) {
+    		if (group.getName().equals(name)) {
+    			return Optional.of(group);
+    		}
+    	}
+        return Optional.<Group>absent();
     }
 
     @Override
@@ -87,8 +96,8 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     }
 
     @Override
-    public Query<Group> getGroupQuery() {
-        return getQueryService().wrap(groupFactory().with(getOrmClient().getPrivilegeInGroupFactory(), getOrmClient().getPrivilegeFactory()));
+    public List<Group> getGroups() {
+        return groupFactory().find();
     }
 
     @Override
@@ -102,8 +111,8 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
     }
 
     @Override
-    public Query<Privilege> getPrivilegeQuery() {
-        return getQueryService().wrap(Bus.getOrmClient().getPrivilegeFactory().with());
+    public List<Privilege> getPrivileges() {
+        return Bus.getOrmClient().getPrivilegeFactory().find();
     }
 
     public QueryService getQueryService() {
@@ -152,6 +161,11 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
         }
         this.ormClient = new OrmClientImpl(dataModel);
     }
+    
+    @Reference(name = "ZCacheService")
+    public void setCacheService(CacheService cacheService) {
+        this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
+    }
 
     @Reference
     public void setQueryService(QueryService queryService) {
@@ -163,11 +177,16 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
         this.transactionService = transactionService;
     }
 
-    private DataMapper<Group> groupFactory() {
+    private TypeCache<Group> groupFactory() {
         return Bus.getOrmClient().getGroupFactory();
     }
 
     private DataMapper<User> userFactory() {
         return Bus.getOrmClient().getUserFactory();
     }
+
+	@Override
+	public ComponentCache getComponentCache() {
+		return componentCache;
+	}
 }

@@ -20,6 +20,9 @@ public class UserImpl implements User {
     private UtcInstant createTime;
     private UtcInstant modTime;
 
+    // transient
+    private List<Group> groups;
+    
     @SuppressWarnings("unused")
     private UserImpl() {
     }
@@ -77,6 +80,7 @@ public class UserImpl implements User {
             return false;
         }
         new UserInGroup(this, group).persist();
+        clearGroups();
         return true;
     }
 
@@ -90,6 +94,7 @@ public class UserImpl implements User {
         for (UserInGroup userInGroup : fetchMemberships()) {
             if (group.equals(userInGroup.getGroup())) {
                 userInGroup.delete();
+                clearGroups();
                 return true;
             }
         }
@@ -100,14 +105,21 @@ public class UserImpl implements User {
         return Bus.getOrmClient().getUserInGroupFactory().find("userId", getId());
     }
 
+    private void clearGroups() {
+    	groups = null;
+    }
+    
     @Override
     public List<Group> getGroups() {
-        List<UserInGroup> userInGroups = fetchMemberships();
-        ImmutableList.Builder<Group> builder = ImmutableList.builder();
-        for (UserInGroup each : userInGroups) {
-            builder.add(each.getGroup());
-        }
-        return builder.build();
+    	if (groups == null) {
+    		List<UserInGroup> userInGroups = fetchMemberships();
+    		ImmutableList.Builder<Group> builder = ImmutableList.builder();
+    		for (UserInGroup each : userInGroups) {
+    			builder.add(each.getGroup());
+    		}
+    		groups = builder.build();
+    	}
+    	return groups;
     }
 
     void addGroup(Group group) {
