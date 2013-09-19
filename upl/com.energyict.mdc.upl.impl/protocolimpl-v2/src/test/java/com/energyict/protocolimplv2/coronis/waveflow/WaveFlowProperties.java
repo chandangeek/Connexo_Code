@@ -1,15 +1,11 @@
 package com.energyict.protocolimplv2.coronis.waveflow;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.cpo.*;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT

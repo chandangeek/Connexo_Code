@@ -6,8 +6,6 @@ import com.energyict.protocol.*;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.coronis.waveflow.core.ApplicationStatusParser;
 import com.energyict.protocolimplv2.coronis.waveflow.core.EventStatusAndDescription;
-import com.energyict.protocolimplv2.coronis.waveflow.core.parameter.*;
-import com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.*;
 
 import java.util.*;
 

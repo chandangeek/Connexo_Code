@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.coronis.common;
 
-import com.energyict.protocolimplv2.coronis.common.escapecommands.*;
-
 public class EscapeCommandFactory {
 
     private WaveFlowConnect waveFlowConnect;

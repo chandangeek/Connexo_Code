@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand;
 import com.energyict.cbo.*;
 import com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 import com.energyict.protocolimplv2.coronis.waveflow.core.parameter.ProfileType;
-import com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.v210.*;
 
 import java.util.Date;
 

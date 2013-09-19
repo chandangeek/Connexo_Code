@@ -7,7 +7,6 @@ import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
-import com.energyict.protocolimplv2.coronis.waveflow.core.parameter.*;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 
 import java.math.BigDecimal;
