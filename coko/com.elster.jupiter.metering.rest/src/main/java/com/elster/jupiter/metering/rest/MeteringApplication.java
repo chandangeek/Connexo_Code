@@ -11,7 +11,7 @@ import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.metering.rest" , service=Application.class , immediate = true , property = {"alias=/kore"} )
+@Component(name = "com.elster.jupiter.metering.rest" , service=Application.class , immediate = true , property = {"alias=/mtr"} )
 public class MeteringApplication extends Application implements ServiceLocator {
 	
 	private final Set<Class<?>> classes = new HashSet<>();
@@ -20,7 +20,7 @@ public class MeteringApplication extends Application implements ServiceLocator {
 	private volatile RestQueryService restQueryService;
 	
 	public MeteringApplication() {
-		classes.add(MeteringResource.class);		
+		classes.add(UsagePointResource.class);		
 	}
 
 	public Set<Class<?>> getClasses() {

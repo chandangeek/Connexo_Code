@@ -38,12 +38,11 @@ import java.util.Set;
 import static com.elster.jupiter.metering.rest.Bus.getMeteringService;
 import static com.elster.jupiter.metering.rest.Bus.getQueryService;
 
-@Path("/mtr")
-public class MeteringResource {
+@Path("/usagepoints")
+public class UsagePointResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-	@Path("/usagepoints")
 	@Produces(MediaType.APPLICATION_JSON) 
 	public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -80,7 +79,7 @@ public class MeteringResource {
 
     @PUT
 	@RolesAllowed({Privileges.ADMIN_OWN, Privileges.ADMIN_ANY})
-	@Path("/usagepoints/{id}")
+	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.id = id;
@@ -90,7 +89,7 @@ public class MeteringResource {
 	  
 	@GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-	@Path("/usagepoints/{id}/")
+	@Path("/{id}/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
@@ -102,7 +101,6 @@ public class MeteringResource {
 
 	@POST
     @RolesAllowed({Privileges.ADMIN_ANY})
-	@Path("/usagepoints")
 	@Consumes(MediaType.APPLICATION_JSON) 
 	public UsagePointInfos createUsagePoint(UsagePointInfo info) {
 		UsagePointInfos result = new UsagePointInfos();
@@ -112,7 +110,7 @@ public class MeteringResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/usagepoints/{id}/meteractivations")
+    @Path("/{id}/meteractivations")
     @Produces(MediaType.APPLICATION_JSON)
     public MeterActivationInfos getMeterActivations(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
@@ -121,7 +119,7 @@ public class MeteringResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/usagepoints/{id}/meteractivations/{activationId}/channels")
+    @Path("/{id}/meteractivations/{activationId}/channels")
     @Produces(MediaType.APPLICATION_JSON)
     public ChannelInfos getChannels(@PathParam("id") long id, @PathParam("activationId") long activationId, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
@@ -140,7 +138,7 @@ public class MeteringResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/usagepoints/{id}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
+    @Path("/{id}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
     @Produces(MediaType.APPLICATION_JSON)
     public ReadingInfos getIntervalReadings(@PathParam("id") long id, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
     	if (from == 0 || to == 0) {
@@ -163,7 +161,7 @@ public class MeteringResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/usagepoints/{id}/readingtypes")
+    @Path("/{id}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON)
     public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
@@ -172,7 +170,7 @@ public class MeteringResource {
 
     @GET
     @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    @Path("/usagepoints/{id}/readingtypes/{mrid}/readings")
+    @Path("/{id}/readingtypes/{mrid}/readings")
     @Produces(MediaType.APPLICATION_JSON)
     public ReadingInfos getReadingTypeReadings(@PathParam("id") long id, @PathParam("mrid") String mRID, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
         if (from == 0 || to == 0) {
