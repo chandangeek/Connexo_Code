@@ -6,13 +6,9 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import java.io.*;
-import java.util.*;
-import com.energyict.cbo.*;
-import java.math.*;
-import com.energyict.protocol.*;
 import com.energyict.protocol.MeterExceptionInfo;
-import com.energyict.protocolimpl.sampleiec1107.*;
+
+import java.io.IOException;
 /**
  *
  * @author  Koen
