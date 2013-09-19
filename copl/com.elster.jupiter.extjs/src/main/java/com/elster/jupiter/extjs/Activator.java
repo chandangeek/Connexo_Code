@@ -8,7 +8,7 @@ public class Activator implements BundleActivator {
 	private volatile ServiceRegistration<HttpResource> registration;
 	
 	public void start(BundleContext bundleContext) throws Exception {
-		HttpResource resource = new HttpResource("/files/extjs", "/sencha/extjs" , new FileResolver());
+		HttpResource resource = new HttpResource("/ext", "/js/ext" , new BundleResolver(bundleContext));
 		registration = bundleContext.registerService(HttpResource.class, resource , null);
 	}
 	
