@@ -56,9 +56,6 @@ public class EventServiceImplTest {
     public void setUp() {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
-//        when(dataModel.getDataMapper(QueueTableSpec.class, QueueTableSpecImpl.class, com.elster.jupiter.messaging.impl.TableSpecs.MSG_QUEUETABLESPEC.name())).thenReturn(queueTableSpecFactory);
-//        when(dataModel.getDataMapper(DestinationSpec.class, DestinationSpecImpl.class, com.elster.jupiter.messaging.impl.TableSpecs.MSG_DESTINATIONSPEC.name())).thenReturn(destinationSpecFactory);
-//        when(dataModel.getDataMapper(SubscriberSpec.class, SubscriberSpecImpl.class, com.elster.jupiter.messaging.impl.TableSpecs.MSG_SUBSCRIBERSPEC.name())).thenReturn(subscriberSpecFactory);
         when(dataModel.addTable(anyString())).thenReturn(table);
         when(serviceLocator.getComponentCache()).thenReturn(componentCache);
         when(componentCache.getTypeCache(EventType.class, EventTypeImpl.class, EVT_EVENTTYPE.name())).thenReturn(eventTypeFactory);
