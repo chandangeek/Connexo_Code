@@ -13,6 +13,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -22,8 +23,8 @@ public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
 
-    private Map<MessageHandlerFactory, ExecutorService> executors = Collections.synchronizedMap(new HashMap<MessageHandlerFactory,ExecutorService>());
-    private Map<ExecutorService, List<Future<?>>> futures = Collections.synchronizedMap(new HashMap<ExecutorService,List<Future<?>>>());
+    private Map<MessageHandlerFactory, ExecutorService> executors = new ConcurrentHashMap<>();
+    private Map<ExecutorService, List<Future<?>>> futures = new ConcurrentHashMap<>();
 
     private Principal batchPrincipal;
 
