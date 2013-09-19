@@ -1,5 +1,6 @@
 package com.elster.jupiter.transaction.impl;
 
+import oracle.jdbc.OracleConnection;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +12,6 @@ import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
@@ -28,7 +28,7 @@ public class TransactionalDataSourceTest {
     @Mock
     private TransactionServiceImpl transactionService;
     @Mock
-    private Connection connection;
+    private OracleConnection connection;
     @Mock
     private DataSource dataSource;
 
@@ -38,6 +38,7 @@ public class TransactionalDataSourceTest {
         transactionalDataSource.setTransactionService(transactionService);
 
         when(transactionService.getConnection()).thenReturn(connection);
+        when(connection.unwrap(OracleConnection.class)).thenReturn(connection);
         when(transactionService.getDataSource()).thenReturn(dataSource);
     }
 
@@ -48,7 +49,7 @@ public class TransactionalDataSourceTest {
 
     @Test
     public void testGetConnectionDelegatesToTransactionService() throws SQLException {
-        assertThat(transactionalDataSource.getConnection()).isEqualTo(connection);
+        assertThat(transactionalDataSource.getConnection().unwrap(OracleConnection.class)).isSameAs(connection);
     }
 
     @Test(expected = UnsupportedOperationException.class)
