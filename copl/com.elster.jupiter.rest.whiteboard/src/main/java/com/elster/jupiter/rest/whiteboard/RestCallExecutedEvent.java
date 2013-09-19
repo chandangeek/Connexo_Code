@@ -21,4 +21,9 @@ public final class RestCallExecutedEvent {
     public URL getUrl() {
         return url;
     }
+    
+    @Override
+    public String toString() {
+    	return "Rest call to " + url + " executed in " + (stopWatch.getElapsed() / 1000L) + " \u00b5s";
+    }
 }

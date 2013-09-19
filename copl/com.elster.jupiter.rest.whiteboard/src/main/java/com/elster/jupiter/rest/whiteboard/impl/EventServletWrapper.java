@@ -2,6 +2,7 @@ package com.elster.jupiter.rest.whiteboard.impl;
 
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.util.time.StopWatch;
+import java.util.logging.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,7 +35,9 @@ public class EventServletWrapper extends HttpServlet {
         servlet.service(request,response);
         stopWatch.stop();
         URL url = new URL(request.getRequestURL().toString());
-        Bus.fire(new RestCallExecutedEvent(url, stopWatch));
+        RestCallExecutedEvent event = new RestCallExecutedEvent(url, stopWatch);
+        Bus.fire(event);
+        Logger.getLogger("com.elster.jupiter.rest.whiteboard").info("" + event);
     }
 
 }

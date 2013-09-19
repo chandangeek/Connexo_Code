@@ -56,7 +56,7 @@ public class WhiteBoard {
         try {
         	ServletContainer container = new ServletContainer(secureConfig);
         	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container));
-        	httpService.registerServlet(alias, wrapper, null, httpContext);
+        	httpService.registerServlet(getAlias(alias), wrapper, null, httpContext);
         } catch (ServletException | NamespaceException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -64,7 +64,11 @@ public class WhiteBoard {
     }
 
     void removeResource(Application application,String alias) {
-        httpService.unregister(alias);
+        httpService.unregister(getAlias(alias));
+    }
+    
+    private String getAlias(String alias) {
+    	return "/api" + alias;
     }
 
     private class ApplicationTrackerCustomizer implements ServiceTrackerCustomizer<Application, Application>  {
