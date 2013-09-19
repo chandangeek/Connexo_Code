@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * A Grid header type which renders an icon, or a series of icons in a grid cell, and offers a scoped click
@@ -230,6 +230,8 @@ Ext.define('Ext.grid.column.Action', {
 
     sortable: false,
 
+    innerCls: Ext.baseCSSPrefix + 'grid-cell-inner-action-col',
+
     constructor: function(config) {
         var me = this,
             cfg = Ext.apply({}, config),
@@ -298,7 +300,7 @@ Ext.define('Ext.grid.column.Action', {
                 item.hasActionConfiguration = true;
             }
 
-            ret += '<img alt="' + (item.altText || me.altText) + '" src="' + (item.icon || Ext.BLANK_IMAGE_URL) +
+            ret += '<img role="button" alt="' + (item.altText || me.altText) + '" src="' + (item.icon || Ext.BLANK_IMAGE_URL) +
                 '" class="' + prefix + 'action-col-icon ' + prefix + 'action-col-' + String(i) + ' ' + (disabled ? prefix + 'item-disabled' : ' ') +
                 ' ' + (Ext.isFunction(item.getClass) ? item.getClass.apply(item.scope || scope, arguments) : (item.iconCls || me.iconCls || '')) + '"' +
                 (tooltip ? ' data-qtip="' + tooltip + '"' : '') + ' />';

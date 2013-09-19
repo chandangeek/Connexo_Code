@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * @docauthor Jason Johnston <jason@sencha.com>
@@ -131,11 +131,9 @@ Ext.define('Ext.form.field.File', {
      * rendered.
      */
 
-    /**
-     * @cfg {String} [fieldBodyCls='x-form-file-wrap']
-     * An extra CSS class to be applied to the body content element in addition to {@link #baseBodyCls}.
-     */
-    fieldBodyCls: Ext.baseCSSPrefix + 'form-file-wrap',
+
+    // private
+    extraFieldBodyCls: Ext.baseCSSPrefix + 'form-file-wrap',
 
     /**
      * @cfg {Boolean} readOnly
@@ -177,7 +175,7 @@ Ext.define('Ext.form.field.File', {
             ui: me.ui,
             disabled: me.disabled,
             text: me.buttonText,
-            style: me.buttonOnly ? '' : 'margin-left:' + me.buttonMargin + 'px',
+            style: me.buttonOnly ? '' : me.getButtonMarginProp() + me.buttonMargin + 'px',
             inputName: me.getName(),
             listeners: {
                 scope: me,
@@ -268,5 +266,9 @@ Ext.define('Ext.form.field.File', {
         Ext.destroyMembers(this, 'button');
         delete this.fileInputEl;
         this.callParent();
+    },
+
+    getButtonMarginProp: function() {
+        return 'margin-left:';
     }
 });

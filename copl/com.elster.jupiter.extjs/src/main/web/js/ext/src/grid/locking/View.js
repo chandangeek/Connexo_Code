@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * This class is used internally to provide a single interface when using
@@ -112,8 +112,8 @@ Ext.define('Ext.grid.locking.View', {
     },
 
     getGridColumns: function() {
-        var cols = this.lockedGrid.headerCt.getGridColumns();
-        return cols.concat(this.normalGrid.headerCt.getGridColumns());
+        var cols = this.lockedGrid.headerCt.getVisibleGridColumns();
+        return cols.concat(this.normalGrid.headerCt.getVisibleGridColumns());
     },
 
     getEl: function(column){
@@ -204,6 +204,10 @@ Ext.define('Ext.grid.locking.View', {
             v = p ? p.view : this.normalView;
 
         v.focus();
+    },
+    
+    focusRow: function(row) {
+        this.normalView.focusRow(row);
     },
 
     focusCell: function(position) {

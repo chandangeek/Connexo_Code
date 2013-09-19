@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * A mechanism for displaying data using custom layout templates and formatting.
@@ -476,10 +476,11 @@ Ext.define('Ext.view.View', {
     handleMouseOverOrOut: function(e) {
         var me = this,
             isMouseout = e.type === 'mouseout',
-            nowOverItem = e[isMouseout ? 'getRelatedTarget' : 'getTarget'](me.dataRowSelector||me.itemSelector);
+            method = isMouseout ? e.getRelatedTarget : e.getTarget,
+            nowOverItem = method.call(e, me.itemSelector) || method.call(e, me.dataRowSelector);
 
         // If the mouse event of whatever type tells use that we are no longer over the current mouseOverItem...
-        if (!me.mouseOverItem || nowOverItem !== me.mouseoverItem) {
+        if (!me.mouseOverItem || nowOverItem !== me.mouseOverItem) {
 
             // First fire mouseleave for the item we just left
             if (me.mouseOverItem) {
@@ -646,11 +647,18 @@ Ext.define('Ext.view.View', {
     // @private
     setHighlightedItem: function(item){
         var me = this,
-            highlighted = me.highlightedItem;
+            highlighted = me.highlightedItem,
+            overItemCls = me.overItemCls,
+            beforeOverItemCls = me.beforeOverItemCls,
+            previous;
 
         if (highlighted != item){
             if (highlighted) {
-                Ext.fly(highlighted).removeCls(me.overItemCls);
+                Ext.fly(highlighted).removeCls(overItemCls);
+                previous = highlighted.previousSibling;
+                if (beforeOverItemCls && previous) {
+                    Ext.fly(previous).removeCls(beforeOverItemCls);
+                }
                 me.fireEvent('unhighlightitem', me, highlighted);
             }
 
@@ -658,6 +666,10 @@ Ext.define('Ext.view.View', {
 
             if (item) {
                 Ext.fly(item).addCls(me.overItemCls);
+                previous = item.previousSibling;
+                if (beforeOverItemCls && previous) {
+                    Ext.fly(previous).addCls(beforeOverItemCls);
+                }
                 me.fireEvent('highlightitem', me, item);
             }
         }

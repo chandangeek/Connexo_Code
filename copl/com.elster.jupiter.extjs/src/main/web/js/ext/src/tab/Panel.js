@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * @author Ed Spencer, Tommy Maintz, Brian Moeskau
@@ -418,6 +418,7 @@ Ext.define('Ext.tab.Panel', {
          * @property {Ext.tab.Bar} tabBar Internal reference to the docked TabBar
          */
         me.tabBar = new Ext.tab.Bar(Ext.apply({
+            ui: me.ui,
             dock: me.tabPosition,
             orientation: (tabPosition == 'top' || tabPosition == 'bottom') ? 'horizontal' : 'vertical',
             plain: me.plain,
@@ -555,6 +556,7 @@ Ext.define('Ext.tab.Panel', {
             cfg = item.tabConfig || {},
             defaultConfig = {
                 xtype: 'tab',
+                ui: me.tabBar.ui,
                 card: item,
                 disabled: item.disabled,
                 closable: item.closable,

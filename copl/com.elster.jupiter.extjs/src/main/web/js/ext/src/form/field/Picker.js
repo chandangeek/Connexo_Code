@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * An abstract class for fields that have a single trigger which opens a "picker" popup below the field, e.g. a combobox
@@ -158,6 +158,7 @@ Ext.define('Ext.form.field.Picker', {
             bodyEl, picker, collapseIf;
 
         if (me.rendered && !me.isExpanded && !me.isDestroyed) {
+            me.expanding = true;
             bodyEl = me.bodyEl;
             picker = me.getPicker();
             collapseIf = me.collapseIf;
@@ -177,6 +178,7 @@ Ext.define('Ext.form.field.Picker', {
             Ext.EventManager.onWindowResize(me.alignPicker, me);
             me.fireEvent('expand', me);
             me.onExpand();
+            delete me.expanding;
         }
     },
 
@@ -211,7 +213,9 @@ Ext.define('Ext.form.field.Picker', {
             aboveSfx = '-above',
             isAbove;
 
-        me.picker.alignTo(me.bodyEl, me.pickerAlign, me.pickerOffset);
+        // Align to the trigger wrap because the border isn't always on the input element, which
+        // can cause the offset to be off
+        me.picker.alignTo(me.triggerWrap, me.pickerAlign, me.pickerOffset);
         // add the {openCls}-above class if the picker was aligned above
         // the field due to hitting the bottom of the viewport
         isAbove = picker.el.getY() < me.inputEl.getY();

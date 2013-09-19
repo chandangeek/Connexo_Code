@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * Color picker provides a simple color palette for choosing colors. The picker can be rendered to any container. The
@@ -230,6 +230,21 @@ Ext.define('Ext.picker.Color', {
                 me.fireEvent('select', me, color);
             }
         }
+    },
+    
+    /**
+     * Clears any selection and sets the value to `null`.
+     */
+    clear: function(){
+        var me = this,
+            value = me.value,
+            el;
+            
+        if (value && me.rendered) {
+            el = me.el.down('a.color-' + value);
+            el.removeCls(me.selectedCls);
+        }
+        me.value = null;  
     },
 
     /**

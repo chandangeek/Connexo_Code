@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * @docauthor Jason Johnston <jason@sencha.com>
@@ -335,6 +335,8 @@ Ext.define('Ext.form.field.Base', {
         if (me.readOnly) {
             me.addCls(me.readOnlyCls);
         }
+        
+        me.addCls(Ext.baseCSSPrefix + 'form-type-' + me.inputType);
     },
 
     /**
@@ -662,11 +664,6 @@ Ext.define('Ext.form.field.Base', {
             eLen   = events.length,
             event;
 
-        // standardise buffer across all browsers + OS-es for consistent event order.
-        // (the 10ms buffer for Editors fixes a weird FF/Win editor issue when changing OS window focus)
-        if (me.inEditor) {
-            me.onBlur = Ext.Function.createBuffered(me.onBlur, 10);
-        }
         if (inputEl) {
             me.mon(inputEl, Ext.EventManager.getKeyEvent(), me.fireKey,  me);
 

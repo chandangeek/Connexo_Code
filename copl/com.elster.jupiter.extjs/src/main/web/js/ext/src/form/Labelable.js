@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * A mixin which allows a component to be configured and decorated with a label and/or error message as is
@@ -127,11 +127,11 @@ Ext.define("Ext.form.Labelable", {
     labelableRenderTpl: [
 
         // body row. If a heighted Field (eg TextArea, HtmlEditor, this must greedily consume height.
-        '<tr id="{id}-inputRow" <tpl if="inFormLayout">id="{id}"</tpl>>',
+        '<tr role="presentation" id="{id}-inputRow" <tpl if="inFormLayout">id="{id}"</tpl> class="{inputRowCls}">',
 
             // Label cell
             '<tpl if="labelOnLeft">',
-                '<td id="{id}-labelCell" style="{labelCellStyle}" {labelCellAttrs}>',
+                '<td role="presentation" id="{id}-labelCell" style="{labelCellStyle}" {labelCellAttrs}>',
                     '{beforeLabelTpl}',
                     '<label id="{id}-labelEl" {labelAttrTpl}<tpl if="inputId"> for="{inputId}"</tpl> class="{labelCls}"',
                         '<tpl if="labelStyle"> style="{labelStyle}"</tpl>',
@@ -147,13 +147,13 @@ Ext.define("Ext.form.Labelable", {
             '</tpl>',
 
             // Body of the input. That will be an input element, or, from a TriggerField, a table containing an input cell and trigger cell(s)
-            '<td class="{baseBodyCls} {fieldBodyCls}" id="{id}-bodyEl" colspan="{bodyColspan}" role="presentation">',
+            '<td role="presentation" class="{baseBodyCls} {fieldBodyCls} {extraFieldBodyCls}" id="{id}-bodyEl" colspan="{bodyColspan}" role="presentation">',
                 '{beforeBodyEl}',
 
                 // Label just sits on top of the input field if labelAlign === 'top'
                 '<tpl if="labelAlign==\'top\'">',
                     '{beforeLabelTpl}',
-                    '<div id="{id}-labelCell" style="{labelCellStyle}">',
+                    '<div role="presentation" id="{id}-labelCell" style="{labelCellStyle}">',
                         '<label id="{id}-labelEl" {labelAttrTpl}<tpl if="inputId"> for="{inputId}"</tpl> class="{labelCls}"',
                             '<tpl if="labelStyle"> style="{labelStyle}"</tpl>',
                             // Required for Opera
@@ -175,15 +175,14 @@ Ext.define("Ext.form.Labelable", {
             '<tpl if="msgTarget===\'side\'">',
                 '{afterBodyEl}',
                 '</td>',
-                '<td id="{id}-sideErrorCell" vAlign="{[values.labelAlign===\'top\' && !values.hideLabel ? \'bottom\' : \'middle\']}" style="{[values.autoFitErrors ? \'display:none\' : \'\']}" width="{errorIconWidth}">',
-                    '<div id="{id}-errorEl" class="{errorMsgCls}" style="display:none"></div>',
+                '<td role="presentation" id="{id}-sideErrorCell" vAlign="{[values.labelAlign===\'top\' && !values.hideLabel ? \'bottom\' : \'middle\']}" style="{[values.autoFitErrors ? \'display:none\' : \'\']}" width="{errorIconWidth}">',
+                    '<div role="presentation" id="{id}-errorEl" class="{errorMsgCls}" style="display:none"></div>',
                 '</td>',
             '<tpl elseif="msgTarget==\'under\'">',
-                '<div id="{id}-errorEl" class="{errorMsgClass}" colspan="2" style="display:none"></div>',
+                '<div role="presentation" id="{id}-errorEl" class="{errorMsgClass}" colspan="2" style="display:none"></div>',
                 '{afterBodyEl}',
                 '</td>',
             '</tpl>',
-
         '</tr>',
         {
             disableFormats: true
@@ -200,7 +199,7 @@ Ext.define("Ext.form.Labelable", {
 
     htmlActiveErrorsTpl: [
         '<tpl if="errors && errors.length">',
-            '<ul class="{listCls}"><tpl for="errors"><li>{.}</li></tpl></ul>',
+            '<ul class="{listCls}"><tpl for="errors"><li role="alert">{.}</li></tpl></ul>',
         '</tpl>'
     ],
     
@@ -246,6 +245,9 @@ Ext.define("Ext.form.Labelable", {
      * The CSS class to be applied to the body content element.
      */
     baseBodyCls: Ext.baseCSSPrefix + 'form-item-body',
+
+    // private
+    inputRowCls: Ext.baseCSSPrefix + 'form-item-input-row',
 
     /**
      * @cfg {String} fieldBodyCls
@@ -449,8 +451,8 @@ Ext.define("Ext.form.Labelable", {
     ],
 
     // This is an array to avoid a split on every call to Ext.copyTo
-    labelableRenderProps: [ 'allowBlank', 'id', 'labelAlign', 'fieldBodyCls', 'baseBodyCls',
-                            'clearCls', 'labelSeparator', 'msgTarget' ],
+    labelableRenderProps: ['allowBlank', 'id', 'labelAlign', 'fieldBodyCls', 'extraFieldBodyCls', 
+        'baseBodyCls', 'clearCls', 'labelSeparator', 'msgTarget', 'inputRowCls'],
 
     /**
      * Performs initialization of this mixin. Component classes using this mixin should call this method during their
@@ -689,7 +691,7 @@ Ext.define("Ext.form.Labelable", {
 
     getLabelCellStyle: function() {
         var me = this,
-            hideLabelCell = me.hideLabel || (!me.fieldLabel && me.hideEmptyLabel);
+            hideLabelCell = me.hideLabel || (!me.getFieldLabel() && me.hideEmptyLabel);
 
         return hideLabelCell ? 'display:none;' : '';
     },

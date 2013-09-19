@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * Provides input field management, validation, submission, and form loading services for the collection
@@ -94,9 +94,7 @@ Ext.define('Ext.form.Basic', {
      */
     constructor: function(owner, config) {
         var me = this,
-            reader,
-            api,
-            fn;
+            reader;
 
         /**
          * @property {Ext.container.Container} owner
@@ -123,15 +121,6 @@ Ext.define('Ext.form.Basic', {
         // Normalize the paramOrder to an Array
         if (Ext.isString(me.paramOrder)) {
             me.paramOrder = me.paramOrder.split(/[\s,|]/);
-        }
-        
-        if (me.api) {
-            api = me.api = Ext.apply({}, me.api);
-            for (fn in api) {
-                if (api.hasOwnProperty(fn)) {
-                    api[fn] = Ext.direct.Manager.parseMethod(api[fn]);
-                }
-            }
         }
         
         reader = me.reader;

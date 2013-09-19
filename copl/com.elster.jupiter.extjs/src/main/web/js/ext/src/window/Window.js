@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * A specialized panel intended for use as an application window. Windows are floated, {@link #resizable}, and
@@ -244,8 +244,6 @@ Ext.define('Ext.window.Window', {
      * @readonly
      */
     floating: true,
-
-    ariaRole: 'alertdialog',
 
     itemCls: Ext.baseCSSPrefix + 'window-item',
     
@@ -567,15 +565,6 @@ Ext.define('Ext.window.Window', {
             me.callParent(arguments);
         } else {
             focusDescendant.focus();
-        }
-    },
-
-    beforeLayout: function () {
-        var shadow = this.el.shadow;
-
-        this.callParent();
-        if (shadow) {
-            shadow.hide();
         }
     },
 

@@ -13,10 +13,10 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
-//@tag extras,core
-//@require Format.js
+// @tag extras,core
+// @require Format.js
 
 /**
  * Provides the ability to execute one or more arbitrary tasks in a asynchronous manner.
@@ -175,7 +175,7 @@ Ext.define('Ext.util.TaskRunner', {
      */
     start: function(task) {
         var me = this,
-            now = new Date().getTime();
+            now = Ext.Date.now();
 
         if (!task.pending) {
             me.tasks.push(task);
@@ -236,7 +236,7 @@ Ext.define('Ext.util.TaskRunner', {
     onTick: function () {
         var me = this,
             tasks = me.tasks,
-            now = new Date().getTime(),
+            now = Ext.Date.now(),
             nextExpires = 1e99,
             len = tasks.length,
             expires, newTasks, i, task, rt, remove;
@@ -324,7 +324,7 @@ Ext.define('Ext.util.TaskRunner', {
             // we create a new Date here because all the callbacks could have taken a long
             // time... we want to base the next timeout on the current time (after the
             // callback storm):
-            me.startTimer(nextExpires - now, new Date().getTime());
+            me.startTimer(nextExpires - now, Ext.Date.now());
         }
         
         // After a tick

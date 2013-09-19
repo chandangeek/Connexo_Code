@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * An extended {@link Ext.Element} object that supports a shadow and shim, constrain to viewport and
@@ -129,6 +129,10 @@ Ext.define('Ext.dom.Layer', {
             if (!me.dom.parentNode) {
                 pel.appendChild(me.dom);
             }
+        }
+        
+        if (config.preventSync) {
+            me.preventSync = true;
         }
 
         if (config.id) {
@@ -253,6 +257,10 @@ Ext.define('Ext.dom.Layer', {
             shadow = me.shadow,
             shadowPos, shimStyle, shadowSize,
             shim, xy, x, y, w, h, shimIndex;
+            
+        if (me.preventSync) {
+            return;
+        }
 
         if (!me.updating && me.isVisible() && (shadow || me.useShim)) {
             shim = me.getShim();

@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * A {@link Ext.form.FieldContainer field container} which has a specialized layout for arranging
@@ -67,7 +67,11 @@ Ext.define('Ext.form.CheckboxGroup', {
         field: 'Ext.form.field.Field'
     },
     alias: 'widget.checkboxgroup',
-    requires: ['Ext.layout.container.CheckboxGroup', 'Ext.form.field.Base'],
+    requires: [
+        'Ext.layout.container.CheckboxGroup',
+        'Ext.form.field.Checkbox',
+        'Ext.form.field.Base'
+    ],
 
     /**
      * @cfg {String} name
@@ -125,11 +129,8 @@ Ext.define('Ext.form.CheckboxGroup', {
     // private
     groupCls : Ext.baseCSSPrefix + 'form-check-group',
 
-    /**
-     * @cfg {String} [fieldBodyCls='x-form-checkboxgroup-body']
-     * An extra CSS class to be applied to the body content element in addition to {@link #baseBodyCls}.
-     */
-    fieldBodyCls: Ext.baseCSSPrefix + 'form-checkboxgroup-body',
+    // private
+    extraFieldBodyCls: Ext.baseCSSPrefix + 'form-checkboxgroup-body',
 
     // private
     layout: 'checkboxgroup',
@@ -471,7 +472,7 @@ Ext.define('Ext.form.CheckboxGroup', {
 
 }, function() {
 
-    this.borrow(Ext.form.field.Base, ['markInvalid', 'clearInvalid']);
+    this.borrow(Ext.form.field.Base, ['markInvalid', 'clearInvalid', 'setError']);
 
 });
 

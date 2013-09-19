@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * @class Ext.data.JsonP
@@ -114,7 +114,7 @@ Ext.define('Ext.data.JsonP', {
             callbackName = options.callbackName || 'callback' + id,
             callbackKey = options.callbackKey || me.callbackKey,
             timeout = Ext.isDefined(options.timeout) ? options.timeout : me.timeout,
-            params = options.params || {},
+            params = Ext.apply({}, options.params),
             url = options.url,
             name = Ext.name,
             request,
@@ -123,10 +123,9 @@ Ext.define('Ext.data.JsonP', {
 
         // Add cachebuster param unless it has already been done
         if (disableCaching && !params[cacheParam]) {
-            params[cacheParam] = new Date().getTime();
-        } else {
-            params = options.params;
+            params[cacheParam] = Ext.Date.now();
         }
+        options.params = params;
 
         params[callbackKey] = name + '.data.JsonP.' + callbackName;
         script = me.createScript(url, params, options);

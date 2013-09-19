@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 // feature idea to enable Ajax loading and then the content
 // cache would actually make sense. Should we dictate that they use
@@ -110,6 +110,7 @@ Ext.define('Ext.grid.plugin.RowExpander', {
             rowBodyHiddenCls: me.rowBodyHiddenCls,
             rowCollapsedCls: me.rowCollapsedCls,
             setupRowData: me.getRowBodyFeatureData,
+            setup: me.setup,
             getRowBodyContents: function(record) {
                 return rowBodyTpl.applyTemplate(record.getData());
             }
@@ -129,19 +130,19 @@ Ext.define('Ext.grid.plugin.RowExpander', {
     init: function(grid) {
         var me = this,
             reconfigurable = grid,
-            lockedView;
+            view, lockedView;
 
         me.callParent(arguments);
         me.grid = grid;
-        me.view = grid.getView();
+        view = me.view = grid.getView();
         // Columns have to be added in init (after columns has been used to create the headerCt).
         // Otherwise, shared column configs get corrupted, e.g., if put in the prototype.
         me.addExpander();
         
         // Bind to view for key and mouse events
         // Add row processor which adds collapsed class
-        me.bindView(me.view);
-        me.view.addRowTpl(me.addCollapsedCls).rowExpander = me;
+        me.bindView(view);
+        view.addRowTpl(me.addCollapsedCls).rowExpander = me;
 
         // If the owning grid is lockable, then disable row height syncing - we do it here.
         // Also ensure the collapsed class is applied to the locked side by adding a row processor.
@@ -162,6 +163,14 @@ Ext.define('Ext.grid.plugin.RowExpander', {
             reconfigurable.mon(reconfigurable.store, 'datachanged', me.refreshRowHeights, me);
         }
         reconfigurable.on('beforereconfigure', me.beforeReconfigure, me);
+
+        if (grid.ownerLockable && !grid.rowLines) {
+            // grids without row lines can gain a border when focused.  When they do, the
+            // stylesheet adjusts the padding of the cells so that the height of the row
+            // does not change. It is necessary to refresh the row heights for lockable
+            // grids on focus to keep the height of the expander cells in sync.
+            view.on('rowfocus', me.refreshRowHeights, me);
+        }
     },
     
     beforeReconfigure: function(grid, store, columns, oldStore, oldColumns) {
@@ -193,12 +202,17 @@ Ext.define('Ext.grid.plugin.RowExpander', {
         var me = this
         me.self.prototype.setupRowData.apply(me, arguments);
 
-        // If we are lockable, the expander column is moved into the locked side, so we don't have to span it
-        if (!me.grid.ownerLockable) {
-            rowValues.rowBodyColspan = rowValues.rowBodyColspan - 1;
-        }
         rowValues.rowBody = me.getRowBodyContents(record);
         rowValues.rowBodyCls = me.recordsExpanded[record.internalId] ? '' : me.rowBodyHiddenCls;
+    },
+    
+    setup: function(rows, rowValues){
+        var me = this;
+        me.self.prototype.setup.apply(me, arguments);
+        // If we are lockable, the expander column is moved into the locked side, so we don't have to span it
+        if (!me.grid.ownerLockable) {
+            rowValues.rowBodyColspan -= 1;
+        }    
     },
 
     bindView: function(view) {
@@ -236,7 +250,7 @@ Ext.define('Ext.grid.plugin.RowExpander', {
             nextBd = row.down(me.rowBodyTrSelector, true),
             isCollapsed = row.hasCls(me.rowCollapsedCls),
             addOrRemoveCls = isCollapsed ? 'removeCls' : 'addCls',
-            rowHeight;
+            ownerLock, rowHeight, fireView;
 
         // Suspend layouts because of possible TWO views having their height change
         Ext.suspendLayouts();
@@ -244,17 +258,21 @@ Ext.define('Ext.grid.plugin.RowExpander', {
         Ext.fly(nextBd)[addOrRemoveCls](me.rowBodyHiddenCls);
         me.recordsExpanded[record.internalId] = isCollapsed;
         view.refreshSize();
-        view.fireEvent(isCollapsed ? 'expandbody' : 'collapsebody', row.dom, record, nextBd);
 
         // Sync the height and class of the row on the locked side
         if (me.grid.ownerLockable) {
-            view = me.grid.ownerLockable.lockedGrid.view;
+            ownerLock = me.grid.ownerLockable;
+            fireView = ownerLock.getView();
+            view = ownerLock.lockedGrid.view;
             rowHeight = row.getHeight();
             row = Ext.fly(view.getNode(rowIdx), '_rowExpander');
             row.setHeight(rowHeight);
             row[addOrRemoveCls](me.rowCollapsedCls);
             view.refreshSize();
+        } else {
+            fireView = view;
         }
+        fireView.fireEvent(isCollapsed ? 'expandbody' : 'collapsebody', row.dom, record, nextBd);
         // Coalesce laying out due to view size changes
         Ext.resumeLayouts(true);
     },
@@ -313,12 +331,13 @@ Ext.define('Ext.grid.plugin.RowExpander', {
             hideable: false,
             menuDisabled: true,
             tdCls: Ext.baseCSSPrefix + 'grid-cell-special',
+            innerCls: Ext.baseCSSPrefix + 'grid-cell-inner-row-expander',
             renderer: function(value, metadata) {
                 // Only has to span 2 rows if it is not in a lockable grid.
                 if (!me.grid.ownerLockable) {
                     metadata.tdAttr += ' rowspan="2"';
                 }
-                return '<div class="' + Ext.baseCSSPrefix + 'grid-row-expander">&#160;</div>';
+                return '<div class="' + Ext.baseCSSPrefix + 'grid-row-expander"></div>';
             },
             processEvent: function(type, view, cell, rowIndex, cellIndex, e, record) {
                 if (type == "mousedown" && e.getTarget('.x-grid-row-expander')) {

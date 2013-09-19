@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * This ComponentLayout handles docking for Panels. It takes care of panels that are
@@ -124,7 +124,7 @@ Ext.define('Ext.layout.component.Dock', {
             currentGeneration = owner.dockedItems.generation,
             noBorderClassesSides = me.noBorderClassesSides,
             borderWidthProps = me.borderWidthProps,
-            i, ln, item, dock, side, borderItem,
+            i, ln, item, dock, side,
             collapsed = me.collapsed;
 
         if (me.initializedBorders == currentGeneration || (owner.border && !owner.manageBodyBorders)) {

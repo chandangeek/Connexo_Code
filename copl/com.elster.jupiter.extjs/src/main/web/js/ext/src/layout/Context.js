@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * Manages context information during a layout.
@@ -445,7 +445,7 @@ Ext.define('Ext.layout.Context', {
             collection = this.triggers[inDom ? 'dom' : 'data'],
             triggers = collection && collection[id],
             length = (triggers && triggers.length) || 0,
-            collection, i, item, trigger;
+            i, item, trigger;
 
         for (i = 0; i < length; ++i) {
             trigger = triggers[i];
@@ -1168,7 +1168,7 @@ Ext.define('Ext.layout.Context', {
 
     /**
      * Set the size of a component, element or composite or an array of components or elements.
-     * @param {Ext.Component/Ext.Component[]/Ext.dom.Element/Ext.dom.Element[]/Ext.dom.CompositeElement}
+     * @param {Ext.Component/Ext.Component[]/Ext.dom.Element/Ext.dom.Element[]/Ext.dom.CompositeElement} items
      * The item(s) to size.
      * @param {Number} width The new width to set (ignored if undefined or NaN).
      * @param {Number} height The new height to set (ignored if undefined or NaN).

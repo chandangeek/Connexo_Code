@@ -13,7 +13,7 @@ terms contained in a written agreement between you and Sencha.
 If you are unsure which license is appropriate for your use, please contact the sales department
 at http://www.sencha.com/contact.
 
-Build date: 2013-03-11 22:33:40 (aed16176e68b5e8aa1433452b12805c0ad913836)
+Build date: 2013-05-16 14:36:50 (f9be68accb407158ba2b1be2c226a6ce1f649314)
 */
 /**
  * Creates a Bar Chart. A Bar Chart is a useful visualization technique to display quantitative information for
@@ -750,7 +750,7 @@ Ext.define('Ext.chart.series.Bar', {
         me.renderLabels();
     },
 
-    // @private handled when creating a label.
+    // @private called when a label is to be created.
     onCreateLabel: function(storeItem, item, i, display) {
         var me = this,
             surface = me.chart.surface,
@@ -765,7 +765,7 @@ Ext.define('Ext.chart.series.Bar', {
         }, endLabelStyle || {}));
     },
 
-    // @private callback used when placing a label.
+    // @private called when a label is to be positioned.
     onPlaceLabel: function(label, storeItem, item, i, display, animate, index) {
         // Determine the label's final position. Starts with the configured preferred value but
         // may get flipped from inside to outside or vice-versa depending on space.
