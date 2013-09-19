@@ -2,3 +2,5 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.events.impl
 Export-Package: com.elster.jupiter.events
+Import-Package: !net.jcip.annotations,\
+	*
