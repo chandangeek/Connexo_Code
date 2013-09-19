@@ -16,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
-@Path("/prt/roles")
+@Path("/roles")
 public class RolesResource {
 
     @POST

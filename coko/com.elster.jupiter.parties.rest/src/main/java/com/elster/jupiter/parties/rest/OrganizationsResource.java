@@ -24,7 +24,7 @@ import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-@Path("/prt/organizations")
+@Path("/organizations")
 public class OrganizationsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
