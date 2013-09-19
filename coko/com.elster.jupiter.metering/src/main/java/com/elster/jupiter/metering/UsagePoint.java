@@ -6,6 +6,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.units.Quantity;
+import com.google.common.base.Optional;
 
 import java.util.Date;
 import java.util.List;
@@ -72,7 +73,7 @@ public interface UsagePoint extends HasName {
 	MeterActivation activate(Date start);
     List<UsagePointAccountability> getAccountabilities();
 	UsagePointAccountability addAccountability(PartyRole role, Party party, Date start);
-	Party getResponsibleParty(PartyRole role);
+	Optional<Party> getResponsibleParty(PartyRole role);
 
 	boolean hasAccountability(User user);
 

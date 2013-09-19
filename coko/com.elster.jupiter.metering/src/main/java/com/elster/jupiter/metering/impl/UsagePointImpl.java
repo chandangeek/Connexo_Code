@@ -15,6 +15,7 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Quantity;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Date;
@@ -357,6 +358,7 @@ public class UsagePointImpl implements UsagePoint {
 		} else {
 			for (MeterActivation each : doGetMeterActivations()) {
 				if (each.isCurrent()) {
+                    currentMeterActivation = each;
 					return each;
 				}
 			}
@@ -398,19 +400,19 @@ public class UsagePointImpl implements UsagePoint {
 	@Override
 	public UsagePointAccountability addAccountability(PartyRole role , Party party , Date start) {
 		UsagePointAccountability accountability = new UsagePointAccountabilityImpl(this,party,role,start);		
-		this.accountabilities.add(accountability);
+		doGetUsagePointAccountabilities().add(accountability);
 		Bus.getOrmClient().getUsagePointAccountabilityFactory().persist(accountability);
 		return accountability;
 	}
 	
 	@Override
-	public Party getResponsibleParty(PartyRole role) {
+	public Optional<Party> getResponsibleParty(PartyRole role) {
 		for (UsagePointAccountability each : getAccountabilities()) {
 			if (each.isCurrent() && each.getRole().equals(role)) {
-				return each.getParty();
+				return Optional.of(each.getParty());
 			}
 		}
-		return null;
+		return Optional.absent();
 	}
 
     @Override
