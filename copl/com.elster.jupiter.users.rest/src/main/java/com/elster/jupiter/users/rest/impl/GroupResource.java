@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
-@Path("groups")
+@Path("/groups")
 public class GroupResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
