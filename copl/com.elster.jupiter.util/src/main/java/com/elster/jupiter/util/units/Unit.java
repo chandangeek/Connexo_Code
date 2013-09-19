@@ -1,12 +1,12 @@
 package com.elster.jupiter.util.units;
 
 import java.math.BigDecimal;
-import java.util.*;
 
-import static java.math.BigDecimal.*;
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.ZERO;
 
 /**
- *
+ * An enumeration of all supported units.
  */
 public enum Unit {
 
@@ -105,8 +105,6 @@ public enum Unit {
     NORMAL_CUBIC_METER_PER_DAY("normal cubic meter per day", "Nm\u00b3/d", "Nm3/d", Dimension.VOLUME_FLOW, ONE, Constants.BD86400, ZERO),
     LITER("liter", "l", Dimension.VOLUME, ONE, Constants.BD1000),
 
-    // following units still need to be added to UNITS map
-
     PER_HOUR("per hour", "/h", Dimension.FREQUENCY, ONE, Constants.BD3600),
     MOLE_PER_CENT("mole percent hour", "mol%/", Dimension.DIMENSIONLESS, ONE, Constants.BD100),
     PERCENT("percent", "%", Dimension.DIMENSIONLESS, ONE, Constants.BD100),
@@ -169,7 +167,7 @@ public enum Unit {
     }
 
     public static Unit unitForSymbol(String symbol) {
-        for (Unit unit : UNITS.values()) {
+        for (Unit unit : values()) {
             if (unit.getSymbol().equals(symbol)) {
                 return unit;
             }
@@ -178,16 +176,12 @@ public enum Unit {
     }
 
     public static Unit get(String asciiSymbol) {
-        Unit unit = UNITS.get(asciiSymbol);
-        if (unit == null) {
-            throw new IllegalArgumentException(asciiSymbol);
-        } else {
-            return unit;
+        for (Unit unit : values()) {
+            if (unit.getAsciiSymbol().equals(asciiSymbol)) {
+                return unit;
+            }
         }
-    }
-
-    public static Collection<Unit> available() {
-        return UNITS.values();
+        throw new IllegalArgumentException(asciiSymbol);
     }
 
     private interface Constants {
@@ -199,106 +193,6 @@ public enum Unit {
         BigDecimal SQUARE_METER_PER_SQUARE_FOOT = METER_PER_FOOT.multiply(METER_PER_FOOT);
         BigDecimal CUBIC_METER_PER_CUBIC_FOOT = SQUARE_METER_PER_SQUARE_FOOT.multiply(METER_PER_FOOT);
         BigDecimal JOULE_PER_THERM = BigDecimal.valueOf(105505585257348L, 6);
-    }
-
-    private static final Map<String, Unit> UNITS = fillUnits();
-
-    static Map<String, Unit> fillUnits() {
-        Map<String, Unit> units = new HashMap<>();
-        units.put(UNITLESS.asciiSymbol, UNITLESS);
-        units.put(METER.asciiSymbol, METER);
-        units.put(KILOGRAM.asciiSymbol, KILOGRAM);
-        units.put(GRAM.asciiSymbol, GRAM);
-        units.put(SECOND.asciiSymbol, SECOND);
-        units.put(AMPERE.asciiSymbol, AMPERE);
-        units.put(KELVIN.asciiSymbol, KELVIN);
-        units.put(MOLE.asciiSymbol, MOLE);
-        units.put(CANDELA.asciiSymbol, CANDELA);
-        units.put(ROTATIONS_PER_SECOND.asciiSymbol, ROTATIONS_PER_SECOND);
-        units.put(DEGREES.asciiSymbol, DEGREES);
-        units.put(RADIAN.asciiSymbol, RADIAN);
-        units.put(STERADIAN.asciiSymbol, STERADIAN);
-        units.put(GRAY.asciiSymbol, GRAY);
-        units.put(BECQUEREL.asciiSymbol, BECQUEREL);
-        units.put(DEGREES_CELSIUS.asciiSymbol, DEGREES_CELSIUS);
-        units.put(SIEVERT.asciiSymbol, SIEVERT);
-        units.put(FARAD.asciiSymbol, FARAD);
-        units.put(COULOMB.asciiSymbol, COULOMB);
-        units.put(HENRY.asciiSymbol, HENRY);
-        units.put(VOLT.asciiSymbol, VOLT);
-        units.put(OHM.asciiSymbol, OHM);
-        units.put(JOULE.asciiSymbol, JOULE);
-        units.put(NEWTON.asciiSymbol, NEWTON);
-        units.put(HERTZ.asciiSymbol, HERTZ);
-        units.put(LUX.asciiSymbol, LUX);
-        units.put(LUMEN.asciiSymbol, LUMEN);
-        units.put(WEBER.asciiSymbol, WEBER);
-        units.put(TESLA.asciiSymbol, TESLA);
-        units.put(WATT.asciiSymbol, WATT);
-        units.put(PASCAL.asciiSymbol, PASCAL);
-        units.put(SQUARE_METER.asciiSymbol, SQUARE_METER);
-        units.put(CUBIC_METER.asciiSymbol, CUBIC_METER);
-        units.put(METER_PER_SECOND.asciiSymbol, METER_PER_SECOND);
-        units.put(METER_PER_SECOND_SQUARED.asciiSymbol, METER_PER_SECOND_SQUARED);
-        units.put(CUBIC_METER_PER_SECOND.asciiSymbol, CUBIC_METER_PER_SECOND);
-        units.put(METER_PER_CUBIC_METER.asciiSymbol, METER_PER_CUBIC_METER);
-        units.put(KILOGRAM_METER.asciiSymbol, KILOGRAM_METER);
-        units.put(KILOGRAM_PER_CUBIC_METER.asciiSymbol, KILOGRAM_PER_CUBIC_METER);
-        units.put(METER_SQUARED_PER_SECOND.asciiSymbol, METER_SQUARED_PER_SECOND);
-        units.put(WATT_PER_METER_KELVIN.asciiSymbol, WATT_PER_METER_KELVIN);
-        units.put(JOULE_PER_KELVIN.asciiSymbol, JOULE_PER_KELVIN);
-        units.put(PARTS_PER_MILLION.asciiSymbol, PARTS_PER_MILLION);
-        units.put(SIEMENS.asciiSymbol, SIEMENS);
-        units.put(RADIANS_PER_SECOND.asciiSymbol, RADIANS_PER_SECOND);
-        units.put(VOLT_AMPERE.asciiSymbol, VOLT_AMPERE);
-        units.put(VOLT_AMPERE_REACTIVE.asciiSymbol, VOLT_AMPERE_REACTIVE);
-        units.put(PHASE_ANGLE.asciiSymbol, PHASE_ANGLE);
-        units.put(POWER_FACTOR.asciiSymbol, POWER_FACTOR);
-        units.put(VOLT_SECONDS.asciiSymbol, VOLT_SECONDS);
-        units.put(VOLT_SQUARED.asciiSymbol, VOLT_SQUARED);
-        units.put(AMPERE_SECONDS.asciiSymbol, AMPERE_SECONDS);
-        units.put(AMPERE_SQUARED.asciiSymbol, AMPERE_SQUARED);
-        units.put(AMPERE_SQUARED_SECOND.asciiSymbol, AMPERE_SQUARED_SECOND);
-        units.put(VOLT_AMPERE_HOUR.asciiSymbol, VOLT_AMPERE_HOUR);
-        units.put(WATT_HOUR.asciiSymbol, WATT_HOUR);
-        units.put(VOLT_AMPERE_REACTIVE_HOUR.asciiSymbol, VOLT_AMPERE_REACTIVE_HOUR);
-        units.put(VOLT_PER_HERTZ.asciiSymbol, VOLT_PER_HERTZ);
-        units.put(HERTZ_PER_SECOND.asciiSymbol, HERTZ_PER_SECOND);
-        units.put(CHARACTERS.asciiSymbol, CHARACTERS);
-        units.put(CHARACTERS_PER_SECOND.asciiSymbol, CHARACTERS_PER_SECOND);
-        units.put(KILOGRAM_METER_SQUARED.asciiSymbol, KILOGRAM_METER_SQUARED);
-        units.put(DECIBEL.asciiSymbol, DECIBEL);
-        units.put(MONEY.asciiSymbol, MONEY);
-        units.put(QUANTITY_POWER.asciiSymbol, QUANTITY_POWER);
-        units.put(QUANTITY_ENERGY.asciiSymbol, QUANTITY_ENERGY);
-        units.put(OHM_METER.asciiSymbol, OHM_METER);
-        units.put(AMPERE_PER_METER.asciiSymbol, AMPERE_PER_METER);
-        units.put(VOLT_SQUARED_HOUR.asciiSymbol, VOLT_SQUARED_HOUR);
-        units.put(AMPERE_SQUARED_HOUR.asciiSymbol, AMPERE_SQUARED_HOUR);
-        units.put(AMPERE_HOUR.asciiSymbol, AMPERE_HOUR);
-        units.put(WATT_HOUR_PER_CUBIC_METER.asciiSymbol, WATT_HOUR_PER_CUBIC_METER);
-        units.put(TIMESTAMP.asciiSymbol, TIMESTAMP);
-        units.put(BOOLEAN.asciiSymbol, BOOLEAN);
-        units.put(BOOLEAN_ARRAY.asciiSymbol, BOOLEAN_ARRAY);
-        units.put(COUNT.asciiSymbol, COUNT);
-        units.put(DECIBEL_MILLIWATT.asciiSymbol, DECIBEL_MILLIWATT);
-        units.put(ENCODED_VALUE.asciiSymbol, ENCODED_VALUE);
-        units.put(WATT_HOUR_PER_ROTATION.asciiSymbol, WATT_HOUR_PER_ROTATION);
-        units.put(VOLT_AMPERE_REACTIVE_HOUR_PER_ROTATION.asciiSymbol, VOLT_AMPERE_REACTIVE_HOUR_PER_ROTATION);
-        units.put(VOLT_AMPERE_HOUR_PER_ROTATION.asciiSymbol, VOLT_AMPERE_HOUR_PER_ROTATION);
-        units.put(END_DEVICE_EVENT_CODE.asciiSymbol, END_DEVICE_EVENT_CODE);
-        units.put(YEAR.asciiSymbol, YEAR);
-        units.put(MONTH.asciiSymbol, MONTH);
-        units.put(DAY.asciiSymbol, DAY);
-        units.put(HOUR.asciiSymbol, HOUR);
-        units.put(MINUTE.asciiSymbol, MINUTE);
-        units.put(NORMAL_CUBIC_METER.asciiSymbol, NORMAL_CUBIC_METER);
-        units.put(CUBIC_METER_PER_HOUR.asciiSymbol, CUBIC_METER_PER_HOUR);
-        units.put(NORMAL_CUBIC_METER_PER_HOUR.asciiSymbol, NORMAL_CUBIC_METER_PER_HOUR);
-        units.put(CUBIC_METER_PER_DAY.asciiSymbol, CUBIC_METER_PER_DAY);
-        units.put(NORMAL_CUBIC_METER_PER_DAY.asciiSymbol, NORMAL_CUBIC_METER_PER_DAY);
-        units.put(LITER.asciiSymbol, LITER);
-        return units;
     }
 
     public String getName() {
@@ -353,18 +247,21 @@ public enum Unit {
         return this.dimension.hasSameDimensions(other.dimension);
     }
 
-    public boolean isSICompliant() {
-        return
-                siMultiplier.equals(BigDecimal.ONE) && siDivisor.equals(BigDecimal.ONE) && siDelta.equals(BigDecimal.ZERO) && !isDimensionLess();
+    /**
+     * <a href="http://en.wikipedia.org/wiki/Coherence_(units_of_measurement)>See wikipedia article</a>
+     * @return
+     */
+    public boolean isCoherentSiUnit() {
+        return siMultiplier.equals(BigDecimal.ONE) && siDivisor.equals(BigDecimal.ONE) && siDelta.equals(BigDecimal.ZERO) && !isDimensionLess();
     }
 
     public static Unit getSIUnit(Dimension dimension) {
-        for (Unit each : available()) {
-            if (each.dimension.equals(dimension) && each.isSICompliant()) {
+        for (Unit each : values()) {
+            if (each.dimension.equals(dimension) && each.isCoherentSiUnit()) {
                 return each;
             }
         }
-        throw new IllegalArgumentException("" + dimension);
+        throw new IllegalArgumentException(dimension.toString());
     }
 
     BigDecimal siValue(BigDecimal value) {
