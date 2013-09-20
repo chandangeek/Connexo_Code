@@ -23,7 +23,6 @@ import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -204,13 +203,8 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     public void install() {
         try {
             getOrmClient().install();
-            getTransactionService().execute(new VoidTransaction() {
-                @Override
-                protected void doPerform() {
-                    User user = getUserService().createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
-                    user.save();
-                }
-            });
+            User user = getUserService().createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
+            user.save();
         } catch (Exception e) {
             e.printStackTrace();
         }
