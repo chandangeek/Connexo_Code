@@ -17,8 +17,8 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.frame.SMSFrame;
 import com.energyict.protocolimplv2.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -26,6 +26,7 @@ import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * @author sva
@@ -83,7 +84,7 @@ public class SmsHandlerTest {
         List<CollectedData> collectedDataList = handler.getCollectedDataList();
 
         // Asserts
-        assertEquals("Expecting 16 CollectedData objects", 16, collectedDataList.size());
+        assertThat(collectedDataList).hasSize(16);
         assertCollectedRegister(collectedDataList.get(0), "7.0.128.4.0.255", null, "66554433221100");
         assertCollectedRegister(collectedDataList.get(1), "0.0.96.10.4.255", new Quantity("1", Unit.getUndefined()), "Mains power not available");
         assertCollectedRegister(collectedDataList.get(2), "7.0.13.0.0.255", new Quantity("257", Unit.get("m3")), null);
@@ -205,7 +206,7 @@ public class SmsHandlerTest {
         assertEquals("Wrong channelInfo name", "7.0.43.0.0.255", channelInfo.getName());
         assertEquals("Wrong channelInfo unit", "m3/h", channelInfo.getUnit().toString());
 
-        assertEquals("Expecting no issues", null, collectedProfile.getIssues());
+        assertThat(collectedProfile.getIssues()).isEmpty();
         assertTrue("Expecting doStoreOlderValues to be true", collectedProfile.doStoreOlderValues());
         assertEquals("Expecting resultType 'Supported'", ResultType.Supported.ordinal(), collectedProfile.getResultType().ordinal());
     }
@@ -258,7 +259,7 @@ public class SmsHandlerTest {
         assertEquals("Wrong channelInfo name", "7.0.42.0.0.255", channelInfo.getName());
         assertEquals("Wrong channelInfo unit", "bar", channelInfo.getUnit().toString());
 
-        assertEquals("Expecting no issues", null, collectedProfile.getIssues());
+        assertThat(collectedProfile.getIssues()).isEmpty();
         assertTrue("Expecting doStoreOlderValues to be true", collectedProfile.doStoreOlderValues());
         assertEquals("Expecting resultType 'Supported'", ResultType.Supported.ordinal(), collectedProfile.getResultType().ordinal());
     }
@@ -278,7 +279,7 @@ public class SmsHandlerTest {
         } else {
             assertTrue("Unexpected register text", text.equals(deviceRegister.getText()));
         }
-        assertEquals("No issues expected", null, deviceRegister.getIssues());
+        assertThat(deviceRegister.getIssues()).isEmpty();
         assertEquals("ResultType doesn't match", 0, deviceRegister.getResultType().ordinal());
     }
 
