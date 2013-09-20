@@ -203,13 +203,23 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     public void install() {
         try {
             getOrmClient().install();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
             User user = getUserService().createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
             user.save();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        QueueTableSpec defaultQueueTableSpec = getMessageService().getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        defaultQueueTableSpec.createDestinationSpec(ALL_SERVERS, 60);
+
+        try {
+            QueueTableSpec defaultQueueTableSpec = getMessageService().getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            defaultQueueTableSpec.createDestinationSpec(ALL_SERVERS, 60);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
