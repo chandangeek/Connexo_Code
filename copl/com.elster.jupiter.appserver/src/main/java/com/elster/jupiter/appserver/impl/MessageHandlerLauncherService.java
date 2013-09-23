@@ -57,7 +57,8 @@ public class MessageHandlerLauncherService {
     }
     
     public void removeResource(MessageHandlerFactory factory) {
-    	// TODO What if active message handler's service disappears ? 
+        ExecutorService executorService = executors.get(factory);
+        shutDownServiceWithCancelling(executorService);
     }
 
     private void addMessageHandlerFactory(String subscriberName, MessageHandlerFactory factory) {

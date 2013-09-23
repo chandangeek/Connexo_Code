@@ -132,5 +132,38 @@ public class MessageHandlerLauncherServiceTest {
         }
     }
 
+    @Test
+    public void testRemoveResource() throws InterruptedException {
+        final CountDownLatch arrivalLatch = new CountDownLatch(1);
+        final CountDownLatch waitForCancel = new CountDownLatch(1);
+        when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+                arrivalLatch.countDown();
+                waitForCancel.await();
+                return null;
+            }
+        }).when(handler).process(message);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("subscriber", SUBSCRIBER);
+
+        try {
+            messageHandlerLauncherService.addResource(factory, map);
+
+            arrivalLatch.await();
+
+            messageHandlerLauncherService.removeResource(factory);
+
+            waitForCancel.countDown();
+
+            verify(subscriberSpec).cancel();
+            verify(handler).process(message);
+        } finally {
+            messageHandlerLauncherService.deactivate(null);
+        }
+    }
+
 
 }
