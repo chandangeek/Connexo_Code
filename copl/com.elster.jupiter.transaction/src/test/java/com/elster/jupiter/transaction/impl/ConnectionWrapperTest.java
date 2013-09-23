@@ -17,6 +17,7 @@ import java.util.concurrent.Executor;
 
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("resource")
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionWrapperTest {
 
@@ -329,7 +330,7 @@ public class ConnectionWrapperTest {
         verify(connection).setNetworkTimeout(executor, 2500);
     }
 
-    @Test
+	@Test
     public void testDelegationOfgetNetworkTimeout() throws SQLException {
         new ConnectionInTransaction(connection).getNetworkTimeout();
         verify(connection).getNetworkTimeout();
