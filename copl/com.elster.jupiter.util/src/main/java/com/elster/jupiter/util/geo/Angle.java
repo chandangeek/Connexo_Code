@@ -2,8 +2,13 @@ package com.elster.jupiter.util.geo;
 
 import java.math.BigDecimal;
 
+import static com.elster.jupiter.util.Checks.is;
+
 public class Angle implements Comparable<Angle> {
-	final private BigDecimal value;
+
+    private static final BigDecimal SIXTY = BigDecimal.valueOf(60);
+    private static final BigDecimal BD3600 = BigDecimal.valueOf(3600);
+    private final BigDecimal value;
 	
 	Angle (BigDecimal value)  {
 		if (value == null) {
@@ -12,54 +17,60 @@ public class Angle implements Comparable<Angle> {
 		this.value = value;
 	}
 
-	final public boolean equals(Object other) {
-		if (other == null)
-			return false;
-		if (this.getClass() != other.getClass())
-			return false;
+	public final boolean equals(Object other) {
+		if (other == null) {
+            return false;
+        }
+		if (!(other instanceof Angle)) {
+            return false;
+        }
 		Angle o = (Angle) other;
-		return this.value == o.value;		
+		return is(this.value).equalToIgnoringScale(o.value);
 	}
 
-	final public int hashCode() {
-		return value.hashCode();
-	}
+	public final int hashCode() {
+        long bits = Double.doubleToLongBits(this.value.doubleValue());
+        return (int)(bits ^ (bits >>> 32));
+    }
 
 	@Override
-	final public int compareTo(Angle other) {
+    public final int compareTo(Angle other) {
 		return value.compareTo(other.value);		
 	}
 	
-	final public BigDecimal getValue() {
+	public final BigDecimal getValue() {
 		return value;
 	}
 	
-	final public int getDegrees() {
+	public final int getDegrees() {
 		return Math.abs(value.intValue());
 	}
 	
-	final public int getMinutes() {
-		return (int) Math.floor(Math.abs((value.doubleValue() - getDegrees() * signum()) * 60.0));
+	public final int getMinutes() {
+        return value.remainder(BigDecimal.ONE).abs().multiply(SIXTY).intValue();
 	}
 	
-	final public int getSeconds() {
-		return (int) Math.floor(Math.abs((value.doubleValue() - (getDegrees() * signum() + getMinutes() / 60.0 * signum())) * 3600.0));  
+	public final int getSeconds() {
+        return value.remainder(BigDecimal.ONE).abs().multiply(BD3600).intValue() % 60;
 	}
 	
-	final public Angle subtract(Angle other) {
+	public final Angle subtract(Angle other) {
 		return new Angle(this.value.subtract(other.value));
 	}
 	
-	final public double toRadians() {
+	public final double toRadians() {
 		return Math.toRadians(value.doubleValue());
 	}
 	
-	final public double cos() {
+	public final double cos() {
 		return Math.cos(toRadians());
 	}
-	
-	
-	final public int signum() {
+
+    public final double sin() {
+        return Math.sin(toRadians());
+    }
+
+    public final int signum() {
 		return value.signum();
 	}
 	
