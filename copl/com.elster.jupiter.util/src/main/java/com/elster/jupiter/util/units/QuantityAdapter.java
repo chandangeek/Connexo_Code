@@ -6,7 +6,7 @@ public final class QuantityAdapter extends XmlAdapter<AdaptedQuantity,Quantity> 
 
 	@Override
 	public Quantity unmarshal(AdaptedQuantity v) throws Exception {
-		Unit unit = Unit.valueOf(v.unit);
+		Unit unit = Unit.get(v.unit);
 		return unit.amount(v.value,v.multiplier);
 	}
 
