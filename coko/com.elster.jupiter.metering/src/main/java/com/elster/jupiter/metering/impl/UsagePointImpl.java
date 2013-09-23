@@ -79,7 +79,7 @@ public class UsagePointImpl implements UsagePoint {
 
 	@Override 
 	public long getServiceLocationId() {
-		return id;
+		return serviceLocationId;
 	}
 	
 	@Override
