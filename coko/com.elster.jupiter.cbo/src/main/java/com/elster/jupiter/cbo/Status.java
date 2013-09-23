@@ -1,8 +1,8 @@
 package com.elster.jupiter.cbo;
 
-import java.util.Date;
-
 import com.elster.jupiter.util.time.UtcInstant;
+
+import java.util.Date;
 
 public final class Status implements Cloneable {
 	private UtcInstant dateTime;
@@ -23,6 +23,42 @@ public final class Status implements Cloneable {
 	public Status(String value , String reason , String remark) {
 		this(value,reason,remark,new Date());
 	}
+
+    public static StatusBuilder builder() {
+        return new StatusBuilder() {
+
+            private Status constructing = new Status();
+
+            @Override
+            public StatusBuilder value(String value) {
+                constructing.setValue(value);
+                return this;
+            }
+
+            @Override
+            public StatusBuilder reason(String reason) {
+                constructing.setReason(reason);
+                return this;
+            }
+
+            @Override
+            public StatusBuilder remark(String remark) {
+                constructing.setRemark(remark);
+                return this;
+            }
+
+            @Override
+            public StatusBuilder at(Date dateTime) {
+                constructing.setDateTime(dateTime);
+                return this;
+            }
+
+            @Override
+            public Status build() {
+                return constructing;
+            }
+        };
+    }
 
 	public String getReason() {
 		return reason == null ? null : reason;
@@ -67,4 +103,17 @@ public final class Status implements Cloneable {
 	public boolean isEmpty() {
 		return reason == null && remark == null && value == null;
 	}
+
+    public interface StatusBuilder {
+
+        StatusBuilder value(String value);
+
+        StatusBuilder reason(String reason);
+
+        StatusBuilder remark(String remark);
+
+        StatusBuilder at(Date dateTime);
+
+        Status build();
+    }
 }
