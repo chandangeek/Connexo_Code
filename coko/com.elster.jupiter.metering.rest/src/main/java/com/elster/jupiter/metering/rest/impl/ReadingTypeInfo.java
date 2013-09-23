@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.rest;
+package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.time.UtcInstant;

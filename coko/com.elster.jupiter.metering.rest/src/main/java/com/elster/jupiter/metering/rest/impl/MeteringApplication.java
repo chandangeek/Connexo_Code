@@ -1,9 +1,8 @@
-package com.elster.jupiter.metering.rest;
+package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 
 import javax.ws.rs.core.Application;

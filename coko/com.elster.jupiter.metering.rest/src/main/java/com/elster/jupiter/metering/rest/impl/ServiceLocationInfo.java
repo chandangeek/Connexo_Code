@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.rest;
+package com.elster.jupiter.metering.rest.impl;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
