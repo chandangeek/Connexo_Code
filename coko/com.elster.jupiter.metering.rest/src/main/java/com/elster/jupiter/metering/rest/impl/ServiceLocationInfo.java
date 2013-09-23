@@ -31,7 +31,7 @@ public class ServiceLocationInfo {
 	public ServiceLocationInfo() {		
 	}
 	
-	ServiceLocationInfo(ServiceLocation serviceLocation) {
+	public ServiceLocationInfo(ServiceLocation serviceLocation) {
 		id = serviceLocation.getId();
 		aliasName = serviceLocation.getAliasName();
 		description = serviceLocation.getDescription();
