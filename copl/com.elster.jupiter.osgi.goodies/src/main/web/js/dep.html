@@ -1,0 +1,37 @@
+<script type="text/javascript"><!--
+$(document).ready(function(){
+	$.getJSON(appRoot + '/bundles.json', function(response) {
+		response.data.sort(function (a,b) {
+			if (a.symbolicName == b.symbolicName) {
+				return 0;
+			} else {		
+				if (a.symbolicName > b.symbolicName) {
+					return 1;
+				} else {
+					return -1;
+				}
+			}
+		});
+		var selectField = $('#graph_name').get(0);
+		
+		response.data.forEach( function (element) {
+			selectField.options[selectField.length]= new Option(element.symbolicName + ' (' + element.version + ')', element.id);
+		});
+		load_graph();
+	});
+});
+
+function load_graph() {
+	var div = $('#depimg').get(0);
+	var selectField = $('#graph_name').get(0);
+	var link = '<object type="image/svg+xml" data="/api/goodies/bundles/';
+	link += selectField.options[selectField.selectedIndex].value + '.svg"></object>'
+	div.innerHTML = link;
+}
+
+//--> </script>	
+<form action="javascript:void(0)" id="graph_form">
+<select name="graph_name" id="graph_name" onchange="load_graph()"></select>
+</form>
+<div id="depimg" </div>
+<object type="image/svg+xml" id="depimg"></img> 
