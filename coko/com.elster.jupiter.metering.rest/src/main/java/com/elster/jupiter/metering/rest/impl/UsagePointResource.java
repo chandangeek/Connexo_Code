@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.rest;
+package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
@@ -35,8 +35,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.elster.jupiter.metering.rest.Bus.getMeteringService;
-import static com.elster.jupiter.metering.rest.Bus.getQueryService;
+import static com.elster.jupiter.metering.rest.impl.Bus.getMeteringService;
+import static com.elster.jupiter.metering.rest.impl.Bus.getQueryService;
 
 @Path("/usagepoints")
 public class UsagePointResource {
