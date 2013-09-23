@@ -44,7 +44,10 @@ class BytesMessageBuilder implements MessageBuilder {
         try {
             trySend(bytes);
         } catch (SQLException ex) {
-            throw new UnderlyingSQLFailedException(ex);
+        	// ignore ORA-24033: no recipients for message
+        	if (ex.getErrorCode() != 24033) {        		
+        		throw new UnderlyingSQLFailedException(ex);
+        	}
         }
     }
 
