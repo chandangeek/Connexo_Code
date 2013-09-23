@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  */
-public class QueryParameters implements MultivaluedMap<String, String> {
+public final class QueryParameters implements MultivaluedMap<String, String> {
 
     private final MultivaluedMap<String, String> map;
 
@@ -133,6 +133,27 @@ public class QueryParameters implements MultivaluedMap<String, String> {
         List<String> values = map.get(key);
         return values == null || values.isEmpty() ? null : values.get(values.size() - 1);
     }
+
+	@Override
+	public void addAll(String arg0, String... arg1) {
+		map.addAll(arg0,arg1);
+		
+	}
+
+	@Override
+	public void addAll(String arg0, List<String> arg1) {
+		map.addAll(arg0,arg1);
+	}
+
+	@Override
+	public void addFirst(String arg0, String arg1) {
+		map.addFirst(arg0,arg1);
+	}
+
+	@Override
+	public boolean equalsIgnoreValueOrder(MultivaluedMap<String, String> arg0) {
+		return map.equalsIgnoreValueOrder(arg0);
+	}
 
 
 }
