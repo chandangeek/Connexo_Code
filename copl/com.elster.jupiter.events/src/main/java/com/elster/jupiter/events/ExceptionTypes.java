@@ -1,6 +1,5 @@
 package com.elster.jupiter.events;
 
-import com.elster.jupiter.events.impl.Bus;
 import com.elster.jupiter.util.exception.ExceptionType;
 
 enum ExceptionTypes implements ExceptionType {
@@ -13,7 +12,7 @@ enum ExceptionTypes implements ExceptionType {
 
     @Override
     public String getModule() {
-        return Bus.COMPONENTNAME;
+        return "EVT";
     }
 
     @Override
