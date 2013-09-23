@@ -9,7 +9,6 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
-import com.elster.jupiter.orm.PersistenceException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -268,7 +267,7 @@ public class VaultImpl implements Vault {
 	}
 
 	@Override
-	public TimeSeries createIrregularTiemSeries(RecordSpec spec,TimeZone timeZone) {
+	public TimeSeries createIrregularTimeSeries(RecordSpec spec, TimeZone timeZone) {
 		TimeSeriesImpl timeSeries = new TimeSeriesImpl(this, spec,timeZone);
 		timeSeries.persist();		
 		return timeSeries;

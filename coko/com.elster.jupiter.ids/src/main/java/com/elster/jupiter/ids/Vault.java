@@ -18,7 +18,7 @@ public interface Vault {
 	void activate(Date to);
 	void addPartition(Date to);
 	TimeSeries createRegularTimeSeries(RecordSpec spec , TimeZone timeZone , int intervalLength , IntervalLengthUnit intervalLengthUnit , int hourOffset);
-	TimeSeries createIrregularTiemSeries(RecordSpec spec, TimeZone timeZone);
+	TimeSeries createIrregularTimeSeries(RecordSpec spec, TimeZone timeZone);
 	boolean isValidDateTime(Date date);
 	void persist();
 }
