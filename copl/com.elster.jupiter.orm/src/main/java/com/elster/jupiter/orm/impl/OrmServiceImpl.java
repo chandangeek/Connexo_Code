@@ -2,19 +2,12 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.orm.plumbing.OrmClient;
-import com.elster.jupiter.orm.plumbing.OrmClientImpl;
-import com.elster.jupiter.orm.plumbing.ServiceLocator;
+import com.elster.jupiter.orm.plumbing.*;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import javax.sql.DataSource;
 import java.security.Principal;
@@ -125,12 +118,14 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 		publisherHolder.compareAndSet(publisher, null);
 	}
 	
-	public void activate(ComponentContext context) {
+	@Activate
+	public void activate() {
         this.ormClient = new OrmClientImpl();
 		Bus.setServiceLocator(this);
 	}
 	
-	public void deactivate(ComponentContext context) {
+	@Deactivate
+	public void deactivate() {
 		Bus.setServiceLocator(null);
 	}
 	
