@@ -4,8 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 
 import javax.ws.rs.core.Application;
 import java.util.HashSet;
@@ -57,11 +56,13 @@ public class MeteringApplication extends Application implements ServiceLocator {
 		this.restQueryService = restQueryService;
 	}
 	
-	public void activate(ComponentContext context) {
+	@Activate
+	public void activate() {
 		Bus.setServiceLocator(this);
 	}
 	
-	public void deactivate(ComponentContext context) {
+	@Deactivate
+	public void deactivate() {
 		Bus.setServiceLocator(null);
 	}
 }
