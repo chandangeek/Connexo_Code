@@ -3,11 +3,13 @@ package com.elster.jupiter.util.geo;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @XmlJavaTypeAdapter(PositionAdapter.class)
 @XmlRootElement
 public final class Position {
-	private static final double MEANEARTHRADIUS = 6371009.0;
+	private static final double MEAN_EARTH_RADIUS = 6371009.0;
+
 	private final Latitude latitude;
 	private final Longitude longitude;
 	
@@ -35,7 +37,7 @@ public final class Position {
 	 * returns great circle distance between receiver and argument in meters
 	 */
 	public double distance(Position other) {
-		return centralAngle(other) * MEANEARTHRADIUS;
+		return centralAngle(other) * MEAN_EARTH_RADIUS;
 	}
 	
 	public Latitude getLatitude() {
@@ -49,6 +51,24 @@ public final class Position {
 	public String toString() {
 		return latitude.toString() + " " + longitude.toString();
 	}
-	
-	
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Position position = (Position) o;
+
+        return latitude.equals(position.latitude) && longitude.equals(position.longitude);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(latitude, longitude);
+    }
 }
