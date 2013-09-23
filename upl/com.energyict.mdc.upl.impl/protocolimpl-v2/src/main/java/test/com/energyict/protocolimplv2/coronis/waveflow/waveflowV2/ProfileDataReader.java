@@ -2,6 +2,8 @@ package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
@@ -35,15 +37,15 @@ public class ProfileDataReader implements DeviceLoadProfileSupport {
      * Only one profile is supported: 0.0.99.1.0.255
      */
     @Override
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        List<LoadProfileConfiguration> result = new ArrayList<>();
-        LoadProfileConfiguration loadProfileConfiguration;
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+        List<CollectedLoadProfileConfiguration> result = new ArrayList<>();
+        CollectedLoadProfileConfiguration loadProfileConfiguration;
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
             if (profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
-                loadProfileConfiguration = new LoadProfileConfiguration(profileObisCode, waveFlowV2.getOfflineDevice().getSerialNumber(), true);
+                loadProfileConfiguration = new DeviceLoadProfileConfiguration(profileObisCode, waveFlowV2.getOfflineDevice().getSerialNumber(), true);
             } else {
-                loadProfileConfiguration = new LoadProfileConfiguration(profileObisCode, waveFlowV2.getOfflineDevice().getSerialNumber(), false);
+                loadProfileConfiguration = new DeviceLoadProfileConfiguration(profileObisCode, waveFlowV2.getOfflineDevice().getSerialNumber(), false);
             }
             result.add(loadProfileConfiguration);
         }

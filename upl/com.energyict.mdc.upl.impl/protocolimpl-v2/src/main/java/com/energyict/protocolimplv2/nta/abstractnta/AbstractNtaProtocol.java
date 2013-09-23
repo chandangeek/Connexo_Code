@@ -195,7 +195,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
     }
 
     @Override
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         return getLoadProfileBuilder().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 

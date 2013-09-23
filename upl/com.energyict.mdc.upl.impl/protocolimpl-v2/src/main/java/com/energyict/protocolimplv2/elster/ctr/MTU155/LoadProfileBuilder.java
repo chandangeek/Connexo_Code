@@ -4,13 +4,14 @@ import com.energyict.cbo.Unit;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
-import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -51,9 +52,9 @@ public class LoadProfileBuilder {
     private List<LoadProfileReader> expectedLoadProfileReaders;
 
     /**
-     * The list of <CODE>LoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the {@link #expectedLoadProfileReaders}
+     * The list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the {@link #expectedLoadProfileReaders}
      */
-    private List<LoadProfileConfiguration> loadProfileConfigurationList;
+    private List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
 
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
@@ -72,17 +73,18 @@ public class LoadProfileBuilder {
     /**
      * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles for the {@link #meterProtocol}
      *
+     *
      * @param loadProfileReaders a list of definitions of expected loadProfiles to read
-     * @return the list of <CODE>LoadProfileConfiguration</CODE> objects which are in the device
+     * @return the list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are in the device
      * @throws java.io.IOException when error occurred during dataFetching or -Parsing
      */
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
         expectedLoadProfileReaders = loadProfileReaders;
         loadProfileConfigurationList = new ArrayList<>();
 
         for (LoadProfileReader lpr : expectedLoadProfileReaders) {
             this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-            LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getOfflineDevice().getSerialNumber());
+            DeviceLoadProfileConfiguration lpc = new DeviceLoadProfileConfiguration(lpr.getProfileObisCode(), meterProtocol.getOfflineDevice().getSerialNumber());
 
             try {
                 List<ChannelInfo> channelInfos = constructChannelInfos(lpr);
@@ -171,7 +173,7 @@ public class LoadProfileBuilder {
 
         List<CollectedLoadProfile> collectedLoadProfileList = new ArrayList<>();
         for (LoadProfileReader lpr : loadProfiles) {
-            LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
+            CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (!blockingIssueEncountered) {
                 if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                     List<ChannelInfo> channelInfos = this.channelInfoMap.get(lpr);
@@ -248,13 +250,14 @@ public class LoadProfileBuilder {
     }
 
     /**
-     * Look for the <CODE>LoadProfileConfiguration</CODE> in the previously build up list
+     * Look for the <CODE>DeviceLoadProfileConfiguration</CODE> in the previously build up list
      *
-     * @param loadProfileReader the reader linking to the <CODE>LoadProfileConfiguration</CODE>
+     *
+     * @param loadProfileReader the reader linking to the <CODE>DeviceLoadProfileConfiguration</CODE>
      * @return requested configuration
      */
-    private LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
-        for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
+    private CollectedLoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
+        for (CollectedLoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
             if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
                 return lpc;
             }

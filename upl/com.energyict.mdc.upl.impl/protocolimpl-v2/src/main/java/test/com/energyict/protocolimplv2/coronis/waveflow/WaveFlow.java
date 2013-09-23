@@ -219,7 +219,7 @@ public abstract class WaveFlow implements DeviceProtocol {
     }
 
     @Override
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
         return getProfileDataReader().fetchLoadProfileConfiguration(loadProfilesToRead);
     }
 

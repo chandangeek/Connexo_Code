@@ -5,10 +5,12 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
@@ -23,7 +25,6 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MessageEntry;
@@ -78,20 +79,20 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     @Override
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        List<LoadProfileConfiguration> result = new ArrayList<LoadProfileConfiguration>();
-        LoadProfileConfiguration loadProfileConfiguration;
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+        List<CollectedLoadProfileConfiguration> result = new ArrayList<>();
+        DeviceLoadProfileConfiguration loadProfileConfiguration;
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             if (isMaster(loadProfileReader.getMeterSerialNumber())) {     //Master device
                 ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
                 if (profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
-                    loadProfileConfiguration = new LoadProfileConfiguration(profileObisCode, getSerialNumber(), true);
+                    loadProfileConfiguration = new DeviceLoadProfileConfiguration(profileObisCode, getSerialNumber(), true);
                 } else {
-                    loadProfileConfiguration = new LoadProfileConfiguration(profileObisCode, getSerialNumber(), false);
+                    loadProfileConfiguration = new DeviceLoadProfileConfiguration(profileObisCode, getSerialNumber(), false);
                 }
                 result.add(loadProfileConfiguration);
             } else {                                                                                    //Slave doesn't support
-                result.add(new LoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getSerialNumber(), false));
+                result.add(new DeviceLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getSerialNumber(), false));
             }
         }
         return result;

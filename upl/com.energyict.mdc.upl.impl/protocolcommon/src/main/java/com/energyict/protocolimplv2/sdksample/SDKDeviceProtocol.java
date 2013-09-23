@@ -6,6 +6,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.CollectedRegister;
@@ -25,7 +26,6 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
@@ -181,12 +181,12 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        List<LoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>();
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+        List<CollectedLoadProfileConfiguration> loadProfileConfigurations = new ArrayList<>();
         // by default all loadProfileReaders are supported, only if the corresponding ObisCodeProperty matches, we mark it as not supported
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             this.logger.log(Level.INFO, "Fetching loadProfile configuration for loadProfile with ObisCode " + loadProfileReader.getProfileObisCode());
-            LoadProfileConfiguration loadProfileConfiguration = new LoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
+            CollectedLoadProfileConfiguration loadProfileConfiguration = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), loadProfileReader.getMeterSerialNumber());
             if (!loadProfileReader.getProfileObisCode().equals(getIgnoredObisCode())) {
                 loadProfileConfiguration.setChannelInfos(loadProfileReader.getChannelInfos());
             } else {

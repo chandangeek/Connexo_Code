@@ -17,13 +17,14 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.DeviceLoadProfileConfiguration;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileConfigurationException;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
@@ -111,9 +112,9 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
     private List<LoadProfileReader> expectedLoadProfileReaders;
 
     /**
-     * The list of <CODE>LoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the {@link #expectedLoadProfileReaders}
+     * The list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the {@link #expectedLoadProfileReaders}
      */
-    private List<LoadProfileConfiguration> loadProfileConfigurationList;
+    private List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
 
     /**
      * Default constructor
@@ -127,13 +128,14 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
     /**
      * Get the configuration(interval, number of channels, channelUnits) of all given LoadProfiles for the {@link #meterProtocol}
      *
+     *
      * @param loadProfileReaders a list of definitions of expected loadProfiles to read
-     * @return the list of <CODE>LoadProfileConfiguration</CODE> objects which are in the device
+     * @return the list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are in the device
      * @throws java.io.IOException when error occurred during dataFetching or -Parsing
      */
-    public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
         this.expectedLoadProfileReaders = loadProfileReaders;
-        this.loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
+        this.loadProfileConfigurationList = new ArrayList<>();
 
         try {
             ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(loadProfileReaders, this.meterProtocol.supportsBulkRequests());
@@ -142,7 +144,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
 
             for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
                 this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
-                LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+                DeviceLoadProfileConfiguration lpc = new DeviceLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
 
                 ComposedProfileConfig cpc = lpConfigMap.get(lpr);
                 if (cpc != null) {
@@ -413,7 +415,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
 
         for (LoadProfileReader lpr : loadProfiles) {
             ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
-            LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
+            CollectedLoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             LoadProfileIdentifier loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(lpc.getObisCode(), new DeviceIdentifierBySerialNumber(lpr.getMeterSerialNumber()));
             CollectedLoadProfile collectedLoadProfile = MdcManager.getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
 
@@ -450,13 +452,14 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport{
     }
 
     /**
-     * Look for the <CODE>LoadProfileConfiguration</CODE> in the previously build up list
+     * Look for the <CODE>DeviceLoadProfileConfiguration</CODE> in the previously build up list
      *
-     * @param loadProfileReader the reader linking to the <CODE>LoadProfileConfiguration</CODE>
+     *
+     * @param loadProfileReader the reader linking to the <CODE>DeviceLoadProfileConfiguration</CODE>
      * @return requested configuration
      */
-    protected LoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
-        for (LoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
+    protected CollectedLoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
+        for (CollectedLoadProfileConfiguration lpc : this.loadProfileConfigurationList) {
             if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
                 return lpc;
             }
