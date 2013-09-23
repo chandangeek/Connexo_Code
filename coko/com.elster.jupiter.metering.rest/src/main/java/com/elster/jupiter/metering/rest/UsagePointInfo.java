@@ -9,8 +9,10 @@ import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.util.units.Quantity;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UsagePointInfo {	
 	private UsagePoint usagePoint;
 	
