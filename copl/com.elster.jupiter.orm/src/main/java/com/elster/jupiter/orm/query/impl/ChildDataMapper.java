@@ -4,8 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -89,8 +88,17 @@ public class ChildDataMapper<T> extends JoinDataMapper <T> {
 		String fieldName = constraint.getReverseFieldName();
 		if (fieldName != null) {		
 			for (Map.Entry<Object,List<?>> entry : targetCache.entrySet()) {
-				sort(entry.getValue());
-				DomainMapper.FIELDSTRICT.set(entry.getKey(), fieldName , entry.getValue());
+				if (constraint.isOneToOne()) {
+					if (entry.getValue().size() > 1) {
+						throw new NotUniqueException(fieldName);
+					}
+					if (entry.getValue().size() == 1) {
+						DomainMapper.FIELDSTRICT.set(entry.getKey(), fieldName , entry.getValue().get(0));
+					}
+				} else {
+					sort(entry.getValue());
+					DomainMapper.FIELDSTRICT.set(entry.getKey(), fieldName , entry.getValue());
+				}
 			}
 		}
 	}

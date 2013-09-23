@@ -7,4 +7,9 @@ public interface ForeignKeyConstraint extends TableConstraint {
 	String getReverseFieldName();
 	String getReverseOrderFieldName();
 	String getReverseCurrentFieldName();
+	/*
+	 * returns true if this is one to one relation,
+	 * instead of the usual 1 to n
+	 */
+	boolean isOneToOne();
 }

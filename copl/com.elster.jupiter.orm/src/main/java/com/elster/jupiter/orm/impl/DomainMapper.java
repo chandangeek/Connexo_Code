@@ -77,7 +77,7 @@ public enum DomainMapper {
 	private void basicSet(Object target , String fieldName , Object value) {
 		Field field = getField(target.getClass(), fieldName);
 		if (field != null) {			
-			if (value != null && field.getType().isEnum()) {
+			if (value != null && field.getType().isEnum() && !value.getClass().isEnum()) {
 				value = getEnum((Class<? extends Enum<?>>) field.getType(),value);
 			}
 			try {
@@ -99,6 +99,7 @@ public enum DomainMapper {
 				}
 			}
 		}
+		System.out.println(value.getClass() + ":" + value);
 		throw new IllegalArgumentException("" + value);
 	}
 	

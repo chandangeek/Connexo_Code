@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
+import java.util.Collections;
+
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.plumbing.Bus;
 
@@ -118,6 +120,16 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 		sb.append(getReferencedTable().getQualifiedName());
 		sb.append(" ");
 		sb.append(getDeleteRule().getDdl());
+	}
+	
+	@Override
+	public boolean isOneToOne() {
+		for (TableConstraint constraint : getTable().getConstraints()) {
+			if (constraint.isUnique() && getColumns().containsAll(constraint.getColumns())) {
+					return true;				
+			}
+		}
+		return false;
 	}
 	
 }
