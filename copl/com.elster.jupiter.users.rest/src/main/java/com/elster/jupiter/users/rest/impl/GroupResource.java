@@ -1,8 +1,5 @@
 package com.elster.jupiter.users.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.GroupInfos;
