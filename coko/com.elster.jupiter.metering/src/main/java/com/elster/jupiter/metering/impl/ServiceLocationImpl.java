@@ -256,15 +256,12 @@ public class ServiceLocationImpl implements ServiceLocation {
 			return null;
 		}
 		String[] parts = geoInfoReference.split(",");
-		if (parts == null || parts.length == 0) {
-			return null;
-		}
 		switch (parts[0]) {
 			case GOOGLE_GEOCODED:
 				if (parts.length != 3) {
 					return null;
 				}
-				return new Position(new BigDecimal(parts[1]),new BigDecimal(parts[2]));
+				return new Position(new BigDecimal(parts[1]), new BigDecimal(parts[2]));
 				
 			default:
 				return null;

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
-import static com.elster.jupiter.metering.plumbing.Bus.getIdsService;
 
 public class ChannelImpl implements Channel {
 	
@@ -130,24 +129,24 @@ public class ChannelImpl implements Channel {
 		IntervalLength intervalLength = getIntervalLength();
         Vault vault = getVault(intervalLength);
         RecordSpec recordSpec = getRecordSpec(intervalLength);
-        TimeZone timeZone = TimeZone.getDefault();
+        TimeZone timeZone = Bus.getClock().getTimeZone();
 		return intervalLength == null ? 
-				vault.createIrregularTiemSeries(recordSpec, timeZone) :
-				vault.createRegularTimeSeries(recordSpec, TimeZone.getDefault(), intervalLength.getLength() , intervalLength.getUnitCode(),0);		
+				vault.createIrregularTimeSeries(recordSpec, timeZone) :
+				vault.createRegularTimeSeries(recordSpec, Bus.getClock().getTimeZone(), intervalLength.getLength() , intervalLength.getUnitCode(),0);
 	}
 
     private RecordSpec getRecordSpec(IntervalLength intervalLength) {
         int id = intervalLength == null ? IRREGULARRECORDSPECID : REGULARRECORDSPECID;
-        Optional<RecordSpec> result = getIdsService().getRecordSpec(COMPONENTNAME, id);
+        Optional<RecordSpec> result = Bus.getIdsService().getRecordSpec(COMPONENTNAME, id);
         if (result.isPresent()) {
-        return result.get();
+            return result.get();
         }
         throw new DoesNotExistException(String.valueOf(id));
     }
 
     private Vault getVault(IntervalLength intervalLength) {
         int id = intervalLength == null ? IRREGULARVAULTID : REGULARVAULTID;
-        Optional<Vault> result = getIdsService().getVault(COMPONENTNAME, id);
+        Optional<Vault> result = Bus.getIdsService().getVault(COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
         }

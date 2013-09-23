@@ -1,8 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Arrays;
-
 import com.elster.jupiter.ids.IntervalLengthUnit;
+
+import java.util.Arrays;
 
 import static com.elster.jupiter.ids.IntervalLengthUnit.*;
 
@@ -37,13 +37,16 @@ class IntervalLength {
 	}
 	
 	static IntervalLength forCimCode(int cimCode) {
-		if (cimCode == MONTHCIMCODE)
-			return ofMonth();
-		if (cimCode == DAYCIMCODE)
-			return ofDay();
+		if (cimCode == MONTHCIMCODE) {
+            return ofMonth();
+        }
+		if (cimCode == DAYCIMCODE) {
+            return ofDay();
+        }
 		for (int i = 0 ; i < MINUTEVALUESCIMCODES.length ; i++) {
-			if (MINUTEVALUESCIMCODES[i] == cimCode)
-				return ofMinutes(VALIDMINUTEVALUES[i]);
+			if (MINUTEVALUESCIMCODES[i] == cimCode) {
+                return ofMinutes(VALIDMINUTEVALUES[i]);
+            }
 		}
 		return null;
 	}
