@@ -3,47 +3,38 @@ package com.elster.jupiter.rest.whiteboard.impl;
 import com.elster.jupiter.users.User;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
 
 public class SecurityContextImpl implements SecurityContext {
-	private final HttpServletRequest request;
 	
-	SecurityContextImpl(HttpServletRequest request) {
-		this.request = request;
+	private final SecurityContext oldContext;
+	
+	SecurityContextImpl(ContainerRequestContext request) {
+		this.oldContext = request.getSecurityContext();
 	}
 	
 	@Override
 	public String getAuthenticationScheme() {
-		switch (request.getAuthType()) {
-			case HttpServletRequest.BASIC_AUTH:
-				return SecurityContext.BASIC_AUTH;
-			case HttpServletRequest.CLIENT_CERT_AUTH:
-				return SecurityContext.CLIENT_CERT_AUTH;
-			case HttpServletRequest.DIGEST_AUTH:
-				return SecurityContext.DIGEST_AUTH;
-			case HttpServletRequest.FORM_AUTH:
-				return SecurityContext.FORM_AUTH;
-			default:
-				return null;
-					
-		}
+		return oldContext.getAuthenticationScheme();
 	}
 
 	@Override
 	public Principal getUserPrincipal() {
-		// attribute is set by HttpContextImpl
-		return (Principal) request.getAttribute(ServiceLocator.USERPRINCIPAL);
+		return Bus.getThreadPrincipalService().getPrincipal();
 	}
 
 	@Override
 	public boolean isSecure() {
-		return request.isSecure();
+		return oldContext.isSecure();
 	}
 
 	@Override
 	public boolean isUserInRole(String role) {		
 		User user = (User) getUserPrincipal();
+		System.out.println("Checking role " + role);		
 		return user == null ? false : user.hasPrivilege(role);
 	}
 

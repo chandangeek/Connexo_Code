@@ -1,19 +1,15 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
-import com.sun.jersey.spi.container.ContainerRequest;
-import com.sun.jersey.spi.container.ContainerRequestFilter;
+import javax.annotation.Priority;
+import javax.ws.rs.container.*;
+import javax.ws.rs.*;
 
-import javax.servlet.http.HttpServletRequest;
-
+@Priority(Priorities.AUTHENTICATION)
 public class RoleFilter implements ContainerRequestFilter {
 
-	@javax.ws.rs.core.Context
-	HttpServletRequest httpServletRequest;
-	
 	@Override
-	public ContainerRequest filter(ContainerRequest request) {		
-		request.setSecurityContext(new SecurityContextImpl(httpServletRequest));
-		return request;
+	public void filter(ContainerRequestContext requestContext) {	
+		requestContext.setSecurityContext(new SecurityContextImpl(requestContext));
 	}
 
 }

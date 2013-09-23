@@ -1,13 +1,10 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
-import com.sun.jersey.api.container.filter.ResourceDebuggingFilterFactory;
-import com.sun.jersey.api.container.filter.RolesAllowedResourceFilterFactory;
-import com.sun.jersey.api.core.ApplicationAdapter;
-import com.sun.jersey.api.core.ResourceConfig;
-import com.sun.jersey.spi.container.ContainerRequestFilter;
-import com.sun.jersey.spi.container.ResourceFilterFactory;
-import com.sun.jersey.spi.container.servlet.ServletContainer;
-import com.sun.jersey.api.json.*;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.server.*;
+import org.glassfish.jersey.server.filter.*;
+import org.glassfish.jersey.servlet.*;
+import javax.ws.rs.container.*;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -42,17 +39,10 @@ public class WhiteBoard {
     }
     
     void addResource(Application application, String alias) {    	    	
-        ResourceConfig secureConfig = new ApplicationAdapter(application);
-        List<Class<? extends ContainerRequestFilter>> requestFilters = new ArrayList<>();
-        requestFilters.add(RoleFilter.class);
-        secureConfig.getProperties().put(ResourceConfig.PROPERTY_CONTAINER_REQUEST_FILTERS, requestFilters);
-        List<Class<? extends ResourceFilterFactory>> resourceFilterFactories = new ArrayList<>();
-        resourceFilterFactories.add(RolesAllowedResourceFilterFactory.class);
-        if (Bus.getServiceLocator().getDebug()) {
-        	resourceFilterFactories.add(ResourceDebuggingFilterFactory.class);
-        }
-        secureConfig.getProperties().put(ResourceConfig.PROPERTY_RESOURCE_FILTER_FACTORIES, resourceFilterFactories);
-        secureConfig.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING, true);
+        ResourceConfig secureConfig = ResourceConfig.forApplication(application);
+        secureConfig.register(JacksonFeature.class);
+        secureConfig.register(RoleFilter.class);
+        secureConfig.register(RolesAllowedDynamicFeature.class);
         try {
         	ServletContainer container = new ServletContainer(secureConfig);
         	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container));

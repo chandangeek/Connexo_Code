@@ -9,10 +9,6 @@ public interface ServiceLocator {
     String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
 
     UserService getUserService();
-
     ThreadPrincipalService getThreadPrincipalService();
-
-    boolean getDebug();
-
     Publisher getPublisher();
 }

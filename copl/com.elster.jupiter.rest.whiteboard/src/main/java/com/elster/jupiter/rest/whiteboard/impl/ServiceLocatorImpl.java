@@ -17,6 +17,11 @@ import org.osgi.util.tracker.BundleTrackerCustomizer;
 
 import java.util.*;
 
+/*
+ * As Jersey does not publish OGSI services,
+ * we need to use a bundle tracker to wait for Jersey OSG initialization.
+ *  
+ */
 
 @Component (name = Bus.PID , immediate = true , service = {}  )
 public class ServiceLocatorImpl implements  ServiceLocator {
@@ -39,7 +44,8 @@ public class ServiceLocatorImpl implements  ServiceLocator {
     }
     
     @Activate
-    public void activate(BundleContext context, Map<String,Object> properties) {    	
+    public void activate(BundleContext context, Map<String,Object> properties) {  
+    	System.out.println("Activating");
     	Bus.setServiceLocator(this);
     	configure(properties);
     	int stateMask = Bundle.ACTIVE | Bundle.START_TRANSIENT | Bundle.STARTING;
@@ -86,7 +92,8 @@ public class ServiceLocatorImpl implements  ServiceLocator {
 	}
 
 	
-	void startWhiteBoard(BundleContext bundleContext) {		
+	void startWhiteBoard(BundleContext bundleContext) {	
+		System.out.println("Starting whiteboard");
 		whiteBoard.open(bundleContext);
 	}
 	
@@ -108,12 +115,15 @@ public class ServiceLocatorImpl implements  ServiceLocator {
 		private final BundleContext bundleContext;
 		
 		JerseyBundleTrackerCustomizer(BundleContext context) {
-			this.bundleContext = context;
+			this.bundleContext = context; 
+			// this activates the target bundle's classloader , to work around the bundle's lazy activation policy;
+			Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
+			clazz.getAnnotations();
 		}
 
 		@Override
 		public Bundle addingBundle(Bundle bundle, BundleEvent event) {
-			if (!"com.sun.jersey.core".equals(bundle.getSymbolicName())) {
+			if (! "org.glassfish.hk2.osgi-resource-locator".equals(bundle.getSymbolicName())) {
                 return null;
             }
 			if (bundle.getState() == Bundle.ACTIVE) {
