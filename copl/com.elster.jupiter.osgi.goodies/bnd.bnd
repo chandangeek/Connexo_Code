@@ -1,4 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.osgi.goodies
+Include-Resource: src/main/web
 

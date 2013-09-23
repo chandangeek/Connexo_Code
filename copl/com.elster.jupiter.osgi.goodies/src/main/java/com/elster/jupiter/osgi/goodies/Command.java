@@ -2,8 +2,7 @@ package com.elster.jupiter.osgi.goodies;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 @SuppressWarnings("deprecation")
@@ -18,7 +17,7 @@ public class Command {
 	public void generate(String...strings) {		
 		Analyzer analyzer = new Analyzer();
 		analyzer.build(bundleContext,admin);
-		analyzer.generateBundleGraph(new String [] {".*"}, strings, false);
+		analyzer.generateBundleGraph(strings, null, false);
 	}
 	
 	@Reference
@@ -26,8 +25,9 @@ public class Command {
 		this.admin = admin;
 	}
 	
-	public void activate(ComponentContext context) {
-		this.bundleContext = context.getBundleContext();
+	@Activate
+	public void activate(BundleContext context) {
+		this.bundleContext = context;
 	}
 	
 	

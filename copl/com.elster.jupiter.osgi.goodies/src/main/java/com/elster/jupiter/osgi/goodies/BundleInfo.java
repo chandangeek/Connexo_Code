@@ -11,6 +11,7 @@ public class BundleInfo {
 	private final Bundle bundle;
 	private final ExportedPackage[] exports;
 	private final Set<Bundle> dependents = new HashSet<>();
+	private final Set<ExportedPackage> importPackages = new HashSet<>();
 	
 	BundleInfo(Bundle bundle,ExportedPackage[] exports) {
 		this.bundle = bundle;
@@ -32,7 +33,18 @@ public class BundleInfo {
 		return exports;
 	}
 	
+	public Set<ExportedPackage> getImports() {
+		return importPackages;
+	}
 	public Set<Bundle> getDependents() {
 		return dependents;
+	}
+	
+	void addImportPackage(ExportedPackage importPackage) {
+		this.importPackages.add(importPackage);
+	}
+	
+	public String getNodeName() {
+		return "B" + getBundle().getBundleId();
 	}
 }
