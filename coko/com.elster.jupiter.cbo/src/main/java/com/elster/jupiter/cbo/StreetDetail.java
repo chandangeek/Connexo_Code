@@ -1,5 +1,7 @@
 package com.elster.jupiter.cbo;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.elster.jupiter.util.HasName;
 
 public final class StreetDetail implements Cloneable, HasName {
@@ -173,6 +175,7 @@ public final class StreetDetail implements Cloneable, HasName {
 		return "" + getName() + " " + getNumber(); 
 	}
 	
+    @XmlTransient
 	boolean isEmpty() {
 		return 
 			addressGeneral == null && 

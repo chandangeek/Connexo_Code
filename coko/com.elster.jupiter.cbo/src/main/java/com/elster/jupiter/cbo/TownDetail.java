@@ -1,5 +1,7 @@
 package com.elster.jupiter.cbo;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.elster.jupiter.util.HasName;
 
 public final class TownDetail implements Cloneable, HasName {
@@ -74,6 +76,7 @@ public final class TownDetail implements Cloneable, HasName {
 		}
 	}
 	
+	@XmlTransient
 	boolean isEmpty() {
 		return code == null && country == null && name == null && section == null && stateOrProvince == null;
 	}

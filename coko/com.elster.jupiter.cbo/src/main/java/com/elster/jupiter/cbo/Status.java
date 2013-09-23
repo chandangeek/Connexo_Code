@@ -2,6 +2,8 @@ package com.elster.jupiter.cbo;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.elster.jupiter.util.time.UtcInstant;
 
 public final class Status implements Cloneable {
@@ -64,6 +66,7 @@ public final class Status implements Cloneable {
 		}
 	}
 	
+	@XmlTransient
 	public boolean isEmpty() {
 		return reason == null && remark == null && value == null;
 	}

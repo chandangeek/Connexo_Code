@@ -1,5 +1,7 @@
 package com.elster.jupiter.cbo;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public final class ElectronicAddress implements Cloneable {
 	private String email1;
 	private String email2;
@@ -89,6 +91,7 @@ public final class ElectronicAddress implements Cloneable {
 		}
 	}
 	
+	@XmlTransient
 	public boolean isEmpty() {
 		return 
 			email1 == null &&

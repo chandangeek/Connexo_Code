@@ -1,5 +1,7 @@
 package com.elster.jupiter.cbo;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public final class TelephoneNumber implements Cloneable {
 	private String areaCode;
 	private String cityCode;
@@ -74,10 +76,12 @@ public final class TelephoneNumber implements Cloneable {
 		}
 	}
 	
+	@XmlTransient
 	public String getNumber() {
 		return "" + getCountryCode() + getAreaCode() + getCityCode() + getLocalNumber() + getExtension();
 	}
 	
+	@XmlTransient
 	public boolean isEmpty() {
 		return 
 			countryCode == null &&

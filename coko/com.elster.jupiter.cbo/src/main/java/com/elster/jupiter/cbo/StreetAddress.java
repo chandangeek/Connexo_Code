@@ -1,5 +1,7 @@
 package com.elster.jupiter.cbo;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public final class StreetAddress implements Cloneable {
 	private Status status;
 	private StreetDetail streetDetail;
@@ -55,6 +57,7 @@ public final class StreetAddress implements Cloneable {
 		}
 	}
 	
+	@XmlTransient
 	public boolean isEmpty() {
 		return status.isEmpty() && townDetail.isEmpty() && streetDetail.isEmpty();
 	}
