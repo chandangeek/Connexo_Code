@@ -5,12 +5,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.*;
 
-import org.osgi.framework.Bundle;
-
 import com.elster.jupiter.orm.*;
 
-import java.io.*;
-import java.nio.file.*;
 import java.util.*;
 
 @Path("/datamodels")
@@ -19,7 +15,12 @@ public class DataModelResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON) 
 	public String[] getDataModels() {
-		return new String[] { "ORM" , "USR" , "PRT" , "IDS" , "MTR" };
+		List<DataModel> dataModels = OsgiInfoApplication.ormService.getDataModels();
+		String result[] = new String[dataModels.size()];
+		for (int i = 0 ; i < dataModels.size(); i++) {
+			result[i] = dataModels.get(i).getName();
+		}
+		return result;
 	}
 	
 	@GET
@@ -90,10 +91,18 @@ public class DataModelResource {
 				builder.append(foreignKey.getName() + "->" + mapperNode + ";\n");
 				addTable(foreignKey.getReferencedTable(), tables, builder);
 				String dir = foreignKey.getReverseFieldName() == null ? "forward" : "both"; 
-				builder.append(mapperNode + "->" + foreignKey.getReferencedTable().getName() + "[dir=" + dir + "];\n");
+				builder.append(mapperNode + "->" + foreignKey.getReferencedTable().getName() + " [dir=" + dir + "];\n");
 			}
 		}
+		for (ForeignKeyConstraint constraint : getReferencing(table)) {
+			String mapperNode = "\"" + table.getName() + "." + constraint.getReverseFieldName() + "\"";
+			aspects.add(mapperNode);
+			builder.append(mapperNode + " [shape=plaintext label=\"" + constraint.getReverseFieldName() + "\"];\n");
+			addTable(constraint.getTable(),tables,builder);
+			builder.append(mapperNode + "->" + constraint.getTable().getName() + " [dir=both];\n");
+		}
 		builder.append("{rank=same;");
+		
 		for (String aspect : aspects) {
 			builder.append(aspect + ";");			
 		}
@@ -101,6 +110,20 @@ public class DataModelResource {
 		builder.append("}");
 		System.out.println(builder.toString());
 		return builder.toString();
+	}
+	
+	private List<ForeignKeyConstraint> getReferencing(Table table) {
+		List<ForeignKeyConstraint> result = new ArrayList<>();
+		for (Table each : table.getDataModel().getTables()) {
+			if(!each.equals(table)) {
+				for (ForeignKeyConstraint constraint : each.getForeignKeyConstraints()) {
+					if (constraint.getReferencedTable().equals(table) && constraint.getReverseFieldName() != null) {
+						result.add(constraint);
+					}
+				}
+			}
+		}
+		return result;
 	}
 	
 	private String getNodeName(Column column) {

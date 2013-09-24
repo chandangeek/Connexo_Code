@@ -9,6 +9,7 @@ import org.osgi.service.component.annotations.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 import com.elster.jupiter.orm.*;
 
+@SuppressWarnings("deprecation")
 @Component(name = "com.elster.jupiter.metering.rest" , service=Application.class , immediate = true , property = {"alias=/goodies"} )
 public class OsgiInfoApplication extends Application {
 	
@@ -34,7 +35,7 @@ public class OsgiInfoApplication extends Application {
 	
 	@Reference
 	public void setOrmService(OrmService ormService) {
-		this.ormService = ormService;
+		OsgiInfoApplication.ormService = ormService;
 	}
 	
 	@Activate
