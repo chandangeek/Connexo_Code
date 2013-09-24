@@ -89,26 +89,28 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
 
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
-        try {
-            switch (responseType) {
-                case SUCCESS:
-                    this.responseWriter.success();
-                    break;
-                case DEVICE_DOES_NOT_EXPECT_INBOUND:
-                    this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device is not configured for inbound communication, request refused!");
-                    break;
-                case ENCRYPTION_REQUIRED:
-                    this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device with the id specified in the request requires encrypted data to be sent.");
-                    break;
-                case DEVICE_NOT_FOUND:
-                    this.response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Device for which data is posted does not exist.");
-                    break;
-                case SERVER_BUSY:
-                    this.response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service is temporarily unavailable due to a high load on the data storage component.");
-                    break;
+        if(!this.response.isCommitted()){
+            try {
+                switch (responseType) {
+                    case SUCCESS:
+                        this.responseWriter.success();
+                        break;
+                    case DEVICE_DOES_NOT_EXPECT_INBOUND:
+                        this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device is not configured for inbound communication, request refused!");
+                        break;
+                    case ENCRYPTION_REQUIRED:
+                        this.response.sendError(HttpServletResponse.SC_FORBIDDEN, "The device with the id specified in the request requires encrypted data to be sent.");
+                        break;
+                    case DEVICE_NOT_FOUND:
+                        this.response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Device for which data is posted does not exist.");
+                        break;
+                    case SERVER_BUSY:
+                        this.response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Service is temporarily unavailable due to a high load on the data storage component.");
+                        break;
+                }
+            } catch (IOException e) {
+                throw new CommunicationException(e);
             }
-        } catch (IOException e) {
-            throw new CommunicationException(e);
         }
     }
 
