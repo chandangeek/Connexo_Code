@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm;
 
+import java.util.List;
+
 import com.google.common.base.Optional;
 
 /*
@@ -21,4 +23,8 @@ import com.google.common.base.Optional;
 public interface OrmService {
 	Optional<DataModel> getDataModel(String name);
 	DataModel newDataModel(String name, String description);
+	/*
+	 * Only for applications that need to document the data model 
+	 */
+	List<DataModel> getDataModels();
 }
