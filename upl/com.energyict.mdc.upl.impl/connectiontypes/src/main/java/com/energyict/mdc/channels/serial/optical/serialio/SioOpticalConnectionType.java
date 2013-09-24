@@ -1,7 +1,7 @@
 package com.energyict.mdc.channels.serial.optical.serialio;
 
+import com.energyict.mdc.channels.serial.OpticalDriver;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
-import com.energyict.mdc.channels.serial.optical.OpticalDriver;
 
 /**
  * Provides an implementation of a {@link com.energyict.mdc.tasks.ConnectionType} interface for optical
