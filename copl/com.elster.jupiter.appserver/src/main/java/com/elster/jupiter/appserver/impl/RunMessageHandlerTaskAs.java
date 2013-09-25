@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.sun.istack.internal.NotNull;
 
 import java.security.Principal;
 import java.util.concurrent.ExecutionException;
@@ -8,7 +9,7 @@ import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class RunMessageHandlerTaskAs<T> implements ProvidesCancellableFuture {
+public class RunMessageHandlerTaskAs implements ProvidesCancellableFuture {
 
     private final MessageHandlerTask task;
     private final ThreadPrincipalService threadPrincipalService;
@@ -22,7 +23,7 @@ public class RunMessageHandlerTaskAs<T> implements ProvidesCancellableFuture {
 
     @Override
     public <T> RunnableFuture<T> newTask(T result) {
-        return new MyRunnableFuture<T>(task.newTask(result));
+        return new MyRunnableFuture<>(task.newTask(result));
     }
 
     @Override
@@ -74,7 +75,7 @@ public class RunMessageHandlerTaskAs<T> implements ProvidesCancellableFuture {
         }
 
         @Override
-        public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        public T get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
             return runnableFuture.get(timeout, unit);
         }
     }

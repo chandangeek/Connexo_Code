@@ -124,7 +124,6 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
 
     private void launchTaskService() {
         if (appServer.isRecurrentTaskActive()) {
-            User batchExecutor = getUserService().findUser(BATCH_EXECUTOR).get();
             getTaskService().launch();
         }
     }

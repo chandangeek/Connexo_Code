@@ -58,7 +58,7 @@ public class AppServiceConsoleService {
 
     private AppServer getAppServerForActivation(String appServerName) {
         final Optional<AppServer> current = Bus.getAppServer();
-        AppServer appServerToActivateOn = null;
+        AppServer appServerToActivateOn;
         if (current.isPresent() && current.get().getName().equals(appServerName)) {
             appServerToActivateOn = current.get();
         } else {

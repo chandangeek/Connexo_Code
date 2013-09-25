@@ -296,7 +296,6 @@ public class AppServiceImplTest {
     @Test
     public void testActivateWithoutNameRunsAnonymously() {
         when(context.getProperty("com.elster.jupiter.appserver.name")).thenReturn(null);
-        when(appServerFactory.get(null)).thenReturn(Optional.<AppServer>absent());
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
 
         appService.activate(context);
