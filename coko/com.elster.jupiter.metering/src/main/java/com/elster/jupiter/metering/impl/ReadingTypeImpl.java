@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.cbo.*;
 
-public class ReadingTypeImpl implements ReadingType , PersistenceAware {
+public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	// persistent fields
 	private String mRID;
 	private String aliasName;
@@ -131,11 +131,11 @@ public class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	}
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof ReadingTypeImpl)) {
             return false;
         }
 
@@ -144,7 +144,7 @@ public class ReadingTypeImpl implements ReadingType , PersistenceAware {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return mRID.hashCode();
     }
 
