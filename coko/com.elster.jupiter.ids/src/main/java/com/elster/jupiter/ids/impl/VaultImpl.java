@@ -24,10 +24,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 
 @LiteralSql
-public class VaultImpl implements Vault {
+public final class VaultImpl implements Vault {
 	//persistent fields
 	private String componentName;
 	private long id;
@@ -499,17 +500,19 @@ public class VaultImpl implements Vault {
 
 	@Override
 	public boolean equals(Object other) {
-		try {
-			VaultImpl o = (VaultImpl) other;
-			return this.componentName.equals(o.componentName) && this.id == o.id;
-		} catch (ClassCastException ex) {
-			return false;
-		}
-	}
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof VaultImpl)) {
+            return false;
+        }
+        VaultImpl o = (VaultImpl) other;
+        return this.componentName.equals(o.componentName) && this.id == o.id;
+    }
 	
 	@Override
 	public int hashCode() {
-		return this.componentName.hashCode() ^ new Long(this.id).hashCode();
+        return Objects.hash(componentName, id);
 	}
 		
 	private Connection getConnection(boolean transactionRequired) throws SQLException {

@@ -19,7 +19,7 @@ import java.util.TimeZone;
 import static com.elster.jupiter.ids.IntervalLengthUnit.DAY;
 import static com.elster.jupiter.ids.IntervalLengthUnit.MINUTE;
 
-public class TimeSeriesImpl implements TimeSeries {
+public final class TimeSeriesImpl implements TimeSeries {
 	// persistent fields
 	private long id;
 	private String vaultComponentName;
@@ -255,12 +255,13 @@ public class TimeSeriesImpl implements TimeSeries {
 	
 	@Override
 	public boolean equals(Object other) {
-		try {
-			TimeSeriesImpl o = (TimeSeriesImpl) other;
-			return this.id == o.id;
-		} catch (ClassCastException ex) {
-			return false;
-		}
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof TimeSeriesImpl)) {
+            return false;
+        }
+        return this.id == ((TimeSeriesImpl) other).id;
 	}
 	
 	@Override

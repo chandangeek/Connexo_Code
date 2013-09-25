@@ -98,7 +98,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		}	
 	}
 		
-	private static class RecordSpecInVault {
+	private static final class RecordSpecInVault {
 		private final Vault vault;
 		private final RecordSpec recordSpec;
 		
@@ -109,13 +109,15 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 		
 		@Override
 		public boolean equals(Object other) {
-			try {
-				RecordSpecInVault o = (RecordSpecInVault) other;
-				return this.vault.equals(o.vault) && this.recordSpec.equals(o.recordSpec);
-			} catch (ClassCastException ex) {
-				return false;
-			}
-		}
+			if (this == other) {
+                return true;
+            }
+            if (!(other instanceof RecordSpecInVault)) {
+                return false;
+            }
+            RecordSpecInVault o = (RecordSpecInVault) other;
+            return this.vault.equals(o.vault) && this.recordSpec.equals(o.recordSpec);
+        }
 		
 		@Override
 		public int hashCode() {
