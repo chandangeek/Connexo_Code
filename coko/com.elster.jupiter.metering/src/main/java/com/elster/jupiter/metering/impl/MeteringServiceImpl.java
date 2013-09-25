@@ -30,8 +30,7 @@ import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 
 import java.util.Date;
 import java.util.List;
@@ -199,11 +198,13 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         this.eventService = eventService;
     }
 
-    public void activate(ComponentContext context) {
+    @Activate
+    public void activate() {
         Bus.setServiceLocator(this);
     }
 
-    public void deactivate(ComponentContext context) {
+    @Deactivate
+    public void deactivate() {
         Bus.setServiceLocator(null);
     }
 
