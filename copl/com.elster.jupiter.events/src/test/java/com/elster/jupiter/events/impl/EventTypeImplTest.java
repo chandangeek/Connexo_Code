@@ -227,7 +227,7 @@ public class EventTypeImplTest {
     @Test
     public void testCreate() {
         EventTypeImpl eventType = new EventTypeImpl(TOPIC);
-        EventPropertyType eventPropertyType = eventType.addProperty(PROPERTY_NAME, ValueType.STRING, ACCESS_PATH);
+        eventType.addProperty(PROPERTY_NAME, ValueType.STRING, ACCESS_PATH);
 
         LocalEvent localEvent = eventType.create(SOURCE);
 
