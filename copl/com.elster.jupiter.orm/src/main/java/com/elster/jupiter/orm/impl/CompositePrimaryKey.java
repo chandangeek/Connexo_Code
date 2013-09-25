@@ -2,7 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import java.util.Arrays;
 
-class CompositePrimaryKey {
+final class CompositePrimaryKey {
 	
 	final Object[] key;
 	
@@ -12,14 +12,13 @@ class CompositePrimaryKey {
 	
 	@Override
 	public boolean equals(Object other) {
-		if (other == null)
-			return false;
-		try {
-			CompositePrimaryKey o = (CompositePrimaryKey) other;
-			return Arrays.equals(key,o.key);
-		} catch (ClassCastException e) {
-			return false;
-		}
+		if (this == other) {
+            return true;
+        }
+        if (!(other instanceof CompositePrimaryKey)) {
+            return false;
+        }
+        return Arrays.equals(key, ((CompositePrimaryKey) other).key);
 	}
 	
 	@Override 
