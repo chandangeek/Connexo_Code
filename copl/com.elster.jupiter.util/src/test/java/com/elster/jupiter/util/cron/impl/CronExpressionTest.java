@@ -18,8 +18,6 @@ package com.elster.jupiter.util.cron.impl;
 
 import org.junit.Test;
 
-import com.elster.jupiter.util.cron.impl.QuartzCronExpression;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -118,47 +116,47 @@ public class CronExpressionTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testQuartz574() throws Exception {
-        QuartzCronExpression cronExpression = new QuartzCronExpression("* * * * Foo ? ");
+        new QuartzCronExpression("* * * * Foo ? ");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testQuartz574_1() throws Exception {
-        QuartzCronExpression cronExpression = new QuartzCronExpression("* * * * Jan-Foo ? ");
+        new QuartzCronExpression("* * * * Jan-Foo ? ");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testQuartz621_0() throws Exception {
-        QuartzCronExpression cronExpression = new QuartzCronExpression("0 0 * * * *");
+        new QuartzCronExpression("0 0 * * * *");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testQuartz621_1() throws ParseException {
-        QuartzCronExpression cronExpression = new QuartzCronExpression("0 0 * 4 * *");
+        new QuartzCronExpression("0 0 * 4 * *");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testQuartz621_2() throws ParseException {
-        QuartzCronExpression cronExpression = new QuartzCronExpression("0 0 * * * 4");
+        new QuartzCronExpression("0 0 * * * 4");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testQuartz640_0() throws ParseException {
-        QuartzCronExpression cronExpression = new QuartzCronExpression("0 43 9 1,5,29,L * ?");
+        new QuartzCronExpression("0 43 9 1,5,29,L * ?");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testQuartz640_1() throws ParseException {
-        QuartzCronExpression cronExpression = new QuartzCronExpression("0 43 9 ? * SAT,SUN,L");
+        new QuartzCronExpression("0 43 9 ? * SAT,SUN,L");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testQuartz640_2() throws ParseException {
-        QuartzCronExpression cronExpression = new QuartzCronExpression("0 43 9 ? * 6,7,L");
+        new QuartzCronExpression("0 43 9 ? * 6,7,L");
     }
 
     @Test
     public void testQuartz640_3() throws ParseException {
-        QuartzCronExpression cronExpression = new QuartzCronExpression("0 43 9 ? * 5L");
+        new QuartzCronExpression("0 43 9 ? * 5L");
     }
 
 

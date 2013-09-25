@@ -18,7 +18,7 @@ public class DefaultCronExpressionParserTest {
 
     @Test(expected = InvalidCronExpression.class)
     public void testIllegalExpression() {
-        CronExpression cronExpression = new DefaultCronExpressionParser().parse("* * P * * ? *");
+        new DefaultCronExpressionParser().parse("* * P * * ? *");
     }
 
 }
