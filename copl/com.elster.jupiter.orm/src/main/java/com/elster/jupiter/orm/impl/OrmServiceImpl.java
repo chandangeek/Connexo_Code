@@ -145,4 +145,10 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	}
 
 
+	@Override
+	public List<DataModel> getDataModels() {
+		return  getOrmClient().getDataModelFactory().find();
+	}
+
+
 }
