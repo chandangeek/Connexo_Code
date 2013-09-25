@@ -14,7 +14,7 @@ public final class MeasurementCategory {
 	public static final int HARMONICS = 0;
 	public static final int INTERHARMONICS = 1;
 	public static final int ORDINAL = 2;
-	public static final int TOU = 3;
+	public static final int TIME_OF_USE = 3;
 	public static final int CURRENCYCODE = 4;
 	
 	public static MeasurementCategory get(int categoryId, int id) {
@@ -27,7 +27,7 @@ public final class MeasurementCategory {
 	
 	@Override
 	public String toString() {
-		return "Measurment category " + categoryId + " id: " + id;
+		return "Measurement category " + categoryId + " id: " + id;
 	}
 	
 	public String getDescription() {
@@ -39,7 +39,7 @@ public final class MeasurementCategory {
 	}
 	
 	private String getDetail(int detailId) {
-		if (categoryId == TOU) {
+		if (categoryId == TIME_OF_USE) {
 			char rate = (char) ('A' + (detailId-1));
 			return "" + rate;
 		} else {
@@ -49,8 +49,9 @@ public final class MeasurementCategory {
 	
 	private Currency findCurrency(int currencyId) {
 		for (Currency each : Currency.getAvailableCurrencies()) {
-			if (each.getNumericCode() == currencyId)
-				return each;
+			if (each.getNumericCode() == currencyId) {
+                return each;
+            }
 		}
 		throw new IllegalArgumentException("" + currencyId);
 	}
@@ -63,7 +64,7 @@ public final class MeasurementCategory {
 				return "Interharmonic";
 			case ORDINAL:
 				return "n";
-			case TOU:
+			case TIME_OF_USE:
 				return "TOURate";
 			default:
 				throw new IllegalArgumentException("" + category);				

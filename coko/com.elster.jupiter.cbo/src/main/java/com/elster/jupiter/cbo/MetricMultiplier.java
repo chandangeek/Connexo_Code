@@ -27,8 +27,9 @@ public enum MetricMultiplier {
 	
 	public static MetricMultiplier with(int multiplier) {
 		for (MetricMultiplier each : values()) {
-			if (each.multiplier == multiplier)
-				return each;
+			if (each.multiplier == multiplier) {
+                return each;
+            }
 		}
 		throw new IllegalArgumentException("" + multiplier);
 	}

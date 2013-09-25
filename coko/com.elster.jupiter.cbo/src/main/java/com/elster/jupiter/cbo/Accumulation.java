@@ -15,15 +15,16 @@ public enum Accumulation {
 	private final int id;
 	private final String description;
 	
-	private Accumulation(int id,String description) {
+	Accumulation(int id, String description) {
 		this.id = id;
 		this.description = description;
 	}
 	
 	public static Accumulation get(int id) {
 		for (Accumulation each : values()) {
-			if (each.id == id)
-				return each;
+			if (each.id == id) {
+                return each;
+            }
 		}
 		throw new IllegalArgumentException("" + id);
 	}

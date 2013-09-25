@@ -29,7 +29,7 @@ public enum Phase {
 	private final boolean c2;
 	private final boolean n2;
 	
-	private Phase(boolean a1,boolean b1,boolean c1, boolean n1, boolean a2, boolean b2, boolean c2, boolean n2) {
+	Phase(boolean a1,boolean b1,boolean c1, boolean n1, boolean a2, boolean b2, boolean c2, boolean n2) {
 		this.a1 = a1;
 		this.b1 = b1;
 		this.c1 = c1;
@@ -38,17 +38,6 @@ public enum Phase {
 		this.b2 = b2;
 		this.c2 = c2;
 		this.n2 = n2;
-	}
-	
-	private Phase(int id) {
-		this.a1 = (id & 0x80) != 0;
-		this.b1 = (id & 0x40) != 0;
-		this.c1 = (id & 0x20) != 0;
-		this.n1 = (id & 0x10) != 0;
-		this.a2 = (id & 0x08) != 0;
-		this.b2 = (id & 0x04) != 0;
-		this.c2 = (id & 0x02) != 0;
-		this.n2 = (id & 0x01) != 0;
 	}
 	
 	public static Phase get(int id) {
