@@ -38,10 +38,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelImplTest {
 
+    private static final String MRID1 = "11.2.7.4.0.8.1.8.16.9.11";
+    private static final String MRID2 = "11.2.3.4.0.8.1.9.16.9.11";
+    private static final String MRID3 = "13.2.3.4.0.8.1.10.16.9.11";
+    private static final String MRID4 = "11.2.3.4.0.8.1.10.16.9.11";
+    private static final String MRID1_IRR = "0.2.7.4.0.8.1.8.16.9.11";
+    private static final String MRID2_IRR = "0.2.3.4.0.8.1.9.16.9.11";
+    private static final String MRID4_IRR = "0.2.3.4.0.8.1.10.16.9.11";
     private static final long METER_ACTIVATION_ID = 164;
     private static final long ID = 15L;
-    private static final String MRID_1 = "mrid1";
-    private static final String MRID_2 = "mrid2";
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Calcutta");
     private static final Date TO = new DateMidnight(2013, 9, 20, DateTimeZone.forTimeZone(TIME_ZONE)).toDate();
     private static final Date FROM = new DateMidnight(2013, 9, 19, DateTimeZone.forTimeZone(TIME_ZONE)).toDate();
@@ -50,12 +55,12 @@ public class ChannelImplTest {
 
     private ChannelImpl channel;
 
+    private ReadingTypeImpl readingType1, readingType2, readingType3, readingType4;
+
     @Mock
     private MeterActivation meterActivation;
     @Mock
     private IdsService idsService;
-    @Mock
-    private ReadingTypeImpl readingType1, readingType2, readingType3;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     ServiceLocator serviceLocator;
     @Mock
@@ -69,10 +74,12 @@ public class ChannelImplTest {
 
     @Before
     public void setUp() {
+        readingType1 = new ReadingTypeImpl(MRID1, "1");
+        readingType2 = new ReadingTypeImpl(MRID2, "2");
+        readingType3 = new ReadingTypeImpl(MRID3, "3");
+        readingType4 = new ReadingTypeImpl(MRID4, "4");
+
         when(meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);
-        when(readingType1.getMRID()).thenReturn(MRID_1);
-        when(readingType2.getMRID()).thenReturn(MRID_2);
-        when(readingType1.isCumulativeReadingType(readingType2)).thenReturn(true);
         when(serviceLocator.getClock().getTimeZone()).thenReturn(TIME_ZONE);
         when(serviceLocator.getIdsService().getRecordSpec(Bus.COMPONENTNAME, 2)).thenReturn(Optional.of(recordSpec));
         when(serviceLocator.getIdsService().getVault(Bus.COMPONENTNAME, 2)).thenReturn(Optional.of(vault));
@@ -108,6 +115,9 @@ public class ChannelImplTest {
 
     @Test
     public void testInitIrregularTimeSeries() {
+        readingType1 = new ReadingTypeImpl(MRID1_IRR, "1");
+        readingType2 = new ReadingTypeImpl(MRID2_IRR, "2");
+
         channel.init(new ReadingType[]{readingType1, readingType2});
 
         verify(serviceLocator.getOrmClient().getChannelFactory()).persist(channel);
@@ -122,9 +132,6 @@ public class ChannelImplTest {
 
     @Test
     public void testInitWithIntervalLength() {
-        when(readingType1.getIntervalLength()).thenReturn(IntervalLength.ofDay());
-        when(readingType2.getIntervalLength()).thenReturn(IntervalLength.ofDay());
-
         channel.init(new ReadingType[]{readingType1, readingType2});
 
         verify(serviceLocator.getOrmClient().getChannelFactory()).persist(channel);
@@ -139,16 +146,16 @@ public class ChannelImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInitWithInconsistentIntervalLength() {
-        when(readingType1.getIntervalLength()).thenReturn(IntervalLength.ofDay());
-        when(readingType2.getIntervalLength()).thenReturn(IntervalLength.ofMonth());
-
-        channel.init(new ReadingType[] {readingType1, readingType2});
-
+        channel.init(new ReadingType[] {readingType1, readingType3});
     }
 
     @Test
     public void testInitIrregularTimeSeriesWithAdditionalReadingTypes() {
-        channel.init(new ReadingType[]{readingType1, readingType2, readingType3});
+        readingType1 = new ReadingTypeImpl(MRID1_IRR, "1");
+        readingType2 = new ReadingTypeImpl(MRID2_IRR, "2");
+        readingType4 = new ReadingTypeImpl(MRID4_IRR, "4");
+
+        channel.init(new ReadingType[]{readingType1, readingType2, readingType4});
 
         verify(serviceLocator.getOrmClient().getChannelFactory()).persist(channel);
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
@@ -156,15 +163,13 @@ public class ChannelImplTest {
         assertThat(channel.getReadingTypes()).hasSize(3)
                 .contains(readingType1)
                 .contains(readingType2)
-                .contains(readingType3);
+                .contains(readingType4);
         assertThat(channel.getIntervalLength()).isNull();
         assertThat(channel.getTimeSeries()).isEqualTo(timeSeries);
     }
 
     @Test
     public void testGetIntervalReadings() {
-        when(readingType1.getIntervalLength()).thenReturn(IntervalLength.ofDay());
-        when(readingType2.getIntervalLength()).thenReturn(IntervalLength.ofDay());
         channel.init(new ReadingType[]{readingType1, readingType2});
         when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(2)).thenReturn(VALUE);
@@ -183,8 +188,6 @@ public class ChannelImplTest {
 
     @Test
     public void testGetIntervalReadingsForReadingType() {
-        when(readingType1.getIntervalLength()).thenReturn(IntervalLength.ofDay());
-        when(readingType2.getIntervalLength()).thenReturn(IntervalLength.ofDay());
         channel.init(new ReadingType[]{readingType1, readingType2});
         when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
@@ -202,8 +205,6 @@ public class ChannelImplTest {
 
     @Test
     public void testGetRegisterReadings() {
-        when(readingType1.getIntervalLength()).thenReturn(IntervalLength.ofDay());
-        when(readingType2.getIntervalLength()).thenReturn(IntervalLength.ofDay());
         channel.init(new ReadingType[]{readingType1, readingType2});
         when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);

@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import static com.elster.jupiter.ids.IntervalLengthUnit.*;
 
-class IntervalLength {
+final class IntervalLength {
 	private static final int[] VALIDMINUTEVALUES = { 1 , 2 , 3, 5 , 10 , 15 , 30 , 60 };
 	private static final int[] MINUTEVALUESCIMCODES = { 3 , 10 , 14 , 6 , 1, 2 , 5 , 7 };
 	private static final int DAYCIMCODE = 11;
@@ -85,16 +85,15 @@ class IntervalLength {
 	
 	@Override
 	public boolean equals(Object other) {
-		if (other == null) {
-			return false;
-		}
-		try {
-			IntervalLength o = (IntervalLength) other;
-			return this.length == o.length && this.unit == o.unit;
-		} catch (ClassCastException ex) {
-			return false;
-		}
-	}
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof IntervalLength)) {
+            return false;
+        }
+        IntervalLength o = (IntervalLength) other;
+        return this.length == o.length && this.unit == o.unit;
+    }
 	
 	@Override 
 	public int hashCode() {

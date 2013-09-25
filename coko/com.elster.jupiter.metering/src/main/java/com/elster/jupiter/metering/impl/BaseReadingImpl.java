@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -65,11 +66,10 @@ public abstract class BaseReadingImpl implements BaseReading {
 		for (ReadingType each : channel.getReadingTypes()) {
 			if (each.equals(readingType)) {
 				return getValue(i);
-			} else {
-				i++;
-			}
-		}
-		return null;
+            }
+            i++;
+        }
+        throw new IllegalArgumentException(MessageFormat.format("ReadingType {0} does not occur on this channel", readingType.getMRID()));
 	}
 
 	@Override
