@@ -74,7 +74,7 @@ public class ConsoleCommandsImpl {
                         if (!destination.isPresent()) {
                             System.err.println("No such destination " + destinationName);
                         }
-                        SubscriberSpec subscriberSpec = destination.get().subscribe(subscriberName);
+                        destination.get().subscribe(subscriberName);
                     }
                 }).run();
             }
