@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -108,8 +107,6 @@ public class ImportScheduleJobTest {
         when(importSchedule.getDestination()).thenReturn(destination);
 
         importScheduleJob.run();
-
-        ArgumentCaptor<byte[]> rawMessageCaptor = ArgumentCaptor.forClass(byte[].class);
 
         verify(destination).message(SERIALIZED);
 
