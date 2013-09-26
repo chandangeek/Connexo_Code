@@ -1,10 +1,16 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.exceptions.DuplicateException;
+import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
+import com.energyict.mdw.offline.OfflineDevice;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,10 +24,11 @@ import java.util.List;
  * Date: 13/05/13
  * Time: 13:06
  */
-public class DeviceIdentifierBySerialNumber implements DeviceIdentifier {
+public class DeviceIdentifierBySerialNumber implements ServerDeviceIdentifier {
 
     private String serialNumber;
     private Device device;
+    private List<Device> allDevices;
 
     public DeviceIdentifierBySerialNumber(String serialNumber) {
         super();
@@ -32,20 +39,24 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier {
     public Device findDevice () {
         //lazyload the device
         if(this.device == null){
-            List<Device> devicesBySerialNumber = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(this.serialNumber);
-            if (devicesBySerialNumber.isEmpty()) {
-                return null;
+            fetchAllDevices();
+            if (this.allDevices.isEmpty()) {
+                throw new NotFoundException("Device with serialnumber " + this.serialNumber + " not found");
             }
             else {
-                if (devicesBySerialNumber.size() > 1) {
-                    throw new NotFoundException("More than one device found with serialnumber " + this.serialNumber);
+                if (this.allDevices.size() > 1) {
+                    throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
                 }
                 else {
-                    this.device = devicesBySerialNumber.get(0);
+                    this.device = this.allDevices.get(0);
                 }
             }
         }
         return this.device;
+    }
+
+    private void fetchAllDevices() {
+        this.allDevices = MeteringWarehouse.getCurrent().getDeviceFactory().findBySerialNumber(this.serialNumber);
     }
 
     @Override
@@ -73,5 +84,18 @@ public class DeviceIdentifierBySerialNumber implements DeviceIdentifier {
     @Override
     public String getIdentifier() {
         return serialNumber;
+    }
+
+    @Override
+    public List<OfflineDevice> getAllDevices() {
+        if(this.allDevices == null){
+            fetchAllDevices();
+        }
+        List<OfflineDevice> allOfflineDevices = new ArrayList<>();
+        OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
+        for (Device deviceToGoOffline : this.allDevices) {
+            allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
+        }
+        return allOfflineDevices;
     }
 }

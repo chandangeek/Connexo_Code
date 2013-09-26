@@ -1,8 +1,12 @@
 package com.energyict.protocolimplv2.identifiers;
 
 import com.energyict.cbo.NotFoundException;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.comserver.exceptions.DuplicateException;
+import com.energyict.cpo.OfflineDeviceContext;
+import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
+import com.energyict.mdw.offline.OfflineDevice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +18,11 @@ import java.util.List;
  * @author: sva
  * @since: 26/10/12 (11:26)
  */
-public class DialHomeIdDeviceIdentifier implements DeviceIdentifier {
+public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
 
     private final String callHomeID;
+    private Device device;
+    private List<Device> allDevices;
 
     public DialHomeIdDeviceIdentifier(String callHomeId) {
         super();
@@ -25,17 +31,24 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier {
 
     @Override
     public Device findDevice() {
-//        List<Device> devicesByDialHomeId = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(this.callHomeID);
-        List<Device> devicesByDialHomeId = new ArrayList<>(0);  // TODO: warning - API call no longer exists (cause DialHomeId is no longer managed by device)
-        if (devicesByDialHomeId.isEmpty()) {                    //TODO: just a commit to fix broken build - but still need to implement real behavior!
-            return null;
-        } else {
-            if (devicesByDialHomeId.size() > 1) {
-                throw new NotFoundException("More than one device found with call home ID " + this.callHomeID);
+        if (this.device == null) {
+            fetchAllDevices();
+            if (this.allDevices.isEmpty()) {                    //TODO: just a commit to fix broken build - but still need to implement real behavior!
+                throw new NotFoundException("Device with callHomeID " + this.callHomeID + " not found");
             } else {
-                return devicesByDialHomeId.get(0);
+                if (this.allDevices.size() > 1) {
+                    throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
+                } else {
+                    this.device = this.allDevices.get(0);
+                }
             }
         }
+        return this.device;
+    }
+
+    private void fetchAllDevices() {
+        //        List<Device> devicesByDialHomeId = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(this.callHomeID);
+        this.allDevices = new ArrayList<>(0);  // TODO: warning - API call no longer exists (cause DialHomeId is no longer managed by device)
     }
 
     @Override
@@ -46,5 +59,18 @@ public class DialHomeIdDeviceIdentifier implements DeviceIdentifier {
     @Override
     public String getIdentifier() {
         return callHomeID;
+    }
+
+    @Override
+    public List<OfflineDevice> getAllDevices() {
+        if(this.allDevices == null){
+            fetchAllDevices();
+        }
+        List<OfflineDevice> allOfflineDevices = new ArrayList<>();
+        OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
+        for (Device deviceToGoOffline : this.allDevices) {
+            allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
+        }
+        return allOfflineDevices;
     }
 }

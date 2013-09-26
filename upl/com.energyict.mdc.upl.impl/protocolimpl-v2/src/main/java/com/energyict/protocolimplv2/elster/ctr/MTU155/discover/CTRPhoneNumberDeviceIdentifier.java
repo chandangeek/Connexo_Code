@@ -2,12 +2,17 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
 
 import com.energyict.cbo.NotFoundException;
+import com.energyict.comserver.exceptions.DuplicateException;
+import com.energyict.cpo.OfflineDeviceContext;
 import com.energyict.mdc.channels.sms.InboundProximusSmsConnectionType;
-import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
+import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceFactory;
 import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
+import com.energyict.mdw.offline.OfflineDevice;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,11 +23,13 @@ import java.util.List;
  * @author: sva
  * @since: 26/10/12 (11:26)
  */
-public class CTRPhoneNumberDeviceIdentifier implements DeviceIdentifier {
+public class CTRPhoneNumberDeviceIdentifier implements ServerDeviceIdentifier {
 
     public static final String PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
 
     private final String phoneNumber;
+    private Device device;
+    private List<Device> allDevices;
 
     public CTRPhoneNumberDeviceIdentifier(String phoneNumber) {
         super();
@@ -31,21 +38,26 @@ public class CTRPhoneNumberDeviceIdentifier implements DeviceIdentifier {
 
     @Override
     public Device findDevice() {
-        DeviceFactory deviceFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
-        List<Device> devicesByPhoneNumber = deviceFactory.findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, phoneNumber);
-
-        if (devicesByPhoneNumber.isEmpty()) {   // Do try with a different phone number format
-            devicesByPhoneNumber = deviceFactory.findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, alterPhoneNumberFormat(phoneNumber));
-        }
-
-        if (devicesByPhoneNumber.isEmpty()) {
-            throw new NotFoundException("Device with phone number " + this.phoneNumber + " not found");
-        } else {
-            if (devicesByPhoneNumber.size() > 1) {
-                throw new NotFoundException("More than one device found with phone number " + this.phoneNumber);
+        if(this.device == null){
+            fetchAllDevices();
+            if (this.allDevices.isEmpty()) {
+                throw new NotFoundException("Device with phone number " + this.phoneNumber + " not found");
             } else {
-                return devicesByPhoneNumber.get(0);
+                if (this.allDevices.size() > 1) {
+                    throw DuplicateException.duplicateFoundFor(Device.class, this.toString());
+                } else {
+                    this.device = this.allDevices.get(0);
+                }
             }
+        }
+        return this.device;
+    }
+
+    private void fetchAllDevices() {
+        DeviceFactory deviceFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
+        this.allDevices = deviceFactory.findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, phoneNumber);
+        if (this.allDevices.isEmpty()) {   // Do try with a different phone number format
+            this.allDevices = deviceFactory.findByConnectionTypeProperty(InboundProximusSmsConnectionType.class, PHONE_NUMBER_PROPERTY_NAME, alterPhoneNumberFormat(phoneNumber));
         }
     }
 
@@ -72,5 +84,18 @@ public class CTRPhoneNumberDeviceIdentifier implements DeviceIdentifier {
     @Override
     public String getIdentifier() {
         return phoneNumber;
+    }
+
+    @Override
+    public List<OfflineDevice> getAllDevices() {
+        if(this.allDevices == null){
+            fetchAllDevices();
+        }
+        List<OfflineDevice> allOfflineDevices = new ArrayList<>();
+        OfflineDeviceContext offlineDeviceContext = new DeviceOfflineFlags();
+        for (Device deviceToGoOffline : this.allDevices) {
+            allOfflineDevices.add(deviceToGoOffline.goOffline(offlineDeviceContext));
+        }
+        return allOfflineDevices;
     }
 }

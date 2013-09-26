@@ -99,6 +99,10 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-core-impl</artifactId>
+        </dependency>
 
         <!--
               To be in sync with the EIServer version 		-->

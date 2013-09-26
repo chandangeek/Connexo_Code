@@ -18,6 +18,13 @@
             <artifactId>mdw</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-core-common</artifactId>
+        </dependency>        <dependency>
+            <groupId>com.energyict.comserver</groupId>
+            <artifactId>comserver-core-impl</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
