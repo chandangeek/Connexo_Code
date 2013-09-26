@@ -121,9 +121,9 @@ public enum TableSpecs {
 			table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
 			table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
 			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
-			table.addColumn("AMIBILLINGREADY", "number", false, NUMBER2ENUMPLUSONE, "amiBillingReady");
+			table.addColumn("AMIBILLINGREADY", "number", true , NUMBER2ENUM, "amiBillingReady");
 			table.addColumn("CHECKBILLING", "char(1)", true, CHAR2BOOLEAN, "checkBilling");
-			table.addColumn("CONNECTIONSTATE", "number", false, NUMBER2ENUMPLUSONE, "connectionState");
+			table.addColumn("CONNECTIONSTATE", "number", true , NUMBER2ENUM, "connectionState");
 			table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
 			table.addColumn("GROUNDED", "char(1)", true, CHAR2BOOLEAN, "grounded");
 			table.addColumn("ISSDP", "char(1)", true, CHAR2BOOLEAN, "isSdp");
@@ -131,7 +131,7 @@ public enum TableSpecs {
 			table.addColumn("MINIMALUSAGEEXPECTED", "char(1)", true, CHAR2BOOLEAN, "minimalUsageExpected");
 			table.addQuantityColumns("NOMINALVOLTAGE",false, "nominalServiceVoltage");
 			table.addColumn("OUTAGEREGION", "varchar2(80)", false, NOCONVERSION , "outageRegion");
-			table.addColumn("PHASECODE", "varchar2(4)", false,CHAR2ENUM , "phaseCode");
+			table.addColumn("PHASECODE", "varchar2(7)", false,CHAR2ENUM , "phaseCode");
 			table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
 			table.addQuantityColumns("RATEDPOWER", false , "ratedPower");
 			table.addColumn("READCYCLE", "varchar2(80)", false, NOCONVERSION , "readCycle");
