@@ -59,11 +59,6 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
         this.clock = clock;
     }
 
-    @Reference
-    public void setComponentCache(CacheService cacheService) {
-        this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
-    }
-
     @Override
     public OrmClient getOrmClient() {
         return ormClient;
