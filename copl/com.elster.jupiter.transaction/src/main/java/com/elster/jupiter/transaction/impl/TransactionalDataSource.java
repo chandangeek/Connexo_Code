@@ -13,14 +13,14 @@ import java.util.logging.Logger;
 
 @Component (name = "com.elster.jupiter.datasource" )
 public class TransactionalDataSource implements DataSource {
-	private volatile TransactionServiceImpl transactionManager;
+	private volatile TransactionServiceImpl transactionService;
 	
 	public TransactionalDataSource() {
 	}
 
 	@Override
 	public Connection getConnection() throws SQLException {		
-		return new MonitoredConnection(transactionManager.getConnection());
+		return new MonitoredConnection(transactionService.getConnection());
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class TransactionalDataSource implements DataSource {
 	
 	@Reference
 	public void setTransactionService(TransactionService transactionService) {
-		this.transactionManager = (TransactionServiceImpl) transactionService;
+		this.transactionService = (TransactionServiceImpl) transactionService;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -70,6 +70,6 @@ public class TransactionalDataSource implements DataSource {
 	}
 
 	private DataSource getDataSource() {
-		return transactionManager.getDataSource();
+		return transactionService.getDataSource();
 	}
 }

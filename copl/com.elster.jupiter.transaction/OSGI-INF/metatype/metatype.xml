@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metatype:MetaData xmlns:metatype="http://www.osgi.org/xmlns/metatype/v1.0.0">
+  <OCD description="Transaction Service" name="Transaction Service" id="com.elster.jupiter.transaction">       
+    <AD name="sql logging"  id="sqllog" required="true" type="Boolean" default="false" description="If true log all sql statements"/>
+    <AD name="sql events"  id="sqlevent" required="true" type="Boolean" default="false" description="If true generate event admin events for all sql statements"/>           
+  </OCD>  
+  <Designate pid="com.elster.jupiter.transaction">
+   	<Object ocdref="com.elster.jupiter.transaction"/>
+  </Designate>
+</metatype:MetaData>

@@ -7,6 +7,7 @@ import java.sql.Date;
 import java.sql.*;
 import java.util.*;
 
+import com.elster.jupiter.transaction.SqlEvent;
 import com.elster.jupiter.util.time.StopWatch;
 
 class MonitoredStatement implements PreparedStatement {
@@ -66,13 +67,8 @@ class MonitoredStatement implements PreparedStatement {
 	@Override
 	public void close() throws SQLException {
 		stopWatch.stop();
-		System.out.println("SQL executed in " + (stopWatch.getElapsed() / 1000L) + " µs");
-		System.out.println("\tText: " + text);
-		System.out.println("\tBind variables: " + parameters);
-		if (resultSet != null) {
-			System.out.println("\tFetched " + resultSet.getFetchCount() + " tuples");
-		}
 		statement.close();
+		Bus.publish(new SqlEvent(stopWatch,text,parameters,resultSet == null ? -1 : resultSet.getFetchCount()));
 	}
 
 	@Override
