@@ -48,8 +48,18 @@ public class DataModelResource {
 		for (Table table : model.getTables()) {
 			addTable(table,tables,builder);
 			for (ForeignKeyConstraint tableConstraint : table.getForeignKeyConstraints()) {
+				String arrowhead = tableConstraint.isNotNull() ? "teetee" : "teeodot";  
+				String arrowtail = "none"; 				
+				if (tableConstraint.getReverseFieldName() != null) {
+					if (tableConstraint.isOneToOne()) {
+						arrowtail = "teeodot";
+					} else {
+						arrowtail = "crowodot";
+					}
+				}
 				addTable(tableConstraint.getReferencedTable(),tables,builder);
-				builder.append(table.getName() + "->" + tableConstraint.getReferencedTable().getName() + ";\n");
+				builder.append(table.getName() + "->" + tableConstraint.getReferencedTable().getName());
+				builder.append(" [dir=both arrowhead=" +  arrowhead + " arrowtail=" + arrowtail + "];\n");
 			}
 		}
 		builder.append("}");
@@ -148,6 +158,7 @@ public class DataModelResource {
 			return;
 		}
 		tables.add(table.getName());
-		builder.append(table.getName() + "[shape=box URL=\"/api/goodies/datamodels/" + table.getComponentName() + "/tables/" + table.getName() + ".svg\"];\n");		
+		String shape = table.getJournalTableName() == null ? "box" : "invhouse";
+ 		builder.append(table.getName() + "[shape=" + shape + " URL=\"/api/goodies/datamodels/" + table.getComponentName() + "/tables/" + table.getName() + ".svg\"];\n");		
 	}
 }
