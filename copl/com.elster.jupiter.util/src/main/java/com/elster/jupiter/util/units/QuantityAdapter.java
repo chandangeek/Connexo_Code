@@ -6,7 +6,7 @@ public final class QuantityAdapter extends XmlAdapter<AdaptedQuantity,Quantity> 
 
 	@Override
 	public Quantity unmarshal(AdaptedQuantity v) throws Exception {
-		if (v.value == null ||  v.unit == null) {
+		if (v.value == null || v.unit == null) {
 			return null;
 		}
 		Unit unit = Unit.get(v.unit);
@@ -15,7 +15,7 @@ public final class QuantityAdapter extends XmlAdapter<AdaptedQuantity,Quantity> 
 
 	@Override
 	public AdaptedQuantity marshal(Quantity v) throws Exception {		
-		return v == null ? null : AdaptedQuantity.from(v);
+		return v == null ? null : new AdaptedQuantity(v);
 	}
 
 }
