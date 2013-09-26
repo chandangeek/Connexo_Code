@@ -10,8 +10,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -58,18 +57,21 @@ final class GroupImpl implements Group , PersistenceAware {
 	}
 
     @Override
-	public List<Privilege> getPrivileges() {
-    	if (privileges == null) {
-    		List<PrivilegeInGroup> privilegeInGroups = fetchPrivilegeInGroups();
-    		ImmutableList.Builder<Privilege> builder = ImmutableList.builder();
-    		for (PrivilegeInGroup each : privilegeInGroups) {
-    			builder.add(each.getPrivilege());
-    		}
-    		privileges = builder.build();
-    	}
-    	return privileges;
+	public List<Privilege> getPrivileges() {    	
+    	return getPrivileges(true);
 	}
 
+    private List<Privilege> getPrivileges(boolean protect) {
+    	if (privileges == null) {
+    		List<PrivilegeInGroup> privilegeInGroups = fetchPrivilegeInGroups();
+    		privileges = new ArrayList<>(privilegeInGroups.size());
+    		for (PrivilegeInGroup each : privilegeInGroups) {
+    			privileges.add(each.getPrivilege());
+    		}    	
+    	}
+    	return protect ? Collections.unmodifiableList(privileges) : privileges;
+    }
+    
     @Override
     public boolean hasPrivilege(Privilege privilege) {
         return getPrivileges().contains(privilege);
@@ -81,6 +83,7 @@ final class GroupImpl implements Group , PersistenceAware {
             return false;
         }
 		new PrivilegeInGroup(this,privilege).persist();
+		getPrivileges(false).add(privilege);
         return false;
 	}
 
@@ -89,6 +92,7 @@ final class GroupImpl implements Group , PersistenceAware {
         for (PrivilegeInGroup each : fetchPrivilegeInGroups()) {
             if (each.getPrivilege().equals(privilege)) {
                 each.delete();
+                getPrivileges(false).remove(privilege);         
                 return true;
             }
         }
@@ -102,7 +106,8 @@ final class GroupImpl implements Group , PersistenceAware {
     void persist() {
 		groupFactory().persist(this);
 	}
-
+    
+    
     private TypeCache<Group> groupFactory() {
         return Bus.getOrmClient().getGroupFactory();
     }
