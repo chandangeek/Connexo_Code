@@ -1,7 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.sun.istack.internal.NotNull;
 
 import java.security.Principal;
 import java.util.concurrent.ExecutionException;
@@ -75,7 +74,7 @@ public class RunMessageHandlerTaskAs implements ProvidesCancellableFuture {
         }
 
         @Override
-        public T get(long timeout, @NotNull TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
             return runnableFuture.get(timeout, unit);
         }
     }
