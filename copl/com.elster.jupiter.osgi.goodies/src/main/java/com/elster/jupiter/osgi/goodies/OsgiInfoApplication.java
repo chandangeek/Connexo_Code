@@ -1,21 +1,23 @@
 package com.elster.jupiter.osgi.goodies;
 
-import java.util.*;
-import javax.ws.rs.core.Application;
-
+import com.elster.jupiter.orm.OrmService;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.packageadmin.PackageAdmin;
-import com.elster.jupiter.orm.*;
+
+import javax.ws.rs.core.Application;
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("deprecation")
 @Component(name = "com.elster.jupiter.metering.rest" , service=Application.class , immediate = true , property = {"alias=/goodies"} )
 public class OsgiInfoApplication extends Application {
 	
-	volatile static PackageAdmin admin;
-	volatile static BundleContext context;
-	volatile static OrmService ormService;
+	static volatile PackageAdmin admin;
+	static volatile BundleContext context;
+	static volatile OrmService ormService;
 	
 	private final Set<Class<?>> classes = new HashSet<>();
 	
