@@ -40,6 +40,7 @@ public class WhiteBoard {
     
     void addResource(Application application, String alias) {    	    	
         ResourceConfig secureConfig = ResourceConfig.forApplication(application);
+        secureConfig.register(ObjectMapperProvider.class);
         secureConfig.register(JacksonFeature.class);
         secureConfig.register(RoleFilter.class);
         secureConfig.register(RolesAllowedDynamicFeature.class);
