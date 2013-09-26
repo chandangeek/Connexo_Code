@@ -1,5 +1,6 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.*;
 import org.glassfish.jersey.server.filter.*;
@@ -23,13 +24,15 @@ public class WhiteBoard {
 	private final HttpContext httpContext;
 	private final HttpService httpService;
     private volatile ServiceTracker<Application,Application> tracker;
+    private volatile boolean debug;
 
     public WhiteBoard(HttpService httpService) {
         this.httpContext = new HttpContextImpl();
         this.httpService = httpService;
     }
 
-    void open(BundleContext bundleContext) {
+    void open(BundleContext bundleContext,boolean debug) {
+    	this.debug = debug;
     	tracker = new ServiceTracker<>(bundleContext, Application.class, new ApplicationTrackerCustomizer(bundleContext));
     	tracker.open();
     }
@@ -44,6 +47,9 @@ public class WhiteBoard {
         secureConfig.register(JacksonFeature.class);
         secureConfig.register(RoleFilter.class);
         secureConfig.register(RolesAllowedDynamicFeature.class);
+        if (debug) {        	       
+        	secureConfig.register(LoggingFilter.class);
+        }
         try {
         	ServletContainer container = new ServletContainer(secureConfig);
         	HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container));

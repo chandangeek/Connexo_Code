@@ -33,8 +33,7 @@ public class SecurityContextImpl implements SecurityContext {
 
 	@Override
 	public boolean isUserInRole(String role) {		
-		User user = (User) getUserPrincipal();
-		System.out.println("Checking role " + role);		
+		User user = (User) getUserPrincipal();		
 		return user == null ? false : user.hasPrivilege(role);
 	}
 

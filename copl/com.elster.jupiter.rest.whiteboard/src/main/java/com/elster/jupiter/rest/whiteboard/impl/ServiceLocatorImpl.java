@@ -44,8 +44,7 @@ public class ServiceLocatorImpl implements  ServiceLocator {
     }
     
     @Activate
-    public void activate(BundleContext context, Map<String,Object> properties) {  
-    	System.out.println("Activating");
+    public void activate(BundleContext context, Map<String,Object> properties) {      	
     	Bus.setServiceLocator(this);
     	configure(properties);
     	int stateMask = Bundle.ACTIVE | Bundle.START_TRANSIENT | Bundle.STARTING;
@@ -94,7 +93,7 @@ public class ServiceLocatorImpl implements  ServiceLocator {
 	
 	void startWhiteBoard(BundleContext bundleContext) {	
 		System.out.println("Starting whiteboard");
-		whiteBoard.open(bundleContext);
+		whiteBoard.open(bundleContext,debug);
 	}
 	
 	public boolean getDebug() {
