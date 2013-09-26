@@ -1,6 +1,7 @@
 package com.elster.jupiter.cbo;
 
 public enum PhaseCode {
+	UNKNOWN("Unknown"),
 	ABCN ("ABCN"),
 	ABC ("ABC"),
 	ABN ("ABN"),
