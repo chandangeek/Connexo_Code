@@ -106,7 +106,8 @@ public class AppServiceImplTest {
     @Mock
     private CacheService cacheService;
 
-    @Before
+    @SuppressWarnings("unchecked")
+	@Before
     public void setUp() throws SQLException {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString())).thenReturn(table);
@@ -138,7 +139,8 @@ public class AppServiceImplTest {
         appService.setCacheService(cacheService);
     }
 
-    private void setupFakeTransactionService() {
+    @SuppressWarnings("unchecked")
+	private void setupFakeTransactionService() {
         when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -201,7 +203,7 @@ public class AppServiceImplTest {
 
             arrivalLatch.await(); // wait until receive() blocks
 
-            appService.deactivate(null);
+            appService.deactivate();
 
             verify(subscriberSpec).cancel();
         } finally {
@@ -237,7 +239,7 @@ public class AppServiceImplTest {
 
             arrivalLatch.await(); // wait until receive() blocks
 
-            appService.deactivate(null);
+            appService.deactivate();
 
             verify(subscriberSpec).cancel();
         } finally {

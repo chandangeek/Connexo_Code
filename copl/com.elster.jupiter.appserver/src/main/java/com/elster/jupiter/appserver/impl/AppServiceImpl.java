@@ -32,10 +32,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
 
 import java.util.ArrayList;
@@ -173,7 +170,8 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         }
     }
 
-    public void deactivate(ComponentContext context) {
+    @Deactivate
+    public void deactivate() {
         this.context = null;
         for (Runnable deactivateTask : deactivateTasks) {
             deactivateTask.run();

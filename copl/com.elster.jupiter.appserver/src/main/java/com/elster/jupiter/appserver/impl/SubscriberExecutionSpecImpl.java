@@ -6,7 +6,8 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 
 public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
 
-    private long id;
+    @SuppressWarnings("unused")
+	private long id;
     private int threadCount;
     private String subscriberSpecName;
     private String destinationSpecName;
@@ -14,7 +15,8 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
     private String appServerName;
     private transient AppServer appServer;
 
-    private SubscriberExecutionSpecImpl() {
+    @SuppressWarnings("unused")
+	private SubscriberExecutionSpecImpl() {
     	
     }
     

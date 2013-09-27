@@ -20,7 +20,8 @@ public class AppServerImpl implements AppServer {
     private transient CronExpression scheduleFrequency;
     private boolean recurrentTaskActive;
 
-    private AppServerImpl() {
+    @SuppressWarnings("unused")
+	private AppServerImpl() {
     	
     }
     

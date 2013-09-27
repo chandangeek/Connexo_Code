@@ -5,11 +5,7 @@ import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.google.common.base.Optional;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import java.security.Principal;
 import java.util.*;
@@ -39,11 +35,13 @@ public class MessageHandlerLauncherService {
     public void setAppService(AppService appService) {
         this.appService = appService;
     }
-
-    public void activate(ComponentContext context) {
+    
+    @Activate
+    public void activate() {
     }
 
-    public void deactivate(ComponentContext context) {
+    @Deactivate
+    public void deactivate() {
         for (ExecutorService executorService : executors.values()) {
             shutDownServiceWithCancelling(executorService);
         }

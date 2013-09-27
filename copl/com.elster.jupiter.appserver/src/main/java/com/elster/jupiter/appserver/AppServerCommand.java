@@ -8,7 +8,8 @@ public class AppServerCommand {
 
     private Properties properties = new Properties();
 
-    private AppServerCommand() {
+    @SuppressWarnings("unused")
+	private AppServerCommand() {
     	
     }
     

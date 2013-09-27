@@ -80,7 +80,8 @@ public class MessageHandlerLauncherServiceTest {
         Bus.setServiceLocator(serviceLocator);
     }
 
-    private void initFakeTransactionService() {
+    @SuppressWarnings("unchecked")
+	private void initFakeTransactionService() {
         when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -128,7 +129,7 @@ public class MessageHandlerLauncherServiceTest {
 
             verify(subscriberSpec, atLeastOnce()).receive();
         } finally {
-            messageHandlerLauncherService.deactivate(null);
+            messageHandlerLauncherService.deactivate();
         }
     }
 
@@ -161,7 +162,7 @@ public class MessageHandlerLauncherServiceTest {
             verify(subscriberSpec).cancel();
             verify(handler).process(message);
         } finally {
-            messageHandlerLauncherService.deactivate(null);
+            messageHandlerLauncherService.deactivate();
         }
     }
 

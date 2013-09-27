@@ -65,7 +65,8 @@ public class DefaultAppServerCreatorTest {
         Bus.setServiceLocator(serviceLocator);
     }
 
-    private void setupFakeTransactionService() {
+    @SuppressWarnings("unchecked")
+	private void setupFakeTransactionService() {
         when(transactionService.execute(any(Transaction.class))).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {

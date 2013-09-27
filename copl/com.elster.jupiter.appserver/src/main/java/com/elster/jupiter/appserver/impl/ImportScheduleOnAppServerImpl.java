@@ -15,7 +15,8 @@ public class ImportScheduleOnAppServerImpl implements ImportScheduleOnAppServer 
     private String appServerName;
     private transient AppServer appServer;
 
-    private ImportScheduleOnAppServerImpl() {
+    @SuppressWarnings("unused")
+	private ImportScheduleOnAppServerImpl() {
     }
 
     public ImportScheduleOnAppServerImpl(ImportSchedule importSchedule, AppServer appServer) {
