@@ -21,7 +21,6 @@ public class MeterActivationImpl implements MeterActivation {
 	private long usagePointId;
 	private long meterId;
 	private Interval interval;
-	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
 	private UtcInstant createTime;

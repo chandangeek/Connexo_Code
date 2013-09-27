@@ -29,7 +29,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 
 import java.util.Date;

@@ -10,7 +10,6 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	// persistent fields
 	private String mRID;
 	private String aliasName;
-	@SuppressWarnings("unused")
 	private long version;
 	@SuppressWarnings("unused")
 	private UtcInstant createTime;
