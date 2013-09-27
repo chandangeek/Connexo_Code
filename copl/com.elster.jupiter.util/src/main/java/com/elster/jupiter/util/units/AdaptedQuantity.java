@@ -13,7 +13,7 @@ public final class AdaptedQuantity {
 
 	AdaptedQuantity(Quantity quantity) {
 		this.value = quantity.getValue();
-		this.unit = quantity.getUnit().getSymbol();
+		this.unit = quantity.getUnit() == null ? null : quantity.getUnit().getSymbol();
 		this.multiplier = quantity.getMultiplier();
 	}
 }
