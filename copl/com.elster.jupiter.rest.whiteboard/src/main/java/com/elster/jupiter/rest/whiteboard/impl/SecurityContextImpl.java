@@ -2,8 +2,6 @@ package com.elster.jupiter.rest.whiteboard.impl;
 
 import com.elster.jupiter.users.User;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.HttpMethod;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;

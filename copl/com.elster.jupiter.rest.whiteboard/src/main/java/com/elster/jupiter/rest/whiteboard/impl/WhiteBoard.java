@@ -5,7 +5,6 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.*;
 import org.glassfish.jersey.server.filter.*;
 import org.glassfish.jersey.servlet.*;
-import javax.ws.rs.container.*;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -16,8 +15,6 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.ws.rs.core.Application;
-
-import java.util.*;
 
 public class WhiteBoard {
 	
