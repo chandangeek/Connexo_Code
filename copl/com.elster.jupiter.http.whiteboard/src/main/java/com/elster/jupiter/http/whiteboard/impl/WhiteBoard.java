@@ -1,12 +1,7 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
-import java.util.HashMap;
-
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.http.*;
-
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 
 import com.elster.jupiter.http.whiteboard.HttpResource;
 
