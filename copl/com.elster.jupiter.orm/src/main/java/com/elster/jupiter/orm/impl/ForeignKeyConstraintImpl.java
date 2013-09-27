@@ -1,7 +1,5 @@
 package com.elster.jupiter.orm.impl;
 
-import java.util.Collections;
-
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.plumbing.Bus;
 
