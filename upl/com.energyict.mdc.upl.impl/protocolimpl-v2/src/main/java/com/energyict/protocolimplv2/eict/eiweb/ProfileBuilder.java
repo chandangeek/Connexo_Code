@@ -302,6 +302,7 @@ public class ProfileBuilder {
     public void addCollectedData (List<CollectedData> collectedData) {
         DeviceLoadProfile loadProfile = new DeviceLoadProfile(new FirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier()));
         loadProfile.setCollectedData(this.profileData.getIntervalDatas(), this.profileData.getChannelInfos());
+        loadProfile.setDoStoreOlderValues(this.profileData.shouldStoreOlderValues());
         collectedData.add(loadProfile);
     }
 
