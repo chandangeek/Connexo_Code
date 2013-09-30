@@ -17,7 +17,7 @@ public class CTRUpdateDeviceMessage extends UpdateDeviceMessage {
     }
 
     @Override
-    public void execute(ComServerDAO comServerDAO) {
+    public void doExecute(ComServerDAO comServerDAO) {
         String messageProtocolInfo = comServerDAO.findDeviceMessage(getMessageIdentifier()).getProtocolInfo();
         String wdb = ((DeviceMessageIdentifierByDeviceAndProtocolInfoParts) getMessageIdentifier()).getMessageProtocolInfoParts()[1];
 
