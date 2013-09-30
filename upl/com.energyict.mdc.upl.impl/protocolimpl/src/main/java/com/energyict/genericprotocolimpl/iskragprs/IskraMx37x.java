@@ -1223,164 +1223,164 @@ public class IskraMx37x implements ProtocolLink, CacheMechanism, Messaging, HHUE
      * @throws SQLException
      */
     private void sendMeterMessages() throws IOException, BusinessException, SQLException {
-
-        Iterator mi = rtu.getOldPendingMessages().iterator();
-        if (mi.hasNext()) {
-            getLogger().log(Level.INFO, "Handling messages for meter with serialnumber: " + rtu.getSerialNumber());
-        }
-
-        while (mi.hasNext()) {
-            OldDeviceMessage msg = (OldDeviceMessage) mi.next();
-            String msgString = msg.getContents();
-            String contents = msgString.substring(msgString.indexOf("<") + 1, msgString.indexOf(">"));
-            if (contents.endsWith("/")) {
-                contents = contents.substring(0, contents.length() - 1);
-            }
-            BigDecimal breakerState = null;
-
-            boolean disconnect = contents.equalsIgnoreCase(RtuMessageConstant.DISCONNECT_LOAD);
-            boolean connect = contents.equalsIgnoreCase(RtuMessageConstant.CONNECT_LOAD);
-            boolean ondemand = contents.equalsIgnoreCase(RtuMessageConstant.READ_ON_DEMAND);
-            boolean threshpars = contents.equalsIgnoreCase(RtuMessageConstant.PARAMETER_GROUPID);
-            boolean threshold = contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_GROUPID);
-            boolean thresholdcl = contents.equalsIgnoreCase(RtuMessageConstant.CLEAR_THRESHOLD);
-            boolean falsemsg = contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_STARTDT) || contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_STOPDT);
-            boolean tou = contents.equalsIgnoreCase(RtuMessageConstant.TOU_SCHEDULE);
-            boolean apnUnPw = contents.equalsIgnoreCase(RtuMessageConstant.GPRS_APN) ||
-                    contents.equalsIgnoreCase(RtuMessageConstant.GPRS_USERNAME) ||
-                    contents.equalsIgnoreCase(RtuMessageConstant.GPRS_PASSWORD);
-//            boolean gprsCred	= contents.equalsIgnoreCase(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
-            boolean gprsCred = contents.indexOf(RtuMessageConstant.GPRS_MODEM_CREDENTIALS) == 0 ? true : false;
-            boolean mbusInstall = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL);
-            boolean mbusInstDR = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL_DATAREADOUT);
-            boolean mbusRemove = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_REMOVE);
-            boolean wuChangeTimeOut = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_INACT_TIMEOUT);
-            boolean changeLLSSecret = contents.equalsIgnoreCase(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
-
-            boolean wuAddWhiteList = false;
-            for (int i = 0; i < maxNumbersCSDWhiteList; i++) {
-                wuAddWhiteList |= contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_NR + (i + 1));
-            }
-
-            boolean wuAddManagedWhiteList = false;
-            for (int i = 0; i < maxNumbersManagedWhiteList; i++) {
-                wuAddManagedWhiteList |= contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_MANAGED_NR + (i + 1));
-            }
-
-            boolean wuActivate = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_ACTIVATE);
-            boolean firmware = contents.equalsIgnoreCase(RtuMessageConstant.FIRMWARE);
-            boolean changeConMode = contents.equalsIgnoreCase(RtuMessageConstant.CONNECT_MODE);
-
-            if (falsemsg) {
+//
+//        Iterator mi = rtu.getOldPendingMessages().iterator();
+//        if (mi.hasNext()) {
+//            getLogger().log(Level.INFO, "Handling messages for meter with serialnumber: " + rtu.getSerialNumber());
+//        }
+//
+//        while (mi.hasNext()) {
+//            OldDeviceMessage msg = (OldDeviceMessage) mi.next();
+//            String msgString = msg.getContents();
+//            String contents = msgString.substring(msgString.indexOf("<") + 1, msgString.indexOf(">"));
+//            if (contents.endsWith("/")) {
+//                contents = contents.substring(0, contents.length() - 1);
+//            }
+//            BigDecimal breakerState = null;
+//
+//            boolean disconnect = contents.equalsIgnoreCase(RtuMessageConstant.DISCONNECT_LOAD);
+//            boolean connect = contents.equalsIgnoreCase(RtuMessageConstant.CONNECT_LOAD);
+//            boolean ondemand = contents.equalsIgnoreCase(RtuMessageConstant.READ_ON_DEMAND);
+//            boolean threshpars = contents.equalsIgnoreCase(RtuMessageConstant.PARAMETER_GROUPID);
+//            boolean threshold = contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_GROUPID);
+//            boolean thresholdcl = contents.equalsIgnoreCase(RtuMessageConstant.CLEAR_THRESHOLD);
+//            boolean falsemsg = contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_STARTDT) || contents.equalsIgnoreCase(RtuMessageConstant.THRESHOLD_STOPDT);
+//            boolean tou = contents.equalsIgnoreCase(RtuMessageConstant.TOU_SCHEDULE);
+//            boolean apnUnPw = contents.equalsIgnoreCase(RtuMessageConstant.GPRS_APN) ||
+//                    contents.equalsIgnoreCase(RtuMessageConstant.GPRS_USERNAME) ||
+//                    contents.equalsIgnoreCase(RtuMessageConstant.GPRS_PASSWORD);
+////            boolean gprsCred	= contents.equalsIgnoreCase(RtuMessageConstant.GPRS_MODEM_CREDENTIALS);
+//            boolean gprsCred = contents.indexOf(RtuMessageConstant.GPRS_MODEM_CREDENTIALS) == 0 ? true : false;
+//            boolean mbusInstall = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL);
+//            boolean mbusInstDR = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_INSTALL_DATAREADOUT);
+//            boolean mbusRemove = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_REMOVE);
+//            boolean wuChangeTimeOut = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_INACT_TIMEOUT);
+//            boolean changeLLSSecret = contents.equalsIgnoreCase(RtuMessageConstant.AEE_CHANGE_LLS_SECRET);
+//
+//            boolean wuAddWhiteList = false;
+//            for (int i = 0; i < maxNumbersCSDWhiteList; i++) {
+//                wuAddWhiteList |= contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_NR + (i + 1));
+//            }
+//
+//            boolean wuAddManagedWhiteList = false;
+//            for (int i = 0; i < maxNumbersManagedWhiteList; i++) {
+//                wuAddManagedWhiteList |= contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_MANAGED_NR + (i + 1));
+//            }
+//
+//            boolean wuActivate = contents.equalsIgnoreCase(RtuMessageConstant.WAKEUP_ACTIVATE);
+//            boolean firmware = contents.equalsIgnoreCase(RtuMessageConstant.FIRMWARE);
+//            boolean changeConMode = contents.equalsIgnoreCase(RtuMessageConstant.CONNECT_MODE);
+//
+//            if (falsemsg) {
+////                msg.setFailed();
+////                AMRJournalManager amrJournalManager =
+////                        new AMRJournalManager(rtu, scheduler);
+////                amrJournalManager.journal(
+////                        new AmrJournalEntry(AmrJournalEntry.DETAIL, "No groupID was entered."));
+////                amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
+////                amrJournalManager.updateRetrials();
+////                getLogger().severe("No groupID was entered.");
+//            }
+//
+//            if (connect || disconnect) {
+//                if (disconnect) {
+//                    getLogger().log(Level.INFO, "Sending disconnect message for meter with serialnumber: " + rtu.getSerialNumber());
+//                    cosemObjectFactory.writeObject(breakerObisCode, 1, 2, disconnectMsg);
+//                    breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
+//                }
+//
+//                if (connect) {
+//                    getLogger().log(Level.INFO, "Sending connect message for meter with serialnumber: " + rtu.getSerialNumber());
+//                    cosemObjectFactory.writeObject(breakerObisCode, 1, 2, connectMsg);
+//                    breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
+//                }
+//
+//                switch (breakerState.intValue()) {
+//
+//                    case 0: {
+//                        if (contents.indexOf(RtuMessageConstant.DISCONNECT_LOAD) != -1) {
+//                            msg.confirm();
+//                        } else {
+//                            msg.setFailed();
+//                        }
+//                    }
+//                    break;
+//
+//                    case 1: {
+//                        if (contents.indexOf(RtuMessageConstant.CONNECT_LOAD) != -1) {
+//                            msg.confirm();
+//                        } else {
+//                            msg.setFailed();
+//                        }
+//                    }
+//                    break;
+//
+//                    default: {
+//                        msg.setFailed();
+//                        break;
+//                    }
+//                }
+//            } else if (changeConMode) {
+//                changeConnectorMode(msg);
+//            } else if (tou) {
+//                sendActivityCalendar(contents, msg);
+//            } else if (ondemand) {
+//                onDemand(rtu, msg);
+//            } else if (threshpars) {
+//                thresholdParameters(msg);
+//            } else if (threshold) {
+//                applyThresholdValue(msg);
+//            } else if (thresholdcl) {
+//                clearThreshold(msg);
+//            } else if (apnUnPw) {
+//                changeApnUserNamePassword(msg);
+//            } else if (gprsCred) {
+//                changeGprsCredentials(msg);
+//            } else if (mbusInstall) {
+//                getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.128.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+//
+//                msg.confirm();
+//            } else if (mbusRemove) {
+//                getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.129.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+//
+//                clearMbusGateWays();
+//
+//                msg.confirm();
+//            } else if (mbusInstDR) {
+//                getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.130.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
+//
+//                checkMbusDevices();    // we do this to update the ConcentratorGateway
+//
+//                msg.confirm();
+//            } else if (wuAddWhiteList) {
+//                String description = "Adding numbers to whitelist for meter with serialnumber: " + rtu.getSerialNumber();
+//                getLogger().log(Level.INFO, description);
+//                try {
+//                    addPhoneToWhiteList(msg);
+//                } catch (BusinessException e) {
+//                    e.printStackTrace();
+//                    fail(e, msg, description);
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                    fail(e, msg, description);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                    fail(e, msg, description);
+//                }
+//            } else if (wuAddManagedWhiteList) {
+//                addPhoneToManagedList(msg);
+//            } else if (wuChangeTimeOut) {
+//                changeInactivityTimeout(msg);
+//            } else if (wuActivate) {
+//                activateWakeUp(msg);
+//            } else if (firmware) {
+//                upgradeFirmware(msg);
+//            } else if (changeLLSSecret) {
+//                changeLLSSecret(msg);
+//            } else {
 //                msg.setFailed();
-//                AMRJournalManager amrJournalManager =
-//                        new AMRJournalManager(rtu, scheduler);
-//                amrJournalManager.journal(
-//                        new AmrJournalEntry(AmrJournalEntry.DETAIL, "No groupID was entered."));
-//                amrJournalManager.journal(new AmrJournalEntry(AmrJournalEntry.CC_UNEXPECTED_ERROR));
-//                amrJournalManager.updateRetrials();
-//                getLogger().severe("No groupID was entered.");
-            }
-
-            if (connect || disconnect) {
-                if (disconnect) {
-                    getLogger().log(Level.INFO, "Sending disconnect message for meter with serialnumber: " + rtu.getSerialNumber());
-                    cosemObjectFactory.writeObject(breakerObisCode, 1, 2, disconnectMsg);
-                    breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
-                }
-
-                if (connect) {
-                    getLogger().log(Level.INFO, "Sending connect message for meter with serialnumber: " + rtu.getSerialNumber());
-                    cosemObjectFactory.writeObject(breakerObisCode, 1, 2, connectMsg);
-                    breakerState = readRegister(breakerObisCode).getQuantity().getAmount();
-                }
-
-                switch (breakerState.intValue()) {
-
-                    case 0: {
-                        if (contents.indexOf(RtuMessageConstant.DISCONNECT_LOAD) != -1) {
-                            msg.confirm();
-                        } else {
-                            msg.setFailed();
-                        }
-                    }
-                    break;
-
-                    case 1: {
-                        if (contents.indexOf(RtuMessageConstant.CONNECT_LOAD) != -1) {
-                            msg.confirm();
-                        } else {
-                            msg.setFailed();
-                        }
-                    }
-                    break;
-
-                    default: {
-                        msg.setFailed();
-                        break;
-                    }
-                }
-            } else if (changeConMode) {
-                changeConnectorMode(msg);
-            } else if (tou) {
-                sendActivityCalendar(contents, msg);
-            } else if (ondemand) {
-                onDemand(rtu, msg);
-            } else if (threshpars) {
-                thresholdParameters(msg);
-            } else if (threshold) {
-                applyThresholdValue(msg);
-            } else if (thresholdcl) {
-                clearThreshold(msg);
-            } else if (apnUnPw) {
-                changeApnUserNamePassword(msg);
-            } else if (gprsCred) {
-                changeGprsCredentials(msg);
-            } else if (mbusInstall) {
-                getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.128.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
-
-                msg.confirm();
-            } else if (mbusRemove) {
-                getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.129.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
-
-                clearMbusGateWays();
-
-                msg.confirm();
-            } else if (mbusInstDR) {
-                getCosemObjectFactory().getGenericInvoke(ObisCode.fromString("0.0.10.50.130.255"), 9, 1).invoke(new Unsigned16(0).getBEREncodedByteArray());
-
-                checkMbusDevices();    // we do this to update the ConcentratorGateway
-
-                msg.confirm();
-            } else if (wuAddWhiteList) {
-                String description = "Adding numbers to whitelist for meter with serialnumber: " + rtu.getSerialNumber();
-                getLogger().log(Level.INFO, description);
-                try {
-                    addPhoneToWhiteList(msg);
-                } catch (BusinessException e) {
-                    e.printStackTrace();
-                    fail(e, msg, description);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    fail(e, msg, description);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    fail(e, msg, description);
-                }
-            } else if (wuAddManagedWhiteList) {
-                addPhoneToManagedList(msg);
-            } else if (wuChangeTimeOut) {
-                changeInactivityTimeout(msg);
-            } else if (wuActivate) {
-                activateWakeUp(msg);
-            } else if (firmware) {
-                upgradeFirmware(msg);
-            } else if (changeLLSSecret) {
-                changeLLSSecret(msg);
-            } else {
-                msg.setFailed();
-            }
-        }
+//            }
+//        }
     }
 
     private void changeLLSSecret(final OldDeviceMessage msg) throws BusinessException, SQLException, IOException {

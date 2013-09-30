@@ -250,86 +250,86 @@ public class MbusDevice implements Messaging {
     }
 
     public void sendMeterMessages() throws IOException, BusinessException, SQLException {
-        Iterator mi = mbus.getOldPendingMessages().iterator();
-
-        while (mi.hasNext()) {
-            OldDeviceMessage msg = (OldDeviceMessage) mi.next();
-            String msgString = msg.getContents();
-            String contents = msgString.substring(msgString.indexOf("<") + 1, msgString.indexOf(">"));
-            if (contents.endsWith("/")) {
-                contents = contents.substring(0, contents.length() - 1);
-            }
-
-            boolean ondemand = contents.equalsIgnoreCase(RtuMessageConstant.READ_ON_DEMAND);
-            boolean doDisconnect = contents.toLowerCase().indexOf(RtuMessageConstant.DISCONNECT_LOAD.toLowerCase()) != -1;
-            boolean doConnect = (contents.toLowerCase().indexOf(RtuMessageConstant.CONNECT_LOAD.toLowerCase()) != -1) && !doDisconnect;
-            boolean mbusSetVIF = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_SET_VIF);
-
-            String description = "Getting ondemand registers for MBus device with serailnumber: " + getMbus().getSerialNumber();
-            try {
-                if (ondemand) {
-                    getLogger().log(Level.INFO, description);
-                    Iterator i = mbus.getDeviceType().getRegisterSpecs().iterator();
-                    while (i.hasNext()) {
-
-                        RegisterSpec spec = (RegisterSpec) i.next();
-                        ObisCode oc = spec.getDeviceObisCode();
-                        Register register = mbus.getRegister(oc);
-
-                        if (register != null) {
-
-                            if (oc.getF() == 255) {
-                                RegisterValue rv = iskra.readRegister(oc);
-                                rv.setRtuRegisterId(register.getId());
-
-                                MeterReadingData meterReadingData = new MeterReadingData();
-                                meterReadingData.add(rv);
-                                mbus.store(meterReadingData);
-
-                                /*register.add(rv.getQuantity().getAmount(), rv
-                                                .getEventTime(), rv.getFromTime(), rv.getToTime(),
-                                                rv.getReadTime());*/
-                            }
-                        } else {
-                            String obis = oc.toString();
-                            String msgError = "Register " + obis + " not defined on device";
-                            getLogger().info(msgError);
-                        }
-                    }
-                    msg.confirm();
-                } else if (doDisconnect) {
-                    Unsigned8 channel = new Unsigned8(getPhysicalAddress() + 1);
-                    iskra.getCosemObjectFactory().getData(valveControl).setValueAttr(channel);
-
-                    Unsigned8 state = new Unsigned8(0);
-                    iskra.getCosemObjectFactory().getData(valveState).setValueAttr(state);
-
-                    msg.confirm();
-                } else if (doConnect) {
-
-                    Unsigned8 channel = new Unsigned8(getPhysicalAddress() + 1);
-                    iskra.getCosemObjectFactory().getData(valveControl).setValueAttr(channel);
-
-                    Unsigned8 state = new Unsigned8(1);
-                    iskra.getCosemObjectFactory().getData(valveState).setValueAttr(state);
-
-                    msg.confirm();
-
-                } else if (mbusSetVIF) {
-                    String vif = iskra.getMessageValue(msgString, RtuMessageConstant.MBUS_SET_VIF);
-                    if (vif.length() != 16) {
-                        throw new IOException("VIF must be 8 characters long.");
-                    }
-                    iskra.getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0." + (getPhysicalAddress() + 1) + ".128.50.30.255"), 2, 1).write(OctetString.fromByteArray(ParseUtils.hexStringToByteArray(vif)).getBEREncodedByteArray());
-                    msg.confirm();
-                } else {
-                    msg.setFailed();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                fail(e, msg, description);
-            }
-        }
+//        Iterator mi = mbus.getOldPendingMessages().iterator();
+//
+//        while (mi.hasNext()) {
+//            OldDeviceMessage msg = (OldDeviceMessage) mi.next();
+//            String msgString = msg.getContents();
+//            String contents = msgString.substring(msgString.indexOf("<") + 1, msgString.indexOf(">"));
+//            if (contents.endsWith("/")) {
+//                contents = contents.substring(0, contents.length() - 1);
+//            }
+//
+//            boolean ondemand = contents.equalsIgnoreCase(RtuMessageConstant.READ_ON_DEMAND);
+//            boolean doDisconnect = contents.toLowerCase().indexOf(RtuMessageConstant.DISCONNECT_LOAD.toLowerCase()) != -1;
+//            boolean doConnect = (contents.toLowerCase().indexOf(RtuMessageConstant.CONNECT_LOAD.toLowerCase()) != -1) && !doDisconnect;
+//            boolean mbusSetVIF = contents.equalsIgnoreCase(RtuMessageConstant.MBUS_SET_VIF);
+//
+//            String description = "Getting ondemand registers for MBus device with serailnumber: " + getMbus().getSerialNumber();
+//            try {
+//                if (ondemand) {
+//                    getLogger().log(Level.INFO, description);
+//                    Iterator i = mbus.getDeviceType().getRegisterSpecs().iterator();
+//                    while (i.hasNext()) {
+//
+//                        RegisterSpec spec = (RegisterSpec) i.next();
+//                        ObisCode oc = spec.getDeviceObisCode();
+//                        Register register = mbus.getRegister(oc);
+//
+//                        if (register != null) {
+//
+//                            if (oc.getF() == 255) {
+//                                RegisterValue rv = iskra.readRegister(oc);
+//                                rv.setRtuRegisterId(register.getId());
+//
+//                                MeterReadingData meterReadingData = new MeterReadingData();
+//                                meterReadingData.add(rv);
+//                                mbus.store(meterReadingData);
+//
+//                                /*register.add(rv.getQuantity().getAmount(), rv
+//                                                .getEventTime(), rv.getFromTime(), rv.getToTime(),
+//                                                rv.getReadTime());*/
+//                            }
+//                        } else {
+//                            String obis = oc.toString();
+//                            String msgError = "Register " + obis + " not defined on device";
+//                            getLogger().info(msgError);
+//                        }
+//                    }
+//                    msg.confirm();
+//                } else if (doDisconnect) {
+//                    Unsigned8 channel = new Unsigned8(getPhysicalAddress() + 1);
+//                    iskra.getCosemObjectFactory().getData(valveControl).setValueAttr(channel);
+//
+//                    Unsigned8 state = new Unsigned8(0);
+//                    iskra.getCosemObjectFactory().getData(valveState).setValueAttr(state);
+//
+//                    msg.confirm();
+//                } else if (doConnect) {
+//
+//                    Unsigned8 channel = new Unsigned8(getPhysicalAddress() + 1);
+//                    iskra.getCosemObjectFactory().getData(valveControl).setValueAttr(channel);
+//
+//                    Unsigned8 state = new Unsigned8(1);
+//                    iskra.getCosemObjectFactory().getData(valveState).setValueAttr(state);
+//
+//                    msg.confirm();
+//
+//                } else if (mbusSetVIF) {
+//                    String vif = iskra.getMessageValue(msgString, RtuMessageConstant.MBUS_SET_VIF);
+//                    if (vif.length() != 16) {
+//                        throw new IOException("VIF must be 8 characters long.");
+//                    }
+//                    iskra.getCosemObjectFactory().getGenericWrite(ObisCode.fromString("0." + (getPhysicalAddress() + 1) + ".128.50.30.255"), 2, 1).write(OctetString.fromByteArray(ParseUtils.hexStringToByteArray(vif)).getBEREncodedByteArray());
+//                    msg.confirm();
+//                } else {
+//                    msg.setFailed();
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                fail(e, msg, description);
+//            }
+//        }
     }
 
     protected void fail(Exception e, OldDeviceMessage msg, String description) throws BusinessException, SQLException {

@@ -454,20 +454,20 @@ public class MTU155 extends AbstractGenericProtocol implements FirmwareUpdateMes
     }
 
     private void sendMeterMessages() {
-        MTU155MessageExecutor messageExecutor = getMessageExecuter();
-        Iterator<OldDeviceMessage> it = getRtu().getOldPendingMessages().iterator();
-        OldDeviceMessage rm = null;
-        while (it.hasNext()) {
-            rm = it.next();
-            try {
-                messageExecutor.doMessage(rm);
-                warning("Message [" + rm.displayString() + "] executed successfully.");
-            } catch (BusinessException e) {
-                severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
-            } catch (SQLException e) {
-                severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
-            }
-        }
+//        MTU155MessageExecutor messageExecutor = getMessageExecuter();
+//        Iterator<OldDeviceMessage> it = getRtu().getOldPendingMessages().iterator();
+//        OldDeviceMessage rm = null;
+//        while (it.hasNext()) {
+//            rm = it.next();
+//            try {
+//                messageExecutor.doMessage(rm);
+//                warning("Message [" + rm.displayString() + "] executed successfully.");
+//            } catch (BusinessException e) {
+//                severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
+//            } catch (SQLException e) {
+//                severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
+//            }
+//        }
     }
 
     public MTU155MessageExecutor getMessageExecuter() {

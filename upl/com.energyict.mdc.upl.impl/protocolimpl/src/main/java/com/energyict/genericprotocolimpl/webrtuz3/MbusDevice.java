@@ -262,11 +262,11 @@ public class MbusDevice extends MbusMessages {
 
     private void sendMeterMessages() throws BusinessException, SQLException {
         MbusMessageExecutor messageExecutor = new MbusMessageExecutor(this);
-        List<OldDeviceMessage> pendingMessages = getMbus().getOldPendingMessages();
-        for (int i = 0; i < pendingMessages.size(); i++) {
-            OldDeviceMessage rtuMessage = pendingMessages.get(i);
-            messageExecutor.doMessage(rtuMessage);
-        }
+//        List<OldDeviceMessage> pendingMessages = getMbus().getOldPendingMessages();
+//        for (int i = 0; i < pendingMessages.size(); i++) {
+//            OldDeviceMessage rtuMessage = pendingMessages.get(i);
+//            messageExecutor.doMessage(rtuMessage);
+//        }
     }
 
     private RegisterValue readRegister(ObisCode obisCode) throws IOException {

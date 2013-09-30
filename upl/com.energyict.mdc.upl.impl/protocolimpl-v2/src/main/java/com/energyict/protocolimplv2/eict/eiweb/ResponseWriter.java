@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdw.core.OldDeviceMessage;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -36,8 +36,9 @@ public class ResponseWriter {
         this.writeClockSyncAndResult(FAILURE_VALUE_INDICATOR);
     }
 
-    public void add (OldDeviceMessage message) {
-        this.writer.println(message.getContents());
+    public void add (OfflineDeviceMessage message) {
+        // TODO Complete
+//        this.writer.println(message.getContents());
     }
 
     private void writeClockSyncAndResult (int value) {

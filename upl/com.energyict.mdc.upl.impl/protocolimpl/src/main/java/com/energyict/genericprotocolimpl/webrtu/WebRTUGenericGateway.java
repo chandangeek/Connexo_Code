@@ -309,11 +309,11 @@ public class WebRTUGenericGateway {
 
     private List<OldDeviceMessage> getPendingMessages(Device slave) {
         List<OldDeviceMessage> newMessages = new ArrayList<OldDeviceMessage>();
-        for (OldDeviceMessage rtuMessage : slave.getOldMessages()) {
-            if (rtuMessage.isPending()) {
-                newMessages.add(rtuMessage);
-            }
-        }
+//        for (OldDeviceMessage rtuMessage : slave.getOldMessages()) {
+//            if (rtuMessage.isPending()) {
+//                newMessages.add(rtuMessage);
+//            }
+//        }
         return newMessages;
     }
 

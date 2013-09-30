@@ -36,14 +36,14 @@ public class MessageExecutor extends AbstractExecutor<Device> {
      */
     public void execute(Device rtu) {
         List<OldDeviceMessage> messagesToQuery = new ArrayList<OldDeviceMessage>();
-        messagesToQuery.addAll(rtu.getOldPendingMessages());
-        messagesToQuery.addAll(rtu.getOldSentMessages());
-        if (!messagesToQuery.isEmpty()) {
-            applyMessages(messagesToQuery);
-            queryMessages(messagesToQuery);
-        } else {
-            info("No messages pending.");
-        }
+//        messagesToQuery.addAll(rtu.getOldPendingMessages());
+//        messagesToQuery.addAll(rtu.getOldSentMessages());
+//        if (!messagesToQuery.isEmpty()) {
+//            applyMessages(messagesToQuery);
+//            queryMessages(messagesToQuery);
+//        } else {
+//            info("No messages pending.");
+//        }
     }
 
     /**

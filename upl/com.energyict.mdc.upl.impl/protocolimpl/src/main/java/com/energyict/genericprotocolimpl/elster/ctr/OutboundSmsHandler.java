@@ -70,22 +70,22 @@ public class OutboundSmsHandler {
 //    }
 
     private void sendMeterMessages() {
-        MTU155MessageExecutor messageExecutor = getMessageExecuter();
-        Iterator<OldDeviceMessage> it = meterProtocol.getRtu().getOldPendingMessages().iterator();
-        OldDeviceMessage rm = null;
-        while (it.hasNext()) {
-            rm = it.next();
-            try {
-                ((SecureSmsConnection) meterProtocol.getRequestFactory().getConnection()).setRtuMessageID(rm.getId());
-                messageExecutor.doMessage(rm);
-                ((SecureSmsConnection) meterProtocol.getRequestFactory().getConnection()).postPendingSmsToQueue();
-                meterProtocol.warning("Message [" + rm.displayString() + "] executed successfully.");
-            } catch (BusinessException e) {
-                meterProtocol.severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
-            } catch (SQLException e) {
-                meterProtocol.severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
-            }
-        }
+//        MTU155MessageExecutor messageExecutor = getMessageExecuter();
+//        Iterator<OldDeviceMessage> it = meterProtocol.getRtu().getOldPendingMessages().iterator();
+//        OldDeviceMessage rm = null;
+//        while (it.hasNext()) {
+//            rm = it.next();
+//            try {
+//                ((SecureSmsConnection) meterProtocol.getRequestFactory().getConnection()).setRtuMessageID(rm.getId());
+//                messageExecutor.doMessage(rm);
+//                ((SecureSmsConnection) meterProtocol.getRequestFactory().getConnection()).postPendingSmsToQueue();
+//                meterProtocol.warning("Message [" + rm.displayString() + "] executed successfully.");
+//            } catch (BusinessException e) {
+//                meterProtocol.severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
+//            } catch (SQLException e) {
+//                meterProtocol.severe("Unable to send message [" + rm.displayString() + "]! " + e.getMessage());
+//            }
+//        }
     }
 
     private void updateWriteDataBlockID(int ID) throws BusinessException, SQLException {

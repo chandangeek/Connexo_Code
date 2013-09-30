@@ -21,6 +21,7 @@ import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdw.core.LogBookTypeFactory;
 import com.energyict.mdw.core.OldDeviceMessage;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
@@ -179,7 +180,7 @@ public class ProtocolHandler {
         if (this.packetBuilder.getNrOfAcceptedMessages() != null) {
             nrOfAcceptedMessages = this.packetBuilder.getNrOfAcceptedMessages();
         }
-        List<OldDeviceMessage> pendingMessages = this.inboundDAO.confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+        List<OfflineDeviceMessage> pendingMessages = this.inboundDAO.confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
         this.sendMessages(pendingMessages);
     }
 
@@ -224,8 +225,8 @@ public class ProtocolHandler {
         return calendar.getTime();
     }
 
-    private void sendMessages(List<OldDeviceMessage> pendingMessages) {
-        for (OldDeviceMessage pendingMessage : pendingMessages) {
+    private void sendMessages(List<OfflineDeviceMessage> pendingMessages) {
+        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             this.responseWriter.add(pendingMessage);
         }
     }

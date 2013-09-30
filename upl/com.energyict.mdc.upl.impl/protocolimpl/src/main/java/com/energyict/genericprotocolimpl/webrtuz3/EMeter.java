@@ -285,11 +285,11 @@ public class EMeter extends EmeterMessages implements EDevice {
      */
     private void sendMeterMessages() throws BusinessException, SQLException {
         EMeterMessageExecutor messageExecutor = new EMeterMessageExecutor(this);
-        List<OldDeviceMessage> pendingMessages = geteMeterRtu().getOldPendingMessages();
-        for (int i = 0; i < pendingMessages.size(); i++) {
-            OldDeviceMessage rtuMessage = pendingMessages.get(i);
-            messageExecutor.doMessage(rtuMessage);
-        }
+//        List<OldDeviceMessage> pendingMessages = geteMeterRtu().getOldPendingMessages();
+//        for (int i = 0; i < pendingMessages.size(); i++) {
+//            OldDeviceMessage rtuMessage = pendingMessages.get(i);
+//            messageExecutor.doMessage(rtuMessage);
+//        }
     }
 
     /**
