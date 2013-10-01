@@ -53,4 +53,8 @@ public final class OrganizationImpl extends PartyImpl implements Organization {
                 '}';
     }
 
+    @Override
+    public String getType() {
+        return Organization.class.getSimpleName();
+    }
 }
