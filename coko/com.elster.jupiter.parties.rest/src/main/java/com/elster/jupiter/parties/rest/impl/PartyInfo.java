@@ -19,6 +19,7 @@ public class PartyInfo {
     public String description;
     public ElectronicAddress electronicAddress;
     public long version;
+    public String type;
 
     public List<UserInfo> delegates = new ArrayList<>();
 
@@ -31,6 +32,7 @@ public class PartyInfo {
         electronicAddress = party.getElectronicAddress();
         version = party.getVersion();
         delegates = createUserInfosFromUsers(party.getCurrentDelegates());
+        type = party.getType();
     }
 
     private List<UserInfo> createUserInfosFromUsers(List<User> delegates) {
