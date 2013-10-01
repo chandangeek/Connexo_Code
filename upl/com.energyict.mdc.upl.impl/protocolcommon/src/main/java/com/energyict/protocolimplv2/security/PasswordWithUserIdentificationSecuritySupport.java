@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.security.LegacySecurityPropertyConverter;
 
+import com.energyict.protocol.MeterProtocol;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,7 +78,9 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
 
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
-        final TypedProperties securityRelatedTypedProperties = new TypedProperties();
+        final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
+        overrideDeviceAccessIdentifierPropertyIfAbsent(typedProperties);
+
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, STANDARD_AUTH_DEVICE_ACCESS_LEVEL, getAuthenticationAccessLevels()));
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL, getEncryptionAccessLevels()));
         return new DeviceProtocolSecurityPropertySet() {
@@ -96,6 +99,16 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
                 return securityRelatedTypedProperties;
             }
         };
+    }
+
+    private void overrideDeviceAccessIdentifierPropertyIfAbsent(TypedProperties typedProperties) {
+        Object deviceAccessIdentifier = typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec().getName());
+        if(deviceAccessIdentifier == null){
+            deviceAccessIdentifier =typedProperties.getProperty(MeterProtocol.NODEID);
+        }
+        if (deviceAccessIdentifier!=null) {
+            typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec().getName(), deviceAccessIdentifier);
+        }
     }
 
     /**
