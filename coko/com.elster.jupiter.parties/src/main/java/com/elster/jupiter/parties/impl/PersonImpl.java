@@ -142,4 +142,8 @@ public final class PersonImpl extends PartyImpl implements Person {
                 '}';
     }
 
+    @Override
+    public String getType() {
+        return Person.class.getSimpleName();
+    }
 }

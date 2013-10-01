@@ -46,4 +46,6 @@ public interface Party extends HasName {
     void unappointDelegate(User user, Date end);
 
     List<User> getCurrentDelegates();
+
+    String getType();
 }
