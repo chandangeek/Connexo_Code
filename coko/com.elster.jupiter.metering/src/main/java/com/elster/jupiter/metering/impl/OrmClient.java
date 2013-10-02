@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.plumbing;
+package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.impl.ReadingTypeInChannel;

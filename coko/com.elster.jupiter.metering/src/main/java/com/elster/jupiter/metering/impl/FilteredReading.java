@@ -3,12 +3,14 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.IntervalReading;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.collections.KPermutation;
-import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Decorates an IntervalReading by selecting only certain values in a possibly different order.
+ */
 public class FilteredReading implements IntervalReading {
 
     private final IntervalReading source;
@@ -31,7 +33,7 @@ public class FilteredReading implements IntervalReading {
 
     @Override
     public ReadingType getReadingType(int offset) {
-        return source.getReadingType(offset);
+        return view.perform(source.getReadingTypes()).get(offset);
     }
 
     @Override

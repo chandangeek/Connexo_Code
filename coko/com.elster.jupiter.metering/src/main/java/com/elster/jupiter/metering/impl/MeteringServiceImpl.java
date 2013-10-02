@@ -12,12 +12,6 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.plumbing.Bus;
-import com.elster.jupiter.metering.plumbing.InstallerImpl;
-import com.elster.jupiter.metering.plumbing.OrmClient;
-import com.elster.jupiter.metering.plumbing.OrmClientImpl;
-import com.elster.jupiter.metering.plumbing.ServiceLocator;
-import com.elster.jupiter.metering.plumbing.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
@@ -36,7 +30,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.Date;
 import java.util.List;
 
-import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
+import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME)
 public class MeteringServiceImpl implements MeteringService, InstallService, ServiceLocator {
@@ -224,5 +218,10 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Override
+    public ChannelBuilder getChannelBuilder() {
+        return new ChannelBuilderImpl();
     }
 }

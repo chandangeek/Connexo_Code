@@ -10,8 +10,6 @@ import com.elster.jupiter.metering.IntervalReading;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.Reading;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.plumbing.Bus;
-import com.elster.jupiter.metering.plumbing.ServiceLocator;
 import com.google.common.base.Optional;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeZone;
@@ -118,7 +116,7 @@ public class ChannelImplTest {
         readingType1 = new ReadingTypeImpl(MRID1_IRR, "1");
         readingType2 = new ReadingTypeImpl(MRID2_IRR, "2");
 
-        channel.init(new ReadingType[]{readingType1, readingType2});
+        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
 
         verify(serviceLocator.getOrmClient().getChannelFactory()).persist(channel);
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
@@ -132,7 +130,7 @@ public class ChannelImplTest {
 
     @Test
     public void testInitWithIntervalLength() {
-        channel.init(new ReadingType[]{readingType1, readingType2});
+        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
 
         verify(serviceLocator.getOrmClient().getChannelFactory()).persist(channel);
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
@@ -146,7 +144,7 @@ public class ChannelImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInitWithInconsistentIntervalLength() {
-        channel.init(new ReadingType[] {readingType1, readingType3});
+        channel.init(Arrays.<ReadingType>asList(readingType1, readingType3));
     }
 
     @Test
@@ -155,7 +153,7 @@ public class ChannelImplTest {
         readingType2 = new ReadingTypeImpl(MRID2_IRR, "2");
         readingType4 = new ReadingTypeImpl(MRID4_IRR, "4");
 
-        channel.init(new ReadingType[]{readingType1, readingType2, readingType4});
+        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2, readingType4));
 
         verify(serviceLocator.getOrmClient().getChannelFactory()).persist(channel);
         assertThat(channel.getMainReadingType()).isEqualTo(readingType1);
@@ -170,7 +168,7 @@ public class ChannelImplTest {
 
     @Test
     public void testGetIntervalReadings() {
-        channel.init(new ReadingType[]{readingType1, readingType2});
+        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
         when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(2)).thenReturn(VALUE);
 
@@ -188,7 +186,7 @@ public class ChannelImplTest {
 
     @Test
     public void testGetIntervalReadingsForReadingType() {
-        channel.init(new ReadingType[]{readingType1, readingType2});
+        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
         when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
 
@@ -205,7 +203,7 @@ public class ChannelImplTest {
 
     @Test
     public void testGetRegisterReadings() {
-        channel.init(new ReadingType[]{readingType1, readingType2});
+        channel.init(Arrays.<ReadingType>asList(readingType1, readingType2));
         when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
 

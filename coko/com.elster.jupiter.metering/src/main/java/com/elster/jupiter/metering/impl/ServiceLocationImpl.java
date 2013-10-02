@@ -6,7 +6,6 @@ import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.util.geo.Position;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;

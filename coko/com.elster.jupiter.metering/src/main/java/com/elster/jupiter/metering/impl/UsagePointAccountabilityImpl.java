@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.util.time.Interval;

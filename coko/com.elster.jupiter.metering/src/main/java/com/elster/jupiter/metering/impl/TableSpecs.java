@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.plumbing;
+package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;

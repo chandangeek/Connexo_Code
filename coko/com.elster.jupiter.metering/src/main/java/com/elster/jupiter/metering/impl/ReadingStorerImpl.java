@@ -5,7 +5,6 @@ import java.util.Date;
 
 import com.elster.jupiter.ids.*;
 import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.plumbing.Bus;
 
 public class ReadingStorerImpl implements ReadingStorer {
 	

@@ -1,13 +1,10 @@
-package com.elster.jupiter.metering.plumbing;
+package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.impl.EventType;
-import com.elster.jupiter.metering.impl.ReadingTypeImpl;
-import com.elster.jupiter.metering.impl.ServiceCategoryImpl;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
@@ -18,7 +15,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import static com.elster.jupiter.ids.FieldType.*;
-import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
+import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 
 public class InstallerImpl {
 

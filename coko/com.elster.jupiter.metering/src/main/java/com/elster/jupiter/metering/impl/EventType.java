@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
-import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.TransactionRequired;
 
 public enum EventType {

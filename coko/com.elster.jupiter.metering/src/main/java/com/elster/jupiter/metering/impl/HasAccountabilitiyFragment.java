@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.sql.SqlFragment;
 

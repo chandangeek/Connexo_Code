@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.IntervalReading;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.Reading;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -22,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.elster.jupiter.metering.plumbing.Bus.COMPONENTNAME;
+import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 
 public class ChannelImpl implements Channel {
 	
@@ -88,19 +87,19 @@ public class ChannelImpl implements Channel {
 		return timeSeries;
 	}
 
-	void init(ReadingType[] readingTypes) {
-		this.mainReadingType = readingTypes[0];
+	void init(List<ReadingType> readingTypes) {
+		this.mainReadingType = readingTypes.get(0);
 		this.mainReadingTypeMRID = mainReadingType.getMRID();
 		int index = 1;
-		if (readingTypes.length > 1) {
-			if (mainReadingType.isCumulativeReadingType(readingTypes[index])) {
-				cumulativeReadingType = readingTypes[index++];
+		if (readingTypes.size() > 1) {
+			if (mainReadingType.isCumulativeReadingType(readingTypes.get(index))) {
+				cumulativeReadingType = readingTypes.get(index++);
 				cumulativeReadingTypeMRID = cumulativeReadingType.getMRID();
 			} 
 		}
 		this.additionalReadingTypes = new ArrayList<>();
-		for (; index < readingTypes.length ; index++) {
-			this.additionalReadingTypes.add(readingTypes[index]);
+		for (; index < readingTypes.size() ; index++) {
+			this.additionalReadingTypes.add(readingTypes.get(index));
 		}
 		this.timeSeries = createTimeSeries();
 		this.timeSeriesId = timeSeries.getId();

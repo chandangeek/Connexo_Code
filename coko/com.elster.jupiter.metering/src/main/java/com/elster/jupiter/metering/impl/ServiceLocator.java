@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.plumbing;
+package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -25,5 +25,7 @@ public interface ServiceLocator {
     UserService getUserService();
 
     EventService getEventService();
+
+    ChannelBuilder getChannelBuilder();
 }
 

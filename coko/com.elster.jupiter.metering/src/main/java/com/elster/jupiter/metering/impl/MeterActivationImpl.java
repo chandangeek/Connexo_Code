@@ -6,12 +6,12 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.plumbing.Bus;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class MeterActivationImpl implements MeterActivation {
 	private MeterActivationImpl() {	
 	}
 	
-	MeterActivationImpl(UsagePointImpl usagePoint , Date start , Meter meter) {
+	MeterActivationImpl(UsagePoint usagePoint , Date start , Meter meter) {
 		this.usagePointId = usagePoint == null ? 0 : usagePoint.getId();
 		this.usagePoint = usagePoint;
 		this.meterId = meter == null ? 0 : meter.getId();
@@ -47,7 +47,7 @@ public class MeterActivationImpl implements MeterActivation {
 		this.interval = Interval.startAt(start);
 	}
 	
-	public MeterActivationImpl(UsagePointImpl usagePoint, Date at) {
+	public MeterActivationImpl(UsagePoint usagePoint, Date at) {
 		this(usagePoint,at,null);
 	}
 
@@ -101,10 +101,10 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
-	public Channel createChannel(ReadingType ...readingTypes) {
-		ChannelImpl channel = new ChannelImpl(this);
-		channel.init(readingTypes);
-		return channel;
+	public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
+        return Bus.getChannelBuilder().meterActivation(this)
+                .readingTypes(main, readingTypes)
+        .build();
 	}
 
 	@Override
@@ -117,10 +117,19 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
-	public List<BaseReading> getReadings(Date from, Date to,ReadingType readingType) {
-		//TODO
-		return null;
-	}
+	public List<? extends BaseReading> getReadings(Date from, Date to,ReadingType readingType) {
+		Interval requested = new Interval(from, to);
+        if (!requested.overlaps(interval)) {
+            return Collections.emptyList();
+        }
+        Interval active = requested.intersection(interval);
+        for (Channel channel : getChannels()) {
+            if (channel.getReadingTypes().contains(readingType)) {
+                return channel.getIntervalReadings(readingType, active.getStart(), active.getEnd());
+            }
+        }
+        return Collections.emptyList();
+    }
 
 	@Override
 	public boolean isCurrent() {
@@ -130,5 +139,19 @@ public class MeterActivationImpl implements MeterActivation {
     @Override
     public long getVersion() {
         return version;
+    }
+
+    @Override
+    public void endAt(Date end) {
+        this.interval = interval.withEnd(end);
+        save();
+    }
+
+    public void save() {
+        if (id == 0) {
+            Bus.getOrmClient().getMeterActivationFactory().persist(this);
+        } else {
+            Bus.getOrmClient().getMeterActivationFactory().update(this);
+        }
     }
 }

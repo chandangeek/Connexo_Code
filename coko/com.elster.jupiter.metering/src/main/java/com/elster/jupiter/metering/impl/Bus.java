@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.plumbing;
+package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -49,5 +49,9 @@ public enum Bus {
 
     public static EventService getEventService() {
         return locator.getEventService();
+    }
+
+    public static ChannelBuilder getChannelBuilder() {
+        return locator.getChannelBuilder();
     }
 }

@@ -7,8 +7,6 @@ import com.elster.jupiter.cbo.StreetDetail;
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.cbo.TownDetail;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.plumbing.Bus;
-import com.elster.jupiter.metering.plumbing.ServiceLocator;
 import com.elster.jupiter.util.geo.Position;
 import org.junit.After;
 import org.junit.Before;
