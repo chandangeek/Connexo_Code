@@ -17,6 +17,8 @@ import java.util.Map;
  */
 public abstract class AbstractMessageConverter implements LegacyMessageConverter {
 
+    protected static final String EMPTY_FORMAT = "";
+
     private Messaging messagingProtocol;
 
     /**

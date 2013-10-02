@@ -119,7 +119,10 @@ public class CodeTableXmlParsing {
      * @throws javax.xml.parsers.ParserConfigurationException if a DocumentBuilder cannot be created which satisfies the configuration requested.
      */
     public static String parseActivityCalendarAndSpecialDayTable(int id, long activationTime, String name) throws ParserConfigurationException {
-        Code codeTable = getCode(id);
+        return parseActivityCalendarAndSpecialDayTable(getCode(id), activationTime, name);
+    }
+
+    public static String parseActivityCalendarAndSpecialDayTable(Code codeTable, long activationTime, String name) throws ParserConfigurationException {
 
         CodeTableParser ctp = new CodeTableParser(codeTable);
         try {

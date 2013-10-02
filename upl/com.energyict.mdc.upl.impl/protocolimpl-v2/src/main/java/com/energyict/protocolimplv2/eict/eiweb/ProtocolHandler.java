@@ -1,17 +1,10 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.LittleEndianInputStream;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.comserver.time.Clocks;
-import com.energyict.mdc.meterdata.CollectedConfigurationInformation;
-import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.DefaultDeviceRegister;
-import com.energyict.mdc.meterdata.DeviceLogBook;
-import com.energyict.mdc.meterdata.DeviceUserFileConfigurationInformation;
+import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierByDeviceAndObisCodeImpl;
 import com.energyict.mdc.meterdata.identifiers.PrimeRegisterForChannelIdentifier;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
@@ -20,23 +13,15 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdc.protocol.inbound.crypto.Cryptographer;
 import com.energyict.mdw.core.LogBookTypeFactory;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.*;
+import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class ProtocolHandler {
@@ -50,6 +35,7 @@ public class ProtocolHandler {
     private List<CollectedRegister> registerData = new ArrayList<>();
     private CollectedConfigurationInformation configurationInformation;
     private DeviceLogBook deviceLogBook;
+    private LegacyMessageConverter messageConverter = null;
 
     public ProtocolHandler(ResponseWriter responseWriter, InboundDAO inboundDAO, Cryptographer cryptographer) {
         super();
@@ -114,7 +100,7 @@ public class ProtocolHandler {
             collectedData.add(this.configurationInformation);
         }
         CollectedData logBookEvents = getLogBookEvents();
-        if(logBookEvents != null){
+        if (logBookEvents != null) {
             collectedData.add(logBookEvents);
         }
         return collectedData;
@@ -122,9 +108,9 @@ public class ProtocolHandler {
 
     private CollectedData getLogBookEvents() {
         DeviceLogBook deviceLogBook = this.getDeviceLogBook();
-        if(deviceLogBook != null){
+        if (deviceLogBook != null) {
             List<MeterEvent> meterEvents = this.profileBuilder.getProfileData().getMeterEvents();
-            if(meterEvents != null && !meterEvents.isEmpty()){
+            if (meterEvents != null && !meterEvents.isEmpty()) {
                 List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
                 for (MeterEvent meterEvent : meterEvents) {
                     meterProtocolEvents.add(createMeterEvent(meterEvent.getTime(), meterEvent.getProtocolCode(), meterEvent.getMessage(), meterEvent.getEiCode()));
@@ -215,7 +201,7 @@ public class ProtocolHandler {
     }
 
     private MeterProtocolEvent createMeterEvent(Date date, int status, String message, int meterEvent) {
-        return new MeterProtocolEvent(date, meterEvent, meterEvent, EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(meterEvent) ,message, 0, status);
+        return new MeterProtocolEvent(date, meterEvent, meterEvent, EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(meterEvent), message, 0, status);
     }
 
     private Date sevenDaysFromNow() {
@@ -227,8 +213,15 @@ public class ProtocolHandler {
 
     private void sendMessages(List<OfflineDeviceMessage> pendingMessages) {
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
-            this.responseWriter.add(pendingMessage);
+            this.responseWriter.add(getMessageConverter().toMessageEntry(pendingMessage).getContent());
         }
+    }
+
+    private LegacyMessageConverter getMessageConverter() {
+        if (messageConverter == null) {
+            messageConverter = new EIWebMessageConverter();
+        }
+        return messageConverter;
     }
 
     private void processBinary(HttpServletRequest request) {

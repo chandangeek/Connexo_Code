@@ -116,6 +116,132 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         }
     },
     /**
+     * This category summarizes all messages related to setting the meter time
+     */
+    CLOCK {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(ClockDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring a peak shaver
+     */
+    PEAK_SHAVER_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(PeakShaverConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to setting the mail configuration
+     */
+    MAIL_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(MailConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring the EIWeb parameters
+     */
+    EIWEB_PARAMETERS {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(EIWebConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring PPP parameters
+     */
+    PPP_PARAMETERS {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(PPPConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring events
+     */
+    EVENT_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(EventsConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring a modem
+     */
+    MODEM_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(ModemConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring SMS
+     */
+    SMS_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(SMSConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring ModBus (e.g. on the RTU+Server)
+     */
+    MODBUS_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(ModbusConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring MBus (e.g. on the RTU+Server)
+     */
+    MBUS_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(MBusConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring Opus in the RTU+Server
+     */
+    OPUS_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(OpusConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring DLMS (e.g. via EIWeb, on the RTU+Server)
+     */
+    DLMS_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(DLMSConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring channels
+     */
+    CHANNEL_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(ChannelConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring the totalizers
+     */
+    TOTALIZER_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(TotalizersConfigurationDeviceMessage.values());
+        }
+    },
+    /**
      * This category summarizes all messages related to a configuration changes
      */
     CONFIGURATION_CHANGE {

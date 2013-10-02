@@ -1,17 +1,15 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 /**
-* Writes responses back to the eiweb device.
-*
-* @author Rudi Vankeirsbilck (rudi)
-* @since 2012-10-17 (11:20)
-*/
+ * Writes responses back to the eiweb device.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2012-10-17 (11:20)
+ */
 public class ResponseWriter {
 
     private static final int SUCCESS_VALUE_INDICATOR = 0;
@@ -19,40 +17,39 @@ public class ResponseWriter {
 
     private PrintWriter writer;
 
-    public ResponseWriter (HttpServletResponse response) throws IOException {
+    public ResponseWriter(HttpServletResponse response) throws IOException {
         this(new PrintWriter(response.getOutputStream()));
     }
 
-    private ResponseWriter (PrintWriter writer) {
+    private ResponseWriter(PrintWriter writer) {
         super();
         this.writer = writer;
     }
 
-    public void success () {
+    public void success() {
         this.writeClockSyncAndResult(SUCCESS_VALUE_INDICATOR);
     }
 
-    public void failure () {
+    public void failure() {
         this.writeClockSyncAndResult(FAILURE_VALUE_INDICATOR);
     }
 
-    public void add (OfflineDeviceMessage message) {
-        // TODO Complete
-//        this.writer.println(message.getContents());
+    public void add(String messageContent) {
+        this.writer.println(messageContent);
     }
 
-    private void writeClockSyncAndResult (int value) {
+    private void writeClockSyncAndResult(int value) {
         this.writeClockSync();
         this.writeResult(value);
         this.writer.flush();
     }
 
-    private void writeClockSync () {
+    private void writeClockSync() {
         long utc = (System.currentTimeMillis() / 1000L) - EIWebConstants.SECONDS10YEARS;
         this.writer.println("<CLOCKUTC>" + utc + "</CLOCKUTC>");
     }
 
-    private void writeResult (int value) {
+    private void writeResult(int value) {
         this.writer.println("<RESULT>" + value + "</RESULT>");
     }
 

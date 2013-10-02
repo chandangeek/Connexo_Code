@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,7 +21,42 @@ import java.util.List;
 public enum DeviceActionMessage implements DeviceMessageSpec {
 
     BILLING_RESET,
-    GLOBAL_METER_RESET;
+    GLOBAL_METER_RESET,
+    DEMAND_RESET,
+    POWER_OUTAGE_RESET,
+    POWER_QUALITY_RESET,
+    ERROR_STATUS_RESET,
+    REGISTERS_RESET,
+    LOAD_LOG_RESET,
+    EVENT_LOG_RESET,
+    SetFTIONReboot(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONReboot)),
+    SetFTIONInitialize(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONInitialize)),
+    SetFTIONMailLog(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONMailLog)),
+    SetFTIONSaveConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONSaveConfig)),
+    SetFTIONUpgrade(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONUpgrade)),
+    SetFTIONClearMem(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONClearMem)),
+    SetFTIONMailConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONMailConfig)),
+    SetFTIONModemReset(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONModemReset)),
+    SetChangeAdminPassword(
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AdminOld),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AdminNew)
+    ),
+    SetOutputOn(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOn)),
+    SetOutputOff(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputOff)),
+    SetOutputToggle(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputToggle)),
+    SetOutputPulse(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.OutputPulse)),
+    SetAnalogOut(
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getPossibleValues()),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.AnalogOutValue)
+    );
+
+    private static BigDecimal[] getPossibleValues() {
+        BigDecimal[] result = new BigDecimal[16];
+        for (int index = 17; index <= 32; index++) {
+            result[index - 17] = BigDecimal.valueOf(index);
+        }
+        return result;
+    }
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.DEVICE_ACTIONS;
 

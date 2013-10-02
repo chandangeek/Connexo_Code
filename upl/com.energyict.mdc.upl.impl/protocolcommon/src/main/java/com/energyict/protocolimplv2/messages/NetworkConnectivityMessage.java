@@ -36,8 +36,19 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ipAddressAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.portNumberAttributeName)),
     CHANGE_WAKEUP_FREQUENCY(
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.wakeupPeriodAttributeName, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
-    );
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.wakeupPeriodAttributeName, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9")),
+
+    //EIWeb messages
+    SetProxyServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyServerAttributeName)),
+    SetProxyUsername(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyUsernameAttributeName)),
+    SetProxyPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetProxyPasswordAttributeName)),
+    SetDHCP(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDHCPAttributeName)),
+    SetDHCPTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDHCPTimeoutAttributeName)),
+    SetIPAddress(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetIPAddressAttributeName)),
+    SetSubnetMask(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSubnetMaskAttributeName)),
+    SetGateway(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetGatewayAttributeName)),
+    SetNameServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNameServerAttributeName)),
+    SetHttpPort(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetHttpPortAttributeName));
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 

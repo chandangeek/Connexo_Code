@@ -1,21 +1,15 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
-import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -26,14 +20,13 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Date: 8/03/13
  * Time: 16:26
  */
-public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
+public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
-    private final SimpleDateFormat dateFormatWithoutTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     /**
-     * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link MessageEntryCreator}
+     * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
+     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
 
@@ -61,6 +54,9 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
         registry.put(SecurityMessage.CHANGE_AUTHENTICATION_KEY, new ChangeNTADataTransportAuthenticationKeyMessageEntry());
         registry.put(SecurityMessage.CHANGE_PASSWORD, new ChangeHLSSecretMessageEntry());
 
+        // clock related
+        registry.put(ClockDeviceMessage.SET_TIME, new SetTimeMessageEntry(meterTimeAttributeName));
+
         // network and connectivity
         registry.put(NetworkConnectivityMessage.ACTIVATE_SMS_WAKEUP, new ActivateNTASmsWakeUpMessageEntry());
         registry.put(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP, new DeactivateNTASmsWakeUpMessageEntry());
@@ -68,33 +64,18 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
         registry.put(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS, new ApnCredentialsMessageEntry(apnAttributeName, usernameAttributeName, passwordAttributeName));
         registry.put(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST, new AddPhoneNumbersToWhiteList(whiteListPhoneNumbersAttributeName));
 
-        // display P1
-        registry.put(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1, new ConsumerMessageCodeToPortP1(p1InformationAttributeName));
-        registry.put(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1, new ConsumerMessageTextToPortP1(p1InformationAttributeName));
-
         // Device Actions
         registry.put(DeviceActionMessage.GLOBAL_METER_RESET, new GlobalMeterReset());
-
-        // Load balance
-        registry.put(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS, new ConfigureLoadLimitParameters(normalThresholdAttributeName, emergencyThresholdAttributeName, overThresholdDurationAttributeName, emergencyProfileIdAttributeName, emergencyProfileActivationDateAttributeName, emergencyProfileDurationAttributeName));
-        registry.put(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS, new SetEmergencyProfileGroupIds(emergencyProfileIdLookupAttributeName));
-        registry.put(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION, new ClearLoadLimitConfigurations());
 
         // Advanced test
         registry.put(AdvancedTestMessage.XML_CONFIG, new XmlConfigMessageEntry(xmlConfigAttributeName));
 
-        // LoadProfiles
-        registry.put(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
-        registry.put(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
-
-        // clock related
-        registry.put(ClockDeviceMessage.SET_TIME, new SetTimeMessageEntry(meterTimeAttributeName));
     }
 
     /**
      * Default constructor for at-runtime instantiation
      */
-    public SmartWebRtuKpMessageConverter() {
+    public WebRTUZ3MessageConverter() {
         super();
     }
 
@@ -105,16 +86,11 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(usernameAttributeName)
                 || propertySpec.getName().equals(apnAttributeName)
                 || propertySpec.getName().equals(whiteListPhoneNumbersAttributeName)
-                || propertySpec.getName().equals(p1InformationAttributeName)
-                || propertySpec.getName().equals(normalThresholdAttributeName)
-                || propertySpec.getName().equals(xmlConfigAttributeName)
-                || propertySpec.getName().equals(emergencyThresholdAttributeName)
-                || propertySpec.getName().equals(emergencyProfileIdAttributeName)) {
+                || propertySpec.getName().equals(xmlConfigAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)
                 || propertySpec.getName().equals(firmwareUpdateActivationDateAttributeName)
-                || propertySpec.getName().equals(activityCalendarActivationDateAttributeName)
-                || propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
+                || propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return String.valueOf(((UserFile) messageAttribute).getId());
@@ -126,18 +102,8 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(passwordAttributeName)) {
             return ((Password) messageAttribute).getValue();
-        } else if (propertySpec.getName().equals(emergencyProfileIdLookupAttributeName)) {
-            return String.valueOf(((Lookup) messageAttribute).getId());
-        } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
-                || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {
-            return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
-        } else if (propertySpec.getName().equals(loadProfileAttributeName)) {
-            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
-        } else if (propertySpec.getName().equals(fromDateAttributeName)
-                || propertySpec.getName().equals(toDateAttributeName)) {
-            return dateFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
-            return dateFormatWithoutTimeZone.format((Date) messageAttribute);
+            return dateFormat.format((Date) messageAttribute);
         }
         return EMPTY_FORMAT;
     }

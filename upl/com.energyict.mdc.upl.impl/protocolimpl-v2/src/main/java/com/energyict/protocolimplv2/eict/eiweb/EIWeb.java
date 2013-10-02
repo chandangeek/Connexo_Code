@@ -5,38 +5,26 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdw.offline.OfflineDevice;
-import com.energyict.mdw.offline.OfflineDeviceMessage;
-import com.energyict.mdw.offline.OfflineRegister;
+import com.energyict.mdw.offline.*;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
+import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Basic implementation of the EIWeb DeviceProtocol.
  * The basic implementation will not do much, mainly serve as a placeholder so the DeviceType can be created
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 9/10/13
  * Time: 12:02 PM
@@ -46,6 +34,7 @@ public class EIWeb implements DeviceProtocol {
     private OfflineDevice offlineDevice;
     private SimplePasswordSecuritySupport securitySupport = new SimplePasswordSecuritySupport();
     private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
+    private LegacyMessageConverter messageConverter;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -100,7 +89,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public String getSerialNumber() {
-        return this.offlineDevice != null?this.offlineDevice.getSerialNumber():"";
+        return this.offlineDevice != null ? this.offlineDevice.getSerialNumber() : "";
     }
 
     @Override
@@ -140,22 +129,29 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
-        return Collections.emptyList();
+        return getMessageConverter().getSupportedMessages();
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return null;
+        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return null;
+        return MdcManager.getCollectedDataFactory().createEmptyCollectedMessageList();     //Messages are executed in ProtocolHandler, not here
     }
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return "";
+        return messageAttribute.toString();
+    }
+
+    private LegacyMessageConverter getMessageConverter() {
+        if (messageConverter == null) {
+            messageConverter = new EIWebMessageConverter();
+        }
+        return messageConverter;
     }
 
     @Override

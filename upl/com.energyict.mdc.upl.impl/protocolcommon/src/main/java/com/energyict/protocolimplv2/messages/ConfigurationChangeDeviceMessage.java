@@ -3,9 +3,7 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.DeviceMessageCategory;
-import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.mdc.messages.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,10 +16,21 @@ import java.util.List;
  */
 public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
+    IEC1107LimitPowerQuality(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.powerQualityThresholdAttributeName)),
     WriteExchangeStatus(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
     WriteRadioAcknowledge(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge)),
     WriteRadioUserTimeout(PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
     EnableOrDisableDST(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
+    SetEndOfDST(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
+    SetStartOfDST(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
     WriteNewPDRNumber(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.newPDRAttributeName)),
     ConfigureConverterMasterData(
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.converterTypeAttributeName, "VOL1", "VOL2", "VEN1", "VEN2"),
@@ -38,7 +47,21 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.carbonDioxideAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.molecularHydrogenAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName)),
-    ;
+
+    //EIWeb general messages
+    SetDescription(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDescriptionAttributeName)),
+    SetIntervalInSeconds(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetIntervalInSecondsAttributeName)),
+    SetUpgradeUrl(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeUrlAttributeName)),
+    SetUpgradeOptions(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUpgradeOptionsAttributeName)),
+    SetDebounceTreshold(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDebounceTresholdAttributeName)),
+    SetTariffMoment(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTariffMomentAttributeName)),
+    SetCommOffset(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetCommOffsetAttributeName)),
+    SetAggIntv(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAggIntvAttributeName)),
+    SetPulseTimeTrue(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetPulseTimeTrueAttributeName)),
+
+    SetDukePowerID(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIDAttributeName)),
+    SetDukePowerPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerPasswordAttributeName)),
+    SetDukePowerIdleTime(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIdleTimeAttributeName));
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
