@@ -1,5 +1,7 @@
 package com.elster.jupiter.util.time;
 
+import com.google.common.collect.Ordering;
+
 import java.util.Date;
 
 /**
@@ -130,5 +132,34 @@ public final class Interval {
      */
     public Interval withStart(Date date) {
         return new Interval(getStartValue(date), end);
+    }
+
+    public Interval intersection(Interval interval) {
+        if (!overlaps(interval)) {
+            return new Interval(start, start);
+        }
+        return new Interval(Ordering.natural().max(start, interval.getStart().getTime()), Ordering.natural().min(end, interval.getEnd().getTime()));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Interval interval = (Interval) o;
+
+        return end == interval.end && start == interval.start;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (start ^ (start >>> 32));
+        result = 31 * result + (int) (end ^ (end >>> 32));
+        return result;
     }
 }

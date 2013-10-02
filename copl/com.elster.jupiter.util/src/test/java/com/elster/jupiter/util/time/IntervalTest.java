@@ -1,5 +1,6 @@
 package com.elster.jupiter.util.time;
 
+import com.elster.jupiter.tasks.impl.test.util.EqualsContractTest;
 import org.fest.assertions.api.BooleanAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +13,7 @@ import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class IntervalTest {
+public class IntervalTest extends EqualsContractTest {
     private final Date date1 = new Date(1000);
     private final Date date2 = new Date(2000);
     private final Date date3 = new Date(3000);
@@ -26,6 +27,8 @@ public class IntervalTest {
 
     @Mock
     private Clock clock;
+
+
 
     @Test
     public void testStartsBeforeEndsAtStart() {
@@ -198,6 +201,67 @@ public class IntervalTest {
         when(clock.now()).thenReturn(date3);
 
         assertThat(Interval.startAt(date4).isCurrent(clock)).isFalse();
+    }
+
+    @Test
+    public void testInterSectionForNonOverlappingIsEmpty() {
+        Interval intersection = new Interval(date1, date2).intersection(new Interval(date3, date4));
+        assertThat(intersection.getStart()).isEqualTo(intersection.getEnd());
+    }
+
+    @Test
+    public void testInterSectionForAbuttingIsEmpty() {
+        Interval intersection = new Interval(date1, date2).intersection(new Interval(date2, date3));
+        assertThat(intersection.getStart()).isEqualTo(intersection.getEnd());
+    }
+
+    @Test
+    public void testInterSectionForOverlappingStart() {
+        Interval intersection = new Interval(date4, date7).intersection(new Interval(date2, date6));
+        assertThat(intersection).isEqualTo(new Interval(date4, date6));
+    }
+
+    @Test
+    public void testInterSectionForOverlappingEnd() {
+        Interval intersection = new Interval(date4, date7).intersection(new Interval(date5, date8));
+        assertThat(intersection).isEqualTo(new Interval(date5, date7));
+    }
+
+    @Test
+    public void testInterSectionForInner() {
+        Interval intersection = new Interval(date4, date7).intersection(new Interval(date5, date6));
+        assertThat(intersection).isEqualTo(new Interval(date5, date6));
+    }
+
+    @Test
+    public void testInterSectionForOuter() {
+        Interval intersection = new Interval(date5, date6).intersection(new Interval(date4, date7));
+        assertThat(intersection).isEqualTo(new Interval(date5, date6));
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        return interval;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        return new Interval(date3, date6);
+    }
+
+    @Override
+    protected Object getInstanceNotEqualToA() {
+        return new Interval(date2, date5);
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
     }
 
     private BooleanAssert assertCommutative(Interval other) {
