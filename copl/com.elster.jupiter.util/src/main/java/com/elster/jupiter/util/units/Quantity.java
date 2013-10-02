@@ -3,6 +3,7 @@ package com.elster.jupiter.util.units;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(QuantityAdapter.class)
@@ -22,9 +23,9 @@ public final class Quantity {
 		multiplier = 0;
 	}
 	
-	Quantity(Unit unit, BigDecimal value , int multiplier) {
-		this.unit = unit;
-		this.value = value;
+	Quantity(Unit unit, BigDecimal value , int multiplier) {		
+		this.unit = Objects.requireNonNull(unit,"unit cannot be null");
+		this.value = Objects.requireNonNull(value,"value cannot be null");
 		this.multiplier = multiplier;
 	}
 
