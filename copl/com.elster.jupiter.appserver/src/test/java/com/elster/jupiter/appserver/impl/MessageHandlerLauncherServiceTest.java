@@ -1,5 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
+import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.Message;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.osgi.service.component.ComponentContext;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -59,6 +61,10 @@ public class MessageHandlerLauncherServiceTest {
     private TransactionService transactionService;
     @Mock
     private MessageHandler handler;
+    @Mock
+    private ComponentContext context;
+    @Mock
+    private AppServer appServer;
 
     @Before
     public void setUp() {
@@ -111,6 +117,7 @@ public class MessageHandlerLauncherServiceTest {
     public void testAddResourceStartReceivingMessages() throws InterruptedException {
         final CountDownLatch arrivalLatch = new CountDownLatch(1);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -123,6 +130,7 @@ public class MessageHandlerLauncherServiceTest {
         map.put("subscriber", SUBSCRIBER);
 
         try {
+            messageHandlerLauncherService.activate(context);
             messageHandlerLauncherService.addResource(factory, map);
 
             arrivalLatch.await();
@@ -138,6 +146,7 @@ public class MessageHandlerLauncherServiceTest {
         final CountDownLatch arrivalLatch = new CountDownLatch(1);
         final CountDownLatch waitForCancel = new CountDownLatch(1);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         doAnswer(new Answer<Void>() {
             @Override
             public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -151,6 +160,7 @@ public class MessageHandlerLauncherServiceTest {
         map.put("subscriber", SUBSCRIBER);
 
         try {
+            messageHandlerLauncherService.activate(context);
             messageHandlerLauncherService.addResource(factory, map);
 
             arrivalLatch.await();

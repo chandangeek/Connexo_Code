@@ -1,5 +1,6 @@
 package com.elster.jupiter.appserver.impl;
 
+import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -12,12 +13,15 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 @Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", immediate = true)
 public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
+    private volatile ThreadGroup threadGroup;
+    private volatile ThreadFactory threadFactory;
 
     private Map<MessageHandlerFactory, ExecutorService> executors = new ConcurrentHashMap<>();
     private Map<ExecutorService, List<Future<?>>> futures = new ConcurrentHashMap<>();
@@ -35,9 +39,13 @@ public class MessageHandlerLauncherService {
     public void setAppService(AppService appService) {
         this.appService = appService;
     }
-    
+
     @Activate
     public void activate() {
+        Optional<AppServer> appServer = appService.getAppServer();
+        String name = appServer.isPresent() ? appServer.get().getName() : "Anonymous Application Server";
+        threadGroup = new ThreadGroup(MessageHandlerLauncherService.class.getSimpleName());
+        threadFactory = new AppServerThreadFactory(threadGroup, name, new LoggingUncaughtExceptionHandler());
     }
 
     @Deactivate
@@ -92,7 +100,7 @@ public class MessageHandlerLauncherService {
     }
 
     private ExecutorService newExecutorService(int threadCount) {
-        return new CancellableTaskExecutorService(threadCount);
+        return new CancellableTaskExecutorService(threadCount, threadFactory);
     }
 
     private MessageHandlerTask newMessageHandlerTask(MessageHandlerFactory factory, SubscriberSpec subscriberSpec) {

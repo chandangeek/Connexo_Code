@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,6 +72,8 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private volatile FileImportService fileImportService;
     private volatile TaskService taskService;
     private volatile UserService userService;
+    private volatile ThreadFactory threadFactory;
+    private volatile ThreadGroup threadGroup;
 
     private AppServerImpl appServer;
     private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -112,6 +115,9 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         appServer = (AppServerImpl) foundAppServer.get();
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
 
+        threadGroup = new ThreadGroup("AppServer message listeners");
+        threadFactory = new AppServerThreadFactory(threadGroup, appServerName, new LoggingUncaughtExceptionHandler());
+
         launchFileImports();
         launchTaskService();
         listenForMessagesToAppServer();
@@ -142,7 +148,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         Optional<SubscriberSpec> subscriberSpec = getMessageService().getSubscriberSpec(ALL_SERVERS, messagingName());
         if (subscriberSpec.isPresent()) {
             allServerSubscriberSpec = subscriberSpec.get();
-            final ExecutorService executorService = new CancellableTaskExecutorService(1);
+            final ExecutorService executorService = new CancellableTaskExecutorService(1, threadFactory);
             final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler()));
             deactivateTasks.add(new Runnable() {
                 @Override
@@ -158,7 +164,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         Optional<SubscriberSpec> subscriberSpec = getMessageService().getSubscriberSpec(messagingName(), messagingName());
         if (subscriberSpec.isPresent()) {
             SubscriberSpec appServerSubscriberSpec = subscriberSpec.get();
-            final ExecutorService executorService = new CancellableTaskExecutorService(1);
+            final ExecutorService executorService = new CancellableTaskExecutorService(1, threadFactory);
             final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler()));
             deactivateTasks.add(new Runnable() {
                 @Override

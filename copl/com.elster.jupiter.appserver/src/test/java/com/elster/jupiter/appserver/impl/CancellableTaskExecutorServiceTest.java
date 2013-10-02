@@ -3,6 +3,7 @@ package com.elster.jupiter.appserver.impl;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -16,7 +17,7 @@ public class CancellableTaskExecutorServiceTest {
     public void testShutDownCancelsRunningTaskByCallingCustomCancel() throws InterruptedException {
         CountDownLatch arrival = new CountDownLatch(1);
 
-        CancellableTaskExecutorService service = new CancellableTaskExecutorService(1);
+        CancellableTaskExecutorService service = new CancellableTaskExecutorService(1, Executors.defaultThreadFactory());
 
         ProvidesCancellableFutureForTest task = new ProvidesCancellableFutureForTest(arrival);
 
@@ -36,7 +37,7 @@ public class CancellableTaskExecutorServiceTest {
     public void testShutDownCancelsNormalRunnableNormally() throws InterruptedException {
         final CountDownLatch arrival = new CountDownLatch(1);
 
-        CancellableTaskExecutorService service = new CancellableTaskExecutorService(1);
+        CancellableTaskExecutorService service = new CancellableTaskExecutorService(1, Executors.defaultThreadFactory());
 
         Runnable task = new Runnable() {
             private CountDownLatch waitLatch = new CountDownLatch(1);
