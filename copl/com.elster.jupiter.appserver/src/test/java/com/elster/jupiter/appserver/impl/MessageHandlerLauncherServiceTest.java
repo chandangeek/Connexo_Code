@@ -130,7 +130,7 @@ public class MessageHandlerLauncherServiceTest {
         map.put("subscriber", SUBSCRIBER);
 
         try {
-            messageHandlerLauncherService.activate(context);
+            messageHandlerLauncherService.activate();
             messageHandlerLauncherService.addResource(factory, map);
 
             arrivalLatch.await();
@@ -160,7 +160,7 @@ public class MessageHandlerLauncherServiceTest {
         map.put("subscriber", SUBSCRIBER);
 
         try {
-            messageHandlerLauncherService.activate(context);
+            messageHandlerLauncherService.activate();
             messageHandlerLauncherService.addResource(factory, map);
 
             arrivalLatch.await();
