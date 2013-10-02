@@ -68,7 +68,9 @@ public class UsagePointImpl implements UsagePoint {
 		this.serviceKind = serviceCategory.getKind();
 		this.serviceCategory = serviceCategory;
 		this.isSdp = true;
-		
+		this.amiBillingReady = AmiBillingReadyKind.UNKNOWN;
+		this.connectionState = UsagePointConnectedKind.UNKNOWN;
+		this.phaseCode = PhaseCode.UNKNOWN;
 	}
 	
 	@Override

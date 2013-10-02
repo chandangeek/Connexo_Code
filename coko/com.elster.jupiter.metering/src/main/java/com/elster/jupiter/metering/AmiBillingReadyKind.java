@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 public enum AmiBillingReadyKind {
+	UNKNOWN("unknown"),
 	ENABLED ("enabled"),
 	OPERABLE ("operable"),
 	BILLINGAPPROVED ("billingApproved"),

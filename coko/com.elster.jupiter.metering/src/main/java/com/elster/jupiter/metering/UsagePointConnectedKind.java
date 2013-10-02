@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 public enum UsagePointConnectedKind {
+	UNKNOWN("Unknown"),
 	CONNECTED ("connected"),
 	PHYSICALLYDISCONNECTED ("physically disconnected"),
 	LOGICALLYDISCONNECTED ("logically disconnected");
