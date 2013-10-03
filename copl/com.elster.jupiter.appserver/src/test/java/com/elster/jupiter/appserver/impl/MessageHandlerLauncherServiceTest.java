@@ -37,6 +37,7 @@ public class MessageHandlerLauncherServiceTest {
 
     private static final String SUBSCRIBER = "Subscriber";
     private static final String BATCH_EXECUTOR = "batch executor";
+    private static final String NAME = "name";
     private MessageHandlerLauncherService messageHandlerLauncherService;
 
     @Mock
@@ -76,8 +77,10 @@ public class MessageHandlerLauncherServiceTest {
         when(serviceLocator.getThreadPrincipalService()).thenReturn(threadPrincipalService);
         when(serviceLocator.getUserService()).thenReturn(userService);
         when(serviceLocator.getTransactionService()).thenReturn(transactionService);
+        when(serviceLocator.getAppServer()).thenReturn(Optional.of(appServer));
         when(userService.findUser(BATCH_EXECUTOR)).thenReturn(Optional.of(user));
         when(factory.newMessageHandler()).thenReturn(handler);
+        when(appServer.getName()).thenReturn(NAME);
 
         initFakeTransactionService();
 
