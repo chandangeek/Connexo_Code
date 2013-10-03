@@ -1,6 +1,9 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Unit;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
@@ -19,6 +22,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -116,6 +120,11 @@ public class LoadProfileBuilder {
                 if (!channelInfoMap.containsKey(lpr)) {
                     channelInfoMap.put(lpr, channelInfos);
                 }
+            } catch (NestedIOException e) {
+                if (ProtocolTools.getRootCause(e) instanceof ConnectionException || ProtocolTools.getRootCause(e) instanceof DLMSConnectionException) {
+                    throw e;    // In case of a connection exception (of which we cannot recover), do throw the error.
+                }
+                lpc.setSupportedByMeter(false);
             } catch (IOException e) {
                 lpc.setSupportedByMeter(false);
             } catch (NullPointerException e) {

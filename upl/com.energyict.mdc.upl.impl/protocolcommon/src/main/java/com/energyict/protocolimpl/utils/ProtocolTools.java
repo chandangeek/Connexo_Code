@@ -1,18 +1,46 @@
 package com.energyict.protocolimpl.utils;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.cpo.Environment;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.CommunicationProtocol;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -1325,5 +1353,17 @@ public final class ProtocolTools {
         return null;
     }
 
-
+    /**
+     * Get the root cause of a {@link com.energyict.cbo.NestedIOException}
+     *
+     * @param e the NestedIOException, for which the root cause should be extracted
+     * @return the {@link Throwable}, which is the root cause
+     */
+    public static Throwable getRootCause(NestedIOException e) {
+        Throwable cause = e.getCause();
+        while (cause instanceof NestedIOException) {
+            cause = cause.getCause();
+        }
+        return cause;
+    }
 }

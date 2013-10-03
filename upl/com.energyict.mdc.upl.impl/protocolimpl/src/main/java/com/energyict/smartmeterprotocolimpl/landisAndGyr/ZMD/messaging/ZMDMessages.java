@@ -2,15 +2,25 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
 import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocol.messaging.TimeOfUseMessaging;
+import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
 import com.energyict.protocolimpl.messages.ProtocolMessages;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD;
 import org.xml.sax.SAXException;
 
@@ -87,6 +97,11 @@ public class ZMDMessages extends ProtocolMessages implements TimeOfUseMessaging{
                 infoLog("Unknown message received.");
                 return MessageResult.createUnknown(messageEntry);
             }
+        } catch (NestedIOException e) {
+            if (ProtocolTools.getRootCause(e) instanceof ConnectionException || ProtocolTools.getRootCause(e) instanceof DLMSConnectionException) {
+                throw e;   // In case of a connection exception (of which we cannot recover), do throw the error.
+            }
+            infoLog("Message failed : " + e.getMessage());
         } catch (IOException e) {
             infoLog("Message failed : " + e.getMessage());
         } catch (SAXException e) {

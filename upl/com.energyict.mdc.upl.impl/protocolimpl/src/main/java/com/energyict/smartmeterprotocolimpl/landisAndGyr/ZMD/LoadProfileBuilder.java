@@ -1,19 +1,32 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Unit;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -76,6 +89,11 @@ public class LoadProfileBuilder {
                 if (! channelInfoMap.containsKey(lpr)){
                     channelInfoMap.put(lpr, channelInfos);
                 }
+            } catch (NestedIOException e) {
+                if (ProtocolTools.getRootCause(e) instanceof ConnectionException || ProtocolTools.getRootCause(e) instanceof DLMSConnectionException) {
+                    throw e;    // In case of a connection exception (of which we cannot recover), do throw the error.
+                }
+                lpc.setSupportedByMeter(false);
             } catch (IOException e) {
                 lpc.setSupportedByMeter(false);
             } catch (NullPointerException e) {

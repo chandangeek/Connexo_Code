@@ -1,8 +1,11 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
-import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +25,7 @@ public class RegisterReader {
         this.meterProtocol = meterProtocol;
     }
 
-    public List<RegisterValue> readRegisters(List<Register> registers) {
+    public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         List<RegisterValue> registerValues = new ArrayList<RegisterValue>();
 
         // Loop over all registers to determine the highest billingPoint & request billingPointDateTime for highest point
@@ -46,7 +49,10 @@ public class RegisterReader {
         for (Register register : registers) {
             try {
                 registerValues.add(getObisCodeMapper().getRegisterValue(register));
-            } catch (NoSuchRegisterException e) {
+            } catch (NestedIOException e) {
+                if (ProtocolTools.getRootCause(e) instanceof ConnectionException || ProtocolTools.getRootCause(e) instanceof DLMSConnectionException) {
+                    throw e;    // In case of a connection exception (of which we cannot recover), do throw the error.
+                }
                 meterProtocol.getLogger().log(Level.SEVERE, "Problems while reading register " + register.getObisCode().toString() + (e.getMessage() != null ? (": " + e.getMessage()) : ""));
             } catch (IOException e) {
                 meterProtocol.getLogger().log(Level.SEVERE, "Problems while reading register " + register.getObisCode().toString() + (e.getMessage() != null ? (": " + e.getMessage()) : ""));
