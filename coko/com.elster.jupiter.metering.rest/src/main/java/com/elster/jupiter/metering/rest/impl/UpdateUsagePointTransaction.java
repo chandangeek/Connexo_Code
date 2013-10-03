@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.User;
 import com.google.common.base.Optional;
@@ -77,8 +78,8 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
 
     private boolean isOwn(UsagePoint usagePoint) {
         for (UsagePointAccountability accountability : usagePoint.getAccountabilities()) {
-            for (User user : accountability.getParty().getCurrentDelegates()) {
-                if (user.equals(principal)) {
+            for (PartyRepresentation representation : accountability.getParty().getCurrentDelegates()) {
+                if (representation.getDelegate().equals(principal)) {
                     return true;
                 }
             }
