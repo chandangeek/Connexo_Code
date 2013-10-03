@@ -3,6 +3,7 @@ package com.elster.jupiter.parties.rest.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
+import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.google.common.base.Optional;
@@ -98,6 +99,35 @@ public class PartiesResource {
         PartyInRole partyInRole = Bus.getTransactionService().execute(new TerminatePartyRoleTransaction(info));
         return new PartyInRoleInfos(partyInRole);
     }
+
+    @GET
+    @Path("/{id}/delegates")
+    @Produces(MediaType.APPLICATION_JSON)
+    public PartyRepresentationInfos getDelegates(@PathParam("id") long id) {
+        Party party = partyWithId(id);
+        return new PartyRepresentationInfos(party.getCurrentDelegates());
+    }
+
+    @POST
+    @Path("/{id}/delegates")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public PartyRepresentationInfos addRole(@PathParam("id") long id, PartyRepresentationInfo info) {
+        Bus.getTransactionService().execute(new AddDelegateTransaction(id, info));
+        return getDelegates(id);
+    }
+
+    @PUT
+    @Path("/{id}/delegates/{authenticationName}/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public PartyRepresentationInfos updatePartyInRole(PartyRepresentationInfo info, @PathParam("id") long id,  @PathParam("authenticationName") String authenticationName) {
+        info.partyId = id;
+        info.userInfo.authenticationName = authenticationName;
+        PartyRepresentation partyRepresentation = Bus.getTransactionService().execute(new UpdatePartyRepresentationTransaction(info));
+        return new PartyRepresentationInfos(partyRepresentation);
+    }
+
 
     private RestQuery<Party> getPartyRestQuery() {
         Query<Party> query = Bus.getPartyService().getPartyQuery();

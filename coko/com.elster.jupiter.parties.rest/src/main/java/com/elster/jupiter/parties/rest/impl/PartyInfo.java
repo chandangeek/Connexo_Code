@@ -2,12 +2,8 @@ package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.rest.UserInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlRootElement
 public class PartyInfo {
@@ -21,8 +17,6 @@ public class PartyInfo {
     public long version;
     public String type;
 
-    public List<UserInfo> delegates = new ArrayList<>();
-
     public PartyInfo(Party party) {
         id = party.getId();
         mRID = party.getMRID();
@@ -31,16 +25,7 @@ public class PartyInfo {
         description = party.getDescription();
         electronicAddress = party.getElectronicAddress();
         version = party.getVersion();
-        delegates = createUserInfosFromUsers(party.getCurrentDelegates());
         type = party.getType();
-    }
-
-    private List<UserInfo> createUserInfosFromUsers(List<User> delegates) {
-        List<UserInfo> result = new ArrayList<>();
-        for (User delegate : delegates) {
-            result.add(new UserInfo(delegate));
-        }
-        return result;
     }
 
     public PartyInfo() {
