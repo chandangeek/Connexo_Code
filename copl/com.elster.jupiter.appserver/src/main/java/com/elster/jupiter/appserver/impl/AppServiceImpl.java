@@ -116,7 +116,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
 
         threadGroup = new ThreadGroup("AppServer message listeners");
-        threadFactory = new AppServerThreadFactory(threadGroup, appServerName, new LoggingUncaughtExceptionHandler());
+        threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler());
 
         launchFileImports();
         launchTaskService();

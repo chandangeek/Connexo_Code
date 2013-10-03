@@ -8,22 +8,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 class AppServerThreadFactory implements ThreadFactory {
 
-    private final String name;
     private final ThreadGroup group;
     private final AtomicInteger count = new AtomicInteger(0);
     private final Thread.UncaughtExceptionHandler uncaughtExceptionHandler;
 
 
-    AppServerThreadFactory(ThreadGroup group, String name, Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
+    AppServerThreadFactory(ThreadGroup group, Thread.UncaughtExceptionHandler uncaughtExceptionHandler) {
         this.group = group;
-        this.name = name;
         this.uncaughtExceptionHandler = uncaughtExceptionHandler;
     }
 
     @Override
     public Thread newThread(Runnable runnable) {
         Thread thread = new Thread(runnable);
-        thread.setName(group.getName() + " : " + name + " " + count.incrementAndGet());
+        thread.setName(group.getName() + " : " + Bus.getAppServer().get().getName() + " " + count.incrementAndGet());
         thread.setDaemon(false);
         thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
         return thread;

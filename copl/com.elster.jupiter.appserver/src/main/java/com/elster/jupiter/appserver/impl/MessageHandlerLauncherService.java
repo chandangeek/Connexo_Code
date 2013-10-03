@@ -1,15 +1,21 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.google.common.base.Optional;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -20,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
-    private volatile ThreadGroup threadGroup;
-    private volatile ThreadFactory threadFactory;
+    private volatile ThreadGroup threadGroup = new ThreadGroup(MessageHandlerLauncherService.class.getSimpleName());
+    private volatile ThreadFactory threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler());
 
     private Map<MessageHandlerFactory, ExecutorService> executors = new ConcurrentHashMap<>();
     private Map<ExecutorService, List<Future<?>>> futures = new ConcurrentHashMap<>();
@@ -42,10 +48,6 @@ public class MessageHandlerLauncherService {
 
     @Activate
     public void activate() {
-        Optional<AppServer> appServer = appService.getAppServer();
-        String name = appServer.isPresent() ? appServer.get().getName() : "Anonymous Application Server";
-        threadGroup = new ThreadGroup(MessageHandlerLauncherService.class.getSimpleName());
-        threadFactory = new AppServerThreadFactory(threadGroup, name, new LoggingUncaughtExceptionHandler());
     }
 
     @Deactivate
