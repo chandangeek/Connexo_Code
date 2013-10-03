@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -419,8 +420,8 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public boolean hasAccountability(User user) {
         for (UsagePointAccountability accountability : getAccountabilities()) {
-            for (User delegate : accountability.getParty().getCurrentDelegates()) {
-                if (delegate.equals(user)) {
+            for (PartyRepresentation representation : accountability.getParty().getCurrentDelegates()) {
+                if (representation.getDelegate().equals(user)) {
                     return true;
                 }
             }
