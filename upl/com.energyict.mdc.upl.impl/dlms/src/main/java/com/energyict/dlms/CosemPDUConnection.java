@@ -1,10 +1,14 @@
 package com.energyict.dlms;
 
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -156,7 +160,7 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
                 return cosemBytes;
             } catch (ConnectionException e) {
                 if (this.currentTryCount++ >= maxRetries) {
-                    throw new IOException("sendRequest, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new IOException("sendRequest, IOException", e);
                 }
             }
         }
@@ -195,7 +199,7 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
                 return cosemBytes;
             } catch (ConnectionException e) {
                 if (this.currentTryCount++ >= maxRetries) {
-                    throw new IOException("sendRequest, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new IOException("sendRequest, IOException", e);
                 }
             }
         }
@@ -244,7 +248,7 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
             } catch (ConnectionException e) {
                 logger.log(Level.WARNING, e.getMessage(), e);
                 if (this.currentTryCount++ >= maxRetries) {
-                    throw new IOException("sendRequest, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new IOException("sendRequest, IOException", e);
                 }
             }
 

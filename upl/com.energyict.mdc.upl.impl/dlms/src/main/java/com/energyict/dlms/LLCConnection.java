@@ -67,7 +67,7 @@ public class LLCConnection extends CosemPDUConnection {
             } catch (ConnectionException e) {
                 this.logger.warning(e.getMessage());
                 if (this.currentTryCount++ >= getMaxRetries()) {
-                    throw new NestedIOException(e, "readResponseWithRetries, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new NestedIOException(e, "readResponseWithRetries, IOException");
                 }
             }
         }
@@ -98,7 +98,7 @@ public class LLCConnection extends CosemPDUConnection {
                 return receiveData();
             } catch (ConnectionException e) {
                 if (this.currentTryCount++ >= getMaxRetries()) {
-                    throw new IOException("sendRequest, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new IOException("sendRequest, IOException", e);
                 }
             }
         }
@@ -125,7 +125,7 @@ public class LLCConnection extends CosemPDUConnection {
                 return;
             } catch (ConnectionException e) {
                 if (this.currentTryCount++ >= getMaxRetries()) {
-                    throw new IOException("sendRequest, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new IOException("sendRequest, IOException", e);
                 }
 
                 logger.log(Level.WARNING, "Sleeping for [" + getTimeout() + " ms] until next try ...");

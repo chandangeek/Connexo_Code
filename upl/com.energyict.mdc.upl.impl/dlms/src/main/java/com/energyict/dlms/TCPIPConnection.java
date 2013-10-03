@@ -1,11 +1,17 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -288,7 +294,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
             } catch (ConnectionException e) {
                 this.logger.warning(e.getMessage());
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw new NestedIOException(e, "sendRequest, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new NestedIOException(e, "sendRequest, IOException");
                 }
             }
         }
@@ -307,7 +313,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
             } catch (ConnectionException e) {
                 this.logger.warning(e.getMessage());
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw new NestedIOException(e, "sendRawBytes, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new NestedIOException(e, "sendRawBytes, IOException");
                 }
             }
         }
@@ -336,7 +342,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
             } catch (ConnectionException e) {
                 this.logger.warning(e.getMessage());
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw new NestedIOException(e, "sendRequest, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new NestedIOException(e, "sendRequest, IOException");
                 }
             }
         }
@@ -374,7 +380,7 @@ public class TCPIPConnection extends Connection implements DLMSConnection {
             } catch (ConnectionException e) {
                 this.logger.log(Level.WARNING, e.getMessage(), e);
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw new NestedIOException(e, "sendRequest, IOException, " + com.energyict.cbo.Utils.stack2string(e));
+                    throw new NestedIOException(e, "sendRequest, IOException");
                 }
 
                 this.logger.log(Level.WARNING, "Sleeping for [" + timeout + " ms] until next try ...");
