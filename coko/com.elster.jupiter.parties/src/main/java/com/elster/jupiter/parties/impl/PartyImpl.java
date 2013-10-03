@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
+import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.users.User;
@@ -41,10 +42,12 @@ abstract class PartyImpl implements Party {
     private String userName;
 
     @Override
-    public void appointDelegate(User user, Date start) {
+    public PartyRepresentation appointDelegate(User user, Date start) {
         Interval interval = Interval.startAt(start);
         validateAddingDelegate(user, interval);
-        partyRepresentationFactory().persist(new PartyRepresentationImpl(this, user, interval));
+        PartyRepresentationImpl representation = new PartyRepresentationImpl(this, user, interval);
+        partyRepresentationFactory().persist(representation);
+        return representation;
     }
 
     @Override
@@ -209,8 +212,8 @@ abstract class PartyImpl implements Party {
 
     @Override
     public void unappointDelegate(User user, Date end) {
-        List<PartyRepresentationImpl> representations = getRepresentations();
-        for (PartyRepresentationImpl representation : representations) {
+        List<PartyRepresentation> representations = getRepresentations();
+        for (PartyRepresentation representation : representations) {
             if (representation.getDelegate().equals(user) && representation.getInterval().contains(end)) {
                 representation.setInterval(representation.getInterval().withEnd(end));
                 Bus.getOrmClient().getPartyRepresentationFactory().update(representation);
@@ -222,14 +225,14 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public List<User> getCurrentDelegates() {
-        ImmutableList.Builder<User> currentUsers = ImmutableList.builder();
-        for (PartyRepresentationImpl representation : getRepresentations()) {
+    public List<PartyRepresentation> getCurrentDelegates() {
+        ImmutableList.Builder<PartyRepresentation> current = ImmutableList.builder();
+        for (PartyRepresentation representation : getRepresentations()) {
             if (representation.isCurrent()) {
-                currentUsers.add(representation.getDelegate());
+                current.add(representation);
             }
         }
-        return currentUsers.build();
+        return current.build();
     }
 
     PartyImpl() {
@@ -243,7 +246,7 @@ abstract class PartyImpl implements Party {
         return modTime;
     }
 
-    List<PartyRepresentationImpl> getRepresentations() {
+    List<PartyRepresentation> getRepresentations() {
         return Bus.getOrmClient().getPartyRepresentationFactory().find("party", this);
     }
 
@@ -255,12 +258,12 @@ abstract class PartyImpl implements Party {
         return Bus.getOrmClient().getPartyFactory();
     }
 
-    private DataMapper<PartyRepresentationImpl> partyRepresentationFactory() {
+    private DataMapper<PartyRepresentation> partyRepresentationFactory() {
         return Bus.getOrmClient().getPartyRepresentationFactory();
     }
 
     private void validateAddingDelegate(User user, Interval interval) {
-        for (PartyRepresentationImpl representation : getRepresentations()) {
+        for (PartyRepresentation representation : getRepresentations()) {
             if (representation.getDelegate().equals(user) && interval.overlaps(representation.getInterval())) {
                 throw new IllegalArgumentException();
             }

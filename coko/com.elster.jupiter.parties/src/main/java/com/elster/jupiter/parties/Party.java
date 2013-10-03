@@ -41,11 +41,11 @@ public interface Party extends HasName {
 
     PartyInRole terminateRole(PartyInRole role, Date end);
 
-    void appointDelegate(User user, Date start);
+    PartyRepresentation appointDelegate(User user, Date start);
 
     void unappointDelegate(User user, Date end);
 
-    List<User> getCurrentDelegates();
+    List<PartyRepresentation> getCurrentDelegates();
 
     String getType();
 }

@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
+import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 
 public interface OrmClient {
@@ -13,7 +14,7 @@ public interface OrmClient {
 
     DataMapper<Party> getPartyFactory();
 
-    DataMapper<PartyRepresentationImpl> getPartyRepresentationFactory();
+    DataMapper<PartyRepresentation> getPartyRepresentationFactory();
 
     DataMapper<PartyInRole> getPartyInRoleFactory();
 

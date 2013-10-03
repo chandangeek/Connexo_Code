@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
+import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 
 import static com.elster.jupiter.parties.impl.TableSpecs.*;
@@ -29,8 +30,8 @@ class OrmClientImpl implements OrmClient {
 	}
 	
 	@Override
-	public DataMapper<PartyRepresentationImpl> getPartyRepresentationFactory() {
-		return dataModel.getDataMapper(PartyRepresentationImpl.class, PartyRepresentationImpl.class, PRT_PARTYREP.name());
+	public DataMapper<PartyRepresentation> getPartyRepresentationFactory() {
+		return dataModel.getDataMapper(PartyRepresentation.class, PartyRepresentationImpl.class, PRT_PARTYREP.name());
 	}
 
 	@Override

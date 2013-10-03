@@ -28,4 +28,6 @@ public interface PartyService {
     void deletePartyRole(PartyRole partyRole);
 
     void updateRole(PartyRole partyRole);
+
+    void updateRepresentation(PartyRepresentation representation);
 }

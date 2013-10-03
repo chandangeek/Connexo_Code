@@ -1,11 +1,12 @@
 package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
-class PartyRepresentationImpl  {
+class PartyRepresentationImpl implements PartyRepresentation {
 
 	private String delegate;
 
@@ -49,6 +50,7 @@ class PartyRepresentationImpl  {
         }
     }
 
+    @Override
     public User getDelegate() {
         if (delegateUser == null) {
             delegateUser = Bus.getUserService().findUser(delegate).orNull();
@@ -56,22 +58,26 @@ class PartyRepresentationImpl  {
 		return delegateUser;
 	}
 
-	public Party getParty() {
+	@Override
+    public Party getParty() {
 		if (party == null) {
 			party = Bus.getOrmClient().getPartyFactory().getExisting(partyId);
 		}			
 		return party;
 	}
 
+    @Override
     public Interval getInterval() {
         return interval;
     }
 
+    @Override
     public boolean isCurrent() {
 		return interval.isCurrent(Bus.getClock());
 	}
 
-    void setInterval(Interval interval) {
+    @Override
+    public void setInterval(Interval interval) {
         this.interval = interval;
     }
 }

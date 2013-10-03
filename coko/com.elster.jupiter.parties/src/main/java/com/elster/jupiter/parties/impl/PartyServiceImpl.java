@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
@@ -67,9 +68,9 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     @Override
     public List<Party> getParties() {
-        List<PartyRepresentationImpl> representations = ormClient.getPartyRepresentationFactory().find("delegate", getPrincipal().getName());
+        List<PartyRepresentation> representations = ormClient.getPartyRepresentationFactory().find("delegate", getPrincipal().getName());
         ImmutableList.Builder<Party> builder = ImmutableList.builder();
-        for (PartyRepresentationImpl representation : representations) {
+        for (PartyRepresentation representation : representations) {
             if (representation.isCurrent()) {
                 builder.add(representation.getParty());
             }
@@ -100,6 +101,11 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     @Override
     public void updateRole(PartyRole partyRole) {
         getOrmClient().getPartyRoleFactory().update(partyRole);
+    }
+
+    @Override
+    public void updateRepresentation(PartyRepresentation representation) {
+        getOrmClient().getPartyRepresentationFactory().update(representation);
     }
 
     public Optional<PartyRole> findPartyRoleByMRID(String mRID) {
