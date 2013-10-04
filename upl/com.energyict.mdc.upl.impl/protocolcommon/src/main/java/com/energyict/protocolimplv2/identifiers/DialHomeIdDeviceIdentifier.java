@@ -3,8 +3,12 @@ package com.energyict.protocolimplv2.identifiers;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.comserver.exceptions.DuplicateException;
 import com.energyict.cpo.OfflineDeviceContext;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.protocol.inbound.ServerDeviceIdentifier;
 import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceFactory;
+import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.coreimpl.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 
@@ -20,6 +24,9 @@ import java.util.List;
  */
 public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
 
+    public static final String CALL_HOME_ID_PROPERTY_NAME = "callHomeId";
+    public static final PropertySpec CALL_HOME_ID_PROPERTY_SPEC = PropertySpecFactory.stringPropertySpec(CALL_HOME_ID_PROPERTY_NAME);
+
     private final String callHomeID;
     private Device device;
     private List<Device> allDevices;
@@ -33,7 +40,7 @@ public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     public Device findDevice() {
         if (this.device == null) {
             fetchAllDevices();
-            if (this.allDevices.isEmpty()) {                    //TODO: just a commit to fix broken build - but still need to implement real behavior!
+            if (this.allDevices.isEmpty()) {
                 throw new NotFoundException("Device with callHomeID " + this.callHomeID + " not found");
             } else {
                 if (this.allDevices.size() > 1) {
@@ -47,8 +54,8 @@ public class DialHomeIdDeviceIdentifier implements ServerDeviceIdentifier {
     }
 
     private void fetchAllDevices() {
-        //        List<Device> devicesByDialHomeId = MeteringWarehouse.getCurrent().getDeviceFactory().findByDialHomeId(this.callHomeID);
-        this.allDevices = new ArrayList<>(0);  // TODO: warning - API call no longer exists (cause DialHomeId is no longer managed by device)
+        DeviceFactory deviceFactory = MeteringWarehouse.getCurrent().getDeviceFactory();
+        this.allDevices = deviceFactory.findByNotInheritedProtocolProperty(CALL_HOME_ID_PROPERTY_SPEC, callHomeID);
     }
 
     @Override
