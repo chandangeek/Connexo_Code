@@ -5,7 +5,7 @@ public enum MarketRoleKind {
 	GENERATOROWNER ("Generator owner"),
 	GENERATOROPERATOR ("Generator Operator"),
 	TRANSMISSIONSERVICEPROVIDER ("Transmission Service Provider"),
-	TRANSMISSIONOWNER("Transmission Onwer"),
+	TRANSMISSIONOWNER("Transmission Owner"),
 	TRANSMISSIONOPERATOR("Transmission Operator"),
 	DISTRIBUTIONPROVIDER("Distribution Provider"),
 	LOADSERVINGENTITY("Load Serving Entity"),
