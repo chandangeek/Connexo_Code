@@ -28,7 +28,7 @@ public class LogBookIdentifierByObisCodeAndDevice implements LogBookIdentifier {
 
     @Override
     public LogBook getLogBook() {
-        LogBook logBook = LogBookFactoryProvider.instance.get().getLogBookFactory().findByDeviceAndObisCode(deviceIdentifier.findDevice(), logBookObisCode);
+        LogBook logBook = LogBookFactoryProvider.instance.get().getLogBookFactory().findByDeviceAndDeviceObisCode(deviceIdentifier.findDevice(), logBookObisCode);
         if (logBook == null) {
             throw new NotFoundException("No logbook found with obiscode '" + logBookObisCode.toString() + "'for device with serial number '" + deviceIdentifier.toString() + "'");
         } else {

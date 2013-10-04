@@ -36,7 +36,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
         if(loadProfile == null){
             final List<LoadProfile> loadProfiles = MeteringWarehouse.getCurrent().getLoadProfileFactory().findByRtu(deviceIdentifier.findDevice());
             for (LoadProfile profile : loadProfiles) {
-                if (profile.getLoadProfileType().getObisCode().equals(this.loadProfileObisCode)) {
+                if (profile.getLoadProfileSpec().getDeviceObisCode().equals(this.loadProfileObisCode)) {
                     this.loadProfile = profile;
                     break;
                 }
