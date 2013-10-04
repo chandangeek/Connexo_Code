@@ -79,8 +79,13 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Override
-    public ReadingStorer createStorer(boolean overrules) {
-        return new ReadingStorerImpl(overrules);
+    public ReadingStorer createOverrulingStorer() {
+        return new ReadingStorerImpl(true);
+    }
+
+    @Override
+    public ReadingStorer createRegularStorer() {
+        return new ReadingStorerImpl(false);
     }
 
     @Override
