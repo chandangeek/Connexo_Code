@@ -1,16 +1,13 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.MappingException;
-import com.elster.jupiter.orm.NotUniqueException;
-import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 
 import java.lang.reflect.Constructor;
@@ -88,8 +85,8 @@ public class DataMapperReader<T> {
         return result.isEmpty() ? Optional.<T>absent() : Optional.of(result.get(0));
 	}
 
-    List<T> findJournals(Object[] values) throws SQLException {
-        return findJournal(getPrimaryKeyFragments(values), null, false);
+    List<JournalEntry<T>> findJournals(Object[] values) throws SQLException {
+        return findJournal(getPrimaryKeyFragments(values), new String[] { TableImpl.JOURNALTIMECOLUMNNAME + " desc" }, false);
     }
 	
 	int getPrimaryKeyLength() {
@@ -132,9 +129,22 @@ public class DataMapperReader<T> {
         return doFind(fragments, builder);
 	}
 
-    private List<T> findJournal(List<SqlFragment> fragments, String[] orderColumns,boolean lock) throws SQLException {
-        SqlBuilder builder = selectJournalSql(fragments, orderColumns, lock);
-        return doFind(fragments, builder);
+    private List<JournalEntry<T>> findJournal(List<SqlFragment> fragments, String[] orderColumns,boolean lock) throws SQLException {    	
+        SqlBuilder builder = selectJournalSql(fragments, orderColumns, lock);     
+        List<JournalEntry<T>> result = new ArrayList<>();
+        try (Connection connection = getConnection(false)) {
+            try(PreparedStatement statement = builder.prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while(resultSet.next()) {
+                    	UtcInstant journalTime = new UtcInstant(resultSet.getLong(1));
+                    	T entry = construct(resultSet,2);                    	
+                        result.add(new JournalEntry<>(journalTime,entry));
+                    }
+                }
+            }
+        }
+        return result;
+        
     }
 
     private List<T> doFind(List<SqlFragment> fragments, SqlBuilder builder) throws SQLException {

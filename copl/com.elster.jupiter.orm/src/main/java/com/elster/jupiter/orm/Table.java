@@ -33,10 +33,10 @@ public interface Table {
 	<T> DataMapper<T> getDataMapper(Class<T> api , Class<? extends T> implementation);
 	<T> DataMapper<T> getDataMapper(Class<T> api , Map<String,Class<? extends T>> implementations);
 	/**
-	 * Extracts the primary key from the given object
-	 * @return an object array if primary key is composite, else the value of the primary key field 
+	 * Extracts the primary key fields from the given object
+	 * @return an object array  
 	 */
-	Object getPrimaryKey(Object value);
+	Object[] getPrimaryKey(Object value);
 	FieldType getFieldType(String fieldName);
 	/**
 	 * Adds a column to the table

@@ -65,8 +65,13 @@ public class TableSqlGenerator {
 	}
 
     String getSelectFromJournalClause(Column[] columns , String alias) {
-        StringBuilder sb = new StringBuilder("select");
-        appendColumns(sb, " " , alias , columns);
+        StringBuilder sb = new StringBuilder("select ");
+        if (alias != null && alias.length() > 0) {
+        	sb.append(alias);
+        	sb.append(".");
+        }
+        sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
+        appendColumns(sb, "," , alias , columns);        
         sb.append(" from ");
         appendJournalTable(sb," ",alias);
         return sb.toString();

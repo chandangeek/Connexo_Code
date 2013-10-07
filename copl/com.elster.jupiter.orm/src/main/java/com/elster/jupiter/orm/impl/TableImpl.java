@@ -436,14 +436,12 @@ public class TableImpl implements Table , PersistenceAware  {
 	}
 
 	@Override
-	public Object getPrimaryKey(Object value) {
+	public Object[] getPrimaryKey(Object value) {
 		TableConstraint primaryKeyConstraint = getPrimaryKeyConstraint();
 		if (primaryKeyConstraint == null) {
 			throw new IllegalStateException("Table has no primary key");
 		}
-		Object result[] = primaryKeyConstraint.getColumnValues(value);
-		return primaryKeyConstraint.getColumns().size() == 1 ? result[0] : result;
-		
+		return primaryKeyConstraint.getColumnValues(value);				
 	}
 
 	@Override

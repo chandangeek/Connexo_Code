@@ -1,11 +1,6 @@
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.ForeignKeyConstraint;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.google.common.base.Optional;
 
@@ -107,7 +102,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 	}
 
     @Override
-    public List<T> getJournal(Object... values) {
+    public List<JournalEntry<T>> getJournal(Object... values) {
         try {
             return reader.findJournals(values);
         } catch (SQLException e) {

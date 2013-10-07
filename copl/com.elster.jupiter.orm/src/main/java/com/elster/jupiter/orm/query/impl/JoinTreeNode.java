@@ -156,12 +156,13 @@ final class JoinTreeNode<T>  {
 	}
 	
 	final void completeFind() {
-		if (!(value.isChild() && isMarked())) {
+		if (!semiJoin()) {
+			// do children first, so they can set collection relations before postLoad does.
+			for (JoinTreeNode<?> each : children) {			
+				each.completeFind();
+			}
 			value.completeFind();
-		}
-		for (JoinTreeNode<?> each : children) {			
-			each.completeFind();
-		}
+		}		
 	}
 	
 	
@@ -212,7 +213,7 @@ final class JoinTreeNode<T>  {
 		if (marked)
 			return true;
 		for (JoinTreeNode<?> each : children) {
-			if (each.marked) {
+			if (each.isMarked()) {
 				return true;
 			}
 		} 

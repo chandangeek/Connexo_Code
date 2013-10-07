@@ -54,7 +54,7 @@ public interface Finder<T> {
 	/**
 	 * Find journal entries for a primary key
 	 */
-    List<T> getJournal(Object... values);
+    List<JournalEntry<T>> getJournal(Object... values);
     /**
      * Find object by primary key
      * @throws DoesNotExistException if not found
