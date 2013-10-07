@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.base.Optional;
 
@@ -35,5 +36,5 @@ public interface MeteringService {
 
     Condition hasAccountability(Date when);
 
-    List<ServiceLocation> findServiceLocationJournal(long id);
+    List<JournalEntry<ServiceLocation>> findServiceLocationJournal(long id);
 }

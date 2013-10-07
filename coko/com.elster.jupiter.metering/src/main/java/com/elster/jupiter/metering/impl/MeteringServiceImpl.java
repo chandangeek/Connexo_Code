@@ -12,8 +12,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -118,7 +117,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Override
-    public List<ServiceLocation> findServiceLocationJournal(long id) {
+    public List<JournalEntry<ServiceLocation>> findServiceLocationJournal(long id) {
         return getOrmClient().getServiceLocationFactory().getJournal(id);
     }
 
