@@ -36,8 +36,7 @@ public class EventServletWrapper extends HttpServlet {
         stopWatch.stop();
         URL url = new URL(request.getRequestURL().toString());
         RestCallExecutedEvent event = new RestCallExecutedEvent(url, stopWatch);
-        Bus.fire(event);
-        Logger.getLogger("com.elster.jupiter.rest.whiteboard").info("" + event);
+        Bus.fire(event);        
     }
 
 }
