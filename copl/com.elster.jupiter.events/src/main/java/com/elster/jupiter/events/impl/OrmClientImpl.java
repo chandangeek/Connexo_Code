@@ -24,7 +24,7 @@ public class OrmClientImpl implements OrmClient {
 
     @Override
     public TypeCache<EventType> getEventTypeFactory() {
-        return Bus.getComponentCache().getTypeCache(EventType.class, EventTypeImpl.class, EVT_EVENTTYPE.name());
+        return Bus.getComponentCache().getTypeCache(EventType.class, EventTypeImpl.class, EVT_EVENTTYPE.name(),getEventTypePropertyFactory());
     }
 
     @Override

@@ -61,8 +61,7 @@ public class LocalEventImpl implements LocalEvent {
         for (EventPropertyType eventPropertyType : getType().getPropertyTypes()) {
             Object value = getValue(eventPropertyType);
             result.put(eventPropertyType.getName(), value);
-        }
-        result.put(EventConstants.EVENT_TOPIC, getType().getTopic());
+        }        
         result.put(EventConstants.TIMESTAMP, dateTime.getTime());
         return result;
     }
@@ -80,6 +79,9 @@ public class LocalEventImpl implements LocalEvent {
         Object current = source;
         for (String property : accessPath) {
             current = Bus.getBeanService().get(current, property);
+            if (current == null) {
+            	return current;
+            }
         }
         return current;
     }

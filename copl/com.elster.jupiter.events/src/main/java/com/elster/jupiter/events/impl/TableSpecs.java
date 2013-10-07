@@ -34,7 +34,7 @@ public enum TableSpecs {
 
             table.addPrimaryKeyConstraint("EVT_PK_EVENTPROPERTYTYPE", topicColumn, nameColumn);
             table.addUniqueConstraint("EVT_UK_EVENTPROPERTYTYPE", topicColumn, positionColumn);
-            table.addForeignKeyConstraint("EVT_FK_EVENTTYPE_PROPERY", EVT_EVENTTYPE.name(), DeleteRule.CASCADE, new AssociationMapping("eventType"), topicColumn);
+            table.addForeignKeyConstraint("EVT_FK_EVENTTYPE_PROPERY", EVT_EVENTTYPE.name(), DeleteRule.CASCADE, new AssociationMapping("eventType","eventPropertyTypes"), topicColumn);
         }
     };
 
