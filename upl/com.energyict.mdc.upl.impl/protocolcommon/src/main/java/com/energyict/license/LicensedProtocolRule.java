@@ -83,7 +83,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     EICT_MODBUS_RTU(55, "com.energyict.protocolimpl.modbus.eictmodbusrtu.EictModbusRtu"),
     PM750(56, "com.energyict.protocolimpl.modbus.squared.pm750.PM750"),
     HAWKEYE(57, "com.energyict.protocolimpl.modbus.veris.hawkeye.Hawkeye"),
-    EIMETER_FLEX_SM352(58, "com.energyict.protocolimpl.modbus.northerndesign.eimeterflex.EIMeterFlexSM352"),
+    EIMETER_FLEX_SM352(58, "com.energyict.protocolimpl.modbus.northerndesign.eimeterflex.EIMeterFlexSM352"),    //Deprecated
     REC_DIGIT_CDTE(59, "com.energyict.protocolimpl.modbus.enerdis.cdt.RecDigitCdtE"),
     REC_DIGIT_CDTPR(60, "com.energyict.protocolimpl.modbus.enerdis.cdt.RecDigitCdtPr"),
     REC_DIGIT_CCT(61, "com.energyict.protocolimpl.modbus.enerdis.recdigitcct.RecDigitCct"),
@@ -230,6 +230,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     RtuServer(196, "com.energyict.rtuprotocol.RtuServer", FamilyRule.EICT_RTU_EMS, FamilyRule.ELSTER_PLC, FamilyRule.IDIS_P1),
 
     EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", FamilyRule.EICT_RTU_EMS),
+    EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
 
     // Deprecated
     AS300D_ELSTER(10000, "com.energyict.protocolimpl.dlms.elster.as300d.AS300D"),
