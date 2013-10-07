@@ -40,7 +40,7 @@ public final class SqlEvent {
 	}
 
 	public int getFetchCount() {
-		return fetchCount;
+		return fetchCount >= 0 ? fetchCount : 0;
 	}
 
 	public StopWatch getStopWatch() {

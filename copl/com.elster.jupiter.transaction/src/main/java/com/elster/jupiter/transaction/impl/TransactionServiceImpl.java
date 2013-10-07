@@ -1,7 +1,7 @@
 package com.elster.jupiter.transaction.impl;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
-import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.pubsub.*;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.*;
 import java.util.logging.Logger;
@@ -20,10 +20,7 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 	private volatile ThreadPrincipalService threadPrincipalService;
 	private volatile DataSource dataSource;
 	private volatile Publisher publisher;
-	private volatile AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 	private final ThreadLocal<TransactionContextImpl> transactionContextHolder = new ThreadLocal<>();
-	private volatile boolean sqlLog;
-	private volatile boolean sqlEvent;
 	
 	public TransactionServiceImpl() {		
 	}
@@ -45,10 +42,6 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 		this.dataSource = bootStrapService.createDataSource();
 	}
 	
-	public void unSetEventAdminService(EventAdmin eventAdminService) {
-		this.eventAdminHolder.compareAndSet(eventAdminService, null);
-	}
-	
 	@Reference
 	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
 		this.threadPrincipalService = threadPrincipalService;		
@@ -59,17 +52,8 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 		this.publisher = publisher;		
 	}
 	
-	@Reference(cardinality=ReferenceCardinality.OPTIONAL) 
-	public void setEventAdminService(EventAdmin eventAdminService) {
-		this.eventAdminHolder.set(eventAdminService);
-	}
-	
 	@Activate
-    public void activate(Map<String, Object> props) {
-    	if (props != null) {
-    		sqlLog = Boolean.TRUE == props.get("sqllog");
-    		sqlEvent = Boolean.TRUE == props.get("sqlevent");    		 
-    	}
+    public void activate() {
     	Bus.setServiceLocator(this);	 
     }
 	
@@ -101,35 +85,30 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
     private <T> T doExecute(Transaction<T> transaction) throws SQLException {
 		TransactionContextImpl transactionContext = new TransactionContextImpl(this);
 		transactionContextHolder.set(transactionContext);
-        T result = null;
-		boolean commit = false;
 		try {
-			result = transaction.perform();
-			commit = true;
+			return transactionContext.execute(transaction);			
 		} finally {
-			transactionContextHolder.remove();
-			transactionContext.terminate(commit);						
+			transactionContextHolder.remove();						
 		}
-        return result;
 	}
 
     private boolean isInTransaction() {
         return transactionContextHolder.get() != null;
     }
     
-    @Override
-    public void publish(SqlEvent event) {
-    	publisher.publish(event);
-    	if(sqlLog) {
-    		Logger.getLogger("com.elster.jupiter.transaction").info(event.toString());
-    	}
-    	if (sqlEvent) {
-    		EventAdmin eventAdmin = eventAdminHolder.get();
-    		if (eventAdmin != null) {
-    			eventAdmin.postEvent(event.toOsgiEvent());
-    		}
-    	}
+    @Override 
+    public void addThreadSubscriber(Subscriber subscriber) {
+    	publisher.addThreadSubscriber(subscriber);
     }
     
+    @Override 
+    public void removeThreadSubscriber(Subscriber subscriber) {
+    	publisher.removeThreadSubscriber(subscriber);
+    }
+    
+    @Override
+    public void publish(Object event) {
+    	publisher.publish(event);
+    }
   
 }
