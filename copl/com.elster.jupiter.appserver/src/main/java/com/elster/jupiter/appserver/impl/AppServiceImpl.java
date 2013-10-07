@@ -138,10 +138,13 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         }
     }
 
+    @Override
+    public Class<?>[] getClasses() {
+    	return new Class<?>[] {InvalidateCacheRequest.class};
+    }
+    
     private void listenForInvalidateCacheRequests() {
-        Dictionary<String, Object> dictionary = new Hashtable<>();
-        dictionary.put(Subscriber.TOPIC, new Class[]{InvalidateCacheRequest.class});
-        context.registerService(Subscriber.class, this, dictionary);
+        context.registerService(Subscriber.class, this, null);
     }
 
     private void listenForMesssagesToAllServers() {
