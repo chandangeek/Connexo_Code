@@ -52,17 +52,4 @@ public class EventHandlerTest {
         verify(eventHandler, never()).onEvent(anyString(), eq("eventDetail1"), eq("eventDetail2"));
     }
 
-    @Test
-    public void testRegister() {
-        eventHandler.register(context);
-
-        ArgumentCaptor<Dictionary> dictionaryCaptor = ArgumentCaptor.forClass(Dictionary.class);
-        verify(context).registerService(eq(Subscriber.class), eq(eventHandler), dictionaryCaptor.capture());
-
-        assertThat(dictionaryCaptor.getValue()).isNotNull();
-        assertThat(dictionaryCaptor.getValue().get(Subscriber.TOPIC)).isEqualTo(String.class);
-    }
-
-
-
 }

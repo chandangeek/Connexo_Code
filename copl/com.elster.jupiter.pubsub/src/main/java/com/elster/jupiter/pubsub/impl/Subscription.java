@@ -1,14 +1,16 @@
 package com.elster.jupiter.pubsub.impl;
 
+import java.util.Objects;
+
 import com.elster.jupiter.pubsub.Subscriber;
 
 class Subscription {
 	private final Subscriber subscriber;
 	private final Class<?>[] classes;
 	
-	Subscription(Subscriber subscriber , Class<?> ... classes) {
+	Subscription(Subscriber subscriber) {
 		this.subscriber = subscriber;
-		this.classes = classes;
+		this.classes = Objects.requireNonNull(subscriber.getClasses());
 	}
 	
 	void handle(Object event, Object... eventDetails) {

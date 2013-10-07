@@ -8,9 +8,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.log.LogService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
@@ -18,32 +16,25 @@ import java.util.logging.Logger;
 public class PublisherImpl implements Publisher {
 	
 	private final List<Subscription> subscriptions = new CopyOnWriteArrayList<>();
-	private final ThreadLocal<Subscriber> threadSubscribers = new ThreadLocal<>();
+	private final ThreadLocal<List<Subscription>> threadSubscriptionsHolder = new ThreadLocal<>();
 
 	@Override
 	public void publish(Object event, Object... eventDetails) {
         for (Subscription each : subscriptions) {
 			each.handle(event, eventDetails);
 		}
-		Subscriber subscriber = threadSubscribers.get();
-		if (subscriber != null) {
-			subscriber.handle(event, eventDetails);
-		}
+        List<Subscription> threadSubscriptions = threadSubscriptionsHolder.get();
+        if (threadSubscriptions == null || threadSubscriptions.isEmpty()) {
+        	return;
+        }
+		for (Subscription each : threadSubscriptions) {
+			each.handle(event, eventDetails);
+		}		
 	}
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    public void addHandler(Subscriber subscriber, Map<String, Object> properties) {
-		Object filter = properties.get(Subscriber.TOPIC);
-		if (filter == null) {
-			return;
-		}
-		Class<?>[] classes;
-		if (filter instanceof Class<?>) {
-			classes = new Class<?>[] { (Class<?>) filter };
-		} else {
-			classes = (Class<?>[]) filter;
-		}
-		this.subscriptions.add(new Subscription(subscriber, classes));
+    public void addHandler(Subscriber subscriber) {
+		this.subscriptions.add(new Subscription(subscriber));
 	}
 	
 	public void removeHandler(Subscriber subscriber) {
@@ -57,13 +48,26 @@ public class PublisherImpl implements Publisher {
     }
 
 	@Override
-	public void setThreadSubscriber(Subscriber subscriber) {		
-		this.threadSubscribers.set(subscriber);
+	public void addThreadSubscriber(Subscriber subscriber) {
+		List<Subscription> threadSubscriptions = threadSubscriptionsHolder.get();
+		if (threadSubscriptions == null) {
+			threadSubscriptions = new ArrayList<>();
+			threadSubscriptionsHolder.set(threadSubscriptions);
+		}
+		threadSubscriptions.add(new Subscription(subscriber));
 	}
 
 	@Override
-	public void unsetThreadSubscriber() {
-		this.threadSubscribers.remove();		
+	public void removeThreadSubscriber(Subscriber subscriber) {
+		List<Subscription> threadSubscriptions = threadSubscriptionsHolder.get();		
+		if (threadSubscriptions != null) {
+			Iterator<Subscription> it = threadSubscriptions.iterator();
+			while (it.hasNext()) {
+				if (it.next().getSubscriber().equals(subscriber)) {
+					it.remove();
+				}
+			}			
+		}		
 	}
 	
 	@Reference

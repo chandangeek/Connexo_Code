@@ -2,8 +2,7 @@ package com.elster.jupiter.pubsub;
 
 import org.osgi.framework.BundleContext;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.*;
 
 /**
  * This class is a template method implementation of a Subscriber.
@@ -25,9 +24,7 @@ public abstract class EventHandler<T> implements Subscriber {
      * @param context
      */
     public final void register(BundleContext context) {
-        Dictionary<String, Object> dictionary = new Hashtable<>();
-        dictionary.put(Subscriber.TOPIC, type);
-        context.registerService(Subscriber.class, this, dictionary);
+        context.registerService(Subscriber.class, this,null);
     }
 
     @Override
@@ -37,6 +34,11 @@ public abstract class EventHandler<T> implements Subscriber {
             T typedEvent = (T) event;
             onEvent(typedEvent, eventDetails);
         }
+    }
+    
+    @Override
+    public final Class<?>[] getClasses(){
+    	return new Class<?>[] { type };    
     }
 
     /**

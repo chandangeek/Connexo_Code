@@ -7,14 +7,14 @@ public interface Publisher {
 
     /**
      * Publishes the given event. Which will make it synchronously available to all subscribers to that event's type.
-     * This method will return after all Subscribers have handled it.
+     * This method will return after all Subscribers have handled it. 
+     * If any handler throws an exception, the remaining event handlers are not called,
+     * and the exception propagates to the sender.
      *
      * @param event
      * @param eventDetails
      */
     void publish(Object event, Object... eventDetails);
-
-    void setThreadSubscriber(Subscriber subscriber);
-
-    void unsetThreadSubscriber();
+	void addThreadSubscriber(Subscriber subscriber);
+	void removeThreadSubscriber(Subscriber subscriber);
 }

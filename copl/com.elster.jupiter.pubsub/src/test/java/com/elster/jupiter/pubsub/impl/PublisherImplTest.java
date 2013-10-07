@@ -1,8 +1,9 @@
 package com.elster.jupiter.pubsub.impl;
 
-import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.pubsub.*;
 import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
+
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -14,14 +15,27 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class PublisherImplTest {
 
-    @Mock
     private Subscriber subscriber;
+    
+    @Before
+    public void setUp() {
+        subscriber = spy(new Subscriber() {
+       
+			@Override
+			public void handle(Object event, Object... eventDetails) {
+			}
+
+			@Override
+			public Class<?>[] getClasses() {
+				return new Class<?>[] {String.class}; 
+			}
+        });
+    }
 
     @Test
     public void testSubscriberReceivesEventsOfRegisteredType() {
-        Map<String, Object> map = ImmutableMap.<String, Object>of(Subscriber.TOPIC, String.class);
         PublisherImpl publisher = new PublisherImpl();
-        publisher.addHandler(subscriber, map);
+        publisher.addHandler(subscriber);
 
         publisher.publish("A", "B");
 
@@ -32,21 +46,20 @@ public class PublisherImplTest {
     public void testThreadSubscribersReceivesEvents() {
         PublisherImpl publisher = new PublisherImpl();
         try {
-            publisher.setThreadSubscriber(subscriber);
+            publisher.addThreadSubscriber(subscriber);
 
             publisher.publish("A", "B");
 
             verify(subscriber).handle("A", "B");
         } finally {
-            publisher.unsetThreadSubscriber();
+            publisher.removeThreadSubscriber(subscriber);
         }
     }
 
     @Test
     public void testRemoveHandlerEnsuresItNoLongerReceivesEvents() {
-        Map<String, Object> map = ImmutableMap.<String, Object>of(Subscriber.TOPIC, String.class);
         PublisherImpl publisher = new PublisherImpl();
-        publisher.addHandler(subscriber, map);
+        publisher.addHandler(subscriber);
 
         publisher.publish("A", "B");
         publisher.removeHandler(subscriber);
@@ -57,25 +70,21 @@ public class PublisherImplTest {
 
     @Test
     public void testSubscriberReceivesEventsOfMultipleRegisteredTypes() {
-        Map<String, Object> map = ImmutableMap.<String, Object>of(Subscriber.TOPIC, new Class<?>[] {String.class, Integer.class});
         PublisherImpl publisher = new PublisherImpl();
-        publisher.addHandler(subscriber, map);
+        publisher.addHandler(subscriber);
 
         publisher.publish("A", "B");
         publisher.publish(1, "B");
 
         verify(subscriber).handle("A", "B");
-        verify(subscriber).handle(1, "B");
+        verify(subscriber,never()).handle(1, "B");
     }
 
     @Test
     public void testSubscriberDoesNotReceiveEventsOfNotRegisteredType() {
-        Map<String, Object> map = ImmutableMap.<String, Object>of(Subscriber.TOPIC, String.class);
         PublisherImpl publisher = new PublisherImpl();
-        publisher.addHandler(subscriber, map);
-
+        publisher.addHandler(subscriber);
         publisher.publish(1, "B");
-
         verify(subscriber, never()).handle(1, "B");
     }
 
