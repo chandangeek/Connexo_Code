@@ -21,7 +21,7 @@ public class UserImpl implements User {
     private UtcInstant modTime;
 
     // transient
-    private List<Group> groups;
+    private List<UserInGroup> memberships;
     
     @SuppressWarnings("unused")
     private UserImpl() {
@@ -79,8 +79,11 @@ public class UserImpl implements User {
         if (isMemberOf(group)) {
             return false;
         }
-        new UserInGroup(this, group).persist();
-        clearGroups();
+        UserInGroup membership = new UserInGroup(this, group);
+        if (memberships != null) {
+        	memberships.add(membership);
+        }
+        membership.persist();        
         return true;
     }
 
@@ -91,39 +94,33 @@ public class UserImpl implements User {
 
     @Override
     public boolean leave(Group group) {
-        for (UserInGroup userInGroup : fetchMemberships()) {
+        for (UserInGroup userInGroup : getMemberships()) {
             if (group.equals(userInGroup.getGroup())) {
                 userInGroup.delete();
-                clearGroups();
+                if (memberships != null) {
+                	memberships.remove(userInGroup);
+                }
                 return true;
             }
         }
         return false;
     }
 
-    private List<UserInGroup> fetchMemberships() {
-        return Bus.getOrmClient().getUserInGroupFactory().find("userId", getId());
-    }
-
-    private void clearGroups() {
-    	groups = null;
+    private List<UserInGroup> getMemberships() {
+    	if (memberships == null) {
+    		return Bus.getOrmClient().getUserInGroupFactory().find("user", this);
+    	}
+    	return memberships;
     }
     
     @Override
     public List<Group> getGroups() {
-    	if (groups == null) {
-    		List<UserInGroup> userInGroups = fetchMemberships();
-    		ImmutableList.Builder<Group> builder = ImmutableList.builder();
-    		for (UserInGroup each : userInGroups) {
-    			builder.add(each.getGroup());
-    		}
-    		groups = builder.build();
-    	}
-    	return groups;
-    }
-
-    void addGroup(Group group) {
-        new UserInGroup(this, group).persist();
+    	List<UserInGroup> userInGroups = getMemberships();
+    	ImmutableList.Builder<Group> builder = ImmutableList.builder();
+    	for (UserInGroup each : userInGroups) {
+    		builder.add(each.getGroup());
+   		}
+    	return builder.build();
     }
 
     public void save() {

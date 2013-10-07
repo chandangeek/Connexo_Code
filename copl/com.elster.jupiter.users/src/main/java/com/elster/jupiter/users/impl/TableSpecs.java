@@ -48,7 +48,7 @@ public enum TableSpecs {
 			Column privilegeNameColumn = table.addColumn("PRIVILEGENAME", "varchar2(80)" , true, NOCONVERSION , "privilegeName");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addPrimaryKeyConstraint("USR_PK_PRIVILEGEINGROUP", groupIdColumn , privilegeNameColumn);		
-			table.addForeignKeyConstraint("FK_PRIVINGROUP2GROUP", USR_GROUP.name(), CASCADE, new AssociationMapping("group"),groupIdColumn);
+			table.addForeignKeyConstraint("FK_PRIVINGROUP2GROUP", USR_GROUP.name(), CASCADE, new AssociationMapping("group","privilegeInGroups"),groupIdColumn);
 			table.addForeignKeyConstraint("FK_PRIVINGROUP2PRIV", USR_PRIVILEGE.name(), CASCADE, new AssociationMapping("privilege"), privilegeNameColumn);
 		}
 	},
@@ -59,7 +59,7 @@ public enum TableSpecs {
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addPrimaryKeyConstraint("USR_PK_USERINGROUP", groupIdColumn , userIdColumn);		
 			table.addForeignKeyConstraint("FK_USERINGROUP2GROUP", USR_GROUP.name(), CASCADE, new AssociationMapping("group"), groupIdColumn);
-			table.addForeignKeyConstraint("FK_USERINGROUP2USER", USR_USER.name(), CASCADE, new AssociationMapping("user"), userIdColumn);
+			table.addForeignKeyConstraint("FK_USERINGROUP2USER", USR_USER.name(), CASCADE, new AssociationMapping("user","memberships"), userIdColumn);
 		}
 	};
 	

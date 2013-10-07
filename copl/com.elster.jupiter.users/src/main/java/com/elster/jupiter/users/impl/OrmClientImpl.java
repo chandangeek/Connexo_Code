@@ -21,7 +21,7 @@ class OrmClientImpl implements OrmClient {
 
 	@Override
 	public TypeCache<Group> getGroupFactory() {
-		return Bus.getComponentCache().getTypeCache(Group.class, GroupImpl.class, USR_GROUP.name());
+		return Bus.getComponentCache().getTypeCache(Group.class, GroupImpl.class, USR_GROUP.name(),getPrivilegeInGroupFactory());
 	}
 	
 	@Override

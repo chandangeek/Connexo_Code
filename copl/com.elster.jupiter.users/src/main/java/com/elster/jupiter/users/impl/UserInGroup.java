@@ -5,12 +5,12 @@ import com.elster.jupiter.util.time.UtcInstant;
 
 public class UserInGroup {
 	// persistent fields
-	@SuppressWarnings("unused")
 	private long userId;
 	private long groupId;
 	@SuppressWarnings("unused")
 	private UtcInstant createTime;
 	// associations
+	private User user;
 	private Group group;
 
 	
@@ -19,6 +19,7 @@ public class UserInGroup {
 	}
 	
 	UserInGroup(User user, Group group) {
+		this.user = user;
 		this.userId = user.getId();
 		this.group = group;
 		this.groupId = group.getId();		
@@ -26,10 +27,16 @@ public class UserInGroup {
 	
 	Group getGroup() {
 		if (group == null) {
-			group = Bus.getOrmClient().getGroupFactory().getExisting(groupId);
-			
+			group = Bus.getOrmClient().getGroupFactory().getExisting(groupId);			
 		}
 		return group;
+	}
+	
+	User getUser() {
+		if (user == null) {
+			user = Bus.getOrmClient().getUserFactory().getExisting(userId);
+		}
+		return user;
 	}
 	
 	void persist() {
@@ -38,6 +45,5 @@ public class UserInGroup {
 
     public void delete() {
         Bus.getOrmClient().getUserInGroupFactory().remove(this);
-
     }
 }

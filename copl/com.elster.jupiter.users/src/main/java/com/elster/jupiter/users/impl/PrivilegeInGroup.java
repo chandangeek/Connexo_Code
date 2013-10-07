@@ -12,14 +12,16 @@ class PrivilegeInGroup {
 	private UtcInstant createTime;
 	
 	// associations
-	Privilege privilege;
+	private Privilege privilege;
+	private Group group;
 	
 	@SuppressWarnings("unused")
 	private PrivilegeInGroup() {		
 	}
 	
-	PrivilegeInGroup(Group group , Privilege privilege) {
+	PrivilegeInGroup(Group group , Privilege privilege) {		
 		this.groupId = group.getId();
+		this.group = group;
 		this.privilegeName = privilege.getName();
 		this.privilege = privilege;
 	}
@@ -29,6 +31,13 @@ class PrivilegeInGroup {
 			privilege = Bus.getOrmClient().getPrivilegeFactory().getExisting(privilegeName);
 		}
 		return privilege;
+	}
+	
+	Group getGroup() {
+		if (group == null) {
+			group = Bus.getOrmClient().getGroupFactory().getExisting(groupId);
+		}
+		return group;
 	}
 	
 	void persist() {

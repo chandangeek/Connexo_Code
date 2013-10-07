@@ -14,6 +14,7 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.*;
 import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
@@ -87,7 +88,10 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public Optional<User> findUser(String authenticationName) {
-        return userFactory().getUnique("authenticationName", authenticationName);
+    	Condition condition = Operator.EQUAL.compare("authenticationName",authenticationName);
+        List<User> users = userFactory().with(Bus.getOrmClient().getUserInGroupFactory()).select(condition,new String[] {}, true, new String[] {});
+        return users.isEmpty() ? Optional.<User>absent() : Optional.of(users.get(0));
+        
 	}
 
     @Override

@@ -24,7 +24,7 @@ final class GroupImpl implements Group , PersistenceAware {
 	private UtcInstant modTime;
 	
 	//transient fields
-	private List<Privilege> privileges;
+	private List<PrivilegeInGroup> privilegeInGroups;
 	
 	@SuppressWarnings("unused")
 	private GroupImpl() {		
@@ -58,18 +58,19 @@ final class GroupImpl implements Group , PersistenceAware {
 
     @Override
 	public List<Privilege> getPrivileges() {    	
-    	return getPrivileges(true);
-	}
-
-    private List<Privilege> getPrivileges(boolean protect) {
-    	if (privileges == null) {
-    		List<PrivilegeInGroup> privilegeInGroups = fetchPrivilegeInGroups();
-    		privileges = new ArrayList<>(privilegeInGroups.size());
-    		for (PrivilegeInGroup each : privilegeInGroups) {
-    			privileges.add(each.getPrivilege());
-    		}    	
+    	List<PrivilegeInGroup> privilegeInGroups = getPrivilegeInGroups();
+    	ImmutableList.Builder<Privilege> builder = new ImmutableList.Builder<>();
+    	for (PrivilegeInGroup each : privilegeInGroups) {
+    		builder.add(each.getPrivilege());
+    	}    	    	
+    	return builder.build();
+    }
+    
+    private List<PrivilegeInGroup> getPrivilegeInGroups() {
+    	if (privilegeInGroups == null) {
+    		privilegeInGroups = Bus.getOrmClient().getPrivilegeInGroupFactory().find("groupId", getId());
     	}
-    	return protect ? Collections.unmodifiableList(privileges) : privileges;
+    	return privilegeInGroups;
     }
     
     @Override
@@ -82,25 +83,24 @@ final class GroupImpl implements Group , PersistenceAware {
         if (hasPrivilege(privilege)) {
             return false;
         }
-		new PrivilegeInGroup(this,privilege).persist();
-		getPrivileges(false).add(privilege);
+		PrivilegeInGroup privilegeInGroup = new PrivilegeInGroup(this,privilege);
+		privilegeInGroup.persist();
+		getPrivilegeInGroups().add(privilegeInGroup);
         return false;
 	}
 
     @Override
     public boolean revoke(Privilege privilege) {
-        for (PrivilegeInGroup each : fetchPrivilegeInGroups()) {
-            if (each.getPrivilege().equals(privilege)) {
+    	Iterator<PrivilegeInGroup> it = getPrivilegeInGroups().iterator();
+    	while (it.hasNext()) {
+    		PrivilegeInGroup each = it.next();
+    		if (each.getPrivilege().equals(privilege)) {
                 each.delete();
-                getPrivileges(false).remove(privilege);         
+                it.remove();
                 return true;
             }
         }
         return false;
-    }
-
-    private List<PrivilegeInGroup> fetchPrivilegeInGroups() {
-        return Bus.getOrmClient().getPrivilegeInGroupFactory().find("groupId", getId());
     }
 
     void persist() {
