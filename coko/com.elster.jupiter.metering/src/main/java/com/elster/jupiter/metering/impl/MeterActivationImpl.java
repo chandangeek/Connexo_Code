@@ -116,7 +116,7 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
-	public List<? extends BaseReading> getReadings(Date from, Date to,ReadingType readingType) {
+	public List<? extends BaseReading> getReadings(Date from, Date to, ReadingType readingType) {
 		Interval requested = new Interval(from, to);
         if (!requested.overlaps(interval)) {
             return Collections.emptyList();

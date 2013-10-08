@@ -42,13 +42,21 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	public String getAliasName() {
 		return aliasName;
 	}
-	
-	@Override
+
+    public void setAliasName(String aliasName) {
+        this.aliasName = aliasName;
+    }
+
+    @Override
 	public String getDescription() {
 		return description;
 	}
-	
-	public void persist() {
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void persist() {
 		Bus.getOrmClient().getServiceCategoryFactory().persist(this);
 	}
 	
