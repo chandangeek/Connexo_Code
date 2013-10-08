@@ -173,7 +173,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         METER_PROTOCOLS.put("com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382", "SmartMeter - NTA DSMR 2.3 Iskra Mx382 protocol");
         METER_PROTOCOLS.put("com.energyict.protocolimpl.modbus.enerdis.enerium150.Enerium150", "Enerdis Enerium 150 modbus meter");
         METER_PROTOCOLS.put("com.energyict.protocolimpl.modbus.enerdis.enerium50.Enerium50", "Enerdis Enerium 50 modbus meter");
-        METER_PROTOCOLS.put("com.energyict.protocolimpl.modbus.northerndesign.eimeterflex.EIMeterFlexSM352", "EIMeter Flex SM352 submetering module");
+        METER_PROTOCOLS.put("com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule", "EIMeter Flex slave module");
         METER_PROTOCOLS.put("com.energyict.protocolimpl.dlms.JanzC280.JanzC280", "DLMS Janz C280");
         METER_PROTOCOLS.put("com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350", "DSMR 4.0 Landis & Gyr E350 DLMS meter");
         METER_PROTOCOLS.put("com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372", "SmartMeter IskraMx372");
