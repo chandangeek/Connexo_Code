@@ -237,7 +237,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),
     INDIGO_PXAR(10003, "com.energyict.protocolimpl.iec1107.indigo.pxar.IndigoPXAR"),
-    DL220_INSTROMET(10004, "com.energyict.protocolimpl.iec1107.instromet.dl220.DL220"),
     INDIGO_PLUS_SAMPLE(10005, "com.energyict.protocolimpl.sampleiec1107.indigo.IndigoPlus"),
     WAVE_FLOW_V2(10006, "com.energyict.protocolimplv2.coronis.waveflow.waveflowV2.WaveFlowV2"),
     ECHELON(10008, "com.energyict.rtuprotocol.Echelon"),

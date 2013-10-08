@@ -1,7 +1,7 @@
 package com.elster.protocolimpl.lis200.objects;
 
+import com.elster.protocolimpl.lis200.commands.WriteCommand;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.WriteCommand;
 
 import java.io.IOException;
 

@@ -1,10 +1,12 @@
 /**
  * 
  */
-package com.energyict.protocolimpl.iec1107.instromet.dl220.commands;
+package com.elster.protocolimpl.lis200.commands;
 
 
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 

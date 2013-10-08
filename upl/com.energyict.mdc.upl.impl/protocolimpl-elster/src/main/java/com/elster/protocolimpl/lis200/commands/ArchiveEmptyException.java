@@ -1,4 +1,4 @@
-package com.energyict.protocolimpl.iec1107.instromet.dl220.commands;
+package com.elster.protocolimpl.lis200.commands;
 
 import java.io.IOException;
 

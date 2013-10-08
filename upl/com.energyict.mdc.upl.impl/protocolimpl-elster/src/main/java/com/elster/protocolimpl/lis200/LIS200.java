@@ -1,5 +1,6 @@
 package com.elster.protocolimpl.lis200;
 
+import com.elster.protocolimpl.lis200.commands.AbstractCommand;
 import com.elster.protocolimpl.lis200.objects.AbstractObject;
 import com.elster.protocolimpl.lis200.objects.HistoricalValueObject;
 import com.elster.protocolimpl.lis200.objects.IntervalObject;
@@ -32,7 +33,6 @@ import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
-import com.energyict.protocolimpl.iec1107.instromet.dl220.commands.AbstractCommand;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -38,9 +38,6 @@
     native <methods>;
 }
 
-# This one is the old DL220 implementation
--keepnames class com.energyict.protocolimpl.iec1107.instromet.dl220.DL220
-
 # The Dsfg driver
 -keepnames class com.elster.protocolimpl.dsfg.Dsfg
 
