@@ -240,7 +240,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     DL220_INSTROMET(10004, "com.energyict.protocolimpl.iec1107.instromet.dl220.DL220"),
     INDIGO_PLUS_SAMPLE(10005, "com.energyict.protocolimpl.sampleiec1107.indigo.IndigoPlus"),
     WAVE_FLOW_V2(10006, "com.energyict.protocolimplv2.coronis.waveflow.waveflowV2.WaveFlowV2"),
-    APOLLO(10007, "com.energyict.protocolimplv2.elster.am100r.apollo.ApolloMeter"),
     ECHELON(10008, "com.energyict.rtuprotocol.Echelon"),
     EICT_Z3(10009, "com.energyict.protocolimpl.dlms.eictz3.EictZ3"),
     DLMSZMD(10010, "com.energyict.protocolimpl.dlms.DLMSZMD"),
