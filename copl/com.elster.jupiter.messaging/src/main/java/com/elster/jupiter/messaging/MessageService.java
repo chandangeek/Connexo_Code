@@ -7,6 +7,9 @@ import com.google.common.base.Optional;
  */
 public interface MessageService {
 
+    String DESTINATION_NAME = "destination";
+    String SUBSCRIBER_NAME = "subscriber";
+
     /**
      * Creates a new persisted and activated QueueTableSpec
      * @param name
