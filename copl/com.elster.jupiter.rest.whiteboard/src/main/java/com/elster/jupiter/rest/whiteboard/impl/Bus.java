@@ -1,5 +1,6 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 
@@ -25,8 +26,8 @@ class Bus {
 		return locator.getThreadPrincipalService();
 	}
 
-    static void fire(Object event) {
-        locator.getPublisher().publish(event);
+    static void fire(RestCallExecutedEvent event) {
+        locator.fire(event);
     }
 
 	private Bus() {

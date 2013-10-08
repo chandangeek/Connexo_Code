@@ -1,13 +1,18 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
+import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
+import com.elster.jupiter.transaction.*;
 import com.elster.jupiter.util.time.StopWatch;
-import java.util.logging.*;
+import com.google.common.collect.ImmutableMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.osgi.service.event.Event;
+
 import java.io.IOException;
 import java.net.URL;
 
@@ -31,12 +36,105 @@ public class EventServletWrapper extends HttpServlet {
     }
 
     protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        StopWatch stopWatch = new StopWatch(true);
-        servlet.service(request,response);
-        stopWatch.stop();
-        URL url = new URL(request.getRequestURL().toString());
-        RestCallExecutedEvent event = new RestCallExecutedEvent(url, stopWatch);
-        Bus.fire(event);        
+        Tracker tracker = new Tracker(new URL(request.getRequestURL().toString()));
+        Bus.getServiceLocator().getPublisher().addThreadSubscriber(tracker);
+        try {
+        	servlet.service(request,response);        	
+        } finally {
+        	tracker.stop();
+        	Bus.getServiceLocator().getPublisher().removeThreadSubscriber(tracker);
+        }       
+        Bus.fire(tracker);        
+    }
+    
+    static class Tracker implements Subscriber , RestCallExecutedEvent {
+    	
+    	private final URL url;
+    	private StopWatch stopWatch;
+    	private int transactionCount;
+    	private int sqlCount;
+    	private int fetchCount;
+    	private int failedCount;
+    	
+    	Tracker(URL url) {
+    		stopWatch = new StopWatch(true);
+    		this.url = url;
+    	}
+    	
+    	@Override
+    	public StopWatch getStopWatch() {
+    		return stopWatch;
+    	}
+
+		@Override
+		public void handle(Object rawEvent, Object... eventDetails) {
+			if (rawEvent instanceof SqlEvent) {
+				SqlEvent event = (SqlEvent) rawEvent;
+				sqlCount++;
+				fetchCount += event.getFetchCount();				
+			} 
+			if (rawEvent instanceof TransactionEvent) {
+				TransactionEvent event = (TransactionEvent) rawEvent;
+				transactionCount++;
+				if (event.hasFailed()) {
+					failedCount++;
+				}				
+			}			
+		}
+
+		@Override
+		public Class<?>[] getClasses() {			
+			return new Class<?>[] { SqlEvent.class , TransactionEvent.class };
+		}
+
+		@Override
+		public URL getUrl() {
+			return url;
+		}
+		
+		private void stop() {
+			this.stopWatch.stop();
+		}
+
+		@Override
+		public int getSqlCount() {
+			return sqlCount;
+		}
+
+		@Override
+		public int getTransactionCount() {
+			return transactionCount;
+		}
+
+		@Override
+		public int getFailedCount() {
+			return failedCount;
+		}
+
+		@Override
+		public int getFetchCount() {
+			return fetchCount;
+		}
+		
+    	@Override
+		public String toString() {
+			return 
+				"Rest call to " + url + " took " + stopWatch.getElapsed() / 1000L + " µs, executed " +
+				getSqlCount() + " sql statements, fetched " + getFetchCount() + " tuples and executed " + getTransactionCount() +  
+				" transactions";
+		}
+
+		@Override
+		public Event toOsgiEvent() {		
+			ImmutableMap.Builder<String,Object> builder = new ImmutableMap.Builder<>();
+			builder
+				.put("url",url.toString())
+				.put("elapsed",stopWatch.getElapsed()/1000L)
+				.put("sqlCount",sqlCount)
+				.put("fetchCount",fetchCount)
+				.put("txCount",transactionCount);
+			return new Event("com/elster/jupiter/rest/INVOCATION", builder.build());					
+		}
     }
 
 }
