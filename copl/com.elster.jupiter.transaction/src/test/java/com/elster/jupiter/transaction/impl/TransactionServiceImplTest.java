@@ -1,6 +1,7 @@
 package com.elster.jupiter.transaction.impl;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
+import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.NestedTransactionException;
@@ -42,6 +43,8 @@ public class TransactionServiceImplTest {
     private Connection connection;
     @Mock
     private SQLException sqlException;
+    @Mock
+    private Publisher publisher;
 
     @Before
     public void setUp() throws SQLException {
@@ -52,13 +55,16 @@ public class TransactionServiceImplTest {
 
         transactionService.setBootstrapService(bootStrapService);
         transactionService.setThreadPrincipalService(threadPrincipalService);
+        transactionService.setPublisher(publisher);
         transactionalDataSource = new TransactionalDataSource();
         transactionalDataSource.setTransactionService(transactionService);
+
+        Bus.setServiceLocator(transactionService);
     }
 
     @After
     public void tearDown() {
-
+        Bus.setServiceLocator(null);
     }
 
     @Test(expected = NestedTransactionException.class)
