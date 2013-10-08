@@ -4,11 +4,7 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReading;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.Reading;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -191,6 +187,17 @@ public class ChannelImpl implements Channel {
 		}
 		return builder.build();
 	}
+	
+	@Override 
+	public List<BaseReading> getReadings(Date from, Date to) {
+		boolean isRegular = getIntervalLength() != null;
+		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+		ImmutableList.Builder<BaseReading> builder = ImmutableList.builder();
+		for (TimeSeriesEntry entry : entries) {
+			builder.add(isRegular ? new IntervalReadingImpl(this, entry) : new ReadingImpl(this, entry));
+		}
+		return builder.build();
+	}
 
     @Override
     public List<IntervalReading> getIntervalReadings(ReadingType readingType, Date from, Date to) {
@@ -198,11 +205,36 @@ public class ChannelImpl implements Channel {
         ImmutableList.Builder<IntervalReading> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             IntervalReadingImpl reading = new IntervalReadingImpl(this, entry);
+            builder.add(new FilteredIntervalReading(reading, getReadingTypes().indexOf(readingType)));
+        }
+        return builder.build();
+    }
+
+    @Override
+    public List<Reading> getRegisterReadings(ReadingType readingType, Date from, Date to) {
+        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+        ImmutableList.Builder<Reading> builder = ImmutableList.builder();
+        for (TimeSeriesEntry entry : entries) {
+            ReadingImpl reading = new ReadingImpl(this, entry);
             builder.add(new FilteredReading(reading, getReadingTypes().indexOf(readingType)));
         }
         return builder.build();
     }
 
+    @Override
+    public List<BaseReading> getReadings(ReadingType readingType, Date from, Date to) {
+    	boolean isRegular = getIntervalLength() != null;
+    	int index = getReadingTypes().indexOf(readingType);
+        List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
+        ImmutableList.Builder<BaseReading> builder = ImmutableList.builder();
+        for (TimeSeriesEntry entry : entries) {
+            builder.add(
+            	isRegular ? 
+            	new FilteredIntervalReading(new IntervalReadingImpl(this, entry), index) :
+            	new FilteredReading(new ReadingImpl(this, entry),index));
+        }
+        return builder.build();
+    }
     @Override
 	public List<Reading> getRegisterReadings(Date from, Date to) {
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);

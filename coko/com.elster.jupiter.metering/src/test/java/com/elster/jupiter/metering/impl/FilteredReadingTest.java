@@ -23,7 +23,7 @@ public class FilteredReadingTest {
     private static final BigDecimal VALUE2 = BigDecimal.valueOf(2, 0);
     private static final BigDecimal VALUE3 = BigDecimal.valueOf(3, 0);
     private static final BigDecimal VALUE4 = BigDecimal.valueOf(4, 0);
-    private FilteredReading filteredReading;
+    private FilteredIntervalReading filteredReading;
 
     @Mock
     private IntervalReading source;
@@ -32,7 +32,7 @@ public class FilteredReadingTest {
 
     @Before
     public void setUp() {
-        filteredReading = new FilteredReading(source, 1, 3, 0);
+        filteredReading = new FilteredIntervalReading(source, 1, 3, 0);
 
         when(source.getReadingType(1)).thenReturn(readingType1);
         when(source.getReadingType(2)).thenReturn(readingType2);

@@ -11,9 +11,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class MeterActivationImpl implements MeterActivation {
 	//persistent fields
@@ -116,7 +114,7 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
-	public List<? extends BaseReading> getReadings(Date from, Date to,ReadingType readingType) {
+	public List<BaseReading> getReadings(Date from, Date to,ReadingType readingType) {		 
 		Interval requested = new Interval(from, to);
         if (!requested.overlaps(interval)) {
             return Collections.emptyList();
@@ -124,7 +122,7 @@ public class MeterActivationImpl implements MeterActivation {
         Interval active = requested.intersection(interval);
         for (Channel channel : getChannels()) {
             if (channel.getReadingTypes().contains(readingType)) {
-                return channel.getIntervalReadings(readingType, active.getStart(), active.getEnd());
+                return channel.getReadings(readingType, active.getStart(), active.getEnd());
             }
         }
         return Collections.emptyList();
