@@ -9,11 +9,13 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -147,11 +149,12 @@ public class MeteringServiceImplTest {
     @Test
     public void testFindServiceLocationJournal() {
         long id = 156L;
-        when(serviceLocationFactory.getJournal(id)).thenReturn(Arrays.asList(serviceLocation));
+        JournalEntry<ServiceLocation> journalEntry = new JournalEntry<>(new UtcInstant(1455245L), serviceLocation);
+        when(serviceLocationFactory.getJournal(id)).thenReturn(Arrays.asList(journalEntry));
 
         assertThat(meteringService.findServiceLocationJournal(id))
                 .hasSize(1)
-                .contains(serviceLocation);
+                .contains(journalEntry);
     }
 
 

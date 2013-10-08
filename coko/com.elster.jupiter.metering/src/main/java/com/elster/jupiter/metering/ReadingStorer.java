@@ -3,15 +3,15 @@ package com.elster.jupiter.metering;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public interface ReadingStorer { // TODO discuss API with Karel
+public interface ReadingStorer {
 
-    void add(Channel channel, Date dateTime, long profileStatus, BigDecimal... values);
+    void addIntervalReading(Channel channel, Date dateTime, long profileStatus, BigDecimal... values);
 
-    void add(Channel channel, Date dateTime, BigDecimal value);
+    void addReading(Channel channel, Date dateTime, BigDecimal value);
 
-    void add(Channel channel, Date dateTime, BigDecimal value, Date from);
+    void addReading(Channel channel, Date dateTime, BigDecimal value, Date from);
 
-    void add(Channel channel, Date dateTime, BigDecimal value, Date from, Date when);
+    void addReading(Channel channel, Date dateTime, BigDecimal value, Date from, Date when);
 
     boolean overrules();
 
