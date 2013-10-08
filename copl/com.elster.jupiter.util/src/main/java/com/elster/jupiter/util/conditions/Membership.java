@@ -6,7 +6,7 @@ public class Membership extends Leaf {
 	private final ListOperator operator;
 	private final String[] fieldNames;
 	
-	Membership(Subquery subquery , ListOperator operator , String[] fieldNames) {
+	Membership(Subquery subquery , ListOperator operator , String... fieldNames) {
 		this.fieldNames = fieldNames;
 		this.operator = operator;
 		this.subquery = subquery;
