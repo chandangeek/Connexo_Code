@@ -15,7 +15,6 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -120,7 +119,7 @@ abstract class PartyImpl implements Party {
         if (partyInRoles == null) {
             partyInRoles = Bus.getOrmClient().getPartyInRoleFactory().find("party",this);
         }
-        return Collections.unmodifiableList(partyInRoles);
+        return partyInRoles;
     }
 
     public TelephoneNumber getPhone1() {
@@ -271,7 +270,7 @@ abstract class PartyImpl implements Party {
     }
 
     private void validateAddingRole(PartyInRoleImpl candidate) {
-        for (PartyInRole partyInRole : getPartyInRoles()) {
+        for (PartyInRole partyInRole : doGetPartyInRoles()) {
             if (candidate.conflictsWith(partyInRole)) {
                 throw new IllegalArgumentException("Conflicts with existing Role : " + partyInRole);
             }
