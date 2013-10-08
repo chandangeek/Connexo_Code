@@ -1,12 +1,15 @@
 package com.elster.jupiter.events.impl;
 
+import com.elster.jupiter.events.EventPropertyType;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.NoSuchTopicException;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.pubsub.Publisher;
@@ -20,6 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
+import static com.elster.jupiter.events.impl.TableSpecs.EVT_EVENTPROPERTYTYPE;
 import static com.elster.jupiter.events.impl.TableSpecs.EVT_EVENTTYPE;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -38,8 +42,6 @@ public class EventServiceImplTest {
     @Mock
     private Table table;
     @Mock
-    private ServiceLocator serviceLocator;
-    @Mock
     private ComponentCache componentCache;
     @Mock
     private TypeCache<EventType> eventTypeFactory;
@@ -51,25 +53,31 @@ public class EventServiceImplTest {
     private LocalEvent localEvent;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private CacheService cacheService;
+    @Mock
+    private DataMapper<EventPropertyType> eventTypePropertyFactory;
 
     @Before
     public void setUp() {
 
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString())).thenReturn(table);
-        when(serviceLocator.getComponentCache()).thenReturn(componentCache);
-        when(componentCache.getTypeCache(EventType.class, EventTypeImpl.class, EVT_EVENTTYPE.name())).thenReturn(eventTypeFactory);
+        when(componentCache.getTypeCache(EventType.class, EventTypeImpl.class, EVT_EVENTTYPE.name(), eventTypePropertyFactory)).thenReturn(eventTypeFactory);
         when(eventTypeFactory.get(TOPIC)).thenReturn(Optional.of(eventType));
         when(eventType.create("")).thenReturn(localEvent);
         when(eventType.shouldPublish()).thenReturn(false);
+        when(cacheService.createComponentCache(dataModel)).thenReturn(componentCache);
+        when(dataModel.getDataMapper(EventPropertyType.class, EventPropertyTypeImpl.class, EVT_EVENTPROPERTYTYPE.name())).thenReturn(eventTypePropertyFactory);
 
         eventService = new EventServiceImpl();
 
         eventService.setOrmService(ormService);
         eventService.setPublisher(publisher);
         eventService.setEventAdmin(eventAdmin);
+        eventService.setCacheService(cacheService);
 
-        Bus.setServiceLocator(serviceLocator);
+        Bus.setServiceLocator(eventService);
     }
 
     @After
