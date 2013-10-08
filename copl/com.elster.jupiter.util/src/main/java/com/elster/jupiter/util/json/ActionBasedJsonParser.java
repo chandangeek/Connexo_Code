@@ -60,10 +60,10 @@ public final class ActionBasedJsonParser {
             case START_ARRAY:
                 tokens.add(ARRAY_MARKER);
                 break;
-            case END_ARRAY :
+            case END_ARRAY:
                 stripUntil(tokens, ARRAY_MARKER);
                 break;
-            case FIELD_NAME :
+            case FIELD_NAME:
                 if (isFieldName(previous(tokens))) {
                     tokens.remove(tokens.size() - 1);
                 }
@@ -94,6 +94,10 @@ public final class ActionBasedJsonParser {
     }
 
     private void stripUntil(List<String> tokens, String objectMarker) {
-        while (!objectMarker.equals(tokens.remove(tokens.size() - 1)));
+        String remove;
+        do {
+            remove = tokens.remove(tokens.size() - 1);
+        }
+        while (!objectMarker.equals(remove));
     }
 }

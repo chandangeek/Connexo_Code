@@ -1,5 +1,7 @@
 package com.elster.jupiter.util.conditions;
 
+import java.util.Arrays;
+
 public class Membership extends Leaf {
 	
 	private final Subquery subquery;
@@ -7,7 +9,7 @@ public class Membership extends Leaf {
 	private final String[] fieldNames;
 	
 	Membership(Subquery subquery , ListOperator operator , String... fieldNames) {
-		this.fieldNames = fieldNames;
+		this.fieldNames = Arrays.copyOf(fieldNames, fieldNames.length);
 		this.operator = operator;
 		this.subquery = subquery;
 	}

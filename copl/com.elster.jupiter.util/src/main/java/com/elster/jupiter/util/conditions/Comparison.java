@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.conditions;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 public final class Comparison extends Leaf {
 	private final String fieldName;
@@ -10,7 +11,7 @@ public final class Comparison extends Leaf {
 	Comparison(String fieldName , Operator operator , Object[] values) {
 		this.fieldName = fieldName;
 		this.operator = operator;
-		this.values = values;
+		this.values = Arrays.copyOf(values, values.length);
 	}
 	
 
