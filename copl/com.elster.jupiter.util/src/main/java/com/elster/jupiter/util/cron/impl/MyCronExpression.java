@@ -1,15 +1,17 @@
 package com.elster.jupiter.util.cron.impl;
 
+import com.elster.jupiter.util.cron.CronExpression;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeFieldType;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.MutableDateTime;
 import org.joda.time.ReadableDateTime;
 import org.joda.time.ReadableInstant;
 import org.joda.time.ReadablePartial;
-
-import com.elster.jupiter.util.cron.CronExpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,11 +20,14 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class MyCronExpression implements CronExpression {
 
+    private static final Pattern LAST_EXPRESSION = Pattern.compile("([1-7])?L");
+    private static final Pattern NEAREST_WEEKDAY_EXPRESSION = Pattern.compile("([1-9][0-9]?)?W");
     private static final Pattern SHORT_FORM_PATTERN = Pattern.compile("([^ ]+ ){5}[^ ]+]"); // only 6 fields instead of 7, omitting seconds
     private static final Pattern INTEGER = Pattern.compile("\\d+");
     private static final Pattern SINGLE_VALUE = Pattern.compile("[\\dA-Z]+");
@@ -30,20 +35,58 @@ class MyCronExpression implements CronExpression {
     private static final Pattern STEPS = Pattern.compile("([\\*\\dA-Z]+)/([\\dA-Z]+)");
     private static final long ALL_SIXTY = 0x0F_FF_FF_FF_FF_FF_FF_FFL;
     private static final long ALL_24 = 0x00_00_00_00_00_FF_FF_FFL;
+    private static final long ALL_28 = 0x00_00_00_00_1F_FF_FF_FEL;
+    private static final long ALL_29 = 0x00_00_00_00_3F_FF_FF_FEL;
+    private static final long ALL_30 = 0x00_00_00_00_7F_FF_FF_FEL;
     private static final long ALL_31 = 0x00_00_00_00_FF_FF_FF_FEL;
     private static final long ALL_12 = 0x00_00_00_00_00_00_1F_FEL;
     private static final long ALL_7 = 0x00_00_00_00_00_00_00_FEL;
+    private static final long[] MONTHS = new long[]{0, ALL_31, ALL_28, ALL_31, ALL_30, ALL_31, ALL_30, ALL_31, ALL_31, ALL_30, ALL_31, ALL_30, ALL_31};
+    private static final long[] LEAP_MONTHS = new long[]{0, ALL_31, ALL_29, ALL_31, ALL_30, ALL_31, ALL_30, ALL_31, ALL_31, ALL_30, ALL_31, ALL_30, ALL_31};
+    private static final int[] MULTIPLY_DE_BRUIJN_BIT_POSITION = {
+            0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
+            31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
+    };
+    private static final int DE_BRUIJN_MULTIPLIER = 0x077CB531;
+    private static final int DE_BRUIJN_SHIFT = 27;
+    private static final int BITS_PER_INT = 32;
     private final String expression;
 
-    private long[] fields = new long[6];
+    private long[] fields = new long[Field.values().length - 1];
     private List<YearMatcher> yearMatchers = new ArrayList<>();
+
+    private boolean lastDayOfMonth;
+    private Set<DayOfWeek> lastDayOfWeek = EnumSet.noneOf(DayOfWeek.class);
+    private long nearestWeekDay;
+    private boolean noDayOfMonthChecks;
+    private boolean noDayOfWeekChecks;
+    private boolean lastWeekDay;
 
     private enum Month {
         JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC
     }
 
     private enum DayOfWeek {
-        SUN, MON, TUE, WED, THU, FRI, SAT
+        SUN(7), MON(1), TUE(2), WED(3), THU(4), FRI(5), SAT(6);
+
+        private final int jodaIndex;
+
+        DayOfWeek(int jodaIndex) {
+            this.jodaIndex = jodaIndex;
+        }
+
+        private int getJodaIndex() {
+            return jodaIndex;
+        }
+
+        public static DayOfWeek forJodaIndex(int j) {
+            for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+                if (dayOfWeek.getJodaIndex() == j) {
+                    return dayOfWeek;
+                }
+            }
+            return null;
+        }
     }
 
     private interface YearMatcher {
@@ -230,8 +273,8 @@ class MyCronExpression implements CronExpression {
                 int from = numeric(field, matcher.group(1));
                 int to = numeric(field, matcher.group(2));
                 yearMatchers.add(new YearRange(from, to));
-            } else if (isSpecialValue(subSetExpression)) {
-                handleSpecialValue(field, subSetExpression);
+            } else if (isLastExpression(subSetExpression)) {
+                handleLastExpressionValue(field, subSetExpression, 0);
             } else if (SINGLE_VALUE.matcher(subSetExpression).matches()) {
                 int year = numeric(field, subSetExpression);
                 yearMatchers.add(new SingleYear(year));
@@ -266,41 +309,87 @@ class MyCronExpression implements CronExpression {
                     set |= 1L << from;
                     from++;
                 }
-            } else if (isSpecialValue(subSetExpression)) {
-                handleSpecialValue(field, subSetExpression);
+            } else if (isLastExpression(subSetExpression)) {
+                set = handleLastExpressionValue(field, subSetExpression, set);
+            } else if ("LW".equalsIgnoreCase(subSetExpression)) {
+                lastWeekDay = true;
+            } else if ((matcher = NEAREST_WEEKDAY_EXPRESSION.matcher(subSetExpression)).matches()) {
+                Integer dayOfMonth = Integer.valueOf(matcher.group(1));
+                nearestWeekDay |= (1 << dayOfMonth);
             } else if (SINGLE_VALUE.matcher(subSetExpression).matches()) {
                 int value = numeric(field, subSetExpression);
                 set |= (1L << value);
+            } else if ("?".equals(subSetExpression)) {
+                if (Field.DAY_OF_MONTH.equals(field)) {
+                    noDayOfMonthChecks = true;
+                } else if (Field.DAY_OF_WEEK.equals(field)) {
+                    noDayOfWeekChecks = true;
+                } else {
+                    throw new IllegalArgumentException("? not allowed here");
+                }
             } else {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("Invalid expression : " + subSetExpression);
             }
         }
         fields[field.ordinal()] = set;
     }
 
     public Date nextAfter(Date date) {
+        boolean inEarlierDSTOverlap = isInEarlierDSTOverlap(date);
+        Date normalNextAfter = doNextAfter(date);
+        if (!inEarlierDSTOverlap) {
+            return normalNextAfter;
+        }
+        return isInEarlierDSTOverlap(normalNextAfter) ? normalNextAfter : doNextAfterInclusive(new Date(DateTimeZone.getDefault().nextTransition(date.getTime())));
+    }
+
+    private Date doNextAfterInclusive(Date date) {
+        if (matches(date)) {
+            return date;
+        }
+        return doNextAfter(date);
+    }
+
+    private Date doNextAfter(Date date) {
         DateTime dateTime = new DateTime(date);
         if (isOnMatchingDay(dateTime)) {
             LocalTime localTime = nextTimeWithinDay(new LocalTime(dateTime));
             if (localTime != null) {
+                LocalDate localDate = dateTime.toLocalDate();
+                LocalDateTime localDateTime = localDate.toLocalDateTime(localTime);
+                if (DateTimeZone.getDefault().isLocalDateTimeGap(localDateTime)) {
+                    long transition = DateTimeZone.getDefault().nextTransition(localDate.toDateMidnight().getMillis());
+                    return nextAfter(new DateTime(transition).toDate());
+                }
                 return localTime.toDateTime(dateTime).toDate();
             }
         }
         LocalDate localDate = nextValidDay(new LocalDate(dateTime));
+        if (localDate == null) {
+            return null;
+        }
         LocalTime localTime = new LocalTime().withMillisOfDay(0);
         if (!matches(localTime)) {
             localTime = nextTimeWithinDay(new LocalTime().withMillisOfDay(0));
         }
-        return localDate.toLocalDateTime(localTime).toDateTime().toDate();
+        LocalDateTime localDateTime = localDate.toLocalDateTime(localTime);
+        if (DateTimeZone.getDefault().isLocalDateTimeGap(localDateTime)) {
+            long transition = DateTimeZone.getDefault().nextTransition(localDate.toDateMidnight().getMillis());
+            return nextAfter(new DateTime(transition).toDate());
+        }
+        return localDateTime.toDateTime().toDate();
+    }
+
+    private boolean isInEarlierDSTOverlap(Date date) {
+        long earlier = date.getTime();
+        long later = DateTimeZone.getDefault().adjustOffset(earlier, true);
+        return later != earlier;
     }
 
     @Override
     public boolean matches(Date date) {
         LocalDate localDate = new LocalDate(date);
-        if (!matches(localDate)) {
-            return false;
-        }
-        return matches(new LocalTime(date));
+        return matches(localDate) && matches(new LocalTime(date));
     }
 
     private LocalDate nextValidDay(LocalDate localDate) {
@@ -320,13 +409,16 @@ class MyCronExpression implements CronExpression {
         while (result != null && !isOnMatchingDayOfWeek(result)) {
             result = advanceToNextValidValue(result, Field.DAY_OF_MONTH);
         }
-        return localDate;
+        return result;
     }
 
     private boolean isOnMatchingDayOfWeek(LocalDate result) {
+        if (noDayOfWeekChecks) {
+            return true;
+        }
         long daysOfWeek = fields[Field.DAY_OF_WEEK.ordinal()];
-        int dayOfWeek = result.getDayOfWeek();
-        return (daysOfWeek & (1L << dayOfWeek)) != 0;
+        int dayOfWeek = 1 << (result.getDayOfWeek() % 7 + 1);
+        return (daysOfWeek & dayOfWeek) != 0 || lastDayOfWeek.contains(DayOfWeek.forJodaIndex(result.getDayOfWeek()));
     }
 
     private LocalDate nextDateWithinYear(LocalDate localDate) {
@@ -341,7 +433,14 @@ class MyCronExpression implements CronExpression {
         if (matches(result)) {
             return result;
         }
-        return result == null ? null : nextDateWithinMonth(result);
+        while (result != null) {
+            LocalDate resultWithinMonth = nextDateWithinMonth(result);
+            if (resultWithinMonth != null) {
+                return resultWithinMonth;
+            }
+            result = advanceToNextValidValue(result, Field.MONTH);
+        }
+        return null;
     }
 
     private boolean yearMatches(LocalDate result) {
@@ -352,7 +451,60 @@ class MyCronExpression implements CronExpression {
         if (Field.YEAR.equals(field)) {
             return advanceToNextYear(result);
         }
+        long tailFilter = tailFilter(result, field);
         long tailSet = tailSet(result, field);
+        if (Field.DAY_OF_MONTH.equals(field)) {
+            long[] months = result.year().isLeap() ? LEAP_MONTHS : MONTHS;
+            if (lastDayOfMonth) {
+                long lastDayOfMonth = months[result.getMonthOfYear()] | 1;
+                lastDayOfMonth = lastDayOfMonth - (lastDayOfMonth >>> 1);
+                tailSet |= (lastDayOfMonth & tailFilter);
+            }
+            if (!lastDayOfWeek.isEmpty()) {
+                int monthOfYear = result.getMonthOfYear();
+                LocalDate lastDayOfMonth = result.withDayOfMonth(1).plusMonths(1).minusDays(1);
+                for (DayOfWeek dayOfWeek : lastDayOfWeek) {
+                    LocalDate last = lastDayOfMonth.withDayOfWeek(dayOfWeek.getJodaIndex());
+                    if (last.getMonthOfYear() > monthOfYear) {
+                        last = last.minusDays(7);
+                    }
+                    tailSet |= ((1 << last.getDayOfMonth()) & tailFilter);
+                }
+            }
+            if (nearestWeekDay != 0) {
+                long applied = 0L;
+                long source = nearestWeekDay;
+                while (source != 0L) {
+                    int day = trailingZeroes(source);
+                    source &= ~(1 << day);
+                    int dayOfWeek = result.withDayOfMonth(day).getDayOfWeek();
+                    if (dayOfWeek == DateTimeConstants.SATURDAY) {
+                        if (day > 1) {
+                            day--; // to friday
+                        } else {
+                            day += 2; // to monday
+                        }
+                    }
+                    if (dayOfWeek == DateTimeConstants.SUNDAY) {
+                        if (day == result.dayOfMonth().getMaximumValue()) {
+                            day -= 2; // to friday
+                        } else {
+                            day++; // to monday
+                        }
+                    }
+                    applied |= (1 << day);
+                }
+                tailSet |= (applied & tailFilter);
+            }
+            if (lastWeekDay) {
+                LocalDate localDate = result.dayOfMonth().withMaximumValue();
+                if (localDate.getDayOfWeek() > DateTimeConstants.FRIDAY) {
+                    localDate = localDate.withDayOfWeek(DateTimeConstants.FRIDAY);
+                }
+                tailSet |= ((1 << localDate.getDayOfMonth()) & tailFilter);
+            }
+            tailSet = tailSet & months[result.getMonthOfYear()];
+        }
         int nextValidValue = trailingZeroes(tailSet);
         result = nextValidValue < 0 ? null : result.withField(field.getFieldType(), nextValidValue).property(field.getFieldType()).roundFloorCopy();
         return result;
@@ -396,10 +548,20 @@ class MyCronExpression implements CronExpression {
     }
 
     private long tailSet(ReadablePartial result, Field field) {
-        long hours = fields[field.ordinal()];
+        long allMarked = fields[field.ordinal()];
+        if (Field.DAY_OF_MONTH.equals(field) && !lastDayOfWeek.isEmpty()) {
+            for (DayOfWeek dayOfWeek : lastDayOfWeek) {
+                LocalDate localDate = lastDayOfWeekInMonth(dayOfWeek, (LocalDate) result);
+                allMarked |= (1 << localDate.getDayOfMonth());
+            }
+        }
+        return allMarked & tailFilter(result, field);
+    }
+
+    private long tailFilter(ReadablePartial result, Field field) {
         long tailFilter = 1L << result.get(field.getFieldType());
         tailFilter = ~(tailFilter | (tailFilter - 1));
-        return hours & tailFilter;
+        return tailFilter;
     }
 
     private LocalTime nextTimeWithinHour(LocalTime localTime) {
@@ -429,12 +591,13 @@ class MyCronExpression implements CronExpression {
         if (!isInMatchingYear(dateTime)) {
             return false;
         }
-        for (Field field : EnumSet.of(Field.MONTH, Field.DAY_OF_MONTH)) {
+        for (Field field : EnumSet.of(Field.MONTH, Field.DAY_OF_MONTH, Field.DAY_OF_WEEK)) {
             int value = field.get(dateTime);
             if (((1L << value) & fields[field.ordinal()]) == 0) {
                 return false;
             }
         }
+        //TODO incorporate last day of month / last day of week of month
         return true;
     }
 
@@ -452,10 +615,13 @@ class MyCronExpression implements CronExpression {
     }
 
     private boolean matches(LocalDate localDate) {
+        if (localDate == null) {
+            return false;
+        }
         if (!isMatchingYear(localDate.getYear())) {
             return false;
         }
-        for (Field field : EnumSet.of(Field.MONTH, Field.DAY_OF_MONTH)) {
+        for (Field field : EnumSet.of(Field.MONTH, Field.DAY_OF_MONTH, Field.DAY_OF_WEEK)) {
             int value = localDate.get(field.getFieldType());
             if (((1L << value) & fields[field.ordinal()]) == 0) {
                 return false;
@@ -478,24 +644,24 @@ class MyCronExpression implements CronExpression {
         return false;
     }
 
-    private long filter(long allValues, long givenSeconds) {
-        long mask = 1L << givenSeconds;
-        mask = ~((mask - 1) | mask);
-        long filter = allValues;
-        filter &= mask;
-        filter = filter & -filter;
-        return filter;
+    private long handleLastExpressionValue(Field field, String subSetExpression, long set) {
+        Matcher lastMatcher = LAST_EXPRESSION.matcher(subSetExpression);
+        if (Field.DAY_OF_MONTH.equals(field) && lastMatcher.matches()) {
+            lastDayOfMonth = true;
+        }
+        if (Field.DAY_OF_WEEK.equals(field) && lastMatcher.matches()) {
+            if (lastMatcher.group(1) == null) {
+                return set | 0x80;
+            } else {
+                Integer dayOfWeek = Integer.valueOf(lastMatcher.group(1));
+                lastDayOfWeek.add(DayOfWeek.values()[dayOfWeek - 1]);
+            }
+        }
+        return set;
     }
 
-
-    private void handleSpecialValue(Field field, String subSetExpression) {
-        //TODO automatically generated method body, provide implementation.
-
-    }
-
-    private boolean isSpecialValue(String subSetExpression) {
-        //TODO automatically generated method body, provide implementation.
-        return false;
+    private boolean isLastExpression(String subSetExpression) {
+        return LAST_EXPRESSION.matcher(subSetExpression).matches();
     }
 
     private int numeric(Field field, String singleValueExpression) {
@@ -506,7 +672,7 @@ class MyCronExpression implements CronExpression {
             return 0;
         }
         return Enum.valueOf(field.getStringParser(), singleValueExpression).ordinal() + 1;
-        		
+
     }
 
     @Override
@@ -521,15 +687,22 @@ class MyCronExpression implements CronExpression {
         if (value == 0) {
             return -1;
         }
-        int[] multiplyDeBruijnBitPosition = {
-                0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8,
-                31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9
-        };
         int v = (int) value;
         if (v != 0) {
-            return multiplyDeBruijnBitPosition[(((v & -v) * 0x077CB531) >>> 27)];
+            return MULTIPLY_DE_BRUIJN_BIT_POSITION[(((v & -v) * DE_BRUIJN_MULTIPLIER) >>> DE_BRUIJN_SHIFT)];
         }
-        v = (int) (value >>> 32);
-        return 32 + multiplyDeBruijnBitPosition[(((v & -v) * 0x077CB531) >>> 27)];
+        v = (int) (value >>> BITS_PER_INT);
+        return BITS_PER_INT + MULTIPLY_DE_BRUIJN_BIT_POSITION[(((v & -v) * DE_BRUIJN_MULTIPLIER) >>> DE_BRUIJN_SHIFT)];
+    }
+
+    private LocalDate nthDayOfWeekInMonth(int n, DayOfWeek dayOfWeek, LocalDate month) {
+        LocalDate start = month.withDayOfMonth(1);
+        LocalDate intermediate = start.withDayOfWeek(dayOfWeek.getJodaIndex());
+        return intermediate.isBefore(start) ? intermediate.plusWeeks(n) : intermediate.plusWeeks(n - 1);
+    }
+
+    private LocalDate lastDayOfWeekInMonth(DayOfWeek dayOfWeek, LocalDate month) {
+        LocalDate intermediate = nthDayOfWeekInMonth(5, dayOfWeek, month);
+        return intermediate.getMonthOfYear() == month.getMonthOfYear() ? intermediate : intermediate.minusWeeks(1);
     }
 }
