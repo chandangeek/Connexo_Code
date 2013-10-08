@@ -52,5 +52,9 @@ public final class TransactionEvent {
 		}
 		return new Event("com/elster/jupiter/transaction/TRANSACTION", builder.build());					
 	}
+	
+	public boolean hasFailed() {
+		return failed;
+	}
 
 }
