@@ -12,7 +12,7 @@
     <artifactId>fileimport</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>File import</name>
+    <name>[Jupiter] com.elster.jupiter.fileimport</name>
 
     <dependencies>
         <dependency>
