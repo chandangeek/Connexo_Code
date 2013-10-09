@@ -58,6 +58,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private static final String TABLE_NAME = "tableName";
     private static final String ID = "id";
     private static final String BATCH_EXECUTOR = "batch executor";
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private AppServerCreator appServerCreator = new DefaultAppServerCreator();
 
     private volatile OrmClient ormClient;
@@ -211,21 +212,21 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         try {
             getOrmClient().install();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
 
         try {
             User user = getUserService().createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
             user.save();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
 
         try {
             QueueTableSpec defaultQueueTableSpec = getMessageService().getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-            defaultQueueTableSpec.createDestinationSpec(ALL_SERVERS, 60);
+            defaultQueueTableSpec.createDestinationSpec(ALL_SERVERS, DEFAULT_RETRY_DELAY_IN_SECONDS);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

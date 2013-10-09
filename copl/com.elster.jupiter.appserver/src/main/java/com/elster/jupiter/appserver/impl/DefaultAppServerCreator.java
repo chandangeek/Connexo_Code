@@ -10,6 +10,8 @@ import com.google.common.base.Optional;
 
 public class DefaultAppServerCreator implements AppServerCreator {
 
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
+
     @Override
     public AppServer createAppServer(final String name, final CronExpression cronExpression) {
         return Bus.getTransactionService().execute(new Transaction<AppServer>() {
@@ -18,7 +20,7 @@ public class DefaultAppServerCreator implements AppServerCreator {
                 AppServerImpl server = new AppServerImpl(name, cronExpression);
                 Bus.getOrmClient().getAppServerFactory().persist(server);
                 QueueTableSpec defaultQueueTableSpec = Bus.getMessageService().getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-                DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(server.messagingName(), 60);
+                DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(server.messagingName(), DEFAULT_RETRY_DELAY_IN_SECONDS);
                 destinationSpec.subscribe(server.messagingName());
                 Optional<DestinationSpec> allServersTopic = Bus.getMessageService().getDestinationSpec(AppService.ALL_SERVERS);
                 if (allServersTopic.isPresent()) {

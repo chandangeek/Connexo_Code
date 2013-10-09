@@ -30,7 +30,6 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
                 Bus.getTransactionService().execute(processTransaction);
             } catch (RuntimeException e) {
                 logger.log(Level.SEVERE, "Message handler failed", e);
-                e.printStackTrace();
                 // transaction has been rolled back, message will be reoffered after a delay or moved to dead letter queue as configured, we can just continue with the next message
             }
         }
