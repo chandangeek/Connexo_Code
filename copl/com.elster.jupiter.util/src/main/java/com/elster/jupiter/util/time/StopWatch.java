@@ -8,7 +8,7 @@ import java.lang.management.ThreadMXBean;
  */
 public final class StopWatch {
 	
-	private static final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+	private static final ThreadMXBean THREAD_MX_BEAN = ManagementFactory.getThreadMXBean();
 	private final boolean measureCpu;
     private State state = new Running();
 	private long cpu;
@@ -24,7 +24,7 @@ public final class StopWatch {
 
         @Override
         public long getCpu() {
-            return threadMXBean.getCurrentThreadCpuTime() - cpu;
+            return THREAD_MX_BEAN.getCurrentThreadCpuTime() - cpu;
         }
 
         @Override
@@ -60,7 +60,7 @@ public final class StopWatch {
 		this.measureCpu = measureCpu;
 		this.elapsed = System.nanoTime();	
 		if (measureCpu) {
-			this.cpu = threadMXBean.getCurrentThreadCpuTime();
+			this.cpu = THREAD_MX_BEAN.getCurrentThreadCpuTime();
 		}
 	}
 
@@ -69,7 +69,7 @@ public final class StopWatch {
      */
 	public void stop() {
 		if (measureCpu) {
-			this.cpu = threadMXBean.getCurrentThreadCpuTime() - cpu;
+			this.cpu = THREAD_MX_BEAN.getCurrentThreadCpuTime() - cpu;
 		}
 		this.elapsed = System.nanoTime() - elapsed;
         state = new Stopped();

@@ -98,10 +98,11 @@ public final class SqlBuilder implements SqlFragment {
 
 	@Override
 	public int bind(PreparedStatement statement, int position) throws SQLException {
+        int pos = position;
 		for (SqlFragment each : fragments) {
-			position = each.bind(statement, position);
+            pos = each.bind(statement, pos);
 		}
-		return position;
+		return pos;
 	}
 
 	@Override

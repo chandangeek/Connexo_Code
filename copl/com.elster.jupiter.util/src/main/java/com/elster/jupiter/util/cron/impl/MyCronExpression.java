@@ -112,7 +112,7 @@ class MyCronExpression implements CronExpression {
         }
     }
 
-    private static class SingleYear implements YearMatcher {
+    private static final class SingleYear implements YearMatcher {
 
         private final int year;
 
@@ -131,7 +131,7 @@ class MyCronExpression implements CronExpression {
         }
     }
 
-    private static class YearRange implements YearMatcher {
+    private static final class YearRange implements YearMatcher {
 
         private final int from;
         private final int to;
@@ -158,7 +158,7 @@ class MyCronExpression implements CronExpression {
         }
     }
 
-    private static class YearSteps implements YearMatcher {
+    private static final class YearSteps implements YearMatcher {
 
         private final int from;
         private final int step;
@@ -467,15 +467,15 @@ class MyCronExpression implements CronExpression {
         if (Field.DAY_OF_MONTH.equals(field)) {
             long[] months = result.year().isLeap() ? LEAP_MONTHS : MONTHS;
             if (lastDayOfMonth) {
-                long lastDayOfMonth = months[result.getMonthOfYear()] | 1;
-                lastDayOfMonth = lastDayOfMonth - (lastDayOfMonth >>> 1);
-                tailSet |= (lastDayOfMonth & tailFilter);
+                long monthLastDay = months[result.getMonthOfYear()] | 1;
+                monthLastDay = monthLastDay - (monthLastDay >>> 1);
+                tailSet |= (monthLastDay & tailFilter);
             }
             if (!lastDayOfWeek.isEmpty()) {
                 int monthOfYear = result.getMonthOfYear();
-                LocalDate lastDayOfMonth = result.withDayOfMonth(1).plusMonths(1).minusDays(1);
+                LocalDate lastMonthDay = result.withDayOfMonth(1).plusMonths(1).minusDays(1);
                 for (DayOfWeek dayOfWeek : lastDayOfWeek) {
-                    LocalDate last = lastDayOfMonth.withDayOfWeek(dayOfWeek.getJodaIndex());
+                    LocalDate last = lastMonthDay.withDayOfWeek(dayOfWeek.getJodaIndex());
                     if (last.getMonthOfYear() > monthOfYear) {
                         last = last.minusWeeks(1);
                     }
@@ -517,8 +517,7 @@ class MyCronExpression implements CronExpression {
             tailSet = tailSet & months[result.getMonthOfYear()];
         }
         int nextValidValue = trailingZeroes(tailSet);
-        result = nextValidValue < 0 ? null : result.withField(field.getFieldType(), nextValidValue).property(field.getFieldType()).roundFloorCopy();
-        return result;
+        return nextValidValue < 0 ? null : result.withField(field.getFieldType(), nextValidValue).property(field.getFieldType()).roundFloorCopy();
     }
 
     private LocalDate advanceToNextYear(LocalDate result) {
@@ -554,8 +553,7 @@ class MyCronExpression implements CronExpression {
     private LocalTime advanceToNextValidValue(LocalTime result, Field field) {
         long tailSet = tailSet(result, field);
         int nextValidValue = trailingZeroes(tailSet);
-        result = nextValidValue < 0 ? null : result.withField(field.getFieldType(), nextValidValue).property(field.getFieldType()).roundFloorCopy();
-        return result;
+        return nextValidValue < 0 ? null : result.withField(field.getFieldType(), nextValidValue).property(field.getFieldType()).roundFloorCopy();
     }
 
     private long tailSet(ReadablePartial result, Field field) {
