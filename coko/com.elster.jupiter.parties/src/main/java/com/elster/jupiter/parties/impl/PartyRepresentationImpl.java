@@ -6,7 +6,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
-class PartyRepresentationImpl implements PartyRepresentation {
+final class PartyRepresentationImpl implements PartyRepresentation {
 
 	private String delegate;
 
@@ -35,6 +35,7 @@ class PartyRepresentationImpl implements PartyRepresentation {
         this.partyId = party.getId();
 		this.party = party;
 		this.delegate = delegate.getName();
+        this.delegateUser = delegate;
 		this.interval = interval;
 	}
 
@@ -79,5 +80,27 @@ class PartyRepresentationImpl implements PartyRepresentation {
     @Override
     public void setInterval(Interval interval) {
         this.interval = interval;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PartyRepresentationImpl that = (PartyRepresentationImpl) o;
+
+        return delegate.equals(that.delegate) && party.equals(that.party);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = delegate.hashCode();
+        result = 31 * result + party.hashCode();
+        return result;
     }
 }
