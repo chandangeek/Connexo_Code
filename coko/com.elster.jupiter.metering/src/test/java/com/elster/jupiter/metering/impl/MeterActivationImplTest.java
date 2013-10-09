@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.BaseReading;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReading;
 import com.elster.jupiter.metering.Meter;
@@ -127,7 +128,7 @@ public class MeterActivationImplTest {
     @Test
     public void testGetReadings() {
         Date to = new DateTime(2300, 2, 28, 14, 15, 9, 2).toDate();
-        when(channel1.getIntervalReadings(readingType1, ACTIVATION_TIME, END)).thenReturn(Arrays.asList(reading1, reading2));
+        when(channel1.getReadings(readingType1, ACTIVATION_TIME, END)).thenReturn(Arrays.<BaseReading>asList(reading1, reading2));
 
         meterActivation.endAt(END);
 
