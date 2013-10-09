@@ -32,13 +32,14 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.log.LogService;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -397,12 +398,9 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
                     @Override
                     public void run() {
                         try {
-                            System.out.println("Stopping AppServer");
-
                             context.getBundle(0).stop();
-                            System.out.println("Stopped");
                         } catch (BundleException e) {
-                            e.printStackTrace();
+                            logger.log(Level.SEVERE, e.getMessage(), e);
                         }
                     }
                 });
