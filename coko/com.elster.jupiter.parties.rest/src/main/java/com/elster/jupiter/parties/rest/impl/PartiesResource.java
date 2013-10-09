@@ -118,6 +118,15 @@ public class PartiesResource {
     }
 
     @PUT
+    @Path("/{id}/delegates")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public PartyRepresentationInfos updateRoles(@PathParam("id") long id, PartyRepresentationInfos infos) {
+        new UpdatePartyRepresentationsTransaction(id, infos);
+        return getDelegates(id);
+    }
+
+    @PUT
     @Path("/{id}/delegates/{authenticationName}/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
