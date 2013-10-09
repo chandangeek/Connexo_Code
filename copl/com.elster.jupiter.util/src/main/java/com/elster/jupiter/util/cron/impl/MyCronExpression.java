@@ -287,53 +287,62 @@ class MyCronExpression implements CronExpression {
     }
 
     private void handleSetBasedField(Field field, String fieldExpression) {
-        long set = fields[field.ordinal()];
+        fields[field.ordinal()] |= valuesForExpression(field, fieldExpression);
+    }
+
+    private long valuesForExpression(Field field, String fieldExpression) {
+        long set = 0;
         Scanner andScanner = new Scanner(fieldExpression).useDelimiter(",");
         while (andScanner.hasNext()) {
-            String subSetExpression = andScanner.next();
-            Matcher matcher;
-            if ("*".equals(subSetExpression)) {
-                set |= field.getMask();
-            } else if ((matcher = STEPS.matcher(subSetExpression)).matches()) {
-                String singleValueExpression = matcher.group(1);
-                int from = numeric(field, singleValueExpression);
-                int step = Integer.parseInt(matcher.group(2));
-                long bit = 1L << from;
-                while ((bit & field.getMask()) > 0) {
-                    set |= bit;
-                    bit <<= step;
-                }
-                set &= field.getMask();
-            } else if ((matcher = RANGE.matcher(subSetExpression)).matches()) {
-                int from = numeric(field, matcher.group(1));
-                int to = numeric(field, matcher.group(2));
-                while (from <= to) {
-                    set |= 1L << from;
-                    from++;
-                }
-            } else if (isLastExpression(subSetExpression)) {
-                set = handleLastExpressionValue(field, subSetExpression, set);
-            } else if ("LW".equalsIgnoreCase(subSetExpression)) {
-                lastWeekDay = true;
-            } else if ((matcher = NEAREST_WEEKDAY_EXPRESSION.matcher(subSetExpression)).matches()) {
-                Integer dayOfMonth = Integer.valueOf(matcher.group(1));
-                nearestWeekDay |= (1 << dayOfMonth);
-            } else if (SINGLE_VALUE.matcher(subSetExpression).matches()) {
-                int value = numeric(field, subSetExpression);
-                set |= (1L << value);
-            } else if ("?".equals(subSetExpression)) {
-                if (Field.DAY_OF_MONTH.equals(field)) {
-                    noDayOfMonthChecks = true;
-                } else if (Field.DAY_OF_WEEK.equals(field)) {
-                    noDayOfWeekChecks = true;
-                } else {
-                    throw new IllegalArgumentException("? not allowed here");
-                }
-            } else {
-                throw new IllegalArgumentException("Invalid expression : " + subSetExpression);
-            }
+            set |= valuesForSingleExpression(field, andScanner.next());
         }
-        fields[field.ordinal()] = set;
+        return set;
+    }
+
+    private long valuesForSingleExpression(Field field, String subSetExpression) {
+        long subset = 0;
+        Matcher matcher;
+        if ("*".equals(subSetExpression)) {
+            subset |= field.getMask();
+        } else if ((matcher = STEPS.matcher(subSetExpression)).matches()) {
+            String singleValueExpression = matcher.group(1);
+            int from = numeric(field, singleValueExpression);
+            int step = Integer.parseInt(matcher.group(2));
+            long bit = 1L << from;
+            while ((bit & field.getMask()) > 0) {
+                subset |= bit;
+                bit <<= step;
+            }
+            subset &= field.getMask();
+        } else if ((matcher = RANGE.matcher(subSetExpression)).matches()) {
+            int from = numeric(field, matcher.group(1));
+            int to = numeric(field, matcher.group(2));
+            while (from <= to) {
+                subset |= 1L << from;
+                from++;
+            }
+        } else if (isLastExpression(subSetExpression)) {
+            subset = handleLastExpressionValue(field, subSetExpression, subset);
+        } else if ("LW".equalsIgnoreCase(subSetExpression)) {
+            lastWeekDay = true;
+        } else if ((matcher = NEAREST_WEEKDAY_EXPRESSION.matcher(subSetExpression)).matches()) {
+            Integer dayOfMonth = Integer.valueOf(matcher.group(1));
+            nearestWeekDay |= (1 << dayOfMonth);
+        } else if (SINGLE_VALUE.matcher(subSetExpression).matches()) {
+            int value = numeric(field, subSetExpression);
+            subset |= (1L << value);
+        } else if ("?".equals(subSetExpression)) {
+            if (Field.DAY_OF_MONTH.equals(field)) {
+                noDayOfMonthChecks = true;
+            } else if (Field.DAY_OF_WEEK.equals(field)) {
+                noDayOfWeekChecks = true;
+            } else {
+                throw new IllegalArgumentException("? not allowed here");
+            }
+        } else {
+            throw new IllegalArgumentException("Invalid expression : " + subSetExpression);
+        }
+        return subset;
     }
 
     public Date nextAfter(Date date) {

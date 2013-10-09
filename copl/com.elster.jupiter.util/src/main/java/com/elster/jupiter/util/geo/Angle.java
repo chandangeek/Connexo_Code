@@ -14,7 +14,7 @@ public class Angle implements Comparable<Angle> {
 	
 	Angle (BigDecimal value)  {
 		if (value == null) {
-			throw new NullPointerException();
+			throw new IllegalArgumentException();
 		}
 		this.value = value;
 	}
