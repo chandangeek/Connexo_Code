@@ -8,7 +8,7 @@
     <artifactId>parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>Jupiter parent pom</name>
+    <name>[Jupiter] com.elster.jupiter.parent</name>
 
     <organization>
         <name>Elster</name>
