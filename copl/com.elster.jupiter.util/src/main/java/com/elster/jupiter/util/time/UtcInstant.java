@@ -7,8 +7,9 @@ import java.util.Date;
  * UtcInstant represents a moment in time with millisecond precision.
  */
 public final class UtcInstant implements Comparable<UtcInstant> {
-	
-	private final long ms;
+
+    private static final int BITS_PER_INT = 32;
+    private final long ms;
 
     /**
      * @param ms the number of milliseconds since the Java epoch.
@@ -61,7 +62,7 @@ public final class UtcInstant implements Comparable<UtcInstant> {
 
     @Override
     public int hashCode() {
-        return (int) (ms ^ (ms >>> 32));
+        return (int) (ms ^ (ms >>> BITS_PER_INT));
     }
 
     /**

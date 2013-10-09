@@ -123,6 +123,7 @@ public enum Unit {
     THERM("therm", "thm", Dimension.ENERGY, Constants.JOULE_PER_THERM),
     THERM_PER_HOUR("therm per hour", "thm/h", Dimension.POWER, Constants.JOULE_PER_THERM, Constants.BD3600),
     THERM_PER_DAY("therm per day", "thm/d", Dimension.POWER, Constants.JOULE_PER_THERM, Constants.BD86400);
+    private static final int EXTRA_PRECISION = 6;
 
     private final String name;
     private final String symbol;
@@ -266,7 +267,7 @@ public enum Unit {
 
     BigDecimal siValue(BigDecimal value) {
         BigDecimal newValue = value.multiply(siMultiplier);
-        newValue = newValue.divide(siDivisor, newValue.scale() + siDivisor.precision() + 6, BigDecimal.ROUND_HALF_UP);
+        newValue = newValue.divide(siDivisor, newValue.scale() + siDivisor.precision() + EXTRA_PRECISION, BigDecimal.ROUND_HALF_UP);
         newValue = newValue.add(siDelta);
         return newValue.stripTrailingZeros();
     }

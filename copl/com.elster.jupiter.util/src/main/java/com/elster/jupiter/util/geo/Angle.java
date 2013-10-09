@@ -6,8 +6,10 @@ import static com.elster.jupiter.util.Checks.is;
 
 public class Angle implements Comparable<Angle> {
 
-    private static final BigDecimal SIXTY = BigDecimal.valueOf(60);
+    private static final BigDecimal MINUTES_PER_HOUR = BigDecimal.valueOf(60);
     private static final BigDecimal BD3600 = BigDecimal.valueOf(3600);
+    private static final int BITS_PER_INT = 32;
+    private static final int SECONDS_PER_MINUTE = 60;
     private final BigDecimal value;
 	
 	Angle (BigDecimal value)  {
@@ -30,7 +32,7 @@ public class Angle implements Comparable<Angle> {
 
 	public final int hashCode() {
         long bits = Double.doubleToLongBits(this.value.doubleValue());
-        return (int)(bits ^ (bits >>> 32));
+        return (int)(bits ^ (bits >>> BITS_PER_INT));
     }
 
 	@Override
@@ -47,11 +49,11 @@ public class Angle implements Comparable<Angle> {
 	}
 	
 	public final int getMinutes() {
-        return value.remainder(BigDecimal.ONE).abs().multiply(SIXTY).intValue();
+        return value.remainder(BigDecimal.ONE).abs().multiply(MINUTES_PER_HOUR).intValue();
 	}
 	
 	public final int getSeconds() {
-        return value.remainder(BigDecimal.ONE).abs().multiply(BD3600).intValue() % 60;
+        return value.remainder(BigDecimal.ONE).abs().multiply(BD3600).intValue() % SECONDS_PER_MINUTE;
 	}
 	
 	public final Angle subtract(Angle other) {

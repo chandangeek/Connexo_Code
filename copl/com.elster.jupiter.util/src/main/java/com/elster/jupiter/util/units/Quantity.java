@@ -12,7 +12,22 @@ import java.util.Objects;
  * Immutable class representing a quantity in one unit.
  */
 public final class Quantity {
-	private final Unit unit;
+
+    private static final int PICO = -12;
+    private static final int NANO = -9;
+    private static final int MICRO = -6;
+    private static final int MILLI = -3;
+    private static final int CENTI = -2;
+    private static final int DECI = -1;
+    private static final int DECA = 1;
+    private static final int HECTO = 2;
+    private static final int KILO = 3;
+    private static final int MEGA = 6;
+    private static final int GIGA = 9;
+    private static final int TERA = 12;
+    private static final int PETA = 15;
+    private static final int EXA = 18;
+    private final Unit unit;
 	private final BigDecimal value;
 	private final int multiplier;
 	
@@ -47,35 +62,35 @@ public final class Quantity {
 	
 	private String getCode(int exponent, boolean asciiOnly) {
 		switch(exponent) {
-			case -12:
+			case PICO:
 				return "p";
-			case -9:
+			case NANO:
 				return "n";
-			case -6:
+			case MICRO:
 				return asciiOnly ? "micro" : "\u00b5";
-			case -3:
+			case MILLI:
 				return "m";
-			case -2:
+			case CENTI:
 				return "c";
-			case -1:
+			case DECI:
 				return "d";
 			case 0:
 				return "";
-			case 1:
+			case DECA:
 				return "Da";
-			case 2:
+			case HECTO:
 				return "h";
-			case 3:
+			case KILO:
 				return "k";
-			case 6:
+			case MEGA:
 				return "M";
-			case 9:
+			case GIGA:
 				return "G";
-			case 12:
+			case TERA:
 				return "T";
-			case 15:
+			case PETA:
 				return "P";
-			case 18:
+			case EXA:
 				return "E";
 			default:
 				return "*10^" + exponent;					
@@ -111,16 +126,4 @@ public final class Quantity {
 		return create(value, 0, unitSymbol);
 	}
 	
-	public static void main(String[] args) {
-		for (Unit each : Unit.values()) {
-			if (!each.isDimensionLess() && !each.isCoherentSiUnit()) {
-				Quantity q = each.amount(BigDecimal.ONE,3);
-				try {
-					System.out.println("" + q + " : " + q.asSi());
-				} catch (IllegalArgumentException ex) {
-					System.out.println("No SI unit for " + q.getUnit());
-				}
-			}
-		}
-	}
 }

@@ -50,6 +50,8 @@ class MyCronExpression implements CronExpression {
     private static final int DE_BRUIJN_MULTIPLIER = 0x077CB531;
     private static final int DE_BRUIJN_SHIFT = 27;
     private static final int BITS_PER_INT = 32;
+    private static final int SATURDAY_FLAG = 0x80;
+    private static final int MAX_OCCURRENCES_OF_DAY_OF_WEEK_IN_ONE_MONTH = 5;
     private final String expression;
 
     private long[] fields = new long[Field.values().length - 1];
@@ -417,7 +419,7 @@ class MyCronExpression implements CronExpression {
             return true;
         }
         long daysOfWeek = fields[Field.DAY_OF_WEEK.ordinal()];
-        int dayOfWeek = 1 << (result.getDayOfWeek() % 7 + 1);
+        int dayOfWeek = 1 << (result.getDayOfWeek() % DayOfWeek.values().length + 1);
         return (daysOfWeek & dayOfWeek) != 0 || lastDayOfWeek.contains(DayOfWeek.forJodaIndex(result.getDayOfWeek()));
     }
 
@@ -466,7 +468,7 @@ class MyCronExpression implements CronExpression {
                 for (DayOfWeek dayOfWeek : lastDayOfWeek) {
                     LocalDate last = lastDayOfMonth.withDayOfWeek(dayOfWeek.getJodaIndex());
                     if (last.getMonthOfYear() > monthOfYear) {
-                        last = last.minusDays(7);
+                        last = last.minusWeeks(1);
                     }
                     tailSet |= ((1 << last.getDayOfMonth()) & tailFilter);
                 }
@@ -651,7 +653,7 @@ class MyCronExpression implements CronExpression {
         }
         if (Field.DAY_OF_WEEK.equals(field) && lastMatcher.matches()) {
             if (lastMatcher.group(1) == null) {
-                return set | 0x80;
+                return set | SATURDAY_FLAG;
             } else {
                 Integer dayOfWeek = Integer.valueOf(lastMatcher.group(1));
                 lastDayOfWeek.add(DayOfWeek.values()[dayOfWeek - 1]);
@@ -702,7 +704,7 @@ class MyCronExpression implements CronExpression {
     }
 
     private LocalDate lastDayOfWeekInMonth(DayOfWeek dayOfWeek, LocalDate month) {
-        LocalDate intermediate = nthDayOfWeekInMonth(5, dayOfWeek, month);
+        LocalDate intermediate = nthDayOfWeekInMonth(MAX_OCCURRENCES_OF_DAY_OF_WEEK_IN_ONE_MONTH, dayOfWeek, month);
         return intermediate.getMonthOfYear() == month.getMonthOfYear() ? intermediate : intermediate.minusWeeks(1);
     }
 }
