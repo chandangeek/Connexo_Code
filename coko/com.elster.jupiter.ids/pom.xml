@@ -12,7 +12,7 @@
     <artifactId>ids</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>Ids</name>
+    <name>[Jupiter] com.elster.jupiter.ids</name>
 
 
     <build>
