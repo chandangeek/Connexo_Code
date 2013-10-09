@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class KPermutation {
 
-    int[] indices;
+    private int[] indices;
 
     /**
      * Defines a k-permuation by index. While duplicate indices are not checked, and will produce reliable results, such instances are not strictly k-permutations.

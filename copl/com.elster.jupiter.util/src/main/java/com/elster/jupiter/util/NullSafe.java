@@ -7,9 +7,9 @@ package com.elster.jupiter.util;
  */
 public abstract class NullSafe {
 
-    private static NullSafe NULL = new Null();
+    private static final NullSafe NULL = new Null();
 
-    public static final NullSafe of(Object o) {
+    public static NullSafe of(Object o) {
         return o == null ? NULL : new Actual(o);
     }
 

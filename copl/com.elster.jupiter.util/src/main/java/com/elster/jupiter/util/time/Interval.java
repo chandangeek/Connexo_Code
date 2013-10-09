@@ -11,6 +11,7 @@ import java.util.Date;
 public final class Interval {
 	public static final long ETERNITY = 1_000_000_000_000_000_000L;
     private static final int BITS_PER_INT = 32;
+    private static final int PRIME = 31;
 
     private final long start;
 	private final long end;
@@ -160,7 +161,7 @@ public final class Interval {
     @Override
     public int hashCode() {
         int result = (int) (start ^ (start >>> BITS_PER_INT));
-        result = 31 * result + (int) (end ^ (end >>> BITS_PER_INT));
+        result = PRIME * result + (int) (end ^ (end >>> BITS_PER_INT));
         return result;
     }
 }

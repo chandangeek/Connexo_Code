@@ -18,9 +18,9 @@ public interface JsonService {
      * @param type
      * @param <T>
      * @return
-     * @throws JsonParseException
+     * @throws JsonDeserializeException
      */
-    <T> T deserialize(String json, Class<T> type) throws JsonParseException;
+    <T> T deserialize(String json, Class<T> type) throws JsonDeserializeException;
 
     /**
      * Deserialize the byte[] payload as an object of the given type, by interpreting the bytes as a Json String
@@ -28,7 +28,7 @@ public interface JsonService {
      * @param type
      * @param <T>
      * @return
-     * @throws JsonParseException
+     * @throws JsonDeserializeException
      */
-    <T> T deserialize(byte[] payload, Class<T> type) throws JsonParseException;
+    <T> T deserialize(byte[] payload, Class<T> type) throws JsonDeserializeException;
 }

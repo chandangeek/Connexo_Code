@@ -52,4 +52,7 @@ public abstract class BaseException extends RuntimeException {
         return Collections.unmodifiableMap(context);
     }
 
+    public ExceptionType getType() {
+        return type;
+    }
 }

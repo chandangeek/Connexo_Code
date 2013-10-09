@@ -10,7 +10,7 @@ public class StringChecker extends ObjectChecker<String> {
     }
 
     public boolean empty() {
-        return toCheck == null || toCheck.isEmpty();
+        return getToCheck() == null || getToCheck().isEmpty();
     }
 
     public boolean onlyWhiteSpace() {
@@ -22,8 +22,8 @@ public class StringChecker extends ObjectChecker<String> {
     }
 
     private boolean nonNullOnlyWhiteSpace() {
-        for (int i = 0; i < toCheck.length(); i++) {
-            if (!Character.isWhitespace(toCheck.charAt(i))) {
+        for (int i = 0; i < getToCheck().length(); i++) {
+            if (!Character.isWhitespace(getToCheck().charAt(i))) {
                 return false;
             }
         }

@@ -5,13 +5,17 @@ package com.elster.jupiter.util;
  */
 public class ObjectChecker<T> {
 
-    protected final T toCheck;
+    private final T toCheck;
 
     public ObjectChecker(T toCheck) {
         this.toCheck = toCheck;
     }
 
     public boolean equalTo(Object other) {
-        return toCheck == other || (toCheck != null && toCheck.equals(other));
+        return getToCheck() == other || (getToCheck() != null && getToCheck().equals(other));
+    }
+
+    protected T getToCheck() {
+        return toCheck;
     }
 }

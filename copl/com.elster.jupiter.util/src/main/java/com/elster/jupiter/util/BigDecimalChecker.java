@@ -12,9 +12,9 @@ public class BigDecimalChecker extends ObjectChecker<BigDecimal> {
     }
 
     public boolean equalToIgnoringScale(BigDecimal other) {
-        if (toCheck == null) {
+        if (getToCheck() == null) {
             return other == null;
         }
-        return other != null && toCheck.compareTo(other) == 0;
+        return other != null && getToCheck().compareTo(other) == 0;
     }
 }

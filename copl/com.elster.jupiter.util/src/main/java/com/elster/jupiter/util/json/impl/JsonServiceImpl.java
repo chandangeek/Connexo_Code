@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.json.impl;
 
-import com.elster.jupiter.util.json.JsonParseException;
+import com.elster.jupiter.util.json.JsonDeserializeException;
+import com.elster.jupiter.util.json.JsonSerializeException;
 import com.elster.jupiter.util.json.JsonService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.osgi.service.component.annotations.Component;
@@ -17,7 +18,7 @@ public class JsonServiceImpl implements JsonService {
         try {
             return objectMapper.readValue(json, clazz);
         } catch (IOException e) {
-            throw new JsonParseException(e, json, clazz);
+            throw new JsonDeserializeException(e, json, clazz);
         }
     }
 
@@ -26,7 +27,7 @@ public class JsonServiceImpl implements JsonService {
         try {
             return objectMapper.readValue(json, clazz);
         } catch (IOException e) {
-            throw new JsonParseException(e, new String(json), clazz);
+            throw new JsonDeserializeException(e, new String(json), clazz);
         }
     }
 
@@ -35,7 +36,7 @@ public class JsonServiceImpl implements JsonService {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new JsonSerializeException(e, object);
         }
     }
 }

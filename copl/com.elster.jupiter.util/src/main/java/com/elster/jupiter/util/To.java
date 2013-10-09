@@ -11,14 +11,14 @@ import java.nio.file.Path;
 public enum To {
     ;
 
-    public static Function<HasName, String> NAME = new Function<HasName, String>() {
+    public static final Function<HasName, String> NAME = new Function<HasName, String>() {
         @Override
         public String apply(HasName hasName) {
             return hasName == null ? null : hasName.getName();
         }
     };
 
-    public static Function<Path, File> FILE = new Function<Path, File>() {
+    public static final Function<Path, File> FILE = new Function<Path, File>() {
         @Override
         public File apply(Path path) {
             return path == null ? null : path.toFile();
