@@ -12,7 +12,7 @@
     <artifactId>metering</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>Metering</name>
+    <name>[Jupiter] com.elster.jupiter.metering</name>
 
 
     <build>
