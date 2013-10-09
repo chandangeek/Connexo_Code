@@ -16,7 +16,7 @@ public enum MetricMultiplier {
 	private final int multiplier;
 	private final String symbol;
 	
-	private MetricMultiplier(int multiplier,String symbol) {
+	MetricMultiplier(int multiplier,String symbol) {
 		this.multiplier = multiplier;
 		this.symbol = symbol;
 	}
