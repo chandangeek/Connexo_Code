@@ -1,6 +1,7 @@
 package com.elster.jupiter.bootstrap.impl;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
+import com.elster.jupiter.bootstrap.DataSourceSetupException;
 import com.elster.jupiter.bootstrap.PropertyNotFoundException;
 import oracle.jdbc.pool.OracleDataSource;
 import org.osgi.framework.BundleContext;
@@ -58,7 +59,7 @@ public class BootstrapServiceImpl implements BootstrapService {
             return createDataSourceFromProperties();
         } catch (SQLException e) {
             // Basically this should never occur, since we're not accessing the DB in any way, just yet.
-            throw new RuntimeException(e);
+            throw new DataSourceSetupException(e);
         }
     }
 
