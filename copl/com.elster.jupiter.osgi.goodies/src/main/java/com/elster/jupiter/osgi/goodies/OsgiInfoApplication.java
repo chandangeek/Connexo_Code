@@ -2,9 +2,7 @@ package com.elster.jupiter.osgi.goodies;
 
 import com.elster.jupiter.orm.OrmService;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 import javax.ws.rs.core.Application;
@@ -45,6 +43,10 @@ public class OsgiInfoApplication extends Application {
 		OsgiInfoApplication.context = context;
 	}
 	
+	@Deactivate
+	public void deactivate() {
+		OsgiInfoApplication.ormService = null;
+		OsgiInfoApplication.context = null;
+	}
 	
-
 }
