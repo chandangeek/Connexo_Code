@@ -11,7 +11,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecordSpecImpl implements RecordSpec {
+public final class RecordSpecImpl implements RecordSpec {
 	// persistent fields
 	private String componentName;
 	private long id;
@@ -33,6 +33,9 @@ public class RecordSpecImpl implements RecordSpec {
 	}
 	
 	public RecordSpecImpl(String componentName , long id , String name) {
+        if (componentName == null) {
+            throw new IllegalArgumentException();
+        }
 		this.componentName = componentName;
 		this.id = id;
 		this.name = name;

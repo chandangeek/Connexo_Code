@@ -26,7 +26,7 @@ import java.util.Map;
 public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	private final boolean overrules;
 	private final Map<RecordSpecInVault,SlaveTimeSeriesDataStorer> storerMap = new HashMap<>();
-	final StorerStatsImpl stats = new StorerStatsImpl();
+	private final StorerStatsImpl stats = new StorerStatsImpl();
 	private final Map<Long, TimeSeries> lockedTimeSeriesMap = new HashMap<>();
 
 	public TimeSeriesDataStorerImpl(boolean overrules) {
@@ -126,9 +126,9 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 	}
 	
 	private static class SlaveTimeSeriesDataStorer {
-		final Map<Long, SingleTimeSeriesStorer> storerMap = new HashMap<>();
-		final VaultImpl vault;
-		final RecordSpec recordSpec;
+		private final Map<Long, SingleTimeSeriesStorer> storerMap = new HashMap<>();
+        private final VaultImpl vault;
+        private final RecordSpec recordSpec;
 		
 		SlaveTimeSeriesDataStorer(TimeSeriesEntryImpl entry) {
 			SingleTimeSeriesStorer storer = new SingleTimeSeriesStorer(entry);

@@ -4,10 +4,10 @@ import com.elster.jupiter.ids.StorerStats;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 
 public class StorerStatsImpl implements StorerStats {
-	int entryCount;
-	int insertCount;
-	int updateCount;
-	long nanos;
+	private int entryCount;
+    private int insertCount;
+    private int updateCount;
+    private long nanos;
 
 	@Override
 	public int getEntryCount() {
