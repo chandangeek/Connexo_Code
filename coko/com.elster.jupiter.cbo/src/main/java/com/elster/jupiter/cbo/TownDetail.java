@@ -1,8 +1,9 @@
 package com.elster.jupiter.cbo;
 
-import javax.xml.bind.annotation.XmlTransient;
-
 import com.elster.jupiter.util.HasName;
+
+import javax.xml.bind.annotation.XmlTransient;
+import java.util.Objects;
 
 public final class TownDetail implements Cloneable, HasName {
 	
@@ -92,33 +93,20 @@ public final class TownDetail implements Cloneable, HasName {
 
         TownDetail that = (TownDetail) o;
 
-        if (code != null ? !code.equals(that.code) : that.code != null) {
-            return false;
-        }
-        if (country != null ? !country.equals(that.country) : that.country != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (section != null ? !section.equals(that.section) : that.section != null) {
-            return false;
-        }
-        if (stateOrProvince != null ? !stateOrProvince.equals(that.stateOrProvince) : that.stateOrProvince != null) {
-            return false;
-        }
+        return hasEqualValues(that);
+    }
 
-        return true;
+    private boolean hasEqualValues(TownDetail that) {
+        return Objects.equals(code, that.code)
+                && Objects.equals(country, that.country)
+                && Objects.equals(name, that.name)
+                && Objects.equals(section, that.section)
+                && Objects.equals(stateOrProvince, that.stateOrProvince);
     }
 
     @Override
     public int hashCode() {
-        int result = code != null ? code.hashCode() : 0;
-        result = 31 * result + (country != null ? country.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (section != null ? section.hashCode() : 0);
-        result = 31 * result + (stateOrProvince != null ? stateOrProvince.hashCode() : 0);
-        return result;
+        return Objects.hash(code, country, name, section, stateOrProvince);
     }
 
     @Override

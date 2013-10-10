@@ -22,7 +22,7 @@ public enum MetricMultiplier {
 	}
 	
 	public static MetricMultiplier get(int id) {
-		return with(id > 128  ?  (id - 256) : id);
+        return with((byte) id); // interpret id as signed byte
 	}
 	
 	public static MetricMultiplier with(int multiplier) {
@@ -35,7 +35,7 @@ public enum MetricMultiplier {
 	}
 	
 	public int getId() {
-		return multiplier < 0 ? 256 + multiplier : multiplier;
+        return ((byte) multiplier) & 0xff; // interpret multiplier as unsigned byte
 	}
 	
 	public int getMultiplier() {		

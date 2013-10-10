@@ -36,7 +36,7 @@ public enum TimeAttribute {
 	private final int id;
 	private final String description;
 	
-	private TimeAttribute(int id, String description)  {
+	TimeAttribute(int id, String description)  {
 		this.id = id;
 		this.description = description;		
 	}

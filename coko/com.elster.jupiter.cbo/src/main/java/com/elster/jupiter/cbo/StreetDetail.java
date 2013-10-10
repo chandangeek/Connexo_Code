@@ -1,11 +1,14 @@
 package com.elster.jupiter.cbo;
 
-import javax.xml.bind.annotation.XmlTransient;
-
 import com.elster.jupiter.util.HasName;
 
+import javax.xml.bind.annotation.XmlTransient;
+import java.util.Objects;
+
 public final class StreetDetail implements Cloneable, HasName {
-	private String addressGeneral;
+
+    private static final int PRIME = 31;
+    private String addressGeneral;
 	private String buildingName;
 	private String code;
 	private String name;
@@ -124,55 +127,30 @@ public final class StreetDetail implements Cloneable, HasName {
 
         StreetDetail that = (StreetDetail) o;
 
-        if (withinTownLimits != that.withinTownLimits) {
-            return false;
-        }
-        if (addressGeneral != null ? !addressGeneral.equals(that.addressGeneral) : that.addressGeneral != null) {
-            return false;
-        }
-        if (buildingName != null ? !buildingName.equals(that.buildingName) : that.buildingName != null) {
-            return false;
-        }
-        if (code != null ? !code.equals(that.code) : that.code != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (number != null ? !number.equals(that.number) : that.number != null) {
-            return false;
-        }
-        if (prefix != null ? !prefix.equals(that.prefix) : that.prefix != null) {
-            return false;
-        }
-        if (suffix != null ? !suffix.equals(that.suffix) : that.suffix != null) {
-            return false;
-        }
-        if (suiteNumber != null ? !suiteNumber.equals(that.suiteNumber) : that.suiteNumber != null) {
-            return false;
-        }
-        return !(type != null ? !type.equals(that.type) : that.type != null);
+        return hasEqualValues(that);
+    }
 
+    private boolean hasEqualValues(StreetDetail that) {
+        return Objects.equals(addressGeneral, that.addressGeneral)
+                && Objects.equals(buildingName, that.buildingName)
+                && Objects.equals(code, that.code)
+                && Objects.equals(name, that.name)
+                && Objects.equals(number, that.number)
+                && Objects.equals(prefix, that.prefix)
+                && Objects.equals(suffix, that.suffix)
+                && Objects.equals(suiteNumber, that.suiteNumber)
+                && Objects.equals(type, that.type)
+                && Objects.equals(withinTownLimits, that.withinTownLimits);
     }
 
     @Override
     public int hashCode() {
-        int result = addressGeneral != null ? addressGeneral.hashCode() : 0;
-        result = 31 * result + (buildingName != null ? buildingName.hashCode() : 0);
-        result = 31 * result + (code != null ? code.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (number != null ? number.hashCode() : 0);
-        result = 31 * result + (prefix != null ? prefix.hashCode() : 0);
-        result = 31 * result + (suffix != null ? suffix.hashCode() : 0);
-        result = 31 * result + (suiteNumber != null ? suiteNumber.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (withinTownLimits ? 1 : 0);
-        return result;
+        return Objects.hash(addressGeneral, buildingName, code, name, number, prefix, suffix, suiteNumber, type, withinTownLimits);
     }
 
     @Override
 	public String toString() {
-		return "" + getName() + " " + getNumber(); 
+		return getName() + ' ' + getNumber();
 	}
 	
     @XmlTransient
