@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 
     @Override
     public String getRealm() {
-        return "Jupiter";
+        return Bus.REALM;
     }
 
     @Override
@@ -193,4 +193,5 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 	public ComponentCache getComponentCache() {
 		return componentCache;
 	}
+
 }

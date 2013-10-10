@@ -1,12 +1,14 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
+import java.security.*;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.bind.DatatypeConverter;
 
 import static com.elster.jupiter.util.Checks.is;
 
@@ -182,4 +184,29 @@ public class UserImpl implements User {
     public int hashCode() {
         return (int) (id ^ (id >>> 32));
     }
+
+    //TODO make DigestHa1 persistent
+	@Override
+	public String getDigestHa1() {		
+		return md5(authenticationName,Bus.REALM,"admin");
+	}
+	
+	private String md5(String ...strings ) {
+		try {
+			MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+			String separator = null;
+			for (String each : strings) {
+				if (separator == null) {
+					separator = ":";
+				} else {
+					messageDigest.update(separator.getBytes());
+				}
+				messageDigest.update(each.getBytes());
+			}
+			byte[] md5 = messageDigest.digest();
+			return DatatypeConverter.printHexBinary(md5).toLowerCase();
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException();
+		}
+	}
 }

@@ -6,7 +6,8 @@ import com.elster.jupiter.transaction.TransactionService;
 enum Bus {
     ;
 
-	public static final String COMPONENTNAME = "USR";
+	static final String COMPONENTNAME = "USR";
+	static final String REALM = "Jupiter";
 	
 	private static volatile ServiceLocator locator;
 	

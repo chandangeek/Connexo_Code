@@ -38,4 +38,9 @@ public interface User extends Principal, HasName {
     boolean isMemberOf(Group group);
 
     List<Group> getGroups();
+    
+    /*
+     * Returns the Ha1 used in Digest Authentication for the given user, null if user is unknown or does not support DIGEST authentication     
+     */
+    String getDigestHa1();
 }
