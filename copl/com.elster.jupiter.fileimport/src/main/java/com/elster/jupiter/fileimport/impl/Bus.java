@@ -8,54 +8,54 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.log.LogService;
 
-enum Bus {
+public enum Bus {
     ;
 
-    static final String COMPONENTNAME = "FIM";
+    public static final String COMPONENTNAME = "FIM";
 
     private static volatile ServiceLocator serviceLocator;
 
-    public static void setServiceLocator(ServiceLocator serviceLocator) {
+    static void setServiceLocator(ServiceLocator serviceLocator) {
         Bus.serviceLocator = serviceLocator;
     }
 
-    public static LogService getLogService() {
+    static LogService getLogService() {
         return serviceLocator.getLogService();
     }
 
-    public static MessageService getMessageService() {
+    static MessageService getMessageService() {
         return serviceLocator.getMessageService();
     }
 
-    public static CronExpressionParser getCronExpressionParser() {
+    static CronExpressionParser getCronExpressionParser() {
         return serviceLocator.getCronExpressionParser();
     }
 
-    public static OrmClient getOrmClient() {
+    static OrmClient getOrmClient() {
         return serviceLocator.getOrmClient();
     }
 
-    public static FileNameCollisionResolver getFileNameCollisionResolver() {
+    static FileNameCollisionResolver getFileNameCollisionResolver() {
         return serviceLocator.getFileNameCollisionResollver();
     }
 
-    public static Clock getClock() {
+     static Clock getClock() {
         return serviceLocator.getClock();
     }
 
-    public static TransactionService getTransactionService() {
+    static TransactionService getTransactionService() {
         return serviceLocator.getTransactionService();
     }
 
-    public static JsonService getJsonService() {
+    static JsonService getJsonService() {
         return serviceLocator.getJsonService();
     }
 
-    public static FileSystem getFileSystem() {
+    static FileSystem getFileSystem() {
         return serviceLocator.getFileSystem();
     }
 
-    public static Predicates getPredicates() {
+    static Predicates getPredicates() {
         return serviceLocator.getPredicates();
     }
 }

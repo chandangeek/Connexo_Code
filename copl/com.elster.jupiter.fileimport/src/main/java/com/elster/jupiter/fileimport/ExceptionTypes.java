@@ -1,6 +1,6 @@
 package com.elster.jupiter.fileimport;
 
-import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.fileimport.impl.Bus;
 import com.elster.jupiter.util.exception.ExceptionType;
 
 /**
