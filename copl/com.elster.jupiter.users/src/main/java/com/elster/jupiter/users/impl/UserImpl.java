@@ -206,7 +206,7 @@ public class UserImpl implements User {
 			byte[] md5 = messageDigest.digest();
 			return DatatypeConverter.printHexBinary(md5).toLowerCase();
 		} catch (NoSuchAlgorithmException e) {
-			throw new RuntimeException();
+			throw new RuntimeException(e);
 		}
 	}
 }
