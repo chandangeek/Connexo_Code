@@ -39,7 +39,7 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
 		this.timeStamp = timeStamp.getTime();
 		this.version = 0;
 		this.recordTime = 0;
-		this.values = values;
+		this.values = Arrays.copyOf(values, values.length);
 	}
 	
 	@Override 
