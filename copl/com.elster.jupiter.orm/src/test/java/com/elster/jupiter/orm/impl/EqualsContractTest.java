@@ -18,7 +18,8 @@ public abstract class EqualsContractTest {
 
     private Object a;
 
-    @Before
+    @SuppressWarnings("rawtypes")
+	@Before
     public void equalsContractSetUp() {
         a = getInstanceA();
         assertThat(getInstanceA()).describedAs("getInstanceA() returns a different instance each time.").isSameAs(a);
