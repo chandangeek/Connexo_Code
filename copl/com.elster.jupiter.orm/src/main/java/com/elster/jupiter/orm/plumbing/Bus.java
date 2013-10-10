@@ -49,10 +49,6 @@ public class Bus {
 		throw new UnsupportedOperationException();
 	}
 
-	public static void publish(Object event) {
-		locator.publish(event);
-	}
-
 	public static Table getTable(String component, String tableName) {
 		return locator.getTable(component,tableName);
 	}	

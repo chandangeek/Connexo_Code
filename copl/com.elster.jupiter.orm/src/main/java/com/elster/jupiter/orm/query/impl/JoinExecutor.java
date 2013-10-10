@@ -1,6 +1,5 @@
 package com.elster.jupiter.orm.query.impl;
 
-import com.elster.jupiter.orm.impl.SelectEventImpl;
 import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -119,23 +118,18 @@ final class JoinExecutor<T> {
 		root.prune();
 		root.clearCache();		
 		new JoinTreeMarker(root).visit(condition);
-		appendSql(condition, orderBy);
-		SelectEventImpl selectEvent = new SelectEventImpl(builder.getText());
+		appendSql(condition, orderBy);		
 		List<T> result = new ArrayList<>();
-		int fetchCount = 0;
 		try (Connection connection = Bus.getConnection(false)) {				
 			try(PreparedStatement statement = builder.prepare(connection)) {
 				try (ResultSet resultSet = statement.executeQuery()) {
 					while(resultSet.next()) {
-						construct(resultSet,result);
-						fetchCount++;
+						construct(resultSet,result);			
 					}
 				}				
 			} 
 		}
 		root.completeFind();
-		selectEvent.setRowCount(fetchCount);
-		Bus.publish(selectEvent);
 		return result;
 	}
 	

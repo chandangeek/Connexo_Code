@@ -149,8 +149,7 @@ public class DataMapperReader<T> {
 
     private List<T> doFind(List<SqlFragment> fragments, SqlBuilder builder) throws SQLException {
         List<Setter> setters = getSetters(fragments);
-        List<T> result = new ArrayList<>();
-        SelectEventImpl selectEvent = new SelectEventImpl(builder.getText());
+        List<T> result = new ArrayList<>();        
         try (Connection connection = getConnection(false)) {
             try(PreparedStatement statement = builder.prepare(connection)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
@@ -160,8 +159,6 @@ public class DataMapperReader<T> {
                 }
             }
         }
-        selectEvent.setRowCount(result.size());
-        Bus.publish(selectEvent);
         return result;
     }
 

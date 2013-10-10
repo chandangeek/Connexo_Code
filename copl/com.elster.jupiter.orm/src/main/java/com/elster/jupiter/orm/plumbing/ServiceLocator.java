@@ -11,7 +11,6 @@ public interface ServiceLocator {
 	OrmClient getOrmClient();
 	Connection getConnection(boolean transactionRequired) throws SQLException;
 	Principal getPrincipal();
-	void publish(Object event);
     Clock getClock();
 	Table getTable(String component, String tableName);
 }

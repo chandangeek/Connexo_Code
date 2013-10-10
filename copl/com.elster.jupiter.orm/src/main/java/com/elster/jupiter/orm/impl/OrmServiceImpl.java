@@ -3,7 +3,6 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.plumbing.*;
-import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
@@ -14,7 +13,6 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Component (name = "com.elster.jupiter.orm", immediate = true, service = { OrmService.class , InstallService.class } , property="name=" + Bus.COMPONENTNAME)
 public class OrmServiceImpl implements OrmService , InstallService , ServiceLocator {
@@ -23,9 +21,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	private volatile DataSource dataSource;
 	private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
-    private AtomicReference<Publisher> publisherHolder = new AtomicReference<>();
     private final Map<String,DataModel> dataModels = Collections.synchronizedMap(new HashMap<String,DataModel>());
-
 
     public OrmServiceImpl() {
 	}
@@ -74,14 +70,6 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	public OrmClient getOrmClient() {
 		return ormClient;
 	}
-	
-	@Override
-	public void publish(Object event) {
-		Publisher publisher = publisherHolder.get();
-		if (publisher != null) { 
-			publisher.publish(event);
-		}
-	}
 
     @Override
     public Clock getClock() {
@@ -102,21 +90,11 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
-		
-	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
-	public void setPublisher(Publisher publisher) {
-		publisherHolder.set(publisher);
-	}
 
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
     }
-	
-	public void unsetPublisher(Publisher publisher) {
-		// needed as OSGI SCR does not guarantee order between setting new reference, and unsetting old
-		publisherHolder.compareAndSet(publisher, null);
-	}
 	
 	@Activate
 	public void activate() {
