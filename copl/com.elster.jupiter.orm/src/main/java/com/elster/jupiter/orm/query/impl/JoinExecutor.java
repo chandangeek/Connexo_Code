@@ -1,6 +1,6 @@
 package com.elster.jupiter.orm.query.impl;
 
-import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.internal.Bus;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 

@@ -5,8 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.orm.plumbing.OrmClient;
+import com.elster.jupiter.orm.internal.*;
 import com.google.common.collect.ImmutableList;
 
 import java.security.Principal;

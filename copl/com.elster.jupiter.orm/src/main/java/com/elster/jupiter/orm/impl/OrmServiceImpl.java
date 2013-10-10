@@ -2,7 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.orm.plumbing.*;
+import com.elster.jupiter.orm.internal.*;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;

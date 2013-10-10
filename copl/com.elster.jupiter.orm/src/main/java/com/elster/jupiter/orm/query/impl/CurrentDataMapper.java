@@ -5,7 +5,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
-import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.internal.Bus;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 

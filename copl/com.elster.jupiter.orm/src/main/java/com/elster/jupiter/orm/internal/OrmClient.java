@@ -1,4 +1,4 @@
-package com.elster.jupiter.orm.plumbing;
+package com.elster.jupiter.orm.internal;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;

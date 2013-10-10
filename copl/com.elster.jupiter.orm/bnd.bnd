@@ -1,7 +1,7 @@
 -classpath: target/classes 
 -dsannotations: *
 Private-Package: com.elster.jupiter.orm.impl,\
-	com.elster.jupiter.orm.plumbing,\
+	com.elster.jupiter.orm.internal,\
 	com.elster.jupiter.orm.query.impl,\
 	com.elster.jupiter.orm.fields.impl
 Export-Package: com.elster.jupiter.orm,\

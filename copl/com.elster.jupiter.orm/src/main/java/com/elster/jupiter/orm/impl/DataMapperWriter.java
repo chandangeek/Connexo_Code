@@ -5,7 +5,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.MappingException;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.UnexpectedNumberOfUpdatesException;
-import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.internal.Bus;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.security.Principal;
@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.elster.jupiter.orm.plumbing.Bus.getConnection;
+import static com.elster.jupiter.orm.internal.Bus.getConnection;
 
 public class DataMapperWriter<T> {
 	private final DomainMapper fieldMapper;

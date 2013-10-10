@@ -16,7 +16,7 @@ import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
 import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
-import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.internal.Bus;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;

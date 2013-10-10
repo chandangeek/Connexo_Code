@@ -4,7 +4,6 @@ import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.fields.impl.ColumnEqualsFragment;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
-import com.elster.jupiter.orm.plumbing.Bus;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -21,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.elster.jupiter.orm.plumbing.Bus.getConnection;
+import static com.elster.jupiter.orm.internal.Bus.getConnection;
 
 public class DataMapperReader<T> {
 	private final TableSqlGenerator sqlGenerator;

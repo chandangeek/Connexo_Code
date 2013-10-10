@@ -1,4 +1,4 @@
-package com.elster.jupiter.orm.plumbing;
+package com.elster.jupiter.orm.internal;
 
 import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.impl.ColumnImpl;
@@ -7,7 +7,7 @@ import com.elster.jupiter.orm.impl.DataModelImpl;
 import com.elster.jupiter.orm.impl.TableConstraintImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
 
-import static com.elster.jupiter.orm.plumbing.TableSpecs.*;
+import static com.elster.jupiter.orm.internal.TableSpecs.*;
 
 public class OrmClientImpl implements OrmClient  {
 	

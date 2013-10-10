@@ -1,7 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.internal.Bus;
 
 public class ForeignKeyConstraintImpl extends TableConstraintImpl implements ForeignKeyConstraint {
 	// persistent fields

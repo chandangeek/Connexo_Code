@@ -4,7 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.internal.Bus;
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;

@@ -1,8 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.*;
-import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.orm.plumbing.OrmClient;
+import com.elster.jupiter.orm.internal.*;
 
 public class ColumnInConstraintImpl {
 	// persistent fields	

@@ -1,6 +1,6 @@
 package com.elster.jupiter.orm;
 
-import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.internal.Bus;
 import com.elster.jupiter.util.exception.ExceptionType;
 
 enum ExceptionTypes implements ExceptionType {

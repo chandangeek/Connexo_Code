@@ -4,8 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
-import com.elster.jupiter.orm.plumbing.Bus;
-import com.elster.jupiter.orm.plumbing.OrmClient;
+import com.elster.jupiter.orm.internal.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

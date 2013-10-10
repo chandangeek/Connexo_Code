@@ -1,6 +1,6 @@
 package com.elster.jupiter.orm.fields.impl;
 
-import com.elster.jupiter.orm.plumbing.Bus;
+import com.elster.jupiter.orm.internal.Bus;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.util.units.Unit;
 
