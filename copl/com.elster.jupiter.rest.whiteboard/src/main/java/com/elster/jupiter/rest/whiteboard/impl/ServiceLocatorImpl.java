@@ -4,6 +4,7 @@ import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
+import com.google.common.base.*;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -18,6 +19,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+
 /*
  * As Jersey does not publish OGSI services,
  * we need to use a bundle tracker to wait for Jersey OSG initialization.
@@ -30,10 +33,12 @@ public class ServiceLocatorImpl implements  ServiceLocator {
 	private static final String DEBUG = "debug";
 	private static final String LOG = "log";
 	private static final String EVENT = "event";
+	private static final String AUTHENTICATION = "authentication";
 	
 	private volatile boolean debug;
 	private volatile boolean log;
 	private volatile boolean throwEvents;
+	private volatile Optional<String> authenticationMethod;
 	
     private volatile UserService userService;
     private volatile ThreadPrincipalService threadPrincipalService;
@@ -47,7 +52,7 @@ public class ServiceLocatorImpl implements  ServiceLocator {
     }
 
     @Reference
-    public void setHttpService(HttpService httpService) {
+    public void setHttpService(HttpService httpService) {    	
     	this.whiteBoard = new WhiteBoard(httpService);
     }
     
@@ -60,15 +65,17 @@ public class ServiceLocatorImpl implements  ServiceLocator {
     	tracker.open();
     }
     
-  
     public void configure(Map<String,Object> properties)  {
-    	debug = false;
-    	log = false;
-    	throwEvents = false;	
-		if (properties != null) {
-			debug = Boolean.TRUE.equals(properties.get(DEBUG));
+    	if (properties == null) {
+    		debug = false;
+    		log = false;
+    		throwEvents = false;	
+    		authenticationMethod = Optional.absent();
+    	} else {
+    		debug = Boolean.TRUE.equals(properties.get(DEBUG));
 			log = Boolean.TRUE.equals(properties.get(LOG));
-			throwEvents = Boolean.TRUE.equals(properties.get(EVENT));			
+			throwEvents = Boolean.TRUE.equals(properties.get(EVENT));
+			authenticationMethod = Optional.fromNullable((String) properties.get(AUTHENTICATION));			
 		}				    	    	
 	}
     
@@ -101,13 +108,9 @@ public class ServiceLocatorImpl implements  ServiceLocator {
 
 	
 	void startWhiteBoard(BundleContext bundleContext) {		
-		whiteBoard.open(bundleContext,debug);
+		whiteBoard.open(bundleContext,authenticationMethod.orNull(),debug);
 	}
-	
-	public boolean getDebug() {
-		return debug;
-	}
-
+		
     @Override
     public Publisher getPublisher() {
         return publisher;

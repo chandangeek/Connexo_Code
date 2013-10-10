@@ -13,22 +13,32 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.http.*;
 import javax.ws.rs.core.Application;
 
 public class WhiteBoard {
 	
-	private final HttpContext httpContext;
+	private volatile HttpContext httpContext;
 	private final HttpService httpService;
     private volatile ServiceTracker<Application,Application> tracker;
     private volatile boolean debug;
 
-    public WhiteBoard(HttpService httpService) {
-        this.httpContext = new HttpContextImpl();
+    public WhiteBoard(HttpService httpService) {    
         this.httpService = httpService;
     }
 
-    void open(BundleContext bundleContext,boolean debug) {
+    private Authentication createAuthentication(String method) {
+    	System.out.println(method);
+    	switch(method) {
+    		case HttpServletRequest.DIGEST_AUTH:
+    			return new DigestAuthentication();
+    		default:
+    			return new BasicAuthentication();    			    			
+    	}
+    }
+    
+    void open(BundleContext bundleContext,String authenticationMethod , boolean debug) {
+    	this.httpContext = new HttpContextImpl(createAuthentication(authenticationMethod));     		
     	this.debug = debug;
     	tracker = new ServiceTracker<>(bundleContext, Application.class, new ApplicationTrackerCustomizer(bundleContext));
     	tracker.open();
