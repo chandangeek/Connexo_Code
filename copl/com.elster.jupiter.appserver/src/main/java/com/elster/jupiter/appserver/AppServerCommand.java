@@ -23,9 +23,9 @@ public class AppServerCommand {
     }
 
     public Properties getProperties() {
-        Properties properties = new Properties();
-        properties.putAll(this.properties);
-        return properties;
+        Properties props = new Properties();
+        props.putAll(this.properties);
+        return props;
     }
 
     public Command getCommand() {

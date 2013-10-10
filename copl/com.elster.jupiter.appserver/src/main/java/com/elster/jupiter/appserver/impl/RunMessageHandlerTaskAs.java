@@ -35,7 +35,7 @@ public class RunMessageHandlerTaskAs implements ProvidesCancellableFuture {
         }
     }
 
-    private class MyRunnableFuture<T> implements RunnableFuture<T> {
+    private final class MyRunnableFuture<T> implements RunnableFuture<T> {
 
         private final RunnableFuture<T> runnableFuture;
 

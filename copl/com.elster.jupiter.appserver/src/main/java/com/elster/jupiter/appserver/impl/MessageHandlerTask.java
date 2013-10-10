@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 public class MessageHandlerTask implements ProvidesCancellableFuture {
 
-    private static final Logger logger = Logger.getLogger(MessageHandlerTask.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MessageHandlerTask.class.getName());
 
     private final SubscriberSpec subscriberSpec;
     private final MessageHandler handler;
@@ -29,7 +29,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
             try {
                 Bus.getTransactionService().execute(processTransaction);
             } catch (RuntimeException e) {
-                logger.log(Level.SEVERE, "Message handler failed", e);
+                LOGGER.log(Level.SEVERE, "Message handler failed", e);
                 // transaction has been rolled back, message will be reoffered after a delay or moved to dead letter queue as configured, we can just continue with the next message
             }
         }

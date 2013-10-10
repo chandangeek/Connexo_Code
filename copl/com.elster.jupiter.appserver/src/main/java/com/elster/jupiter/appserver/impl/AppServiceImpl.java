@@ -51,7 +51,7 @@ import java.util.logging.Logger;
 @Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class}, property = {"name=" + Bus.COMPONENTNAME}, immediate = true)
 public class AppServiceImpl implements ServiceLocator, InstallService, AppService, Subscriber {
 
-    private static final Logger logger = Logger.getLogger(AppServiceImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
     private static final String APPSERVER_NAME = "com.elster.jupiter.appserver.name";
     private static final String COMPONENT_NAME = "componentName";
@@ -75,7 +75,6 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     private volatile TaskService taskService;
     private volatile UserService userService;
     private volatile ThreadFactory threadFactory;
-    private volatile ThreadGroup threadGroup;
 
     private AppServerImpl appServer;
     private List<SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -104,20 +103,20 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
     }
 
     private void activateAnonymously() {
-        logger.log(Level.WARNING, "AppServer started anonymously.");
+        LOGGER.log(Level.WARNING, "AppServer started anonymously.");
     }
 
     private void activateAs(String appServerName) {
         Optional<AppServer> foundAppServer = Bus.getOrmClient().getAppServerFactory().get(appServerName);
         if (!foundAppServer.isPresent()) {
-            logger.log(Level.SEVERE, "AppServer with name " + appServerName + " not found.");
+            LOGGER.log(Level.SEVERE, "AppServer with name " + appServerName + " not found.");
             activateAnonymously();
             return;
         }
         appServer = (AppServerImpl) foundAppServer.get();
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
 
-        threadGroup = new ThreadGroup("AppServer message listeners");
+        ThreadGroup threadGroup = new ThreadGroup("AppServer message listeners");
         threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler());
 
         launchFileImports();
@@ -212,21 +211,21 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         try {
             getOrmClient().install();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
         try {
             User user = getUserService().createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
             user.save();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
 
         try {
             QueueTableSpec defaultQueueTableSpec = getMessageService().getQueueTableSpec("MSG_RAWQUEUETABLE").get();
             defaultQueueTableSpec.createDestinationSpec(ALL_SERVERS, DEFAULT_RETRY_DELAY_IN_SECONDS);
         } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
@@ -401,7 +400,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
                         try {
                             context.getBundle(0).stop();
                         } catch (BundleException e) {
-                            logger.log(Level.SEVERE, e.getMessage(), e);
+                            LOGGER.log(Level.SEVERE, e.getMessage(), e);
                         }
                     }
                 });

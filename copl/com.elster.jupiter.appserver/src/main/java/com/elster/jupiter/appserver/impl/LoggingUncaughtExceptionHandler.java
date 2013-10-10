@@ -5,10 +5,10 @@ import java.util.logging.Logger;
 
 public class LoggingUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
 
-    private static final Logger logger = Logger.getLogger(LoggingUncaughtExceptionHandler.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LoggingUncaughtExceptionHandler.class.getName());
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        logger.log(Level.SEVERE, "Uncaught exception occurred on thread " + t.getName(), e);
+        LOGGER.log(Level.SEVERE, "Uncaught exception occurred on thread " + t.getName(), e);
     }
 }
