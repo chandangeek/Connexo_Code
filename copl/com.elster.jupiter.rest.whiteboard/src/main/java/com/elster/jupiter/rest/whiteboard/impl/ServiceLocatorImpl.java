@@ -100,8 +100,7 @@ public class ServiceLocatorImpl implements  ServiceLocator {
 	}
 
 	
-	void startWhiteBoard(BundleContext bundleContext) {	
-		System.out.println("Starting whiteboard");
+	void startWhiteBoard(BundleContext bundleContext) {		
 		whiteBoard.open(bundleContext,debug);
 	}
 	
