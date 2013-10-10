@@ -281,7 +281,6 @@ public class ConnectionWrapperTest {
     }
 
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        Properties props = new Properties();
         new ConnectionInTransaction(connection).setClientInfo("name", "value");
         verify(connection).setClientInfo("name", "value");
     }

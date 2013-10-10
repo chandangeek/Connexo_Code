@@ -127,10 +127,10 @@ public class TransactionalDataSourceTest {
         assertThat(transactionalDataSource.unwrap(Comparable.class)).isEqualTo(comparable);
     }
 
-    @Test(expected = SQLException.class)
+    @SuppressWarnings("unchecked")
+	@Test(expected = SQLException.class)
     public void testUnwrapFalse() throws SQLException {
         when(dataSource.unwrap(Comparable.class)).thenThrow(SQLException.class);
-
         transactionalDataSource.unwrap(Comparable.class);
     }
 

@@ -4,16 +4,13 @@ import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.pubsub.*;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.*;
-import java.util.logging.Logger;
 
 import org.osgi.service.component.annotations.*;
-import org.osgi.service.event.EventAdmin;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 @Component(name="com.elster.jupiter.transaction", service=TransactionService.class)
 public class TransactionServiceImpl implements TransactionService, ServiceLocator {
