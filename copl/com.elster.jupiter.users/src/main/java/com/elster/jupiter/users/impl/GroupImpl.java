@@ -1,6 +1,5 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.users.Group;

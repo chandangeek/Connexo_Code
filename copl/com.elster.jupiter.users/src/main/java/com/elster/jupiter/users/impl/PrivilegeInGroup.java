@@ -5,7 +5,6 @@ import com.elster.jupiter.util.time.UtcInstant;
 
 class PrivilegeInGroup {
 	// persistent fields
-	@SuppressWarnings("unused")
 	private long groupId;
 	private String privilegeName;
 	@SuppressWarnings("unused")
