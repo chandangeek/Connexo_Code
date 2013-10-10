@@ -1,8 +1,9 @@
 package com.elster.jupiter.cbo;
 
-import java.util.Date;
-import javax.xml.bind.annotation.XmlTransient;
 import com.elster.jupiter.util.time.UtcInstant;
+
+import javax.xml.bind.annotation.XmlTransient;
+import java.util.Date;
 
 public final class Status implements Cloneable {
 	private UtcInstant dateTime;
@@ -25,39 +26,7 @@ public final class Status implements Cloneable {
 	}
 
     public static StatusBuilder builder() {
-        return new StatusBuilder() {
-
-            private Status constructing = new Status();
-
-            @Override
-            public StatusBuilder value(String value) {
-                constructing.setValue(value);
-                return this;
-            }
-
-            @Override
-            public StatusBuilder reason(String reason) {
-                constructing.setReason(reason);
-                return this;
-            }
-
-            @Override
-            public StatusBuilder remark(String remark) {
-                constructing.setRemark(remark);
-                return this;
-            }
-
-            @Override
-            public StatusBuilder at(Date dateTime) {
-                constructing.setDateTime(dateTime);
-                return this;
-            }
-
-            @Override
-            public Status build() {
-                return constructing;
-            }
-        };
+        return new StatusBuilderImpl();
     }
 
 	public String getReason() {
@@ -105,16 +74,37 @@ public final class Status implements Cloneable {
 		return reason == null && remark == null && value == null;
 	}
 
-    public interface StatusBuilder {
+    private static class StatusBuilderImpl implements StatusBuilder {
 
-        StatusBuilder value(String value);
+        private Status constructing = new Status();
 
-        StatusBuilder reason(String reason);
+        @Override
+        public StatusBuilder value(String value) {
+            constructing.setValue(value);
+            return this;
+        }
 
-        StatusBuilder remark(String remark);
+        @Override
+        public StatusBuilder reason(String reason) {
+            constructing.setReason(reason);
+            return this;
+        }
 
-        StatusBuilder at(Date dateTime);
+        @Override
+        public StatusBuilder remark(String remark) {
+            constructing.setRemark(remark);
+            return this;
+        }
 
-        Status build();
+        @Override
+        public StatusBuilder at(Date dateTime) {
+            constructing.setDateTime(dateTime);
+            return this;
+        }
+
+        @Override
+        public Status build() {
+            return constructing;
+        }
     }
 }
