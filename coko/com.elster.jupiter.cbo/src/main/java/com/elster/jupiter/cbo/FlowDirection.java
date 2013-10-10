@@ -27,15 +27,16 @@ public enum FlowDirection {
 	private final int id;
 	private final String description;
 	
-	private FlowDirection(int id,String description) {
+	FlowDirection(int id,String description) {
 		this.id = id;
 		this.description = description;
 	}
 	
 	public static FlowDirection get(int id) {
 		for (FlowDirection each : values()) {
-			if (each.id == id)
-				return each;
+			if (each.id == id) {
+                return each;
+            }
 		}
 		throw new IllegalArgumentException("" + id);
 	}

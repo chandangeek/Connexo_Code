@@ -26,6 +26,7 @@ public final class TownDetail implements Cloneable, HasName {
 		this(code,name,country);
 		this.stateOrProvince = stateOrProvince;
 		this.country = country;
+        this.section = section;
 	}
 
 	public String getCode() {

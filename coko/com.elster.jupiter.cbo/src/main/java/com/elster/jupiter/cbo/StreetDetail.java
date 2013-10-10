@@ -7,7 +7,6 @@ import java.util.Objects;
 
 public final class StreetDetail implements Cloneable, HasName {
 
-    private static final int PRIME = 31;
     private String addressGeneral;
 	private String buildingName;
 	private String code;
