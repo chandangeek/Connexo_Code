@@ -1,12 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.IntervalReading;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.collections.KPermutation;
-
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Decorates an IntervalReading by selecting only certain values in a possibly different order.
