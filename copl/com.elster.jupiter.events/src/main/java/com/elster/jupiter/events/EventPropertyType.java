@@ -9,4 +9,6 @@ public interface EventPropertyType extends HasName {
     String getAccessPath();
 
     int getPosition();
+
+    EventType getEventType();
 }

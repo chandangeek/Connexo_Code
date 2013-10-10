@@ -71,7 +71,7 @@ final class LocalEventDispatcher extends EventHandler<LocalEvent> {
 
     }
 
-    private static class LiteralMatcher implements TopicMatcher {
+    private static final class LiteralMatcher implements TopicMatcher {
 
         private final String literal;
 
@@ -85,7 +85,7 @@ final class LocalEventDispatcher extends EventHandler<LocalEvent> {
         }
     }
 
-    private static class StartMatcher implements TopicMatcher {
+    private static final class StartMatcher implements TopicMatcher {
 
         private final String start;
 

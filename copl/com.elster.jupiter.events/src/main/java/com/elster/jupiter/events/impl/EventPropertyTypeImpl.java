@@ -42,6 +42,14 @@ public class EventPropertyTypeImpl implements EventPropertyType {
     }
 
     @Override
+    public EventType getEventType() {
+        if (eventType == null) {
+            eventType = Bus.getOrmClient().getEventTypeFactory().get(eventTypeTopic).get();
+        }
+        return eventType;
+    }
+
+    @Override
     public String getName() {
         return name;
     }
