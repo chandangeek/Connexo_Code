@@ -44,7 +44,7 @@ class CronExpressionScheduler {
         submitOnce(new SelfReschedulingCronJob(cronJob));
     }
 
-    private class SelfReschedulingCronJob implements CronJob {
+    private final class SelfReschedulingCronJob implements CronJob {
 
         private final CronJob wrapped;
 

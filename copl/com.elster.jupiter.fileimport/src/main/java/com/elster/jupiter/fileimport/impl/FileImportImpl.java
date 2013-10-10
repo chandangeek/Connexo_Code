@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-class FileImportImpl implements FileImport {
+final class FileImportImpl implements FileImport {
 
     private long id;
     private ImportSchedule importSchedule;
@@ -23,8 +23,7 @@ class FileImportImpl implements FileImport {
     }
 
     public static FileImport create(ImportSchedule importSchedule, File file) {
-        FileImportImpl fileImport = new FileImportImpl(importSchedule, file);
-        return fileImport;
+        return new FileImportImpl(importSchedule, file);
     }
 
     @Override

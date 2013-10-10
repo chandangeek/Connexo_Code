@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 @Component(name = "com.elster.jupiter.fileimport", service = {InstallService.class, FileImportService.class}, property = {"name=" + Bus.COMPONENTNAME}, immediate = true)
 public class FileImportServiceImpl implements InstallService, ServiceLocator, FileImportService {
 
-    private static final Logger logger = Logger.getLogger(FileImportServiceImpl.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
 
     private final DefaultFileSystem defaultFileSystem = new DefaultFileSystem();
     private volatile LogService logService;
@@ -130,8 +130,7 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
             int poolSize = Math.max(1, (int) Math.log(importSchedules.size()));
             cronExpressionScheduler = new CronExpressionScheduler(poolSize);
         } catch (RuntimeException e) {
-			e.printStackTrace();
-            logger.log(Level.SEVERE, "Could not start Import schedules, please check if FIM is installed properly.");
+            LOGGER.log(Level.SEVERE, "Could not start Import schedules, please check if FIM is installed properly.");
 		}
     }
 
