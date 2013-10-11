@@ -29,7 +29,11 @@ import java.util.TimeZone;
 
 @LiteralSql
 public final class VaultImpl implements Vault {
-	//persistent fields
+
+    private static final int ID_COLUMN_INDEX = 1;
+    private static final int FROM_COLUMN_INDEX = 2;
+    private static final int TO_COLUMN_INDEX = 3;
+    //persistent fields
 	private String componentName;
 	private long id;
 	private String description;
@@ -434,9 +438,9 @@ public final class VaultImpl implements Vault {
 		List<TimeSeriesEntry> result = new ArrayList<>();
 		try (Connection connection = getConnection(false)) {
 			try (PreparedStatement statement = connection.prepareStatement(rangeSql(timeSeries))) {
-				statement.setLong(1,timeSeries.getId());
-				statement.setLong(2, from.getTime());
-				statement.setLong(3, to.getTime());
+				statement.setLong(ID_COLUMN_INDEX,timeSeries.getId());
+				statement.setLong(FROM_COLUMN_INDEX, from.getTime());
+				statement.setLong(TO_COLUMN_INDEX, to.getTime());
 				try (ResultSet rs = statement.executeQuery()) {
 					while(rs.next()) {
 						result.add(new TimeSeriesEntryImpl(timeSeries,rs));

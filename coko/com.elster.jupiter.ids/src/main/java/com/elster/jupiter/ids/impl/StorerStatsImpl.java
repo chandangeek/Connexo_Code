@@ -4,7 +4,9 @@ import com.elster.jupiter.ids.StorerStats;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 
 public class StorerStatsImpl implements StorerStats {
-	private int entryCount;
+
+    private static final long NANOS_PER_MILLI = 1_000_000L;
+    private int entryCount;
     private int insertCount;
     private int updateCount;
     private long nanos;
@@ -26,7 +28,7 @@ public class StorerStatsImpl implements StorerStats {
 
 	@Override
 	public long getExecuteTime() {
-		return nanos / 1_000_000L;
+		return nanos / NANOS_PER_MILLI;
 	}
 
 	void start() {

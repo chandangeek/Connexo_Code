@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public final class RecordSpecImpl implements RecordSpec {
 	// persistent fields
@@ -104,9 +105,7 @@ public final class RecordSpecImpl implements RecordSpec {
 
     @Override
     public int hashCode() {
-        int result = componentName.hashCode();
-        result = 31 * result + (int) (id ^ (id >>> 32));
-        return result;
+        return Objects.hash(id, componentName);
     }
 	private DataMapper<RecordSpec> getFactory() {
 		return Bus.getOrmClient().getRecordSpecFactory();		

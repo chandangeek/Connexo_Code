@@ -9,6 +9,9 @@ import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,11 +19,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.elster.jupiter.ids.IntervalLengthUnit.DAY;
 import static com.elster.jupiter.ids.IntervalLengthUnit.MINUTE;
+import static com.elster.jupiter.ids.IntervalLengthUnit.MONTH;
 
 public final class TimeSeriesImpl implements TimeSeries {
-	// persistent fields
+
+    private static final long MILLIS_PER_MINUTE = 60000L;
+    private static final int MINUTES_PER_HOUR = 60;
+    // persistent fields
 	private long id;
 	private String vaultComponentName;
 	private long vaultId;
@@ -73,16 +79,27 @@ public final class TimeSeriesImpl implements TimeSeries {
         }
     }
 
-    TimeSeriesImpl(Vault vault , RecordSpec recordSpec, TimeZone timeZone, int intervalLength, IntervalLengthUnit intervalLengthUnit, int offset) {
+    TimeSeriesImpl(Vault vault , RecordSpec recordSpec, TimeZone timeZone, int intervalLength, IntervalLengthUnit intervalLengthUnit, int offsetInHours) {
 		this(vault,recordSpec,timeZone);
         validate(vault, recordSpec);
 		this.regular = true;
+        validate(intervalLength, intervalLengthUnit);
 		this.intervalLength = intervalLength;
 		this.intervalLengthUnit = intervalLengthUnit;
-		this.offset = offset;
+		this.offset = offsetInHours;
 	}
 
-	@Override
+    private void validate(int intervalLength, IntervalLengthUnit intervalLengthUnit) {
+        if (IntervalLengthUnit.MINUTE.equals(intervalLengthUnit)) {
+            if (MINUTES_PER_HOUR % intervalLength != 0) {
+                throw new IllegalArgumentException("Only minute interval lengths that are divisors of one hour are supported.");
+            }
+        } else if (intervalLength != 1) {
+            throw new IllegalArgumentException("For Day and Month only 1 as length is supported.");
+        }
+    }
+
+    @Override
 	public long getId() {
 		return id;
 	}
@@ -105,7 +122,7 @@ public final class TimeSeriesImpl implements TimeSeries {
 	@Override
 	public TimeZone getTimeZone() {		
 		if (timeZone == null) {
-			// may need to optimized as TimeZone.getTimeZone is probably the slowest method in the JDK
+			// TODO may need to optimized as TimeZone.getTimeZone is probably the slowest method in the JDK
 			timeZone = TimeZone.getTimeZone(timeZoneName);
 		}
 		return timeZone;
@@ -214,37 +231,32 @@ public final class TimeSeriesImpl implements TimeSeries {
 		return getVault().isValidDateTime(date) && isValid(date);
 	}
 	
-	boolean isValid(Date date) {	
+	private boolean isValid(Date date) {
 		if (lockTime != null &&  lockTime.afterOrEqual(date)) {
 			return false;
 		}
 		if (!isRegular()) {
 			return true;
 		}
-		if (getIntervalLengthUnit() == MINUTE) {
-			return date.getTime() % (getIntervalLength() * 60000L) == 0;
+        DateTime dateTime = new DateTime(date, DateTimeZone.forTimeZone(getTimeZone()));
+        if (getIntervalLengthUnit() == MINUTE) {
+            return dateTime.getMinuteOfHour() % (getIntervalLength() * MILLIS_PER_MINUTE) == 0;
 		}
-		Calendar cal = Calendar.getInstance(getTimeZone());
-		cal.setTime(date);
-		if (cal.get(Calendar.MILLISECOND) != 0) {
-			return false;
-		}
-		if (cal.get(Calendar.SECOND) != 0) {
-			return false;
-		}
-		if (cal.get(Calendar.MINUTE) != 0) {
-			return false;
-		}	
-		if (cal.get(Calendar.HOUR_OF_DAY) != getOffset()) {
-			return false;
-		}
-		if (getIntervalLengthUnit() == DAY) {
-			return true;
-		}
-		return cal.get(Calendar.DAY_OF_MONTH) == 1;
-	}
-	
-	@Override
+        if (!validTimeOfDay(dateTime)) {
+            return false;
+        }
+        return !MONTH.equals(intervalLengthUnit) || dateTime.getDayOfMonth() == 1;
+    }
+
+    private boolean validTimeOfDay(DateTime dateTime) {
+        return millisOfHour(dateTime) == 0 && dateTime.getHourOfDay() == getOffset();
+    }
+
+    private int millisOfHour(DateTime dateTime) {
+        return dateTime.getMillisOfDay() % DateTimeConstants.MILLIS_PER_HOUR;
+    }
+
+    @Override
 	public List<TimeSeriesEntry> getEntries(Date from , Date to) {
 		return ImmutableList.copyOf(((VaultImpl) getVault()).getEntries(this, from, to));
 	}
