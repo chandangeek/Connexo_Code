@@ -5,8 +5,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
 import java.security.*;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -18,6 +17,7 @@ public class UserImpl implements User {
     private long id;
     private String authenticationName;
     private String description;
+    private String ha1;
     private long version;
     private UtcInstant createTime;
     private UtcInstant modTime;
@@ -187,26 +187,39 @@ public class UserImpl implements User {
 
     //TODO make DigestHa1 persistent
 	@Override
-	public String getDigestHa1() {		
-		return md5(authenticationName,Bus.REALM,"admin");
+	public String getDigestHa1() {	
+		return ha1;
 	}
 	
-	private String md5(String ...strings ) {
+	@Override
+	public void setPassword(String password) {
+		password = Objects.requireNonNull(password);
+		if (password.length() < 4) {
+			throw new IllegalArgumentException("Password too weak");
+		}
+		ha1 = createHa1(password);
+	}
+	
+	private String createHa1(String password ) {
 		try {
 			MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-			String separator = null;
-			for (String each : strings) {
-				if (separator == null) {
-					separator = ":";
-				} else {
-					messageDigest.update(separator.getBytes());
-				}
-				messageDigest.update(each.getBytes());
-			}
+			messageDigest.update(authenticationName.getBytes());
+			messageDigest.update(":".getBytes());
+			messageDigest.update(Bus.REALM.getBytes());
+			messageDigest.update(":".getBytes());
+			messageDigest.update(password.getBytes());			
 			byte[] md5 = messageDigest.digest();
 			return DatatypeConverter.printHexBinary(md5).toLowerCase();
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	@Override
+	public boolean check(String password) {
+		if (password == null || password.isEmpty()) {
+			return false;
+		}
+		return createHa1(password).equals(ha1);
 	}
 }

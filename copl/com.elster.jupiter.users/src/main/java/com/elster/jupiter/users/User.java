@@ -40,7 +40,11 @@ public interface User extends Principal, HasName {
     List<Group> getGroups();
     
     /*
-     * Returns the Ha1 used in Digest Authentication for the given user, null if user is unknown or does not support DIGEST authentication     
+     * Returns the Ha1 used in Digest Authentication for the given user,
+     * can be null if the user does not have interactive access
+     * 
      */
     String getDigestHa1();
+	void setPassword(String password);
+	boolean check(String password);
 }

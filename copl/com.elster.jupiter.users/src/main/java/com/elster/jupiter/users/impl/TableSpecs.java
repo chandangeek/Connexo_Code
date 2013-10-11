@@ -35,6 +35,7 @@ public enum TableSpecs {
 			Column idColumn = table.addAutoIdColumn();
 			Column authenticationNameColumn = table.addColumn("AUTHNAME", "varchar2(80)" , true , NOCONVERSION , "authenticationName");
 			table.addColumn("DESCRIPTION", "varchar2(256)" , false , NOCONVERSION , "description");
+			table.addColumn("HA1","varchar2(32)",false,NOCONVERSION,"ha1");
 			table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
