@@ -90,7 +90,6 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     }
 
     private void tryActivateJms(Connection connection) throws SQLException, JMSException, AQException {
-        System.out.println("In activate JMS");
         OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
         QueueConnection queueConnection = Bus.getAQFacade().createQueueConnection(oraConnection);
         try {

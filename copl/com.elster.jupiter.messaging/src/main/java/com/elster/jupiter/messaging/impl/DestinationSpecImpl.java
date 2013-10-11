@@ -116,7 +116,7 @@ class DestinationSpecImpl implements DestinationSpec {
     @Override
     public MessageBuilder message(String text) {
         if (getQueueTableSpec().isJms()) {
-            throw new RuntimeException("JMS support not yet implemented.");
+            throw new UnsupportedOperationException("JMS support not yet implemented.");
         } else {
             return new BytesMessageBuilder(this, text.getBytes());
         }
@@ -153,10 +153,6 @@ class DestinationSpecImpl implements DestinationSpec {
     private DestinationSpecImpl() {
     }
 
-    private String createSql() {
-        return "begin dbms_aqadm.create_queue(queue_name => ?, queue_table => ?, retry_delay => ?); dbms_aqadm.start_queue(?); end;";
-    }
-
     private void doActivateAq() {
         try (Connection connection = Bus.getConnection()) {
             tryActivate(connection);
@@ -166,11 +162,13 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     private void tryActivate(Connection connection) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement(createSql())) {
-            statement.setString(1, name);
-            statement.setString(2, queueTableName);
-            statement.setInt(3, retryDelay);
-            statement.setString(4, name);
+        String sql = "begin dbms_aqadm.create_queue(queue_name => ?, queue_table => ?, retry_delay => ?); dbms_aqadm.start_queue(?); end;";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            int parameterIndex = 0;
+            statement.setString(++parameterIndex, name);
+            statement.setString(++parameterIndex, queueTableName);
+            statement.setInt(++parameterIndex, retryDelay);
+            statement.setString(++parameterIndex, name);
             statement.execute();
         }
     }

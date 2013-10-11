@@ -11,14 +11,22 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
+import java.io.PrintStream;
 import java.security.Principal;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * MSG console commands
  */
 @Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class, property = { "name=" + Bus.COMPONENTNAME + "2" , "osgi.command.scope=jupiter" , "osgi.command.function=aqcreatetable", "osgi.command.function=aqdroptable", "osgi.command.function=drain", "osgi.command.function=subscribe" } )
 public class ConsoleCommandsImpl {
+
+    private static final Logger LOGGER = Logger.getLogger(ConsoleCommandsImpl.class.getName());
+
+    private PrintStream output = System.out;
+
 
 	@Activate
 	public void activate(BundleContext context) {
@@ -29,18 +37,18 @@ public class ConsoleCommandsImpl {
 	}
 	
     public void aqcreatetable(String in) {
-        System.out.println("About to create Queue table " + in);
+        output.println("About to create Queue table " + in);
         try {
             new QueueTableSpecImpl(in, "RAW", false).activate();
-        } catch (Throwable ex) {
-            ex.printStackTrace();
+        } catch (RuntimeException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
     public void aqdroptable(String in) {
         try {
             new QueueTableSpecImpl(in, "RAW", false).deactivate();
-        } catch (Throwable ex) {
+        } catch (RuntimeException ex) {
             ex.printStackTrace();
         }
     }
@@ -50,11 +58,11 @@ public class ConsoleCommandsImpl {
         try {
             AQMessage message = ((SubscriberSpecImpl) spec.get()).receiveNow();
             while (message != null) {
-                System.out.println(new String(message.getPayload()));
+                output.println(new String(message.getPayload()));
                 message = ((SubscriberSpecImpl) spec.get()).receiveNow();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 

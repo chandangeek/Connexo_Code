@@ -11,12 +11,15 @@ import org.joda.time.Seconds;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 /**
  * MessageBuilder implementation that builds a message using raw bytes.
  */
 class BytesMessageBuilder implements MessageBuilder {
-    AQMessageProperties props;
+
+    private static final int NO_RECIPIENTS_FOR_MESSAGE = 24033;
+    private AQMessageProperties props;
 
     private final byte[] bytes;
     private DestinationSpec destinationSpec;
@@ -27,7 +30,7 @@ class BytesMessageBuilder implements MessageBuilder {
      */
     BytesMessageBuilder(DestinationSpec destinationSpec, byte[] bytes) {
         this.destinationSpec = destinationSpec;
-        this.bytes = bytes;
+        this.bytes = Arrays.copyOf(bytes, bytes.length);
     }
 
     @Override
@@ -45,7 +48,7 @@ class BytesMessageBuilder implements MessageBuilder {
             trySend(bytes);
         } catch (SQLException ex) {
         	// ignore ORA-24033: no recipients for message
-        	if (ex.getErrorCode() != 24033) {        		
+        	if (ex.getErrorCode() != NO_RECIPIENTS_FOR_MESSAGE) {
         		throw new UnderlyingSQLFailedException(ex);
         	}
         }

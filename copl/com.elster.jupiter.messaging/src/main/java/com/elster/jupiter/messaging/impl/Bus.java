@@ -6,7 +6,9 @@ import com.elster.jupiter.transaction.TransactionService;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class Bus {
+public enum Bus {
+    ;
+
 	static final String COMPONENTNAME = "MSG";
 	
 	private static ServiceLocator locator;
