@@ -6,7 +6,9 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.cbo.*;
 
 public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
-	// persistent fields
+
+    private static final int MRID_FIELD_COUNT = 11;
+    // persistent fields
 	private String mRID;
 	private String aliasName;
 	private long version;
@@ -55,7 +57,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	
 	private void setTransientFields() {
 		String[] parts = mRID.split("\\.");
-		if (parts.length != 11) {
+		if (parts.length != MRID_FIELD_COUNT) {
 			throw new IllegalArgumentException(mRID);
 		}
 		timeAttribute = TimeAttribute.get(parse(parts[0]));

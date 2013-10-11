@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.IntervalLengthUnit;
+import org.joda.time.DateTimeConstants;
 
 import java.util.Arrays;
 
@@ -11,8 +12,9 @@ final class IntervalLength {
 	private static final int[] MINUTEVALUESCIMCODES = { 3 , 10 , 14 , 6 , 1, 2 , 5 , 7 };
 	private static final int DAYCIMCODE = 11;
 	private static final int MONTHCIMCODE = 13;
-	
-	private final int length;
+    private static final long NOMINAL_DAYS_PER_MONTH = 30L;
+
+    private final int length;
 	private final IntervalLengthUnit unit;
 	
 	private IntervalLength(int length , IntervalLengthUnit unit) {
@@ -62,9 +64,9 @@ final class IntervalLength {
 	int getCimCode() {
 		switch(unit) {
 			case MONTH:
-				return 13;
+				return MONTHCIMCODE;
 			case DAY:
-				return 11;
+				return DAYCIMCODE;
 			case MINUTE:
 				return MINUTEVALUESCIMCODES[Arrays.binarySearch(VALIDMINUTEVALUES, length)];
 		}
@@ -74,11 +76,11 @@ final class IntervalLength {
 	long getLengthInSeconds() {
 		switch(unit) {
 			case MONTH:
-				return 30L * 86400L * length;
+				return NOMINAL_DAYS_PER_MONTH * DateTimeConstants.SECONDS_PER_DAY * length;
 			case DAY:
-				return 86400L * length;
+				return DateTimeConstants.SECONDS_PER_DAY * length;
 			case MINUTE:
-				return 60L * length; 
+				return DateTimeConstants.SECONDS_PER_MINUTE * length;
 		}
 		throw new IllegalStateException();
 	}

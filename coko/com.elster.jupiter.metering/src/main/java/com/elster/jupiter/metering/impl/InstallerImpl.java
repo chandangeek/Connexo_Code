@@ -8,16 +8,19 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
+import org.joda.time.MutableDateTime;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import static com.elster.jupiter.ids.FieldType.*;
 import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 
 public class InstallerImpl {
+
+    private static final int SLOT_COUNT = 8;
+    private static final int MONTHS_PER_YEAR = 12;
 
     public void install(boolean executeDdl, boolean updateOrm, boolean createMasterData) {
         try {
@@ -48,42 +51,40 @@ public class InstallerImpl {
     }
 
     private void createVaults(IdsService idsService) {
-        Vault intervalVault = idsService.newVault(COMPONENTNAME, 1, "Interval Data Store", 8, true);
+        Vault intervalVault = idsService.newVault(COMPONENTNAME, 1, "Interval Data Store", SLOT_COUNT, true);
         intervalVault.persist();
         createPartitions(intervalVault);
-        Vault registerVault = idsService.newVault(COMPONENTNAME, 2, "Register Data Store", 8, false);
+        Vault registerVault = idsService.newVault(COMPONENTNAME, 2, "Register Data Store", SLOT_COUNT, false);
         registerVault.persist();
         createPartitions(registerVault);
     }
 
     private void createPartitions(Vault vault) {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MONTH, 1);
-        cal.set(Calendar.DAY_OF_MONTH, 1);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        vault.activate(cal.getTime());
-        for (int i = 0; i < 12; i++) {
-            cal.add(Calendar.MONTH, 1);
-            vault.addPartition(cal.getTime());
+        MutableDateTime startOfMonth = new MutableDateTime();
+        startOfMonth.setMillisOfDay(0);
+        startOfMonth.setMonthOfYear(1);
+        startOfMonth.setDayOfMonth(1);
+        vault.activate(startOfMonth.toDate());
+        for (int i = 0; i < MONTHS_PER_YEAR; i++) {
+            startOfMonth.addMonths(1);
+            vault.addPartition(startOfMonth.toDate());
         }
     }
 
     private void createRecordSpecs(IdsService service) {
-        RecordSpec singleIntervalRecordSpec = service.newRecordSpec(COMPONENTNAME, 1, "Single Interval Data");
+        int id = 0;
+        RecordSpec singleIntervalRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Single Interval Data");
         singleIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         singleIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
         singleIntervalRecordSpec.addFieldSpec("Value", NUMBER);
         singleIntervalRecordSpec.persist();
-        RecordSpec dualIntervalRecordSpec = service.newRecordSpec(COMPONENTNAME, 2, "Dual Interval Data");
+        RecordSpec dualIntervalRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Dual Interval Data");
         dualIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         dualIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
         dualIntervalRecordSpec.addFieldSpec("Value", NUMBER);
         dualIntervalRecordSpec.addFieldSpec("Cumulative", NUMBER);
         dualIntervalRecordSpec.persist();
-        RecordSpec multiIntervalRecordSpec = service.newRecordSpec(COMPONENTNAME, 3, "Multi Interval Data");
+        RecordSpec multiIntervalRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Multi Interval Data");
         multiIntervalRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         multiIntervalRecordSpec.addFieldSpec("ProfileStatus", LONGINTEGER);
         multiIntervalRecordSpec.addFieldSpec("Value1", NUMBER);
@@ -93,16 +94,16 @@ public class InstallerImpl {
         multiIntervalRecordSpec.addFieldSpec("Value5", NUMBER);
         multiIntervalRecordSpec.addFieldSpec("Value6", NUMBER);
         multiIntervalRecordSpec.persist();
-        RecordSpec singleRegisterRecordSpec = service.newRecordSpec(COMPONENTNAME, 4, "Base Register");
+        RecordSpec singleRegisterRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Base Register");
         singleRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         singleRegisterRecordSpec.addFieldSpec("Value", NUMBER);
         singleRegisterRecordSpec.persist();
-        RecordSpec billingPeriodRegisterRecordSpec = service.newRecordSpec(COMPONENTNAME, 5, "Billing Period Register");
+        RecordSpec billingPeriodRegisterRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Billing Period Register");
         billingPeriodRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         billingPeriodRegisterRecordSpec.addFieldSpec("Value", NUMBER);
         billingPeriodRegisterRecordSpec.addFieldSpec("From Time", DATE);
         billingPeriodRegisterRecordSpec.persist();
-        RecordSpec demandRegisterRecordSpec = service.newRecordSpec(COMPONENTNAME, 6, "Demand Register");
+        RecordSpec demandRegisterRecordSpec = service.newRecordSpec(COMPONENTNAME, ++id, "Demand Register");
         demandRegisterRecordSpec.addFieldSpec("ProcessingFlags", LONGINTEGER);
         demandRegisterRecordSpec.addFieldSpec("Value", NUMBER);
         demandRegisterRecordSpec.addFieldSpec("From Time", DATE);
@@ -151,7 +152,7 @@ public class InstallerImpl {
         for (Field each : fields) {
             try {
                 result.add((String) each.get(null));
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+            } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }

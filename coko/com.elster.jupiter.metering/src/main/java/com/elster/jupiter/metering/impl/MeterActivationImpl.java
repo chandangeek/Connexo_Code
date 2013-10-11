@@ -30,9 +30,9 @@ public class MeterActivationImpl implements MeterActivation {
 	private String userName;
 	
 	// associations
-	UsagePoint usagePoint;
-	Meter meter;
-	List<Channel> channels;
+	private UsagePoint usagePoint;
+    private Meter meter;
+    private List<Channel> channels;
 	
 	@SuppressWarnings("unused")
 	private MeterActivationImpl() {	

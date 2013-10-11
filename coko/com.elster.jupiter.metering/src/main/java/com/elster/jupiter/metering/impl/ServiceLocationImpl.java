@@ -16,7 +16,8 @@ import java.util.List;
 
 public class ServiceLocationImpl implements ServiceLocation {
 	private static final String GOOGLE_GEOCODED = "GG";
-	// persistent fields
+    private static final int GOOGLE_GEOCODE_FIELD_COUNT = 3;
+    // persistent fields
 	private long id;
 	private String aliasName;
 	private String description;
@@ -257,7 +258,7 @@ public class ServiceLocationImpl implements ServiceLocation {
 		String[] parts = geoInfoReference.split(",");
 		switch (parts[0]) {
 			case GOOGLE_GEOCODED:
-				if (parts.length != 3) {
+				if (parts.length != GOOGLE_GEOCODE_FIELD_COUNT) {
 					return null;
 				}
 				return new Position(new BigDecimal(parts[1]), new BigDecimal(parts[2]));
