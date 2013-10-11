@@ -71,7 +71,6 @@ public class DigestAuthentication implements Authentication {
     	final private String method;
     	final private String in;
     	final private Map<String,String> attributes = new HashMap<>();
-    	private Optional<User> user = Optional.absent();
     	
     	DigestResponse(String method, String in) {
     		this.method = method;
@@ -92,23 +91,14 @@ public class DigestAuthentication implements Authentication {
     			System.out.println(each.getKey() + ":" + each.getValue());
     		}
     	}
-    	
-    	boolean check() {
-    		user = Bus.getUserService().findUser(attributes.get("username"));
-    		if (!user.isPresent()) {
-    			return false;
-    		}
-    		String ha1 = user.get().getDigestHa1();
-    		return ha1 == null ? false : matchHa1(ha1);		
-    	}
-    	
+    	    	    	
     	boolean matchHa1(String ha1) {
     		String ha2 = md5(method,attributes.get("uri"));			
     		String calculated = md5(ha1,attributes.get("nonce"),attributes.get("nc"),attributes.get("cnonce"),attributes.get("qop"),ha2); 	
     		return calculated.equals(attributes.get("response"));			
     	}
     	
-    	public Principal getPrincipal() {
+    	Principal getPrincipal() {
     		Optional<User> user = Bus.getUserService().findUser(attributes.get("username"));
     		if (!user.isPresent()) {
     			return null;

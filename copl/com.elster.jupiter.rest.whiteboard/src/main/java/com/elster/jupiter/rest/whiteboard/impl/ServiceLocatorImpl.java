@@ -19,7 +19,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
 
 /*
  * As Jersey does not publish OGSI services,

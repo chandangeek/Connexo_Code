@@ -12,6 +12,8 @@ import org.osgi.service.http.*;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
+import com.google.common.base.Strings;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import javax.ws.rs.core.Application;
@@ -28,10 +30,11 @@ public class WhiteBoard {
     }
 
     private Authentication createAuthentication(String method) {
-    	System.out.println(method);
-    	switch(method) {
+    	switch(Strings.nullToEmpty(method)) {
     		case HttpServletRequest.DIGEST_AUTH:
     			return new DigestAuthentication();
+    		// case fall through to document default 
+    		case HttpServletRequest.BASIC_AUTH:
     		default:
     			return new BasicAuthentication();    			    			
     	}
