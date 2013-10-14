@@ -8,6 +8,17 @@ import com.elster.jupiter.cbo.*;
 public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
     private static final int MRID_FIELD_COUNT = 11;
+    private static final int TIME_INDEX = 0;
+    private static final int DATA_QUALIFIER_INDEX = 1;
+    private static final int ACCUMULATION_INDEX = 2;
+    private static final int FLOW_DIRECTION_INDEX = 3;
+    private static final int UNIT_OF_MEASURE_INDEX2 = 5;
+    private static final int UNIT_OF_MEASURE_INDEX1 = 4;
+    private static final int MEASUREMENT_CATEGORY_INDEX1 = 6;
+    private static final int MEASUREMENT_CATEGORY_INDEX2 = 7;
+    private static final int PHASE_INDEX = 8;
+    private static final int METRIC_MULTIPLIER_INDEX = 9;
+    private static final int BASE_UNIT_INDEX = 10;
     // persistent fields
 	private String mRID;
 	private String aliasName;
@@ -60,15 +71,15 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		if (parts.length != MRID_FIELD_COUNT) {
 			throw new IllegalArgumentException(mRID);
 		}
-		timeAttribute = TimeAttribute.get(parse(parts[0]));
-		dataQualifier = DataQualifier.get(parse(parts[1]));
-		accumulation = Accumulation.get(parse(parts[2]));
-		flowDirection = FlowDirection.get(parse(parts[3]));
-		unitOfMeasureCategory = UnitOfMeasureCategory.get(parse(parts[4]),parse(parts[5]));
-		measurementCategory = MeasurementCategory.get(parse(parts[6]),parse(parts[7]));
-		phase = Phase.get(parse(parts[8]));
-		metricMultiplier = MetricMultiplier.get(parse(parts[9]));
-		baseUnit = ReadingTypeUnit.get(parse(parts[10]));
+		timeAttribute = TimeAttribute.get(parse(parts[TIME_INDEX]));
+		dataQualifier = DataQualifier.get(parse(parts[DATA_QUALIFIER_INDEX]));
+		accumulation = Accumulation.get(parse(parts[ACCUMULATION_INDEX]));
+		flowDirection = FlowDirection.get(parse(parts[FLOW_DIRECTION_INDEX]));
+		unitOfMeasureCategory = UnitOfMeasureCategory.get(parse(parts[UNIT_OF_MEASURE_INDEX1]),parse(parts[UNIT_OF_MEASURE_INDEX2]));
+		measurementCategory = MeasurementCategory.get(parse(parts[MEASUREMENT_CATEGORY_INDEX1]),parse(parts[MEASUREMENT_CATEGORY_INDEX2]));
+		phase = Phase.get(parse(parts[PHASE_INDEX]));
+		metricMultiplier = MetricMultiplier.get(parse(parts[METRIC_MULTIPLIER_INDEX]));
+		baseUnit = ReadingTypeUnit.get(parse(parts[BASE_UNIT_INDEX]));
 	}
 		
 	private int parse(String intString) {
