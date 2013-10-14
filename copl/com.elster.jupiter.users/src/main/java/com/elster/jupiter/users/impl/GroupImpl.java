@@ -164,7 +164,7 @@ final class GroupImpl implements Group , PersistenceAware {
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return Objects.hash(id);
     }
 
 	@Override

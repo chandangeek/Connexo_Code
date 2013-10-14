@@ -1,18 +1,22 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.collect.ImmutableList;
 
-import java.security.*;
-import java.util.*;
-
 import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 import static com.elster.jupiter.util.Checks.is;
 
 public class UserImpl implements User {
 
+    private static final int MINIMAL_PASSWORD_STRENGTH = 4;
     // persistent fields
     private long id;
     private String authenticationName;
@@ -182,10 +186,9 @@ public class UserImpl implements User {
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return Objects.hash(id);
     }
 
-    //TODO make DigestHa1 persistent
 	@Override
 	public String getDigestHa1() {	
 		return ha1;
@@ -194,7 +197,7 @@ public class UserImpl implements User {
 	@Override
 	public void setPassword(String password) {
 		password = Objects.requireNonNull(password);
-		if (password.length() < 4) {
+		if (password.length() < MINIMAL_PASSWORD_STRENGTH) {
 			throw new IllegalArgumentException("Password too weak");
 		}
 		ha1 = createHa1(password);
@@ -217,9 +220,6 @@ public class UserImpl implements User {
 
 	@Override
 	public boolean check(String password) {
-		if (password == null || password.isEmpty()) {
-			return false;
-		}
-		return createHa1(password).equals(ha1);
-	}
+        return !is(password).empty() && createHa1(password).equals(ha1);
+    }
 }
