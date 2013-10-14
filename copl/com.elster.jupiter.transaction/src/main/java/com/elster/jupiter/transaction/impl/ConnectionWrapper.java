@@ -6,7 +6,7 @@ import java.util.concurrent.Executor;
 
 abstract class ConnectionWrapper implements Connection {
 
-    final Connection connection;
+    private final Connection connection;
 
     ConnectionWrapper(Connection connection) {
         this.connection = connection;
