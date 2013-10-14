@@ -7,6 +7,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Date;
+import java.util.Objects;
 
 public class PartyInRoleImpl implements PartyInRole {
 	
@@ -122,6 +123,6 @@ public class PartyInRoleImpl implements PartyInRole {
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return Objects.hash(id);
     }
 }

@@ -6,6 +6,8 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 
+import java.util.Objects;
+
 final class PartyRepresentationImpl implements PartyRepresentation {
 
 	private String delegate;
@@ -99,8 +101,6 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 
     @Override
     public int hashCode() {
-        int result = delegate.hashCode();
-        result = 31 * result + party.hashCode();
-        return result;
+        return Objects.hash(delegate, party);
     }
 }

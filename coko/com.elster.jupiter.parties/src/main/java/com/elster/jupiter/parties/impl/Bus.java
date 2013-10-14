@@ -5,7 +5,9 @@ import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 
-class Bus {
+enum Bus {
+
+    ;
 	
 	static final String COMPONENTNAME = "PRT";
 	

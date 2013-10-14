@@ -26,7 +26,7 @@ class OrmClientImpl implements OrmClient {
 
 	@Override
 	public DataMapper<Party> getPartyFactory() {
-		return dataModel.getDataMapper(Party.class, PartyImpl.implementers, PRT_PARTY.name());
+		return dataModel.getDataMapper(Party.class, PartyImpl.IMPLEMENTERS, PRT_PARTY.name());
 	}
 	
 	@Override

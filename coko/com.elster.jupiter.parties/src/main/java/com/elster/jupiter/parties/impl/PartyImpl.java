@@ -18,13 +18,14 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 abstract class PartyImpl implements Party {
     // ORM inheritance map
-	static final Map<String, Class<? extends Party>> implementers = ImmutableMap.<String, Class<? extends Party>>of(Organization.TYPE_IDENTIFIER, OrganizationImpl.class, Person.TYPE_IDENTIFIER, PersonImpl.class);
+	static final Map<String, Class<? extends Party>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends Party>>of(Organization.TYPE_IDENTIFIER, OrganizationImpl.class, Person.TYPE_IDENTIFIER, PersonImpl.class);
 
     // associations
-	List<PartyInRole> partyInRoles;
+	private List<PartyInRole> partyInRoles;
 	
 	private long id;
 	private String mRID;
@@ -137,7 +138,7 @@ abstract class PartyImpl implements Party {
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return Objects.hash(id);
     }
 
     @Override
