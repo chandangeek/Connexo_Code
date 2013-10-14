@@ -244,6 +244,9 @@ public class DeviceMessageConstants {
     public static final String SetMBusInterFrameTimeAttributeName = "MBusConfigurationDeviceMessage.SetMBusInterFrameTimeAttributeName";
     public static final String SetMBusConfigAttributeName = "MBusConfigurationDeviceMessage.SetMBusConfigAttributeName";
 
+    public static final String openKeyAttributeName = "MBusSetupDeviceMessage.openKeyAttributeName";
+    public static final String transferKeyAttributeName = "MBusSetupDeviceMessage.transferKeyAttributeName";
+
     public static final String AnalogOutValue = "DeviceActionMessage.AnalogOutValue";
     public static final String OutputOn = "DeviceActionMessage.OutputOn";
     public static final String OutputOff = "DeviceActionMessage.OutputOff";

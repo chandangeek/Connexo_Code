@@ -14,7 +14,7 @@ import java.util.*;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
- * Represents a MessageConverter for the legacy WebRTUKP protocol.
+ * Represents a MessageConverter for the legacy WebRTUZ3 protocol.
  * <p/>
  * Copyrights EnergyICT
  * Date: 8/03/13
@@ -33,9 +33,7 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
     static {
         // contactor related
         registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
         registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
         registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new ConnectControlModeMessageEntry(contactorModeAttributeName));
 
         // firmware upgrade related
@@ -88,8 +86,7 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(whiteListPhoneNumbersAttributeName)
                 || propertySpec.getName().equals(xmlConfigAttributeName)) {
             return messageAttribute.toString();
-        } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)
-                || propertySpec.getName().equals(firmwareUpdateActivationDateAttributeName)
+        } else if (propertySpec.getName().equals(firmwareUpdateActivationDateAttributeName)
                 || propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {

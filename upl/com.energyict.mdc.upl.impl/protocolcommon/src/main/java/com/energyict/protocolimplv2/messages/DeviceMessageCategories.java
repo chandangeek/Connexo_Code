@@ -206,6 +206,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         }
     },
     /**
+     * This category summarizes all messages related to setting up an MBus device (in a master slave scenario)
+     */
+    MBUS_SETUP {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(MBusSetupDeviceMessage.values());
+        }
+    },
+    /**
      * This category summarizes all messages related to configuring Opus in the RTU+Server
      */
     OPUS_CONFIGURATION {
