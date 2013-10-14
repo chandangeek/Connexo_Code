@@ -9,7 +9,7 @@ import java.util.*;
 
 public class MonitoredResultSet implements ResultSet {
 	
-	final private ResultSet resultSet;
+	private final ResultSet resultSet;
 	private int fetchCount;
 	
 	MonitoredResultSet(ResultSet resultSet) {

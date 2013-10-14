@@ -2,7 +2,9 @@ package com.elster.jupiter.transaction.impl;
 
 import com.elster.jupiter.transaction.SqlEvent;
 
-class Bus {
+enum Bus {
+    ;
+
 	private static ServiceLocator locator;
 	
 	static void setServiceLocator(ServiceLocator locator) {
