@@ -14,6 +14,13 @@ import java.util.List;
 
 class DueTaskFetcher {
 
+    private static final int ID_INDEX = 1;
+    private static final int NAME_INDEX = 2;
+    private static final int CRON_INDEX = 3;
+    private static final int NEXT_EXECUTION_INDEX = 4;
+    private static final int PAYLOAD_INDEX = 5;
+    private static final int DESTINATION_INDEX = 6;
+
     Iterable<RecurrentTask> dueTasks() {
         try (Connection connection = Bus.getOrmClient().getConnection()) {
             return dueTasks(connection);
@@ -41,13 +48,13 @@ class DueTaskFetcher {
     }
 
     private RecurrentTaskImpl getRecurrentTask(ResultSet resultSet) throws SQLException {
-        long id = resultSet.getLong(1);
-        String name = resultSet.getString(2);
-        String cronString = resultSet.getString(3);
-        long nextExecutionLong = resultSet.getLong(4);
+        long id = resultSet.getLong(ID_INDEX);
+        String name = resultSet.getString(NAME_INDEX);
+        String cronString = resultSet.getString(CRON_INDEX);
+        long nextExecutionLong = resultSet.getLong(NEXT_EXECUTION_INDEX);
         Date nextExecution = resultSet.wasNull() ? null : new Date(nextExecutionLong);
-        String payload = resultSet.getString(5);
-        String destination = resultSet.getString(6);
+        String payload = resultSet.getString(PAYLOAD_INDEX);
+        String destination = resultSet.getString(DESTINATION_INDEX);
         DestinationSpec destinationSpec = Bus.getMessageService().getDestinationSpec(destination).get();
         RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(name, Bus.getCronExpressionParser().parse(cronString), destinationSpec, payload);
         recurrentTask.setNextExecution(nextExecution);
