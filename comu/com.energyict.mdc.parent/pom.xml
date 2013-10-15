@@ -20,7 +20,8 @@
   </organization>
 
   <properties>
-    <eiserver.version>${project.version}</eiserver.version>
+    <!--<eiserver.version>${project.version}</eiserver.version>-->
+    <eiserver.version>9.0.0-SNAPSHOT</eiserver.version>
     <protocols.version>9.0.0-SNAPSHOT</protocols.version>
     <buildtools.version>1.0.11</buildtools.version>
     <maven.compiler.source>1.7</maven.compiler.source>
