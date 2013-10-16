@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.rest.impl;
 
+import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.google.common.base.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -11,7 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.verify;
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -28,6 +30,8 @@ public class CreateUsagePointTransactionTest {
     private MeteringService meteringService;
     @Mock
     private ServiceCategory serviceCategory;
+    @Mock
+    private UsagePoint usagePoint;
 
     @Before
     public void setUp() {
@@ -37,6 +41,7 @@ public class CreateUsagePointTransactionTest {
         info = new UsagePointInfo();
         info.serviceCategory = ServiceKind.ELECTRICITY;
         info.mRID = MR_ID;
+        info.phaseCode = PhaseCode.A;
 
         transaction = new CreateUsagePointTransaction(info);
 
@@ -52,9 +57,11 @@ public class CreateUsagePointTransactionTest {
 
     @Test
     public void test() {
-        transaction.perform();
+        when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePoint);
 
-        verify(serviceCategory).newUsagePoint(MR_ID);
+        UsagePoint result = transaction.perform();
+
+        assertThat(result).isEqualTo(usagePoint);
     }
 
 }
