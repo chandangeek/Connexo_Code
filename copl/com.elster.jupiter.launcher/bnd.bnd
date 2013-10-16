@@ -1,3 +1,5 @@
+-classpath: target/classes
+-dsannotations: *
 Private-Package: com.elster.jupiter.launcher.impl
 Bundle-Activator: com.elster.jupiter.launcher.impl.Activator
 Require-Bundle: javax.annotation-api,\
