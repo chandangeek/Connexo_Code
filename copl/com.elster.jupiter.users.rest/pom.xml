@@ -12,7 +12,7 @@
     <artifactId>users.rest</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>Users Rest</name>
+    <name>[Jupiter] com.elster.jupiter.users.rest</name>
 
     <build>
         <plugins>
