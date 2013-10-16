@@ -21,7 +21,8 @@
 
   <properties>
     <!--<eiserver.version>${project.version}</eiserver.version>-->
-    <eiserver.version>9.0.0-SNAPSHOT</eiserver.version>
+    <eiserver.version>1.0.0-SNAPSHOT</eiserver.version>
+    <comserver.version>1.0.0-SNAPSHOT</comserver.version>
     <protocols.version>9.0.0-SNAPSHOT</protocols.version>
     <buildtools.version>1.0.11</buildtools.version>
     <maven.compiler.source>1.7</maven.compiler.source>
@@ -39,6 +40,8 @@
     <json.version>20090211</json.version>
     <jackson.version>1.9.2</jackson.version>
     <perf4j.version>0.9.16</perf4j.version>
+    <javax.servlet.api.version>2.5</javax.servlet.api.version>
+    <javax.persistence.api.version>1.0</javax.persistence.api.version>
   </properties>
 
   <scm>
@@ -61,21 +64,60 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdw</artifactId>
         <version>${eiserver.version}</version>
-        <scope>provided</scope>
       </dependency>
 
+      <!-- Project modules -->
       <dependency>
-        <groupId>com.energyict</groupId>
-        <artifactId>mdwswing</artifactId>
-        <version>${eiserver.version}</version>
-        <scope>provided</scope>
+        <groupId>com.energyict.comserver</groupId>
+        <artifactId>comserver-core-common</artifactId>
+        <version>${comserver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.energyict.comserver</groupId>
+        <artifactId>comserver-core-events</artifactId>
+        <version>${comserver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.energyict.comserver</groupId>
+        <artifactId>comserver-core-impl</artifactId>
+        <version>${comserver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.energyict.comserver</groupId>
+        <artifactId>comserver-core-persistence</artifactId>
+        <version>${comserver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.energyict.comserver</groupId>
+        <artifactId>comserver-core-scheduling</artifactId>
+        <version>${comserver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.energyict.comserver</groupId>
+        <artifactId>comserver-core-execution</artifactId>
+        <version>${comserver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.energyict.comserver</groupId>
+        <artifactId>comserver-core-monitor</artifactId>
+        <version>${comserver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.energyict.comserver</groupId>
+        <artifactId>comserver-core-web</artifactId>
+        <version>${comserver.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.persistence</groupId>
+        <artifactId>persistence-api</artifactId>
+        <version>${javax.persistence.api.version}</version>
       </dependency>
 
-      <!-- Dependency injection -->
+      <!-- AOP -->
       <dependency>
-        <groupId>com.google.inject</groupId>
-        <artifactId>guice</artifactId>
-        <version>${guice.version}</version>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjrt</artifactId>
+        <version>1.7.2</version>
       </dependency>
 
       <!-- Logging -->
@@ -124,6 +166,11 @@
       </dependency>
 
       <!-- Web libraries -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>${javax.servlet.api.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-server</artifactId>
