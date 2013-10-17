@@ -23,6 +23,7 @@
     <!--<eiserver.version>${project.version}</eiserver.version>-->
     <eiserver.version>1.0.0-SNAPSHOT</eiserver.version>
     <comserver.version>1.0.0-SNAPSHOT</comserver.version>
+    <jupiter.version>1.0.0-SNAPSHOT</jupiter.version>
     <protocols.version>9.0.0-SNAPSHOT</protocols.version>
     <buildtools.version>1.0.11</buildtools.version>
     <maven.compiler.source>1.7</maven.compiler.source>
@@ -107,6 +108,164 @@
         <artifactId>comserver-core-web</artifactId>
         <version>${comserver.version}</version>
       </dependency>
+
+      <!-- Jupiter Platform -->
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.appserver</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.bootstrap</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.cbo</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.domain.util</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.events</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.extjs</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.fileimport</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.http.whiteboard</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.ids</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.install</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.messaging</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.metering</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.metering.extjs</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.metering.rest</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.orm</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.orm.cache</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.osgi.goodies</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.parent</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.parties</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.parties.rest</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.pubsub</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.rest.util</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.rest.whiteboard</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.security.thread</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.tasks</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.test</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.transaction</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.units</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.users</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.users.rest</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>com.elster.jupiter.util</artifactId>
+        <version>${jupiter.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>javax.persistence</groupId>
         <artifactId>persistence-api</artifactId>
@@ -201,12 +360,6 @@
       <dependency>
         <groupId>com.energyict</groupId>
         <artifactId>mdwdevtools</artifactId>
-        <version>${eiserver.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.energyict</groupId>
-        <artifactId>mdwimpl</artifactId>
         <version>${eiserver.version}</version>
         <scope>test</scope>
       </dependency>
