@@ -64,6 +64,7 @@
                 <groupId>net.jcip</groupId>
                 <artifactId>jcip-annotations</artifactId>
                 <version>1.0</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -225,6 +226,7 @@
 		        <module>../com.elster.jupiter.http.whiteboard</module>
 		        <module>../com.elster.jupiter.ids</module>
 		        <module>../com.elster.jupiter.install</module>
+		        <module>../com.elster.jupiter.launcher</module>
 		        <module>../com.elster.jupiter.messaging</module>
 		        <module>../com.elster.jupiter.metering</module>
 		        <module>../com.elster.jupiter.metering.extjs</module>
@@ -238,8 +240,7 @@
 		        <module>../com.elster.jupiter.rest.util</module>
 		        <module>../com.elster.jupiter.rest.whiteboard</module>
 		        <module>../com.elster.jupiter.security.thread</module>
-		        <module>../com.elster.jupiter.tasks</module>
-		        <module>../com.elster.jupiter.test</module>
+		        <module>../com.elster.jupiter.tasks</module>		  
 		        <module>../com.elster.jupiter.transaction</module>
 		        <module>../com.elster.jupiter.users</module>
 		        <module>../com.elster.jupiter.users.rest</module>
@@ -258,8 +259,8 @@
 							<execution>
 								<id>copy</id>
 								<phase>package</phase>
-								<goals>
-									<goal>copy</goal>
+								<goals>									
+									<goal>copy-dependencies</goal>
 								</goals>
 								<configuration>
 									<artifactItems>
@@ -270,7 +271,8 @@
 		                  					<type>${project.packaging}</type>
 		                				</artifactItem>
 		              				</artifactItems>
-									<outputDirectory>/temp</outputDirectory>						
+		              				<includeScope>runtime</includeScope>
+		              				<excludeGroupIds>xmlpull,net.sf.kxml,javax.annotation,org.easymock</excludeGroupIds>													
 								</configuration>
 							</execution>
 						</executions>
