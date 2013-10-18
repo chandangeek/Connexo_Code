@@ -87,6 +87,21 @@
         	<version>1.1.0</version>
         </dependency>
         <dependency>
+        	<groupId>org.apache.felix</groupId>
+        	<artifactId>org.apache.felix.gogo.shell</artifactId>
+        	<version>0.10.0</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.apache.felix</groupId>
+        	<artifactId>org.apache.felix.gogo.runtime</artifactId>
+        	<version>0.10.0</version>
+        </dependency>
+        <dependency>
+        	<groupId>org.apache.felix</groupId>
+        	<artifactId>org.apache.felix.gogo.command</artifactId>
+        	<version>0.12.0</version>
+        </dependency>
+        <dependency>
     		<groupId>javax.ws.rs</groupId>    		
     		<artifactId>javax.ws.rs-api</artifactId>
     		<version>2.0</version>
@@ -125,66 +140,26 @@
     		<groupId>javax.annotation</groupId>
     		<artifactId>javax.annotation-api</artifactId>
     		<version>1.2</version>
-		</dependency>
-		<dependency>
-    		<groupId>javax.validation</groupId>
-    		<artifactId>validation-api</artifactId>
-    		<version>1.1.0.Final</version>
-		</dependency>
-		<dependency>
-    		<groupId>org.glassfish.hk2</groupId>
-    		<artifactId>hk2-api</artifactId>
-    		<version>2.2.0-b14</version>
-		</dependency>
-		<dependency>
-    		<groupId>org.glassfish.hk2</groupId>
-    		<artifactId>hk2-utils</artifactId>
-    		<version>2.2.0-b14</version>
-		</dependency>
-		<dependency>
-    		<groupId>org.glassfish.hk2</groupId>
-    		<artifactId>hk2-locator</artifactId>
-    		<version>2.2.0-b14</version>
-		</dependency>
-		<dependency>
-    		<groupId>org.glassfish.hk2</groupId>
-    		<artifactId>osgi-resource-locator</artifactId>
-    		<version>1.0.1</version>
-		</dependency>
-		<dependency>
-    		<groupId>org.glassfish.hk2.external</groupId>
-    		<artifactId>asm-all-repackaged</artifactId>
-    		<version>2.2.0-b14</version>
-		</dependency>
-		<dependency>
-    		<groupId>org.glassfish.hk2.external</groupId>
-    		<artifactId>cglib</artifactId>
-    		<version>2.2.0-b14</version>
-		</dependency>
-		<dependency>
-    		<groupId>org.glassfish.hk2.external</groupId>
-    		<artifactId>javax.inject</artifactId>
-    		<version>2.2.0-b14</version>
-		</dependency>
+		</dependency>		
 		<dependency>
     		<groupId>org.codehaus.jackson</groupId>
     		<artifactId>jackson-core-asl</artifactId>
-    		<version>1.9.13</version>
+    		<version>1.9.11</version>
 		</dependency>
 		<dependency>
     		<groupId>org.codehaus.jackson</groupId>
     		<artifactId>jackson-jaxrs</artifactId>
-    		<version>1.9.13</version>
+    		<version>1.9.11</version>
 		</dependency>
 		<dependency>
     		<groupId>org.codehaus.jackson</groupId>
     		<artifactId>jackson-mapper-asl</artifactId>
-    		<version>1.9.13</version>
+    		<version>1.9.11</version>
 		</dependency>
 		<dependency>
     		<groupId>org.codehaus.jackson</groupId>
     		<artifactId>jackson-xc</artifactId>
-    		<version>1.9.13</version>
+    		<version>1.9.11</version>
 		</dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
