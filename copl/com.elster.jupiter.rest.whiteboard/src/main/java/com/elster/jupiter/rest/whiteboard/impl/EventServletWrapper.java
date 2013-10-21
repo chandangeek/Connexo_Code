@@ -2,17 +2,16 @@ package com.elster.jupiter.rest.whiteboard.impl;
 
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
-import com.elster.jupiter.transaction.*;
+import com.elster.jupiter.transaction.SqlEvent;
+import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.util.time.StopWatch;
 import com.google.common.collect.ImmutableMap;
+import org.osgi.service.event.Event;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.osgi.service.event.Event;
-
 import java.io.IOException;
 import java.net.URL;
 
@@ -119,7 +118,7 @@ public class EventServletWrapper extends HttpServlet {
     	@Override
 		public String toString() {
 			return 
-				"Rest call to " + url + " took " + stopWatch.getElapsed() / 1000L + " µs, executed " +
+				"Rest call to " + url + " took " + stopWatch.getElapsed() / 1000L + " ï¿½s, executed " +
 				getSqlCount() + " sql statements, fetched " + getFetchCount() + " tuples and executed " + getTransactionCount() +  
 				" transactions";
 		}

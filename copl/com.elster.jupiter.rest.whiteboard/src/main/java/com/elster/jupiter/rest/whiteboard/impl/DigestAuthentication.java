@@ -1,16 +1,18 @@
 package com.elster.jupiter.rest.whiteboard.impl;
 
-import java.io.IOException;
-import java.security.*;
-import java.util.*;
-
-import javax.servlet.http.*;
-import javax.xml.bind.DatatypeConverter;
-
-import org.osgi.service.http.HttpContext;
-
 import com.elster.jupiter.users.User;
 import com.google.common.base.Optional;
+import org.osgi.service.http.HttpContext;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DigestAuthentication implements Authentication {
 
@@ -67,10 +69,10 @@ public class DigestAuthentication implements Authentication {
         return true;
     }
 
-    static private class DigestResponse {
-    	final private String method;
-    	final private String in;
-    	final private Map<String,String> attributes = new HashMap<>();
+    private static class DigestResponse {
+    	private final String method;
+    	private final String in;
+    	private final Map<String,String> attributes = new HashMap<>();
     	
     	DigestResponse(String method, String in) {
     		this.method = method;
