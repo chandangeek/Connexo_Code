@@ -222,7 +222,7 @@ public class AppServiceImpl implements ServiceLocator, InstallService, AppServic
         }
 
         try {
-            QueueTableSpec defaultQueueTableSpec = getMessageService().getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+            QueueTableSpec defaultQueueTableSpec = getMessageService().getQueueTableSpec("MSG_RAWTOPICTABLE").get();
             defaultQueueTableSpec.createDestinationSpec(ALL_SERVERS, DEFAULT_RETRY_DELAY_IN_SECONDS);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
