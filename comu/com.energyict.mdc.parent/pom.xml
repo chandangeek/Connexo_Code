@@ -445,6 +445,16 @@
           <arguments>-DskipTests=true</arguments>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <_include>bnd.bnd</_include>
+          </instructions>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
