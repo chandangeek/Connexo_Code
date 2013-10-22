@@ -1,20 +1,17 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.Status;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.geo.Position;
 
 import java.util.Date;
 import java.util.List;
 
-public interface ServiceLocation extends HasName {
+public interface ServiceLocation extends IdentifiedObject {
 	long getId();
-	String getAliasName();
-	String getDescription();
-	String getMRID();
 	String getDirection();
 	ElectronicAddress getElectronicAddress();
 	String getGeoInfoReference();

@@ -1,10 +1,8 @@
 package com.elster.jupiter.metering;
 
-import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.cbo.IdentifiedObject;
 
-public interface ReadingType extends HasName {
-	String getMRID();
-	String getAliasName();
+public interface ReadingType extends IdentifiedObject {
 	boolean isCumulativeReadingType(ReadingType readingType);
 
     long getVersion();

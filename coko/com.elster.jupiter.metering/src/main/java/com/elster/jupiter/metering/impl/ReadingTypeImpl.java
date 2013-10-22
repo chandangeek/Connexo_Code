@@ -132,8 +132,13 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		}
 		return builder.toString();
 	}
-	
-	public void persist() {
+
+    @Override
+    public String getDescription() {
+        return getName(); // TODO : description should be a field
+    }
+
+    public void persist() {
 		Bus.getOrmClient().getReadingTypeFactory().persist(this);
 	}
 
