@@ -7,6 +7,12 @@ import java.util.List;
 
 public interface UsagePointGroup extends IdentifiedObject {
 
+    long getId();
+
+    /**
+     * @return Type of this group.
+
+     */
     String getType();
 
     List<UsagePoint> getMembers(Date date);
