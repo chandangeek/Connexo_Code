@@ -167,6 +167,11 @@ public class IntervalTest extends EqualsContractTest {
         assertThat(new Interval(null, null).contains(date3)).isTrue();
     }
 
+    @Test
+    public void testEmptyIntervalContainsFalse() {
+        assertThat(new Interval(date2, date2).contains(date2)).isFalse();
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testPreventStartAfterEnd() {
         new Interval(date4, date3);

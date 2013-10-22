@@ -3,6 +3,7 @@ package com.elster.jupiter.util.time;
 import com.google.common.collect.Ordering;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Interval represents a Date range that may be close, open or half open.
@@ -140,8 +141,90 @@ public final class Interval {
         if (!overlaps(interval)) {
             return new Interval(start, start);
         }
-        return new Interval(Ordering.natural().max(start, interval.getStart().getTime()), Ordering.natural().min(end, interval.getEnd().getTime()));
+        return new Interval(Ordering.natural().max(start, interval.start), Ordering.natural().min(end, interval.end));
     }
+
+    public boolean includes(Interval other) {
+        return !(startsAfter(other.getStart()) || endsBefore(other.getEnd()));
+    }
+
+    private boolean startsAfter(Date date) {
+        if (getStart() == null) {
+            return false;
+        }
+        return date == null || getStart().after(date);
+    }
+
+    private boolean endsBefore(Date testDate) {
+        if (getEnd() == null) {
+            return false;
+        }
+        return testDate == null || getEnd().before(testDate);
+    }
+
+    private boolean startsBefore(Date testDate) {
+        if (getStart() == null) {
+            return  testDate != null;
+        }
+        return testDate != null && getStart().before(testDate);
+    }
+
+    private boolean endsAfter(Date testDate) {
+        if (getEnd() == null) {
+            return testDate != null;
+        }
+        return testDate != null && getEnd().after(testDate);
+    }
+
+
+
+    /**
+     * Tests whether this {@link Interval} envelops the second one. This means that the first includes the second, but
+     * neither from, nor to values are equal.
+     *
+     * @param contained
+     * @return true if the first {@link Interval} envelops the second one.
+     */
+    public boolean envelops(Interval contained) {
+        return startsBefore(contained.getStart()) && endsAfter(contained.getEnd());
+    }
+
+    /**
+     * Determines whether the two given {@link Interval}s abut. Two {@link Interval}s abut if the to value of one, equals the
+     * from of the other.
+     *
+     * @param second
+     *            the second
+     * @return true if both {@link Interval}s abut, false otherwise.
+     */
+    public boolean abuts(Interval second) {
+        return fromAbuts(second) || toAbuts(second);
+    }
+
+    /**
+     * Determines whether the first {@link Interval} abuts the second at the first's from. (i.e. the first starts at the point
+     * where the second one ends).
+     *
+     * @param second
+     *            the second
+     * @return true if the first {@link Interval} abuts the second at the first's from, false otherwise.
+     */
+    private boolean fromAbuts(Interval second) {
+        return getStart() != null && getStart().equals(second.getEnd());
+    }
+
+    /**
+     * Determines whether the first {@link Interval} abuts the second at the first's to. (i.e. the first ends at the point where
+     * the second one starts).
+     *
+     * @param second
+     *            the second
+     * @return true if the first {@link Interval} abuts the second at the first's to, false otherwise.
+     */
+    private boolean toAbuts(Interval second) {
+        return getEnd() != null && getEnd().equals(second.getStart());
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -160,8 +243,10 @@ public final class Interval {
 
     @Override
     public int hashCode() {
-        int result = (int) (start ^ (start >>> BITS_PER_INT));
-        result = PRIME * result + (int) (end ^ (end >>> BITS_PER_INT));
-        return result;
+        return Objects.hash(start, end);
+    }
+
+    public boolean isEmpty() {
+        return start == end && start != -ETERNITY && end != ETERNITY;
     }
 }
