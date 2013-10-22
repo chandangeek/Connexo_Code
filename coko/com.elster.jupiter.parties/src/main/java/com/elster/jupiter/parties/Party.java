@@ -1,23 +1,17 @@
 package com.elster.jupiter.parties;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.HasName;
 
 import java.util.Date;
 import java.util.List;
 
-public interface Party extends HasName {
+public interface Party extends IdentifiedObject {
 
     long getId();
 
-    String getMRID();
-
-    String getAliasName();
-
     ElectronicAddress getElectronicAddress();
-
-    String getDescription();
 
     void setMRID(String mRID);
 

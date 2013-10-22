@@ -1,12 +1,9 @@
 package com.elster.jupiter.parties;
 
-import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.cbo.IdentifiedObject;
 
-public interface PartyRole extends HasName {
+public interface PartyRole extends IdentifiedObject {
 	String getComponentName();
-	String getMRID();
-	String getAliasName();
-	String getDescription();
     long getVersion();
 
     void setDescription(String description);
