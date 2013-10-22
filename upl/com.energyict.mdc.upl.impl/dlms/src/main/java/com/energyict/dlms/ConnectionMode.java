@@ -12,6 +12,7 @@ public enum ConnectionMode {
     COSEM_APDU(2, "Cosem APDU"),
     LLC(3, "LLC"),
     IF2(4, "IF2"),
+    HDLC_CONSERETH(5, "Consereth HDLC"),
     INVALID(-1, "Invalid");
 
     private final int mode;

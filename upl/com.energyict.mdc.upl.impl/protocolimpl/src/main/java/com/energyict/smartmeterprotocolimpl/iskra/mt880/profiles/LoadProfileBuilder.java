@@ -1,4 +1,4 @@
-package com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles;
+package com.energyict.smartmeterprotocolimpl.iskra.mt880.profiles;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
@@ -11,7 +11,6 @@ import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
@@ -24,8 +23,8 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
 import com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
-import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
+import com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,33 +35,26 @@ import java.util.Map;
 import java.util.logging.Level;
 
 /**
- * Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
- * <p/>
- * <pre>
- * Copyrights EnergyICT
- * Date: 3-mrt-2011
- * Time: 17:02:07
- * </pre>
+ *  Provides functionality to fetch and create {@link com.energyict.protocol.ProfileData} objects for a {@link com.energyict.protocol.SmartMeterProtocol}
+ *
+ *  @author sva
+ * @since 11/10/13 - 16:56
  */
 public class LoadProfileBuilder {
 
     /**
-     * Hardcoded ObisCode for the status of the 15min profile
+     * Hardcoded ObisCode for the status of the load profile with period 1
      */
-    protected static final ObisCode QuarterlyHourStatusObisCode = ObisCode.fromString("0.0.96.10.1.255");
+    protected static final ObisCode LoadProfileStatusObisCode_Period1 = ObisCode.fromString("0.0.96.10.1.255");
     /**
-     * Hardcoded ObisCode for the status of the daily profile
+     * Hardcoded ObisCode for the status of the load profile with period 2
      */
-    protected static final ObisCode DailyStatusObisCode = ObisCode.fromString("0.0.96.10.2.255");
-    /**
-     * Hardcoded ObisCode for the status of the hourly profile
-     */
-    protected static final ObisCode HourlyStatusObiscode = ObisCode.fromString("0.0.96.10.3.255");
+    protected static final ObisCode LoadProfileStatusObisCode_Period2 = ObisCode.fromString("0.0.96.10.2.255");
 
     /**
      * The used meterProtocol
      */
-    private final AbstractSmartNtaProtocol meterProtocol;
+    private final IskraMT880 meterProtocol;
 
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link com.energyict.smartmeterprotocolimpl.common.composedobjects.ComposedProfileConfig}
@@ -88,7 +80,7 @@ public class LoadProfileBuilder {
     /**
      * Keep track of a list of channelMask per LoadProfileReader
      */
-    private Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
+    protected Map<LoadProfileReader, Integer> channelMaskMap = new HashMap<LoadProfileReader, Integer>();
 
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
@@ -110,7 +102,7 @@ public class LoadProfileBuilder {
      *
      * @param meterProtocol the {@link #meterProtocol}
      */
-    public LoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol) {
+    public LoadProfileBuilder(IskraMT880 meterProtocol) {
         this.meterProtocol = meterProtocol;
     }
 
@@ -122,7 +114,7 @@ public class LoadProfileBuilder {
      * @throws java.io.IOException when error occurred during dataFetching or -Parsing
      */
     public List<LoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) throws IOException {
-        this.expectedLoadProfileReaders = filterOutAllInvalidLoadProfiles(loadProfileReaders);
+        this.expectedLoadProfileReaders = loadProfileReaders;
         this.loadProfileConfigurationList = new ArrayList<LoadProfileConfiguration>();
 
         ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(expectedLoadProfileReaders, this.meterProtocol.supportsBulkRequests());
@@ -144,8 +136,7 @@ public class LoadProfileBuilder {
                     this.channelInfoMap.put(lpr, channelInfos);
                     this.statusMasksMap.put(lpr, statusMask);
                     this.channelMaskMap.put(lpr, channelMask);
-                } catch (DataAccessResultException e) {
-                    this.meterProtocol.getLogger().log(Level.WARNING, "Failed to read configuration from LoadProfile " + lpr + ": " + e.getMessage());
+                } catch (IOException e) {
                     lpc.setSupportedByMeter(false);
                 }
             } else {
@@ -154,27 +145,6 @@ public class LoadProfileBuilder {
             this.loadProfileConfigurationList.add(lpc);
         }
         return this.loadProfileConfigurationList;
-    }
-
-    /**
-     * From the given list of LoadProfileReaders, filter out all invalid ones. <br></br>
-     * A LoadProfileReader is invalid if the physical address of the device, owning the loadProfileReader, could not be fetched.
-     * This is the case, when an Mbus device is linked to a master in EIMaster, but in reality not physically connected. <br></br>
-     * E.g.: This is the case when the Mbus device in the field has been swapped for a new one, but without changing/correcting the EIMaster configuration.
-     * @param loadProfileReaders    the complete list of loadProfileReaders
-     * @return  the validated list containing all valid loadProfileReaders
-     */
-    private List<LoadProfileReader> filterOutAllInvalidLoadProfiles(List<LoadProfileReader> loadProfileReaders) {
-        List<LoadProfileReader> validLoadProfileReaders = new ArrayList<LoadProfileReader>();
-
-        for (LoadProfileReader loadProfileReader : loadProfileReaders) {
-            if (this.meterProtocol.getPhysicalAddressFromSerialNumber(loadProfileReader.getMeterSerialNumber()) != -1) {
-                validLoadProfileReaders.add(loadProfileReader);
-            } else {
-                this.meterProtocol.getLogger().severe("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
-            }
-        }
-        return validLoadProfileReaders;
     }
 
     /**
@@ -188,7 +158,7 @@ public class LoadProfileBuilder {
         if (loadProfileReaders != null) {
             List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
             for (LoadProfileReader lpReader : loadProfileReaders) {
-                ObisCode obisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpReader.getProfileObisCode(), lpReader.getMeterSerialNumber());
+                ObisCode obisCode = lpReader.getProfileObisCode();
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
                 if (uo != null) {
                     ComposedProfileConfig cProfileConfig = new ComposedProfileConfig(
@@ -234,12 +204,12 @@ public class LoadProfileBuilder {
                     // Convert each captured object to a register (DLMSAttribute + device serial number)
                     List<CapturedRegisterObject> coRegisters = new ArrayList<CapturedRegisterObject>();
                     for (CapturedObject co : capturedObjects) {
-                        String deviceSerialNumber = this.meterProtocol.getSerialNumberFromCorrectObisCode(co.getLogicalName().getObisCode());
+                        String deviceSerialNumber = this.meterProtocol.getMeterSerialNumber();
                         DLMSAttribute dlmsAttribute = new DLMSAttribute(co.getLogicalName().getObisCode(), co.getAttributeIndex(), co.getClassId());
                         CapturedRegisterObject reg = new CapturedRegisterObject(dlmsAttribute, deviceSerialNumber);
 
                         // Prepare each register only once. This way we don't get duplicate registerRequests in one getWithList
-                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode(), reg.getSerialNumber())) {
+                        if (!channelRegisters.contains(reg) && isDataObisCode(reg.getObisCode())) {
                             channelRegisters.add(reg);
                         }
                         coRegisters.add(reg); // we always add it to the list of registers for this CapturedObject
@@ -264,7 +234,7 @@ public class LoadProfileBuilder {
         if (registers != null) {
             List<DLMSAttribute> dlmsAttributes = new ArrayList<DLMSAttribute>();
             for (CapturedRegisterObject register : registers) {
-                ObisCode rObisCode = getCorrectedRegisterObisCode(register);
+                ObisCode rObisCode = register.getObisCode();
 
                 UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.meterProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), rObisCode);
                 if (uo != null) {
@@ -302,7 +272,7 @@ public class LoadProfileBuilder {
     protected List<ChannelInfo> constructChannelInfos(List<CapturedRegisterObject> registers, ComposedCosemObject ccoRegisterUnits) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!registerUnit.getSerialNumber().equalsIgnoreCase("") && isDataObisCode(registerUnit.getObisCode())) {
                 if (this.registerUnitMap.containsKey(registerUnit)) {
                     ScalerUnit su = new ScalerUnit(ccoRegisterUnits.getAttribute(this.registerUnitMap.get(registerUnit)));
                     if (su.getUnitCode() != 0) {
@@ -312,7 +282,7 @@ public class LoadProfileBuilder {
                         //TODO CHECK if this is still correct!
                         ChannelInfo ci = new ChannelInfo(channelInfos.size(), registerUnit.getObisCode().toString(), Unit.getUndefined(), registerUnit.getSerialNumber(), true);
                         channelInfos.add(ci);
-//                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
+                        //                        throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - unitCode was 0.");
                     }
                 } else {
                     throw new LoadProfileConfigurationException("Could not fetch a correct Unit for " + registerUnit + " - not in registerUnitMap.");
@@ -326,7 +296,7 @@ public class LoadProfileBuilder {
         int statusMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
-            if (isStatusObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (isStatusObisCode(registerUnit.getObisCode())) {
                 statusMask |= (int) Math.pow(2, counter);
             }
             counter++;
@@ -338,7 +308,7 @@ public class LoadProfileBuilder {
         int channelMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
-            if (!registerUnit.getSerialNumber().equals("") && isDataObisCode(registerUnit.getObisCode(), registerUnit.getSerialNumber())) {
+            if (!registerUnit.getSerialNumber().equals("") && isDataObisCode(registerUnit.getObisCode())) {
                 channelMask |= (int) Math.pow(2, counter);
             }
             counter++;
@@ -350,51 +320,17 @@ public class LoadProfileBuilder {
      * Checks if the given ObisCode/Serialnumber combination is a valid profileChannel. Checks are done based on the the StatusObisCodes and ClockObisCode
      *
      * @param obisCode     the obiscode to check
-     * @param serialNumber the serialNumber of the meter, related to the given obisCode
      * @return true if the obisCode is not a {@link com.energyict.dlms.cosem.Clock} object nor a Status object
      */
-    protected boolean isDataObisCode(ObisCode obisCode, String serialNumber) {
-        return !(Clock.isClockObisCode(obisCode) || isStatusObisCode(obisCode, serialNumber));
+    protected boolean isDataObisCode(ObisCode obisCode) {
+        return !(Clock.isClockObisCode(obisCode) || isStatusObisCode(obisCode));
     }
 
-    protected boolean isStatusObisCode(ObisCode obisCode, String serialNumber) {
+    protected boolean isStatusObisCode(ObisCode obisCode) {
         boolean isStatusObisCode = false;
-        ObisCode testObisCode;
-        if (obisCode.getB() != this.meterProtocol.getPhysicalAddressFromSerialNumber(serialNumber)) {
-            return false;
-        }
-
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(QuarterlyHourStatusObisCode, serialNumber);
-        if (testObisCode != null) {
-            isStatusObisCode |= testObisCode.equals(obisCode);
-        } else {
-            return false;
-        }
-
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(DailyStatusObisCode, serialNumber);
-        if (testObisCode != null) {
-            isStatusObisCode |= testObisCode.equals(obisCode);
-        } else {
-            return false;
-        }
-
-        testObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(HourlyStatusObiscode, serialNumber);
-        if (testObisCode != null) {
-            isStatusObisCode |= testObisCode.equals(obisCode);
-        } else {
-            return false;
-        }
+        isStatusObisCode |= LoadProfileStatusObisCode_Period1.equals(obisCode);
+        isStatusObisCode |= LoadProfileStatusObisCode_Period2.equals(obisCode);
         return isStatusObisCode;
-    }
-
-    /**
-     * Get the corrected ObisCode from the given CapturedRegisterObject. With correction we mean changing the B-field of the ObisCode according to the logical index in the meter
-     *
-     * @param register the register which contains an ObisCode which needs channelCorrection
-     * @return the corrected ObisCode
-     */
-    public ObisCode getCorrectedRegisterObisCode(CapturedRegisterObject register) {
-        return this.meterProtocol.getPhysicalAddressCorrectedObisCode(register.getObisCode(), register.getSerialNumber());
     }
 
     /**
@@ -417,7 +353,7 @@ public class LoadProfileBuilder {
         ProfileGeneric profile;
         ProfileData profileData;
         for (LoadProfileReader lpr : loadProfiles) {
-            ObisCode lpObisCode = this.meterProtocol.getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            ObisCode lpObisCode = lpr.getProfileObisCode();
             LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (this.channelInfoMap.containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 this.meterProtocol.getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
@@ -429,9 +365,8 @@ public class LoadProfileBuilder {
                 Calendar toCalendar = Calendar.getInstance(this.meterProtocol.getTimeZone());
                 toCalendar.setTime(lpr.getEndReadingTime());
 
-                //TODO it is possible that we need to check for the masks ...
                 DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask,
-                        this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new DSMRProfileIntervalStatusBits());
+                        this.statusMasksMap.get(lpr), this.channelMaskMap.get(lpr), new MT880ProfileIntervalStatusBits());
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval()));
 
                 profileDataList.add(profileData);
@@ -464,7 +399,7 @@ public class LoadProfileBuilder {
         return statusMasksMap;
     }
 
-    protected AbstractSmartNtaProtocol getMeterProtocol() {
+    protected IskraMT880 getMeterProtocol() {
         return meterProtocol;
     }
 

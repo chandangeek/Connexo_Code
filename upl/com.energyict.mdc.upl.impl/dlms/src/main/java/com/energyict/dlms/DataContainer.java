@@ -423,7 +423,7 @@ public class DataContainer implements Serializable {
 						i+=2;
 						
 					} break;
-					
+
 					case VISIBLE_STRING:
 					case OCTET_STRING:
 					{
@@ -460,6 +460,7 @@ public class DataContainer implements Serializable {
 					
 					
 					case LONG64:
+                    case LONG64_UNSIGNED:
 					{
 						i++;
 						addLong(ProtocolUtils.getLong(responseData,i));
@@ -588,7 +589,6 @@ public class DataContainer implements Serializable {
 			dc.printDataContainer();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

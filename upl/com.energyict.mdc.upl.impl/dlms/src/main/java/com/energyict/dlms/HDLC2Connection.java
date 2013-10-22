@@ -1,13 +1,17 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-final public class HDLC2Connection extends Connection implements DLMSConnection {
+public class HDLC2Connection extends Connection implements DLMSConnection {
 
     private static final int[] crc_tab = {
             0x0000, 0x1189, 0x2312, 0x329b, 0x4624, 0x57ad, 0x6536, 0x74bf,
@@ -43,6 +47,12 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
             0xf78f, 0xe606, 0xd49d, 0xc514, 0xb1ab, 0xa022, 0x92b9, 0x8330,
             0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
     };
+
+    // Maximum number of consecutive responses during a single receiveInformationField() method - used for safety reasons (to provide an escape point out of an endless loop)
+    private static int MAX_RECEIVE_INFORMATION_FIELD_CONSECUTIVE_RESPONSES = 200;
+
+    // Maximum number of consecutive ReceiveReady cycles (both request and response are RR frame) during a single receiveInformationField() method - used for safety reasons (to provide an escape point out of an endless loop)
+    private static int MAX_RECEIVE_INFORMATION_FIELD_CONSECUTIVE_RECEIVE_READY_CYCLES = 20;
 
     private static final int MAX_BUFFER_SIZE = 512;
     private static final int HDLC_RX_OK = 0x00;
@@ -125,6 +135,7 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
     private String meterId = "";
     private int currentTryCount = 0;
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
+    private boolean useDefaultParameterLength = true;
 
     public HDLC2Connection(
             InputStream inputStream,
@@ -173,17 +184,21 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
                         0x00, // Header CRC
                         (byte) 0x81,
                         (byte) 0x80,
-                        0x0E};
-        byte[] macSNRM_part2 = new byte[]{0x07, 0x01, 0x01, 0x08, 0x01, 0x01, 0x00, 0x00};
-        byte[] infoFieldBytes = new byte[8];
+                        (byte) (useDefaultParameterLength ? 0x0E : 0x12)};
+        byte[] macSNRM_part2 = useDefaultParameterLength ? new byte[]{0x07, 0x01, 0x01, 0x08, 0x01, 0x01, 0x00, 0x00} : new byte[]{0x07, 0x04, 0x00, 0x00, 0x00, 0x01, 0x08, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
+        byte[] infoFieldBytes = new byte[useDefaultParameterLength ? 8 : 6];
         int index = 0;
         infoFieldBytes[index++] = 0x05;
-        infoFieldBytes[index++] = 2;
-        infoFieldBytes[index++] = highByte(informationFieldSize);
+        infoFieldBytes[index++] = (byte) (useDefaultParameterLength ? 2 : 1);
+        if (useDefaultParameterLength) {
+            infoFieldBytes[index++] = highByte(informationFieldSize);
+        }
         infoFieldBytes[index++] = lowByte(informationFieldSize);
         infoFieldBytes[index++] = 0x06;
-        infoFieldBytes[index++] = 2;
-        infoFieldBytes[index++] = highByte(informationFieldSize);
+        infoFieldBytes[index++] = (byte) (useDefaultParameterLength ? 2 : 1);
+        if (useDefaultParameterLength) {
+            infoFieldBytes[index++] = highByte(informationFieldSize);
+        }
         infoFieldBytes[index++] = lowByte(informationFieldSize);
         macSNRMFrame = new byte[macSNRM_part1.length + macSNRM_part2.length + infoFieldBytes.length];
         System.arraycopy(macSNRM_part1, 0, macSNRMFrame, 0, macSNRM_part1.length);
@@ -256,7 +271,13 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         }
     }
 
+    /**
+     * Use this for meters that require a specific parameter length in the SNRM frame (e.g. Flex, Iskra Mx382)
+     * In case of type 1, a specific parameter length will be used, else, the defaults are used.
+     */
     public void setSNRMType(int type) {
+        useDefaultParameterLength = (type != 1);
+        updateSNRMFrames();
     }
 
     public String getReason(int reason) {
@@ -397,8 +418,7 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         return result;
     }
 
-
-    private byte waitForHDLCFrameStateMachine(int iTimeout, byte[] byteReceiveBuffer) throws DLMSConnectionException, IOException {
+    protected byte waitForHDLCFrameStateMachine(int iTimeout,byte[] byteReceiveBuffer) throws DLMSConnectionException , IOException {
         long lMSTimeout = System.currentTimeMillis() + iTimeout;
         int sRXCount = 0;
         int sLength = 0;
@@ -451,7 +471,60 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         }
     }
 
-    private byte checkCRC(byte[] byteReceiveBuffer, int count) {
+    /**
+     * Run the HDLC Frame state machine for a given frame, which is fully specified in byteReceiveBuffer.
+     *
+     * @param byteReceiveBuffer the buffer containing the full HDLC frame
+     * @return the result code of the state machine (e.g. HDLC_RX_OK)
+     * @throws DLMSConnectionException
+     * @throws IOException
+     */
+    protected byte runHDLCFrameStateMachine(byte[] byteReceiveBuffer) throws DLMSConnectionException, IOException {
+        int sRXCount = 0;
+        int sLength = 0;
+        int bCurrentState = WAIT_FOR_START_FLAG;
+
+        try {
+            for (byte inewKar : byteReceiveBuffer) {
+                if (sRXCount >= MAX_BUFFER_SIZE) {
+                    return HDLC_BADFRAME;
+                }
+                switch (bCurrentState) {
+                    case WAIT_FOR_START_FLAG:
+                        switch ((byte) inewKar) {
+                            case HDLC_FLAG:
+                                sRXCount = 0;
+                                bCurrentState = WAIT_FOR_FRAME_FORMAT;
+                                break;
+                        }
+                        break;
+
+                    case WAIT_FOR_FRAME_FORMAT:
+                        if ((sRXCount == 0) && ((byte) inewKar == HDLC_FLAG)) {
+                            break;
+                        }
+                        byteReceiveBuffer[sRXCount++] = (byte) inewKar;
+                        if (sRXCount >= 2) {
+                            sLength = getLength(byteReceiveBuffer);
+                            bCurrentState = WAIT_FOR_DATA;
+                        }
+                        break;
+
+                    case WAIT_FOR_DATA:
+                        byteReceiveBuffer[sRXCount++] = (byte) inewKar;
+                        if (sRXCount > sLength) {
+                            return checkCRC(byteReceiveBuffer, sRXCount);
+                        }
+                        break;
+                }
+            }
+            return HDLC_BADFRAME;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new DLMSConnectionException(e.getMessage());
+        }
+    }
+
+    protected byte checkCRC(byte[] byteReceiveBuffer, int count) {
         switch (byteReceiveBuffer[count - 1]) {
             case HDLC_FLAG:
                 // Check CRC
@@ -468,15 +541,19 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         }
     }
 
-    private void sendFrame(byte[] byteBuffer) throws IOException, DLMSConnectionException {
+    protected void sendFrame(byte[] byteBuffer) throws IOException, DLMSConnectionException {
         DLMSUtils.delay(lForceDelay);
+        byte[] dataToSendOut = addHDLCFrameFlags(byteBuffer);
+        sendOut(dataToSendOut);
+    }
+
+    protected byte[] addHDLCFrameFlags(byte[] byteBuffer) {
         int iLength = getLength(byteBuffer);
-        //print(byteBuffer[protocolParameters[frameControl]],true);
         byte[] data = new byte[iLength + 2];
         data[0] = HDLC_FLAG;
         System.arraycopy(byteBuffer, 0, data, 1, iLength);
         data[data.length - 1] = HDLC_FLAG;
-        sendOut(data);
+        return data;
     }
 
     public byte[] sendRequest(byte[] byteRequestBuffer) throws IOException {
@@ -651,6 +728,8 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
         if (!boolHDLCConnected) {
             throw new DLMSConnectionException("HDLC connection not established!");
         }
+        int nrOfConsecutiveResponses = 0;
+        int nrOfConsecutiveReceiveReadyCycles = 0;
 
         for (this.currentTryCount = currentTry; this.currentTryCount <= iMaxRetries; this.currentTryCount++) {
             long timeOut = System.currentTimeMillis() + iProtocolTimeout;
@@ -689,6 +768,7 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
                             if (NS == hdlcFrame.NR) {
                                 sendFrame(txFrame); // resend last I frame
                             } else {
+                                nrOfConsecutiveReceiveReadyCycles++;
                                 sendReceiveReady();
                             }
                         }
@@ -698,6 +778,13 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
                     }
                 } else {
                     sendFrame(txFrame);
+                }
+
+                if (nrOfConsecutiveResponses++ >= MAX_RECEIVE_INFORMATION_FIELD_CONSECUTIVE_RESPONSES) {
+                    throw new DLMSConnectionException("receiveInformationField> Maximum number of consecutive responses exceeded");
+                }
+                if (nrOfConsecutiveReceiveReadyCycles >= MAX_RECEIVE_INFORMATION_FIELD_CONSECUTIVE_RECEIVE_READY_CYCLES) {
+                    throw new DLMSConnectionException("receiveInformationField> Maximum number of consecutive RR response cycles exceeded");
                 }
             }
         }
@@ -961,5 +1048,9 @@ final public class HDLC2Connection extends Connection implements DLMSConnection 
 
     public ApplicationServiceObject getApplicationServiceObject() {
         return null;
+    }
+
+    public long getlForceDelay() {
+        return lForceDelay;
     }
 }

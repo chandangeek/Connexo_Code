@@ -2,11 +2,17 @@ package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.aso.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.aso.AssociationControlServiceElement;
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.XdlmsAse;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -245,6 +251,24 @@ public class DlmsSession implements ProtocolLink {
                         getProperties().getLowerHDLCAddress(),
                         getLogger()
                 );
+                break;
+            case HDLC_CONSERETH:
+                try {
+                    transportConnection = new ConserethHDLC2Connection(
+                            in, out,
+                            getProperties().getTimeout(),
+                            getProperties().getForcedDelay(),
+                            getProperties().getRetries(),
+                            getProperties().getClientMacAddress(),
+                            getProperties().getLowerHDLCAddress(),
+                            getProperties().getUpperHDLCAddress(),
+                            getProperties().getAddressingMode(),
+                            getProperties().getInformationFieldSize(),
+                            5
+                    );
+                } catch (DLMSConnectionException e) {
+                    throw new NestedIOException(e);
+                }
                 break;
             default:
                 throw new IOException("Unknown connectionMode: " + getProperties().getConnectionMode() + " - Only 0(HDLC), 1(TCP), 2(COSEM_APDU) and 3(LLC) are allowed");

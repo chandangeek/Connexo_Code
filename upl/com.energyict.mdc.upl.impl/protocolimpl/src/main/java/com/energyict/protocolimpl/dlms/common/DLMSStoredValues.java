@@ -1,14 +1,26 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.DlmsSession;
+import com.energyict.dlms.OctetString;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObject;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -25,6 +37,11 @@ public class DLMSStoredValues implements StoredValues {
     private DataStructure buffer;
     protected DlmsSession session;
 
+    /** HashMap containing CosemObjects linked to their base ObisCode, used for caching purposes.
+     * By using this map, we prevent we have to read out the ScalerUnit attribute of the same CosemObject multiple times
+     **/
+    private Map<ObisCode, CosemObject> cosemObjectMap = new HashMap<ObisCode, CosemObject>();
+
     public DLMSStoredValues(DlmsSession session, ObisCode profileObisCode) {
         this.profileObiscode = profileObisCode;
         this.session = session;
@@ -33,7 +50,7 @@ public class DLMSStoredValues implements StoredValues {
     public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
         int index = getCapturedObjectIndex(obisCode);
         if (index == -1) {
-            throw new NoSuchRegisterException("StoredValues, register with obiscode " + obisCode + " not found in the Capture Objects list of the billing profile.");
+            throw new NoSuchRegisterException("StoredValues, register with ObisCode " + obisCode + " not found in the Capture Objects list of the billing profile.");
         }
         ObisCode baseObiscode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 255);
         int reversedBillingPoint = getReversedBillingPoint(Math.abs(obisCode.getF()));
@@ -43,12 +60,20 @@ public class DLMSStoredValues implements StoredValues {
         HistoricalValue historicalValue = new HistoricalValue();
         historicalValue.setBillingDate(getBillingPointTimeDate(Math.abs(obisCode.getF())));
 
+        CosemObject cosemObject = cosemObjectMap.get(baseObiscode);
+
         if (cao.getClassId() == Register.CLASSID) {
-            Register register = getCosemObjectFactory().getRegister(baseObiscode);
+            Register register = (cosemObject != null)
+                    ? (Register) cosemObject
+                    : getCosemObjectFactory().getRegister(baseObiscode);
+            cosemObjectMap.put(baseObiscode, register);
             register.setValue(intervalData.convert2Long(index));
             historicalValue.setCosemObject(register);
         } else if (cao.getClassId() == ExtendedRegister.CLASSID) {
-            ExtendedRegister extendedRegister = getCosemObjectFactory().getExtendedRegister(baseObiscode);
+            ExtendedRegister extendedRegister = (cosemObject != null)
+                    ? (ExtendedRegister) cosemObject
+                    : getCosemObjectFactory().getExtendedRegister(baseObiscode);
+            cosemObjectMap.put(baseObiscode, extendedRegister);
             extendedRegister.setValue(intervalData.convert2Long(index));
             historicalValue.setCosemObject(extendedRegister);
 
@@ -56,7 +81,7 @@ public class DLMSStoredValues implements StoredValues {
             clock.setDateTime(intervalData.getOctetString(index + 1));
             historicalValue.setEventTime(clock.getDateTime());
         } else {
-            throw new IOException("StoredValues, getHistoricalValue, error invalid classId " + cao.getClassId());
+            throw new NoSuchRegisterException("StoredValues, getHistoricalValue, error invalid classId " + cao.getClassId());
         }
         return historicalValue;
     }
@@ -123,7 +148,7 @@ public class DLMSStoredValues implements StoredValues {
         int reversedPoint = getBillingPointCounter() - point - 1;
 
         if (reversedPoint < 0) {
-            throw new NoSuchRegisterException("Invalid billing point");
+            throw new NoSuchRegisterException("StoredValues, invalid billing point " + billingPoint);
         }
         return reversedPoint;
     }

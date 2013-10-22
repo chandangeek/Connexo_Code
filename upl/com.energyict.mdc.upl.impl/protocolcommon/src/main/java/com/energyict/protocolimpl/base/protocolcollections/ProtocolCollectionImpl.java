@@ -181,6 +181,7 @@ public class ProtocolCollectionImpl implements ProtocolCollection {
         METER_PROTOCOLS.put("com.energyict.protocolimpl.dlms.elster.as300d.AS300D", "DLMS Elster AS300D");
         METER_PROTOCOLS.put("com.energyict.protocolimpl.modbus.multilin.epm2200.EPM2200", "Multilin EPM2200 Modbus meter");
         METER_PROTOCOLS.put("com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000", "SmartMeter - Actaris SL7000");
+        METER_PROTOCOLS.put("com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880", "Iskraemeco MT880 DLMS");
 
     }
 

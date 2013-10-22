@@ -9,10 +9,18 @@ public class ComposedRegister {
 
     private final DLMSAttribute registerValue;
     private final DLMSAttribute registerUnit;
+    private final DLMSAttribute registerCaptureTime;
+
+    public ComposedRegister(DLMSAttribute registerValue, DLMSAttribute registerUnit, DLMSAttribute registerCaptureTime) {
+        this.registerValue = registerValue;
+        this.registerUnit = registerUnit;
+        this.registerCaptureTime = registerCaptureTime;
+    }
 
     public ComposedRegister(DLMSAttribute registerValue, DLMSAttribute registerUnit) {
         this.registerValue = registerValue;
         this.registerUnit = registerUnit;
+        this.registerCaptureTime = null;
     }
 
     public DLMSAttribute getRegisterValueAttribute() {
@@ -21,5 +29,9 @@ public class ComposedRegister {
 
     public DLMSAttribute getRegisterUnitAttribute() {
         return registerUnit;
+    }
+
+    public DLMSAttribute getRegisterCaptureTime() {
+        return registerCaptureTime;
     }
 }
