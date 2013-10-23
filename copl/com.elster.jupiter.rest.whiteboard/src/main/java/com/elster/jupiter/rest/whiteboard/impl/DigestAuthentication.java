@@ -17,7 +17,7 @@ import java.util.Map;
 public class DigestAuthentication implements Authentication {
 
 	@Override
-	public boolean handleSecurity(HttpServletRequest request,HttpServletResponse response) throws IOException {
+	public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String authentication = request.getHeader("Authorization");
 		if (authentication == null) {
 			return denyDigest(response);
