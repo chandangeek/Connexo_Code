@@ -26,11 +26,11 @@ import java.util.concurrent.TimeUnit;
 public class MessageHandlerLauncherService {
 
     private volatile AppService appService;
-    private volatile ThreadGroup threadGroup = new ThreadGroup(MessageHandlerLauncherService.class.getSimpleName());
-    private volatile ThreadFactory threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler());
+    private final ThreadGroup threadGroup = new ThreadGroup(MessageHandlerLauncherService.class.getSimpleName());
+    private final ThreadFactory threadFactory = new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler());
 
-    private Map<MessageHandlerFactory, ExecutorService> executors = new ConcurrentHashMap<>();
-    private Map<ExecutorService, List<Future<?>>> futures = new ConcurrentHashMap<>();
+    private final Map<MessageHandlerFactory, ExecutorService> executors = new ConcurrentHashMap<>();
+    private final Map<ExecutorService, List<Future<?>>> futures = new ConcurrentHashMap<>();
 
     private Principal batchPrincipal;
 
