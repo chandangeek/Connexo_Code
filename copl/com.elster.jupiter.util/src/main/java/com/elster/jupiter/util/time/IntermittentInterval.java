@@ -360,6 +360,19 @@ public final class IntermittentInterval implements Iterable<Interval> {
         return copy;
     }
 
+    public Interval intervalAt(Date date) {
+        int i = Collections.binarySearch(intervals, Interval.startAt(date), IntervalComparators.FROM_COMPARATOR);
+        if (i >=0) {
+            return intervals.get(i);
+        }
+        i = -i-2; // to index before insertion point
+        if (i < 0) {
+            return null;
+        }
+        Interval candidate = intervals.get(i);
+        return candidate.contains(date) ? candidate : null;
+    }
+
     private int calculateHash() {
         return 101 + 53 * intervals.hashCode();
     }
@@ -448,7 +461,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
         }
     }
 
-    public Interval merge(Interval first, Interval second) {
+    private Interval merge(Interval first, Interval second) {
         if (first.equals(second)) {
             return first;
         }
@@ -457,6 +470,8 @@ public final class IntermittentInterval implements Iterable<Interval> {
         }
         return new Interval(earliestTime(first.getStart(), second.getStart()), latestTime(first.getEnd(), second.getEnd()));
     }
+
+
 
     private Date earliestTime(Date first, Date second) {
         return first == null || second == null ? null : Ordering.natural().min(first, second);
