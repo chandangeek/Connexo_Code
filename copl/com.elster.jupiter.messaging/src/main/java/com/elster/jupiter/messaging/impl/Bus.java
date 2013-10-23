@@ -11,7 +11,7 @@ public enum Bus {
 
 	static final String COMPONENTNAME = "MSG";
 	
-	private static ServiceLocator locator;
+	private static volatile ServiceLocator locator;
 	
 	static void setServiceLocator(ServiceLocator serviceLocator) {
 		locator = serviceLocator;
