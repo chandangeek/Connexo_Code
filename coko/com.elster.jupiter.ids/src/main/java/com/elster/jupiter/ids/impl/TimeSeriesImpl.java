@@ -240,7 +240,9 @@ public final class TimeSeriesImpl implements TimeSeries {
 		}
         DateTime dateTime = new DateTime(date, DateTimeZone.forTimeZone(getTimeZone()));
         if (getIntervalLengthUnit() == MINUTE) {
-            return dateTime.getMillis() % (getIntervalLength() * MILLIS_PER_MINUTE) == 0;
+            return dateTime.getMinuteOfHour() % getIntervalLength() == 0
+                    && dateTime.getSecondOfMinute() == 0
+                    && dateTime.getMillisOfSecond() == 0;
 		}
         if (!validTimeOfDay(dateTime)) {
             return false;

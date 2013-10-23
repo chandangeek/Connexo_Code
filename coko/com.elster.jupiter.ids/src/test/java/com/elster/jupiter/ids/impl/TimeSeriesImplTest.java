@@ -100,7 +100,7 @@ public class TimeSeriesImplTest extends EqualsContractTest {
 
         Date date = new DateTime(2012, 10, 10, 14, 20, 0, DateTimeZone.forTimeZone(timeZone)).toDate();
 
-        assertThat(series.isValidDateTime(date)).isFalse();
+        assertThat(series.isValidDateTime(date)).isTrue();
     }
 
     @Test
