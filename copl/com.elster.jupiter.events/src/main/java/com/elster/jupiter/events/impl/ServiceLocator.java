@@ -30,4 +30,5 @@ public interface ServiceLocator {
     OrmClient getOrmClient();
 
     EventService getEventService();
+    
 }
