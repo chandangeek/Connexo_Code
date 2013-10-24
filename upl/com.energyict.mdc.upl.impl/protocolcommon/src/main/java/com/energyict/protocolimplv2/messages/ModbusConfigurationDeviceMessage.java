@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +21,13 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpec {
     SetMmTimeout(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmTimeoutAttributeName)),
     SetMmInstant(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmInstantAttributeName)),
     SetMmOverflow(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmOverflowAttributeName)),
-    SetMmConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmConfigAttributeName));
+    SetMmConfig(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetMmConfigAttributeName)),
+    WriteSingleRegisters(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterAddressAttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName)),
+    WriteMultipleRegisters(PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.RadixFormatAttributeName, "DEC", "HEX"),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RegisterAddressAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.RegisterValueAttributeName));
 
     private static final DeviceMessageCategory category = DeviceMessageCategories.MODBUS_CONFIGURATION;
 

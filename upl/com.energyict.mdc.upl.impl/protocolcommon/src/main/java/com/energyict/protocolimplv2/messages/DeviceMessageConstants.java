@@ -239,6 +239,10 @@ public class DeviceMessageConstants {
     public static final String SetMmInstantAttributeName = "ModbusConfigurationDeviceMessage.SetMmInstantAttributeName";
     public static final String SetMmOverflowAttributeName = "ModbusConfigurationDeviceMessage.SetMmOverflowAttributeName";
     public static final String SetMmConfigAttributeName = "ModbusConfigurationDeviceMessage.SetMmConfigAttributeName";
+    public static final String RadixFormatAttributeName = "ModbusConfigurationDeviceMessage.RadixFormat";
+    public static final String RegisterAddressAttributeName = "ModbusConfigurationDeviceMessage.RegisterAddress";
+    public static final String RegisterValueAttributeName = "ModbusConfigurationDeviceMessage.RegisterValue(s)";
+
 
     public static final String SetMBusEveryAttributeName = "MBusConfigurationDeviceMessage.SetMBusEveryAttributeName";
     public static final String SetMBusInterFrameTimeAttributeName = "MBusConfigurationDeviceMessage.SetMBusInterFrameTimeAttributeName";
