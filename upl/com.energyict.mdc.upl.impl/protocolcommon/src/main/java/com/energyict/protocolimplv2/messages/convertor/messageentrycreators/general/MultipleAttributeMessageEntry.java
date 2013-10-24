@@ -24,7 +24,8 @@ public class MultipleAttributeMessageEntry implements MessageEntryCreator {
 
     /**
      * @param tag           the main tag for the XML
-     * @param attributeTags list of tags for the attributes. These should be in the exact same order as the list of property specs of that device message.
+     * @param attributeTags list of tags for the attributes.
+     *                      Note: These should be in the exact same order as the list of property specs of that device message.
      */
     public MultipleAttributeMessageEntry(String tag, String... attributeTags) {
         this.attributeTags = Arrays.asList(attributeTags);
@@ -36,7 +37,7 @@ public class MultipleAttributeMessageEntry implements MessageEntryCreator {
         MessageTag messageTag = new MessageTag(tag);
         messageTag.add(new MessageValue(" "));
         for (int index = 0; index < attributeTags.size(); index++) {
-            String attributeTag = attributeTags.get(0);
+            String attributeTag = attributeTags.get(index);
             String attributeName = offlineDeviceMessage.getSpecification().getPropertySpecs().get(index).getName();
             String value = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, attributeName).getDeviceMessageAttributeValue();
             messageTag.add(new MessageAttribute(attributeTag, value));
