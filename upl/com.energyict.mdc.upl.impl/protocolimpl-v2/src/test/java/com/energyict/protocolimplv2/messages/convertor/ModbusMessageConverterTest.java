@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.modbus.multilin.epm2200.EPM2200;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
@@ -14,7 +15,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message, using the {@link ModbusMessageConverter}.
+ * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
+ * testing the {@link ModbusMessageConverter} component.
  *
  * @author sva
  * @since 24/10/13 - 10:50
@@ -28,12 +30,17 @@ public class ModbusMessageConverterTest extends AbstractMessageConverterTest {
         OfflineDeviceMessage offlineDeviceMessage;
 
         offlineDeviceMessage = createMessage(ModbusConfigurationDeviceMessage.WriteSingleRegisters);
-        messageEntry = new WriteModbusRegisterMessage().createMessageEntry(new EPM2200(), offlineDeviceMessage);
+        messageEntry = new WriteModbusRegisterMessage().createMessageEntry(getMessagingProtocol(), offlineDeviceMessage);
         assertEquals("<WriteSingleRegisters>HEX,1A,AB</WriteSingleRegisters>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ModbusConfigurationDeviceMessage.WriteMultipleRegisters);
-        messageEntry = new WriteModbusRegisterMessage().createMessageEntry(new EPM2200(), offlineDeviceMessage);
+        messageEntry = new WriteModbusRegisterMessage().createMessageEntry(getMessagingProtocol(), offlineDeviceMessage);
         assertEquals("<WriteMultipleRegisters>HEX,1A,AB</WriteMultipleRegisters>", messageEntry.getContent());
+    }
+
+    @Override
+    protected Messaging getMessagingProtocol() {
+        return new EPM2200();
     }
 
     /**

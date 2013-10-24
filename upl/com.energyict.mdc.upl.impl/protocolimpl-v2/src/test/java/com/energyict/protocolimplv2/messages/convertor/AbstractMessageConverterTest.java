@@ -13,6 +13,7 @@ import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
 import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
+import com.energyict.protocol.messaging.Messaging;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Abstract class grouping common functionality used to test the various {@link LegacyMessageConverter LegacyMessageConverters}.
+ * Abstract class grouping common functionality used to test the various {@link LegacyMessageConverter LegacyMessageConverters} .
  *
  * @author sva
  * @since 24/10/13 - 11:33
@@ -66,7 +67,12 @@ public abstract class AbstractMessageConverterTest {
     }
 
     /**
-     * getter for the {@link LegacyMessageConverter} which will be purpose of the test
+     * Getter for the {@link Messaging} protocol which will be the purpose of the test
+     */
+    abstract protected Messaging getMessagingProtocol();
+
+    /**
+     * Getter for the {@link LegacyMessageConverter} which will be purpose of the test
      */
     abstract protected LegacyMessageConverter getMessageConverter();
 
