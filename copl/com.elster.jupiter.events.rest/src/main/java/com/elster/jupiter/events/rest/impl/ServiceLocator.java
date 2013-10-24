@@ -9,7 +9,7 @@ public interface ServiceLocator {
     TransactionService getTransactionService();
 
     EventService getEventService();
-
+    
     RestQueryService getRestQueryService();
 
 }

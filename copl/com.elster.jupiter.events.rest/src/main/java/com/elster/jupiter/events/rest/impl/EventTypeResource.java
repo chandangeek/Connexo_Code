@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 public class EventTypeResource {
 	
 	  @GET
-	  @Path("/all")
 	  @Produces(MediaType.APPLICATION_JSON)
 	  public EventTypeInfos getEventTypes(@Context UriInfo uriInfo) {
 	      List<EventType> list = Bus.getEventService().getEventTypes();
