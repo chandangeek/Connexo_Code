@@ -11,6 +11,8 @@ public interface OrmClient {
     void install();
 
     TypeCache<EventType> getEventTypeFactory();
+    
+    //DataMapper<EventType> getEventTypeFactory();
 
     DataModel getDataModel();
 

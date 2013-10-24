@@ -1,5 +1,8 @@
 package com.elster.jupiter.events.impl;
 
+import java.util.List;
+
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
@@ -11,12 +14,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
+import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -37,6 +42,7 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
     private volatile BeanService beanService;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
+    private volatile QueryService queryService;
 
     private LocalEventDispatcher localEventDispatcher = new LocalEventDispatcher();
 
@@ -181,4 +187,29 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
             }
         };
     }
+
+    @Override
+    public List<EventType> getEventTypes() {
+        return eventTypeFactory().find();
+    }
+	
+	private TypeCache<EventType> eventTypeFactory() {
+        return Bus.getOrmClient().getEventTypeFactory();
+    }
+	
+	public QueryService getQueryService() {
+        return queryService;
+    }
+	
+	@Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
+    }
+	
+	@Override
+    public Optional<EventType> getEventType(String topic) {
+        return eventTypeFactory().get(topic);
+    }
+
+
 }
