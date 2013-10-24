@@ -29,5 +29,8 @@ public class EventTypeInfo {
     public void updateEventType(EventType eventType) {
     	eventType.setPublish(publish);
     }
+    
+    
+    
 
 }
