@@ -30,11 +30,11 @@ public class ModbusMessageConverterTest extends AbstractMessageConverterTest {
         OfflineDeviceMessage offlineDeviceMessage;
 
         offlineDeviceMessage = createMessage(ModbusConfigurationDeviceMessage.WriteSingleRegisters);
-        messageEntry = new WriteModbusRegisterMessage().createMessageEntry(getMessagingProtocol(), offlineDeviceMessage);
+        messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<WriteSingleRegisters>HEX,1A,AB</WriteSingleRegisters>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ModbusConfigurationDeviceMessage.WriteMultipleRegisters);
-        messageEntry = new WriteModbusRegisterMessage().createMessageEntry(getMessagingProtocol(), offlineDeviceMessage);
+        messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<WriteMultipleRegisters>HEX,1A,AB</WriteMultipleRegisters>", messageEntry.getContent());
     }
 
@@ -43,10 +43,7 @@ public class ModbusMessageConverterTest extends AbstractMessageConverterTest {
         return new EPM2200();
     }
 
-    /**
-     * getter for the {@link LegacyMessageConverter} which will be purpose of the test
-     */
-    protected LegacyMessageConverter getMessageConverter() {
+    protected LegacyMessageConverter doGetMessageConverter() {
         return new ModbusMessageConverter();
     }
 
