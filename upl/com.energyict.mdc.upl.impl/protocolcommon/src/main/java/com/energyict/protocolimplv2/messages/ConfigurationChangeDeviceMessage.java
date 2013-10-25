@@ -26,12 +26,12 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     SetEndOfDST(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
     SetStartOfDST(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
     WriteNewPDRNumber(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.newPDRAttributeName)),
     ConfigureConverterMasterData(
@@ -67,7 +67,9 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
     UploadMeterScheme(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.MeterScheme)),
     UploadSwitchPointClockSettings(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockSettings)),
-    UploadSwitchPointClockUpdateSettings(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockUpdateSettings));
+    UploadSwitchPointClockUpdateSettings(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockUpdateSettings)),
+
+    ProgramBatteryExpiryDate(PropertySpecFactory.datePropertySpec(DeviceMessageConstants.ConfigurationChangeDate));
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 

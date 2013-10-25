@@ -43,14 +43,14 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.Disc
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadWithActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GlobalMeterReset;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GprsUserCredentialsMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.LoadProfileRegisterRequestMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEmergencyProfileGroupIds;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetTimeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDayTableMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfigMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.LoadProfileRegisterRequestMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
 import java.text.SimpleDateFormat;

@@ -42,7 +42,7 @@ public class Messages extends ProtocolMessages implements TimeOfUseMessaging {
     public static String ENABLE_DST = "EnableDST";
     public static String START_OF_DST = "StartOfDST";
     public static String END_OF_DST = "EndOfDST";
-    public static String BATTERY_EXPIRY = "BatteryExpery";
+    public static String BATTERY_EXPIRY = "BatteryExpiry";
 
     public static ObisCode DST_WORKING_MODE_OBIS = ObisCode.fromString("0.0.131.0.4.255");
     public static ObisCode DST_GENERIC_PARAMS_OBIS = ObisCode.fromString("0.0.131.0.6.255");
@@ -133,7 +133,7 @@ public class Messages extends ProtocolMessages implements TimeOfUseMessaging {
         categories.add(catDst);
 
         MessageCategorySpec catBattery = new MessageCategorySpec("Battery");
-        catBattery.addMessageSpec(addMsgWithValues("Program Battery expiry date", BATTERY_EXPIRY, false, true, "Date (dd/MM/YYYY)"));
+        catBattery.addMessageSpec(addMsgWithValues("Program Battery expiry date", BATTERY_EXPIRY, false, true, "Date (dd/MM/yyyy)"));
         categories.add(catBattery);
 
         categories.add(ProtocolMessageCategories.getDemandResetCategory());
@@ -325,7 +325,7 @@ public class Messages extends ProtocolMessages implements TimeOfUseMessaging {
     private void programBatteryExpiryDate(MessageEntry messageEntry) throws IOException {
         int year, month, dayOfMonth;
         try {
-            String dateString = getValueFromXMLAttribute("Date (dd/MM/YYYY)", messageEntry.getContent());
+            String dateString = getValueFromXMLAttribute("Date (dd/MM/yyyy)", messageEntry.getContent());
             String[] parts = dateString.split("/");
             dayOfMonth = Integer.parseInt(parts[0]);
             month = Integer.parseInt(parts[1]);

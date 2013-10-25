@@ -142,6 +142,8 @@ public class DeviceMessageConstants {
     public static final String SwitchPointClockSettings = "ConfigurationChangeDeviceMessage.SwitchPointClockSettings";
     public static final String SwitchPointClockUpdateSettings = "ConfigurationChangeDeviceMessage.SwitchPointClockUpdateSettings";
 
+    public static final String ConfigurationChangeDate = "ConfigurationChangeDeviceMessage.Date";
+
     public static final String SetDialCommandAttributeName = "ModemConfigurationDeviceMessage.SetDialCommand";
     public static final String SetModemInit1AttributeName = "ModemConfigurationDeviceMessage.SetModemInit1";
     public static final String SetModemInit2AttributeName = "ModemConfigurationDeviceMessage.SetModemInit2";
@@ -191,7 +193,7 @@ public class DeviceMessageConstants {
     public static final String CurrentValueAttributeName = "PeakShaverConfigurationDeviceMessage.CurrentValue";
     public static final String NewValueAttributeName = "PeakShaverConfigurationDeviceMessage.NewValue";
 
-    public static final String enableDSTAttributeName = "ConfigurationChangeDeviceMessage.enable.dst";
+    public static final String enableDSTAttributeName = "ConfigurationChangeDeviceMessage.EnableDST";
     public static final String newPDRAttributeName = "ConfigurationChangeDeviceMessage.pdr";
     public static final String converterTypeAttributeName = "ConfigurationChangeDeviceMessage.convertertype";
     public static final String converterSerialNumberAttributeName = "ConfigurationChangeDeviceMessage.converter.serialnumber";

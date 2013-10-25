@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.WriteModbusRegisterMessage;
 
 import java.util.HashMap;
 import java.util.Map;

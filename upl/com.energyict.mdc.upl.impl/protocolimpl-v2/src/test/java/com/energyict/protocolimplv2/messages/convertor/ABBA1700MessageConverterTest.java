@@ -8,6 +8,8 @@ import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimpl.iec1107.abba1700.ABBA1700;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -18,6 +20,7 @@ import static junit.framework.Assert.assertEquals;
  * @author sva
  * @since 25/10/13 - 10:12
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ABBA1700MessageConverterTest extends AbstractMessageConverterTest {
 
     @Test

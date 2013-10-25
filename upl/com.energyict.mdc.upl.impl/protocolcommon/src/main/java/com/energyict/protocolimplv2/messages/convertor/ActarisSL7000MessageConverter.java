@@ -8,14 +8,16 @@ import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DemandResetMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.EnableOrDisableDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEndOfDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetStartOfDSTMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,13 +25,12 @@ import java.util.Map;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
- * Represents a MessageConverter for the smart ZMD protocol.
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:26
+ * Represents a MessageConverter for the legacy Actaris Sl7000 protocol.
+ *
+ *  @author sva
+  * @since 245/10/13 - 11:57
  */
-public class SmartZmdMessageConverter extends AbstractMessageConverter {
+public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
@@ -38,59 +39,56 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
 
     static {
+        // Battery
+        registry.put(ConfigurationChangeDeviceMessage.ProgramBatteryExpiryDate, new MultipleAttributeMessageEntry("BatteryExpiry", "Date (dd/MM/yyyy)"));
 
-        // dst related
+         // Daylight saving
         registry.put(ConfigurationChangeDeviceMessage.EnableOrDisableDST, new EnableOrDisableDSTMessageEntry(enableDSTAttributeName));
         registry.put(ConfigurationChangeDeviceMessage.SetEndOfDST, new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
         registry.put(ConfigurationChangeDeviceMessage.SetStartOfDST, new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
 
-        //Code table related
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+        // Demand reset
+        registry.put(DeviceActionMessage.BILLING_RESET, new DemandResetMessageEntry());
 
-        // reset messages
-        registry.put(DeviceActionMessage.DEMAND_RESET, new DemandResetMessageEntry());
+        // Time of use
+        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
     }
 
-    /**
-     * Default constructor for at-runtime instantiation
-     */
-    public SmartZmdMessageConverter() {
+    public ActarisSL7000MessageConverter() {
         super();
     }
 
     @Override
+    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
+        return registry;
+    }
+
+    @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(enableDSTAttributeName)) {
-            return ((Boolean) messageAttribute) ? "1" : "0";     //1: true, 0: false
-        } else if (propertySpec.getName().equals(month)
-                || propertySpec.getName().equals(dayOfMonth)
-                || propertySpec.getName().equals(dayOfWeek)
-                || propertySpec.getName().equals(hour)) {
-            return String.valueOf(((BigDecimal) messageAttribute).intValue());
-        } else if (propertySpec.getName().equals(activityCalendarNameAttributeName)) {
-            return messageAttribute.toString();
-        } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
-            return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
-            Code codeTable = (Code) messageAttribute;
-            return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |
+        switch (propertySpec.getName()) {
+            case DeviceMessageConstants.ConfigurationChangeDate:
+                return new SimpleDateFormat("dd/MM/yyyy").format((Date) messageAttribute);
+            case DeviceMessageConstants.enableDSTAttributeName:
+                return ((Boolean) messageAttribute).booleanValue() ? "1" : "0";
+            case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
+                return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
+            case activityCalendarCodeTableAttributeName:
+                Code codeTable = (Code) messageAttribute;
+                return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |
+            default:
+                return messageAttribute.toString();
         }
-        return EMPTY_FORMAT;
     }
 
     /**
      * Return an XML representation of the code table.
      * The activation date and calendar name are set to 0, because they were stored in different message attributes.
      */
-    private String encode(Code messageAttribute) {
+    protected String encode(Code messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
             throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
         }
-    }
-
-    protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return registry;
     }
 }
