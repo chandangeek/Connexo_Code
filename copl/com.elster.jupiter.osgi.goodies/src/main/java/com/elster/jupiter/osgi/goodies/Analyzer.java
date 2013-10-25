@@ -175,8 +175,7 @@ public class Analyzer {
 				builder.append("\"" + node + "\";");
 			}
 			builder.append("}\n");					
-		}
-		System.out.println(builder.toString());
+		}		
 		return builder.toString();
 	}
 	

@@ -117,8 +117,7 @@ public class DataModelResource {
 			builder.append(aspect + ";");			
 		}
 		builder.append("}\n");
-		builder.append("}");
-		System.out.println(builder.toString());
+		builder.append("}");		
 		return builder.toString();
 	}
 	
