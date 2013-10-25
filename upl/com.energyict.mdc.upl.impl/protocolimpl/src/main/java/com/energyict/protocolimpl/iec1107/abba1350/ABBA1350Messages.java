@@ -6,15 +6,10 @@
  */
 package com.energyict.protocolimpl.iec1107.abba1350;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
 import com.energyict.protocol.messaging.MessageElement;
@@ -23,6 +18,11 @@ import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageTagSpec;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author jme
@@ -132,7 +132,7 @@ public class ABBA1350Messages {
         }
         
         // d. Closing tag
-        buf.append("\n\n</");
+        buf.append("</");
         buf.append( tag.getName() );
         buf.append(">");
         

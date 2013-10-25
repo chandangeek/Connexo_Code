@@ -54,11 +54,11 @@ public class ABBA230MessageConverterTest extends AbstractMessageConverterTest {
 
         offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.UploadMeterScheme);
         messageEntry =  getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<UpgradeMeterScheme><XML>content</XML></UpgradeMeterScheme>", messageEntry.getContent());
+        assertEquals("<UpgradeMeterScheme><XML>content_MeterScheme</XML></UpgradeMeterScheme>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
         messageEntry =  getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<UpgradeMeterFirmware><XML>content</XML></UpgradeMeterFirmware>", messageEntry.getContent());
+        assertEquals("<UpgradeMeterFirmware><XML>content_FirmwareUpdate</XML></UpgradeMeterFirmware>", messageEntry.getContent());
     }
 
     @Override
@@ -75,9 +75,12 @@ public class ABBA230MessageConverterTest extends AbstractMessageConverterTest {
     protected Object getPropertySpecValue(PropertySpec propertySpec) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.MeterScheme:
-            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 UserFile mockedUserFile = mock(UserFile.class);
-                when(mockedUserFile.loadFileInByteArray()).thenReturn("<XML>content</XML>".getBytes(Charset.forName("UTF-8")));
+                when(mockedUserFile.loadFileInByteArray()).thenReturn("<XML>content_MeterScheme</XML>".getBytes(Charset.forName("UTF-8")));
+                return mockedUserFile;
+            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+                mockedUserFile = mock(UserFile.class);
+                when(mockedUserFile.loadFileInByteArray()).thenReturn("<XML>content_FirmwareUpdate</XML>".getBytes(Charset.forName("UTF-8")));
                 return mockedUserFile;
             default:
                 return "0";
