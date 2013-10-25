@@ -2,7 +2,10 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiw
 
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
@@ -64,7 +67,7 @@ public class SetLoadMessageEntry extends AbstractEIWebMessageEntry {
         ipAddressTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.IPAddressAttributeName).getDeviceMessageAttributeValue()));
 
         MessageTag chnNbrTag = new MessageTag(LEGACY_CHNNBR_TAG);
-        chnNbrTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.ChnNbrAttributeName).getDeviceMessageAttributeValue()));
+        chnNbrTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.PeakShaveChnNbrAttributeName).getDeviceMessageAttributeValue()));
 
         messageSubTag.add(maxOffTag);
         messageSubTag.add(delayTag);

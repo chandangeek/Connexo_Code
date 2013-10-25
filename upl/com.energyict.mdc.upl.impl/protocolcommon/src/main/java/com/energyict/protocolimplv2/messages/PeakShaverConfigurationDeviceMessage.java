@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +56,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ManualAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.StatusAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.IPAddressAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ChnNbrAttributeName));
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.PeakShaveChnNbrAttributeName));
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.PEAK_SHAVER_CONFIGURATION;
 

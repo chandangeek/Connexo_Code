@@ -166,6 +166,8 @@ public class DeviceMessageConstants {
     public static final String SetParametersAttributeName = "ChannelConfigurationDeviceMessage.SetParameters";
     public static final String SetNameAttributeName = "ChannelConfigurationDeviceMessage.SetName";
     public static final String SetUnitAttributeName = "ChannelConfigurationDeviceMessage.SetUnit";
+    public static final String ChannelConfigurationChnNbrAttributeName = "ChannelConfigurationDeviceMessage.ChannelNumber";
+    public static final String DivisorAttributeName = "ChannelConfigurationDeviceMessage.Divisor";
 
     public static final String SetSumMaskAttributeName = "TotalizersConfigurationDeviceMessage.SetSumMask";
     public static final String SetSubstractMaskAttributeName = "TotalizersConfigurationDeviceMessage.SetSubstractMask";
@@ -220,7 +222,7 @@ public class DeviceMessageConstants {
     public static final String ManualAttributeName = "PeakShaverConfigurationDeviceMessage.Manual";
     public static final String StatusAttributeName = "PeakShaverConfigurationDeviceMessage.Status";
     public static final String IPAddressAttributeName = "PeakShaverConfigurationDeviceMessage.IPAddress";
-    public static final String ChnNbrAttributeName = "PeakShaverConfigurationDeviceMessage.ChnNbr";
+    public static final String PeakShaveChnNbrAttributeName = "PeakShaverConfigurationDeviceMessage.ChannelNumber";
 
     public static final String SetInputChannelAttributeName = "EventsConfigurationDeviceMessage.SetInputChannel";
     public static final String SetConditionAttributeName = "EventsConfigurationDeviceMessage.SetCondition";

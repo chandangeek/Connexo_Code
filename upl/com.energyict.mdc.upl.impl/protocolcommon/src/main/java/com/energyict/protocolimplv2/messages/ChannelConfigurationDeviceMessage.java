@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -19,7 +21,8 @@ public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpec {
     SetFunction(PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetFunctionAttributeName)),
     SetParameters(PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetParametersAttributeName)),
     SetName(PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNameAttributeName)),
-    SetUnit(PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUnitAttributeName));
+    SetUnit(PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.id, getBigDecimalValues()), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetUnitAttributeName)),
+    SetLPDivisor(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChannelConfigurationChnNbrAttributeName), PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DivisorAttributeName));
 
     /**
      * Return range 1 - 32
