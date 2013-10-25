@@ -17,9 +17,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 
 import com.google.common.base.Optional;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.osgi.service.log.LogService;
 
 import java.util.concurrent.TimeUnit;
@@ -39,7 +37,8 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
 
     private Thread schedulerThread;
 
-    public void activate(ComponentContext context) {
+    @Activate
+    public void activate() {
         Bus.setServiceLocator(this);
     }
 
@@ -48,12 +47,15 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
         return new TaskExecutionMessageHandler(taskExecutor);
     }
 
-    public void deactivate(ComponentContext context) {
-        schedulerThread.interrupt();
-        try {
-            schedulerThread.join();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+    @Deactivate
+    public void deactivate() {
+    	if (schedulerThread != null) {
+    		schedulerThread.interrupt();
+    		try {
+    			schedulerThread.join();
+    		} catch (InterruptedException e) {
+    			Thread.currentThread().interrupt();
+    		}
         }
         Bus.setServiceLocator(null);
     }

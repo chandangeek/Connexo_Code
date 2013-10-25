@@ -165,7 +165,7 @@ public class TaskServiceImplTest {
 
             assertThat(jobEndedLatch.await(1, TimeUnit.MINUTES)).isTrue(); // ensure jobs get executed
         } finally {
-            taskService.deactivate(null);
+            taskService.deactivate();
         }
 
 
