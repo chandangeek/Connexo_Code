@@ -15,7 +15,7 @@ import java.util.*;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
- * Represents a MessageConverter for the legacy WebRTUKP protocol.
+ * Represents a MessageConverter for the smart ZMD protocol.
  * <p/>
  * Copyrights EnergyICT
  * Date: 8/03/13
@@ -62,7 +62,7 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(activityCalendarNameAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(activityCalendarActivationDateAttributeName)) {
-            return String.valueOf(((Date) messageAttribute).getTime());
+            return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
             Code codeTable = (Code) messageAttribute;
             return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |

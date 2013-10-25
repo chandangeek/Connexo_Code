@@ -30,7 +30,8 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
             PropertySpecFactory.datePropertySpec(activityCalendarActivationDateAttributeName)),
     SPECIAL_DAY_CALENDAR_SEND(PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName)),
-    CLEAR_AND_DISABLE_PASSIVE_TARIFF();
+    CLEAR_AND_DISABLE_PASSIVE_TARIFF(),
+    ACTIVATE_PASSIVE_CALENDAR(PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName));
 
     private static final DeviceMessageCategory activityCalendarCategory = DeviceMessageCategories.ACTIVITY_CALENDAR;
 

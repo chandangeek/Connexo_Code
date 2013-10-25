@@ -3,34 +3,29 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttribute;
-import com.energyict.protocol.messaging.MessageTag;
-import com.energyict.protocol.messaging.MessageValue;
-import com.energyict.protocol.messaging.MessageValueSpec;
-import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Creates a MessageEntry based on the
  * {@link com.energyict.protocolimpl.messages.RtuMessageConstant#FIRMWARE}
  * xml tag with an additional userFile and activationDate
+ *
+ * This is NOT for the message that is created using the FirmwareUpdateMessaging interface!
  * <p/>
  * Copyrights EnergyICT
  * Date: 12/03/13
  * Time: 17:13
  */
-public class FirmwareUpgradeWithUserFileActivationDateMessageEntry implements MessageEntryCreator {
+public class WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry implements MessageEntryCreator {
 
     private final String userFileIdAttributeName;
     private final String activationDateAttributeName;
 
 
-    public FirmwareUpgradeWithUserFileActivationDateMessageEntry(String userFileIdAttributeName, String activationDateAttributeName) {
+    public WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry(String userFileIdAttributeName, String activationDateAttributeName) {
         this.userFileIdAttributeName = userFileIdAttributeName;
         this.activationDateAttributeName = activationDateAttributeName;
 

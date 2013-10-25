@@ -272,5 +272,48 @@ public class DeviceMessageConstants {
     public static final String AdminOld = "DeviceActionMessage.AdminOld";
     public static final String AdminNew = "DeviceActionMessage.AdminNew";
 
+    public static final String IEC1107ClassIdAttributeName = "GeneralDeviceMessage.IEC1107ClassIdAttributeName";
+    public static final String OffsetAttributeName = "GeneralDeviceMessage.OffsetAttributeName";
+    public static final String RawDataAttributeName = "GeneralDeviceMessage.RawDataAttributeName";
+    public static final String ActiveChannelAttributeName = "PLCConfigurationDeviceMessage.ActiveChannelAttributeName";
+    public static final String CHANNEL1_FSAttributeName = "PLCConfigurationDeviceMessage.CHANNEL1_FSAttributeName";
+    public static final String CHANNEL1_FMAttributeName = "PLCConfigurationDeviceMessage.CHANNEL1_FMAttributeName";
+    public static final String CHANNEL1_SNRAttributeName = "PLCConfigurationDeviceMessage.CHANNEL1_SNRAttributeName";
+    public static final String CHANNEL1_CREDITWEIGHTAttributeName = "PLCConfigurationDeviceMessage.CHANNEL1_CREDITWEIGHTAttributeName";
+    public static final String CHANNEL2_FSAttributeName = "PLCConfigurationDeviceMessage.CHANNEL2_FSAttributeName";
+    public static final String CHANNEL2_FMAttributeName = "PLCConfigurationDeviceMessage.CHANNEL2_FMAttributeName";
+    public static final String CHANNEL2_SNRAttributeName = "PLCConfigurationDeviceMessage.CHANNEL2_SNRAttributeName";
+    public static final String CHANNEL2_CREDITWEIGHTAttributeName = "PLCConfigurationDeviceMessage.CHANNEL2_CREDITWEIGHTAttributeName";
+    public static final String CHANNEL3_FSAttributeName = "PLCConfigurationDeviceMessage.CHANNEL3_FSAttributeName";
+    public static final String CHANNEL3_FMAttributeName = "PLCConfigurationDeviceMessage.CHANNEL3_FMAttributeName";
+    public static final String CHANNEL3_SNRAttributeName = "PLCConfigurationDeviceMessage.CHANNEL3_SNRAttributeName";
+    public static final String CHANNEL3_CREDITWEIGHTAttributeName = "PLCConfigurationDeviceMessage.CHANNEL3_CREDITWEIGHTAttributeName";
+    public static final String CHANNEL4_FSAttributeName = "PLCConfigurationDeviceMessage.CHANNEL4_FSAttributeName";
+    public static final String CHANNEL4_FMAttributeName = "PLCConfigurationDeviceMessage.CHANNEL4_FMAttributeName";
+    public static final String CHANNEL4_SNRAttributeName = "PLCConfigurationDeviceMessage.CHANNEL4_SNRAttributeName";
+    public static final String CHANNEL4_CREDITWEIGHTAttributeName = "PLCConfigurationDeviceMessage.CHANNEL4_CREDITWEIGHTAttributeName";
+    public static final String CHANNEL5_FSAttributeName = "PLCConfigurationDeviceMessage.CHANNEL5_FSAttributeName";
+    public static final String CHANNEL5_FMAttributeName = "PLCConfigurationDeviceMessage.CHANNEL5_FMAttributeName";
+    public static final String CHANNEL5_SNRAttributeName = "PLCConfigurationDeviceMessage.CHANNEL5_SNRAttributeName";
+    public static final String CHANNEL5_CREDITWEIGHTAttributeName = "PLCConfigurationDeviceMessage.CHANNEL5_CREDITWEIGHTAttributeName";
+    public static final String CHANNEL6_FSAttributeName = "PLCConfigurationDeviceMessage.CHANNEL6_FSAttributeName";
+    public static final String CHANNEL6_FMAttributeName = "PLCConfigurationDeviceMessage.CHANNEL6_FMAttributeName";
+    public static final String CHANNEL6_SNRAttributeName = "PLCConfigurationDeviceMessage.CHANNEL6_SNRAttributeName";
+    public static final String CHANNEL6_CREDITWEIGHTAttributeName = "PLCConfigurationDeviceMessage.CHANNEL6_CREDITWEIGHTAttributeName";
+
+    public static final String MAX_RECEIVING_GAINAttributeName = "PLCConfigurationDeviceMessage.MAX_RECEIVING_GAINAttributeName";
+    public static final String MAX_TRANSMITTING_GAINAttributeName = "PLCConfigurationDeviceMessage.MAX_TRANSMITTING_GAINAttributeName";
+    public static final String SEARCH_INITIATOR_GAINAttributeName = "PLCConfigurationDeviceMessage.SEARCH_INITIATOR_GAINAttributeName";
+
+    public static final String SEARCH_INITIATOR_TIMEOUTAttributeName = "PLCConfigurationDeviceMessage.SEARCH_INITIATOR_TIMEOUTAttributeName";
+    public static final String SYNCHRONIZATION_CONFIRMATION_TIMEOUTAttributeName = "PLCConfigurationDeviceMessage.SYNCHRONIZATION_CONFIRMATION_TIMEOUTAttributeName";
+    public static final String TIME_OUT_NOT_ADDRESSEDAttributeName = "PLCConfigurationDeviceMessage.TIME_OUT_NOT_ADDRESSEDAttributeName";
+    public static final String TIME_OUT_FRAME_NOT_OKAttributeName = "PLCConfigurationDeviceMessage.TIME_OUT_FRAME_NOT_OKAttributeName";
+
+    public static final String MAX_FRAME_LENGTHAttributeName = "PLCConfigurationDeviceMessage.MAX_FRAME_LENGTHAttributeName";
+    public static final String REPEATERAttributeName = "PLCConfigurationDeviceMessage.REPEATERAttributeName";
+
+    public static final String INITIATOR_ELECTRICAL_PHASEAttributeName = "PLCConfigurationDeviceMessage.INITIATOR_ELECTRICAL_PHASEAttributeName";
+
 
 }

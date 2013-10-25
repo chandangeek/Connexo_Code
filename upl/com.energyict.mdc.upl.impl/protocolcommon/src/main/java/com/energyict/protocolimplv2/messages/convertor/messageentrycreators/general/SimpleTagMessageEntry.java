@@ -9,7 +9,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 /**
  * Creates XML: <tag> </tag>
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 24/10/13
  * Time: 10:23

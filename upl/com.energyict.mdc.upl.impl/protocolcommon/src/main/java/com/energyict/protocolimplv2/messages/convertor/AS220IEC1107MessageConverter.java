@@ -17,7 +17,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.displ
  * Date: 8/03/13
  * Time: 16:26
  */
-public class AS220MessageConverter extends AbstractMessageConverter {
+public class AS220IEC1107MessageConverter extends AbstractMessageConverter {
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
@@ -48,7 +48,7 @@ public class AS220MessageConverter extends AbstractMessageConverter {
     /**
      * Default constructor for at-runtime instantiation
      */
-    public AS220MessageConverter() {
+    public AS220IEC1107MessageConverter() {
         super();
     }
 

@@ -33,6 +33,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         }
     },
     /**
+     * The category for all messages that relate configuring PLC
+     */
+    PLC_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(PLCConfigurationDeviceMessage.values());
+        }
+    },
+    /**
      * The category for all messages related to resetting values/registers/states/flags
      */
     RESET {
@@ -86,6 +95,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(DisplayDeviceMessage.values());
+        }
+    },
+    /**
+     * The category for all general messages, that don't have one unique goal
+     */
+    GENERAL {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(GeneralDeviceMessage.values());
         }
     },
     /**

@@ -5,33 +5,37 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.*;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Provides a summary of all messages that have no unique goal.
+ * For example, this can be a message that writes a general value to a certain DLMS object, chosen by the user (obiscode)
+ * <p/>
+ * <p/>
  * Copyrights EnergyICT
- * Date: 28/02/13
- * Time: 9:10
+ * Date: 3/04/13
+ * Time: 8:38
  */
-public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
+public enum GeneralDeviceMessage implements DeviceMessageSpec {
 
-    Decommission(),
-    DecommissionAll(),
-    SetEncryptionKeys(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.openKeyAttributeName), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.transferKeyAttributeName)),
-    UseCorrectedValues(),
-    UseUncorrectedValues();
+    WRITE_RAW_IEC1107_CLASS(
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.IEC1107ClassIdAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.OffsetAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RawDataAttributeName));
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_SETUP;
+    private static final DeviceMessageCategory generalCategory = DeviceMessageCategories.GENERAL;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private MBusSetupDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private GeneralDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return category;
+        return generalCategory;
     }
 
     @Override
@@ -46,7 +50,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return MBusSetupDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return GeneralDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override

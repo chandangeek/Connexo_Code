@@ -32,7 +32,9 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName)),
     SET_EMERGENCY_PROFILE_GROUP_IDS(PropertySpecFactory.lookupPropertySpec(emergencyProfileIdLookupAttributeName)),
-    CLEAR_LOAD_LIMIT_CONFIGURATION();
+    CLEAR_LOAD_LIMIT_CONFIGURATION(),
+    SET_LOAD_LIMIT_DURATION(PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName)),
+    SET_LOAD_LIMIT_THRESHOLD(PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName));
 
     private static final DeviceMessageCategory LOAD_BALANCE_CATEGORY = DeviceMessageCategories.LOAD_BALANCE;
 
