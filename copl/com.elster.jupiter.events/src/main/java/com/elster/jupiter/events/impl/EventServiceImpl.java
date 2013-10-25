@@ -194,7 +194,6 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
 	
 	private TypeCache<EventType> eventTypeFactory() {
         return Bus.getOrmClient().getEventTypeFactory();
-        //dsssdsdf
     }
 	
 	@Override
