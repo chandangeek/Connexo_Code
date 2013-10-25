@@ -15,7 +15,7 @@ import java.util.Map;
  * Represents a MessageConverter for the legacy ABBA1350 IEC1107 protocol.
  *
  * @author sva
- * @since 245/10/13 - 9:35
+ * @since 25/10/13 - 9:35
  */
 public class ABBA1350MessageConverter extends AbstractMessageConverter {
 
