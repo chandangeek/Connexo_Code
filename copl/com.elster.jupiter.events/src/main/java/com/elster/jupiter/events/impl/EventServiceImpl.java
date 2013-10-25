@@ -2,7 +2,6 @@ package com.elster.jupiter.events.impl;
 
 import java.util.List;
 
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
@@ -10,6 +9,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.NoSuchTopicException;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
@@ -42,7 +42,6 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
     private volatile BeanService beanService;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
-    private volatile QueryService queryService;
 
     private LocalEventDispatcher localEventDispatcher = new LocalEventDispatcher();
 
@@ -195,15 +194,6 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
 	
 	private TypeCache<EventType> eventTypeFactory() {
         return Bus.getOrmClient().getEventTypeFactory();
-    }
-	
-	public QueryService getQueryService() {
-        return queryService;
-    }
-	
-	@Reference
-    public void setQueryService(QueryService queryService) {
-        this.queryService = queryService;
     }
 	
 	@Override
