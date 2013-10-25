@@ -138,6 +138,8 @@ public class DeviceMessageConstants {
     public static final String SetDukePowerPasswordAttributeName = "ConfigurationChangeDeviceMessage.SetDukePowerPasswordAttributeName";
     public static final String SetDukePowerIdleTimeAttributeName = "ConfigurationChangeDeviceMessage.SetDukePowerIdleTimeAttributeName";
 
+    public static final String MeterScheme = "ConfigurationChangeDeviceMessage.MeterScheme";
+
     public static final String SetDialCommandAttributeName = "ModemConfigurationDeviceMessage.SetDialCommandAttributeName";
     public static final String SetModemInit1AttributeName = "ModemConfigurationDeviceMessage.SetModemInit1AttributeName";
     public static final String SetModemInit2AttributeName = "ModemConfigurationDeviceMessage.SetModemInit2AttributeName";

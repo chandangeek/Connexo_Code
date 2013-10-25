@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,7 +63,9 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
     SetDukePowerID(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIDAttributeName)),
     SetDukePowerPassword(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerPasswordAttributeName)),
-    SetDukePowerIdleTime(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIdleTimeAttributeName));
+    SetDukePowerIdleTime(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDukePowerIdleTimeAttributeName)),
+
+    UploadMeterScheme(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.MeterScheme));
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
