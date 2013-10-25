@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
+package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special;
 
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;

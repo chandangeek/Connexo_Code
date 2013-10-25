@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
+package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special;
 
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
@@ -13,6 +13,7 @@ import java.io.IOException;
 
 /**
  * Creates a MessageEntry based on the "TimeOfUse" xml tag with 2 attributes and 2 values
+ * This is the message that can be parsed by protocols that implement the TimeOfUseMessaging interface and use the TimeOfUseMessageBuilder
  * <p/>
  * Copyrights EnergyICT
  * Date: 12/03/13
@@ -21,6 +22,7 @@ import java.io.IOException;
 public class TimeOfUseMessageEntry implements MessageEntryCreator {
 
     public static final String SEPARATOR = "|";
+    public static final String ESCAPED_SEPARATOR = "\\|";
     private final String nameAttributeName;
     private final String activationDateAttributeName;
     private final String codeIdAttributeName;
@@ -43,9 +45,9 @@ public class TimeOfUseMessageEntry implements MessageEntryCreator {
         messageTag.add(new MessageAttribute("name", name.getDeviceMessageAttributeValue()));
         messageTag.add(new MessageAttribute("activationDate", activationDate.getDeviceMessageAttributeValue()));
 
-        String[] split = codeTableIdAndDescription.getDeviceMessageAttributeValue().split(SEPARATOR);
+        String[] split = codeTableIdAndDescription.getDeviceMessageAttributeValue().split(ESCAPED_SEPARATOR);
         String codeTableId = split[0];
-        String codeTableDescription = split[1];
+        String codeTableDescription = codeTableIdAndDescription.getDeviceMessageAttributeValue().substring(codeTableId.length() + SEPARATOR.length());
 
         MessageTag codeIdTag = new MessageTag("CodeId");
         codeIdTag.add(new MessageValue(codeTableId));      //ID of the code table
