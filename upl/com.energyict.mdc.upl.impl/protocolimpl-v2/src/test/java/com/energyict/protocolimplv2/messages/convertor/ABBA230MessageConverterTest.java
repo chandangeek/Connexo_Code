@@ -23,7 +23,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message, testing the {@link ABBA230MessageConverter} component.
+ * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
+ * testing the {@link ABBA230MessageConverter} component.
  *
  * @author sva
  * @since 24/10/13 - 15:38
