@@ -2,8 +2,7 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.launcher.impl
 Bundle-Activator: com.elster.jupiter.launcher.impl.Activator
-Require-Bundle: javax.annotation-api,\
-	com.elster.jupiter.rest.whiteboard,\
+Require-Bundle: com.elster.jupiter.rest.whiteboard,\
 	com.elster.jupiter.metering.rest,\
 	com.elster.jupiter.metering.extjs,\
 	com.elster.jupiter.extjs,\
@@ -58,11 +57,5 @@ Require-Bundle: javax.annotation-api,\
 	org.glassfish.jersey.core.jersey-client,\
 	org.glassfish.jersey.core.jersey-server,\
 	org.glassfish.jersey.containers.jersey-container-servlet-core,\
-	org.glassfish.jersey.media.jersey-media-json-jackson,\
-	org.glassfish.hk2.api,\
-	org.glassfish.hk2.utils,\
-	org.glassfish.hk2.osgi-resource-locator,\
-	org.glassfish.hk2.external.javax.inject,\
-	org.glassfish.hk2.locator,\
-	org.glassfish.hk2.external.cglib,\
-	org.glassfish.hk2.external.asm-all-repackaged
+	org.glassfish.jersey.media.jersey-media-json-jackson
+	
