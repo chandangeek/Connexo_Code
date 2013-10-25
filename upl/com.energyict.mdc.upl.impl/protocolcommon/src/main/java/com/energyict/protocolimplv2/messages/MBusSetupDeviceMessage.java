@@ -17,7 +17,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
 
     Decommission(),
     DecommissionAll(),
-    SetEncryptionKeys(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.openKeyAttributeName), PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.transferKeyAttributeName)),
+    SetEncryptionKeys(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.openKeyAttributeName), PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.transferKeyAttributeName)),
     UseCorrectedValues(),
     UseUncorrectedValues();
 

@@ -4,18 +4,12 @@ import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.*;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -27,9 +21,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Time: 16:26
  */
 public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
-
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
-    private final SimpleDateFormat dateFormatWithoutTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     /**
      * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
@@ -135,9 +126,9 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
             return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
         } else if (propertySpec.getName().equals(fromDateAttributeName)
                 || propertySpec.getName().equals(toDateAttributeName)) {
-            return dateFormat.format((Date) messageAttribute);
+            return dateFormatWithTimeZone.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
-            return dateFormatWithoutTimeZone.format((Date) messageAttribute);
+            return dateFormat.format((Date) messageAttribute);
         }
         return EMPTY_FORMAT;
     }

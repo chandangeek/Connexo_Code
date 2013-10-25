@@ -6,6 +6,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,8 @@ import java.util.Map;
 public abstract class AbstractMessageConverter implements LegacyMessageConverter {
 
     protected static final String EMPTY_FORMAT = "";
+    protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    protected final SimpleDateFormat dateFormatWithTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
 
     private Messaging messagingProtocol;
 

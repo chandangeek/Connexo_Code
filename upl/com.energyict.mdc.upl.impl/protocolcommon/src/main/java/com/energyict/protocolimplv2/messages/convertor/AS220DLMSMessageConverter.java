@@ -10,7 +10,6 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.Firm
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
@@ -23,8 +22,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Time: 16:26
  */
 public class AS220DLMSMessageConverter extends AbstractMessageConverter {
-
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
