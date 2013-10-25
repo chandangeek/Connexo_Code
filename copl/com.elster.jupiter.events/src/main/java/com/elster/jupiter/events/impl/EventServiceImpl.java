@@ -1,7 +1,7 @@
 package com.elster.jupiter.events.impl;
 
 import java.util.List;
-
+import java.util.concurrent.atomic.AtomicReference;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
@@ -9,7 +9,6 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.NoSuchTopicException;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
@@ -37,7 +36,7 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
     private volatile ComponentCache componentCache;
     private volatile Clock clock;
     private volatile OrmClient ormClient;
-    private volatile EventAdmin eventAdmin;
+    private final AtomicReference<EventAdmin> eventAdmin = new AtomicReference<>();
     private volatile Publisher publisher;
     private volatile BeanService beanService;
     private volatile MessageService messageService;
@@ -85,12 +84,16 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
 
     @Override
     public EventAdmin getEventAdmin() {
-        return eventAdmin;
+        return eventAdmin.get();
     }
 
-    @Reference
+    @Reference(cardinality=ReferenceCardinality.OPTIONAL,policy=ReferencePolicy.DYNAMIC)
     public void setEventAdmin(EventAdmin eventAdmin) {
-        this.eventAdmin = eventAdmin;
+        this.eventAdmin.set(eventAdmin);
+    }
+    
+    public void unsetEventAdmin(EventAdmin eventAdmin) {
+    	this.eventAdmin.compareAndSet(eventAdmin, null);
     }
 
     @Override
