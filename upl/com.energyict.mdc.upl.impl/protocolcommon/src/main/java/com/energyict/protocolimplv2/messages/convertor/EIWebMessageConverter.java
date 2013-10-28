@@ -2,8 +2,33 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.*;
+import com.energyict.protocolimplv2.messages.ChannelConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DLMSConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.EIWebConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.MBusConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.MailConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.ModbusConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.ModemConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.OpusConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.PPPConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.PeakShaverConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SMSConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.TotalizersConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.AnalogOutMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChangeAdminPasswordMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.ChannelMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.EIWebConfigurationMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetLoadMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetSetpointMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SetSwitchTimeMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimpleEIWebMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.SimplePeakShaverMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiweb.TotalizerEIWebMessageEntry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -154,16 +179,16 @@ public class EIWebMessageConverter extends AbstractMessageConverter {
         registry.put(PeakShaverConfigurationDeviceMessage.SetLoad, new SetLoadMessageEntry());
 
         // Events
-        registry.put(EventsConfigurationDeviceMessage.SetInputChannel, new SimpleEIWebMessageEntry());
-        registry.put(EventsConfigurationDeviceMessage.SetCondition, new SimpleEIWebMessageEntry());
-        registry.put(EventsConfigurationDeviceMessage.SetConditionValue, new SimpleEIWebMessageEntry());
-        registry.put(EventsConfigurationDeviceMessage.SetTimeTrue, new SimpleEIWebMessageEntry());
-        registry.put(EventsConfigurationDeviceMessage.SetTimeFalse, new SimpleEIWebMessageEntry());
-        registry.put(EventsConfigurationDeviceMessage.SetOutputChannel, new SimpleEIWebMessageEntry());
-        registry.put(EventsConfigurationDeviceMessage.SetAlarm, new SimpleEIWebMessageEntry());
-        registry.put(EventsConfigurationDeviceMessage.SetTag, new SimpleEIWebMessageEntry());
-        registry.put(EventsConfigurationDeviceMessage.SetInverse, new SimpleEIWebMessageEntry());
-        registry.put(EventsConfigurationDeviceMessage.SetImmediate, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetInputChannel, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetCondition, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetConditionValue, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetTimeTrue, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetTimeFalse, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetOutputChannel, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetAlarm, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetTag, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetInverse, new SimpleEIWebMessageEntry());
+        registry.put(LogBookDeviceMessage.SetImmediate, new SimpleEIWebMessageEntry());
 
         // Opus
         registry.put(OpusConfigurationDeviceMessage.SetOpusOSNbr, new SimpleEIWebMessageEntry());

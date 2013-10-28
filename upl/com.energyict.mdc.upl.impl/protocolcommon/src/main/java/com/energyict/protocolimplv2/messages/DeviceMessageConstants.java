@@ -63,6 +63,7 @@ public class DeviceMessageConstants {
     public static final String emergencyProfileDurationAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyProfileDuration";
     public static final String emergencyProfileIdLookupAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyprofileidlookup";
     public static final String xmlConfigAttributeName = "AdvancedTestMessage.xmlconfig";
+    public static final String UserFileConfigAttributeName = "AdvancedTestMessage.ConfigUserfile";
     public static final String loadProfileAttributeName = "loadProfile";
     public static final String fromDateAttributeName = "from";
     public static final String toDateAttributeName = "to";
@@ -91,6 +92,8 @@ public class DeviceMessageConstants {
     public static final String SetGatewayAttributeName = "NetworkConnectivityMessage.SetGateway";
     public static final String SetNameServerAttributeName = "NetworkConnectivityMessage.SetNameServer";
     public static final String SetHttpPortAttributeName = "NetworkConnectivityMessage.SetHttpPort";
+    public static final String NetworkConnectivityIPAddressAttributeName = "NetworkConnectivityMessage.IPAddress";
+    public static final String NetworkConnectivityIntervalAttributeName = "NetworkConnectivityMessage.Interval";
 
     public static final String SetDSTAttributeName = "ClockDeviceMessage.SetDST";
     public static final String SetTimezoneAttributeName = "ClockDeviceMessage.SetTimezone";
@@ -223,7 +226,7 @@ public class DeviceMessageConstants {
     public static final String DelayAttributeName = "PeakShaverConfigurationDeviceMessage.Delay";
     public static final String ManualAttributeName = "PeakShaverConfigurationDeviceMessage.Manual";
     public static final String StatusAttributeName = "PeakShaverConfigurationDeviceMessage.Status";
-    public static final String IPAddressAttributeName = "PeakShaverConfigurationDeviceMessage.IPAddress";
+    public static final String PeakShaverIPAddressAttributeName = "PeakShaverConfigurationDeviceMessage.IPAddress";
     public static final String PeakShaveChnNbrAttributeName = "PeakShaverConfigurationDeviceMessage.ChannelNumber";
 
     public static final String SetInputChannelAttributeName = "EventsConfigurationDeviceMessage.SetInputChannel";
@@ -319,5 +322,16 @@ public class DeviceMessageConstants {
 
     public static final String INITIATOR_ELECTRICAL_PHASEAttributeName = "PLCConfigurationDeviceMessage.INITIATOR_ELECTRICAL_PHASE";
 
+    public static final String zigBeeConfigurationSASPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.PanId";
+    public static final String zigBeeConfigurationForceRemovalAttributeName = "ZigBeeConfigurationDeviceMessage.ForceRemoval";
+    public static final String zigBeeConfigurationZigBeeLinkKeyAttributeName = "ZigBeeConfigurationDeviceMessage.ZigBeeLinkKey";
+    public static final String zigBeeConfigurationActivationDateAttributeName = "ZigBeeConfigurationDeviceMessage.ActivationDate";
+    public static final String zigBeeConfigurationZigBeeAddressAttributeName = "ZigBeeConfigurationDeviceMessage.ZigBeeIEEEAddress";
+    public static final String zigBeeConfigurationMirrorAddressAttributeName = "ZigBeeConfigurationDeviceMessage.MirrorIEEEAddress";
+    public static final String zigBeeConfigurationFirmwareUpdateUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.UserFile";
+    public static final String zigBeeConfigurationSASInsecureJoinAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.InsecureJoin";
+    public static final String zigBeeConfigurationSASExtendedPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.ExtendedPanId";
+    public static final String zigBeeConfigurationSASPanChannelMaskAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.PanChannelMask";
+    public static final String zigBeeConfigurationHANRestoreUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.HANRestoreUserFile";
 
 }

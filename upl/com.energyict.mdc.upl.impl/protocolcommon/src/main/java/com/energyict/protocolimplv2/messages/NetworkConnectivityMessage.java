@@ -48,7 +48,11 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
     SetSubnetMask(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetSubnetMaskAttributeName)),
     SetGateway(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetGatewayAttributeName)),
     SetNameServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNameServerAttributeName)),
-    SetHttpPort(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetHttpPortAttributeName));
+    SetHttpPort(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetHttpPortAttributeName)),
+    ConfigureKeepAliveSettings(
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.NetworkConnectivityIPAddressAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.NetworkConnectivityIntervalAttributeName)
+    );
 
     private static final DeviceMessageCategory networkAndConnectivityCategory = DeviceMessageCategories.NETWORK_AND_CONNECTIVITY;
 

@@ -21,6 +21,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
     protected static final String EMPTY_FORMAT = "";
     protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     protected final SimpleDateFormat dateFormatWithTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
+    protected final SimpleDateFormat europeanDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     private Messaging messagingProtocol;
 

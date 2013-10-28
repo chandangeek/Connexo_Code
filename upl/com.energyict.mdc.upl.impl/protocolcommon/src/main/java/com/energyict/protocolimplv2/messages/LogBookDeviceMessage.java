@@ -3,17 +3,21 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Provides a summary of all DeviceMessages related to configuration/readout of LogBooks
+ *
  * Copyrights EnergyICT
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum EventsConfigurationDeviceMessage implements DeviceMessageSpec {
+public enum LogBookDeviceMessage implements DeviceMessageSpec {
 
     SetInputChannel(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInputChannelAttributeName)),
     SetCondition(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetConditionAttributeName)),
@@ -24,13 +28,21 @@ public enum EventsConfigurationDeviceMessage implements DeviceMessageSpec {
     SetAlarm(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetAlarmAttributeName)),
     SetTag(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTagAttributeName)),
     SetInverse(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetInverseAttributeName)),
-    SetImmediate(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetImmediateAttributeName));
+    SetImmediate(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetImmediateAttributeName)),
+    ReadDebugLogBook(
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
+    ),
+    ReadManufacturerSpecificLogBook(
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.fromDateAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.toDateAttributeName)
+    );
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.EVENT_CONFIGURATION;
+    private static final DeviceMessageCategory category = DeviceMessageCategories.LOG_BOOKS;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private EventsConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private LogBookDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
@@ -51,7 +63,7 @@ public enum EventsConfigurationDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return EventsConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return LogBookDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override

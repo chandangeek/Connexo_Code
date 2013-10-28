@@ -55,7 +55,7 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DelayAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ManualAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.StatusAttributeName),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.IPAddressAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.PeakShaverIPAddressAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.PeakShaveChnNbrAttributeName));
 
     private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.PEAK_SHAVER_CONFIGURATION;

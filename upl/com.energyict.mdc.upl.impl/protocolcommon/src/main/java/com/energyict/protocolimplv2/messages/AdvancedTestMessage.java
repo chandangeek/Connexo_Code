@@ -10,6 +10,7 @@ import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UserFileConfigAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlConfigAttributeName;
 
 /**
@@ -21,7 +22,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
  */
 public enum AdvancedTestMessage implements DeviceMessageSpec {
 
-    XML_CONFIG(PropertySpecFactory.stringPropertySpec(xmlConfigAttributeName));
+    XML_CONFIG(PropertySpecFactory.stringPropertySpec(xmlConfigAttributeName)),
+    USERFILE_CONFIG(PropertySpecFactory.userFileReferencePropertySpec(UserFileConfigAttributeName));
 
     private static final DeviceMessageCategory advancedTestCategory = DeviceMessageCategories.ADVANCED_TEST;
 

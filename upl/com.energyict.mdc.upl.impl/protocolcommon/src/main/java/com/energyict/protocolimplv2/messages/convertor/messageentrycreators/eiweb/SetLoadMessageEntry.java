@@ -64,7 +64,7 @@ public class SetLoadMessageEntry extends AbstractEIWebMessageEntry {
         statusTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.StatusAttributeName).getDeviceMessageAttributeValue()));
 
         MessageTag ipAddressTag = new MessageTag(LEGACY_IPADDRESS_TAG);
-        ipAddressTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.IPAddressAttributeName).getDeviceMessageAttributeValue()));
+        ipAddressTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.PeakShaverIPAddressAttributeName).getDeviceMessageAttributeValue()));
 
         MessageTag chnNbrTag = new MessageTag(LEGACY_CHNNBR_TAG);
         chnNbrTag.add(new MessageValue(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.PeakShaveChnNbrAttributeName).getDeviceMessageAttributeValue()));
