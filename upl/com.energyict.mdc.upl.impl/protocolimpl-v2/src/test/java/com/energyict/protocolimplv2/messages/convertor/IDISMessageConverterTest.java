@@ -55,8 +55,10 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<Configuration download><IncludedFile>userFileBytes</IncludedFile></Configuration download>", messageEntry.getContent());
 
+        System.out.println("test System time zone: " + TimeZone.getDefault().getID());
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
+        System.out.println("test System time zone: " + TimeZone.getDefault().getID());
         assertEquals("<TimedDisconnect Date (dd/mm/yyyy hh:mm)=\"17/05/1970 01:05\" TimeZone=\"" + TimeZone.getDefault().getID() + "\"> </TimedDisconnect>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION);

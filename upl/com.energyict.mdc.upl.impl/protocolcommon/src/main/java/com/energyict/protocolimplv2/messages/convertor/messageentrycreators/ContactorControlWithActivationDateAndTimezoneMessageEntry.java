@@ -28,6 +28,7 @@ public class ContactorControlWithActivationDateAndTimezoneMessageEntry implement
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
+        System.out.println("System time zone: " + TimeZone.getDefault().getID());
         MessageTag messageTag = new MessageTag(tag);
         messageTag.add(new MessageAttribute("Date (dd/mm/yyyy hh:mm)", offlineDeviceMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue()));
         messageTag.add(new MessageAttribute("TimeZone", TimeZone.getDefault().getID()));
