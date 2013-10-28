@@ -1,7 +1,6 @@
 package com.elster.jupiter.osgi.goodies;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.packageadmin.PackageAdmin;
 
