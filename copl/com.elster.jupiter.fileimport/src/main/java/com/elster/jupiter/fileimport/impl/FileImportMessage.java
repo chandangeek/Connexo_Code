@@ -12,7 +12,8 @@ class FileImportMessage {
 
     public long fileImportId;
 
-    private FileImportMessage() {
+    @SuppressWarnings("unused")
+	private FileImportMessage() {
     }
 
     public FileImportMessage(FileImport fileImport) {

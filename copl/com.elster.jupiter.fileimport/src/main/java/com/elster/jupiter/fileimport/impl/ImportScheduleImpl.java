@@ -22,7 +22,8 @@ class ImportScheduleImpl implements ImportSchedule {
     private transient CronExpression cronExpression;
     private String cronString;
 
-    private ImportScheduleImpl() {
+    @SuppressWarnings("unused")
+	private ImportScheduleImpl() {
     }
 
     ImportScheduleImpl(CronExpression cronExpression, DestinationSpec destination, File importDirectory, File inProcessDirectory, File failureDirectory, File successDirectory) {
