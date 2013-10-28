@@ -24,7 +24,6 @@ import static com.elster.jupiter.ids.IntervalLengthUnit.MONTH;
 
 public final class TimeSeriesImpl implements TimeSeries {
 
-    private static final long MILLIS_PER_MINUTE = 60000L;
     private static final int MINUTES_PER_HOUR = 60;
     // persistent fields
 	private long id;
