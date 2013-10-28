@@ -24,7 +24,8 @@ public class EventTypeImpl implements EventType, PersistenceAware {
     private List<EventPropertyType> eventPropertyTypes;
     private transient boolean fromDB = true;
 
-    private EventTypeImpl() {
+    @SuppressWarnings("unused")
+	private EventTypeImpl() {
     }
 
     public EventTypeImpl(String topic) {

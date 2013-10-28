@@ -14,7 +14,8 @@ public class EventPropertyTypeImpl implements EventPropertyType {
 
     private transient EventType eventType;
 
-    private EventPropertyTypeImpl() {
+    @SuppressWarnings("unused")
+	private EventPropertyTypeImpl() {
     }
 
     EventPropertyTypeImpl(EventType eventType, String name, ValueType valueType, String accessPath, int position) {
