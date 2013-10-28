@@ -23,12 +23,18 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public enum ContactorDeviceMessage implements DeviceMessageSpec {
 
     CONTACTOR_OPEN,
+    CONTACTOR_OPEN_WITH_OUTPUT(
+            PropertySpecFactory.stringPropertySpecWithValues(digitalOutputAttributeName, "1", "2")
+    ),
     CONTACTOR_OPEN_WITH_ACTIVATION_DATE(
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
     CONTACTOR_ARM,
     CONTACTOR_ARM_WITH_ACTIVATION_DATE(
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
     CONTACTOR_CLOSE,
+    CONTACTOR_CLOSE_WITH_OUTPUT(
+            PropertySpecFactory.stringPropertySpecWithValues(digitalOutputAttributeName, "1", "2")
+    ),
     CONTACTOR_CLOSE_WITH_ACTIVATION_DATE(
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
     CHANGE_CONNECT_CONTROL_MODE(

@@ -8,6 +8,7 @@ package com.energyict.protocolimplv2.messages;
 public class DeviceMessageConstants {
 
     public static final String contactorActivationDateAttributeName = "ContactorDeviceMessage.activationdate";
+    public static final String digitalOutputAttributeName = "ContactorDeviceMessage.digitalOutput";
     public static final String contactorModeAttributeName = "ContactorDeviceMessage.changemode.mode";
     public static final String relayNumberAttributeName = "ContactorDeviceMessage.relayNumber";
     public static final String firmwareUpdateActivationDateAttributeName = "FirmwareDeviceMessage.upgrade.activationdate";
@@ -59,6 +60,7 @@ public class DeviceMessageConstants {
     public static final String p1InformationAttributeName = "DisplayDeviceMessage.consumer.p1";
     public static final String displayMessageAttributeName = "DisplayDeviceMessage.displayMessage";
 
+    public static final String readFrequencyInMinutesAttributeName = "LoadBalanceDeviceMessage.parameters.readFrequencyInMinutes";
     public static final String monitoredValueAttributeName = "LoadBalanceDeviceMessage.parameters.monitoredValue";
     public static final String normalThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.normalthreshold";
     public static final String emergencyThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.emergencythreshold";
@@ -69,6 +71,9 @@ public class DeviceMessageConstants {
     public static final String emergencyProfileDurationAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyProfileDuration";
     public static final String emergencyProfileGroupIdListAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyProfileGroupIdList";
     public static final String actionWhenUnderThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.actionWhenUnderThreshold";
+    public static final String invertDigitalOutput1AttributeName = "LoadBalanceDeviceMessage.invertDigitalOutput1";
+    public static final String invertDigitalOutput2AttributeName = "LoadBalanceDeviceMessage.invertDigitalOutput2";
+    public static final String activateNowAttributeName = "LoadBalanceDeviceMessage.activateNow";
 
     public static final String phaseAttributeName = "LoadBalanceDeviceMessage.phase";
     public static final String thresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.thresholdInAmpere";
@@ -251,6 +256,8 @@ public class DeviceMessageConstants {
     public static final String SetTagAttributeName = "EventsConfigurationDeviceMessage.SetTag";
     public static final String SetInverseAttributeName = "EventsConfigurationDeviceMessage.SetInverse";
     public static final String SetImmediateAttributeName = "EventsConfigurationDeviceMessage.SetImmediate";
+
+    public static final String prepaidCreditAttributeName = "PrepaidConfigurationDeviceMessage.prepaidCredit";
 
     public static final String SetOpusOSNbrAttributeName = "OpusConfigurationDeviceMessage.SetOpusOSNbr";
     public static final String SetOpusPasswordAttributeName = "OpusConfigurationDeviceMessage.SetOpusPassword";

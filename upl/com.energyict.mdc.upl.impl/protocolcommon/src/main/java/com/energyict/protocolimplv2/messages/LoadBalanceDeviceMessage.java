@@ -36,6 +36,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileActivationDateAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileDurationAttributeName)),
+    CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3(
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(readFrequencyInMinutesAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
+            PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(overThresholdDurationAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(invertDigitalOutput1AttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(invertDigitalOutput2AttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(activateNowAttributeName)),
     CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS(
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(monitoredValueAttributeName, MonitoredValue.TotalInstantCurrent.getDescription(), MonitoredValue.getAllDescriptions()),
             PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
@@ -49,6 +56,8 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(actionWhenUnderThresholdAttributeName, LoadControlActions.Nothing.getDescription(), LoadControlActions.getAllDescriptions())),
     SET_EMERGENCY_PROFILE_GROUP_IDS(PropertySpecFactory.lookupPropertySpec(emergencyProfileGroupIdListAttributeName)),
     CLEAR_LOAD_LIMIT_CONFIGURATION(),
+    ENABLE_LOAD_LIMITING(),
+    DISABLE_LOAD_LIMITING(),
     CONFIGURE_SUPERVISION_MONITOR(
             PropertySpecFactory.bigDecimalPropertySpecWithValues(phaseAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
             PropertySpecFactory.bigDecimalPropertySpec(thresholdInAmpereAttributeName)

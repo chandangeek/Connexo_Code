@@ -269,6 +269,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         }
     },
     /**
+     * This category summarizes all messages related to configuring Opus in the RTU+Server
+     */
+    PREPAID_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(PrepaidConfigurationDeviceMessage.values());
+        }
+    },
+    /**
      * This category summarizes all messages related to configuring DLMS (e.g. via EIWeb, on the RTU+Server)
      */
     DLMS_CONFIGURATION {
