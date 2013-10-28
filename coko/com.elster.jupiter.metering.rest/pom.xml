@@ -33,26 +33,19 @@
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>4.3.1</version>
-            <scope>provided</scope>
+            <artifactId>org.osgi.core</artifactId>        
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.compendium</artifactId>
-            <version>4.3.1</version>
-            <scope>provided</scope>
+            <artifactId>org.osgi.compendium</artifactId>           
         </dependency>
         <dependency>
     		<groupId>javax.annotation</groupId>
-    		<artifactId>javax.annotation-api</artifactId>
-    		<version>1.2</version>
+    		<artifactId>javax.annotation-api</artifactId>    		
 		</dependency>	
         <dependency>
             <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.0</version>
+            <artifactId>javax.ws.rs-api</artifactId>         
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
