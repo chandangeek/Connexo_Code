@@ -29,9 +29,9 @@ import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
@@ -74,7 +74,6 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
     private static final String READ_ACTIVITY_CALENDAR = "ReadActivityCalendar";
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
-    private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final ObisCode PRICE_MATRIX_OBISCODE = ObisCode.fromString("0.0.1.61.0.255");
@@ -361,7 +360,7 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
         ActivePassive tariffLabel = getCosemObjectFactory().getActivePassive(TARIFF_LABEL_OBISCODE);
 
-        String[] prices = getValueFromXML(COMMA_SEPARATED_PRICES, content).split(",");
+        String[] prices = getIncludedContent(content).trim().split("\r\n");
         String activationDateString = getValueFromXML(ACTIVATION_DATE_TAG, content);
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -388,9 +387,9 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
             }
         }
 
-        priceInformation.writePassiveValue(priceArray);
         String randomString = Double.toString(Math.random());
         tariffLabel.writePassiveValue(OctetString.fromString(randomString, 6));
+        priceInformation.writePassiveValue(priceArray);
 
         if (activationDate != null) {
             Calendar cal = Calendar.getInstance(protocol.getTimeZone());

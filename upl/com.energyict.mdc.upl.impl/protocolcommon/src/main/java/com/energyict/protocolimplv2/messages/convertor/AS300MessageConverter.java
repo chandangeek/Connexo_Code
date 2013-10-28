@@ -7,7 +7,6 @@ import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -31,23 +30,27 @@ import java.util.Map;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
- * Represents a MessageConverter for the legacy IC ZigbeeGas protocol.
+ * Represents a MessageConverter for the legacy IC AS300 protocol.
  *
  * @author sva
- * @since 25/10/13 - 9:35
+ * @since 28/10/13 - 14:22
  */
 
-public class ZigbeeGasMessageConverter extends AbstractMessageConverter {;
+public class AS300MessageConverter extends AbstractMessageConverter {;
 
     private static final String ActivationDate = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
-     * and the corresponding {@link MessageEntryCreator}
+     * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
     private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
 
     static {
+
+        // Activity calendar
+        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDAR_READ, new SimpleTagMessageEntry("ReadActivityCalendar"));
+
         // Change of Supplier
         registry.put(ConfigurationChangeDeviceMessage.ChangeOfSupplier, new MultipleAttributeMessageEntry("Change_Of_Supplier", "Change_Of_Supplier_Name", "Change_Of_Supplier_ID", "Change_Of_Supplier_ActivationDate"));
 
@@ -55,15 +58,12 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {;
         registry.put(ConfigurationChangeDeviceMessage.ChangeOfTenancy, new MultipleAttributeMessageEntry("Change_Of_Tenant", "Change_Of_Tenant_ActivationDate"));
 
         // Connect/disconnect
-        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("RemoteConnect"));
-        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("RemoteDisconnect"));
-
-        // CV & CF information
-        registry.put(ConfigurationChangeDeviceMessage.SetCalorificValue, new MultipleAttributeMessageEntry("SetCalorificValue", "Calorific value", ActivationDate));
-        registry.put(ConfigurationChangeDeviceMessage.SetConversionFactor, new MultipleAttributeMessageEntry("SetConversionFactor", "Conversion factor", ActivationDate));
+        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new SimpleTagMessageEntry("DisconnectControlReconnect"));
+        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new SimpleTagMessageEntry("DisconnectControlDisconnect"));
 
         // Display
-        registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE_WITH_OPTIONS, new MultipleAttributeMessageEntry("TextToDisplay", "Message", "Duration of message", ActivationDate));
+        registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE_WITH_OPTIONS, new MultipleAttributeMessageEntry("TextToEmeterDisplay", "Message", "Duration of message", ActivationDate));
+        registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS, new MultipleAttributeMessageEntry("TextToInHomeDisplay", "Message", "Duration of message", ActivationDate));
 
         // Firmware
         registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE,
@@ -77,9 +77,6 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {;
         registry.put(PricingInformationMessage.SetStandingCharge, new MultipleAttributeMessageEntry("SetStandingCharge", "Standing charge", ActivationDate));
         registry.put(PricingInformationMessage.UpdatePricingInformation, new ConfigWithUserFileMessageEntry(DeviceMessageConstants.PricingInformationUserFileAttributeName, "Update_Pricing_Information"));
 
-        // TestMessage
-        registry.put(AdvancedTestMessage.USERFILE_CONFIG, new MultipleAttributeMessageEntry("Test_Message", "Test_File"));
-
         // Time of Use
         registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
     }
@@ -87,7 +84,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {;
     /**
      * Default constructor for at-runtime instantiation
      */
-    public ZigbeeGasMessageConverter() {
+    public AS300MessageConverter() {
         super();
     }
 
@@ -101,7 +98,6 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {;
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
             case DeviceMessageConstants.PricingInformationActivationDateAttributeName:
                 return europeanDateFormat.format((Date) messageAttribute);
-            case DeviceMessageConstants.UserFileConfigAttributeName:
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 return Integer.toString(((UserFile) messageAttribute).getId());
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:

@@ -27,6 +27,11 @@ public enum DisplayDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.DisplayMessageActivationDate)
     ),
+    SET_DISPLAY_MESSAGE_ON_IHD_WITH_OPTIONS(
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.DisplayMessageActivationDate)
+    ),
     CLEAR_DISPLAY_MESSAGE;
 
     private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.DISPLAY;
