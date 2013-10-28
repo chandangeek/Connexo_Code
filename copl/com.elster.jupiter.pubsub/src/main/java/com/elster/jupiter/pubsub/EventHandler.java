@@ -2,8 +2,6 @@ package com.elster.jupiter.pubsub;
 
 import org.osgi.framework.BundleContext;
 
-import java.util.*;
-
 /**
  * This class is a template method implementation of a Subscriber.
  * It filters for events of a certain type, and then passes only these on to the onEvent() method, to be implemented by subclasses.
