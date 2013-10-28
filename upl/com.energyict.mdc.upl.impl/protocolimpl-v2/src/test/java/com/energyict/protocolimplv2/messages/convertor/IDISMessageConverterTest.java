@@ -16,6 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 import static org.junit.Assert.assertEquals;
@@ -56,7 +57,7 @@ public class IDISMessageConverterTest extends AbstractMessageConverterTest {
 
         offlineDeviceMessage = createMessage(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<TimedDisconnect Date (dd/mm/yyyy hh:mm)=\"17/05/1970 01:05\" TimeZone=\"Europe/Paris\"> </TimedDisconnect>", messageEntry.getContent());
+        assertEquals("<TimedDisconnect Date (dd/mm/yyyy hh:mm)=\"17/05/1970 01:05\" TimeZone=\"" + TimeZone.getDefault().getID() + "\"> </TimedDisconnect>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
