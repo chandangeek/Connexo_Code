@@ -8,32 +8,33 @@ import com.energyict.mdc.messages.*;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+
 /**
+ * Provides a summary of all DeviceMessages related to configuration of LoadProfiles
+ * <p/>
  * Copyrights EnergyICT
- * Date: 28/02/13
- * Time: 9:10
+ * Date: 2/05/13
+ * Time: 10:44
  */
-public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
+public enum LoadProfileConfigurationMessage implements DeviceMessageSpec {
 
-    Decommission(),
-    Commission(),
-    DecommissionAll(),
-    SetEncryptionKeys(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.openKeyAttributeName), PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.transferKeyAttributeName)),
-    UseCorrectedValues(),
-    UseUncorrectedValues();
+    WRITE_CAPTURE_PERIOD_LP1(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
+    WRITE_CAPTURE_PERIOD_LP2(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName));
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_SETUP;
+    private static final DeviceMessageCategory loadProfileCategory = DeviceMessageCategories.LOAD_PROFILE_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private MBusSetupDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private LoadProfileConfigurationMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return category;
+        return loadProfileCategory;
     }
+
 
     @Override
     public String getName() {
@@ -47,12 +48,12 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return MBusSetupDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return LoadProfileConfigurationMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return this.deviceMessagePropertySpecs;
+        return deviceMessagePropertySpecs;
     }
 
     @Override

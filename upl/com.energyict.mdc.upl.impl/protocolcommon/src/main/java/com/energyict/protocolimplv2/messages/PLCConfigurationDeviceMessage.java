@@ -40,6 +40,7 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MAX_RECEIVING_GAINAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MAX_TRANSMITTING_GAINAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SEARCH_INITIATOR_GAINAttributeName)),
+    SetTimeoutNotAddressed(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName)),
     SetSFSKMacTimeouts(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SEARCH_INITIATOR_TIMEOUTAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SYNCHRONIZATION_CONFIRMATION_TIMEOUTAttributeName),

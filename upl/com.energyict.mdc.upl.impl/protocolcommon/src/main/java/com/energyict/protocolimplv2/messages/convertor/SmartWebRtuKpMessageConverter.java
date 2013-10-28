@@ -4,58 +4,14 @@ import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.DlmsAuthenticationLevelMessageValues;
-import com.energyict.protocolimplv2.messages.DlmsEncryptionLevelMessageValues;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivateDlmsEncryptionMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivateNTASmsWakeUpMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarConfigMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarConfigWithActivationDateMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.AddPhoneNumbersToWhiteList;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ApnCredentialsMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ChangeDlmsAuthenticationLevelMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ChangeHLSSecretMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ChangeNTADataTransportAuthenticationKeyMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ChangeNTADataTransportEncryptionKeyMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ClearLoadLimitConfigurations;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConfigureLoadLimitParameters;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectControlModeMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadWithActivationDateMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConsumerMessageCodeToPortP1;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConsumerMessageTextToPortP1;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DeactivateNTASmsWakeUpMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadWithActivationDateMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GlobalMeterReset;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.GprsUserCredentialsMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEmergencyProfileGroupIds;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetTimeMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDayTableMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfigMessageEntry;
+import com.energyict.mdw.core.*;
+import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.LoadProfileRegisterRequestMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -89,7 +45,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
         // activity calendar related
         registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND, new ActivityCalendarConfigMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName));
         registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new ActivityCalendarConfigWithActivationDateMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName, activityCalendarActivationDateAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new SpecialDayTableMessageEntry(activityCalendarCodeTableAttributeName));
+        registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new SpecialDayTableMessageEntry(specialDaysCodeTableAttributeName));
 
         // security related
         registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new ActivateDlmsEncryptionMessageEntry(encryptionLevelAttributeName));
@@ -103,7 +59,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
         registry.put(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP, new DeactivateNTASmsWakeUpMessageEntry());
         registry.put(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS, new GprsUserCredentialsMessageEntry(usernameAttributeName, passwordAttributeName));
         registry.put(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS, new ApnCredentialsMessageEntry(apnAttributeName, usernameAttributeName, passwordAttributeName));
-        registry.put(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST, new AddPhoneNumbersToWhiteList(whiteListPhoneNumbersAttributeName));
+        registry.put(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST, new AddPhoneNumbersToWhiteListMessageEntry(whiteListPhoneNumbersAttributeName));
 
         // display P1
         registry.put(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1, new ConsumerMessageCodeToPortP1(p1InformationAttributeName));
@@ -114,7 +70,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
 
         // Load balance
         registry.put(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS, new ConfigureLoadLimitParameters(normalThresholdAttributeName, emergencyThresholdAttributeName, overThresholdDurationAttributeName, emergencyProfileIdAttributeName, emergencyProfileActivationDateAttributeName, emergencyProfileDurationAttributeName));
-        registry.put(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS, new SetEmergencyProfileGroupIds(emergencyProfileIdLookupAttributeName));
+        registry.put(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS, new SetEmergencyProfileGroupIds(emergencyProfileGroupIdListAttributeName));
         registry.put(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION, new ClearLoadLimitConfigurations());
 
         // Advanced test
@@ -155,7 +111,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return String.valueOf(((UserFile) messageAttribute).getId());
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName) || propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return String.valueOf(((Code) messageAttribute).getId());
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
@@ -163,7 +119,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
             return String.valueOf(DlmsAuthenticationLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(passwordAttributeName)) {
             return ((Password) messageAttribute).getValue();
-        } else if (propertySpec.getName().equals(emergencyProfileIdLookupAttributeName)) {
+        } else if (propertySpec.getName().equals(emergencyProfileGroupIdListAttributeName)) {
             return String.valueOf(((Lookup) messageAttribute).getId());
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
                 || propertySpec.getName().equals(emergencyProfileDurationAttributeName)) {

@@ -3,12 +3,11 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.eiw
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
-
-import java.util.Iterator;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
 /**
  * Abstract class with some utility methods for generating a legacy XML message from a given MessageTag.
@@ -24,53 +23,6 @@ public abstract class AbstractEIWebMessageEntry implements MessageEntryCreator {
     private static final String EIWEB_PREFIX = "Set";
     protected static final String LEGACY_ID_TAG = "id";
     protected static final String LEGACY_PEAKSHAVER_TAG = "Peakshaver";
-
-    public String writeTag(MessageTag msgTag) {
-        StringBuffer buf = new StringBuffer();
-
-        // a. Opening tag
-        buf.append("<");
-        buf.append(msgTag.getName());
-
-        // b. Attributes
-        for (Iterator it = msgTag.getAttributes().iterator(); it.hasNext(); ) {
-            MessageAttribute att = (MessageAttribute) it.next();
-            if (att.getValue() == null || att.getValue().length() == 0) {
-                continue;
-            }
-            buf.append(" ").append(att.getSpec().getName());
-            buf.append("=").append('"').append(att.getValue()).append('"');
-        }
-        if (msgTag.getSubElements().isEmpty()) {
-            buf.append("/>");
-            return buf.toString();
-        }
-        buf.append(">");
-        // c. sub elements
-        for (Iterator it = msgTag.getSubElements().iterator(); it.hasNext(); ) {
-            MessageElement elt = (MessageElement) it.next();
-            if (elt.isTag()) {
-                buf.append(writeTag((MessageTag) elt));
-            } else if (elt.isValue()) {
-                String value = writeValue((MessageValue) elt);
-                if (value == null || value.length() == 0) {
-                    return "";
-                }
-                buf.append(value);
-            }
-        }
-
-        // d. Closing tag
-        buf.append("</");
-        buf.append(msgTag.getName());
-        buf.append(">");
-
-        return buf.toString();
-    }
-
-    public String writeValue(MessageValue msgValue) {
-        return msgValue.getValue();
-    }
 
     /**
      * Method that can be used for messages with 2 attributes
@@ -105,6 +57,6 @@ public abstract class AbstractEIWebMessageEntry implements MessageEntryCreator {
     }
 
     protected MessageEntry createMessageEntry(MessageTag messageTag, String trackingId) {
-        return new MessageEntry(writeTag(messageTag), trackingId);
+        return new MessageEntry(SimpleTagWriter.writeTag(messageTag), trackingId);
     }
 }

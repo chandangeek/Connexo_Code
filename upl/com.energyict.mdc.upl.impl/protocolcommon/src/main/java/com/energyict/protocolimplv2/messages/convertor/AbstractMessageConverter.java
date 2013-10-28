@@ -2,10 +2,14 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
+import com.energyict.mdw.core.Code;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
+import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
+import com.energyict.protocolimplv2.MdcManager;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,5 +61,25 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
 
     protected Messaging getMessagingProtocol() {
         return this.messagingProtocol;
+    }
+
+    /**
+     * Return an XML representation of the code table.
+     * The activation date and calendar name are set to 0, because they were stored in different message attributes.
+     * It is up to the message entry creator to replace them with the values of the attributes
+     */
+    protected String convertCodeTableToXML(Code messageAttribute) {
+        try {
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
+        } catch (ParserConfigurationException e) {
+            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+        }
+    }
+    protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
+        try {
+            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 1, "");
+        } catch (ParserConfigurationException e) {
+            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+        }
     }
 }

@@ -40,7 +40,7 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
         // activity calendar related
         registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND, new ActivityCalendarConfigMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName));
         registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new ActivityCalendarConfigWithActivationDateMessageEntry(activityCalendarNameAttributeName, activityCalendarCodeTableAttributeName, activityCalendarActivationDateAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new SpecialDayTableMessageEntry(activityCalendarCodeTableAttributeName));
+        registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new SpecialDayTableMessageEntry(specialDaysCodeTableAttributeName));
 
         // security related
         registry.put(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION, new ActivateDlmsEncryptionMessageEntry(encryptionLevelAttributeName));
@@ -57,7 +57,7 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
         registry.put(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP, new DeactivateNTASmsWakeUpMessageEntry());
         registry.put(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS, new GprsUserCredentialsMessageEntry(usernameAttributeName, passwordAttributeName));
         registry.put(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS, new ApnCredentialsMessageEntry(apnAttributeName, usernameAttributeName, passwordAttributeName));
-        registry.put(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST, new AddPhoneNumbersToWhiteList(whiteListPhoneNumbersAttributeName));
+        registry.put(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST, new AddPhoneNumbersToWhiteListMessageEntry(whiteListPhoneNumbersAttributeName));
 
         // Device Actions
         registry.put(DeviceActionMessage.GLOBAL_METER_RESET, new GlobalMeterReset());
@@ -88,7 +88,7 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
             return String.valueOf(((Date) messageAttribute).getTime()); // WebRTU format of the dateTime is milliseconds
         } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
             return String.valueOf(((UserFile) messageAttribute).getId());
-        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
+        } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName) || propertySpec.getName().equals(specialDaysCodeTableAttributeName)) {
             return String.valueOf(((Code) messageAttribute).getId());
         } else if (propertySpec.getName().equals(encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));

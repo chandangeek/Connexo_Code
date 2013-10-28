@@ -3,22 +3,12 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
-import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
-import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DemandResetMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.EnableOrDisableDSTMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEndOfDSTMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetStartOfDSTMessageEntry;
+import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -73,21 +63,9 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
             return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
             Code codeTable = (Code) messageAttribute;
-            return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + encode(codeTable); //The ID and the XML representation of the code table, separated by a |
+            return String.valueOf(codeTable.getId()) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(codeTable); //The ID and the XML representation of the code table, separated by a |
         }
         return EMPTY_FORMAT;
-    }
-
-    /**
-     * Return an XML representation of the code table.
-     * The activation date and calendar name are set to 0, because they were stored in different message attributes.
-     */
-    private String encode(Code messageAttribute) {
-        try {
-            return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
-        } catch (ParserConfigurationException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
-        }
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {

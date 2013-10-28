@@ -6,7 +6,10 @@ import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
+import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,9 +33,26 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyThresholdAttributeName),
             PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName)),
-    SET_EMERGENCY_PROFILE_GROUP_IDS(PropertySpecFactory.lookupPropertySpec(emergencyProfileIdLookupAttributeName)),
+            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileActivationDateAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileDurationAttributeName)),
+    CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS(
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(monitoredValueAttributeName, MonitoredValue.TotalInstantCurrent.getDescription(), MonitoredValue.getAllDescriptions()),
+            PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(emergencyThresholdAttributeName),
+            PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
+            PropertySpecFactory.timeDurationPropertySpec(underThresholdDurationAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(emergencyProfileActivationDateAttributeName),
+            PropertySpecFactory.timeDurationPropertySpec(emergencyProfileDurationAttributeName),
+            PropertySpecFactory.stringPropertySpec(emergencyProfileGroupIdListAttributeName),      //List of values, comma separated
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(actionWhenUnderThresholdAttributeName, LoadControlActions.Nothing.getDescription(), LoadControlActions.getAllDescriptions())),
+    SET_EMERGENCY_PROFILE_GROUP_IDS(PropertySpecFactory.lookupPropertySpec(emergencyProfileGroupIdListAttributeName)),
     CLEAR_LOAD_LIMIT_CONFIGURATION(),
+    CONFIGURE_SUPERVISION_MONITOR(
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(phaseAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),
+            PropertySpecFactory.bigDecimalPropertySpec(thresholdInAmpereAttributeName)
+    ),
     SET_LOAD_LIMIT_DURATION(PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName)),
     SET_LOAD_LIMIT_THRESHOLD(PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName));
 

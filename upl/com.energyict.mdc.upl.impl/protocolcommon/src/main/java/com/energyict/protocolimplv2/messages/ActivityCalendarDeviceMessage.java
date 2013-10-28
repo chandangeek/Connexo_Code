@@ -29,7 +29,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
     ACTIVITY_CALENDER_SEND_WITH_DATE(PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
             PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName),
             PropertySpecFactory.datePropertySpec(activityCalendarActivationDateAttributeName)),
-    SPECIAL_DAY_CALENDAR_SEND(PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName)),
+    SPECIAL_DAY_CALENDAR_SEND(PropertySpecFactory.codeTableReferencePropertySpec(specialDaysCodeTableAttributeName)),
     CLEAR_AND_DISABLE_PASSIVE_TARIFF(),
     ACTIVATE_PASSIVE_CALENDAR(PropertySpecFactory.dateTimePropertySpec(activityCalendarActivationDateAttributeName));
 

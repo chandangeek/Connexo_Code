@@ -5,6 +5,7 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
 /**
  * Copyrights EnergyICT
@@ -34,6 +35,6 @@ public class ChangeAdminPasswordMessageEntry extends AbstractEIWebMessageEntry {
         MessageTag newTag = new MessageTag(LEGACY_ADMINNEW_TAG);
         newTag.add(new MessageValue(adminNewValue));
 
-        return new MessageEntry(writeTag(oldTag) + writeTag(newTag), offlineDeviceMessage.getTrackingId());
+        return new MessageEntry(SimpleTagWriter.writeTag(oldTag) + SimpleTagWriter.writeTag(newTag), offlineDeviceMessage.getTrackingId());
     }
 }

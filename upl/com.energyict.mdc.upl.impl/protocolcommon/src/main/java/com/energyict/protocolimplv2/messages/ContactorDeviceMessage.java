@@ -34,7 +34,11 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
     CHANGE_CONNECT_CONTROL_MODE(
             PropertySpecFactory.bigDecimalPropertySpecWithValues(contactorModeAttributeName,
                     new BigDecimal("0"), new BigDecimal("1"), new BigDecimal("2"), new BigDecimal("3"),
-                    new BigDecimal("4"), new BigDecimal("5"), new BigDecimal("6")));
+                    new BigDecimal("4"), new BigDecimal("5"), new BigDecimal("6"))),
+    CLOSE_RELAY(PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName,
+            new BigDecimal("0"), new BigDecimal("1"))),
+    OPEN_RELAY(PropertySpecFactory.bigDecimalPropertySpecWithValues(relayNumberAttributeName,
+            new BigDecimal("0"), new BigDecimal("1")));
 
     private static final DeviceMessageCategory contactorCategory = DeviceMessageCategories.CONTACTOR;
 

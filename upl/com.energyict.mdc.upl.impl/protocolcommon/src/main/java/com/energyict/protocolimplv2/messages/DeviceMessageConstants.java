@@ -9,13 +9,16 @@ public class DeviceMessageConstants {
 
     public static final String contactorActivationDateAttributeName = "ContactorDeviceMessage.activationdate";
     public static final String contactorModeAttributeName = "ContactorDeviceMessage.changemode.mode";
+    public static final String relayNumberAttributeName = "ContactorDeviceMessage.relayNumber";
     public static final String firmwareUpdateActivationDateAttributeName = "FirmwareDeviceMessage.upgrade.activationdate";
     public static final String meterTimeAttributeName = "ClockDeviceMessage.meterTime";
     public static final String firmwareUpdateVersionNumberAttributeName = "FirmwareDeviceMessage.upgrade.version";
     public static final String firmwareUpdateUserFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
+    public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
     public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
+    public static final String specialDaysCodeTableAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
     public static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
     public static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
     public static final String authenticationLevelAttributeName = "SecurityMessage.dlmsauthentication.authenticationlevel";
@@ -55,13 +58,22 @@ public class DeviceMessageConstants {
     public static final String wakeupPeriodAttributeName = "NetworkConnectivityMessage.wakeup.period";
     public static final String p1InformationAttributeName = "DisplayDeviceMessage.consumer.p1";
     public static final String displayMessageAttributeName = "DisplayDeviceMessage.displayMessage";
+
+    public static final String monitoredValueAttributeName = "LoadBalanceDeviceMessage.parameters.monitoredValue";
     public static final String normalThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.normalthreshold";
     public static final String emergencyThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.emergencythreshold";
     public static final String overThresholdDurationAttributeName = "LoadBalanceDeviceMessage.parameters.overthresholdduration";
+    public static final String underThresholdDurationAttributeName = "LoadBalanceDeviceMessage.parameters.underthresholdduration";
     public static final String emergencyProfileIdAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyprofileid";
     public static final String emergencyProfileActivationDateAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyProfileActivationDate";
     public static final String emergencyProfileDurationAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyProfileDuration";
-    public static final String emergencyProfileIdLookupAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyprofileidlookup";
+    public static final String emergencyProfileGroupIdListAttributeName = "LoadBalanceDeviceMessage.parameters.emergencyProfileGroupIdList";
+    public static final String actionWhenUnderThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.actionWhenUnderThreshold";
+
+    public static final String phaseAttributeName = "LoadBalanceDeviceMessage.phase";
+    public static final String thresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.thresholdInAmpere";
+    public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.capturePeriod";
+
     public static final String xmlConfigAttributeName = "AdvancedTestMessage.xmlconfig";
     public static final String UserFileConfigAttributeName = "AdvancedTestMessage.ConfigUserfile";
     public static final String loadProfileAttributeName = "loadProfile";
@@ -334,4 +346,6 @@ public class DeviceMessageConstants {
     public static final String zigBeeConfigurationSASPanChannelMaskAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.PanChannelMask";
     public static final String zigBeeConfigurationHANRestoreUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.HANRestoreUserFile";
 
+    public static final String alarmFilterAttributeName = "AlarmConfigurationMessage.alarmFilter";
+    public static final String configUserFileAttributeName = "GeneralDeviceMessage.configUserFile";
 }

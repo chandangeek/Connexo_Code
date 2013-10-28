@@ -23,7 +23,8 @@ public enum GeneralDeviceMessage implements DeviceMessageSpec {
     WRITE_RAW_IEC1107_CLASS(
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.IEC1107ClassIdAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.OffsetAttributeName, BigDecimal.valueOf(0), BigDecimal.valueOf(9999)),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RawDataAttributeName));
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.RawDataAttributeName)),
+    WRITE_FULL_CONFIGURATION(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.configUserFileAttributeName));
 
     private static final DeviceMessageCategory generalCategory = DeviceMessageCategories.GENERAL;
 

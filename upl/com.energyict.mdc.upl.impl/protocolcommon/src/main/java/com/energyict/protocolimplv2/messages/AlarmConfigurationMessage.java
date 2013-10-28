@@ -9,30 +9,28 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Provides a summary of all messages related to configuring alarms
+ * <p/>
  * Copyrights EnergyICT
- * Date: 28/02/13
- * Time: 9:10
+ * Date: 3/04/13
+ * Time: 8:38
  */
-public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
+public enum AlarmConfigurationMessage implements DeviceMessageSpec {
 
-    Decommission(),
-    Commission(),
-    DecommissionAll(),
-    SetEncryptionKeys(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.openKeyAttributeName), PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.transferKeyAttributeName)),
-    UseCorrectedValues(),
-    UseUncorrectedValues();
+    RESET_ALL_ALARM_BITS,
+    WRITE_ALARM_FILTER(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.alarmFilterAttributeName));
 
-    private static final DeviceMessageCategory category = DeviceMessageCategories.MBUS_SETUP;
+    private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.ALARM_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private MBusSetupDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private AlarmConfigurationMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return category;
+        return displayCategory;
     }
 
     @Override
@@ -47,7 +45,7 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return MBusSetupDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return AlarmConfigurationMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override

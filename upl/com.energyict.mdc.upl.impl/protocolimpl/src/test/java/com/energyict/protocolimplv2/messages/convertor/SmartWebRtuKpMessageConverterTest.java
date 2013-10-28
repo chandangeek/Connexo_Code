@@ -399,7 +399,7 @@ public class SmartWebRtuKpMessageConverterTest {
         final int lookupId = 324532;
         final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
-        when(propertySpec.getName()).thenReturn(emergencyProfileIdLookupAttributeName);
+        when(propertySpec.getName()).thenReturn(emergencyProfileGroupIdListAttributeName);
         Lookup lookupAttribute = mock(Lookup.class);
         when(lookupAttribute.getId()).thenReturn(lookupId);
 
@@ -717,7 +717,7 @@ public class SmartWebRtuKpMessageConverterTest {
         smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(codeTableMessageAttribute.getName()).thenReturn(activityCalendarCodeTableAttributeName);
+        when(codeTableMessageAttribute.getName()).thenReturn(specialDaysCodeTableAttributeName);
         when(codeTableMessageAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(codeTableId));
         when(activityCalendarConfiguration.getDeviceMessageAttributes()).thenReturn(Arrays.asList(codeTableMessageAttribute));
         when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.getPrimaryKey());
@@ -1052,7 +1052,7 @@ public class SmartWebRtuKpMessageConverterTest {
 
         OfflineDeviceMessage setEmergencyProfileIdsMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute lookupTableAttribute = mock(OfflineDeviceMessageAttribute.class);
-        when(lookupTableAttribute.getName()).thenReturn(emergencyProfileIdLookupAttributeName);
+        when(lookupTableAttribute.getName()).thenReturn(emergencyProfileGroupIdListAttributeName);
         when(lookupTableAttribute.getDeviceMessageAttributeValue()).thenReturn(String.valueOf(lookupId));
 
         when(setEmergencyProfileIdsMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(lookupTableAttribute));

@@ -16,12 +16,12 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Date: 2/04/13
  * Time: 12:14
  */
-public class AddPhoneNumbersToWhiteList implements MessageEntryCreator {
+public class AddPhoneNumbersToWhiteListMessageEntry implements MessageEntryCreator {
 
     private final String PHONE_NUMBER_SEPARATOR = ";";
     private final String phoneNumbersAttributeName;
 
-    public AddPhoneNumbersToWhiteList(String phoneNumbersAttributeName) {
+    public AddPhoneNumbersToWhiteListMessageEntry(String phoneNumbersAttributeName) {
         this.phoneNumbersAttributeName = phoneNumbersAttributeName;
     }
 

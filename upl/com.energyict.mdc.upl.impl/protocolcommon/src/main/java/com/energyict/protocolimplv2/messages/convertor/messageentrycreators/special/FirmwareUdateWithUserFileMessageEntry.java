@@ -21,20 +21,36 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  */
 public class FirmwareUdateWithUserFileMessageEntry implements MessageEntryCreator {
 
-    private final String userFileIdAttributeName;
+    private final String userFileBytesAttributeName;
+    private final String resumeAttributeName;
 
+    public FirmwareUdateWithUserFileMessageEntry(String userFileBytesAttributeName) {
+        this.userFileBytesAttributeName = userFileBytesAttributeName;
+        this.resumeAttributeName = null;
+    }
 
-    public FirmwareUdateWithUserFileMessageEntry(String userFileIdAttributeName) {
-        this.userFileIdAttributeName = userFileIdAttributeName;
+    public FirmwareUdateWithUserFileMessageEntry(String userFileIdAttributeName, String resumeAttributeName) {
+        this.userFileBytesAttributeName = userFileIdAttributeName;
+        this.resumeAttributeName = resumeAttributeName;
     }
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        OfflineDeviceMessageAttribute userFileAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileIdAttributeName);
+        OfflineDeviceMessageAttribute userFileBytesAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileBytesAttributeName);
+        String extraTrackingId = "";
+        if (resumeAttributeName != null) {
+            boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeAttributeName).getDeviceMessageAttributeValue());
+            if (!resume) {
+                extraTrackingId = "noresume ";
+            } else {
+                // todo; other protocols might use "resume" in the trackingId ?
+            }
+        }
+
         MessageTag mainTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE);
         MessageTag subTag1 = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE_INCLUDED_FILE);
-        subTag1.add(new MessageValue(userFileAttribute.getDeviceMessageAttributeValue()));  //The userFile bytes
+        subTag1.add(new MessageValue(userFileBytesAttribute.getDeviceMessageAttributeValue()));  //The userFile bytes
         mainTag.add(subTag1);
-        return new MessageEntry(messagingProtocol.writeTag(mainTag), offlineDeviceMessage.getTrackingId());
+        return new MessageEntry(messagingProtocol.writeTag(mainTag), extraTrackingId + offlineDeviceMessage.getTrackingId());
     }
 }

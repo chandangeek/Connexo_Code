@@ -22,6 +22,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public enum FirmwareDeviceMessage implements DeviceMessageSpec {
 
     UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName)),
     UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
