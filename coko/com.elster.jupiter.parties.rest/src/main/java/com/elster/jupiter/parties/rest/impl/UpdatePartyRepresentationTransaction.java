@@ -4,7 +4,6 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.time.Interval;
-import com.google.common.base.Optional;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
