@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a MessageConverter for the legacy IHD (In-home display) protocol.
+ * Represents a MessageConverter for the legacy IC IHD (In-home display) protocol.
  *
  * @author sva
  * @since 25/10/13 - 9:35

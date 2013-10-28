@@ -125,7 +125,7 @@ public class Messaging implements DeviceMessageSupport {
                 propertySpec.getName().equals(DeviceMessageConstants.carbonDioxideAttributeName) ||
                 propertySpec.getName().equals(DeviceMessageConstants.molecularHydrogenAttributeName) ||
                 propertySpec.getName().equals(DeviceMessageConstants.higherCalorificValueAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.timeDurationAttributeName) ||
+                propertySpec.getName().equals(DeviceMessageConstants.SecurityTimeDurationAttributeName) ||
                 propertySpec.getName().equals(DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName) ||
                 propertySpec.getName().equals(DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName) ||
                 propertySpec.getName().equals(DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName) ||

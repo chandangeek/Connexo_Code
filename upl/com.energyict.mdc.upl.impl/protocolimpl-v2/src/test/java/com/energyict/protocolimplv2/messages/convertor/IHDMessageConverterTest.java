@@ -8,8 +8,10 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
+import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.InHomeDisplay;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,6 +27,7 @@ import static org.mockito.Mockito.when;
  * @author sva
  * @since 28/10/13 - 10:26
  */
+@RunWith(MockitoJUnitRunner.class)
 public class IHDMessageConverterTest extends AbstractMessageConverterTest {
 
     @Test
@@ -43,12 +46,12 @@ public class IHDMessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     protected Messaging getMessagingProtocol() {
-        return new UkHub();
+        return new InHomeDisplay();
     }
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new UkHubMessageConverter();
+        return new IHDMessageConverter();
     }
 
     @Override

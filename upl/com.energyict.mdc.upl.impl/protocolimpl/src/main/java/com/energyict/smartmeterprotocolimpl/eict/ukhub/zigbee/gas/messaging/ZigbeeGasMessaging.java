@@ -1,16 +1,20 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.messaging;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.UserFile;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
+import com.energyict.protocol.messaging.TimeOfUseMessaging;
+import com.energyict.protocol.messaging.TimeOfUseMessagingConfig;
 import com.energyict.protocolimpl.messages.ProtocolMessageCategories;
-import com.energyict.protocolimpl.messages.RtuMessageConstant;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -146,98 +150,7 @@ public class ZigbeeGasMessaging extends GenericMessaging implements TimeOfUseMes
 
     @Override
     public String writeTag(final MessageTag msgTag) {
-        if (msgTag.getName().equals(SET_PRICE_PER_UNIT)) {
-            StringBuilder builder = new StringBuilder();
-
-            // a. Opening tag
-            builder.append("<");
-            builder.append(msgTag.getName());
-            builder.append(">");
-
-            int userFileID = -1;
-            String activationDate = "0";
-            String tariffLabel = "";
-
-            // b. Attributes
-            for (Object o1 : msgTag.getAttributes()) {
-                MessageAttribute att = (MessageAttribute) o1;
-                if (ID_OF_USER_FILE.equalsIgnoreCase(att.getSpec().getName())) {
-                    if (att.getValue() != null) {
-                        try {
-                            userFileID = Integer.parseInt(att.getValue());
-                        } catch (NumberFormatException e) {
-                            throw new ApplicationException("No user file found with ID " + userFileID);
-                        }
-                    }
-                } else if (ACTIVATION_DATE.equalsIgnoreCase(att.getSpec().getName())) {
-                    if (att.getValue() != null) {
-                        activationDate = att.getValue();
-                    }
-                }
-            }
-
-            String commaSeparatedPrices = "";
-            if (userFileID > 0) {
-                MeteringWarehouse meteringWarehouse = MeteringWarehouse.getCurrent();
-                UserFile userFile = meteringWarehouse.getUserFileFactory().find(userFileID);
-                if (userFile != null) {
-                    File file = userFile.getShadow().getFile();
-                    try {
-                        DataInputStream in = new DataInputStream(new FileInputStream(file));
-                        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-                        String strLine;
-                        while ((strLine = br.readLine()) != null) {
-                            commaSeparatedPrices += (strLine + ",");
-                        }
-                        in.close();
-                    } catch (FileNotFoundException e) {
-                        throw new ApplicationException(e.getMessage());
-                    } catch (IOException e) {
-                        throw new ApplicationException(e.getMessage());
-                    }
-                } else {
-                    throw new ApplicationException("No user file found with ID " + userFileID);
-                }
-            } else {
-                throw new ApplicationException("Invalid user file ID: " + userFileID);
-            }
-            commaSeparatedPrices = commaSeparatedPrices.substring(0, commaSeparatedPrices.lastIndexOf(","));      //Remove the last comma
-            addChildTag(builder, COMMA_SEPARATED_PRICES, commaSeparatedPrices);
-            addChildTag(builder, TARIFF_LABEL_TAG, tariffLabel);
-            addChildTag(builder, ACTIVATION_DATE_TAG, activationDate);
-
-            // d. Closing tag
-            builder.append("</");
-            builder.append(msgTag.getName());
-            builder.append(">");
-            return builder.toString();
-        } else if (msgTag.getName().equals(RtuMessageConstant.UPDATE_PRICING_INFORMATION)) {
-
-            int userFileId = 0;
-            for (Object maObject : msgTag.getAttributes()) {
-                MessageAttribute ma = (MessageAttribute) maObject;
-                if (ma.getSpec().getName().equals(RtuMessageConstant.UPDATE_PRICING_INFORMATION_USERFILE_ID)) {
-                    if (ma.getValue() != null && ma.getValue().length() != 0) {
-                        userFileId = Integer.valueOf(ma.getValue());
-                    }
-                }
-            }
-
-            StringBuilder builder = new StringBuilder();
-            addOpeningTag(builder, msgTag.getName());
-            builder.append("<").append(INCLUDED_USERFILE_TAG).append(">");
-
-            // This will generate a message that will make the DeviceMessageContentParser inline the file.
-            builder.append("<").append(INCLUDE_USERFILE_TAG).append(" ").append(INCLUDE_USERFILE_ID_ATTRIBUTE).append("=\"").append(userFileId).append("\"");
-            builder.append(" ").append(CREATEZIP_ATTRIBUTE_TAG).append("=\"true\"");
-            builder.append("/>");
-
-            builder.append("</").append(INCLUDED_USERFILE_TAG).append(">");
-            addClosingTag(builder, msgTag.getName());
-            return builder.toString();
-        } else {
-            return super.writeTag(msgTag);
-        }
+        return super.writeTag(msgTag);
     }
 
     /**

@@ -2,13 +2,26 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.*;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ArmLoadMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ClearDisplayMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ConnectLoadMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.DemandResetMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.DisconnectLoadMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.ErrorStatusResetMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.EventLogResetMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.LoadLogResetMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.PowerOutageResetMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.PowerQualityResetMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.RegistersResetMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.SetDisplayMessageEntry;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.displayMessageAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayMessageAttributeName;
 
 /**
  * Represents a MessageConverter for the legacy WebRTUKP protocol.
@@ -32,7 +45,7 @@ public class AS220IEC1107MessageConverter extends AbstractMessageConverter {
         registry.put(ContactorDeviceMessage.CONTACTOR_ARM, new ArmLoadMessageEntry());
 
         // display related
-        registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE, new SetDisplayMessageEntry(displayMessageAttributeName));
+        registry.put(DisplayDeviceMessage.SET_DISPLAY_MESSAGE, new SetDisplayMessageEntry(DisplayMessageAttributeName));
         registry.put(DisplayDeviceMessage.CLEAR_DISPLAY_MESSAGE, new ClearDisplayMessageEntry());
 
         // reset messages
@@ -54,7 +67,7 @@ public class AS220IEC1107MessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(displayMessageAttributeName)) {
+        if (propertySpec.getName().equals(DisplayMessageAttributeName)) {
             return messageAttribute.toString();
         }
         return EMPTY_FORMAT;

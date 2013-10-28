@@ -69,7 +69,22 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     UploadSwitchPointClockSettings(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockSettings)),
     UploadSwitchPointClockUpdateSettings(PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.SwitchPointClockUpdateSettings)),
 
-    ProgramBatteryExpiryDate(PropertySpecFactory.datePropertySpec(DeviceMessageConstants.ConfigurationChangeDate));
+    ProgramBatteryExpiryDate(PropertySpecFactory.datePropertySpec(DeviceMessageConstants.ConfigurationChangeDate)),
+
+    ChangeOfSupplier(
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ChangeOfSupplierName),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
+            ),
+    ChangeOfTenancy(PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)),
+    SetCalorificValue(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CalorificValue),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
+    ),
+    SetConversionFactor(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ConversionFactor),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
+    );
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 

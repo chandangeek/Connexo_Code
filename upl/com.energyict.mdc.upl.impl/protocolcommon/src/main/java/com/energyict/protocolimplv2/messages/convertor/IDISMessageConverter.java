@@ -5,17 +5,30 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileConfigurationMessage;
+import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ContactorControlWithActivationDateAndTimezoneMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.IDISActivityCalendarMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.IDISSpecialDaysMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.IDISConfigWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -44,7 +57,7 @@ public class IDISMessageConverter extends AbstractMessageConverter {
 
         registry.put(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS, new SimpleTagMessageEntry("ResetAllAlarmBits"));
         registry.put(AlarmConfigurationMessage.WRITE_ALARM_FILTER, new MultipleAttributeMessageEntry("WriteAlarmFilter", "Alarm filter (decimal value)"));
-        registry.put(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION, new IDISConfigWithUserFileMessageEntry(configUserFileAttributeName));
+        registry.put(GeneralDeviceMessage.WRITE_FULL_CONFIGURATION, new ConfigWithUserFileMessageEntry(configUserFileAttributeName, "Configuration download"));
 
         registry.put(ContactorDeviceMessage.CLOSE_RELAY, new MultipleAttributeMessageEntry("CloseRelay", "Relay number (1 or 2)"));
         registry.put(ContactorDeviceMessage.OPEN_RELAY, new MultipleAttributeMessageEntry("OpenRelay", "Relay number (1 or 2)"));

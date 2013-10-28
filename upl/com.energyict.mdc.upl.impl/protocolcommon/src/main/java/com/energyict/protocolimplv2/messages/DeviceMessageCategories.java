@@ -1,9 +1,13 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessageCategory;
+import com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKey;
+import com.energyict.mdc.messages.DeviceMessageSpec;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Serves as a implementation to summarize <b>all</b> the supported standard
@@ -104,6 +108,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(DeviceActionMessage.values());
+        }
+    },
+    /**
+     * The category for all messages that relate to a pricing information
+     */
+    PRICING_INFORMATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(PricingInformationMessage.values());
         }
     },
     /**

@@ -27,7 +27,7 @@ public class DeviceMessageConstants {
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String keyTActivationStatusAttributeName = "SecurityMessage.keyT.activationstatusT";
-    public static final String timeDurationAttributeName = "SecurityMessage.timeduration";
+    public static final String SecurityTimeDurationAttributeName = "SecurityMessage.TimeDuration";
     public static final String executionKeyAttributeName = "SecurityMessage.executionkey";
     public static final String temporaryKeyAttributeName = "SecurityMessage.temporarykey";
     public static final String eventLogResetSealAttributeName = "SecurityMessage.eventlogresetseal";
@@ -58,7 +58,9 @@ public class DeviceMessageConstants {
     public static final String portNumberAttributeName = "NetworkConnectivityMessage.portnumber";
     public static final String wakeupPeriodAttributeName = "NetworkConnectivityMessage.wakeup.period";
     public static final String p1InformationAttributeName = "DisplayDeviceMessage.consumer.p1";
-    public static final String displayMessageAttributeName = "DisplayDeviceMessage.displayMessage";
+    public static final String DisplayMessageAttributeName = "DisplayDeviceMessage.displayMessage";
+    public static final String DisplayMessageTimeDurationAttributeName = "DisplayMessage.TimeDuration";
+    public static final String DisplayMessageActivationDate = "DisplayMessage.ActivationDate";
 
     public static final String readFrequencyInMinutesAttributeName = "LoadBalanceDeviceMessage.parameters.readFrequencyInMinutes";
     public static final String monitoredValueAttributeName = "LoadBalanceDeviceMessage.parameters.monitoredValue";
@@ -163,6 +165,12 @@ public class DeviceMessageConstants {
     public static final String SwitchPointClockUpdateSettings = "ConfigurationChangeDeviceMessage.SwitchPointClockUpdateSettings";
 
     public static final String ConfigurationChangeDate = "ConfigurationChangeDeviceMessage.Date";
+
+    public static final String CalorificValue = "ConfigurationChangeDeviceMessage.CalorificValue";
+    public static final String ConversionFactor = "ConfigurationChangeDeviceMessage.ConversionFactor";
+    public static final String ChangeOfSupplierName = "ConfigurationChangeDeviceMessage.ChangeOfSupplierName";
+    public static final String ChangeOfSupplierID = "ConfigurationChangeDeviceMessage.ChangeOfSupplierID";
+    public static final String ConfigurationChangeActivationDate = "ConfigurationChangeDeviceMessage.ActivationDate";
 
     public static final String SetDialCommandAttributeName = "ModemConfigurationDeviceMessage.SetDialCommand";
     public static final String SetModemInit1AttributeName = "ModemConfigurationDeviceMessage.SetModemInit1";
@@ -341,17 +349,21 @@ public class DeviceMessageConstants {
 
     public static final String INITIATOR_ELECTRICAL_PHASEAttributeName = "PLCConfigurationDeviceMessage.INITIATOR_ELECTRICAL_PHASE";
 
-    public static final String zigBeeConfigurationSASPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.PanId";
-    public static final String zigBeeConfigurationForceRemovalAttributeName = "ZigBeeConfigurationDeviceMessage.ForceRemoval";
-    public static final String zigBeeConfigurationZigBeeLinkKeyAttributeName = "ZigBeeConfigurationDeviceMessage.ZigBeeLinkKey";
-    public static final String zigBeeConfigurationActivationDateAttributeName = "ZigBeeConfigurationDeviceMessage.ActivationDate";
-    public static final String zigBeeConfigurationZigBeeAddressAttributeName = "ZigBeeConfigurationDeviceMessage.ZigBeeIEEEAddress";
-    public static final String zigBeeConfigurationMirrorAddressAttributeName = "ZigBeeConfigurationDeviceMessage.MirrorIEEEAddress";
-    public static final String zigBeeConfigurationFirmwareUpdateUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.UserFile";
-    public static final String zigBeeConfigurationSASInsecureJoinAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.InsecureJoin";
-    public static final String zigBeeConfigurationSASExtendedPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.ExtendedPanId";
-    public static final String zigBeeConfigurationSASPanChannelMaskAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.PanChannelMask";
-    public static final String zigBeeConfigurationHANRestoreUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.HANRestoreUserFile";
+    public static final String ZigBeeConfigurationSASPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.PanId";
+    public static final String ZigBeeConfigurationForceRemovalAttributeName = "ZigBeeConfigurationDeviceMessage.ForceRemoval";
+    public static final String ZigBeeConfigurationZigBeeLinkKeyAttributeName = "ZigBeeConfigurationDeviceMessage.ZigBeeLinkKey";
+    public static final String ZigBeeConfigurationActivationDateAttributeName = "ZigBeeConfigurationDeviceMessage.ActivationDate";
+    public static final String ZigBeeConfigurationZigBeeAddressAttributeName = "ZigBeeConfigurationDeviceMessage.ZigBeeIEEEAddress";
+    public static final String ZigBeeConfigurationMirrorAddressAttributeName = "ZigBeeConfigurationDeviceMessage.MirrorIEEEAddress";
+    public static final String ZigBeeConfigurationFirmwareUpdateUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.UserFile";
+    public static final String ZigBeeConfigurationSASInsecureJoinAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.InsecureJoin";
+    public static final String ZigBeeConfigurationSASExtendedPanIdAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.ExtendedPanId";
+    public static final String ZigBeeConfigurationSASPanChannelMaskAttributeName = "ZigBeeConfigurationDeviceMessage.SAS.PanChannelMask";
+    public static final String ZigBeeConfigurationHANRestoreUserFileAttributeName = "ZigBeeConfigurationDeviceMessage.HANRestoreUserFile";
+
+    public static final String StandingChargeAttributeName = "PricingInformation.StandingCharge";
+    public static final String PricingInformationUserFileAttributeName = "PricingInformation.UserFile";
+    public static final String PricingInformationActivationDateAttributeName = "PricingInformation.ActivationDate";
 
     public static final String alarmFilterAttributeName = "AlarmConfigurationMessage.alarmFilter";
     public static final String configUserFileAttributeName = "GeneralDeviceMessage.configUserFile";

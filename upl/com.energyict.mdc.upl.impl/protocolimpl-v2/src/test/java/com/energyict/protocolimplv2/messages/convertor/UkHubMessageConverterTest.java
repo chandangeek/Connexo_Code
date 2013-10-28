@@ -15,6 +15,8 @@ import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.ZigBeeConfigurationDeviceMessage;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.when;
  * @author sva
  * @since 25/10/13 - 15:17
  */
+@RunWith(MockitoJUnitRunner.class)
 public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
 
     @Test
@@ -148,31 +151,31 @@ public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
                     return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("01/10/2013 00:00:00");
                 case DeviceMessageConstants.toDateAttributeName:
                     return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("15/10/2013 00:00:00");
-                case DeviceMessageConstants.zigBeeConfigurationZigBeeAddressAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
-                case DeviceMessageConstants.zigBeeConfigurationZigBeeLinkKeyAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
                     return "123";
-                case DeviceMessageConstants.zigBeeConfigurationMirrorAddressAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName:
                     return "1";
-                case DeviceMessageConstants.zigBeeConfigurationForceRemovalAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName:
                     return new Boolean(false);
-                case DeviceMessageConstants.zigBeeConfigurationHANRestoreUserFileAttributeName:
-                case DeviceMessageConstants.zigBeeConfigurationFirmwareUpdateUserFileAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
                 case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 case DeviceMessageConstants.UserFileConfigAttributeName:
                     UserFile mockedUserFile = mock(UserFile.class);
                     when(mockedUserFile.getId()).thenReturn(10);
                     return mockedUserFile;
-                case DeviceMessageConstants.zigBeeConfigurationSASExtendedPanIdAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationSASExtendedPanIdAttributeName:
                     return "A";
-                case DeviceMessageConstants.zigBeeConfigurationSASPanIdAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationSASPanIdAttributeName:
                     return "1";
-                case DeviceMessageConstants.zigBeeConfigurationSASPanChannelMaskAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationSASPanChannelMaskAttributeName:
                     return 2;
-                case DeviceMessageConstants.zigBeeConfigurationSASInsecureJoinAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationSASInsecureJoinAttributeName:
                     return new Boolean(true);
                 case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
-                case DeviceMessageConstants.zigBeeConfigurationActivationDateAttributeName:
+                case DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName:
                     return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("28/10/2013 10:30:00");
                 case DeviceMessageConstants.xmlConfigAttributeName:
                     return "<XML>Content</XML>";

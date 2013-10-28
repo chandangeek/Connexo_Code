@@ -11,40 +11,47 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides a summary of all messages related to a <i>Display</i>
+ * Provides a summary of all messages related to pricing
  * <p/>
  * Copyrights EnergyICT
- * Date: 3/04/13
- * Time: 8:38
+ * Date: 11/03/13
+ * Time: 11:59
  */
-public enum DisplayDeviceMessage implements DeviceMessageSpec {
+public enum PricingInformationMessage implements DeviceMessageSpec {
 
-    CONSUMER_MESSAGE_CODE_TO_PORT_P1(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName)),
-    CONSUMER_MESSAGE_TEXT_TO_PORT_P1(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.p1InformationAttributeName)),
-    SET_DISPLAY_MESSAGE(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName)),
-    SET_DISPLAY_MESSAGE_WITH_OPTIONS(
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DisplayMessageAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DisplayMessageTimeDurationAttributeName),
-            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.DisplayMessageActivationDate)
+    ReadPricingInformation,
+    SetPricingInformation(
+            PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
     ),
-    CLEAR_DISPLAY_MESSAGE;
+    SetStandingCharge(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.StandingChargeAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.PricingInformationActivationDateAttributeName)
+    ),
+    UpdatePricingInformation(
+            PropertySpecFactory.userFileReferencePropertySpec(DeviceMessageConstants.PricingInformationUserFileAttributeName)
+    );
 
-    private static final DeviceMessageCategory displayCategory = DeviceMessageCategories.DISPLAY;
+    private static final DeviceMessageCategory category = DeviceMessageCategories.PRICING_INFORMATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private DisplayDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private PricingInformationMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
+    }
+
+    private static String translate(final String key) {
+        return UserEnvironment.getDefault().getTranslation(key);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return displayCategory;
+        return category;
     }
 
     @Override
     public String getName() {
-        return UserEnvironment.getDefault().getTranslation(this.getNameResourceKey());
+        return translate(this.getNameResourceKey());
     }
 
     /**
@@ -54,7 +61,7 @@ public enum DisplayDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return DisplayDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return PricingInformationMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override

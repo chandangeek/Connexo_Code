@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a MessageConverter for the legacy UkHub protocol.
+ * Represents a MessageConverter for the legacy IC UkHub protocol.
  *
  * @author sva
  * @since 25/10/13 - 9:35
@@ -89,12 +89,12 @@ public class UkHubMessageConverter extends AbstractMessageConverter {;
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
-            case DeviceMessageConstants.zigBeeConfigurationActivationDateAttributeName:
+            case DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName:
                 return europeanDateFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.UserFileConfigAttributeName:
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
-            case DeviceMessageConstants.zigBeeConfigurationHANRestoreUserFileAttributeName:
-            case DeviceMessageConstants.zigBeeConfigurationFirmwareUpdateUserFileAttributeName:
+            case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:
+            case DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName:
                 return Integer.toString(((UserFile) messageAttribute).getId());
             default:
                 return messageAttribute.toString();

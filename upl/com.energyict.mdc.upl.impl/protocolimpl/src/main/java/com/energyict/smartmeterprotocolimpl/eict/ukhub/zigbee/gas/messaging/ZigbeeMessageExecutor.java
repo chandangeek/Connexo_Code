@@ -33,9 +33,9 @@ import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
@@ -79,7 +79,6 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
     private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
     private static final String SET_CONVERSION_FACTOR = "SetConversionFactor";
     private static final String SET_PRICE_PER_UNIT = "SetPricePerUnit";
-    private static final String COMMA_SEPARATED_PRICES = "CommaSeparatedPrices";
     private static final String ACTIVATION_DATE_TAG = "ActivationDate";
     private static final String TARIFF_LABEL = "TariffLabel";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
@@ -246,7 +245,7 @@ public class ZigbeeMessageExecutor extends GenericMessageExecutor {
         ActivePassive priceInformation = getCosemObjectFactory().getActivePassive(PRICE_MATRIX_OBISCODE);
         ActivePassive tariffLabel = getCosemObjectFactory().getActivePassive(TARIFF_LABEL_OBISCODE);
 
-        String[] prices = getValueFromXML(COMMA_SEPARATED_PRICES, content).split(",");
+        String[] prices = getIncludedContent(content).trim().split("\r\n");
         String activationDateString = getValueFromXML(ACTIVATION_DATE_TAG, content);
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
