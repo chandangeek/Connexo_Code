@@ -13,7 +13,8 @@ class TaskOccurrenceImpl implements TaskOccurrence {
     private RecurrentTask recurrentTask;
     private UtcInstant triggerTime;
 
-    private TaskOccurrenceImpl() {
+    @SuppressWarnings("unused")
+	private TaskOccurrenceImpl() {
         // for persistence
     }
 

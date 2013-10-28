@@ -9,7 +9,8 @@ public class TaskOccurrenceMessage {
 
     public long taskOccurrenceId;
 
-    private TaskOccurrenceMessage() {
+    @SuppressWarnings("unused")
+	private TaskOccurrenceMessage() {
     }
 
     public TaskOccurrenceMessage(TaskOccurrence taskOccurrence) {

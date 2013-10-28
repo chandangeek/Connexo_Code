@@ -19,7 +19,8 @@ class RecurrentTaskImpl implements RecurrentTask {
     private String destination;
     private transient DestinationSpec destinationSpec;
 
-    private RecurrentTaskImpl() {
+    @SuppressWarnings("unused")
+	private RecurrentTaskImpl() {
         // for persistence
     }
 
