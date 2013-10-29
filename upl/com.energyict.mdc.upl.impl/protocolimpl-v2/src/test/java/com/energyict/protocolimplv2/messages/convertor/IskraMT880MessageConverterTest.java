@@ -8,6 +8,8 @@ import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -18,6 +20,7 @@ import static junit.framework.Assert.assertEquals;
  * @author sva
  * @since 29/10/13 - 8:33
  */
+@RunWith(MockitoJUnitRunner.class)
 public class IskraMT880MessageConverterTest  extends AbstractMessageConverterTest {
 
     @Test

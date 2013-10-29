@@ -292,6 +292,7 @@ public class DeviceMessageConstants {
     public static final String SetMBusEveryAttributeName = "MBusConfigurationDeviceMessage.SetMBusEvery";
     public static final String SetMBusInterFrameTimeAttributeName = "MBusConfigurationDeviceMessage.SetMBusInterFrameTime";
     public static final String SetMBusConfigAttributeName = "MBusConfigurationDeviceMessage.SetMBusConfig";
+    public static final String SetMBusVIFAttributeName = "MBusConfigurationDeviceMessage.MBusVIF";
 
     public static final String openKeyAttributeName = "MBusSetupDeviceMessage.openKey";
     public static final String transferKeyAttributeName = "MBusSetupDeviceMessage.transferKey";
