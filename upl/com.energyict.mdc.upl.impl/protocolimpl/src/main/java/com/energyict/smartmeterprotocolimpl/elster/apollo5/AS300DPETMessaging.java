@@ -1,11 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo5;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.mdw.amr.Register;
-import com.energyict.mdw.amr.RegisterReading;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValueSpec;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300MessageExecutor;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.messaging.AS300Messaging;
 
@@ -63,66 +66,6 @@ public class AS300DPETMessaging extends AS300Messaging {
 
     @Override
     public String writeTag(MessageTag msgTag) {
-
-        //Find RTU's in group, find the public key pairs and put them in the xml message
-        if (msgTag.getName().equals(SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP)) {
-            StringBuilder builder = new StringBuilder();
-
-            // a. Opening tag
-            builder.append("<");
-            builder.append(msgTag.getName());
-            builder.append(">");
-
-            int groupId = -1;
-
-            // b. Attributes
-            for (Object o1 : msgTag.getAttributes()) {
-                MessageAttribute att = (MessageAttribute) o1;
-                if (ID_OF_THE_METER_GROUP.equalsIgnoreCase(att.getSpec().getName())) {
-                    if (att.getValue() != null) {
-                        try {
-                            groupId = Integer.parseInt(att.getValue());
-                        } catch (NumberFormatException e) {
-                            throw new ApplicationException("No group found with ID " + groupId);
-                        }
-                    }
-                }
-            }
-
-            if (groupId > 0) {
-                Group group = mw().getGroupFactory().find(groupId);
-                if (group != null) {
-                    int index = 1;
-                    for (Object o : group.getMembers()) {
-                        Device device = (Device) o;
-                        Register register = device.getRegister(PUBLIC_KEYS_OBISCODE);
-                        if (register != null) {
-                            List<RegisterReading> lastXReadings = register.getLastXReadings(1);
-                            if (lastXReadings.size() > 0) {
-                                String keyPair = lastXReadings.get(0).getText();
-                                addChildTag(builder, KEY + String.valueOf(index), keyPair);
-                                index++;
-                            } else {
-                                throw new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!");
-                            }
-                        } else {
-                            throw new ApplicationException("Rtu with serial number " + device.getSerialNumber() + " doesn't have the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ") defined!");
-                        }
-                    }
-                } else {
-                    throw new ApplicationException("No group found with ID " + groupId);
-                }
-            } else {
-                throw new ApplicationException("Invalid group ID: " + groupId);
-            }
-
-            // d. Closing tag
-            builder.append("</");
-            builder.append(msgTag.getName());
-            builder.append(">");
-            return builder.toString();
-        } else {
-            return super.writeTag(msgTag);
-        }
+        return super.writeTag(msgTag);
     }
 }

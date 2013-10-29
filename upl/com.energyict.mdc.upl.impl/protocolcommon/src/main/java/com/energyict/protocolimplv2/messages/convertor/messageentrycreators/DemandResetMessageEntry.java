@@ -2,7 +2,8 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
 /**
@@ -14,12 +15,14 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  */
 public class DemandResetMessageEntry implements MessageEntryCreator {
 
+    private static final String DEMAND_RESET = "DemandReset";
+
     public DemandResetMessageEntry() {
     }
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        MessageTag messageTag = new MessageTag("DemandReset");
+        MessageTag messageTag = new MessageTag(DEMAND_RESET);
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

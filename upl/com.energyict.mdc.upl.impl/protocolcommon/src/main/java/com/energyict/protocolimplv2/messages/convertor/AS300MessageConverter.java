@@ -36,7 +36,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * @since 28/10/13 - 14:22
  */
 
-public class AS300MessageConverter extends AbstractMessageConverter {;
+public class AS300MessageConverter extends AbstractMessageConverter {
 
     private static final String ActivationDate = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
 
@@ -44,7 +44,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {;
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
 
     static {
 

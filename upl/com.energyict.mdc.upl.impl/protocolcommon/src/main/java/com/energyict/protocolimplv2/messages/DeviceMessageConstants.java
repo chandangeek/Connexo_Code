@@ -47,6 +47,8 @@ public class DeviceMessageConstants {
     public static final String remoteAnalysisParametersConfigSealBreakTimeAttributeName = "SecurityMessage.remoteanalysisparametersconfigseal.breaktime";
     public static final String downloadProgramSealBreakTimeAttributeName = "SecurityMessage.downloadprogramseal.breaktime";
     public static final String restoreDefaultPasswordSealBreakTimeAttributeName = "SecurityMessage.restoredefaultpasswordseal.breaktime";
+    public static final String randomBytesAttributeName = "SecurityMessage.Random32Bytes";
+    public static final String deviceGroupAttributeName = "SecurityMessage.DeviceGroup";
 
     public static final String usernameAttributeName = "username";   // commonly used translation key
     public static final String passwordAttributeName = "password";   // commonly used translation key
