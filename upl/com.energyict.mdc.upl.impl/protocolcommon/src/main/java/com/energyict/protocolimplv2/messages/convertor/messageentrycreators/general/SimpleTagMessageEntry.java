@@ -18,21 +18,21 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 public class SimpleTagMessageEntry implements MessageEntryCreator {
 
     private final String tag;
-    private final boolean includeMessageValue;
+    private final boolean includeSpace;
 
     public SimpleTagMessageEntry(String tag) {
         this(tag, true);
     }
 
-    public SimpleTagMessageEntry(String tag, boolean includeMessageValue) {
+    public SimpleTagMessageEntry(String tag, boolean includeSpace) {
         this.tag = tag;
-        this.includeMessageValue = includeMessageValue;
+        this.includeSpace = includeSpace;
     }
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         MessageTag messageTag = new MessageTag(tag);
-        if (includeMessageValue) {
+        if (includeSpace) {
             messageTag.add(new MessageValue(" "));
         }
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());

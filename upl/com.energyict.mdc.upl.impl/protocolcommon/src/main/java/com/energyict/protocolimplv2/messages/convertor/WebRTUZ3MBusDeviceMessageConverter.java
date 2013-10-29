@@ -7,6 +7,7 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,10 +35,10 @@ public class WebRTUZ3MBusDeviceMessageConverter extends AbstractMessageConverter
         registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
         registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new ConnectControlModeMessageEntry(contactorModeAttributeName));
 
-        registry.put(MBusSetupDeviceMessage.Decommission, new SingleTagMessageEntry(RtuMessageConstant.MBUS_DECOMMISSION));
+        registry.put(MBusSetupDeviceMessage.Decommission, new OneTagMessageEntry(RtuMessageConstant.MBUS_DECOMMISSION));
         registry.put(MBusSetupDeviceMessage.SetEncryptionKeys, new SetMBusEncryptionKeysMessageEntry(openKeyAttributeName, transferKeyAttributeName));
-        registry.put(MBusSetupDeviceMessage.UseCorrectedValues, new SingleTagMessageEntry(RtuMessageConstant.MBUS_CORRECTED_VALUES));
-        registry.put(MBusSetupDeviceMessage.UseUncorrectedValues, new SingleTagMessageEntry(RtuMessageConstant.MBUS_UNCORRECTED_VALUES));
+        registry.put(MBusSetupDeviceMessage.UseCorrectedValues, new OneTagMessageEntry(RtuMessageConstant.MBUS_CORRECTED_VALUES));
+        registry.put(MBusSetupDeviceMessage.UseUncorrectedValues, new OneTagMessageEntry(RtuMessageConstant.MBUS_UNCORRECTED_VALUES));
     }
 
     /**

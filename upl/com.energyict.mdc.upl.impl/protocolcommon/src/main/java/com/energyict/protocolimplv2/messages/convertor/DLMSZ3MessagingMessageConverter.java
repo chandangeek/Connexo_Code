@@ -5,8 +5,8 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SingleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,13 +32,13 @@ public class DLMSZ3MessagingMessageConverter extends AbstractMessageConverter {
         registry.put(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_OUTPUT, new MultipleAttributeMessageEntry(RtuMessageConstant.DISCONNECT_LOAD, RtuMessageConstant.DIGITAL_OUTPUT));
 
         registry.put(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3, new MultipleAttributeMessageEntry("Configure_load_limiting", "Read_frequency", "Threshold", "Duration", "Digital_Output1_Invert", "Digital_Output2_Invert", "Activate_now"));
-        registry.put(LoadBalanceDeviceMessage.ENABLE_LOAD_LIMITING, new SingleTagMessageEntry("Enable_load_limiting"));
-        registry.put(LoadBalanceDeviceMessage.DISABLE_LOAD_LIMITING, new SingleTagMessageEntry("Disable_load_limitng"));
+        registry.put(LoadBalanceDeviceMessage.ENABLE_LOAD_LIMITING, new OneTagMessageEntry("Enable_load_limiting"));
+        registry.put(LoadBalanceDeviceMessage.DISABLE_LOAD_LIMITING, new OneTagMessageEntry("Disable_load_limitng"));
 
         registry.put(PrepaidConfigurationDeviceMessage.AddPrepaidCredit, new MultipleAttributeMessageEntry("Add_Prepaid_credit", "Budget"));
         //TODO add message to configure prepaid, this uses optional attributes!
         registry.put(PrepaidConfigurationDeviceMessage.EnablePrepaid, new MultipleAttributeMessageEntry("Disable_Prepaid_functionality"));
-        registry.put(PrepaidConfigurationDeviceMessage.DisablePrepaid, new SingleTagMessageEntry("Disable_Prepaid_functionality"));
+        registry.put(PrepaidConfigurationDeviceMessage.DisablePrepaid, new OneTagMessageEntry("Disable_Prepaid_functionality"));
     }
 
     public DLMSZ3MessagingMessageConverter() {

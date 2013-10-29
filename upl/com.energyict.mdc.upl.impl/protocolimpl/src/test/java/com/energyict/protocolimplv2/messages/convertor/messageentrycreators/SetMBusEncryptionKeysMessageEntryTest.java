@@ -12,6 +12,7 @@ import com.energyict.protocol.MessageEntry;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +63,7 @@ public class SetMBusEncryptionKeysMessageEntryTest {
         MessageEntry messageEntry = messageEntryConverter.createMessageEntry(messagingProtocol, keyMessage);
         assertEquals("<Set_Encryption_keys Open_Key_Value=\"000102030405060708090A0B0C0D0E0F\" Transfer_Key_Value=\"000102030405060708090A0B0C0D0E0F\"> </Set_Encryption_keys>", messageEntry.getContent());
 
-        messageEntryConverter = new SingleTagMessageEntry(RtuMessageConstant.MBUS_DECOMMISSION);
+        messageEntryConverter = new OneTagMessageEntry(RtuMessageConstant.MBUS_DECOMMISSION);
         messageEntry = messageEntryConverter.createMessageEntry(messagingProtocol, decommissionMessage);
         assertEquals("<Decommission/>", messageEntry.getContent());
     }
