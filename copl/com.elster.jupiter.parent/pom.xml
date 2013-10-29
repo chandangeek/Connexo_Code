@@ -250,6 +250,8 @@
 		        <module>../com.elster.jupiter.install</module>
 		        <module>../com.elster.jupiter.messaging</module>
 		        <module>../com.elster.jupiter.metering</module>
+		        <module>../com.elster.jupiter.extjs</module>
+		        <module>../com.elster.jupiter.unifyingjs</module>
 		        <module>../com.elster.jupiter.metering.extjs</module>
 		        <module>../com.elster.jupiter.metering.rest</module>
 		        <module>../com.elster.jupiter.orm</module>
