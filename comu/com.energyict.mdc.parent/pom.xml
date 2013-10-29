@@ -66,13 +66,9 @@
     <dependencyManagement>
         <dependencies>
             <!-- Project modules -->
+
             <dependency>
-                <groupId>com.energyict.comserver</groupId>
-                <artifactId>comserver-core-common</artifactId>
-                <version>${comserver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict.comserver</groupId>
+                <groupId>com.energyict</groupId>
                 <artifactId>comserver-core-events</artifactId>
                 <version>${comserver.version}</version>
             </dependency>
@@ -82,27 +78,27 @@
                 <version>${comserver.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.energyict.comserver</groupId>
+                <groupId>com.energyict</groupId>
                 <artifactId>comserver-core-persistence</artifactId>
                 <version>${comserver.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.energyict.comserver</groupId>
+                <groupId>com.energyict</groupId>
                 <artifactId>comserver-core-scheduling</artifactId>
                 <version>${comserver.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.energyict.comserver</groupId>
+                <groupId>com.energyict</groupId>
                 <artifactId>comserver-core-execution</artifactId>
                 <version>${comserver.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.energyict.comserver</groupId>
+                <groupId>com.energyict</groupId>
                 <artifactId>comserver-core-monitor</artifactId>
                 <version>${comserver.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.energyict.comserver</groupId>
+                <groupId>com.energyict</groupId>
                 <artifactId>comserver-core-web</artifactId>
                 <version>${comserver.version}</version>
             </dependency>
