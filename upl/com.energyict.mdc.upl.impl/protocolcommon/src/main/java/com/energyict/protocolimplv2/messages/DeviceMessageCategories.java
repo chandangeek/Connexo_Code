@@ -156,7 +156,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         }
     },
     /**
-     * This category summarizes all messages related to a LoadProfile
+     * This category summarizes all messages related to a LoadProfile and their configuration
      */
     LOAD_PROFILES {
         @Override
@@ -165,16 +165,7 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         }
     },
     /**
-     * This category summarizes all messages related to the configuration of a LoadProfile
-     */
-    LOAD_PROFILE_CONFIGURATION {
-        @Override
-        public List<DeviceMessageSpec> getMessageSpecifications() {
-            return Arrays.<DeviceMessageSpec>asList(LoadProfileConfigurationMessage.values());
-        }
-    },
-    /**
-     * This category summarizes all messages related to a LogBook
+     * This category summarizes all messages related to LogBooks and their configuration
      */
     LOG_BOOKS {
         @Override
@@ -279,6 +270,15 @@ public enum DeviceMessageCategories implements DeviceMessageCategory {
         @Override
         public List<DeviceMessageSpec> getMessageSpecifications() {
             return Arrays.<DeviceMessageSpec>asList(OpusConfigurationDeviceMessage.values());
+        }
+    },
+    /**
+     * This category summarizes all messages related to configuring power failures and power quality
+     */
+    POWER_CONFIGURATION {
+        @Override
+        public List<DeviceMessageSpec> getMessageSpecifications() {
+            return Arrays.<DeviceMessageSpec>asList(PowerConfigurationDeviceMessage.values());
         }
     },
     /**

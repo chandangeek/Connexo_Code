@@ -30,6 +30,11 @@ public enum SecurityMessage implements DeviceMessageSpec {
             DeviceMessageConstants.authenticationLevelAttributeName,
             DlmsAuthenticationLevelMessageValues.getNames())),
     CHANGE_ENCRYPTION_KEY,
+    CHANGE_CLIENT_PASSWORDS(
+            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newReadingClientPasswordAttributeName, 8),
+            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newManagementClientPasswordAttributeName, 8),
+            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newFirmwareClientPasswordAttributeName, 8)
+    ),
     WRITE_PSK(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.pskAttributeName)),
     CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
     CHANGE_AUTHENTICATION_KEY,

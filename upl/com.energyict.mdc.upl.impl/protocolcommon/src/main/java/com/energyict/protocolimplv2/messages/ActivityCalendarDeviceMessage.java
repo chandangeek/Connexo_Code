@@ -23,6 +23,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public enum ActivityCalendarDeviceMessage implements DeviceMessageSpec {
 
     ACTIVITY_CALENDAR_READ,
+    WRITE_CONTRACTS_FROM_XML_USERFILE(PropertySpecFactory.userFileReferencePropertySpec(contractsXmlUserFileAttributeName)),
     ACTIVITY_CALENDER_SEND(PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),
             PropertySpecFactory.codeTableReferencePropertySpec(activityCalendarCodeTableAttributeName)),
     ACTIVITY_CALENDER_SEND_WITH_DATETIME(PropertySpecFactory.stringPropertySpec(activityCalendarNameAttributeName),

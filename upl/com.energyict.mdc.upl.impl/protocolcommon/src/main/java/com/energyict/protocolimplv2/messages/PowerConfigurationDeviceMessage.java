@@ -8,39 +8,33 @@ import com.energyict.mdc.messages.*;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
-
 /**
- * Provides a summary of all <i>Clock</i> related messages
- * <p/>
  * Copyrights EnergyICT
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ClockDeviceMessage implements DeviceMessageSpec {
+public enum PowerConfigurationDeviceMessage implements DeviceMessageSpec {
 
-    SET_TIME(PropertySpecFactory.datePropertySpec(meterTimeAttributeName)),
-    SET_TIMEZONE(PropertySpecFactory.bigDecimalPropertySpec(TimeZoneOffsetInHoursAttributeName)),     //In hours
+    IEC1107LimitPowerQuality(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.powerQualityThresholdAttributeName)),
+    SetReferenceVoltage(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ReferenceVoltageAttributeName)),
+    SetVoltageSagTimeThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagTimeThresholdAttributeName)),
+    SetVoltageSwellTimeThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName)),
+    SetVoltageSagThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSagThresholdAttributeName)),
+    SetVoltageSwellThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.VoltageSwellThresholdAttributeName)),
+    SetLongPowerFailureTimeThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName)),
+    SetLongPowerFailureThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.LongPowerFailureThresholdAttributeName));
 
-    //EIWeb messages
-    SetDST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDSTAttributeName)),
-    SetTimezone(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimezoneAttributeName)),
-    SetTimeAdjustment(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetTimeAdjustmentAttributeName)),
-    SetNTPServer(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPServerAttributeName)),
-    SetRefreshClockEvery(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetRefreshClockEveryAttributeName)),
-    SetNTPOptions(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetNTPOptionsAttributeName));
-
-    private static final DeviceMessageCategory clockCategory = DeviceMessageCategories.CLOCK;
+    private static final DeviceMessageCategory category = DeviceMessageCategories.POWER_CONFIGURATION;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 
-    private ClockDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
+    private PowerConfigurationDeviceMessage(PropertySpec... deviceMessagePropertySpecs) {
         this.deviceMessagePropertySpecs = Arrays.asList(deviceMessagePropertySpecs);
     }
 
     @Override
     public DeviceMessageCategory getCategory() {
-        return clockCategory;
+        return category;
     }
 
     @Override
@@ -55,7 +49,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpec {
      * @return The resource key
      */
     private String getNameResourceKey() {
-        return ClockDeviceMessage.class.getSimpleName() + "." + this.toString();
+        return PowerConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
     @Override
@@ -77,4 +71,4 @@ public enum ClockDeviceMessage implements DeviceMessageSpec {
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
     }
-    }
+}

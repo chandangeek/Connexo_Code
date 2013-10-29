@@ -6,6 +6,7 @@ import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
- * Provides a summary of all DeviceMessages related to LoadProfiles
+ * Provides a summary of all DeviceMessages related to LoadProfiles and their configuration
  * <p/>
  * Copyrights EnergyICT
  * Date: 2/05/13
@@ -30,6 +31,9 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
     ResetActiveExportLP(),
     ResetDailyProfile(),
     ResetMonthlyProfile(),
+    WRITE_CAPTURE_PERIOD_LP1(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
+    WRITE_CAPTURE_PERIOD_LP2(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
+    WriteConsumerProducerMode(PropertySpecFactory.stringPropertySpecWithValues(consumerProducerModeAttributeName, LoadProfileMode.getAllDescriptions())),
     LOAD_PROFILE_REGISTER_REQUEST(
             PropertySpecFactory.loadProfilePropertySpec(loadProfileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName)

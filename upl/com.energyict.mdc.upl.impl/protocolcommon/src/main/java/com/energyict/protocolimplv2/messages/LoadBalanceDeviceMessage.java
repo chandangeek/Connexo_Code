@@ -29,6 +29,15 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
 
+    WriteControlThresholds(
+            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold1dAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold2dAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold3dAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold4dAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold5dAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(controlThreshold6dAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(activationDatedAttributeName)),
+    SetDemandCloseToContractPowerThreshold(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DemandCloseToContractPowerThresholdAttributeName)),
     CONFIGURE_LOAD_LIMIT_PARAMETERS(
             PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyThresholdAttributeName),

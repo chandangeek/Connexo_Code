@@ -21,6 +21,7 @@ public class DeviceMessageConstants {
     public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
     public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
+    public static final String contractsXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.contractsXmlUserFile";
     public static final String specialDaysCodeTableAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
     public static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
     public static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
@@ -42,6 +43,9 @@ public class DeviceMessageConstants {
     public static final String remoteAnalysisParametersConfigSealAttributeName = "SecurityMessage.remoteanalysisparametersconfigseal";
     public static final String downloadProgramSealAttributeName = "SecurityMessage.downloadprogramseal";
     public static final String restoreDefaultPasswordSealAttributeName = "SecurityMessage.restoredefaultpasswordseal";
+    public static final String newReadingClientPasswordAttributeName = "SecurityMessage.newReadingClientPassword";
+    public static final String newManagementClientPasswordAttributeName = "SecurityMessage.newManagementClientPassword";
+    public static final String newFirmwareClientPasswordAttributeName = "SecurityMessage.newFirmwareClientPassword";
 
     public static final String eventLogResetSealBreakTimeAttributeName = "SecurityMessage.eventlogresetseal.breaktime";
     public static final String restoreFactorySettingsSealBreakTimeAttributeName = "SecurityMessage.restorefactorysettingsseal.breaktime";
@@ -68,9 +72,17 @@ public class DeviceMessageConstants {
     public static final String DisplayMessageTimeDurationAttributeName = "DisplayMessage.TimeDuration";
     public static final String DisplayMessageActivationDate = "DisplayMessage.ActivationDate";
 
+    public static final String DemandCloseToContractPowerThresholdAttributeName = "LoadBalanceDeviceMessage.DemandCloseToContractPowerThreshold";
     public static final String readFrequencyInMinutesAttributeName = "LoadBalanceDeviceMessage.parameters.readFrequencyInMinutes";
     public static final String monitoredValueAttributeName = "LoadBalanceDeviceMessage.parameters.monitoredValue";
     public static final String normalThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.normalthreshold";
+    public static final String controlThreshold1dAttributeName = "LoadBalanceDeviceMessage.controlThreshold1";
+    public static final String controlThreshold2dAttributeName = "LoadBalanceDeviceMessage.controlThreshold2";
+    public static final String controlThreshold3dAttributeName = "LoadBalanceDeviceMessage.controlThreshold3";
+    public static final String controlThreshold4dAttributeName = "LoadBalanceDeviceMessage.controlThreshold4";
+    public static final String controlThreshold5dAttributeName = "LoadBalanceDeviceMessage.controlThreshold5";
+    public static final String controlThreshold6dAttributeName = "LoadBalanceDeviceMessage.controlThreshold6";
+    public static final String activationDatedAttributeName = "LoadBalanceDeviceMessage.activationDate";
     public static final String emergencyThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.emergencythreshold";
     public static final String overThresholdDurationAttributeName = "LoadBalanceDeviceMessage.parameters.overthresholdduration";
     public static final String underThresholdDurationAttributeName = "LoadBalanceDeviceMessage.parameters.underthresholdduration";
@@ -123,6 +135,7 @@ public class DeviceMessageConstants {
 
     public static final String SetDSTAttributeName = "ClockDeviceMessage.SetDST";
     public static final String SetTimezoneAttributeName = "ClockDeviceMessage.SetTimezone";
+    public static final String TimeZoneOffsetInHoursAttributeName = "ClockDeviceMessage.GMTOffsetInHours";
     public static final String SetTimeAdjustmentAttributeName = "ClockDeviceMessage.SetTimeAdjustment";
     public static final String SetNTPServerAttributeName = "ClockDeviceMessage.SetNTPServer";
     public static final String SetRefreshClockEveryAttributeName = "ClockDeviceMessage.SetRefreshClockEvery";
@@ -279,6 +292,14 @@ public class DeviceMessageConstants {
     public static final String SetOpusTimeoutAttributeName = "OpusConfigurationDeviceMessage.SetOpusTimeout";
     public static final String SetOpusConfigAttributeName = "OpusConfigurationDeviceMessage.SetOpusConfig";
 
+    public static final String ReferenceVoltageAttributeName = "PowerConfigurationDeviceMessage.ReferenceVoltage";
+    public static final String VoltageSagTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.VoltageSagTimeThreshold";
+    public static final String VoltageSwellTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.VoltageSwellTimeThreshold";
+    public static final String VoltageSagThresholdAttributeName = "PowerConfigurationDeviceMessage.VoltageSagThreshold";
+    public static final String VoltageSwellThresholdAttributeName = "PowerConfigurationDeviceMessage.VoltageSwellThreshold";
+    public static final String LongPowerFailureTimeThresholdAttributeName = "PowerConfigurationDeviceMessage.LongPowerFailureTimeThreshold";
+    public static final String LongPowerFailureThresholdAttributeName = "PowerConfigurationDeviceMessage.LongPowerFailureThreshold";
+
     public static final String SetMmEveryAttributeName = "ModbusConfigurationDeviceMessage.SetMmEvery";
     public static final String SetMmTimeoutAttributeName = "ModbusConfigurationDeviceMessage.SetMmTimeout";
     public static final String SetMmInstantAttributeName = "ModbusConfigurationDeviceMessage.SetMmInstant";
@@ -317,6 +338,11 @@ public class DeviceMessageConstants {
     public static final String IEC1107ClassIdAttributeName = "GeneralDeviceMessage.IEC1107ClassId";
     public static final String OffsetAttributeName = "GeneralDeviceMessage.Offset";
     public static final String RawDataAttributeName = "GeneralDeviceMessage.RawData";
+
+    public static final String MulticastAddress1AttributeName = "PLCConfigurationDeviceMessage.MulticastAddress1";
+    public static final String MulticastAddress2AttributeName = "PLCConfigurationDeviceMessage.MulticastAddress2";
+    public static final String MulticastAddress3AttributeName = "PLCConfigurationDeviceMessage.MulticastAddress3";
+
     public static final String ActiveChannelAttributeName = "PLCConfigurationDeviceMessage.ActiveChannel";
     public static final String CHANNEL1_FSAttributeName = "PLCConfigurationDeviceMessage.CHANNEL1_FS";
     public static final String CHANNEL1_FMAttributeName = "PLCConfigurationDeviceMessage.CHANNEL1_FM";

@@ -16,6 +16,10 @@ import java.util.List;
 public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
 
     ForceManualRescanPLCBus(),
+    SetMulticastAddresses(
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.MulticastAddress1AttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.MulticastAddress2AttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.MulticastAddress3AttributeName)),
     SetActivePlcChannel(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ActiveChannelAttributeName)),
     SetPlcChannelFrequencies(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CHANNEL1_FSAttributeName),

@@ -33,7 +33,7 @@ public class A1440MessageConverter extends AbstractMessageConverter {
         registry.put(ContactorDeviceMessage.CONTACTOR_ARM, new ArmLoadMessageEntry());
 
         // power quality limit related
-        registry.put(ConfigurationChangeDeviceMessage.IEC1107LimitPowerQuality, new PowerQualityLimitMessageEntry(powerQualityThresholdAttributeName));
+        registry.put(PowerConfigurationDeviceMessage.IEC1107LimitPowerQuality, new PowerQualityLimitMessageEntry(powerQualityThresholdAttributeName));
 
         // reset messages
         registry.put(DeviceActionMessage.DEMAND_RESET, new DemandResetMessageEntry());

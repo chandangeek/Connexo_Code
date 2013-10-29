@@ -5,18 +5,8 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileConfigurationMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ContactorControlWithActivationDateAndTimezoneMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDaysMessageEntry;
+import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileMessageEntry;
@@ -25,10 +15,7 @@ import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -70,8 +57,8 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         registry.put(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS, new MultipleAttributeMessageEntry("LoadControlledConnect", getLimiterAttributes()));
         registry.put(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR, new MultipleAttributeMessageEntry("SuperVision", "Phase (1, 2 or 3)", " Threshold (ampere)"));
 
-        registry.put(LoadProfileConfigurationMessage.WRITE_CAPTURE_PERIOD_LP1, new MultipleAttributeMessageEntry("WriteLP1CapturePeriod", "Capture period (seconds)"));
-        registry.put(LoadProfileConfigurationMessage.WRITE_CAPTURE_PERIOD_LP2, new MultipleAttributeMessageEntry("WriteLP2CapturePeriod", "Capture period (seconds)"));
+        registry.put(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1, new MultipleAttributeMessageEntry("WriteLP1CapturePeriod", "Capture period (seconds)"));
+        registry.put(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP2, new MultipleAttributeMessageEntry("WriteLP2CapturePeriod", "Capture period (seconds)"));
         //TODO: write LP captured objects, this uses optional property specs
 
         registry.put(MBusSetupDeviceMessage.Commission, new SimpleTagMessageEntry("SlaveCommission"));

@@ -18,7 +18,6 @@ import java.util.List;
  */
 public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
 
-    IEC1107LimitPowerQuality(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.powerQualityThresholdAttributeName)),
     WriteExchangeStatus(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
     WriteRadioAcknowledge(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge)),
     WriteRadioUserTimeout(PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
@@ -75,7 +74,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ChangeOfSupplierName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ChangeOfSupplierID),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
-            ),
+    ),
     ChangeOfTenancy(PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)),
     SetCalorificValue(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CalorificValue),

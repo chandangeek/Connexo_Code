@@ -62,8 +62,8 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
         registry.put(LoadProfileMessage.ResetDailyProfile, new SimpleTagMessageEntry("ResetDailyProfile"));
         registry.put(LoadProfileMessage.ResetMonthlyProfile, new SimpleTagMessageEntry("ResetMonthlyProfile"));
 
-        registry.put(LoadProfileConfigurationMessage.WRITE_CAPTURE_PERIOD_LP1, new MultipleAttributeMessageEntry("WriteProfileInterval", "IntervalInSeconds"));
-        registry.put(LoadProfileConfigurationMessage.WriteConsumerProducerMode, new MultipleAttributeMessageEntry("WriteConsumerProducerMode", "Mode"));
+        registry.put(LoadProfileMessage.WRITE_CAPTURE_PERIOD_LP1, new MultipleAttributeMessageEntry("WriteProfileInterval", "IntervalInSeconds"));
+        registry.put(LoadProfileMessage.WriteConsumerProducerMode, new MultipleAttributeMessageEntry("WriteConsumerProducerMode", "Mode"));
 
         registry.put(AdvancedTestMessage.LogObjectList, new SimpleTagMessageEntry("LogObjectList"));
         registry.put(ClockDeviceMessage.SET_TIME, new MultipleAttributeMessageEntry("WriteClockDateTime", "DateTime"));
