@@ -826,7 +826,7 @@ public class SmartWebRtuKpMessageConverterTest {
         final SmartWebRtuKpMessageConverter smartWebRtuKpMessageConverter = new SmartWebRtuKpMessageConverter();
         smartWebRtuKpMessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage activateSmsWakeUp = mock(OfflineDeviceMessage.class);
-        when(activateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ACTIVATE_SMS_WAKEUP.getPrimaryKey());
+        when(activateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM.getPrimaryKey());
 
         // business method
         final MessageEntry messageEntry = smartWebRtuKpMessageConverter.toMessageEntry(activateSmsWakeUp);

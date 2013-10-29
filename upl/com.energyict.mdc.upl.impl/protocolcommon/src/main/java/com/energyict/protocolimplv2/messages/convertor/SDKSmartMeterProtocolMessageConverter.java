@@ -14,8 +14,6 @@ import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
-import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadProfileMessage;
@@ -52,6 +50,8 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlC
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.LoadProfileRegisterRequestMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
+import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -103,7 +103,7 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
         registry.put(SecurityMessage.CHANGE_PASSWORD, new ChangeHLSSecretMessageEntry());
 
         // network and connectivity
-        registry.put(NetworkConnectivityMessage.ACTIVATE_SMS_WAKEUP, new ActivateNTASmsWakeUpMessageEntry());
+        registry.put(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM, new ActivateNTASmsWakeUpMessageEntry());
         registry.put(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP, new DeactivateNTASmsWakeUpMessageEntry());
         registry.put(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS, new GprsUserCredentialsMessageEntry(usernameAttributeName, passwordAttributeName));
         registry.put(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS, new ApnCredentialsMessageEntry(apnAttributeName, usernameAttributeName, passwordAttributeName));

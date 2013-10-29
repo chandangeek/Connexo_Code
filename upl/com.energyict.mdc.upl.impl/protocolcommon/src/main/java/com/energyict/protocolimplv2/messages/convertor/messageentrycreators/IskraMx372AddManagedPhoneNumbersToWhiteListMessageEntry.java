@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocol.messaging.Messaging;
@@ -16,14 +15,14 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Date: 2/04/13
  * Time: 12:14
  */
-public class AddPhoneNumbersToWhiteListMessageEntry implements MessageEntryCreator {
+public class IskraMx372AddManagedPhoneNumbersToWhiteListMessageEntry implements MessageEntryCreator {
 
-    private static final String PHONENUMBER = "Phonenumber";
+    private static final String MANAGED_PHONENUMBER = "ManagedPhonenumber";
     private static final String PHONE_NUMBER_SEPARATOR = ";";
 
     private final String phoneNumbersAttributeName;
 
-    public AddPhoneNumbersToWhiteListMessageEntry(String phoneNumbersAttributeName) {
+    public IskraMx372AddManagedPhoneNumbersToWhiteListMessageEntry(String phoneNumbersAttributeName) {
         this.phoneNumbersAttributeName = phoneNumbersAttributeName;
     }
 
@@ -34,9 +33,10 @@ public class AddPhoneNumbersToWhiteListMessageEntry implements MessageEntryCreat
         final String[] allPhoneNumbers = phoneNumbers.getDeviceMessageAttributeValue().split(PHONE_NUMBER_SEPARATOR);
         int counter = 1;
         for (String number : allPhoneNumbers) {
-            messageTag.add(new MessageAttribute(PHONENUMBER + counter++, number.trim()));
+            MessageTag innerTag = new MessageTag(MANAGED_PHONENUMBER + counter++);
+            innerTag.add(new MessageValue(number.trim()));
+            messageTag.add(innerTag);
         }
-        messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
 }

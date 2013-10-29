@@ -15,7 +15,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Creates a MessageEntry consisting of a tag with the content of a UserFile included as value, as is used for the IEC1107 ABBA1350 protocol
  *
  * @author sva
- * @since 245/10/13 - 9:42
+ * @since 25/10/13 - 9:42
  */
 public class ABBA1350UserFileMessageEntry implements MessageEntryCreator {
 

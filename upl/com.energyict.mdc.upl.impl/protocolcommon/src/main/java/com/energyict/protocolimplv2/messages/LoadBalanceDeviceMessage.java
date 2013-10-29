@@ -44,14 +44,16 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.timeDurationPropertySpec(overThresholdDurationAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileIdAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileActivationDateAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileDurationAttributeName)),
+            PropertySpecFactory.bigDecimalPropertySpec(emergencyProfileDurationAttributeName)
+    ),
     CONFIGURE_LOAD_LIMIT_PARAMETERS_Z3(
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(readFrequencyInMinutesAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
             PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(overThresholdDurationAttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(invertDigitalOutput1AttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(invertDigitalOutput2AttributeName),
-            PropertySpecFactory.notNullableBooleanPropertySpec(activateNowAttributeName)),
+            PropertySpecFactory.notNullableBooleanPropertySpec(activateNowAttributeName)
+    ),
     CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS(
             PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(monitoredValueAttributeName, MonitoredValue.TotalInstantCurrent.getDescription(), MonitoredValue.getAllDescriptions()),
             PropertySpecFactory.bigDecimalPropertySpec(normalThresholdAttributeName),
@@ -62,10 +64,22 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.dateTimePropertySpec(emergencyProfileActivationDateAttributeName),
             PropertySpecFactory.timeDurationPropertySpec(emergencyProfileDurationAttributeName),
             PropertySpecFactory.stringPropertySpec(emergencyProfileGroupIdListAttributeName),      //List of values, comma separated
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(actionWhenUnderThresholdAttributeName, LoadControlActions.Nothing.getDescription(), LoadControlActions.getAllDescriptions())),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(actionWhenUnderThresholdAttributeName, LoadControlActions.Nothing.getDescription(), LoadControlActions.getAllDescriptions())
+    ),
+    CONFIGURE_LOAD_LIMIT_PARAMETERS_FOR_GROUP(
+            PropertySpecFactory.bigDecimalPropertySpec(loadLimitGroupIDAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(powerLimitThresholdAttributeName),
+            PropertySpecFactory.bigDecimalPropertySpec(contractualPowerLimitAttributeName)
+    ),
     SET_EMERGENCY_PROFILE_GROUP_IDS(PropertySpecFactory.lookupPropertySpec(emergencyProfileGroupIdListAttributeName)),
     CLEAR_LOAD_LIMIT_CONFIGURATION(),
+    CLEAR_LOAD_LIMIT_CONFIGURATION_FOR_GROUP(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.loadLimitGroupIDAttributeName)),
     ENABLE_LOAD_LIMITING(),
+    ENABLE_LOAD_LIMITING_FOR_GROUP(
+            PropertySpecFactory.bigDecimalPropertySpec(loadLimitGroupIDAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(loadLimitStartDateAttributeName),
+            PropertySpecFactory.dateTimePropertySpec(loadLimitEndDateAttributeName)
+    ),
     DISABLE_LOAD_LIMITING(),
     CONFIGURE_SUPERVISION_MONITOR(
             PropertySpecFactory.bigDecimalPropertySpecWithValues(phaseAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2), BigDecimal.valueOf(3)),

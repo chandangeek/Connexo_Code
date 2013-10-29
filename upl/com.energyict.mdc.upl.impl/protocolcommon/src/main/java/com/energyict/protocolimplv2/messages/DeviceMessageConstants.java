@@ -62,11 +62,13 @@ public class DeviceMessageConstants {
     public static final String passwordAttributeName = "password";   // commonly used translation key
     public static final String apnAttributeName = "NetworkConnectivityMessage.apn";
     public static final String whiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.whitelist.phonenumbers";
+    public static final String managedWhiteListPhoneNumbersAttributeName = "NetworkConnectivityMessage.managed.whitelist.phonenumbers";
     public static final String smsCenterPhoneNumberAttributeName = "NetworkConnectivityMessage.smscenter.phonenumber";
     public static final String devicePhoneNumberAttributeName = "NetworkConnectivityMessage.device.phonenumber";
     public static final String ipAddressAttributeName = "NetworkConnectivityMessage.ipaddress";
     public static final String portNumberAttributeName = "NetworkConnectivityMessage.portnumber";
     public static final String wakeupPeriodAttributeName = "NetworkConnectivityMessage.wakeup.period";
+    public static final String inactivityTimeoutAttributeName = "NetworkConnectivityMessage.inactivity.timeout";
     public static final String p1InformationAttributeName = "DisplayDeviceMessage.consumer.p1";
     public static final String DisplayMessageAttributeName = "DisplayDeviceMessage.displayMessage";
     public static final String DisplayMessageTimeDurationAttributeName = "DisplayMessage.TimeDuration";
@@ -94,6 +96,11 @@ public class DeviceMessageConstants {
     public static final String invertDigitalOutput1AttributeName = "LoadBalanceDeviceMessage.invertDigitalOutput1";
     public static final String invertDigitalOutput2AttributeName = "LoadBalanceDeviceMessage.invertDigitalOutput2";
     public static final String activateNowAttributeName = "LoadBalanceDeviceMessage.activateNow";
+    public static final String loadLimitGroupIDAttributeName = "LoadBalanceDeviceMessage.groupID";
+    public static final String loadLimitStartDateAttributeName = "LoadBalanceDeviceMessage.StartDate";
+    public static final String loadLimitEndDateAttributeName = "LoadBalanceDeviceMessage.EndDate";
+    public static final String powerLimitThresholdAttributeName = "LoadBalanceDeviceMessage.PowerLimitThreshold";
+    public static final String contractualPowerLimitAttributeName = "LoadBalanceDeviceMessage.ContractualPowerLimit";
 
     public static final String phaseAttributeName = "LoadBalanceDeviceMessage.phase";
     public static final String thresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.thresholdInAmpere";

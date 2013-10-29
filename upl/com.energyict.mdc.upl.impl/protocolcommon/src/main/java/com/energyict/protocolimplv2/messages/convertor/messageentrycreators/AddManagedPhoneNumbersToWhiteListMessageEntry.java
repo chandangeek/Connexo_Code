@@ -16,14 +16,14 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Date: 2/04/13
  * Time: 12:14
  */
-public class AddPhoneNumbersToWhiteListMessageEntry implements MessageEntryCreator {
+public class AddManagedPhoneNumbersToWhiteListMessageEntry implements MessageEntryCreator {
 
-    private static final String PHONENUMBER = "Phonenumber";
+    private static final String MANAGED_PHONENUMBER = "ManagedPhonenumber";
     private static final String PHONE_NUMBER_SEPARATOR = ";";
 
     private final String phoneNumbersAttributeName;
 
-    public AddPhoneNumbersToWhiteListMessageEntry(String phoneNumbersAttributeName) {
+    public AddManagedPhoneNumbersToWhiteListMessageEntry(String phoneNumbersAttributeName) {
         this.phoneNumbersAttributeName = phoneNumbersAttributeName;
     }
 
@@ -34,7 +34,7 @@ public class AddPhoneNumbersToWhiteListMessageEntry implements MessageEntryCreat
         final String[] allPhoneNumbers = phoneNumbers.getDeviceMessageAttributeValue().split(PHONE_NUMBER_SEPARATOR);
         int counter = 1;
         for (String number : allPhoneNumbers) {
-            messageTag.add(new MessageAttribute(PHONENUMBER + counter++, number.trim()));
+            messageTag.add(new MessageAttribute(MANAGED_PHONENUMBER + counter++, number.trim()));
         }
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
