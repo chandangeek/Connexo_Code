@@ -1,0 +1,164 @@
+{"rows": [
+    {
+        "version": "MSIE 6.0",
+        "vendor": "MSIE",
+        "usage": 10.85,
+        "color": "#2f7ed8"
+    },
+    {
+        "version": "MSIE 7.0",
+        "vendor": "MSIE",
+        "usage": 7.35,
+        "color": "#2f7ed8"
+    },
+    {
+        "version": "MSIE 8.0",
+        "vendor": "MSIE",
+        "usage": 33.06,
+        "color": "#2f7ed8"
+    },
+    {
+        "version": "MSIE 9.0",
+        "vendor": "MSIE",
+        "usage": 2.81,
+        "color": "#2f7ed8"
+    },
+    {
+        "version": "Firefox 2.0",
+        "vendor": "Firefox",
+        "usage": 0.2,
+        "color": "#0d233a"
+    },
+    {
+        "version": "Firefox 3.0",
+        "vendor": "Firefox",
+        "usage": 0.83,
+        "color": "#0d233a"
+    },
+    {
+        "version": "Firefox 3.5",
+        "vendor": "Firefox",
+        "usage": 1.58,
+        "color": "#0d233a"
+    },
+    {
+        "version": "Firefox 3.6",
+        "vendor": "Firefox",
+        "usage": 13.12,
+        "color": "#0d233a"
+    },
+    {
+        "version": "Firefox 4.0",
+        "vendor": "Firefox",
+        "usage": 5.43,
+        "color": "#0d233a"
+    },
+    {
+        "version": "Chrome 5.0",
+        "vendor": "Chrome",
+        "usage": 0.12,
+        "color": "#8bbc21"
+    },
+    {
+        "version": "Chrome 6.0",
+        "vendor": "Chrome",
+        "usage": 0.19,
+        "color": "#8bbc21"
+    },
+    {
+        "version": "Chrome 7.0",
+        "vendor": "Chrome",
+        "usage": 0.12,
+        "color": "#8bbc21"
+    },
+    {
+        "version": "Chrome 8.0",
+        "vendor": "Chrome",
+        "usage": 0.36,
+        "color": "#8bbc21"
+    },
+    {
+        "version": "Chrome 9.0",
+        "vendor": "Chrome",
+        "usage": 0.32,
+        "color": "#8bbc21"
+    },
+    {
+        "version": "Chrome 10.0",
+        "vendor": "Chrome",
+        "usage": 9.91,
+        "color": "#8bbc21"
+    },
+    {
+        "version": "Chrome 11.0",
+        "vendor": "Chrome",
+        "usage": 0.5,
+        "color": "#8bbc21"
+    },
+    {
+        "version": "Chrome 12.0",
+        "vendor": "Chrome",
+        "usage": 0.22,
+        "color": "#8bbc21"
+    },
+    {
+        "version": "Safari 5.0",
+        "vendor": "Safari",
+        "usage": 4.55,
+        "color": "#910000"
+    },
+    {
+        "version": "Safari 4.0",
+        "vendor": "Safari",
+        "usage": 1.42,
+        "color": "#910000"
+    },
+    {
+        "version": "Safari Win 5.0",
+        "vendor": "Safari",
+        "usage": 0.23,
+        "color": "#910000"
+    },
+    {
+        "version": "Safari 4.1",
+        "vendor": "Safari",
+        "usage": 0.21,
+        "color": "#910000"
+    },
+    {
+        "version": "Safari\/Maxthon",
+        "vendor": "Safari",
+        "usage": 0.2,
+        "color": "#910000"
+    },
+    {
+        "version": "Safari 3.1",
+        "vendor": "Safari",
+        "usage": 0.19,
+        "color": "#910000"
+    },
+    {
+        "version": "Safari 4.1",
+        "vendor": "Safari",
+        "usage": 0.14,
+        "color": "#910000"
+    },
+    {
+        "version": "Opera 9.x",
+        "vendor": "Opera",
+        "usage": 0.12,
+        "color": "#1aadce"
+    },
+    {
+        "version": "Opera 10.x",
+        "vendor": "Opera",
+        "usage": 0.37,
+        "color": "#1aadce"
+    },
+    {
+        "version": "Opera 11.x",
+        "vendor": "Opera",
+        "usage": 1.65,
+        "color": "#1aadce"
+    }
+]}
