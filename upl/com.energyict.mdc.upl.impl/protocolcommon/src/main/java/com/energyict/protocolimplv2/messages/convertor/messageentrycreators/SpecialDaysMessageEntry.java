@@ -19,19 +19,30 @@ import java.io.IOException;
  * Date: 12/03/13
  * Time: 14:59
  */
-public class IDISSpecialDaysMessageEntry implements MessageEntryCreator {
+public class SpecialDaysMessageEntry implements MessageEntryCreator {
 
     private final String codeIdAttributeName;
+    private final String typeAttributeName;
 
-    public IDISSpecialDaysMessageEntry(String codeIdAttributeName) {
+    public SpecialDaysMessageEntry(String codeIdAttributeName) {
+        this(null, codeIdAttributeName);
+    }
+
+    public SpecialDaysMessageEntry(String typeAttributeName, String codeIdAttributeName) {
+        this.typeAttributeName = typeAttributeName;
         this.codeIdAttributeName = codeIdAttributeName;
     }
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, codeIdAttributeName).getDeviceMessageAttributeValue();
+        String type = "Special_Days";
+        if (typeAttributeName != null) {
+            String prefix = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, typeAttributeName).getDeviceMessageAttributeValue();
+            type = prefix + type;
+        }
 
-        MessageTag mainTag = new MessageTag("Special_Days");
+        MessageTag mainTag = new MessageTag(type);
         MessageTag subTag = new MessageTag("RawContent");
         subTag.add(new MessageValue(encode(codeTableDescription)));
         mainTag.add(subTag);

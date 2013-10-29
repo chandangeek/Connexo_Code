@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.messages;
+package com.energyict.protocolimplv2.messages.enums;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -6,34 +6,19 @@ package com.energyict.protocolimplv2.messages.enums;
  * Time: 17:27
  * Author: khe
  */
-public enum LoadControlActions {
+public enum ActivityCalendarType {
 
-    Nothing(0, "Nothing"),
-    Reconnect(2, "Reconnect");
+    PublicNetwork("PublicNetwork"),
+    Provider("Provider");
 
     private final String description;
-    private final int id;
 
-    LoadControlActions(int id, String description) {
-        this.id = id;
+    ActivityCalendarType(String description) {
         this.description = description;
     }
 
     public String getDescription() {
         return description;
-    }
-
-    public static int fromDescription(String description) {
-        for (LoadControlActions actions : values()) {
-            if (actions.description.equals(description)) {
-                return actions.getId();
-            }
-        }
-        return -1;
-    }
-
-    public int getId() {
-        return id;
     }
 
     public static String[] getAllDescriptions() {

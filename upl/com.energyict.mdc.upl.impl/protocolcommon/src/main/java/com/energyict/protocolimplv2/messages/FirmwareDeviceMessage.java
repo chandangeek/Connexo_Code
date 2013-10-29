@@ -22,16 +22,23 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public enum FirmwareDeviceMessage implements DeviceMessageSpec {
 
     UPGRADE_FIRMWARE_WITH_USER_FILE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION(
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName)),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION_AND_TYPE(
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(resumeFirmwareUpdateAttributeName),
+            PropertySpecFactory.notNullableBooleanPropertySpec(plcTypeFirmwareUpdateAttributeName)),
     UPGRADE_FIRMWARE_ACTIVATE(PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
-    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
+    UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE(
+            PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),
     UPGRADE_FIRMWARE_WITH_USER_FILE_VERSION_AND_ACTIVATE(PropertySpecFactory.userFileReferencePropertySpec(firmwareUpdateUserFileAttributeName),
             PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName),
             PropertySpecFactory.stringPropertySpec(firmwareUpdateVersionNumberAttributeName)),
     UPGRADE_FIRMWARE_URL(PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName)),
-    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName),
+    UPGRADE_FIRMWARE_URL_AND_ACTIVATE(
+            PropertySpecFactory.stringPropertySpec(firmwareUpdateURLAttributeName),
             PropertySpecFactory.datePropertySpec(firmwareUpdateActivationDateAttributeName)),;
 
     private static final DeviceMessageCategory firmwareCategory = DeviceMessageCategories.FIRMWARE;

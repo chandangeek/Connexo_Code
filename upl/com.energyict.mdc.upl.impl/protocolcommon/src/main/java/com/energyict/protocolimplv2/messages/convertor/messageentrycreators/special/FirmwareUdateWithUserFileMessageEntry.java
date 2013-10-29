@@ -7,6 +7,7 @@ import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagWriter;
 
 /**
  * Creates a MessageEntry for the protocols that implement the FirmwareUpdateMessaging interface.
@@ -23,21 +24,27 @@ public class FirmwareUdateWithUserFileMessageEntry implements MessageEntryCreato
 
     private final String userFileBytesAttributeName;
     private final String resumeAttributeName;
+    private final String typeAttributeName;
 
     public FirmwareUdateWithUserFileMessageEntry(String userFileBytesAttributeName) {
-        this.userFileBytesAttributeName = userFileBytesAttributeName;
-        this.resumeAttributeName = null;
+        this(userFileBytesAttributeName, null);
     }
 
-    public FirmwareUdateWithUserFileMessageEntry(String userFileIdAttributeName, String resumeAttributeName) {
-        this.userFileBytesAttributeName = userFileIdAttributeName;
+    public FirmwareUdateWithUserFileMessageEntry(String userFileBytesAttributeName, String resumeAttributeName) {
+        this(userFileBytesAttributeName, resumeAttributeName, null);
+    }
+
+    public FirmwareUdateWithUserFileMessageEntry(String userFileBytesAttributeName, String resumeAttributeName, String typeAttributeName) {
+        this.userFileBytesAttributeName = userFileBytesAttributeName;
         this.resumeAttributeName = resumeAttributeName;
+        this.typeAttributeName = typeAttributeName;
     }
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute userFileBytesAttribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, userFileBytesAttributeName);
         String extraTrackingId = "";
+        String extraTrackingId2 = "";
         if (resumeAttributeName != null) {
             boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeAttributeName).getDeviceMessageAttributeValue());
             if (!resume) {
@@ -46,11 +53,17 @@ public class FirmwareUdateWithUserFileMessageEntry implements MessageEntryCreato
                 // todo; other protocols might use "resume" in the trackingId ?
             }
         }
+        if (typeAttributeName != null) {   //Attribute that indicates the firmware upgrade type (true: PLC, false: normal)
+            boolean plc = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, typeAttributeName).getDeviceMessageAttributeValue());
+            if (plc) {
+                extraTrackingId2 = "plc ";   //Add "plc" to the trackingId in case of PLC firmware upgrade
+            }
+        }
 
         MessageTag mainTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE);
-        MessageTag subTag1 = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE_INCLUDED_FILE);
-        subTag1.add(new MessageValue(userFileBytesAttribute.getDeviceMessageAttributeValue()));  //The userFile bytes
-        mainTag.add(subTag1);
-        return new MessageEntry(messagingProtocol.writeTag(mainTag), extraTrackingId + offlineDeviceMessage.getTrackingId());
+        MessageTag subTag = new MessageTag(RtuMessageConstant.FIRMWARE_UPDATE_INCLUDED_FILE);
+        subTag.add(new MessageValue(userFileBytesAttribute.getDeviceMessageAttributeValue()));  //The userFile bytes
+        mainTag.add(subTag);
+        return new MessageEntry(SimpleTagWriter.writeTag(mainTag), extraTrackingId + extraTrackingId2 + offlineDeviceMessage.getTrackingId());
     }
 }

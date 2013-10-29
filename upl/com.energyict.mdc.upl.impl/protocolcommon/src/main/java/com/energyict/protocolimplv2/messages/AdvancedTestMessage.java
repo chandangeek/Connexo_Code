@@ -23,7 +23,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.xmlCo
 public enum AdvancedTestMessage implements DeviceMessageSpec {
 
     XML_CONFIG(PropertySpecFactory.stringPropertySpec(xmlConfigAttributeName)),
-    USERFILE_CONFIG(PropertySpecFactory.userFileReferencePropertySpec(UserFileConfigAttributeName));
+    USERFILE_CONFIG(PropertySpecFactory.userFileReferencePropertySpec(UserFileConfigAttributeName)),
+    LogObjectList();
 
     private static final DeviceMessageCategory advancedTestCategory = DeviceMessageCategories.ADVANCED_TEST;
 

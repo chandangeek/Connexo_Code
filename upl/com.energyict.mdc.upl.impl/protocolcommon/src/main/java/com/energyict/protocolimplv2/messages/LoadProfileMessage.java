@@ -26,6 +26,10 @@ public enum LoadProfileMessage implements DeviceMessageSpec {
             PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName),
             PropertySpecFactory.dateTimePropertySpec(toDateAttributeName)
     ),
+    ResetActiveImportLP(),
+    ResetActiveExportLP(),
+    ResetDailyProfile(),
+    ResetMonthlyProfile(),
     LOAD_PROFILE_REGISTER_REQUEST(
             PropertySpecFactory.loadProfilePropertySpec(loadProfileAttributeName),
             PropertySpecFactory.dateTimePropertySpec(fromDateAttributeName)

@@ -10,6 +10,8 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.LoadProfileRegisterRequestMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
+import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 
 import java.util.*;
 

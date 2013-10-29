@@ -10,8 +10,7 @@ public enum MonitoredValue {
 
     TotalInstantCurrent(1, "Total instantaneous current"),
     AverageActiveEnergyImport(2, "Average active energy+ (sliding demand)"),
-    AverageTotalActiveEnergyImport(3, "Average total active energy+ (sliding demand)"),
-    Invalid(-1, "Invalid");
+    AverageTotalActiveEnergyImport(3, "Average total active energy+ (sliding demand)");
 
     private final String description;
     private final int id;
@@ -29,13 +28,13 @@ public enum MonitoredValue {
         return id;
     }
 
-    public static MonitoredValue fromDescription(String description) {
+    public static int fromDescription(String description) {
         for (MonitoredValue monitoredValue : values()) {
             if (monitoredValue.description.equals(description)) {
-                return monitoredValue;
+                return monitoredValue.getId();
             }
         }
-        return Invalid;
+        return -1;
     }
 
     public static String[] getAllDescriptions() {

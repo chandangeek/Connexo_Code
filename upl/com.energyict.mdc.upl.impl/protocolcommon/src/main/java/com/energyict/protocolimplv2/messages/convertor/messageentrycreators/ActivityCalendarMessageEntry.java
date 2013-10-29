@@ -19,16 +19,22 @@ import java.util.*;
  * Date: 12/03/13
  * Time: 14:59
  */
-public class IDISActivityCalendarMessageEntry implements MessageEntryCreator {
+public class ActivityCalendarMessageEntry implements MessageEntryCreator {
 
     private final String nameAttributeName;
     private final String activationDateAttributeName;
     private final String codeIdAttributeName;
+    private final String typeAttributeName;
 
     /**
      * Default constructor
      */
-    public IDISActivityCalendarMessageEntry(String nameAttributeName, String activationDateAttributeName, String codeIdAttributeName) {
+    public ActivityCalendarMessageEntry(String nameAttributeName, String activationDateAttributeName, String codeIdAttributeName) {
+        this(null, nameAttributeName, activationDateAttributeName, codeIdAttributeName);    //Use the default main tag: "Activity_Calendar"
+    }
+
+    public ActivityCalendarMessageEntry(String typeAttributeName, String nameAttributeName, String activationDateAttributeName, String codeIdAttributeName) {
+        this.typeAttributeName = typeAttributeName;
         this.nameAttributeName = nameAttributeName;
         this.activationDateAttributeName = activationDateAttributeName;
         this.codeIdAttributeName = codeIdAttributeName;
@@ -39,15 +45,20 @@ public class IDISActivityCalendarMessageEntry implements MessageEntryCreator {
         String name = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, nameAttributeName).getDeviceMessageAttributeValue();
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, activationDateAttributeName).getDeviceMessageAttributeValue();
         String codeTableDescription = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, codeIdAttributeName).getDeviceMessageAttributeValue();
+        String typeTag = "Activity_Calendar";
+        if (typeAttributeName != null) {
+            String prefix = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, typeAttributeName).getDeviceMessageAttributeValue();
+            typeTag = prefix + typeTag;
+        }
 
-        long epoch = Integer.valueOf(activationDate);
+        long epoch = Long.valueOf(activationDate);
         epoch = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime().before(new Date(epoch)) ? epoch : 1;  //Replace date in past with "1"
 
         codeTableDescription = codeTableDescription.replace("<ActivationDate>0</ActivationDate>", "<ActivationDate>" + String.valueOf(epoch) + "</ActivationDate>");
         codeTableDescription = codeTableDescription.replace("<CalendarName>0</CalendarName>", "<CalendarName>" + name + "</CalendarName>");
         String base64encodedXML = encode(codeTableDescription);
 
-        MessageTag mainTag = new MessageTag("Activity_Calendar");
+        MessageTag mainTag = new MessageTag(typeTag);
         MessageTag subTag = new MessageTag("RawContent");
         subTag.add(new MessageValue(base64encodedXML));
         mainTag.add(subTag);

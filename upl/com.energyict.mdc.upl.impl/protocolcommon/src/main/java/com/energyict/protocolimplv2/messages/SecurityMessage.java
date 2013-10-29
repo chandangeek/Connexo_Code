@@ -6,6 +6,8 @@ import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -28,11 +30,14 @@ public enum SecurityMessage implements DeviceMessageSpec {
             DeviceMessageConstants.authenticationLevelAttributeName,
             DlmsAuthenticationLevelMessageValues.getNames())),
     CHANGE_ENCRYPTION_KEY,
+    WRITE_PSK(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.pskAttributeName)),
     CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)),
     CHANGE_AUTHENTICATION_KEY,
     CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName)),
     CHANGE_PASSWORD,
-    CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),
+    CHANGE_PASSWORD_WITH_NEW_PASSWORD(PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),   //ASCII password
+    CHANGE_LLS_SECRET_HEX(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
+    CHANGE_HLS_SECRET_HEX(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(
             PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.keyTActivationStatusAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SecurityTimeDurationAttributeName)),

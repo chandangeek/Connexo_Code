@@ -16,7 +16,9 @@ public class DeviceMessageConstants {
     public static final String firmwareUpdateVersionNumberAttributeName = "FirmwareDeviceMessage.upgrade.version";
     public static final String firmwareUpdateUserFileAttributeName = "FirmwareDeviceMessage.upgrade.userfile";
     public static final String resumeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.resume";
+    public static final String plcTypeFirmwareUpdateAttributeName = "FirmwareDeviceMessage.upgrade.plc";
     public static final String firmwareUpdateURLAttributeName = "FirmwareDeviceMessage.upgrade.url";
+    public static final String activityCalendarTypeAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.type";
     public static final String activityCalendarNameAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.name";
     public static final String activityCalendarCodeTableAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.codetable";
     public static final String specialDaysCodeTableAttributeName = "ActivityCalendarDeviceMessage.specialdays.codetable";
@@ -25,7 +27,9 @@ public class DeviceMessageConstants {
     public static final String authenticationLevelAttributeName = "SecurityMessage.dlmsauthentication.authenticationlevel";
     public static final String newEncryptionKeyAttributeName = "SecurityMessage.new.encryptionkey";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
+    public static final String pskAttributeName = "SecurityMessage.psk";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
+    public static final String newHexPasswordAttributeName = "SecurityMessage.newHexPassword";
     public static final String keyTActivationStatusAttributeName = "SecurityMessage.keyT.activationstatusT";
     public static final String SecurityTimeDurationAttributeName = "SecurityMessage.TimeDuration";
     public static final String executionKeyAttributeName = "SecurityMessage.executionkey";
@@ -82,6 +86,7 @@ public class DeviceMessageConstants {
     public static final String phaseAttributeName = "LoadBalanceDeviceMessage.phase";
     public static final String thresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.thresholdInAmpere";
     public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.capturePeriod";
+    public static final String consumerProducerModeAttributeName = "LoadProfileConfigurationMessage.consumerProducerMode";
 
     public static final String xmlConfigAttributeName = "AdvancedTestMessage.xmlconfig";
     public static final String UserFileConfigAttributeName = "AdvancedTestMessage.ConfigUserfile";
@@ -369,4 +374,17 @@ public class DeviceMessageConstants {
 
     public static final String alarmFilterAttributeName = "AlarmConfigurationMessage.alarmFilter";
     public static final String configUserFileAttributeName = "GeneralDeviceMessage.configUserFile";
+
+    public static final String activeScanDurationAttributeName = "PLCConfigurationDeviceMessage.activeScanDuration";
+    public static final String broadCastLogTableEntryTTLAttributeName = "PLCConfigurationDeviceMessage.broadCastLogTableEntryTTL";
+    public static final String discoveryAttemptsSpeedAttributeName = "PLCConfigurationDeviceMessage.discoveryAttemptsSpeed";
+    public static final String maxAgeTimeAttributeName = "PLCConfigurationDeviceMessage.maxAgeTime";
+    public static final String maxNumberOfHopsAttributeName = "PLCConfigurationDeviceMessage.maxNumberOfHops";
+    public static final String maxPANConflictsCountAttributeName = "PLCConfigurationDeviceMessage.maxPANConflictsCount";
+    public static final String panConflictWaitTimeAttributeName = "PLCConfigurationDeviceMessage.panConflictWaitTime";
+    public static final String toneMaskAttributeName = "PLCConfigurationDeviceMessage.toneMask";
+    public static final String weakLQIValueAttributeName = "PLCConfigurationDeviceMessage.weakLQIValue";
+    public static final String plcG3TimeoutAttributeName = "PLCConfigurationDeviceMessage.plcG3Timeout";
+    public static final String G3PanIdAttributename = "PLCConfigurationDeviceMessage.G3PanId";
+    public static final String MaxOrphanTimerAttributeName = "PLCConfigurationDeviceMessage.MaxOrphanTimer";
 }

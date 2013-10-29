@@ -7,6 +7,8 @@ import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
+import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 
 import java.util.*;
 

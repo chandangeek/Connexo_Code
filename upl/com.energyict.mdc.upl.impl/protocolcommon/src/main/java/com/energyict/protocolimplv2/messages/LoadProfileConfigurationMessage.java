@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.*;
+import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +21,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 public enum LoadProfileConfigurationMessage implements DeviceMessageSpec {
 
     WRITE_CAPTURE_PERIOD_LP1(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
-    WRITE_CAPTURE_PERIOD_LP2(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName));
+    WRITE_CAPTURE_PERIOD_LP2(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(capturePeriodAttributeName)),
+    WriteConsumerProducerMode(PropertySpecFactory.stringPropertySpecWithValues(consumerProducerModeAttributeName, LoadProfileMode.getAllDescriptions()));
 
     private static final DeviceMessageCategory loadProfileCategory = DeviceMessageCategories.LOAD_PROFILE_CONFIGURATION;
 

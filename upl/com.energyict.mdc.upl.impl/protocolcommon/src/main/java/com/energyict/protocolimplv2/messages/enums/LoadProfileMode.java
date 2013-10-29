@@ -6,15 +6,15 @@ package com.energyict.protocolimplv2.messages.enums;
  * Time: 17:27
  * Author: khe
  */
-public enum LoadControlActions {
+public enum LoadProfileMode {
 
-    Nothing(0, "Nothing"),
-    Reconnect(2, "Reconnect");
+    Consumer(0, "Consumer"),
+    ConsumerProducer(1, "Consumer/Producer");
 
     private final String description;
     private final int id;
 
-    LoadControlActions(int id, String description) {
+    LoadProfileMode(int id, String description) {
         this.id = id;
         this.description = description;
     }
@@ -24,9 +24,9 @@ public enum LoadControlActions {
     }
 
     public static int fromDescription(String description) {
-        for (LoadControlActions actions : values()) {
-            if (actions.description.equals(description)) {
-                return actions.getId();
+        for (LoadProfileMode mode : values()) {
+            if (mode.description.equals(description)) {
+                return mode.getId();
             }
         }
         return -1;

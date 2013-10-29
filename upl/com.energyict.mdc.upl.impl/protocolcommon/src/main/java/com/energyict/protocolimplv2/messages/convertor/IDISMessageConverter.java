@@ -15,8 +15,8 @@ import com.energyict.protocolimplv2.messages.LoadProfileConfigurationMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ContactorControlWithActivationDateAndTimezoneMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.IDISActivityCalendarMessageEntry;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.IDISSpecialDaysMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDaysMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileMessageEntry;
@@ -52,8 +52,8 @@ public class IDISMessageConverter extends AbstractMessageConverter {
 
     static {
 
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new IDISActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new IDISSpecialDaysMessageEntry(specialDaysCodeTableAttributeName));
+        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new ActivityCalendarMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
+        registry.put(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND, new SpecialDaysMessageEntry(specialDaysCodeTableAttributeName));
 
         registry.put(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS, new SimpleTagMessageEntry("ResetAllAlarmBits"));
         registry.put(AlarmConfigurationMessage.WRITE_ALARM_FILTER, new MultipleAttributeMessageEntry("WriteAlarmFilter", "Alarm filter (decimal value)"));
@@ -131,9 +131,9 @@ public class IDISMessageConverter extends AbstractMessageConverter {
             UserFile userFile = (UserFile) messageAttribute;
             return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
         } else if (propertySpec.getName().equals(monitoredValueAttributeName)) {
-            return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()).getId());
+            return String.valueOf(MonitoredValue.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {
-            return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()).getId());
+            return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
             return europeanDateFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)

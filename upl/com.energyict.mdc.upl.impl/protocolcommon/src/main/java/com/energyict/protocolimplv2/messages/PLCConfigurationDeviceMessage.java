@@ -34,6 +34,21 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeName)),
     SetSFSKMaxFrameLength(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.MAX_FRAME_LENGTHAttributeName)),
+
+    SetActiveScanDurationAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.activeScanDurationAttributeName)),
+    SetBroadCastLogTableEntryTTLAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)),
+    SetDiscoveryAttemptsSpeedAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.discoveryAttemptsSpeedAttributeName)),
+    SetMaxAgeTimeAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.maxAgeTimeAttributeName)),
+    SetMaxNumberOfHopsAttributeName(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxNumberOfHopsAttributeName)),
+    SetMaxPANConflictsCountAttributeName(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.maxPANConflictsCountAttributeName)),
+    SetPanConflictWaitTimeAttributeName(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.panConflictWaitTimeAttributeName)),
+    SetToneMaskAttributeName(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.toneMaskAttributeName)),
+    SetWeakLQIValueAttributeName(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.weakLQIValueAttributeName)),
+    WritePlcG3Timeout(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.plcG3TimeoutAttributeName)),
+    ResetPlcOfdmMacCounters(),
+    SetPanId(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.G3PanIdAttributename)),
+    SetMaxOrphanTimer(PropertySpecFactory.timeDurationPropertySpecWithSmallUnits(DeviceMessageConstants.MaxOrphanTimerAttributeName)),
+
     SetSFSKRepeater(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.REPEATERAttributeName)),
     SetSFSKGain(
