@@ -26,9 +26,11 @@ public enum SecurityMessage implements DeviceMessageSpec {
     ACTIVATE_DLMS_ENCRYPTION(PropertySpecFactory.stringPropertySpecWithValues(
             DeviceMessageConstants.encryptionLevelAttributeName,
             DlmsEncryptionLevelMessageValues.getNames())),
-    CHANGE_DLMS_AUTHENTICATION_LEVEL(PropertySpecFactory.stringPropertySpecWithValues(
-            DeviceMessageConstants.authenticationLevelAttributeName,
-            DlmsAuthenticationLevelMessageValues.getNames())),
+    CHANGE_DLMS_AUTHENTICATION_LEVEL(
+            PropertySpecFactory.stringPropertySpecWithValues(
+                DeviceMessageConstants.authenticationLevelAttributeName,
+                DlmsAuthenticationLevelMessageValues.getNames())
+    ),
     CHANGE_ENCRYPTION_KEY,
     CHANGE_CLIENT_PASSWORDS(
             PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newReadingClientPasswordAttributeName, 8),
@@ -70,7 +72,27 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName, new BigDecimal(0))),
     GENERATE_NEW_PUBLIC_KEY,
     GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.randomBytesAttributeName)),
-    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName));
+    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName)),
+    DISABLE_DLMS_AUTHENTICATION_LEVEL_P0(
+            PropertySpecFactory.stringPropertySpecWithValues(
+                    DeviceMessageConstants.authenticationLevelAttributeName,
+                    DlmsAuthenticationLevelMessageValues.getNames())
+    ),
+    DISABLE_DLMS_AUTHENTICATION_LEVEL_P1(
+            PropertySpecFactory.stringPropertySpecWithValues(
+                    DeviceMessageConstants.authenticationLevelAttributeName,
+                    DlmsAuthenticationLevelMessageValues.getNames())
+    ),
+    ENABLE_DLMS_AUTHENTICATION_LEVEL_P0(
+            PropertySpecFactory.stringPropertySpecWithValues(
+                    DeviceMessageConstants.authenticationLevelAttributeName,
+                    DlmsAuthenticationLevelMessageValues.getNames())
+    ),
+    ENABLE_DLMS_AUTHENTICATION_LEVEL_P1(
+            PropertySpecFactory.stringPropertySpecWithValues(
+                    DeviceMessageConstants.authenticationLevelAttributeName,
+                    DlmsAuthenticationLevelMessageValues.getNames())
+    );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 

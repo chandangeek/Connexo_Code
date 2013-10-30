@@ -7,6 +7,7 @@ import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -74,7 +75,16 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
     ),
     SetAlarmFilter(PropertySpecFactory.fixedLengthHexStringPropertySpec(DeviceMessageConstants.AlarmFilterAttributeName, 4)),
-    ChangeDefaultResetWindow(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DefaultResetWindowAttributeName));
+    ChangeDefaultResetWindow(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DefaultResetWindowAttributeName)),
+    ChangeAdministrativeStatus(
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(
+                    DeviceMessageConstants.AdministrativeStatusAttributeName,
+                    new BigDecimal(0),
+                    new BigDecimal(1),
+                    new BigDecimal(2),
+                    new BigDecimal(3)
+            )
+    );
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 

@@ -34,6 +34,7 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     REBOOT_DEVICE,
     DISABLE_WEBSERVER,
     ENABLE_WEBSERVER,
+    RESTORE_FACTORY_SETTINGS,
     SetFTIONReboot(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONReboot)),
     SetFTIONInitialize(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONInitialize)),
     SetFTIONMailLog(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.FTIONMailLog)),

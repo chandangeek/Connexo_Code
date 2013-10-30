@@ -80,7 +80,7 @@ public class WebRTUKPMessageConverter extends AbstractMessageConverter {
      * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
      * and the corresponding {@link MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
 
     static {
         // contactor related
@@ -189,7 +189,7 @@ public class WebRTUKPMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
             return dateTimeFormat.format((Date) messageAttribute);
         }
-        return EMPTY_FORMAT;
+        return messageAttribute.toString();
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
