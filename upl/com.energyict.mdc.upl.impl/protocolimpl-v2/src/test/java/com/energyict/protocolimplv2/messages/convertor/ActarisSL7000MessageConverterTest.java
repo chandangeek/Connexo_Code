@@ -6,10 +6,7 @@ import com.energyict.mdw.core.Code;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.ActarisSl7000;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,15 +40,15 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<BatteryExpiry Date (dd/MM/yyyy)=\"01/01/2050\"> </BatteryExpiry>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.EnableOrDisableDST);
+        offlineDeviceMessage = createMessage(ClockDeviceMessage.EnableOrDisableDST);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<EnableDST>1</EnableDST>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.SetEndOfDST);
+        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetEndOfDST);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<EndOfDST Month=\"1\" Day of month=\"2\" Day of week=\"3\" Hour=\"4\"> </EndOfDST>", messageEntry.getContent());
 
-        offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.SetStartOfDST);
+        offlineDeviceMessage = createMessage(ClockDeviceMessage.SetStartOfDST);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<StartOfDST Month=\"1\" Day of month=\"2\" Day of week=\"3\" Hour=\"4\"> </StartOfDST>", messageEntry.getContent());
 

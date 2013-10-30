@@ -4,11 +4,13 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
 import com.energyict.mdc.messages.*;
+import com.energyict.protocolimplv2.messages.enums.DSTAlgorithm;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterTimeAttributeName;
 
 /**
  * Provides a summary of all <i>Clock</i> related messages
@@ -21,6 +23,30 @@ public enum ClockDeviceMessage implements DeviceMessageSpec {
 
     SET_TIME(PropertySpecFactory.datePropertySpec(meterTimeAttributeName)),
     SET_TIMEZONE(PropertySpecFactory.bigDecimalPropertySpec(TimeZoneOffsetInHoursAttributeName)),     //In hours
+
+    EnableOrDisableDST(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
+    SetEndOfDST(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
+    SetStartOfDST(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
+    SetStartOfDSTWithoutHour(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek)),
+    SetEndOfDSTWithoutHour(
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek)),
+    SetDSTAlgorithm(
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.dstStartAlgorithmAttributeName, DSTAlgorithm.getAllDescriptions()),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.dstEndAlgorithmAttributeName, DSTAlgorithm.getAllDescriptions())
+    ),
 
     //EIWeb messages
     SetDST(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SetDSTAttributeName)),
@@ -77,4 +103,4 @@ public enum ClockDeviceMessage implements DeviceMessageSpec {
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
     }
-    }
+}

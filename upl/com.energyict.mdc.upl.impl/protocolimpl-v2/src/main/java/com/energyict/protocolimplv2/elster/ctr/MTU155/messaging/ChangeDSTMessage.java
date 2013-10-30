@@ -12,7 +12,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 
 /**
  * Copyrights EnergyICT
@@ -29,7 +29,7 @@ public class ChangeDSTMessage extends AbstractMTU155Message {
 
     @Override
     public boolean canExecuteThisMessage(OfflineDeviceMessage message) {
-        return message.getDeviceMessageSpecPrimaryKey().getValue().equals(ConfigurationChangeDeviceMessage.EnableOrDisableDST.getPrimaryKey().getValue());
+        return message.getDeviceMessageSpecPrimaryKey().getValue().equals(ClockDeviceMessage.EnableOrDisableDST.getPrimaryKey().getValue());
     }
 
     @Override

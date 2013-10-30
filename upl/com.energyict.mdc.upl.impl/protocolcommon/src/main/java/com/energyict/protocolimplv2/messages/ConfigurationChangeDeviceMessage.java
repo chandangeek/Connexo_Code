@@ -21,17 +21,6 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     WriteExchangeStatus(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
     WriteRadioAcknowledge(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge)),
     WriteRadioUserTimeout(PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
-    EnableOrDisableDST(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.enableDSTAttributeName)),
-    SetEndOfDST(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
-    SetStartOfDST(
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfMonth),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.dayOfWeek),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.hour)),
     WriteNewPDRNumber(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.newPDRAttributeName)),
     ConfigureConverterMasterData(
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.converterTypeAttributeName, "VOL1", "VOL2", "VEN1", "VEN2"),

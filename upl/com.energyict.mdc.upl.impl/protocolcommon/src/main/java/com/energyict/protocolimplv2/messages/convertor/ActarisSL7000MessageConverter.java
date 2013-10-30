@@ -5,10 +5,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DemandResetMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.EnableOrDisableDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEndOfDSTMessageEntry;
@@ -42,9 +39,9 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
         registry.put(ConfigurationChangeDeviceMessage.ProgramBatteryExpiryDate, new MultipleAttributeMessageEntry("BatteryExpiry", "Date (dd/MM/yyyy)"));
 
          // Daylight saving
-        registry.put(ConfigurationChangeDeviceMessage.EnableOrDisableDST, new EnableOrDisableDSTMessageEntry(enableDSTAttributeName));
-        registry.put(ConfigurationChangeDeviceMessage.SetEndOfDST, new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
-        registry.put(ConfigurationChangeDeviceMessage.SetStartOfDST, new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
+        registry.put(ClockDeviceMessage.EnableOrDisableDST, new EnableOrDisableDSTMessageEntry(enableDSTAttributeName));
+        registry.put(ClockDeviceMessage.SetEndOfDST, new SetEndOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
+        registry.put(ClockDeviceMessage.SetStartOfDST, new SetStartOfDSTMessageEntry(month, dayOfMonth, dayOfWeek, hour));
 
         // Demand reset
         registry.put(DeviceActionMessage.BILLING_RESET, new DemandResetMessageEntry());

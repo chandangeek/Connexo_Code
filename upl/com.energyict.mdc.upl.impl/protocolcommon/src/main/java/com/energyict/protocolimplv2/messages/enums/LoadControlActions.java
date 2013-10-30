@@ -25,7 +25,7 @@ public enum LoadControlActions {
 
     public static int fromDescription(String description) {
         for (LoadControlActions actions : values()) {
-            if (actions.description.equals(description)) {
+            if (actions.getDescription().equals(description)) {
                 return actions.getId();
             }
         }

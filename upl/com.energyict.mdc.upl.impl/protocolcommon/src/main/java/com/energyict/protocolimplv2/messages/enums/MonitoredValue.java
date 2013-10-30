@@ -30,7 +30,7 @@ public enum MonitoredValue {
 
     public static int fromDescription(String description) {
         for (MonitoredValue monitoredValue : values()) {
-            if (monitoredValue.description.equals(description)) {
+            if (monitoredValue.getDescription().equals(description)) {
                 return monitoredValue.getId();
             }
         }

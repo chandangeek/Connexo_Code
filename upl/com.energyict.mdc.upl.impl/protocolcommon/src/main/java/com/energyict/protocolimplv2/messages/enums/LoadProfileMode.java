@@ -25,7 +25,7 @@ public enum LoadProfileMode {
 
     public static int fromDescription(String description) {
         for (LoadProfileMode mode : values()) {
-            if (mode.description.equals(description)) {
+            if (mode.getDescription().equals(description)) {
                 return mode.getId();
             }
         }
