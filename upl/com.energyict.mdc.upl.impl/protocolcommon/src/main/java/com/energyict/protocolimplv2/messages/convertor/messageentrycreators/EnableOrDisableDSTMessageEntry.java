@@ -3,7 +3,9 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
 
@@ -15,6 +17,8 @@ import com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator;
  * Time: 14:59
  */
 public class EnableOrDisableDSTMessageEntry implements MessageEntryCreator {
+
+    private static final String ENABLE_DST = "EnableDST";
 
     private final String enableDSTAttributeName;
 
@@ -30,7 +34,7 @@ public class EnableOrDisableDSTMessageEntry implements MessageEntryCreator {
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
         OfflineDeviceMessageAttribute attribute = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, enableDSTAttributeName);
-        MessageTag messageTag = new MessageTag("EnableDST");
+        MessageTag messageTag = new MessageTag(ENABLE_DST);
         messageTag.add(new MessageValue(attribute.getDeviceMessageAttributeValue()));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

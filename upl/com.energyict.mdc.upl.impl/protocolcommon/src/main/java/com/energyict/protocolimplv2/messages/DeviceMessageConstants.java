@@ -200,6 +200,8 @@ public class DeviceMessageConstants {
     public static final String ChangeOfSupplierName = "ConfigurationChangeDeviceMessage.ChangeOfSupplierName";
     public static final String ChangeOfSupplierID = "ConfigurationChangeDeviceMessage.ChangeOfSupplierID";
     public static final String ConfigurationChangeActivationDate = "ConfigurationChangeDeviceMessage.ActivationDate";
+    public static final String AlarmFilterAttributeName = "ConfigurationChangeDeviceMessage.AlarmFilter";
+    public static final String DefaultResetWindowAttributeName = "ConfigurationChangeDeviceMessage.DefaultResetWindow";
 
     public static final String SetDialCommandAttributeName = "ModemConfigurationDeviceMessage.SetDialCommand";
     public static final String SetModemInit1AttributeName = "ModemConfigurationDeviceMessage.SetModemInit1";

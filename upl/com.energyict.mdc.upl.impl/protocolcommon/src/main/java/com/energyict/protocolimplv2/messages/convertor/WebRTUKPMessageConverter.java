@@ -11,6 +11,7 @@ import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
@@ -47,6 +48,8 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.Spec
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileActivationDateMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.WebRTUFirmwareUpgradeWithUserFileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.XmlConfigMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.LoadProfileRegisterRequestMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.PartialLoadProfileMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
@@ -67,6 +70,11 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Time: 16:26
  */
 public class WebRTUKPMessageConverter extends AbstractMessageConverter {
+
+    private static final String TEST_FILE = "Test_File";
+    private static final String TEST_MESSAGE = "Test_Message";
+    private static final String RESET_ALARM_REGISTER = "Reset_Alarm_Register";
+    private static final String DEFAULT_RESET_WINDOW = "Default_Reset_Window";
 
     /**
      * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
@@ -119,6 +127,7 @@ public class WebRTUKPMessageConverter extends AbstractMessageConverter {
 
         // Advanced test
         registry.put(AdvancedTestMessage.XML_CONFIG, new XmlConfigMessageEntry(xmlConfigAttributeName));
+        registry.put(AdvancedTestMessage.USERFILE_CONFIG, new MultipleAttributeMessageEntry(TEST_MESSAGE, TEST_FILE));
 
         // LoadProfiles
         registry.put(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST, new PartialLoadProfileMessageEntry(loadProfileAttributeName, fromDateAttributeName, toDateAttributeName));
@@ -126,6 +135,10 @@ public class WebRTUKPMessageConverter extends AbstractMessageConverter {
 
         // clock related
         registry.put(ClockDeviceMessage.SET_TIME, new SetTimeMessageEntry(meterTimeAttributeName));
+
+        // reset
+        registry.put(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow, new MultipleAttributeMessageEntry(DEFAULT_RESET_WINDOW, DEFAULT_RESET_WINDOW));
+        registry.put(DeviceActionMessage.ALARM_REGISTER_RESET, new OneTagMessageEntry(RESET_ALARM_REGISTER));
     }
 
     /**

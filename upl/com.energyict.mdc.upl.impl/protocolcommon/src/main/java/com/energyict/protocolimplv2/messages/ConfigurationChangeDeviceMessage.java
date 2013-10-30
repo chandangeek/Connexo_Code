@@ -72,7 +72,9 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     SetConversionFactor(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.ConversionFactor),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ConfigurationChangeActivationDate)
-    );
+    ),
+    SetAlarmFilter(PropertySpecFactory.fixedLengthHexStringPropertySpec(DeviceMessageConstants.AlarmFilterAttributeName, 4)),
+    ChangeDefaultResetWindow(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DefaultResetWindowAttributeName));
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
 

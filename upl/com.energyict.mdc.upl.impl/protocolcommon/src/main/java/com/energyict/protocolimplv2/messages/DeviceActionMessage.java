@@ -29,6 +29,8 @@ public enum DeviceActionMessage implements DeviceMessageSpec {
     REGISTERS_RESET,
     LOAD_LOG_RESET,
     EVENT_LOG_RESET,
+    ALARM_REGISTER_RESET,
+    ERROR_REGISTER_RESET,
     REBOOT_DEVICE,
     DISABLE_WEBSERVER,
     ENABLE_WEBSERVER,

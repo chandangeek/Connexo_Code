@@ -12,7 +12,7 @@ import java.util.Map;
  * Represents a MessageConverter for the legacy ABBA1700 protocol.
  *
  *  @author sva
-  * @since 245/10/13 - 10:10
+  * @since 24/10/13 - 10:10
  */
 public class ABBA1700MessageConverter extends AbstractMessageConverter {
 
