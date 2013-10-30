@@ -24,7 +24,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
 
     CONTACTOR_OPEN,
     CONTACTOR_OPEN_WITH_OUTPUT(
-            PropertySpecFactory.stringPropertySpecWithValues(digitalOutputAttributeName, "1", "2")
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(digitalOutputAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2))
     ),
     CONTACTOR_OPEN_WITH_ACTIVATION_DATE(
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
@@ -33,7 +33,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),
     CONTACTOR_CLOSE,
     CONTACTOR_CLOSE_WITH_OUTPUT(
-            PropertySpecFactory.stringPropertySpecWithValues(digitalOutputAttributeName, "1", "2")
+            PropertySpecFactory.bigDecimalPropertySpecWithValues(digitalOutputAttributeName, BigDecimal.valueOf(1), BigDecimal.valueOf(2))
     ),
     CONTACTOR_CLOSE_WITH_ACTIVATION_DATE(
             PropertySpecFactory.dateTimePropertySpec(contactorActivationDateAttributeName)),

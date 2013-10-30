@@ -41,6 +41,10 @@ public class PrimeMeterMessageConverterTest extends AbstractMessageConverterTest
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<ConnectRelay2> \n\n</ConnectRelay2>", messageEntry.getContent());
 
+        offlineDeviceMessage = createMessage(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE);
+        messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
+        assertEquals("<FirmwareUpdate><IncludedFile>Firmware bytes</IncludedFile></FirmwareUpdate>", messageEntry.getContent());
+
         offlineDeviceMessage = createMessage(ActivityCalendarDeviceMessage.WRITE_CONTRACTS_FROM_XML_USERFILE);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
         assertEquals("<WriteContracts>XML content\n\n</WriteContracts>", messageEntry.getContent());
@@ -76,6 +80,10 @@ public class PrimeMeterMessageConverterTest extends AbstractMessageConverterTest
         } else if (propertySpec.getName().equals(contractsXmlUserFileAttributeName)) {
             UserFile userFile = mock(UserFile.class);
             when(userFile.loadFileInByteArray()).thenReturn("XML content".getBytes());
+            return userFile;
+        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+            UserFile userFile = mock(UserFile.class);
+            when(userFile.loadFileInByteArray()).thenReturn("Firmware bytes".getBytes());
             return userFile;
         } else if (propertySpec.getName().equals(newManagementClientPasswordAttributeName)
                 || propertySpec.getName().equals(newFirmwareClientPasswordAttributeName)

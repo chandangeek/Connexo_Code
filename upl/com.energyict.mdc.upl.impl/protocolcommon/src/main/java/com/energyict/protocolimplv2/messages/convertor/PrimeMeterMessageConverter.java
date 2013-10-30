@@ -6,6 +6,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
 
 import java.util.*;
 
@@ -47,6 +48,8 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
 
         registry.put(PLCConfigurationDeviceMessage.SetMulticastAddresses, new MultipleAttributeMessageEntry("SetMulticastAddresses", "Address 1", "Address 2", "Address 3"));
         registry.put(SecurityMessage.CHANGE_CLIENT_PASSWORDS, new MultipleAttributeMessageEntry("ChangePasswords", "reading", "management", "firmware"));
+
+        registry.put(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE, new FirmwareUdateWithUserFileMessageEntry(firmwareUpdateUserFileAttributeName));
     }
 
     public PrimeMeterMessageConverter() {
@@ -68,6 +71,8 @@ public class PrimeMeterMessageConverter extends AbstractMessageConverter {
                 || propertySpec.getName().equals(MulticastAddress2AttributeName)
                 || propertySpec.getName().equals(MulticastAddress3AttributeName)) {
             return ((HexString) messageAttribute).getContent();
+        } else if (propertySpec.getName().equals(firmwareUpdateUserFileAttributeName)) {
+            return new String(((UserFile) messageAttribute).loadFileInByteArray());
         }
         return messageAttribute.toString();
     }
