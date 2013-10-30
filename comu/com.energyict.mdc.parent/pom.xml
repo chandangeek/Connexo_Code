@@ -451,11 +451,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Import-Package>!*</Import-Package>
-                        <Embed-Dependency>
-                            *;scope=compile|runtime;artifactId=!mdc|comserver-core-common|comserver-core-events|comserver-core-execution|comserver-core-monitor|comserver-core-persistence|comserver-core-scheduling|comserver-core-web|comserver-launcher|http.whiteboard
-                        </Embed-Dependency>
-                        <!--<Embed-Transitive>true</Embed-Transitive>-->
                         <_include>bnd.bnd</_include>
                     </instructions>
                 </configuration>
