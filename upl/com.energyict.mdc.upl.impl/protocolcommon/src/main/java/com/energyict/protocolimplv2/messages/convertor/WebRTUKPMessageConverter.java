@@ -66,7 +66,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Date: 8/03/13
  * Time: 16:26
  */
-public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
+public class WebRTUKPMessageConverter extends AbstractMessageConverter {
 
     /**
      * Represents a mapping between {@link DeviceMessageSpec deviceMessageSpecs}
@@ -131,7 +131,7 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
     /**
      * Default constructor for at-runtime instantiation
      */
-    public SmartWebRtuKpMessageConverter() {
+    public WebRTUKPMessageConverter() {
         super();
     }
 
@@ -172,9 +172,9 @@ public class SmartWebRtuKpMessageConverter extends AbstractMessageConverter {
             return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
         } else if (propertySpec.getName().equals(fromDateAttributeName)
                 || propertySpec.getName().equals(toDateAttributeName)) {
-            return dateFormatWithTimeZone.format((Date) messageAttribute);
+            return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
-            return dateFormat.format((Date) messageAttribute);
+            return dateTimeFormat.format((Date) messageAttribute);
         }
         return EMPTY_FORMAT;
     }

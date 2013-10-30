@@ -97,7 +97,7 @@ public class AS300MessageConverter extends AbstractMessageConverter {
             case DeviceMessageConstants.ConfigurationChangeActivationDate:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
             case DeviceMessageConstants.PricingInformationActivationDateAttributeName:
-                return europeanDateFormat.format((Date) messageAttribute);
+                return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 return Integer.toString(((UserFile) messageAttribute).getId());
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:

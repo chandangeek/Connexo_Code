@@ -6,10 +6,15 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectControlModeMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ConnectLoadWithActivationDateMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.DisconnectLoadWithActivationDateMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetMBusEncryptionKeysMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -50,7 +55,7 @@ public class EictZ3MessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
-            return dateFormat.format((Date) messageAttribute);
+            return dateTimeFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(contactorModeAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(openKeyAttributeName) || propertySpec.getName().equals(transferKeyAttributeName)) {

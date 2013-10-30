@@ -22,7 +22,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.nio.charset.Charset;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -140,7 +139,7 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.ConfigurationChangeActivationDate:
                 case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 case DeviceMessageConstants.PricingInformationActivationDateAttributeName:
-                    return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("28/10/2013 10:00:00");
+                    return europeanDateTimeFormat.parse("28/10/2013 10:00:00");
                 case DeviceMessageConstants.activityCalendarNameAttributeName:
                     return "MyActivityCal";
                 case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
@@ -148,7 +147,7 @@ public class AS300MessageConverterTest extends AbstractMessageConverterTest {
                     when(code.getId()).thenReturn(8);
                     return code;
                 case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
-                    return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("25/10/2013 14:30:00");
+                    return europeanDateTimeFormat.parse("25/10/2013 14:30:00");
                 default:
                     return "";
             }

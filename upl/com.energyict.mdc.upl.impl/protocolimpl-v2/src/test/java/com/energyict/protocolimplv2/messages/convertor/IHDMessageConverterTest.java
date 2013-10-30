@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -63,7 +62,7 @@ public class IHDMessageConverterTest extends AbstractMessageConverterTest {
                     when(mockedUserFile.getId()).thenReturn(1);
                     return mockedUserFile;
                 case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
-                    return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("28/10/2013 10:00:00");
+                    return europeanDateTimeFormat.parse("28/10/2013 10:00:00");
                 default:
                     return "";
             }

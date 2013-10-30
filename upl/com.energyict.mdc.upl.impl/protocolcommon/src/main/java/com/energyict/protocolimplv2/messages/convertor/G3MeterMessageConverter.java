@@ -1,19 +1,32 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.HexString;
+import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDaysMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.FirmwareUdateWithUserFileMessageEntry;
-import com.energyict.protocolimplv2.messages.enums.*;
+import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.LoadProfileMode;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -93,7 +106,7 @@ public class G3MeterMessageConverter extends AbstractMessageConverter {
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(meterTimeAttributeName)) {
-            return europeanDateFormat.format((Date) messageAttribute);
+            return europeanDateTimeFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(activeScanDurationAttributeName)
                 || propertySpec.getName().equals(discoveryAttemptsSpeedAttributeName)
                 || propertySpec.getName().equals(maxAgeTimeAttributeName)

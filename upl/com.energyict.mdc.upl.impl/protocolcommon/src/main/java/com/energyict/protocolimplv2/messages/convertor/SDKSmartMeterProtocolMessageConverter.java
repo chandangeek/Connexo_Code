@@ -53,7 +53,6 @@ import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageU
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,9 +67,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Time: 16:26
  */
 public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConverter {
-
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
-    private final SimpleDateFormat dateFormatWithoutTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
@@ -178,7 +174,7 @@ public class SDKSmartMeterProtocolMessageConverter extends AbstractMessageConver
                 || propertySpec.getName().equals(toDateAttributeName)) {
             return dateFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
-            return dateFormatWithoutTimeZone.format((Date) messageAttribute);
+            return dateFormat.format((Date) messageAttribute);
         }
         return EMPTY_FORMAT;
     }

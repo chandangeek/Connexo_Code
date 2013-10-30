@@ -16,7 +16,6 @@ import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372;
 import org.junit.Test;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import static junit.framework.Assert.assertEquals;
 
@@ -132,9 +131,9 @@ public class IskraMx372MessageConverterTest extends AbstractMessageConverterTest
                 case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
                     return 1;
                 case DeviceMessageConstants.loadLimitStartDateAttributeName:
-                    return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("01/10/2013 00:00:00");
+                    return europeanDateTimeFormat.parse("01/10/2013 00:00:00");
                 case DeviceMessageConstants.loadLimitEndDateAttributeName:
-                    return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("01/11/2013 00:00:00");
+                    return europeanDateTimeFormat.parse("01/11/2013 00:00:00");
                 case DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeName:
                 case DeviceMessageConstants.whiteListPhoneNumbersAttributeName:
                     return "number1; number2";

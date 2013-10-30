@@ -41,5 +41,4 @@ public class ABBA1700MessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         return messageAttribute.toString();
     }
-
 }

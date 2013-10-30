@@ -5,8 +5,18 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.protocolimplv2.messages.*;
-import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.GeneralDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ActivityCalendarMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ContactorControlWithActivationDateAndTimezoneMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SpecialDaysMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.ConfigWithUserFileMessageEntry;
@@ -15,7 +25,10 @@ import com.energyict.protocolimplv2.messages.enums.LoadControlActions;
 import com.energyict.protocolimplv2.messages.enums.MonitoredValue;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
@@ -122,7 +135,7 @@ public class IDISMessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(actionWhenUnderThresholdAttributeName)) {
             return String.valueOf(LoadControlActions.fromDescription(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(emergencyProfileActivationDateAttributeName)) {
-            return europeanDateFormat.format((Date) messageAttribute);
+            return europeanDateTimeFormat.format((Date) messageAttribute);
         } else if (propertySpec.getName().equals(overThresholdDurationAttributeName)
                 || (propertySpec.getName().equals(capturePeriodAttributeName))
                 || (propertySpec.getName().equals(underThresholdDurationAttributeName))

@@ -26,7 +26,7 @@ import java.util.Map;
  * @author sva
  * @since 25/10/13 - 9:35
  */
-public class UkHubMessageConverter extends AbstractMessageConverter {;
+public class UkHubMessageConverter extends AbstractMessageConverter {
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
@@ -90,7 +90,7 @@ public class UkHubMessageConverter extends AbstractMessageConverter {;
             case DeviceMessageConstants.toDateAttributeName:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName:
-                return europeanDateFormat.format((Date) messageAttribute);
+                return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.UserFileConfigAttributeName:
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
             case DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName:

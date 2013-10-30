@@ -23,9 +23,10 @@ import java.util.Map;
 public abstract class AbstractMessageConverter implements LegacyMessageConverter {
 
     protected static final String EMPTY_FORMAT = "";
-    protected final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-    protected final SimpleDateFormat dateFormatWithTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
-    protected final SimpleDateFormat europeanDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    protected final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    protected final SimpleDateFormat dateTimeFormatWithTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
+    protected final SimpleDateFormat europeanDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     private Messaging messagingProtocol;
 

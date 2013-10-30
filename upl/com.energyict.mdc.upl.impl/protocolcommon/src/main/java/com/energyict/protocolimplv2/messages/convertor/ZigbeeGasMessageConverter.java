@@ -37,7 +37,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * @since 25/10/13 - 9:35
  */
 
-public class ZigbeeGasMessageConverter extends AbstractMessageConverter {;
+public class ZigbeeGasMessageConverter extends AbstractMessageConverter {
 
     private static final String ActivationDate = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
 
@@ -100,7 +100,7 @@ public class ZigbeeGasMessageConverter extends AbstractMessageConverter {;
             case DeviceMessageConstants.ConfigurationChangeActivationDate:
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
             case DeviceMessageConstants.PricingInformationActivationDateAttributeName:
-                return europeanDateFormat.format((Date) messageAttribute);
+                return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.UserFileConfigAttributeName:
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 return Integer.toString(((UserFile) messageAttribute).getId());

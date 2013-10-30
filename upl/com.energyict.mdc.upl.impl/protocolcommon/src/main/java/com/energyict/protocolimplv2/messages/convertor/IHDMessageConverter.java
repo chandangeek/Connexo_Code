@@ -18,7 +18,7 @@ import java.util.Map;
  * @author sva
  * @since 25/10/13 - 9:35
  */
-public class IHDMessageConverter extends AbstractMessageConverter {;
+public class IHDMessageConverter extends AbstractMessageConverter {
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
@@ -45,7 +45,7 @@ public class IHDMessageConverter extends AbstractMessageConverter {;
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
-                return europeanDateFormat.format((Date) messageAttribute);
+                return europeanDateTimeFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
                 return Integer.toString(((UserFile) messageAttribute).getId());
             default:

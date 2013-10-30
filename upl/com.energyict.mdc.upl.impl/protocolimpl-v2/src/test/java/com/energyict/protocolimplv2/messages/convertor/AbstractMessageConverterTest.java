@@ -4,7 +4,12 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerImpl;
 import com.energyict.mdc.interfaces.mdw.Mdw2MdcInterfaceImpl;
-import com.energyict.mdc.messages.*;
+import com.energyict.mdc.messages.DeviceMessage;
+import com.energyict.mdc.messages.DeviceMessageAttribute;
+import com.energyict.mdc.messages.DeviceMessageAttributeImpl;
+import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.messages.DeviceMessageSpecFactoryImpl;
+import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdw.core.DataVaultProvider;
 import com.energyict.mdw.core.RandomProvider;
 import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
@@ -18,6 +23,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +37,12 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AbstractMessageConverterTest {
+
+    protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    protected final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    protected final SimpleDateFormat dateTimeFormatWithTimeZone = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss z");
+    protected final SimpleDateFormat europeanDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
 
     private DeviceMessageSpecFactoryImpl deviceMessageSpecFactory;
     private LegacyMessageConverter legacyMessageConverter;

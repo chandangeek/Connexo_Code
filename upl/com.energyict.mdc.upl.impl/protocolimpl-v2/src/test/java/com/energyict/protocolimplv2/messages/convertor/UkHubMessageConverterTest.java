@@ -19,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -148,9 +147,9 @@ public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
                 case DeviceMessageConstants.NetworkConnectivityIntervalAttributeName:
                     return "120";
                 case DeviceMessageConstants.fromDateAttributeName:
-                    return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("01/10/2013 00:00:00");
+                    return europeanDateTimeFormat.parse("01/10/2013 00:00:00");
                 case DeviceMessageConstants.toDateAttributeName:
-                    return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("15/10/2013 00:00:00");
+                    return europeanDateTimeFormat.parse("15/10/2013 00:00:00");
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName:
                     return "ABC";
                 case DeviceMessageConstants.ZigBeeConfigurationZigBeeLinkKeyAttributeName:
@@ -176,7 +175,7 @@ public class UkHubMessageConverterTest extends AbstractMessageConverterTest {
                     return new Boolean(true);
                 case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
                 case DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName:
-                    return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("28/10/2013 10:30:00");
+                    return europeanDateTimeFormat.parse("28/10/2013 10:30:00");
                 case DeviceMessageConstants.xmlConfigAttributeName:
                     return "<XML>Content</XML>";
                 default:

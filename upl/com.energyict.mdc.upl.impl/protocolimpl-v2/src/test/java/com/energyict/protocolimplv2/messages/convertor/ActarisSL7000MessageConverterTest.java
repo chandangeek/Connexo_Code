@@ -16,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -84,7 +83,7 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
         try {
             switch (propertySpec.getName()) {
                 case DeviceMessageConstants.ConfigurationChangeDate:
-                    return new SimpleDateFormat("dd/MM/yyyy").parse("01/01/2050");
+                    return dateFormat.parse("01/01/2050");
                 case DeviceMessageConstants.enableDSTAttributeName:
                     return new Boolean(true);
                 case DeviceMessageConstants.month:
@@ -102,7 +101,7 @@ public class ActarisSL7000MessageConverterTest extends AbstractMessageConverterT
                     when(code.getId()).thenReturn(8);
                     return code;
                 case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
-                    return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("25/10/2013 14:30:00");
+                    return europeanDateTimeFormat.parse("25/10/2013 14:30:00");
                 default:
                     return "";
             }

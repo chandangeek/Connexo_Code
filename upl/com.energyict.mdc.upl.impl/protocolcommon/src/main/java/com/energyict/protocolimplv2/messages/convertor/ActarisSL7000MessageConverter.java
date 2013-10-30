@@ -17,7 +17,6 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gene
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,7 +66,7 @@ public class ActarisSL7000MessageConverter extends AbstractMessageConverter {
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.ConfigurationChangeDate:
-                return new SimpleDateFormat("dd/MM/yyyy").format((Date) messageAttribute);
+                return dateFormat.format((Date) messageAttribute);
             case DeviceMessageConstants.enableDSTAttributeName:
                 return ((Boolean) messageAttribute).booleanValue() ? "1" : "0";
             case DeviceMessageConstants.activityCalendarActivationDateAttributeName:

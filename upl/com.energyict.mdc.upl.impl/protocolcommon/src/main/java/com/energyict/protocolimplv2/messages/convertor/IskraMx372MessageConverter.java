@@ -90,7 +90,7 @@ public class IskraMx372MessageConverter extends AbstractMessageConverter {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.loadLimitEndDateAttributeName:
             case DeviceMessageConstants.loadLimitStartDateAttributeName:
-                return europeanDateFormat.format((Date) messageAttribute);
+                return europeanDateTimeFormat.format((Date) messageAttribute);
             default:
                 return messageAttribute.toString();
         }

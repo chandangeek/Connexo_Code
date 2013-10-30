@@ -128,7 +128,7 @@ public class WebRTUZ3MessageConverter extends AbstractMessageConverter {
         } else if (propertySpec.getName().equals(passwordAttributeName)) {
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(meterTimeAttributeName)) {
-            return dateFormat.format((Date) messageAttribute);
+            return dateTimeFormat.format((Date) messageAttribute);
         }
         return EMPTY_FORMAT;
     }
