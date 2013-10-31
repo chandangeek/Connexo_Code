@@ -56,6 +56,11 @@ Ext.define('Uni.view.navigation.Menu', {
         this.callParent(arguments);
     },
 
+    removeAllMenuItems: function () {
+        var mainMenu = this.getComponent('menu-main');
+        mainMenu.removeAll();
+    },
+
     addMenuItem: function (model) {
         var me = this,
             item = me.createMenuItemFromModel(model),

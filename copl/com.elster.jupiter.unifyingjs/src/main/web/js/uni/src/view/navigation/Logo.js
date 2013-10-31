@@ -9,6 +9,7 @@ Ext.define('Uni.view.navigation.Logo', {
     href: '#',
     hrefTarget: '_self',
     cls: 'nav-logo',
+
     initComponent: function () {
         this.callParent(arguments);
     }

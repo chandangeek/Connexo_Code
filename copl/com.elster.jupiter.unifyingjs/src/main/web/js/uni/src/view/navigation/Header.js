@@ -1,6 +1,7 @@
 Ext.define('Uni.view.navigation.Header', {
     extend: 'Ext.container.Container',
     alias: 'widget.navigationHeader',
+
     requires: [
         'Uni.view.navigation.Switcher',
         'Uni.view.navigation.Toggler',
@@ -10,12 +11,14 @@ Ext.define('Uni.view.navigation.Header', {
         'Uni.view.navigation.Help',
         'Uni.view.user.Menu'
     ],
+
     layout: {
         type: 'hbox',
         align: 'stretch'
     },
     cls: 'nav-header',
     height: 40,
+
     items: [
         {
 //            xtype: 'navigationSwitcher'
@@ -38,6 +41,7 @@ Ext.define('Uni.view.navigation.Header', {
             xtype: 'userMenu'
         }
     ],
+
     initComponent: function () {
         this.callParent(arguments);
     }

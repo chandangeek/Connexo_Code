@@ -3,10 +3,12 @@ Ext.define('Uni.view.navigation.Footer', {
     alias: 'widget.navigationFooter',
     cls: 'nav-footer',
     height: 30,
+
     layout: {
         type: 'hbox',
         align: 'middle'
     },
+
     items: [
         {
             xtype: 'component',
@@ -27,6 +29,7 @@ Ext.define('Uni.view.navigation.Footer', {
             html: '<a href="http://www.energyict.com/en/contact" target="_blank">Report a bug</a>'
         }
     ],
+
     initComponent: function () {
         this.callParent(arguments);
     }

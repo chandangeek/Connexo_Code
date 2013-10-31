@@ -15,7 +15,6 @@ Ext.define('Uni.controller.history.Converter', {
         var me = this,
             eventBus = me.getController('Uni.controller.history.EventBus');
 
-
         eventBus.addTokenObserver(function (tokens) {
             me.doConversion(tokens);
         }, me.getRootToken());

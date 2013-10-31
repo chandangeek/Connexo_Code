@@ -1,0 +1,16 @@
+Ext.define('Uni.store.MenuItems', {
+    extend: 'Ext.data.Store',
+    model: 'Uni.model.MenuItem',
+    storeId: 'menuItems',
+    singleton: true,
+    autoLoad: false,
+    clearOnPageLoad: false,
+    clearRemovedOnLoad: false,
+    proxy: {
+        type: 'memory',
+        reader: {
+            type: 'json',
+            root: 'items'
+        }
+    }
+});

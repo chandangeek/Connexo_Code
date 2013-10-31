@@ -5,6 +5,7 @@ Ext.define('Uni.view.navigation.Help', {
     glyph: 'xe009@icomoon',
     scale: 'small',
     cls: 'nav-help',
+
     initComponent: function () {
         this.callParent(arguments);
     }

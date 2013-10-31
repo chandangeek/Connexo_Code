@@ -5,6 +5,7 @@ Ext.define('Uni.view.navigation.Switcher', {
     glyph: 'xf0c9@icomoon',
     scale: 'medium',
     cls: 'nav-switcher',
+
     initComponent: function () {
         this.callParent(arguments);
     }
