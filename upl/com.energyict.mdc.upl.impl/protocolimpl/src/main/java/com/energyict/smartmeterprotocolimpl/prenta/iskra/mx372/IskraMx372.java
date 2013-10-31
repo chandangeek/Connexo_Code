@@ -339,6 +339,11 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
         return loadProfileBuilder;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx372 PRE-NTA";
+    }
+
     /**
      * Returns implementation version
      *

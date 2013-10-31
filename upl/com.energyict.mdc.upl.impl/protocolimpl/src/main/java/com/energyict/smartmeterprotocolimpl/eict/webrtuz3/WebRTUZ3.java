@@ -2,8 +2,19 @@ package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.CachedMeterTime;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -18,7 +29,9 @@ import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.profiles.LoadProfileBu
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.MeterTopology;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * //TODO we should find a way to store all our request and responses so we can reuse them in other requests
@@ -114,6 +127,11 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      */
     public void setMeterTopology(MeterTopology meterTopology) {
         this.meterTopology = meterTopology;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3";
     }
 
     /**

@@ -356,6 +356,11 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
         return result;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster/ABB A1500 IEC1107";
+    }
+
     /**
      * The protocol version
      */

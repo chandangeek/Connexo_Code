@@ -10,14 +10,6 @@
 
 package com.energyict.protocolimpl.mbus.generic;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.cbo.SerialCommunicationSettings;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
@@ -31,6 +23,14 @@ import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.core.MBus;
 import com.energyict.protocolimpl.mbus.core.discover.DiscoverProtocolInfo;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  *
@@ -271,7 +271,12 @@ public class Generic extends MBus {
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "NOT YET IMPLEMENTED";
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "GENERIC Mbus Protocol";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }    

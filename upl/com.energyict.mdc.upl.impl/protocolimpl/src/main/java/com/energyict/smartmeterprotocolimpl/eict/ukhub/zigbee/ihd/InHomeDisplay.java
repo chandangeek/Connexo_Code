@@ -1,7 +1,15 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LoadProfileConfiguration;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.UkHub;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessageExecutor;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.ihd.messaging.InHomeDisplayMessaging;
@@ -26,6 +34,11 @@ public class InHomeDisplay extends UkHub {
             messageProtocol = new InHomeDisplayMessaging(new InHomeDisplayMessageExecutor(this));
         }
         return messageProtocol;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster InHomeDisplay (SSWG IC) DLMS";
     }
 
     @Override

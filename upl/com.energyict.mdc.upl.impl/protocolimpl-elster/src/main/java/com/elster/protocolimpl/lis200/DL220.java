@@ -2,7 +2,14 @@ package com.elster.protocolimpl.lis200;
 
 import com.elster.protocolimpl.lis200.objects.GenericArchiveObject;
 import com.elster.protocolimpl.lis200.objects.SimpleObject;
-import com.elster.protocolimpl.lis200.registers.*;
+import com.elster.protocolimpl.lis200.registers.HistoricRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.HistoricalArchive;
+import com.elster.protocolimpl.lis200.registers.IRegisterReadable;
+import com.elster.protocolimpl.lis200.registers.Lis200ObisCode;
+import com.elster.protocolimpl.lis200.registers.RegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.SimpleRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.StateRegisterDefinition;
+import com.elster.protocolimpl.lis200.registers.ValueRegisterDefinition;
 import com.elster.protocolimpl.lis200.utils.RawArchiveLineInfo;
 import com.elster.utils.lis200.events.Dl220EventInterpreter;
 
@@ -68,9 +75,11 @@ public class DL220 extends LIS200 implements IRegisterReadable {
         setEventInterpreter(new Dl220EventInterpreter());
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "Elster DL220";
+    }
+
     public String getProtocolVersion() {
         return "$Date: 2011-09-01 11:00:00 +0200 (do, 1 Sep 2011) $";
     }

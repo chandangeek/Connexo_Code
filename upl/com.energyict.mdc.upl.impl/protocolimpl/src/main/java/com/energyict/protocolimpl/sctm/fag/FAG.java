@@ -34,6 +34,11 @@ public class FAG extends Metcom3FAG implements RegisterProtocol {
         fagRegisters = new FAGRegisters(this);
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "L&G FAG SCTM";
+    }
+
     /**
      * The Protocol version
      */

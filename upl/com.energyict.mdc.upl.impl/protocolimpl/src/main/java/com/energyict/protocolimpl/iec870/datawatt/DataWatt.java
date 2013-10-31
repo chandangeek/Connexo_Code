@@ -10,13 +10,33 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.iec870.*;
+import com.energyict.protocolimpl.iec870.IEC870Connection;
+import com.energyict.protocolimpl.iec870.IEC870ConnectionException;
+import com.energyict.protocolimpl.iec870.IEC870ProtocolLink;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -111,6 +131,11 @@ public class DataWatt extends PluggableMeterProtocol implements IEC870ProtocolLi
 
     public int getProfileInterval() throws UnsupportedException, IOException {
         return iProfileInterval;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "DataWatt D15 IEC870-5-101";
     }
 
     public String getProtocolVersion() {

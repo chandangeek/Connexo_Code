@@ -8,23 +8,30 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.energyict.protocolimpl.modbus.core.discover; 
+package com.energyict.protocolimpl.modbus.core.discover;
 
- 
-import com.energyict.protocol.discover.*; 
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.functioncode.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
+
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.functioncode.MandatoryDeviceIdentification;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 /**
  *
  * @author Koen
@@ -60,7 +67,12 @@ public class GenericModbusDiscover extends Modbus {
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "THIS PROTOCOL IS ONLY FOR DISCOVERY";
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "EICT Modbus Discover Protocol";
+    }
+
     public String getProtocolVersion() {
         return "$Revision: 1.4 $";
     }

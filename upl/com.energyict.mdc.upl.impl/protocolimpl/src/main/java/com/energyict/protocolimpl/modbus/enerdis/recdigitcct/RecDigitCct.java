@@ -1,13 +1,5 @@
 package com.energyict.protocolimpl.modbus.enerdis.recdigitcct;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -27,6 +19,14 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /** 
  * RecDigit Cct meter is a pulse counter. 
@@ -116,7 +116,12 @@ public class RecDigitCct extends Modbus {
     protected List doTheGetOptionalKeys() {
     	return new ArrayList();
     }    
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Recdigit CCT";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

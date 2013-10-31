@@ -3,11 +3,19 @@ package com.elster.genericprotocolimpl.dlms.ek280.debug;
 import com.elster.protocolimpl.dlms.Dlms;
 import com.energyict.cbo.BusinessException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Date;
+import java.util.Random;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -60,6 +68,11 @@ public class DummyDlms extends Dlms {
     @Override
     public Date getTime() throws IOException {
         return new Date(System.currentTimeMillis() - (new Random().nextInt() / 10000));
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster EK280 Dummy DLMS";
     }
 
     @Override

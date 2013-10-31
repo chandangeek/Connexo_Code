@@ -168,6 +168,11 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS300-P (SSWG IC) DLMS";
+    }
+
     /**
      * Returns the version
      *

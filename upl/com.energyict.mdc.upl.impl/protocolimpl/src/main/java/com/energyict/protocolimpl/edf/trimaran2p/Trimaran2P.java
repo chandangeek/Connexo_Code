@@ -3,14 +3,6 @@
  */
 package com.energyict.protocolimpl.edf.trimaran2p;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -30,6 +22,14 @@ import com.energyict.protocolimpl.edf.trimarandlms.dlmscore.dlmspdu.DLMSPDUFacto
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.APSEParameters;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author gna
@@ -186,6 +186,11 @@ public class Trimaran2P extends AbstractProtocol implements ProtocolLink{
 //		setMeterVersion(getDLMSPDUFactory().getStatusResponse().getStatusIdentifies()[0].getResources());	// do the version check in the init routine
 		return firm;
 	}
+
+    @Override
+    public String getProtocolDescription() {
+        return "EDF Trimaran 2P";
+    }
 
 	public String getProtocolVersion() {
 		return "$Date$";

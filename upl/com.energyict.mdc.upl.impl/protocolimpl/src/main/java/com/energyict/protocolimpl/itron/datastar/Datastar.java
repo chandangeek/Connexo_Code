@@ -10,20 +10,29 @@
 
 package com.energyict.protocolimpl.itron.datastar;
 
-import com.energyict.dialer.core.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.itron.datastar.basepages.*;
-import com.energyict.protocolimpl.itron.protocol.*;
+import com.energyict.protocolimpl.itron.datastar.basepages.BasePagesFactory;
+import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
+
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.*;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  * @version  2.0
@@ -107,7 +116,12 @@ public class Datastar extends SchlumbergerProtocol {
         }
         else throw new UnsupportedException("setTime() is supported on the Datastar meter but you have to make sure that the firmware version you have allows a clocksync without clearing the load profile. Therefor, the 'AllowClockSet' (set to 1 to enable) property adds an extra level of security to the timeset functionality.");
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Datastar";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

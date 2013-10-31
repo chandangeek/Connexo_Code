@@ -11,18 +11,6 @@
 package com.energyict.protocolimpl.edf.trimarancje;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -43,6 +31,18 @@ import com.energyict.protocolimpl.edf.trimarancje.core.DataFactory;
 import com.energyict.protocolimpl.edf.trimarancje.core.SPDUFactory;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.Register;
 import com.energyict.protocolimpl.edf.trimarancje.registermapping.RegisterFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *@beginchanges
@@ -171,7 +171,12 @@ public class Trimaran extends AbstractProtocol {
     public void setTime() throws IOException {
         throw new UnsupportedException();
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "EDF Trimaran CJE";
+    }
+
     public String getProtocolVersion() {
 //        return "$Revision$" ; 
         return "$Date$";

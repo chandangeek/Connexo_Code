@@ -5,7 +5,10 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.a1800.ProfileDataReader;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class A1800 extends AbstractDLMS {
 
@@ -160,5 +163,14 @@ public class A1800 extends AbstractDLMS {
         return objectEntries;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster A1800 WaveFlow AC";
+    }
 
+
+    @Override
+    public String getProtocolVersion() {
+        return "$Date$";
+    }
 }

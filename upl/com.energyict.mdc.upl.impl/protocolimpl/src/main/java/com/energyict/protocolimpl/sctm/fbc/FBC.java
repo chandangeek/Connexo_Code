@@ -6,18 +6,15 @@
 
 package com.energyict.protocolimpl.sctm.fbc;
 
-import com.energyict.protocolimpl.siemens7ED62.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.metcom.Metcom3FBC;
 
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.customerconfig.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -37,6 +34,11 @@ public class FBC extends Metcom3FBC implements RegisterProtocol {
     /** Creates a new instance of MTT3A */ 
     public FBC() {
         fbcRegisters = new FBCRegisters(this);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "L&G FBC SCTM";
     }
 
     public String getProtocolVersion() {

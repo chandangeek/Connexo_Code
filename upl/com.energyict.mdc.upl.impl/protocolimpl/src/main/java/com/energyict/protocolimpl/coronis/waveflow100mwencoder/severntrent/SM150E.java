@@ -1,7 +1,12 @@
 package com.energyict.protocolimpl.coronis.waveflow100mwencoder.severntrent;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW;
 
 import java.io.IOException;
@@ -82,5 +87,15 @@ public class SM150E extends WaveFlow100mW {
      */
     protected String getRegistersInfo(int extendedLogging) throws IOException {
 		return obisCodeMapper.getRegisterExtendedLogging();
-    }    	
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Severntrent SM150E WaveFlow";
+    }
+
+    @Override
+    public String getProtocolVersion() {
+        return "$Date$";
+    }
 }

@@ -11,11 +11,27 @@
 package com.energyict.protocolimpl.ge.kv;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.DialerMarker;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocolimpl.ansi.c12.AbstractResponse;
+import com.energyict.protocolimpl.ansi.c12.C12Layer2;
+import com.energyict.protocolimpl.ansi.c12.C12ProtocolLink;
+import com.energyict.protocolimpl.ansi.c12.PSEMServiceFactory;
+import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
 import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.LoadProfileSet;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
@@ -29,7 +45,11 @@ import com.energyict.protocolimpl.meteridentification.KV;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 /**
  *
@@ -192,7 +212,12 @@ public class GEKV extends AbstractProtocol implements C12ProtocolLink {
         }
         return 0;
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "General Electric KV ANSI C12";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

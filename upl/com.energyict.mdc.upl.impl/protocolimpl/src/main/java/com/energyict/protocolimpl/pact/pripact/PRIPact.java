@@ -9,16 +9,43 @@ package com.energyict.protocolimpl.pact.pripact;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
-import com.energyict.protocolimpl.pact.core.common.*;
+import com.energyict.protocolimpl.pact.core.common.ChannelMap;
+import com.energyict.protocolimpl.pact.core.common.DateTime;
+import com.energyict.protocolimpl.pact.core.common.PACTConnection;
+import com.energyict.protocolimpl.pact.core.common.PACTMode;
+import com.energyict.protocolimpl.pact.core.common.PACTProfile;
+import com.energyict.protocolimpl.pact.core.common.PACTRegisterFactory;
+import com.energyict.protocolimpl.pact.core.common.PACTToolkit;
+import com.energyict.protocolimpl.pact.core.common.PasswordValidator;
+import com.energyict.protocolimpl.pact.core.common.ProtocolLink;
 import com.energyict.protocolimpl.pact.core.instant.InstantaneousFactory;
 import com.energyict.protocolimpl.pact.core.meterreading.MeterReadingIdentifier;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -135,6 +162,11 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
                 + ", SerialId=" + getPactRegisterFactory().getMeterReadingsInterpreter().getSerialId(); // +
         // ", TariffName="+getPactRegisterFactory().getMeterReadingsInterpreter().getTariffNameFlags()
         // ", TariffName="++getPactRegisterFactory().getMeterReadingsInterpreter().getCurrentTariffName()
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "PRI PACT";
     }
 
     public String getProtocolVersion() {

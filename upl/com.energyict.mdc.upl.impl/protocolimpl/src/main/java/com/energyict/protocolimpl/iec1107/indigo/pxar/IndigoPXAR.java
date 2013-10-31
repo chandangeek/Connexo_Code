@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.iec1107.indigo.pxar;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * 
@@ -50,7 +50,12 @@ public class IndigoPXAR extends AbstractIEC1107Protocol {
 		super();
 		//TODO if necessary, add additional information to the super() [Like an encryptor for security]
 	}
-	
+
+    @Override
+    public String getProtocolDescription() {
+        return "Actaris Indigo PXA/R IEC1107";
+    }
+
 	/**
 	 * @return the ProtocolVerison 
 	 */

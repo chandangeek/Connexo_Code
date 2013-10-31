@@ -1,6 +1,9 @@
 package com.energyict.protocolimpl.modbus.enerdis.enerium200;
 
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
@@ -10,7 +13,10 @@ import com.energyict.protocolimpl.modbus.enerdis.enerium200.parsers.TimeDatePars
 import com.energyict.protocolimpl.modbus.enerdis.enerium200.profile.Profile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Class that implements the Enerdis Enerium200 modbus protocol.
@@ -106,7 +112,12 @@ public class Enerium200 extends Modbus {
 		if (this.profile == null) this.profile = new Profile(this);
 		return this.profile;
 	}
-	
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Enerium 200";
+    }
+
 	public String getProtocolVersion() {
 		return "$Date$";
 	}

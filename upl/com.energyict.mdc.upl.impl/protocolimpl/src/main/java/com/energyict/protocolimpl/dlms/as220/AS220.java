@@ -3,9 +3,21 @@ package com.energyict.protocolimpl.dlms.as220;
 import com.energyict.cbo.BusinessException;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.ObiscodeMapper;
+import com.energyict.protocolimpl.base.RetryHandler;
+import com.energyict.protocolimpl.base.SubMessageProtocol;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.as220.emeter.EMeter;
 import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
@@ -14,7 +26,11 @@ import com.energyict.protocolimpl.dlms.as220.plc.PLCMessaging;
 import com.energyict.protocolimpl.dlms.as220.powerquality.PowerQuality;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -97,6 +113,11 @@ public class AS220 extends DLMSSNAS220 implements RegisterProtocol, MessageProto
 
     public Date getTime() throws IOException {
         return geteMeter().getClockController().getTime();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS220/AS1440 AM500 PLC";
     }
 
     public String getProtocolVersion() {

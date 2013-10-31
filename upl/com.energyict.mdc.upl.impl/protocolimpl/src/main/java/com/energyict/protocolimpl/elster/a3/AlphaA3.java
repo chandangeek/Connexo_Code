@@ -313,6 +313,11 @@ public class AlphaA3 extends AbstractProtocol implements C12ProtocolLink {
         return 0;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Alpha A3 ANSI C12";
+    }
+
     /* The protocol version */
     public String getProtocolVersion() {
         return "$Date$";

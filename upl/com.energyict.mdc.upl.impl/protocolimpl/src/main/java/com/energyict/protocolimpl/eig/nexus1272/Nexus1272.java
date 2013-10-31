@@ -161,6 +161,11 @@ public class Nexus1272 extends AbstractProtocol  {
 		return fwVersion;
 	}
 
+    @Override
+    public String getProtocolDescription() {
+        return "Nexus 1272";
+    }
+
 	@Override
 	public String getProtocolVersion() {
         return "$Date$";

@@ -70,6 +70,11 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
         return ((IskraMx372MbusMessaging) getMessageProtocol()).getPartialLoadProfileMessageBuilder();
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx372 PRE-NTA MbusDevice";
+    }
+
     /**
      * Returns the implementation version
      *

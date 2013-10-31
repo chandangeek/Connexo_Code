@@ -15,15 +15,24 @@ KV|31032005|Handle DataContainerException
 
 package com.energyict.protocolimpl.dlms;
 
-import java.io.*;
-import java.util.*;
-
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocol.*;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Properties;
 
 public class DLMSEICT extends DLMSSN
 {
@@ -70,6 +79,11 @@ public class DLMSEICT extends DLMSSN
     @Override
     protected ConformanceBlock configureConformanceBlock() {
         return new ConformanceBlock(1573408L);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU DLMS";
     }
 
     public String getProtocolVersion() {

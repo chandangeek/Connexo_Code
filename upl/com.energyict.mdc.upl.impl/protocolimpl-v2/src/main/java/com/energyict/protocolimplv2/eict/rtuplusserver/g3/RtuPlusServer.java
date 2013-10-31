@@ -121,6 +121,11 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU+Server2 G3 PLC";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date$";
     }

@@ -2,15 +2,25 @@ package com.energyict.protocolimpl.dlms.idis;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -99,6 +109,11 @@ public class IDISMBus extends IDIS {
             messageHandler = new IDISMBusMessageHandler(this);
         }
         return messageHandler;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS220/AS1440 AM500 PLC IDIS Mbus Slave";
     }
 
     @Override

@@ -14,7 +14,11 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author gna
@@ -52,6 +56,11 @@ public class CompactNSX extends Modbus {
 	public DiscoverResult discover(DiscoverTools discoverTools) {
 		return null;
 	}
+
+    @Override
+    public String getProtocolDescription() {
+        return "Scheider Electric Compact NSX";
+    }
 
     /** Protocol version **/
     public String getProtocolVersion() {

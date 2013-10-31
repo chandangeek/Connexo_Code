@@ -23,6 +23,11 @@ public class WaveFlowV2 extends WaveFlow {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "WaveFlow V2";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date$";
     }

@@ -1,15 +1,5 @@
 package com.energyict.protocolimpl.instromet.v555;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
@@ -23,6 +13,15 @@ import com.energyict.protocolimpl.instromet.connection.StatusCommand;
 import com.energyict.protocolimpl.instromet.core.InstrometProtocol;
 import com.energyict.protocolimpl.instromet.v555.tables.RegisterFactory;
 import com.energyict.protocolimpl.instromet.v555.tables.TableFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 public class Instromet555 extends InstrometProtocol {
 	
@@ -158,6 +157,11 @@ public class Instromet555 extends InstrometProtocol {
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		return getTableFactory().getCorrectorInformationTable().getFirwareVersion();
 	}
+
+    @Override
+    public String getProtocolDescription() {
+        return "Instromet EVHI 555";
+    }
 
 	public String getProtocolVersion() {
 		return "$Date$";

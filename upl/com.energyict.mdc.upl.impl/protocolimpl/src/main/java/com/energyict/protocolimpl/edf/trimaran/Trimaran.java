@@ -11,18 +11,36 @@
 package com.energyict.protocolimpl.edf.trimaran;
 
 
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.edf.core.TrimeranConnection;
 import com.energyict.protocolimpl.edf.trimaran.core.DataFactory;
 import com.energyict.protocolimpl.edf.trimaran.core.SPDUFactory;
 import com.energyict.protocolimpl.edf.trimaran.registermapping.Register;
 import com.energyict.protocolimpl.edf.trimaran.registermapping.RegisterFactory;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -138,7 +156,12 @@ public class Trimaran extends AbstractProtocol {
     public void setTime() throws IOException {
         throw new UnsupportedException();
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "EDF Trimaran CVE";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

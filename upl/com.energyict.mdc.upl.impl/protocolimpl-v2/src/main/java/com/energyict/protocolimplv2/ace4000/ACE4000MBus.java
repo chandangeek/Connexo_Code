@@ -22,6 +22,11 @@ public class ACE4000MBus extends ACE4000Outbound {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Actaris ACE4000 Mbus Slave";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date$";
     }

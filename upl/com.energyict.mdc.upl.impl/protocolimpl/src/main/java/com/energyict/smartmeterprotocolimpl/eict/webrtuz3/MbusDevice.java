@@ -1,11 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.eict.webrtuz3;
 
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.messaging.MbusDeviceMessaging;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -24,6 +30,11 @@ public class MbusDevice extends SlaveMeter implements MessageProtocol{
 
     public MbusDevice(WebRTUZ3 meterProtocol, String serialNumber, int physicalAddress) {
         super(meterProtocol, serialNumber, physicalAddress);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3 Mbus Slave";
     }
 
     /**

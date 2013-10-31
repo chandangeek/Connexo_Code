@@ -62,6 +62,11 @@ public class Dsmr40Protocol extends AbstractSmartNtaProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "EnergyICT NTA DSMR 4.0";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date$";
     }

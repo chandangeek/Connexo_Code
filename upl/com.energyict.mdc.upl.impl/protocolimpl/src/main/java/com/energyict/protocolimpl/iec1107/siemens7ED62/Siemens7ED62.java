@@ -14,13 +14,19 @@ KV|06092005|VDEW changed to do channel mapping!
 
 package com.energyict.protocolimpl.iec1107.siemens7ED62;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  *
@@ -40,6 +46,11 @@ public class Siemens7ED62 extends AbstractIEC1107Protocol {
     protected void doConnect() throws IOException {
         siemens7ED62Registry = new Siemens7ED62Registry(this,this);
         siemens7ED62Profile = new Siemens7ED62Profile(this,this,siemens7ED62Registry);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Siemens 7ED62 IEC1107 VDEW";
     }
 
     public String getProtocolVersion() {

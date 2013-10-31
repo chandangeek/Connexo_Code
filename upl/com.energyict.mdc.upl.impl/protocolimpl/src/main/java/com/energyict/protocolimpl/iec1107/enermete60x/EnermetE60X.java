@@ -6,8 +6,9 @@
 
 package com.energyict.protocolimpl.iec1107.enermete60x;
 
-import com.energyict.protocolimpl.iec1107.enermete70x.*;
-import com.energyict.protocolimpl.customerconfig.*;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
+import com.energyict.protocolimpl.customerconfig.UcontoRegisterConfig;
+import com.energyict.protocolimpl.iec1107.enermete70x.EnermetBase;
 /**
  *
  * @author  Koen
@@ -29,7 +30,12 @@ public class EnermetE60X extends EnermetBase {
     
     protected RegisterConfig getRegs() {
         return regs;
-    }    
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enernet E6xx IEC1107";
+    }
     
     public String getProtocolVersion() {
         return "$Date$";

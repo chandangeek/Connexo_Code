@@ -10,15 +10,39 @@
 
 package com.energyict.protocolimpl.itron.quantum1000;
 
-import com.energyict.dialer.connection.*;
-import com.energyict.dialer.core.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.quantum1000.minidlms.*; 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.ApplicationStateMachine;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.DataDefinitionFactory;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.MiniDLMSConnection;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.ProtocolLink;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RegisterMapFactory;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.RemoteProcedureCallFactory;
+import com.energyict.protocolimpl.itron.quantum1000.minidlms.ReplyException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  *
@@ -121,7 +145,12 @@ public class Quantum1000 extends AbstractProtocol implements ProtocolLink {
     public Date getTime() throws IOException {
         return getDataDefinitionFactory().getRealTime().getCurrentDateTime();
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Quantum1000";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

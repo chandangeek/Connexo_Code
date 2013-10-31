@@ -193,6 +193,11 @@ public class EK280 extends Dlms {
         return new RegisterMap(mappings);
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster EK280";
+    }
+
     public String getProtocolVersion() {
         return "$Date: 2011-06-10 16:05:38 +0200 (vr, 10 jun 2011) $";
     }

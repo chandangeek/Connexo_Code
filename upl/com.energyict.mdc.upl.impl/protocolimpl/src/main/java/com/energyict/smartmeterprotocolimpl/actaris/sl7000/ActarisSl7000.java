@@ -191,6 +191,11 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         return logbook.getMeterEvents(dc);
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Actaris SL7000 DLMS";
+    }
+
     /**
      * Returns the protocol version
      */

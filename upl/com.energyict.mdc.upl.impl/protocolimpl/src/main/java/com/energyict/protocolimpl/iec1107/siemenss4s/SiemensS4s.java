@@ -1,12 +1,5 @@
 package com.energyict.protocolimpl.iec1107.siemenss4s;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -18,6 +11,13 @@ import com.energyict.protocolimpl.iec1107.AbstractIEC1107Protocol;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.siemenss4s.objects.S4sObjectFactory;
 import com.energyict.protocolimpl.iec1107.siemenss4s.security.SiemensS4sEncryptor;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 public class SiemensS4s extends AbstractIEC1107Protocol {
 	
@@ -169,6 +169,11 @@ public class SiemensS4s extends AbstractIEC1107Protocol {
 	private S4sObjectFactory getObjectFactory(){
 		return this.objectFactory;
 	}
+
+    @Override
+    public String getProtocolDescription() {
+        return "Landis&Gyr S4 IEC1107";
+    }
 	
     public String getProtocolVersion() {
         return "$Date$";

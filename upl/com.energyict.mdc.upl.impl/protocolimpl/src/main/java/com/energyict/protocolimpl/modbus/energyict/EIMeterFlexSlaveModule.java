@@ -1,8 +1,13 @@
 package com.energyict.protocolimpl.modbus.energyict;
 
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
@@ -10,7 +15,11 @@ import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.northerndesign.NDBaseRegisterFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,47 +40,29 @@ public class EIMeterFlexSlaveModule extends Modbus {
     /** The name of the register that contains the meter model. */
     private static final String METERMODEL_REGISTER_NAME = "MeterModel";
 
-    /**
-     * {@inheritDoc}
-     */
     public final DiscoverResult discover(final DiscoverTools discoverTools) {
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected final void doTheConnect() throws IOException {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected final void doTheDisConnect() throws IOException {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected final void doTheValidateProperties(final Properties properties) throws MissingPropertyException, InvalidPropertyException {
         this.setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout", "25").trim()));
         this.setInfoTypeFirstTimeDelay(Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim()));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected final List<String> doTheGetOptionalKeys() {
         return new ArrayList<String>();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected final void initRegisterFactory() {
         this.setRegisterFactory(new RegisterFactory(this));
@@ -95,9 +86,6 @@ public class EIMeterFlexSlaveModule extends Modbus {
             super(protocol);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         protected final void init() {
             super.init();
@@ -106,32 +94,25 @@ public class EIMeterFlexSlaveModule extends Modbus {
             this.getRegisters().add(new HoldingRegister(3584, 1, METERMODEL_REGISTER_NAME));
         }
 
-        /**
-         * {@inheritDoc}
-         */
         protected final void initParsers() {
             super.initParsers();
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT EIFlex Meter";
+    }
+
     public final String getProtocolVersion() {
         return "$Date: 2013-04-15 16:48:48 +0200 (ma, 15 apr 2013) $";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public final String getFirmwareVersion() throws IOException, UnsupportedException {
         return String.valueOf(this.getRegisterFactory().findRegister(FIRMWARE_VERSION_REGISTER_NAME).objectValueWithParser("value0"));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final Date getTime() throws IOException {
         return new Date();
     }

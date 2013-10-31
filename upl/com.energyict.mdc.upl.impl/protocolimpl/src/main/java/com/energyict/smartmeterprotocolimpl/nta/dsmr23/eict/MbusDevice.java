@@ -35,6 +35,10 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
         return new Dsmr23MbusMessaging();
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT Mbus Slave NTA DSMR 2.3";
+    }
 
     /**
      * Returns the implementation version

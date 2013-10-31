@@ -5,7 +5,10 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.coronis.waveflowDLMS.as1253.ProfileDataReader;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class AS1253 extends AbstractDLMS {
 
@@ -33,14 +36,10 @@ public class AS1253 extends AbstractDLMS {
         return profileDataReader.getProfileData(lastReading, includeEvents);
     }
 
-
-
     @Override
     protected void doTheValidateProperties(Properties properties) {
         setLoadProfileObisCode(ObisCode.fromString(properties.getProperty("LoadProfileObisCode", LOAD_PROFILE_PULSE_VALUES.toString())));
     }
-
-
 
     @Override
     protected ObisCode getSerialNumberObisCodeForPairingRequest() {
@@ -55,8 +54,6 @@ public class AS1253 extends AbstractDLMS {
     protected PairingMeterId getPairingMeterId() {
         return PairingMeterId.AS1253;
     }
-
-
 
     @Override
     protected Map<ObisCode, ObjectEntry> getObjectEntries() {
@@ -113,8 +110,14 @@ public class AS1253 extends AbstractDLMS {
         return objectEntries;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS1253 WaveFlow AC";
+    }
 
-
-
+    @Override
+    public String getProtocolVersion() {
+        return "$Date$";
+    }
 }
 

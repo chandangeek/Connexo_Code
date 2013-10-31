@@ -6,17 +6,8 @@
 
 package com.energyict.protocolimpl.iec1107.sdc;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.Logger;
-
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.iec1107.*;
-import com.energyict.dialer.core.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.customerconfig.*;
-import com.energyict.cbo.TimeZoneManager;
+import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 // com.energyict.protocolimpl.iec1107.sdc.Sdc
 /**
  *
@@ -42,6 +33,11 @@ public class Sdc extends SdcBase {
     protected RegisterConfig getRegs() {
         return regs;
     }    
+
+    @Override
+    public String getProtocolDescription() {
+        return "SDC LM30x IEC1107";
+    }
 
     public String getProtocolVersion() {
         return "$Date$";

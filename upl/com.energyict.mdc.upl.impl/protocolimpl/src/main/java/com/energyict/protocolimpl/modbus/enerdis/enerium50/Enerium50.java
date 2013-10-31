@@ -27,6 +27,11 @@ public class Enerium50 extends Enerium200 {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Enerdis Enerium 50";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2013-05-02 09:42:35 +0200 (do, 02 mei 2013) $";
     }

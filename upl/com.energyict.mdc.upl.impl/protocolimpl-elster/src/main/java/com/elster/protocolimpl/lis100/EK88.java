@@ -33,6 +33,11 @@ public class EK88 extends LIS100 {
         super();
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster EK88";
+    }
+
     public String getProtocolVersion() {
         return "$Date: 2011-09-07 10:00:00 +0200 (Mi, 7. Sep 2011) $";
     }

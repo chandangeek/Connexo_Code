@@ -6,19 +6,28 @@
 
 package com.energyict.protocolimpl.gmc.u1600;
 
-import com.energyict.cbo.*;
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import java.util.logging.*;
+import com.energyict.cbo.NestedIOException;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.gmc.base.EclConnection;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 //import com.energyict.protocolimpl.myprotocol.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.gmc.base.*;
-import com.energyict.protocol.meteridentification.DiscoverInfo;
 
 /**
  *
@@ -95,7 +104,12 @@ public class U1600 extends AbstractProtocol {
         calendarTo.setTime(to);
         return u1600Profile.getProfileData(calendarFrom.getTime(),calendarTo.getTime());
     }
-     
+
+    @Override
+    public String getProtocolDescription() {
+        return "GMC U1600";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

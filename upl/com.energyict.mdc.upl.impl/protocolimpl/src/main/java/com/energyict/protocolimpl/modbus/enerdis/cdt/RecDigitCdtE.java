@@ -1,11 +1,11 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
-import java.io.IOException;
-import java.util.Date;
-
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+
+import java.io.IOException;
+import java.util.Date;
 
 
 /** 
@@ -27,7 +27,12 @@ public class RecDigitCdtE extends RecDigitCdt {
     public Date getTime() throws IOException {
         return new Date();
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Recdigit CDT E";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

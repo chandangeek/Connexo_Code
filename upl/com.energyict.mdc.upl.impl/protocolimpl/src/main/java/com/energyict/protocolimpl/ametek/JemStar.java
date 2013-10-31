@@ -1,14 +1,28 @@
 
 package com.energyict.protocolimpl.ametek;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -502,6 +516,11 @@ public class JemStar extends Jem implements MessageProtocol  {
 			throw new IOException("Failed to set time");
 		getLogger().info("Set time successful");
 	}
+
+    @Override
+    public String getProtocolDescription() {
+        return "Ametek Power JemStar";
+    }
 
 	public String getProtocolVersion() {
 		////getLogger().info("call getProtocolVersion()");

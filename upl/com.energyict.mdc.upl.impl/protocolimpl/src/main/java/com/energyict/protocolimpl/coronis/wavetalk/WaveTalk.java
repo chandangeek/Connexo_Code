@@ -1,8 +1,15 @@
 package com.energyict.protocolimpl.coronis.wavetalk;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.wavetalk.core.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.coronis.wavetalk.core.AbstractCommonObisCodeMapper;
+import com.energyict.protocolimpl.coronis.wavetalk.core.AbstractWaveTalk;
+import com.energyict.protocolimpl.coronis.wavetalk.core.CommonObisCodeMapper;
+import com.energyict.protocolimpl.coronis.wavetalk.core.ParameterFactory;
+import com.energyict.protocolimpl.coronis.wavetalk.core.ParameterFactoryImpl;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -79,5 +86,15 @@ public class WaveTalk extends AbstractWaveTalk {
 	@Override
 	public ParameterFactory getParameterFactory() {
 		return parameterFactory;
-	}		
+	}
+
+    @Override
+    public String getProtocolDescription() {
+        return "WaveTalk";
+    }
+
+    @Override
+   	public String getProtocolVersion() {
+           return "$Date$";
+   	}
 }

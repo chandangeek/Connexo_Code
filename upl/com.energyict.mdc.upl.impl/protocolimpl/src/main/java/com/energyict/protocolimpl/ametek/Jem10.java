@@ -2,16 +2,6 @@
 package com.energyict.protocolimpl.ametek;
 //com.energyict.protocolimpl.ametek.Jem10
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -24,6 +14,16 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.ParseUtils;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  *
@@ -579,6 +579,11 @@ public class Jem10 extends Jem implements MessageProtocol  {
 			throw new IOException("Failed to set time");
 		getLogger().info("Set time successful");
 	}
+
+    @Override
+    public String getProtocolDescription() {
+        return "Ametek Power Jem10";
+    }
 
 	public String getProtocolVersion() {
 		////getLogger().info("call getProtocolVersion()");

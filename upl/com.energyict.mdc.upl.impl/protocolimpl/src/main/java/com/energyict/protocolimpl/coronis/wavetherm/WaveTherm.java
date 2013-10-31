@@ -2,17 +2,42 @@ package com.energyict.protocolimpl.coronis.wavetherm;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
+import com.energyict.protocolimpl.coronis.core.WaveFlowException;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.wavetherm.core.AlarmFrameParser;
 import com.energyict.protocolimpl.coronis.wavetherm.core.ObisCodeMapper;
 import com.energyict.protocolimpl.coronis.wavetherm.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.wavetherm.core.radiocommand.RadioCommandFactory;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Properties;
 
 public class WaveTherm extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper {
 
@@ -92,6 +117,11 @@ public class WaveTherm extends AbstractProtocol implements MessageProtocol, Prot
         } catch (IOException e) {
             return "Error requesting firmware version";
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "WaveTherm";
     }
 
     @Override

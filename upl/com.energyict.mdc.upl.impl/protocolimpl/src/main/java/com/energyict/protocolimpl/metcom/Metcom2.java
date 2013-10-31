@@ -6,14 +6,23 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.protocolimpl.siemens7ED62.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
+import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
 
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 /**
  *
  * @author  Koen
@@ -155,7 +164,12 @@ public class Metcom2 extends Metcom{
         result.add("Software7E1");
         return result;
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "Metcom2 Protocol Base";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }    

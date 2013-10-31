@@ -43,6 +43,11 @@ public class WebRTUKP extends AbstractSmartNtaProtocol implements PartialLoadPro
         return AXDRDateTimeDeviationType.Negative;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU KP NTA DSMR 2.3";
+    }
+
     /**
      * Returns the implementation version
      *

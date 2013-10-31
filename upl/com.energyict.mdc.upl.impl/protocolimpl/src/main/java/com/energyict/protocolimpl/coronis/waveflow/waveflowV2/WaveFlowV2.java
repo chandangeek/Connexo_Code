@@ -1,8 +1,15 @@
 package com.energyict.protocolimpl.coronis.waveflow.waveflowV2;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.coronis.waveflow.core.*;
+import com.energyict.protocol.BubbleUpObject;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.coronis.waveflow.core.BubbleUpFrameParser;
+import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
+import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowMessageParser;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.WaveFlowV2Messages;
 import com.energyict.protocolimpl.coronis.waveflow.core.parameter.ParameterFactory;
@@ -50,5 +57,15 @@ public class WaveFlowV2 extends WaveFlow implements MessageProtocol {
 
     public BubbleUpObject parseBubbleUpData(byte[] data) throws IOException {
         return BubbleUpFrameParser.parse(data, this);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "WaveFlow V2";
+    }
+
+    @Override
+    public String getProtocolVersion() {
+        return "$Date$";
     }
 }

@@ -10,17 +10,6 @@
 
 package com.energyict.protocolimpl.edf.trimaranplus;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -44,6 +33,17 @@ import com.energyict.protocolimpl.edf.trimarandlms.protocol.Connection62056;
 import com.energyict.protocolimpl.edf.trimarandlms.protocol.ProtocolLink;
 import com.energyict.protocolimpl.edf.trimaranplus.core.TrimaranObjectFactory;
 import com.energyict.protocolimpl.edf.trimaranplus.core.VDEType;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  *@beginchanges
@@ -173,6 +173,12 @@ public class TrimaranPlus extends AbstractProtocol implements ProtocolLink {
         // KV_TO_DO datecourante
         return new Date();
     }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EDF Trimaran+ ICE";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

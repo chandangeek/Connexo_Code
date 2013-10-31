@@ -1,15 +1,22 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.*;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 
 /** 
@@ -360,6 +367,11 @@ public class RecDigitCdtPr extends RecDigitCdt {
     
     public RegisterFactoryCdtPr getRecFactory( ) {
         return (RegisterFactoryCdtPr)getRegisterFactory();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Recdigit CDT PR";
     }
     
     public String getProtocolVersion() {

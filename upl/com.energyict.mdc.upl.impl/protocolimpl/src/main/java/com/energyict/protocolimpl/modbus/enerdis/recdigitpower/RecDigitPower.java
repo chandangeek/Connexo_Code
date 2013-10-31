@@ -1,13 +1,5 @@
 package com.energyict.protocolimpl.modbus.enerdis.recdigitpower;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -26,7 +18,14 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
-import com.energyict.protocolimpl.modbus.enerdis.recdigitpower.ByteArray;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 
 
@@ -98,7 +97,12 @@ public class RecDigitPower extends Modbus {
     protected List doTheGetOptionalKeys() {
         return new ArrayList();
     }
-       
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Recdigit Power";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

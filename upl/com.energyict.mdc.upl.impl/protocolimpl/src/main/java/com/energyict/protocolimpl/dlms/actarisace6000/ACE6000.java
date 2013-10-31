@@ -1369,6 +1369,11 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return serialnr;
     } // public String getSerialNumber() throws IOException
 
+    @Override
+    public String getProtocolDescription() {
+        return "Actaris ACE6000";
+    }
+
     /**
      * Protocol Version *
      */

@@ -1,16 +1,5 @@
 package com.energyict.protocolimpl.instromet.v444;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
-
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
@@ -27,6 +16,17 @@ import com.energyict.protocolimpl.instromet.connection.StatusCommand;
 import com.energyict.protocolimpl.instromet.core.InstrometProtocol;
 import com.energyict.protocolimpl.instromet.v444.tables.RegisterFactory;
 import com.energyict.protocolimpl.instromet.v444.tables.TableFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
 
 /**
  * Protocol Class, supporting Instromet 444 gascorrector
@@ -179,6 +179,11 @@ public class Instromet444 extends InstrometProtocol {
 	public String getFirmwareVersion() throws IOException, UnsupportedException {
 		return getTableFactory().getCorrectorInformationTable().getFirwareVersion();
 	}
+
+    @Override
+    public String getProtocolDescription() {
+        return "Instromet EVHI 444";
+    }
 
 	public String getProtocolVersion() {
 		return "$Date$";

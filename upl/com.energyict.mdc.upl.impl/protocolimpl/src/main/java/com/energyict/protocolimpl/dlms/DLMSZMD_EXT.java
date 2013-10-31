@@ -10,15 +10,13 @@
  */
 package com.energyict.protocolimpl.dlms;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Properties;
-
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Properties;
 
 /**
  * @author gna
@@ -48,5 +46,14 @@ public class DLMSZMD_EXT extends DLMSZMD{
     	super.getNumberOfChannels();
         return super.getProfileData(lastReading, includeEvents);
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "L&G/Siemens ZMD DLMS-SN_EXT";
+    }
+
+    /** ProtocolVersion **/
+    public String getProtocolVersion() {
+        return "$Date$";
+    }
 }

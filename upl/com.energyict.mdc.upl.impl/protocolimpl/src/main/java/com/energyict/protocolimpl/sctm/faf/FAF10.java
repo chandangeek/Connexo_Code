@@ -7,7 +7,9 @@
 package com.energyict.protocolimpl.sctm.faf;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.metcom.Metcom3FAF;
 
 import java.io.IOException;
@@ -30,6 +32,11 @@ public class FAF10 extends Metcom3FAF implements RegisterProtocol {
     /** Creates a new instance of MTT3A */ 
     public FAF10() {
         fafRegisters = new FAF10Registers(this);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "L&G FAF10 SCTM";
     }
 
     public String getProtocolVersion() {

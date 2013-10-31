@@ -10,15 +10,24 @@
 
 package com.energyict.protocolimpl.mbus.hydrometer.sharky770;
 
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.mbus.core.MBus;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -62,7 +71,12 @@ public class Sharky770 extends MBus {
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "NOT YET IMPLEMENTED";
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "Hydrometer Sharky 770";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }    

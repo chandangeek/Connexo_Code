@@ -7,14 +7,20 @@
 package com.energyict.protocolimpl.sctm.ekm;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.metcom.Metcom2;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  *
@@ -67,7 +73,12 @@ public class EKM extends Metcom2 implements RegisterProtocol {
         result.add(BILLING_TIME_STAMP_ID);
         return result;
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "L&G EKM SCTM";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }    

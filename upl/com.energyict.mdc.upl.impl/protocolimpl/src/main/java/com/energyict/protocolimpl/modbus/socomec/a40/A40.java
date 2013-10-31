@@ -10,15 +10,6 @@
 
 package com.energyict.protocolimpl.modbus.socomec.a40;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.TimeZone;
-import java.util.logging.Logger;
-
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
@@ -32,6 +23,15 @@ import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.HoldingRegister;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 /**
  *
  * @author Koen
@@ -48,21 +48,12 @@ public class A40 extends Modbus {
     public A40() {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected void doTheConnect() throws IOException {
     }
     
-    /**
-     * {@inheritDoc}
-     */
     protected void doTheDisConnect() throws IOException {
     }
     
-    /**
-     * {@inheritDoc}
-     */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
     	
     	if(getProfile().isSupported()){
@@ -77,54 +68,38 @@ public class A40 extends Modbus {
     	
     }
     
-    /**
-     * {@inheritDoc}
-     */
     public int getProfileInterval() throws UnsupportedException, IOException {
     	return getProfile().getProfileInterval();
     }
     
-    /**
-     * {@inheritDoc}
-     */
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","50").trim()));
         setSocomecType(properties.getProperty("SocomecType"));
     }
     
-    /**
-     * {@inheritDoc}
-     */
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         return "unknown";
     }
     
-    /**
-     * {@inheritDoc}
-     */
     protected List doTheGetOptionalKeys() {
         List result = new ArrayList();
         result.add("SocomecType");
         return result;
     }
     
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "Socomec Diris A40";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }
     
-    /**
-     * {@inheritDoc}
-     */
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
     }
     
-    /**
-     * {@inheritDoc}
-     */
     public Date getTime() throws IOException {
     	getRegisterFactory().findRegister(RegisterFactory.currentDateTime).getReadHoldingRegistersRequest().getRegisters();
         return new Date();

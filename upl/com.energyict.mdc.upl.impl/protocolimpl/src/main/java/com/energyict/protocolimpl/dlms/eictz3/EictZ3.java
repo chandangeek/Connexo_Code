@@ -507,16 +507,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      */
     private ApplicationServiceObject aso;
 
-    /**
-     * {@inheritDoc}
-     */
     public final DLMSConnection getDLMSConnection() {
         return this.dlmsConnection;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final void init(final InputStream inputStream, final OutputStream outputStream, final TimeZone timeZone, final Logger logger) throws IOException {
         if (!propertiesSet) {
             throw new IllegalStateException("You have to call setProperties before calling init, otherwise this protocol will not work correctly.");
@@ -601,9 +595,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.capturedObjectsHelper;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final int getNumberOfChannels() throws IOException {
         if (this.numberOfChannels == -1) {
             logger.info("Loading the number of channels, looping over the captured objects...");
@@ -616,9 +607,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.numberOfChannels;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final int getProfileInterval() throws IOException {
         if (this.profileInterval == -1) {
             logger.info("Requesting the profile interval from the meter...");
@@ -666,7 +654,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     /**
      * As the meter has been invented in 2009, the from date is set fixed to 1st of January of 2009, which seems like a sensible default.
      * <p/>
-     * {@inheritDoc}
      */
     public final ProfileData getProfileData(final boolean includeEvents) throws IOException {
         final Calendar fromCalendar = ProtocolUtils.getCleanCalendar(this.timeZone);
@@ -678,9 +665,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.getProfileData(fromCalendar, ProtocolUtils.getCalendar(this.timeZone), includeEvents);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final ProfileData getProfileData(final Date lastReading, final boolean includeEvents) throws IOException {
         final Calendar fromCalendar = ProtocolUtils.getCleanCalendar(this.timeZone);
 
@@ -689,9 +673,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.getProfileData(fromCalendar, ProtocolUtils.getCalendar(this.timeZone), includeEvents);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final ProfileData getProfileData(final Date fromDate, final Date toDate, final boolean includeEvents) throws IOException {
         final Calendar from = ProtocolUtils.getCleanCalendar(this.timeZone);
         from.setTime(fromDate);
@@ -930,16 +911,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return eiStatus;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final Quantity getMeterReading(final String name) throws IOException {
         throw new UnsupportedException();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final Quantity getMeterReading(final int channelId) throws IOException {
         throw new UnsupportedException();
     }
@@ -1094,9 +1069,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.numberOfConfigurationChanges;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final void connect() throws IOException {
         logger.info("Connecting to EpIO / Z3, connecting MAC...");
 
@@ -1306,9 +1278,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final void disconnect() throws IOException {
         try {
             if (this.dlmsConnection != null) {
@@ -1348,16 +1317,15 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return dc;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3 DLMS";
+    }
+
     public final String getProtocolVersion() {
         return "$Date$";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final String getFirmwareVersion() throws IOException {
         if (this.firmwareVersion == null) {
             this.firmwareVersion = AXDRDecoder.decode(this.getCosemObjectFactory().getData(OBISCODE_ACTIVE_FIRMWARE).getRawValueAttr()).getOctetString().stringValue();
@@ -1366,9 +1334,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.firmwareVersion;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final void setProperties(final Properties properties) throws MissingPropertyException, InvalidPropertyException {
         this.checkRequiredProperties(properties);
         this.configure(properties);
@@ -1620,9 +1585,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return optionalProperties;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final void setCache(final Object cacheObject) {
         if (!(cacheObject instanceof DLMSCache)) {
             throw new IllegalArgumentException("This protocol expects a cache object of type [" + DLMSCache.class.getName() + "], you provided an object of type [" + cacheObject + "], which is not compatible with this implementation !");
@@ -1631,9 +1593,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         this.dlmsCache = (DLMSCache) cacheObject;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final Object getCache() {
         return this.dlmsCache;
     }
@@ -1643,7 +1602,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * <p/>
      * As such this method is marked overridable (which translates to non-final in Java).
      * <p/>
-     * {@inheritDoc}
      */
     public Object fetchCache(final int rtuid) throws SQLException, BusinessException {
         throw new UnsupportedOperationException("Fetching caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
@@ -1655,29 +1613,19 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
      * <p/>
      * As such this method is marked overridable (which translates to non-final in Java).
      * <p/>
-     * {@inheritDoc}
      */
     public void updateCache(final int rtuid, final Object cacheObject) throws SQLException, BusinessException {
         throw new UnsupportedOperationException("Updating caches is not available by default for this protocol, if you want to enable this, override this method taking into account the context you are running in (Commserver, remote commserver, RTU+Server, etc...) as all these mechanisms are different");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final void release() throws IOException {
         // Not implemented for this protocol.
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final void enableHHUSignOn(final SerialCommunicationChannel commChannel) throws ConnectionException {
         this.enableHHUSignOn(commChannel, false);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final void enableHHUSignOn(final SerialCommunicationChannel commChannel, final boolean datareadout) throws ConnectionException {
         final HHUSignOn hhuSignOn = new IEC1107HHUConnection(commChannel, this.hdlcTimeout, this.protocolRetries, 300, 0);
 
@@ -1688,51 +1636,30 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         this.getDLMSConnection().setHHUSignOn(hhuSignOn, this.nodeAddress);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final byte[] getHHUDataReadout() {
         return this.getDLMSConnection().getHhuSignOn().getDataReadout();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final Logger getLogger() {
         return this.logger;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final DLMSMeterConfig getMeterConfig() {
         return this.meterConfig;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final int getReference() {
         return LN_REFERENCE;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final int getRoundTripCorrection() {
         return this.roundtripCorrection;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final TimeZone getTimeZone() {
         return this.timeZone;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final boolean isRequestTimeZone() {
         return this.requestTimeZone;
     }
@@ -1749,23 +1676,16 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     /**
      * This one returns the file name for the DLMS cache.
      * <p/>
-     * {@inheritDoc}
      */
     public final String getFileName() {
         final Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.YEAR) + "_" + (calendar.get(Calendar.MONTH) + 1) + "_" + calendar.get(Calendar.DAY_OF_MONTH) + "_" + this.deviceId + "_" + this.password + "_" + this.serialNumber + "_" + serverUpperMacAddress + "_DLMSEICTZ3.cache";
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final StoredValues getStoredValues() {
         return this.storedValuesImpl;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final RegisterValue readRegister(final ObisCode obisCode) throws IOException {
         try {
 
@@ -1791,16 +1711,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final RegisterInfo translateRegister(final ObisCode obisCode) throws IOException {
         return ObisCodeMapper.getRegisterInfo(obisCode);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final List<MessageCategorySpec> getMessageCategories() {
         final List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
 
@@ -1888,16 +1802,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return msgSpec;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final String writeMessage(final Message msg) {
         return msg.write(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @SuppressWarnings("unchecked")
     public final String writeTag(final MessageTag msgTag) {
         final StringBuilder buf = new StringBuilder();
@@ -1942,16 +1850,10 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return buf.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final String writeValue(final MessageValue msgValue) {
         return msgValue.getValue();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @SuppressWarnings("unchecked")
     public void applyMessages(final List messageEntries) throws IOException {
         // Not implemented for this protocol.
@@ -2069,9 +1971,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final MessageResult queryMessage(final MessageEntry messageEntry) {
         if (isEpIOFirmwareUpgrade(messageEntry.getContent())) {
             logger.info("Received a firmware upgrade message, using firmware message builder...");
@@ -2283,9 +2182,6 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.deviceSerialNumber;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final FirmwareUpdateMessageBuilder getFirmwareUpdateMessageBuilder() {
         return new FirmwareUpdateMessageBuilder();
     }

@@ -6,14 +6,19 @@
 
 package com.energyict.protocolimpl.metcom;
 
-import com.energyict.protocolimpl.siemens7ED62.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.siemens7ED62.SCTMTimeData;
+import com.energyict.protocolimpl.siemens7ED62.SiemensSCTM;
+import com.energyict.protocolimpl.siemens7ED62.SiemensSCTMException;
 
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  *
@@ -132,4 +137,8 @@ public class Metcom3FAF extends Metcom3 {
         }
     } // protected ProfileData doGetProfileData(Calendar calendarFrom, Calendar calendarTo, boolean includeEvents) throws IOException
 
+    @Override
+    public String getProtocolDescription() {
+        return "Metcom3 FAF Protocol Base";
+    }
 }

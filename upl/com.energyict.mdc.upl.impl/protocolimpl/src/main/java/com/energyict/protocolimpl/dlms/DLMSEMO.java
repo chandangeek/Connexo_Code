@@ -11,18 +11,26 @@ KV|23032005|Changed header to be compatible with protocol version tool
 KV|31032005|Handle DataContainerException
  *  @endchanges
  */
-package com.energyict.protocolimpl.dlms; 
+package com.energyict.protocolimpl.dlms;
 
-import java.io.*;
-import java.util.*;
-
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocol.*;
-import com.energyict.cbo.NestedIOException;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Properties;
 
 public class DLMSEMO extends DLMSSN {
     
@@ -167,6 +175,11 @@ public class DLMSEMO extends DLMSSN {
         catch (NumberFormatException e) {
            throw new InvalidPropertyException("DukePower, validateProperties, NumberFormatException, "+e.getMessage());    
         }
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enernet E7xx DLMS";
     }
 
     public String getProtocolVersion() {

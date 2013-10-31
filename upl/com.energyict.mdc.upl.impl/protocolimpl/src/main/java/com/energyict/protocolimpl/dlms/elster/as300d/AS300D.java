@@ -33,6 +33,11 @@ public class AS300D extends AbstractDlmsSessionProtocol {
 
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS300D DLMS";
+    }
+
     public String getProtocolVersion() {
         return "$Date: 2012-03-21 11:38:19 +0100 (Wed, 21 Mar 2012) $";
     }

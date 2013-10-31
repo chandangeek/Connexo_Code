@@ -364,6 +364,11 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
         return getProtocolVersion();
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3 Messaging";
+    }
+
     public String getProtocolVersion() {
         return "$Date: 2009-01-19 16:26:22 +0100 (ma, 19 jan 2009) $";
 //		return "$Revision$";

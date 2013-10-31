@@ -2,21 +2,52 @@ package com.energyict.protocolimpl.elster.a1800;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.ansi.c12.*;
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageAttributeSpec;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocolimpl.ansi.c12.C12Layer2;
+import com.energyict.protocolimpl.ansi.c12.PSEMServiceFactory;
+import com.energyict.protocolimpl.ansi.c12.ResponseIOException;
 import com.energyict.protocolimpl.ansi.c12.procedures.StandardProcedureFactory;
 import com.energyict.protocolimpl.ansi.c12.tables.StandardTableFactory;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimpl.elster.a3.procedures.ManufacturerProcedureFactory;
 import com.energyict.protocolimpl.elster.a3.tables.ManufacturerTableFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.xml.parsers.*;
-import java.io.*;
-import java.util.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,8 +111,18 @@ public class A1800 extends AlphaA3 implements MessageProtocol, HalfDuplexEnabler
 				throw(e);
 		}
     }
-	
-	/*******************************************************************************************
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Alpha A1800";
+    }
+
+    /* The protocol version */
+    public String getProtocolVersion() {
+        return "$Date$";
+    }
+
+    /*******************************************************************************************
     M e s s a g e P r o t o c o l  i n t e r f a c e 
 	 *******************************************************************************************/
 	// message protocol

@@ -5,15 +5,33 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.FirmwareVersion;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.iec1107.IEC1107Connection;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.CeweProfile;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.profile.EventParser;
-import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.*;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.CeweRegisters;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ObisCodeMapper;
+import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register.ProRegister;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 
 /**
@@ -276,6 +294,11 @@ public class CewePrometer extends AbstractProtocol  {
             channelCount = getRegisters().getrLogChannelCount()[pLogger].asInteger();
         }
         return channelCount.intValue();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "CEWE CEWEPrometer IEC1107";
     }
 
     /* (non-Javadoc)

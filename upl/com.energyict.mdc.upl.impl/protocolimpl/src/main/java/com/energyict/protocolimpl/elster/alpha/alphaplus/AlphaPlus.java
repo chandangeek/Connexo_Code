@@ -9,28 +9,50 @@
  */
 
 package com.energyict.protocolimpl.elster.alpha.alphaplus;
-import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.*;
-import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;
-import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
-import java.io.*;
-import java.util.*;  
-import java.util.logging.*;
 
-import com.energyict.protocol.HalfDuplexEnabler;   
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.DialerMarker;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.protocolimpl.elster.alpha.core.Alpha;
-import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.AlphaPlusProfile;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.ObisCodeMapper;
-import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.BillingDataRegisterFactoryImpl;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.BillingDataRegister;
+import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.BillingDataRegisterFactoryImpl;
+import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.Class31ModemBillingCallConfiguration;
+import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.Class32ModemAlarmCallConfiguration;
 import com.energyict.protocolimpl.elster.alpha.alphaplus.core.classes.ClassFactory;
+import com.energyict.protocolimpl.elster.alpha.core.Alpha;
+import com.energyict.protocolimpl.elster.alpha.core.classes.BillingDataRegisterFactory;
+import com.energyict.protocolimpl.elster.alpha.core.connection.AlphaConnection;
+import com.energyict.protocolimpl.elster.alpha.core.connection.CommandFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  *
@@ -130,6 +152,11 @@ public class AlphaPlus extends AbstractProtocol implements Alpha {
     
     public void setTime() throws IOException {
         getCommandFactory().getFunctionWithDataCommand().syncTime(getInfoTypeRoundtripCorrection(), getTimeZone());
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster Alpha Plus";
     }
 
     public String getProtocolVersion() {

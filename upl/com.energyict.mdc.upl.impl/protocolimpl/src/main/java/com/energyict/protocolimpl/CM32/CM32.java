@@ -1,13 +1,5 @@
 package com.energyict.protocolimpl.CM32;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -24,6 +16,14 @@ import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.base.AbstractProtocol;
 import com.energyict.protocolimpl.base.Encryptor;
 import com.energyict.protocolimpl.base.ProtocolConnection;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 public class CM32 extends AbstractProtocol {
 	
@@ -129,6 +129,11 @@ public class CM32 extends AbstractProtocol {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    @Override
+    public String getProtocolDescription() {
+        return "Siemens Energy Services Ltd CM32";
+    }
 
 	public String getProtocolVersion() {
 		return "$Date$";

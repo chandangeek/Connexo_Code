@@ -173,6 +173,11 @@ public class IskraMT880 extends AbstractSmartDlmsProtocol implements MessageProt
         return getComposedMeterInfo().getFirmwareVersion();
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco MT880 DLMS";
+    }
+
     public String getVersion() {
         return "$Date: 2013-09-30 15:38:06 +0200 (ma, 30 sep 2013) $";
     }

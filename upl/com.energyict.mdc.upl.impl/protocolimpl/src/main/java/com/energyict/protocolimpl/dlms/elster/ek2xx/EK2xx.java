@@ -402,6 +402,11 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         return getEk2xxProfile().getCapturedObjects();
     } // private CapturedObjects getCapturedObjects()  throws UnsupportedException, IOException
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster EK2xx DLMS";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

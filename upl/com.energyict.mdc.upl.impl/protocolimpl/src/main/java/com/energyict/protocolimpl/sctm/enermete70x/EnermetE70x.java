@@ -6,19 +6,18 @@
 
 package com.energyict.protocolimpl.sctm.enermete70x;
 
-import com.energyict.protocolimpl.siemens7ED62.*;
-import java.io.*;
-import java.util.*;
-import java.math.*;
-
-import com.energyict.protocol.*;
-import java.util.logging.*;
-import com.energyict.cbo.*;
-import com.energyict.protocolimpl.metcom.Metcom2;
-
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.customerconfig.*;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
+import com.energyict.protocolimpl.customerconfig.RegisterConfig;
+import com.energyict.protocolimpl.metcom.Metcom2;
 import com.energyict.protocolimpl.sctm.base.GenericRegisters;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author  Koen
@@ -59,7 +58,12 @@ public class EnermetE70x extends Metcom2 implements RegisterProtocol {
         result.add("Software7E1");
         return result;
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enernet E7xx SCTM";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }    

@@ -10,10 +10,19 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
@@ -22,8 +31,17 @@ import com.energyict.protocolimpl.iec1107.ppmi1.opus.OpusConnection;
 import com.energyict.protocolimpl.iec1107.ppmi1.register.LoadProfileDefinition;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -455,6 +473,11 @@ public class PPM extends AbstractPPM {
         result.add(PK_FORCE_DELAY);
         result.add("Software7E1");
         return result;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "ABB/GE PPM Issue1 IEC1107";
     }
 
     /* (non-Javadoc)

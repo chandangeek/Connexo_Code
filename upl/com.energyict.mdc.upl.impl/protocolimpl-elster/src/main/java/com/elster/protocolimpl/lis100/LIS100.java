@@ -2,18 +2,34 @@ package com.elster.protocolimpl.lis100;
 
 import com.elster.protocolimpl.lis100.connection.Lis100Connection;
 import com.elster.protocolimpl.lis100.profile.Lis100Profile;
-import com.elster.protocolimpl.lis100.registers.*;
+import com.elster.protocolimpl.lis100.registers.Lis100Register;
+import com.elster.protocolimpl.lis100.registers.RegisterMap;
+import com.elster.protocolimpl.lis100.registers.SimpleObisCodeMapper;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 import static com.energyict.protocolimpl.utils.ProtocolTools.delay;
@@ -72,6 +88,11 @@ public class LIS100 extends PluggableMeterProtocol implements ProtocolLink, Regi
         connection = new Lis100Connection(inputStream, outputStream);
         this.timeZone = timezone;
         this.logger = logger;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Elster LIS100 Protocol Base";
     }
 
     public String getProtocolVersion() {

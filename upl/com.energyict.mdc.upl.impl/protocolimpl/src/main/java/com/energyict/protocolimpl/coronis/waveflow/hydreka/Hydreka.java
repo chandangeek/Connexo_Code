@@ -1,7 +1,13 @@
 package com.energyict.protocolimpl.coronis.waveflow.hydreka;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.BubbleUpObject;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.coronis.waveflow.core.CommonObisCodeMapper;
 import com.energyict.protocolimpl.coronis.waveflow.core.WaveFlow;
 import com.energyict.protocolimpl.coronis.waveflow.core.messages.HydrekaMessages;
@@ -10,7 +16,9 @@ import com.energyict.protocolimpl.coronis.waveflow.hydreka.parameter.ParameterFa
 import com.energyict.protocolimpl.coronis.waveflow.hydreka.radiocommand.RadioCommandFactoryHydreka;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Copyrights EnergyICT
@@ -67,6 +75,11 @@ public class Hydreka extends WaveFlow implements MessageProtocol {
     @Override
     public int getNumberOfChannels() throws UnsupportedException, IOException {
         return 0;       //Fixed
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Hydreka";
     }
 
     @Override

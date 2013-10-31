@@ -311,6 +311,11 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "Elster MTU155 CTR";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date$";
     }

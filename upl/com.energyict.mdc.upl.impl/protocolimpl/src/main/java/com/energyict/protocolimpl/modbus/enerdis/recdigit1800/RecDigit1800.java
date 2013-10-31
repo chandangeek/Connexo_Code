@@ -1,5 +1,24 @@
 package com.energyict.protocolimpl.modbus.enerdis.recdigit1800;
 
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.discover.DiscoverResult;
+import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -7,17 +26,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
-import com.energyict.protocol.discover.DiscoverResult;
-import com.energyict.protocol.discover.DiscoverTools;
-
-import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
-import com.energyict.protocolimpl.modbus.enerdis.recdigit1800.ByteArray;
 
 
 /**
@@ -93,7 +101,12 @@ public class RecDigit1800 extends Modbus {
     protected List doTheGetOptionalKeys() {
         return new ArrayList();
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "Enerdis Recdigit 1800";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

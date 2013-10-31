@@ -10,20 +10,27 @@
 
 package com.energyict.protocolimpl.itron.quantum;
 
-import com.energyict.dialer.core.*;
-import com.energyict.obis.*;
-import com.energyict.protocol.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocolimpl.itron.quantum.basepages.*;
-import com.energyict.protocolimpl.itron.protocol.*;
+import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
+import com.energyict.protocolimpl.itron.quantum.basepages.BasePagesFactory;
+import com.energyict.protocolimpl.itron.quantum.basepages.RegisterFactory;
+
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.*;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 
 /**
  *
@@ -104,7 +111,12 @@ public class Quantum extends SchlumbergerProtocol {
 //        }
 //        else throw new UnsupportedException("setTime() is not supported on the Fulcrum meter because is clears all the memory. However, when 'AllowClockSet' property is set to 1, a setTime() can be forced but all memory will be cleared!");
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "Itron/Schlumberger Quantum";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }

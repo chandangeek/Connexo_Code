@@ -10,21 +10,26 @@
 
 package com.energyict.protocolimpl.modbus.cutlerhammer.iq200;
 
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.discover.*;
-import com.energyict.protocolimpl.modbus.core.functioncode.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.modbus.core.*;
-import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
+import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 /**
  *
  * @author Koen
@@ -63,6 +68,11 @@ public class IQ200 extends Modbus  {
     protected List doTheGetOptionalKeys() {
         List result = new ArrayList();
         return result;
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Cutler-Hammer IQ200";
     }
     
     public String getProtocolVersion() {

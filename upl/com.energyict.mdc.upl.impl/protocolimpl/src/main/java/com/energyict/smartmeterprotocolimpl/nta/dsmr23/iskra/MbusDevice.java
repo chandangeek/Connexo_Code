@@ -1,12 +1,16 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra;
 
-import com.energyict.cpo.*;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.cpo.TypedProperties;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractNtaMbusDevice;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Copyrights EnergyICT
@@ -26,6 +30,11 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     @Override
     public MessageProtocol getMessageProtocol() {
         return new Dsmr23MbusMessaging();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mbus Slave NTA DSMR 2.3";
     }
 
     /**

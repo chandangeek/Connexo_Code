@@ -9,6 +9,11 @@ package com.energyict.protocolimpl.dlms.prime;
 public class SagemComCX10006 extends AbstractPrimeMeter {
 
     @Override
+    public String getProtocolDescription() {
+        return "SagemCom CX10006 PLC PRIME DLMS";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date$";
     }

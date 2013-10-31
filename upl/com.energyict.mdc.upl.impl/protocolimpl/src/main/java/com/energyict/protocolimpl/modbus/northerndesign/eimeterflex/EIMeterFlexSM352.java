@@ -12,4 +12,8 @@ import com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule;
 @Deprecated
 public final class EIMeterFlexSM352 extends EIMeterFlexSlaveModule {
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT EIFlex SM352";
+    }
 }

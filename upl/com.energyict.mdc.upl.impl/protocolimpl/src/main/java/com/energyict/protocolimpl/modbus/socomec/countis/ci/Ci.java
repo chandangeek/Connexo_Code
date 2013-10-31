@@ -33,48 +33,30 @@ public class Ci extends Modbus {
 	
 	private MultiplierFactory multiplierFactory=null;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void doTheConnect() throws IOException {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void doTheDisConnect() throws IOException {
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected List doTheGetOptionalKeys() {
 		return new ArrayList();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void doTheValidateProperties(Properties properties)
 			throws MissingPropertyException, InvalidPropertyException {
 		setInfoTypeInterframeTimeout(Integer.parseInt(properties.getProperty("InterframeTimeout","50").trim()));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void initRegisterFactory() {
 		setRegisterFactory(new RegisterFactory(this));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	public DiscoverResult discover(DiscoverTools discoverTools) {
 		return null;
 	}
@@ -99,23 +81,19 @@ public class Ci extends Modbus {
         return multiplierFactory;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "Socomec Countis Ci";
+    }
+
     public String getProtocolVersion() {
         return "$Date$";
     }
     
-    /**
-     * {@inheritDoc}
-     */
     public Date getTime() throws IOException {
     	return DateTime.parseDateTime(getRegisterFactory().findRegister(RegisterFactory.currentDateTime).getReadHoldingRegistersRequest().getRegisters()).getMeterCalender().getTime();
     }
     
-    /**
-     * {@inheritDoc}
-     */
     public void setTime() throws IOException {
     	getRegisterFactory().findRegister(RegisterFactory.currentDateTime).getWriteMultipleRegisters(DateTime.getCurrentDate());
     }

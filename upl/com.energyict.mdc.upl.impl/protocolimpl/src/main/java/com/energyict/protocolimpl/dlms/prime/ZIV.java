@@ -11,6 +11,11 @@ package com.energyict.protocolimpl.dlms.prime;
 public class ZIV extends AbstractPrimeMeter {
 
     @Override
+    public String getProtocolDescription() {
+        return "Ziv 5CTM E2C PLC PRIME DLMS";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date$";
     }

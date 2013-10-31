@@ -17,6 +17,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -115,6 +116,11 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         return null;  // nothing to do
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3 Gateway";
     }
 
     @Override

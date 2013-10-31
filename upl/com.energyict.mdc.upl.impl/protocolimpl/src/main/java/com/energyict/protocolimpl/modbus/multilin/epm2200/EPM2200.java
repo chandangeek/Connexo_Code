@@ -7,7 +7,11 @@ import com.energyict.protocol.discover.DiscoverTools;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -38,6 +42,11 @@ public class EPM2200 extends Modbus {
 
     protected void initRegisterFactory() {
         setRegisterFactory(new RegisterFactory(this));
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "GE Multilin EPM 2200";
     }
 
     public String getProtocolVersion() {

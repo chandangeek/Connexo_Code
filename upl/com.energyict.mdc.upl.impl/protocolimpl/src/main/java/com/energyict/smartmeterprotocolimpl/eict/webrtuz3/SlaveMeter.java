@@ -37,6 +37,11 @@ public class SlaveMeter extends AbstractSlaveMeter implements SimpleMeter {
         this.physicalAddress = physicalAddress;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT WebRTU Z3 Slave";
+    }
+
     /**
      * Returns the implementation version
      *

@@ -37,6 +37,10 @@ public class MBusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
         return new Dsmr23MbusMessaging();
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr Mbus Slave NTA DSMR 4.0";
+    }
 
     /**
      * Returns the implementation version

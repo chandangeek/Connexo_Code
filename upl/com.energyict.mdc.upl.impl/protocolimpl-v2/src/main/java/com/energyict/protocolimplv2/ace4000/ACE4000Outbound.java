@@ -74,6 +74,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         return messageExecutor;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Actaris ACE4000";
+    }
+
     public String getVersion() {
         return "$Date$";
     }

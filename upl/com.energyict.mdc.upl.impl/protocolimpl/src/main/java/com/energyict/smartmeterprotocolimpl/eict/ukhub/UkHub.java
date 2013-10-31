@@ -272,6 +272,11 @@ public class UkHub extends AbstractSmartDlmsProtocol implements MasterMeter, Sim
         return new ArrayList<ProfileData>();
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT AM110R (SSWG IC) DLMS";
+    }
+
     /**
      * Returns the version
      *

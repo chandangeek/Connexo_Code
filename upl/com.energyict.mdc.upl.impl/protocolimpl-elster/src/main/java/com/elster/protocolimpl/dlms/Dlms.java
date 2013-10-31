@@ -170,6 +170,11 @@ public class Dlms extends PluggableMeterProtocol implements ProtocolLink, Regist
         this.logger = logger;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster DLMS Protocol Base";
+    }
+
     public String getProtocolVersion() {
         return "$Date: 2011-06-10 16:05:38 +0200 (vr, 10 jun 2011) $";
     }

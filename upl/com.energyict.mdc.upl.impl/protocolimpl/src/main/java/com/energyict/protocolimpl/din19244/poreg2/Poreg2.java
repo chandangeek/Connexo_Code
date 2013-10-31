@@ -71,6 +71,11 @@ public class Poreg2 extends Poreg {
         return getObisCodeMapper().getRegisterInfo(obisCode);
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Poreg 2";
+    }
+
     /**
      * The protocol verion
      */

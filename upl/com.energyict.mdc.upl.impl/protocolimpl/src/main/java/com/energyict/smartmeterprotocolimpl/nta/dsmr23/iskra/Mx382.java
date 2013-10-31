@@ -30,6 +30,11 @@ public class Mx382 extends AbstractSmartNtaProtocol implements PartialLoadProfil
         return AXDRDateTimeDeviationType.Negative;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Iskraemeco Mx382 NTA DSMR2.3";
+    }
+
     /**
      * Returns the implementation version
      *

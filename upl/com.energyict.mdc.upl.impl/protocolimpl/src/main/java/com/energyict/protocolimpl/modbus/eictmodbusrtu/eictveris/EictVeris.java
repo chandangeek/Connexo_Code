@@ -11,20 +11,26 @@
 package com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris;
 
 
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.functioncode.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 /**
  *
  * @author Koen
@@ -62,6 +68,11 @@ public class EictVeris extends Modbus {
         //return getRegisterFactory().getFunctionCodeFactory().getMandatoryReadDeviceIdentification().toString();
         return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getSlaveId()+", "+getRegisterFactory().getFunctionCodeFactory().getReportSlaveId().getAdditionalDataAsString();
     }
+
+    @Override
+    public String getProtocolDescription() {
+        return "Veris Hawkeye";
+    }
     
     public String getProtocolVersion() {
         return "$Revision: 1.3 $";
@@ -75,9 +86,7 @@ public class EictVeris extends Modbus {
         //return getRegisterFactory().findRegister("clock").dateValue();
         return new Date();
     }
-    
-    
-    
+
     private MultiplierFactory getMultiplierFactory() throws IOException {
         if (multiplierFactory==null) {
             multiplierFactory = new MultiplierFactory(getFirmwareVersion());
@@ -133,49 +142,50 @@ public class EictVeris extends Modbus {
                // absorb
            }
         }
-    }    
-    
+    }
+
     static public void main(String[] args) {
         try {
-int count=0;
-while(count++<2) {          
-    // ********************** Dialer **********************
-            Dialer dialer = DialerFactory.getDirectDialer().newDialer();
-            String comport;
-            if ((args==null) || (args.length<=1))
-                comport="COM1";
-            else
-                comport=args[1]; //"/dev/ttyXR0";
-            dialer.init(comport);
-            dialer.getSerialCommunicationChannel().setParams(9600,
-                                                             SerialCommunicationChannel.DATABITS_8,
-                                                             SerialCommunicationChannel.PARITY_NONE,
-                                                             SerialCommunicationChannel.STOPBITS_1);
-            dialer.connect();
-            
-            // ********************** Properties **********************
-            Properties properties = new Properties();
+            int count = 0;
+            while (count++ < 2) {
+                // ********************** Dialer **********************
+                Dialer dialer = DialerFactory.getDirectDialer().newDialer();
+                String comport;
+                if ((args == null) || (args.length <= 1)) {
+                    comport = "COM1";
+                } else {
+                    comport = args[1]; //"/dev/ttyXR0";
+                }
+                dialer.init(comport);
+                dialer.getSerialCommunicationChannel().setParams(9600,
+                        SerialCommunicationChannel.DATABITS_8,
+                        SerialCommunicationChannel.PARITY_NONE,
+                        SerialCommunicationChannel.STOPBITS_1);
+                dialer.connect();
+
+                // ********************** Properties **********************
+                Properties properties = new Properties();
 //            properties.setProperty("ProfileInterval", "60");
-            //properties.setProperty(MeterProtocol.NODEID,"0");
-            properties.setProperty(MeterProtocol.ADDRESS,"1");
-            properties.setProperty("HalfDuplex", "1");
+                //properties.setProperty(MeterProtocol.NODEID,"0");
+                properties.setProperty(MeterProtocol.ADDRESS, "1");
+                properties.setProperty("HalfDuplex", "1");
 //            int ift;
 //            if ((args==null) || (args.length==0))
 //                ift=25;
 //            else
 //                ift=Integer.parseInt(args[0]);
-            
-            //properties.setProperty("InterframeTimeout", ""+ift);
-            //properties.setProperty("PhysicalLayer","0");
-            // ********************** EictRtuModbus **********************
-            EictVeris hawkeye = new EictVeris();
-            
-            hawkeye.setProperties(properties);
-            hawkeye.setHalfDuplexController(dialer.getHalfDuplexController());
-            hawkeye.init(dialer.getInputStream(),dialer.getOutputStream(),TimeZone.getTimeZone("ECT"),Logger.getLogger("name"));
-            hawkeye.connect();
-            //System.out.println(hawkeye.getFirmwareVersion());
-            
+
+                //properties.setProperty("InterframeTimeout", ""+ift);
+                //properties.setProperty("PhysicalLayer","0");
+                // ********************** EictRtuModbus **********************
+                EictVeris hawkeye = new EictVeris();
+
+                hawkeye.setProperties(properties);
+                hawkeye.setHalfDuplexController(dialer.getHalfDuplexController());
+                hawkeye.init(dialer.getInputStream(), dialer.getOutputStream(), TimeZone.getTimeZone("ECT"), Logger.getLogger("name"));
+                hawkeye.connect();
+                //System.out.println(hawkeye.getFirmwareVersion());
+
 
 //            try {
 //            	System.out.println(hawkeye.getRegisterFactory().getFunctionCodeFactory().getReadHoldingRegistersRequest(4046,1));
@@ -183,21 +193,21 @@ while(count++<2) {
 //            catch(Exception e){
 //               	
 //            }
-            //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));}catch(Exception e){}
-            //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.152.7.0.255")));}catch(Exception e){}
-            //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.172.7.0.255")));}catch(Exception e){}
-            //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
+                //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));}catch(Exception e){}
+                //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.152.7.0.255")));}catch(Exception e){}
+                //try {System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.172.7.0.255")));}catch(Exception e){}
+                //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.255")));
-            //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.254")));
-            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));
+                //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.16.8.0.254")));
+                System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.132.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.1.8.0.255")));
-            //System.out.println(hawkeye.getRegistersInfo(0));
-           // System.out.println(hawkeye.getRegistersInfo(1));
+                //System.out.println(hawkeye.getRegistersInfo(0));
+                // System.out.println(hawkeye.getRegistersInfo(1));
 
-            dialer.disConnect();
-            hawkeye.disconnect();
-}
+                dialer.disConnect();
+                hawkeye.disconnect();
+            }
             //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.52.7.0.255")));
             //System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.72.7.0.255")));
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.12.7.0.255")));
@@ -222,13 +232,11 @@ while(count++<2) {
 //            System.out.println(hawkeye.readRegister(ObisCode.fromString("1.1.61.7.0.255")));
 //            
 //            System.out.println(hawkeye.getRegisterFactory().getFunctionCodeFactory().getReportSlaveId());
-                    
-                    
+
+
             //System.out.println(hawkeye.getRegistersInfo(1));
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        
     }
 }

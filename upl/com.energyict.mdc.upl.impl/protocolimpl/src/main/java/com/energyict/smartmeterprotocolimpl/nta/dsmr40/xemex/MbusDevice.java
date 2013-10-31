@@ -33,6 +33,11 @@ public class MbusDevice extends AbstractNtaMbusDevice implements PartialLoadProf
         return new XemexMbusMessaging();
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "XEMEX ReMI Mbus Slave";
+    }
+
     /**
      * Returns the implementation version
      *

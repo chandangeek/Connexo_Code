@@ -7,7 +7,9 @@
 package com.energyict.protocolimpl.sctm.mtt3a;
 
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.customerconfig.EDPRegisterConfig;
 import com.energyict.protocolimpl.customerconfig.RegisterConfig;
 import com.energyict.protocolimpl.metcom.Metcom3;
@@ -41,6 +43,11 @@ public class MTT3A extends Metcom3 implements RegisterProtocol {
     /** Creates a new instance of MTT3A */ 
     public MTT3A() {
         genericRegisters = new GenericRegisters(this);
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "L&G MTT3A SCTM";
     }
 
     public String getProtocolVersion() {

@@ -4,16 +4,38 @@
 package com.energyict.protocolimpl.dlms.as220;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
+import com.energyict.protocol.messaging.FirmwareUpdateMessagingConfig;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ContactorController;
-import com.energyict.protocolimpl.dlms.as220.gmeter.*;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GMeter;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GMeterMessaging;
+import com.energyict.protocolimpl.dlms.as220.gmeter.GasRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Basic implementation of a GasDevice
@@ -34,17 +56,11 @@ public class GasDevice extends AS220 implements MessageProtocol{
     private GMeterMessaging messaging;
     private int dif = -1;
 
-    /**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int getNumberOfChannels() throws IOException {
 		return getgMeter().getNrOfChannels();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
     public GMeter getgMeter() {
 		return gMeter;
 	}
@@ -53,18 +69,16 @@ public class GasDevice extends AS220 implements MessageProtocol{
         return dif;
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public String getProtocolDescription() {
+        return "Elster AS220/AS1440 AM500 PLC Mbus Slave";
+    }
+
     @Override
     public String getProtocolVersion() {
         return "$Date$";
     }
 
-	/**
-	 * {@inheritDoc}
-	 * @throws BusinessException
-	 */
 	@Override
 	protected void doConnect() throws BusinessException {
 		// search for the channel of the Mbus Device
@@ -122,16 +136,10 @@ public class GasDevice extends AS220 implements MessageProtocol{
 		return getCosemObjectFactory().getData(getMeterConfig().getMbusSerialNumber(getPhysicalAddress()).getObisCode()).getString();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	protected byte[] getSystemIdentifier(){
 		return this.emeterSerialnumber.getBytes();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
     public int getProfileInterval() throws IOException {
         if (mbusProfileInterval == -1) {
         	mbusProfileInterval = getgMeter().getMbusProfile().getCapturePeriod();
@@ -139,27 +147,18 @@ public class GasDevice extends AS220 implements MessageProtocol{
         return mbusProfileInterval;
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void setProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		validateProperties(properties);
 		super.setProperties(properties);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	private void validateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
 		this.gmeterSerialnumber = properties.getProperty(MeterProtocol.SERIALNUMBER, "");
 		this.emeterSerialnumber = properties.getProperty(MeterProtocol.NODEID, "");
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
 		if (to == null) {
@@ -180,8 +179,6 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
 	 * The gasMeter has normally one register ( 0.x.24.2.0.255 )
 	 */
 	@Override
@@ -232,9 +229,6 @@ public class GasDevice extends AS220 implements MessageProtocol{
 		return ProtocolTools.setObisCodeField(oc, 1, (byte) getGasSlotId());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<String> getRequiredKeys() {
 		List<String> requiredKeys = new ArrayList<String>();
@@ -242,49 +236,31 @@ public class GasDevice extends AS220 implements MessageProtocol{
 		return requiredKeys;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 		return getMessaging().queryMessage(messageEntry);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<MessageCategorySpec> getMessageCategories() {
 		return getMessaging().getMessageCategories();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String writeMessage(Message msg) {
 		return getMessaging().writeMessage(msg);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String writeTag(MessageTag msgTag) {
 		return getMessaging().writeTag(msgTag);
     }
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String writeValue(MessageValue msgValue) {
 		return msgValue.getValue();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void applyMessages(List messageEntries) throws IOException {
@@ -302,8 +278,6 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	}
 
 	/**
-	 * {@inheritDoc}
-	 *
 	 * FirmwareUpgrade is not supported but it's there because we inherit from AS220 ...
 	 */
     @Override
@@ -312,8 +286,6 @@ public class GasDevice extends AS220 implements MessageProtocol{
 	}
 
     /**
-     * {@inheritDoc}
-     *
      * FirmwareUpgrade is not supported but it's there because we inherit from AS220 ...
      */
     @Override

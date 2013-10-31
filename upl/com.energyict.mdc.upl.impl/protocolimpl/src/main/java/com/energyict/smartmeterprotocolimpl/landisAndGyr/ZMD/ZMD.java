@@ -408,6 +408,11 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
         return loadProfileBuilder;
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr ZMx Family";
+    }
+
     /**
      * Returns the protocol version
      */

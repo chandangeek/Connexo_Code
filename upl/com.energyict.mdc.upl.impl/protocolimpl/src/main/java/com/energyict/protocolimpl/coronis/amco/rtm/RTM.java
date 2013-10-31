@@ -2,17 +2,45 @@ package com.energyict.protocolimpl.coronis.amco.rtm;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.BubbleUp;
+import com.energyict.protocol.BubbleUpObject;
+import com.energyict.protocol.EventMapper;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe.AlarmFrameParser;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.alarmframe.BubbleUpFrameParser;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.parameter.ParameterFactory;
 import com.energyict.protocolimpl.coronis.amco.rtm.core.radiocommand.RadioCommandFactory;
-import com.energyict.protocolimpl.coronis.core.*;
+import com.energyict.protocolimpl.coronis.core.ProtocolLink;
+import com.energyict.protocolimpl.coronis.core.WaveFlowConnect;
+import com.energyict.protocolimpl.coronis.core.WaveFlowException;
+import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 
 public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLink, EventMapper, BubbleUp {
 
@@ -165,6 +193,11 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
 
     public String readFirmwareVersion() throws IOException {
         return "V" + WaveflowProtocolUtils.toHexString(getRadioCommandFactory().readFirmwareVersion().getFirmwareVersion()) + ", Mode of transmission " + getRadioCommandFactory().readFirmwareVersion().getCommunicationMode();
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return "RTM";
     }
 
     @Override

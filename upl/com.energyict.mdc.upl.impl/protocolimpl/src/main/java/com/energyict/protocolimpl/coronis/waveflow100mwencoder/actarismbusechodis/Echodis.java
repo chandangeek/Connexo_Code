@@ -2,7 +2,13 @@ package com.energyict.protocolimpl.coronis.waveflow100mwencoder.actarismbusechod
 
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocolimpl.coronis.core.WaveflowProtocolUtils;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.ActarisMBusInternalData;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW;
@@ -10,7 +16,9 @@ import com.energyict.protocolimpl.mbus.core.CIField72h;
 import com.energyict.protocolimpl.mbus.generic.RegisterFactory;
 
 import java.io.IOException;
-import java.math.*;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.Properties;
 
@@ -127,7 +135,16 @@ public class Echodis extends WaveFlow100mW {
      */
     protected String getRegistersInfo(int extendedLogging) throws IOException {
 		return obisCodeMapper.getRegisterExtendedLogging();
-    }    
-	
-	
+    }
+
+    @Override
+    public String getProtocolDescription() {
+        return"Echodis WaveFlow";
+    }
+
+
+    @Override
+    public String getProtocolVersion() {
+        return "$Date$";
+    }
 }

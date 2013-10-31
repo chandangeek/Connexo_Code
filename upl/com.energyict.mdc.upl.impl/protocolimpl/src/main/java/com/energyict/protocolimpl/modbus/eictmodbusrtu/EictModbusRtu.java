@@ -10,20 +10,26 @@
 
 package com.energyict.protocolimpl.modbus.eictmodbusrtu;
 
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.discover.*;
-import com.energyict.protocolimpl.modbus.core.functioncode.*;
-import com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris.RegisterFactory;
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.dialer.core.*;
-import com.energyict.protocol.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.MissingPropertyException;
 import com.energyict.protocol.discover.DiscoverResult;
 import com.energyict.protocol.discover.DiscoverTools;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.modbus.eictmodbusrtu.eictveris.RegisterFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
+import java.util.logging.Logger;
 /**
  *
  * @author Koen
@@ -58,7 +64,11 @@ public class EictModbusRtu extends Modbus {
     protected void initRegisterFactory(){
         setRegisterFactory(new RegisterFactory(this));
     }
-    
+
+    @Override
+    public String getProtocolDescription() {
+        return "EnergyICT RTU Modbus";
+    }
     
     public String getProtocolVersion() {
         return "$Date$";

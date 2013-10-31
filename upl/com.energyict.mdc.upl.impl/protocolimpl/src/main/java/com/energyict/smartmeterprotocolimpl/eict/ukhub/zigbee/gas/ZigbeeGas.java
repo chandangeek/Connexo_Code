@@ -219,6 +219,11 @@ public class ZigbeeGas extends AbstractSmartDlmsProtocol implements SimpleMeter,
         return getZigbeeGasLoadProfile().getLoadProfileData(loadProfilesToRead);
     }
 
+    @Override
+    public String getProtocolDescription() {
+        return "Elster BK-G4E (SSWG IC) DLMS";
+    }
+
     /**
      * Returns the implementation version
      * @return the version

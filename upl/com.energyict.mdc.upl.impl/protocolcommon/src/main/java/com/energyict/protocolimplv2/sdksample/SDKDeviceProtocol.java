@@ -314,6 +314,11 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "EICT SDK DeviceProtocol";
+    }
+
+    @Override
     public String getVersion() {
         return "$Date$";
     }
