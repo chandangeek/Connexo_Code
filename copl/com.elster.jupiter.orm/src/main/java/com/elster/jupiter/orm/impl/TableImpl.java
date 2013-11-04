@@ -236,7 +236,8 @@ public class TableImpl implements Table , PersistenceAware  {
 		return result.toArray(new Column[result.size()]);
 	}
 	
-	public List<String> getDdl() {
+	@Override
+    public List<String> getDdl() {
 		return new TableDdlGenerator(this).getDdl();
 	}
 	

@@ -213,4 +213,6 @@ public interface Table {
      * @return
      */
     List<Column> addIntervalColumns(String fieldName);
+
+    List<String> getDdl();
 }
