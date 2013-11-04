@@ -1,7 +1,6 @@
 package com.elster.jupiter.util.json;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
