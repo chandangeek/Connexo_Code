@@ -228,7 +228,32 @@ public enum TableSpecs {
 			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTPARTY", "PRT" , "PRT_PARTY", RESTRICT , "party" , partyIdColumn);
 			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTPARTYROLE", "PRT" , "PRT_PARTYROLE", RESTRICT , "role" , roleMRIDColumn);
  		}
-	};
+	},
+    MTR_ENUM_UP_GROUP {
+        @Override
+        void describeTable(Table table) {
+            Column idColumn = table.addAutoIdColumn();
+            table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
+            Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION, "mRID");
+            table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
+            table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
+            table.addColumn("TYPE", "varchar2(80)", false, NOCONVERSION , "type");
+            table.addAuditColumns();
+            table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP", idColumn);
+            table.addUniqueConstraint("MTR_U_ENUM_UP_GROUP", mRIDColumn);
+        }
+    },
+    MTR_ENUM_UP_IN_GROUP {
+        @Override
+        void describeTable(Table table) {
+            Column groupColumn = table.addColumn("GROUP_ID", "number", true, NUMBER2LONG, "groupId");
+            Column usagePointColumn = table.addColumn("USAGEPOINT_ID", "number", true, NUMBER2LONG, "usagePointId");
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP_ENTRY", groupColumn, usagePointColumn, intervalColumns.get(0));
+            table.addForeignKeyConstraint("MTR_FK_UPGE_UPG", MTR_ENUM_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup"), groupColumn);
+            table.addForeignKeyConstraint("MTR_FK_UPGE_UP", MTR_USAGEPOINT.name(), DeleteRule.RESTRICT, new AssociationMapping("usagePoint"), usagePointColumn);
+        }
+    };
 	
 	public void addTo(DataModel component) {
 		Table table = component.addTable(name());

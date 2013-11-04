@@ -228,4 +228,5 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     public ChannelBuilder getChannelBuilder() {
         return new ChannelBuilderImpl();
     }
+
 }
