@@ -15,17 +15,17 @@ public interface DiffList<E> extends List<E> {
     /**
      * @return a collection containing all elements in this list, not in the original.
      */
-    public Collection<E> getAdditions();
+    Collection<E> getAdditions();
 
     /**
      * @return a collection containing all elements not in this list, yet in the original.
      */
-    public Collection<E> getRemovals();
+    Collection<E> getRemovals();
 
     /**
      * @return a collection containing all elements in this list, also in the original.
      */
-    public Collection<E> getRemaining();
+    Collection<E> getRemaining();
 
     /**
      * Adds the element to the list WITHOUT considering it as a new element in the list.
