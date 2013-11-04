@@ -33,6 +33,9 @@ public class DeviceMessageConstants {
     public static final String pskAttributeName = "SecurityMessage.psk";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String newHexPasswordAttributeName = "SecurityMessage.newHexPassword";
+    public static final String preparedDataAttributeName = "SecurityMessage.preparedData";
+    public static final String signatureAttributeName = "SecurityMessage.signature";
+    public static final String verificationKeyAttributeName = "SecurityMessage.verificationKey";
     public static final String keyTActivationStatusAttributeName = "SecurityMessage.keyT.activationstatusT";
     public static final String SecurityTimeDurationAttributeName = "SecurityMessage.TimeDuration";
     public static final String executionKeyAttributeName = "SecurityMessage.executionkey";
@@ -329,6 +332,7 @@ public class DeviceMessageConstants {
 
     public static final String openKeyAttributeName = "MBusSetupDeviceMessage.openKey";
     public static final String transferKeyAttributeName = "MBusSetupDeviceMessage.transferKey";
+    public static final String defaultKeyAttributeName = "MBusSetupDeviceMessage.defaultKey";
 
     public static final String AnalogOutValue = "DeviceActionMessage.AnalogOutValue";
     public static final String OutputOn = "DeviceActionMessage.OutputOn";

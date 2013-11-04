@@ -16,7 +16,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.authe
  * @author sva
  * @since 30/10/13 - 14:00
  */
-public class E350MessageConverter extends WebRTUKPMessageConverter {
+public class Dsmr40MessageConverter extends Dsmr23MessageConverter {
 
     static {
         // Restore factory settings
@@ -36,7 +36,7 @@ public class E350MessageConverter extends WebRTUKPMessageConverter {
     /**
      * Default constructor for at-runtime instantiation
      */
-    public E350MessageConverter() {
+    public Dsmr40MessageConverter() {
         super();
     }
 

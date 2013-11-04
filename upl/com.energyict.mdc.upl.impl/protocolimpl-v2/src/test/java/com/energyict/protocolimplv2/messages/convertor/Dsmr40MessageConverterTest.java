@@ -17,12 +17,12 @@ import static junit.framework.Assert.assertTrue;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
- * testing the {@link E350MessageConverter} component.
+ * testing the {@link Dsmr40MessageConverter} component.
  *
  * @author sva
  * @since 30/10/13 - 14:22
  */
-public class E350MessageConverterTest extends AbstractMessageConverterTest {
+public class Dsmr40MessageConverterTest extends AbstractMessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -66,7 +66,7 @@ public class E350MessageConverterTest extends AbstractMessageConverterTest {
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new E350MessageConverter();
+        return new Dsmr40MessageConverter();
     }
 
     @Override

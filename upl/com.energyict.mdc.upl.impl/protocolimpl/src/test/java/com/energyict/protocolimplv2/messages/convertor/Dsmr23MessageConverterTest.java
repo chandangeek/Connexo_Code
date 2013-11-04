@@ -50,14 +50,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link WebRTUKPMessageConverter} component
+ * Tests the {@link Dsmr23MessageConverter} component
  * <p/>
  * Copyrights EnergyICT
  * Date: 12/03/13
  * Time: 15:19
  */
 @RunWith(MockitoJUnitRunner.class)
-public class WebRTUKPMessageConverterTest {
+public class Dsmr23MessageConverterTest {
 
     private static final String METER_SERIAL_NUMBER = "SomeSerialNumber";
     private static final ObisCode LOAD_PROFILE_OBISCODE = ObisCode.fromString("1.0.99.1.0.255");
@@ -80,21 +80,21 @@ public class WebRTUKPMessageConverterTest {
         when(mdcInterfaceProvider.getMdcInterface()).thenReturn(mdcInterface);
         when(mdcInterface.getManager()).thenReturn(manager);
         when(manager.getDeviceMessageSpecFactory()).thenReturn(deviceMessageSpecFactory);
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        for (DeviceMessageSpec deviceMessageSpec : webRTUKPMessageConverter.getSupportedMessages()) {
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        for (DeviceMessageSpec deviceMessageSpec : dsmr23MessageConverter.getSupportedMessages()) {
             when(deviceMessageSpecFactory.fromPrimaryKey(deviceMessageSpec.getPrimaryKey().getValue())).thenReturn(deviceMessageSpec);
         }
     }
 
     @Test
     public void formatContactorModeTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(contactorModeAttributeName);
         final BigDecimal modeAttribute = new BigDecimal(3);
 
         // business method
-        final String modeAttributeFormatting = webRTUKPMessageConverter.format(propertySpec, modeAttribute);
+        final String modeAttributeFormatting = dsmr23MessageConverter.format(propertySpec, modeAttribute);
 
         // asserts
         assertThat(modeAttributeFormatting).isEqualTo(modeAttribute.toString());
@@ -102,14 +102,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatActivationDateTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(contactorActivationDateAttributeName);
         long millis = 1363101865123L;
         Date currentDate = new Date(millis);
 
         // business method
-        final String currentDateFormatting = webRTUKPMessageConverter.format(propertySpec, currentDate);
+        final String currentDateFormatting = dsmr23MessageConverter.format(propertySpec, currentDate);
 
         // asserts
         assertThat(currentDateFormatting).isEqualTo(String.valueOf(millis));
@@ -117,14 +117,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatFirmwareUpgradeActionDateTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(firmwareUpdateActivationDateAttributeName);
         long millis = 1363735265123L;
         Date currentDate = new Date(millis);
 
         // business method
-        final String currentDateFormatting = webRTUKPMessageConverter.format(propertySpec, currentDate);
+        final String currentDateFormatting = dsmr23MessageConverter.format(propertySpec, currentDate);
 
         // asserts
         assertThat(currentDateFormatting).isEqualTo(String.valueOf(millis));
@@ -133,14 +133,14 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void formatFirmwareUpgradeUserFileTest() {
         final int userFileId = 324532;
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(firmwareUpdateUserFileAttributeName);
         UserFile userFile = mock(UserFile.class);
         when(userFile.getId()).thenReturn(userFileId);
 
         // business method
-        final String userFileFormatting = webRTUKPMessageConverter.format(propertySpec, userFile);
+        final String userFileFormatting = dsmr23MessageConverter.format(propertySpec, userFile);
 
         // asserts
         assertThat(userFileFormatting).isEqualTo(String.valueOf(userFileId));
@@ -148,13 +148,13 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatActivityCalendarNameTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(activityCalendarNameAttributeName);
         final String calendarNameAttribute = "ThisIsMyTestCalendarName";
 
         // business method
-        final String calendarNameFormatting = webRTUKPMessageConverter.format(propertySpec, calendarNameAttribute);
+        final String calendarNameFormatting = dsmr23MessageConverter.format(propertySpec, calendarNameAttribute);
 
         // asserts
         assertThat(calendarNameFormatting).isEqualTo(calendarNameAttribute);
@@ -163,14 +163,14 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void formatActivityCalendarCodeTableTest() {
         final int codeTableId = 324532;
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(activityCalendarCodeTableAttributeName);
         Code codeAttribute = mock(Code.class);
         when(codeAttribute.getId()).thenReturn(codeTableId);
 
         // business method
-        final String codeTableFormatting = webRTUKPMessageConverter.format(propertySpec, codeAttribute);
+        final String codeTableFormatting = dsmr23MessageConverter.format(propertySpec, codeAttribute);
 
         // asserts
         assertThat(codeTableFormatting).isEqualTo(String.valueOf(codeTableId));
@@ -178,14 +178,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatActivityCalendarActivationDateTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(activityCalendarActivationDateAttributeName);
         long millis = 1363735265123L;
         Date currentDate = new Date(millis);
 
         // business method
-        final String currentDateFormatting = webRTUKPMessageConverter.format(propertySpec, currentDate);
+        final String currentDateFormatting = dsmr23MessageConverter.format(propertySpec, currentDate);
 
         // asserts
         assertThat(currentDateFormatting).isEqualTo(String.valueOf(millis));
@@ -193,15 +193,15 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatEncryptionLevelTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec encryptionAttribute = mock(PropertySpec.class);
         when(encryptionAttribute.getName()).thenReturn(encryptionLevelAttributeName);
 
         // business method
-        final String noEncryptionFormatting = webRTUKPMessageConverter.format(encryptionAttribute, "No encryption");
-        final String authenticationFormatting = webRTUKPMessageConverter.format(encryptionAttribute, "Data authentication");
-        final String encryptionFormatting = webRTUKPMessageConverter.format(encryptionAttribute, "Data encryption");
-        final String authenticationAndEncryptionFormatting = webRTUKPMessageConverter.format(encryptionAttribute, "Data authentication and encryption");
+        final String noEncryptionFormatting = dsmr23MessageConverter.format(encryptionAttribute, "No encryption");
+        final String authenticationFormatting = dsmr23MessageConverter.format(encryptionAttribute, "Data authentication");
+        final String encryptionFormatting = dsmr23MessageConverter.format(encryptionAttribute, "Data encryption");
+        final String authenticationAndEncryptionFormatting = dsmr23MessageConverter.format(encryptionAttribute, "Data authentication and encryption");
 
         // asserts
         assertThat(noEncryptionFormatting).isEqualTo("0");
@@ -212,17 +212,17 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatAuthenticationLevelTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec authenticationAttribute = mock(PropertySpec.class);
         when(authenticationAttribute.getName()).thenReturn(authenticationLevelAttributeName);
 
         // business method
-        final String noAuthentication = webRTUKPMessageConverter.format(authenticationAttribute, "No authentiction");
-        final String lowLevelAuthentication = webRTUKPMessageConverter.format(authenticationAttribute, "Low level authentication");
-        final String manufacturerAuthentication = webRTUKPMessageConverter.format(authenticationAttribute, "Manufacturer specific");
-        final String highLevelMd5 = webRTUKPMessageConverter.format(authenticationAttribute, "High level authentication - MD5");
-        final String highLevelSha1 = webRTUKPMessageConverter.format(authenticationAttribute, "High level authentication - SHA-1");
-        final String highLevelGmac = webRTUKPMessageConverter.format(authenticationAttribute, "High level authentication - GMAC");
+        final String noAuthentication = dsmr23MessageConverter.format(authenticationAttribute, "No authentiction");
+        final String lowLevelAuthentication = dsmr23MessageConverter.format(authenticationAttribute, "Low level authentication");
+        final String manufacturerAuthentication = dsmr23MessageConverter.format(authenticationAttribute, "Manufacturer specific");
+        final String highLevelMd5 = dsmr23MessageConverter.format(authenticationAttribute, "High level authentication - MD5");
+        final String highLevelSha1 = dsmr23MessageConverter.format(authenticationAttribute, "High level authentication - SHA-1");
+        final String highLevelGmac = dsmr23MessageConverter.format(authenticationAttribute, "High level authentication - GMAC");
 
         // asserts
         assertThat(noAuthentication).isEqualTo("0");
@@ -235,13 +235,13 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatApnTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(apnAttributeName);
         final String myApn = "com.test.energyict.apn";
 
         // business method
-        final String formattedApn = webRTUKPMessageConverter.format(propertySpec, myApn);
+        final String formattedApn = dsmr23MessageConverter.format(propertySpec, myApn);
 
         // asserts
         assertThat(formattedApn).isEqualTo(myApn);
@@ -249,13 +249,13 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatUserNameTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(usernameAttributeName);
         final String myUserName = "MyUser_N@me";
 
         // business method
-        final String formattedUserName = webRTUKPMessageConverter.format(propertySpec, myUserName);
+        final String formattedUserName = dsmr23MessageConverter.format(propertySpec, myUserName);
 
         // asserts
         assertThat(formattedUserName).isEqualTo(myUserName);
@@ -263,14 +263,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatPasswordTest() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(passwordAttributeName);
         final String myPassword = "MyPr1v@t€P@55wd";
         final Password gprsPassword = new Password(myPassword);
 
         // business method
-        final String formattedPassword = webRTUKPMessageConverter.format(propertySpec, gprsPassword);
+        final String formattedPassword = dsmr23MessageConverter.format(propertySpec, gprsPassword);
 
         // asserts
         assertThat(formattedPassword).isEqualTo(myPassword);
@@ -278,13 +278,13 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatWhiteListPhoneNumbers() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(whiteListPhoneNumbersAttributeName);
         final String phoneNumbersOfWhiteList = "0477993322;+32485124578;00352478123";
 
         // business method
-        final String formattedPhoneNumbersOfWhiteList = webRTUKPMessageConverter.format(propertySpec, phoneNumbersOfWhiteList);
+        final String formattedPhoneNumbersOfWhiteList = dsmr23MessageConverter.format(propertySpec, phoneNumbersOfWhiteList);
 
         // asserts
         assertThat(formattedPhoneNumbersOfWhiteList).isEqualTo(phoneNumbersOfWhiteList);
@@ -292,13 +292,13 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatP1Information() {
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(p1InformationAttributeName);
         final String p1Information = "SomeTextOrCodeToSendToTheP1Port";
 
         // business method
-        final String formattedP1Information = webRTUKPMessageConverter.format(propertySpec, p1Information);
+        final String formattedP1Information = dsmr23MessageConverter.format(propertySpec, p1Information);
 
         // asserts
         assertThat(formattedP1Information).isEqualTo(p1Information);
@@ -306,14 +306,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatNormalThresholdTest(){
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(normalThresholdAttributeName);
         final String normalThresholdValue = "6";
         final BigDecimal normalThreshold = new BigDecimal(normalThresholdValue);
 
         // business method
-        final String formattedNormalThreshold = webRTUKPMessageConverter.format(propertySpec, normalThreshold);
+        final String formattedNormalThreshold = dsmr23MessageConverter.format(propertySpec, normalThreshold);
 
         // asserts
         assertThat(formattedNormalThreshold).isEqualTo(normalThresholdValue);
@@ -321,14 +321,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatEmergencyThresholdTest(){
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(emergencyThresholdAttributeName);
         final String emergencyThresholdValue = "2";
         final BigDecimal emergencyThreshold = new BigDecimal(emergencyThresholdValue);
 
         // business method
-        final String formattedEmergencyThreshold = webRTUKPMessageConverter.format(propertySpec, emergencyThreshold);
+        final String formattedEmergencyThreshold = dsmr23MessageConverter.format(propertySpec, emergencyThreshold);
 
         // asserts
         assertThat(formattedEmergencyThreshold).isEqualTo(emergencyThresholdValue);
@@ -336,14 +336,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatOverThresholdDurationTest(){
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(overThresholdDurationAttributeName);
         final String overThresholdDurationValue = "3600";
         final TimeDuration overThresholdDuration = new TimeDuration(1, TimeDuration.HOURS);
 
         // business method
-        final String formattedOverThresholdDuration = webRTUKPMessageConverter.format(propertySpec, overThresholdDuration);
+        final String formattedOverThresholdDuration = dsmr23MessageConverter.format(propertySpec, overThresholdDuration);
 
         // asserts
         assertThat(formattedOverThresholdDuration).isEqualTo(overThresholdDurationValue);
@@ -351,14 +351,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatEmergencyProfileIdTest(){
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(emergencyProfileIdAttributeName);
         final String emergencyProfileIdValue = "6543";
         final BigDecimal emergencyProfileId = new BigDecimal(emergencyProfileIdValue);
 
         // business method
-        final String formattedEmergencyProfileId = webRTUKPMessageConverter.format(propertySpec, emergencyProfileId);
+        final String formattedEmergencyProfileId = dsmr23MessageConverter.format(propertySpec, emergencyProfileId);
 
         // asserts
         assertThat(formattedEmergencyProfileId).isEqualTo(emergencyProfileIdValue);
@@ -366,14 +366,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatEmergencyProfileActivationDateTest(){
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(emergencyProfileActivationDateAttributeName);
         final String timeInMilliSeconds = "1364983938654";
         final Date activationDate = new Date(Long.valueOf(timeInMilliSeconds));
 
         // business method
-        final String formattedActivationDate = webRTUKPMessageConverter.format(propertySpec, activationDate);
+        final String formattedActivationDate = dsmr23MessageConverter.format(propertySpec, activationDate);
 
         // asserts
         assertThat(formattedActivationDate).isEqualTo(timeInMilliSeconds);
@@ -381,14 +381,14 @@ public class WebRTUKPMessageConverterTest {
 
     @Test
     public void formatEmergencyProfileDurationTest(){
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(emergencyProfileDurationAttributeName);
         final String emergencyProfileDurationValue = "259200";
         final TimeDuration emergencyProfileDuration = new TimeDuration(3, TimeDuration.DAYS);
 
         // business method
-        final String formattedEmergencyProfileDuration = webRTUKPMessageConverter.format(propertySpec, emergencyProfileDuration);
+        final String formattedEmergencyProfileDuration = dsmr23MessageConverter.format(propertySpec, emergencyProfileDuration);
 
         // asserts
         assertThat(formattedEmergencyProfileDuration).isEqualTo(emergencyProfileDurationValue);
@@ -397,14 +397,14 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void formatEmergencyProfileLookupIdTest(){
         final int lookupId = 324532;
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(emergencyProfileGroupIdListAttributeName);
         Lookup lookupAttribute = mock(Lookup.class);
         when(lookupAttribute.getId()).thenReturn(lookupId);
 
         // business method
-        final String formattedLookupId = webRTUKPMessageConverter.format(propertySpec, lookupAttribute);
+        final String formattedLookupId = dsmr23MessageConverter.format(propertySpec, lookupAttribute);
 
         // asserts
         assertThat(formattedLookupId).isEqualTo(String.valueOf(lookupId));
@@ -413,12 +413,12 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void formatXmlConfigTest() {
         final String xmlString = "<xml>someXml<t>blabla</t></xml>";
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(xmlConfigAttributeName);
 
         // business method
-        final String formattedXml = webRTUKPMessageConverter.format(propertySpec, xmlString);
+        final String formattedXml = dsmr23MessageConverter.format(propertySpec, xmlString);
 
         // asserts
         assertThat(formattedXml).isEqualTo(xmlString);
@@ -427,12 +427,12 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void formatFromDateTest() {
         Date fromDate = new Date(1367581336000L);
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(fromDateAttributeName);
 
         // business method
-        final String formattedFromDate = webRTUKPMessageConverter.format(propertySpec, fromDate);
+        final String formattedFromDate = dsmr23MessageConverter.format(propertySpec, fromDate);
 
         // asserts
         assertThat(formattedFromDate).isEqualTo("2013/05/03 13:42:16 CEST");
@@ -441,12 +441,12 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void formatToDateTest() {
         Date fromDate = new Date(1367581336000L);
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(toDateAttributeName);
 
         // business method
-        final String formattedFromDate = webRTUKPMessageConverter.format(propertySpec, fromDate);
+        final String formattedFromDate = dsmr23MessageConverter.format(propertySpec, fromDate);
 
         // asserts
         assertThat(formattedFromDate).isEqualTo("2013/05/03 13:42:16 CEST");
@@ -462,12 +462,12 @@ public class WebRTUKPMessageConverterTest {
         when(loadProfile.getRtu()).thenReturn(device);
         when(loadProfile.getAllChannels()).thenReturn(Arrays.asList(channel1, channel2));
 
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
         PropertySpec propertySpec = mock(PropertySpec.class);
         when(propertySpec.getName()).thenReturn(loadProfileAttributeName);
 
         // business method
-        final String formattedLoadProfile = webRTUKPMessageConverter.format(propertySpec, loadProfile);
+        final String formattedLoadProfile = dsmr23MessageConverter.format(propertySpec, loadProfile);
 
         // assert
         assertThat(formattedLoadProfile).isEqualTo(expectedXml);
@@ -506,13 +506,13 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void contactorOpenTest() {
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_OPEN.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(contactorOpen);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
 
         // asserts
         assertNotNull(messageEntry);
@@ -523,8 +523,8 @@ public class WebRTUKPMessageConverterTest {
     public void contactorOpenWithActivationDateTest() {
         final long millis = 1234567890321L;
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorActivationDateAttributeName);
@@ -533,7 +533,7 @@ public class WebRTUKPMessageConverterTest {
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(contactorOpen);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
 
         // asserts
         assertNotNull(messageEntry);
@@ -543,13 +543,13 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void contactorCloseTest() {
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_CLOSE.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(contactorOpen);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
 
         // asserts
         assertNotNull(messageEntry);
@@ -560,8 +560,8 @@ public class WebRTUKPMessageConverterTest {
     public void contactorCloseWithActivationDateTest() {
         final long millis = 1234567890321L;
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorActivationDateAttributeName);
@@ -570,7 +570,7 @@ public class WebRTUKPMessageConverterTest {
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(contactorOpen);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
 
         // asserts
         assertNotNull(messageEntry);
@@ -581,8 +581,8 @@ public class WebRTUKPMessageConverterTest {
     public void changeContactorModeTest() {
         final BigDecimal mode = new BigDecimal("3");
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage contactorOpen = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(offlineDeviceMessageAttribute.getName()).thenReturn(contactorModeAttributeName);
@@ -591,7 +591,7 @@ public class WebRTUKPMessageConverterTest {
         when(contactorOpen.getDeviceMessageSpecPrimaryKey()).thenReturn(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(contactorOpen);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(contactorOpen);
 
         // asserts
         assertNotNull(messageEntry);
@@ -604,8 +604,8 @@ public class WebRTUKPMessageConverterTest {
         final UserFile userFile = mock(UserFile.class);
         when(userFile.getId()).thenReturn(userFileId);
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage firmwareUpgrade = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute offlineDeviceMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(offlineDeviceMessageAttribute.getName()).thenReturn(firmwareUpdateUserFileAttributeName);
@@ -614,7 +614,7 @@ public class WebRTUKPMessageConverterTest {
         when(firmwareUpgrade.getDeviceMessageSpecPrimaryKey()).thenReturn(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(firmwareUpgrade);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(firmwareUpgrade);
 
         // asserts
         assertNotNull(messageEntry);
@@ -628,8 +628,8 @@ public class WebRTUKPMessageConverterTest {
         final UserFile userFile = mock(UserFile.class);
         when(userFile.getId()).thenReturn(userFileId);
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage firmwareUpgrade = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute userFileMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(userFileMessageAttribute.getName()).thenReturn(firmwareUpdateUserFileAttributeName);
@@ -641,7 +641,7 @@ public class WebRTUKPMessageConverterTest {
         when(firmwareUpgrade.getDeviceMessageSpecPrimaryKey()).thenReturn(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(firmwareUpgrade);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(firmwareUpgrade);
 
         // asserts
         assertNotNull(messageEntry);
@@ -655,8 +655,8 @@ public class WebRTUKPMessageConverterTest {
         final Code codeTable = mock(Code.class);
         when(codeTable.getId()).thenReturn(codeTableId);
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(codeTableMessageAttribute.getName()).thenReturn(activityCalendarCodeTableAttributeName);
@@ -668,7 +668,7 @@ public class WebRTUKPMessageConverterTest {
         when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(activityCalendarConfiguration);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activityCalendarConfiguration);
 
         // asserts
         assertNotNull(messageEntry);
@@ -683,8 +683,8 @@ public class WebRTUKPMessageConverterTest {
         final Code codeTable = mock(Code.class);
         when(codeTable.getId()).thenReturn(codeTableId);
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(codeTableMessageAttribute.getName()).thenReturn(activityCalendarCodeTableAttributeName);
@@ -699,7 +699,7 @@ public class WebRTUKPMessageConverterTest {
         when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(activityCalendarConfiguration);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activityCalendarConfiguration);
 
         // asserts
         assertNotNull(messageEntry);
@@ -713,8 +713,8 @@ public class WebRTUKPMessageConverterTest {
         final Code codeTable = mock(Code.class);
         when(codeTable.getId()).thenReturn(codeTableId);
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage activityCalendarConfiguration = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute codeTableMessageAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(codeTableMessageAttribute.getName()).thenReturn(specialDaysCodeTableAttributeName);
@@ -723,7 +723,7 @@ public class WebRTUKPMessageConverterTest {
         when(activityCalendarConfiguration.getDeviceMessageSpecPrimaryKey()).thenReturn(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(activityCalendarConfiguration);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activityCalendarConfiguration);
 
         // asserts
         assertNotNull(messageEntry);
@@ -734,8 +734,8 @@ public class WebRTUKPMessageConverterTest {
     public void activateEncryptionTest() {
         String encryptionLevel = "3";
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage activateEncryptionLevelMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute encryptionLevelAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(encryptionLevelAttribute.getName()).thenReturn(encryptionLevelAttributeName);
@@ -744,7 +744,7 @@ public class WebRTUKPMessageConverterTest {
         when(activateEncryptionLevelMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(activateEncryptionLevelMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activateEncryptionLevelMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -755,8 +755,8 @@ public class WebRTUKPMessageConverterTest {
     public void changeAuthenticationLevelTest() {
         String authenticationLevel = "3";
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage changeAuthenticationLevel = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute authenticationLevelAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(authenticationLevelAttribute.getName()).thenReturn(authenticationLevelAttributeName);
@@ -765,7 +765,7 @@ public class WebRTUKPMessageConverterTest {
         when(changeAuthenticationLevel.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(changeAuthenticationLevel);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeAuthenticationLevel);
 
         // asserts
         assertNotNull(messageEntry);
@@ -775,13 +775,13 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void changeDataTransportEncryptionKeyTest() {
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage changeDataTransportEncryptionKey = mock(OfflineDeviceMessage.class);
         when(changeDataTransportEncryptionKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_ENCRYPTION_KEY.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(changeDataTransportEncryptionKey);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeDataTransportEncryptionKey);
 
         // asserts
         assertNotNull(messageEntry);
@@ -791,13 +791,13 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void changeDataTransportAuthenticationKeyTest() {
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage changeDataTransportAuthenticationKey = mock(OfflineDeviceMessage.class);
         when(changeDataTransportAuthenticationKey.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_AUTHENTICATION_KEY.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(changeDataTransportAuthenticationKey);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeDataTransportAuthenticationKey);
 
         // asserts
         assertNotNull(messageEntry);
@@ -807,13 +807,13 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void changeHlsSecretTest() {
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage changeHlsSecret = mock(OfflineDeviceMessage.class);
         when(changeHlsSecret.getDeviceMessageSpecPrimaryKey()).thenReturn(SecurityMessage.CHANGE_PASSWORD.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(changeHlsSecret);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(changeHlsSecret);
 
         // asserts
         assertNotNull(messageEntry);
@@ -823,13 +823,13 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void activateSmsWakeUpMechanismTest() {
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage activateSmsWakeUp = mock(OfflineDeviceMessage.class);
         when(activateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(activateSmsWakeUp);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(activateSmsWakeUp);
 
         // asserts
         assertNotNull(messageEntry);
@@ -839,13 +839,13 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void deActivateSmsWakeUpMechanismTest() {
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage deActivateSmsWakeUp = mock(OfflineDeviceMessage.class);
         when(deActivateSmsWakeUp.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(deActivateSmsWakeUp);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(deActivateSmsWakeUp);
 
         // asserts
         assertNotNull(messageEntry);
@@ -858,8 +858,8 @@ public class WebRTUKPMessageConverterTest {
         final String myPassword = "MyDumm£T€stP@sswd";
 
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage gprsUserCredentials = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute userNameAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(userNameAttribute.getName()).thenReturn(usernameAttributeName);
@@ -871,7 +871,7 @@ public class WebRTUKPMessageConverterTest {
         when(gprsUserCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(gprsUserCredentials);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(gprsUserCredentials);
 
         // asserts
         assertNotNull(messageEntry);
@@ -885,8 +885,8 @@ public class WebRTUKPMessageConverterTest {
         final String myApn = "com.test.energyict.apn";
 
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage gprsApnCredentials = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute userNameAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(userNameAttribute.getName()).thenReturn(usernameAttributeName);
@@ -901,7 +901,7 @@ public class WebRTUKPMessageConverterTest {
         when(gprsApnCredentials.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(gprsApnCredentials);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(gprsApnCredentials);
 
         // asserts
         assertNotNull(messageEntry);
@@ -913,8 +913,8 @@ public class WebRTUKPMessageConverterTest {
         final String allPhoneNumbers = "0477993322;+32485124578;00352478123";
 
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage whiteListPhoneNumbersDeviceMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute whiteListPhoneNumbersAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(whiteListPhoneNumbersAttribute.getName()).thenReturn(whiteListPhoneNumbersAttributeName);
@@ -923,7 +923,7 @@ public class WebRTUKPMessageConverterTest {
         when(whiteListPhoneNumbersDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(whiteListPhoneNumbersDeviceMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(whiteListPhoneNumbersDeviceMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -935,8 +935,8 @@ public class WebRTUKPMessageConverterTest {
         final String p1CodeInformation = "dotdotdotdashdashdashdotdotdot";
 
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage p1CodeDeviceMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute p1CodeAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(p1CodeAttribute.getName()).thenReturn(p1InformationAttributeName);
@@ -945,7 +945,7 @@ public class WebRTUKPMessageConverterTest {
         when(p1CodeDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(p1CodeDeviceMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(p1CodeDeviceMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -957,8 +957,8 @@ public class WebRTUKPMessageConverterTest {
         final String p1TextInformation = "Sending out an S.O.S., Sending out an S.O.S., Sending out and S.O.S.";
 
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage p1TextDeviceMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute p1TextAttribute = mock(OfflineDeviceMessageAttribute.class);
         when(p1TextAttribute.getName()).thenReturn(p1InformationAttributeName);
@@ -967,7 +967,7 @@ public class WebRTUKPMessageConverterTest {
         when(p1TextDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(p1TextDeviceMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(p1TextDeviceMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -977,13 +977,13 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void globalMeterResetTest(){
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage globalMeterResetDeviceMessage = mock(OfflineDeviceMessage.class);
         when(globalMeterResetDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(DeviceActionMessage.GLOBAL_METER_RESET.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(globalMeterResetDeviceMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(globalMeterResetDeviceMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -1000,8 +1000,8 @@ public class WebRTUKPMessageConverterTest {
         final String emergencyProfileActivationDate = "1364988856654";
 
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage configureLoadLimitingParametersMessage = mock(OfflineDeviceMessage.class);
 
         OfflineDeviceMessageAttribute normalThresholdAttribute = mock(OfflineDeviceMessageAttribute.class);
@@ -1034,7 +1034,7 @@ public class WebRTUKPMessageConverterTest {
         when(configureLoadLimitingParametersMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(configureLoadLimitingParametersMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(configureLoadLimitingParametersMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -1047,8 +1047,8 @@ public class WebRTUKPMessageConverterTest {
         final Lookup lookupTable = mock(Lookup.class);
         when(lookupTable.getId()).thenReturn(lookupId);
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
 
         OfflineDeviceMessage setEmergencyProfileIdsMessage = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessageAttribute lookupTableAttribute = mock(OfflineDeviceMessageAttribute.class);
@@ -1059,7 +1059,7 @@ public class WebRTUKPMessageConverterTest {
         when(setEmergencyProfileIdsMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(setEmergencyProfileIdsMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(setEmergencyProfileIdsMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -1069,13 +1069,13 @@ public class WebRTUKPMessageConverterTest {
     @Test
     public void clearLoadLimitConfigurationTest(){
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage clearLoadLimitConfigurationDeviceMessage = mock(OfflineDeviceMessage.class);
         when(clearLoadLimitConfigurationDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION.getPrimaryKey());
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(clearLoadLimitConfigurationDeviceMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(clearLoadLimitConfigurationDeviceMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -1087,8 +1087,8 @@ public class WebRTUKPMessageConverterTest {
         final String xmlString = "<SomeXml><></><bla>Tralalala<bla/><></><SomeXml/>";
 
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage xmlConfigDeviceMessage = mock(OfflineDeviceMessage.class);
         when(xmlConfigDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(AdvancedTestMessage.XML_CONFIG.getPrimaryKey());
         OfflineDeviceMessageAttribute xmlConfigAttribute = mock(OfflineDeviceMessageAttribute.class);
@@ -1097,7 +1097,7 @@ public class WebRTUKPMessageConverterTest {
         when(xmlConfigDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(xmlConfigAttribute));
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(xmlConfigDeviceMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(xmlConfigDeviceMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -1110,8 +1110,8 @@ public class WebRTUKPMessageConverterTest {
         final String loadProfileAttributeValue = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\" EndTime=\"13/03/2013 11:32:25\" LPId=\"821\"><Channels><Ch Id=\"0\" Name=\"1.0.1.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"1\" Name=\"1.0.1.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"2\" Name=\"1.0.2.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"3\" Name=\"1.0.2.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\"/></RtuRegs></LoadProfile>";
 
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
         OfflineDeviceMessage partialLoadProfileDeviceMessage = mock(OfflineDeviceMessage.class);
         when(partialLoadProfileDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST.getPrimaryKey());
         OfflineDeviceMessageAttribute loadProfileAttribute = mock(OfflineDeviceMessageAttribute.class);
@@ -1126,7 +1126,7 @@ public class WebRTUKPMessageConverterTest {
         when(partialLoadProfileDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(loadProfileAttribute, fromDateAttribute, toDateAttribute));
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(partialLoadProfileDeviceMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(partialLoadProfileDeviceMessage);
 
         // asserts
         assertNotNull(messageEntry);
@@ -1139,8 +1139,8 @@ public class WebRTUKPMessageConverterTest {
         final String loadProfileAttributeValue = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><LoadProfile LPObisCode=\"0.0.98.1.0.255\" MSerial=\"SomeSerialNumber\" StartTime=\"06/02/2013 10:00:25\" EndTime=\"13/03/2013 11:32:25\" LPId=\"821\"><Channels><Ch Id=\"0\" Name=\"1.0.1.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"1\" Name=\"1.0.1.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"2\" Name=\"1.0.2.8.1.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /><Ch Id=\"3\" Name=\"1.0.2.8.2.255\" Unit=\"kWh\" ID=\"SomeSerialNumber\" /></Channels><RtuRegs><Reg ID=\"SomeSerialNumber\" OC=\"1.0.1.8.0.255\"/><Reg ID=\"SomeSerialNumber\" OC=\"1.0.2.8.0.255\"/></RtuRegs></LoadProfile>";
 
         Messaging smartMeterProtocol = new WebRTUKP();
-        final WebRTUKPMessageConverter webRTUKPMessageConverter = new WebRTUKPMessageConverter();
-        webRTUKPMessageConverter.setMessagingProtocol(smartMeterProtocol);
+        final Dsmr23MessageConverter dsmr23MessageConverter = new Dsmr23MessageConverter();
+        dsmr23MessageConverter.setMessagingProtocol(smartMeterProtocol);
 
         OfflineDeviceMessage registerRequestDeviceMessage = mock(OfflineDeviceMessage.class);
         when(registerRequestDeviceMessage.getDeviceMessageSpecPrimaryKey()).thenReturn(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST.getPrimaryKey());
@@ -1153,7 +1153,7 @@ public class WebRTUKPMessageConverterTest {
         when(registerRequestDeviceMessage.getDeviceMessageAttributes()).thenReturn(Arrays.asList(loadProfileAttribute, fromDateAttribute));
 
         // business method
-        final MessageEntry messageEntry = webRTUKPMessageConverter.toMessageEntry(registerRequestDeviceMessage);
+        final MessageEntry messageEntry = dsmr23MessageConverter.toMessageEntry(registerRequestDeviceMessage);
 
         // asserts
         assertNotNull(messageEntry);

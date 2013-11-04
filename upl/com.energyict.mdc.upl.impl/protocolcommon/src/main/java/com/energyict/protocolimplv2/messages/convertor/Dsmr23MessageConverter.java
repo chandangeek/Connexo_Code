@@ -69,7 +69,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  * Date: 8/03/13
  * Time: 16:26
  */
-public class WebRTUKPMessageConverter extends AbstractMessageConverter {
+public class Dsmr23MessageConverter extends AbstractMessageConverter {
 
     private static final String TEST_FILE = "Test_File";
     private static final String TEST_MESSAGE = "Test_Message";
@@ -144,7 +144,7 @@ public class WebRTUKPMessageConverter extends AbstractMessageConverter {
     /**
      * Default constructor for at-runtime instantiation
      */
-    public WebRTUKPMessageConverter() {
+    public Dsmr23MessageConverter() {
         super();
     }
 

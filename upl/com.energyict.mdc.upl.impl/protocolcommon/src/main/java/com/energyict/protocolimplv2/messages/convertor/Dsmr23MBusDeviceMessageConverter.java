@@ -26,18 +26,18 @@ import java.util.Map;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
- *  Represents a MessageConverter for the legacy NTA DSM2.3 WebRTUKP MBusDevice protocol.
+ * Represents a MessageConverter for the legacy NTA DSM2.3 WebRTUKP MBusDevice protocol.
  *
- *  @author sva
+ * @author sva
  * @since 30/10/13 - 8:33
  */
-public class WebRTUKPMBusDeviceMessageConverter extends AbstractMessageConverter {
+public class Dsmr23MBusDeviceMessageConverter extends AbstractMessageConverter {
 
     /**
      * Represents a mapping between {@link com.energyict.mdc.messages.DeviceMessageSpec deviceMessageSpecs}
      * and the corresponding {@link com.energyict.protocolimplv2.messages.convertor.MessageEntryCreator}
      */
-    private static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
+    protected static Map<DeviceMessageSpec, MessageEntryCreator> registry = new HashMap<>();
 
     static {
         // Disconnect control
@@ -59,7 +59,7 @@ public class WebRTUKPMBusDeviceMessageConverter extends AbstractMessageConverter
         registry.put(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST, new LoadProfileRegisterRequestMessageEntry(loadProfileAttributeName, fromDateAttributeName));
     }
 
-    public WebRTUKPMBusDeviceMessageConverter() {
+    public Dsmr23MBusDeviceMessageConverter() {
         super();
     }
 
@@ -74,10 +74,10 @@ public class WebRTUKPMBusDeviceMessageConverter extends AbstractMessageConverter
             case DeviceMessageConstants.contactorActivationDateAttributeName:
                 return Long.toString(((Date) messageAttribute).getTime() / 1000);
             case DeviceMessageConstants.loadProfileAttributeName:
-            	return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
             case DeviceMessageConstants.fromDateAttributeName:
             case DeviceMessageConstants.toDateAttributeName:
-            	return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
+                return dateTimeFormatWithTimeZone.format((Date) messageAttribute);
             default:
                 return messageAttribute.toString();
         }

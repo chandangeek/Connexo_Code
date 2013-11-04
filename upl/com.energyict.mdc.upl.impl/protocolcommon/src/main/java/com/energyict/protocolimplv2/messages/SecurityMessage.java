@@ -28,8 +28,8 @@ public enum SecurityMessage implements DeviceMessageSpec {
             DlmsEncryptionLevelMessageValues.getNames())),
     CHANGE_DLMS_AUTHENTICATION_LEVEL(
             PropertySpecFactory.stringPropertySpecWithValues(
-                DeviceMessageConstants.authenticationLevelAttributeName,
-                DlmsAuthenticationLevelMessageValues.getNames())
+                    DeviceMessageConstants.authenticationLevelAttributeName,
+                    DlmsAuthenticationLevelMessageValues.getNames())
     ),
     CHANGE_ENCRYPTION_KEY,
     CHANGE_CLIENT_PASSWORDS(
@@ -92,6 +92,21 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,
                     DlmsAuthenticationLevelMessageValues.getNames())
+    ),
+    CHANGE_HLS_SECRET_USING_SERVICE_KEY(
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
+    ),
+    CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY(
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
+    ),
+    CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY(
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.preparedDataAttributeName),
+            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
     );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;

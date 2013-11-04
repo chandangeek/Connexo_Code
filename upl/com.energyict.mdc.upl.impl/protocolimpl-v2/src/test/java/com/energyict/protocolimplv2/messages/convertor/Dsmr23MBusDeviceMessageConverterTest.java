@@ -19,13 +19,13 @@ import static junit.framework.Assert.assertEquals;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
- * testing the {@link WebRTUKPMBusDeviceMessageConverter} component.
+ * testing the {@link Dsmr23MBusDeviceMessageConverter} component.
  *
  * @author sva
  * @since 30/10/13 - 9:06
  */
 @RunWith(MockitoJUnitRunner.class)
-public class WebRTUKPMBusDeviceMessageConverterTest extends AbstractMessageConverterTest {
+public class Dsmr23MBusDeviceMessageConverterTest extends AbstractMessageConverterTest {
 
     @Test
     public void testMessageConversion() {
@@ -76,7 +76,7 @@ public class WebRTUKPMBusDeviceMessageConverterTest extends AbstractMessageConve
 
     @Override
     LegacyMessageConverter doGetMessageConverter() {
-        return new WebRTUKPMBusDeviceMessageConverter();
+        return new Dsmr23MBusDeviceMessageConverter();
     }
 
     @Override
