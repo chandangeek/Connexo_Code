@@ -5,9 +5,9 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
 
 /**
@@ -29,6 +29,8 @@ public class WebRTUZ3EMeterMessageConverter extends AbstractMessageConverter {
         // contactor related
         registry.put(ContactorDeviceMessage.CONTACTOR_OPEN, new DisconnectLoadMessageEntry());
         registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE, new ConnectLoadMessageEntry());
+        registry.put(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE, new ConnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
+        registry.put(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, new DisconnectLoadWithActivationDateMessageEntry(contactorActivationDateAttributeName));
         registry.put(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE, new ConnectControlModeMessageEntry(contactorModeAttributeName));
     }
 
@@ -41,8 +43,10 @@ public class WebRTUZ3EMeterMessageConverter extends AbstractMessageConverter {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(contactorModeAttributeName)){
+        if (propertySpec.getName().equals(contactorModeAttributeName)) {
             return messageAttribute.toString();
+        } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
+            return dateTimeFormat.format((Date) messageAttribute);
         }
         return EMPTY_FORMAT;
     }
