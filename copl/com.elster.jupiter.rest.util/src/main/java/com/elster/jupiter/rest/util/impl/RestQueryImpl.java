@@ -9,6 +9,8 @@ import com.elster.jupiter.util.conditions.Operator;
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
 
+import static com.elster.jupiter.util.Checks.is;
+
 class RestQueryImpl<T> implements RestQuery<T> {
 	private final Query<T> query;
 	
@@ -39,7 +41,7 @@ class RestQueryImpl<T> implements RestQuery<T> {
 		for (String key : map.keySet()) {
 			if (query.hasField(key)) {		
 				String value = map.getFirst(key);
-				if (value.trim().length() > 0) {				
+				if (is(value).emptyOrOnlyWhiteSpace()) {
 					condition = condition.and(Operator.EQUAL.compare(key,query.convert(key, value))); 					
 				}
 			}
