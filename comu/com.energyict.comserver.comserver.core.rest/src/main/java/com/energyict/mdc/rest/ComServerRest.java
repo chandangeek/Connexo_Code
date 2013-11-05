@@ -7,21 +7,28 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("/")
+@Path("/comservers")
 public class ComServerRest {
 
     @GET
-    @Path("/all")
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<String> getComServers() {
-        Set<String> comservers = new HashSet<>();
+    public Collection<ComServerInfo> getComServers() {
+        Set<ComServerInfo> comservers = new HashSet<>();
         for (ComServer comServer : ManagerFactory.getCurrent().getComServerFactory().findAll()) {
-            comservers.add(comServer.getName());
+            comservers.add(new ComServerInfo(comServer));
         }
         return comservers;
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComServerInfo getComServer(@PathParam("id") int id) {
+        return new ComServerInfo(ManagerFactory.getCurrent().getComServerFactory().find(id));
     }
 
 }

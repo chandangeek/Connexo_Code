@@ -8,7 +8,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
-@Component(name = "com.elster.mdc.rest" , service=Application.class , immediate = true , property = {"alias=/comserver"} )
+@Component(name = "com.elster.mdc.rest" , service=Application.class , immediate = true , property = {"alias=/mdc"} )
 public class ComServerApplication extends Application {
 
     @Override
