@@ -2,7 +2,8 @@ Ext.define('Uni.controller.Navigation', {
     extend: 'Ext.app.Controller',
 
     requires: [
-        'Uni.controller.history.EventBus'
+        'Uni.controller.history.EventBus',
+        'Uni.store.MenuItems'
     ],
 
     views: [
