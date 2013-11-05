@@ -1,4 +1,4 @@
-package com.energyict.mdc.rest;
+package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.servers.ComServer;
