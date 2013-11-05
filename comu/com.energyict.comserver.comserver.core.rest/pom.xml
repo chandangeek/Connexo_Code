@@ -60,7 +60,8 @@
 
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc</artifactId>
+            <artifactId>mdc-all</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -73,4 +74,19 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <_include>src/main/resources/bnd.bnd</_include>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
