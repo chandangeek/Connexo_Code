@@ -16,8 +16,8 @@ public class Activator implements BundleActivator {
     private volatile ServiceRegistration<HttpResource> registration;
 
     public void start(BundleContext bundleContext) throws Exception {
-        String alias = "/cms";
-        HttpResource resource = new HttpResource(alias, "/js/cms" , new BundleResolver(bundleContext));
+        String alias = "/mdc";
+        HttpResource resource = new HttpResource(alias, "/js/mdc" , new BundleResolver(bundleContext));
 //        Comment above and uncomment next line for file based javascript serving, changing second argument as appropriate
 //        HttpResource resource = new HttpResource(alias, "/home/lvz/Documents/Workspace/Jupiter/meteringextjs/js/mtr" , new FileResolver());
         registration = bundleContext.registerService(HttpResource.class, resource , null);
