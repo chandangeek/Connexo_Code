@@ -4,6 +4,10 @@ Ext.define('Mdc.controller.history.Setup', {
     rootToken: 'setup',
 
     doConversion: function (tokens) {
-        Mdc.getApplication().getSetupController().showOverview();
+        if (tokens.length > 0 && tokens[1] === 'comservers') {
+            Mdc.getApplication().getSetupController().showComServers();
+        } else {
+            Mdc.getApplication().getSetupController().showOverview();
+        }
     }
 });

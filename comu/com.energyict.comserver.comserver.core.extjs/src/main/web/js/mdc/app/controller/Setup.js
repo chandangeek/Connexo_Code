@@ -2,7 +2,8 @@ Ext.define('Mdc.controller.Setup', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'setup.Browse'
+        'setup.Browse',
+        'setup.ComServers'
     ],
 
     init: function () {
@@ -21,6 +22,11 @@ Ext.define('Mdc.controller.Setup', {
 
     showOverview: function () {
         var widget = Ext.widget('setupBrowse');
+        Mdc.getApplication().getMainController().showContent(widget);
+    },
+
+    showComServers: function () {
+        var widget = Ext.widget('setupComServers');
         Mdc.getApplication().getMainController().showContent(widget);
     }
 

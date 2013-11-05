@@ -1,13 +1,13 @@
-Ext.define('Mdc.view.setup.Browse', {
+Ext.define('Mdc.view.setup.ComServers', {
     extend: 'Ext.container.Container',
-    alias: 'widget.setupBrowse',
+    alias: 'widget.setupComServers',
     overflowY: 'auto',
     layout: 'fit',
     items: [
         {
-            xtype: 'panel',
+            xtype: 'component',
             cls: 'content-container',
-            html: '<a href="#/setup/comservers">comservers</a>'
+            html: 'comservers'
         }
     ],
 
