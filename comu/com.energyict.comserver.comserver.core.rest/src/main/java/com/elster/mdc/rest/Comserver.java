@@ -11,7 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 @Path("/comserver")
-public class comserver {
+public class Comserver {
 
     @GET
     @Path("/all")
