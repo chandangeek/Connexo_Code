@@ -295,7 +295,7 @@
                                             <type>${project.packaging}</type>
                                         </artifactItem>
                                     </artifactItems>
-                                    <outputDirectory>C:/felix-framework-4.2.1/autodeploy</outputDirectory>
+                                    <outputDirectory>${felix.load.folder}</outputDirectory>
                                 </configuration>
                             </execution>
                         </executions>
