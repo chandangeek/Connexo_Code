@@ -3,7 +3,8 @@ package com.energyict.mdc.protocols.impl;
 import com.energyict.cpo.Environment;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
-import com.energyict.mdc.rest.impl.DeviceProtocolFactoryService;
+import com.energyict.mdc.protocol.ServerDeviceProtocolPluggableClass;
+import com.energyict.mdc.rest.DeviceProtocolFactoryService;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.PluggableClass;
 import org.osgi.service.component.annotations.Activate;
@@ -15,7 +16,7 @@ import org.osgi.service.component.annotations.Deactivate;
  * Date: 06/11/13
  * Time: 11:03
  */
-@Component(name="com.energyict.mdc.protocols", service=DeviceProtocolFactoryService.class)
+@Component(name="com.energyict.mdc.protocols", service=DeviceProtocolFactoryService.class, immediate = true)
 public class DeviceProtocolFactoryServiceImpl implements DeviceProtocolFactoryService {
 
     public DeviceProtocolFactoryServiceImpl() {
@@ -35,6 +36,7 @@ public class DeviceProtocolFactoryServiceImpl implements DeviceProtocolFactorySe
 
     @Override
     public DeviceProtocolPluggableClass createDeviceProtocolPluggableClassFor(PluggableClass pluggableClass) {
-        return ManagerFactory.getCurrent().getDeviceProtocolPluggableClassFactory().newForPluggableClass(pluggableClass);
+        ServerDeviceProtocolPluggableClass serverDeviceProtocolPluggableClass = ManagerFactory.getCurrent().getDeviceProtocolPluggableClassFactory().newForPluggableClass(pluggableClass);
+        return serverDeviceProtocolPluggableClass;
     }
 }
