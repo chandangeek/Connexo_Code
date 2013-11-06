@@ -47,26 +47,22 @@ public class QueryBuilder {
         }
 
         @Override
-        public void visitBracketOperation(BracketOperation bracketOperation) {
-            switch (bracketOperation) {
-                case OPEN:
-                    stack.push(bracketOperation);
-                    break;
-                case CLOSE:
-                    QueryBuilderOperation queryBuilderOperation = stack.pop();
-                    if (queryBuilderOperation instanceof BooleanOperation) {
-                        stack.pop();
-                        Condition last = current.pop();
-                        current.push(((BooleanOperation) queryBuilderOperation).toCondition(current.pop(), last));
-                    }
-                    if (!stack.isEmpty() && BooleanOperation.NOT.equals(stack.peek())) {
-                        stack.pop();
-                        current.push(BooleanOperation.NOT.toCondition(current.pop()));
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException();
+        public void visitCloseBracketOperation(CloseBracketOperation bracketOperation) {
+            QueryBuilderOperation queryBuilderOperation = stack.pop();
+            if (queryBuilderOperation instanceof BooleanOperation) {
+                stack.pop();
+                Condition last = current.pop();
+                current.push(queryBuilderOperation.toCondition(current.pop(), last));
             }
+            if (!stack.isEmpty() && NotOperation.NOT.equals(stack.peek())) {
+                stack.pop();
+                current.push(NotOperation.NOT.toCondition(current.pop()));
+            }
+        }
+
+        @Override
+        public void visitOpenBracketOperation(OpenBracketOperation bracketOperation) {
+            stack.push(bracketOperation);
         }
 
         @Override
@@ -88,20 +84,20 @@ public class QueryBuilder {
 
         @Override
         public void visitOr(Or or) {
-            add(BracketOperation.OPEN);
+            add(OpenBracketOperation.OPEN);
             or.getConditions().get(0).visit(this);
-            add(BooleanOperation.OR);
+            add(OrOperation.OR);
             or.getConditions().get(1).visit(this);
-            add(BracketOperation.CLOSE);
+            add(CloseBracketOperation.CLOSE);
         }
 
         @Override
         public void visitAnd(And and) {
-            add(BracketOperation.OPEN);
+            add(OpenBracketOperation.OPEN);
             and.getConditions().get(0).visit(this);
-            add(BooleanOperation.AND);
+            add(AndOperation.AND);
             and.getConditions().get(1).visit(this);
-            add(BracketOperation.CLOSE);
+            add(CloseBracketOperation.CLOSE);
         }
 
         @Override
@@ -111,10 +107,10 @@ public class QueryBuilder {
 
         @Override
         public void visitNot(Not not) {
-            add(BooleanOperation.NOT);
-            add(BracketOperation.OPEN);
+            add(NotOperation.NOT);
+            add(OpenBracketOperation.OPEN);
             not.getNegated().visit(this);
-            add(BracketOperation.CLOSE);
+            add(CloseBracketOperation.CLOSE);
         }
 
         @Override

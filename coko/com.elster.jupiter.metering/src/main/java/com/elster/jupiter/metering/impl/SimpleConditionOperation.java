@@ -33,7 +33,8 @@ public class SimpleConditionOperation extends ConditionOperation {
         visitor.visitSimpleCondition(this);
     }
 
-    public Condition toCondition() {
+    @Override
+    public Condition toCondition(Condition... conditions) {
         return Operator.EQUAL.compare(fieldName, values);
     }
 }
