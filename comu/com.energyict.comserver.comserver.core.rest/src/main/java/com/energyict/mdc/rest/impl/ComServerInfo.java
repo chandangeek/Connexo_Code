@@ -1,7 +1,9 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.servers.ComServer;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
 public class ComServerInfo {
 
     public String comServerDescriptor;
@@ -15,10 +17,6 @@ public class ComServerInfo {
     public TimeDurationInfo schedulingInterPollDelay;
 
     public ComServerInfo() {
-    }
-
-    public ComServerInfo(String comServerDescriptor) {
-        this.comServerDescriptor = comServerDescriptor;
     }
 
     public ComServerInfo(ComServer comServer) {

@@ -32,7 +32,7 @@ public class ComServerRest {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo getComServer(@PathParam("id") int id) {
-        return new ComServerInfo(ManagerFactory.getCurrent().getComServerFactory().find(id));
+        return new OnlineComServerInfo((OnlineComServer) ManagerFactory.getCurrent().getComServerFactory().find(id));
     }
 
 }
