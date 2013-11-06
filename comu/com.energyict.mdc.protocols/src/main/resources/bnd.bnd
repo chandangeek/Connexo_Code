@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: *
+Import-Package: !*
+Private-Package: com.energyict.mdc.protocols.impl
+Embed-Dependency: *;artifactId=!mdc-all
+Embed-Transitive: true

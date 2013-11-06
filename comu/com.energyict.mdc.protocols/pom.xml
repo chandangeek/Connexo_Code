@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.energyict</groupId>
+        <artifactId>mdc.parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>mdc-protocols</artifactId>
+    <packaging>bundle</packaging>
+    <version>${comserver.version}</version>
+    <name>[MDC] Protocols</name>
+    <description>
+        Contains all the protocol implementations into one bundle
+    </description>
+
+    <properties>
+        <protocols.version>9.0.0-SNAPSHOT</protocols.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>comserver-core-rest</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocolimpl</artifactId>
+            <version>${protocols.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>dlms</artifactId>
+            <version>${protocols.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocolcommon</artifactId>
+            <version>${protocols.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocolimpl-v2</artifactId>
+            <version>${protocols.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>protocolimpl-elster</artifactId>
+            <version>${protocols.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>connectiontypes</artifactId>
+            <version>${protocols.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <_include>src/main/resources/bnd.bnd</_include>
+                        <!--<Embed-Dependency>*;artifactId=!mdc-all</Embed-Dependency>-->
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
