@@ -4,6 +4,7 @@ import com.energyict.mdc.servers.ComServer;
 
 public class ComServerInfo {
 
+    public String comServerDescriptor;
     public String fullName;
     public String name;
 
@@ -12,6 +13,13 @@ public class ComServerInfo {
     public ComServer.LogLevel communicationLogLevel;
     public TimeDurationInfo changesInterPollDelay;
     public TimeDurationInfo schedulingInterPollDelay;
+
+    public ComServerInfo() {
+    }
+
+    public ComServerInfo(String comServerDescriptor) {
+        this.comServerDescriptor = comServerDescriptor;
+    }
 
     public ComServerInfo(ComServer comServer) {
         this.name = comServer.getName();
