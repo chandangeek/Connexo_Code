@@ -5,28 +5,38 @@ import java.util.Collection;
 public interface Stack<E> extends Collection<E> {
 
     /**
-     * Pushes an item onto the top of this stack.
+     * Pushes an element onto the stack represented by this stack (in other
+     * words, at the top of this stack) if it is possible to do so
+     * immediately without violating capacity restrictions, throwing an
+     * <tt>IllegalStateException</tt> if no space is currently available.
      *
-     * @param item the item to be pushed onto this stack.
-     * @return the <code>item</code> argument.
+     * @param e the element to push
+     * @throws IllegalStateException if the element cannot be added at this
+     *         time due to capacity restrictions
+     * @throws ClassCastException if the class of the specified element
+     *         prevents it from being added to this deque
+     * @throws NullPointerException if the specified element is null and this
+     *         deque does not permit null elements
+     * @throws IllegalArgumentException if some property of the specified
+     *         element prevents it from being added to this deque
      */
-    E push(E item);
+    void push(E e);
 
     /**
-     * Removes the object at the top of this stack and returns that
-     * object as the value of this function.
+     * Pops an element from the stack represented by this stack.  In other
+     * words, removes and returns the top element of this stack.
      *
-     * @return The object at the top of this stack.
-     * @throws java.util.EmptyStackException if this stack is empty.
+     * @return the element at the top of this stack
+     * @throws java.util.NoSuchElementException if this stack is empty
      */
     E pop();
 
     /**
-     * Looks at the object at the top of this stack without removing it
-     * from the stack.
+     * Retrieves, but does not remove, the top of the stack represented by
+     * this Stack, or returns <tt>null</tt> if this stack is empty.
      *
-     * @return the object at the top of this stack.
-     * @throws java.util.EmptyStackException if this stack is empty.
+     * @return the head of the stack represented by this stack, or
+     *         <tt>null</tt> if this stack is empty
      */
     E peek();
 

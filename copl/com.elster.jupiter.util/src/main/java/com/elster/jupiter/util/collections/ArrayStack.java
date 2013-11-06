@@ -2,14 +2,13 @@ package com.elster.jupiter.util.collections;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.EmptyStackException;
 import java.util.Iterator;
 
 /**
  * Stack implementation, backed by an ArrayDeque.
  * @param <E>
  */
-public class ArrayStack<E> implements Stack<E> {
+public final class ArrayStack<E> implements Stack<E> {
 
     private final ArrayDeque<E> backingDeque;
 
@@ -94,24 +93,17 @@ public class ArrayStack<E> implements Stack<E> {
     }
 
     @Override
-    public E push(E item) {
+    public void push(E item) {
         backingDeque.push(item);
-        return item;
     }
 
     @Override
     public E pop() {
-        if (backingDeque.isEmpty()) {
-            throw new EmptyStackException();
-        }
         return backingDeque.pop();
     }
 
     @Override
     public E peek() {
-        if (backingDeque.isEmpty()) {
-            throw new EmptyStackException();
-        }
         return backingDeque.peek();
     }
 
