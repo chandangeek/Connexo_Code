@@ -2,11 +2,15 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.servers.ComServer;
+import com.energyict.mdc.servers.OnlineComServer;
+import com.energyict.mdc.servers.OnlineComServerImpl;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/comservers")
 public class ComServerRest {
@@ -16,7 +20,11 @@ public class ComServerRest {
     public ComServersInfo getComServers() {
         ComServersInfo comservers = new ComServersInfo();
         for (ComServer comServer : ManagerFactory.getCurrent().getComServerFactory().findAll()) {
-            comservers.comServers.add(new ComServerInfo(comServer));
+            if (comServer instanceof OnlineComServerImpl) {
+                comservers.comServers.add(new OnlineComServerInfo((OnlineComServer) comServer));
+            } else {
+                throw new WebApplicationException(Response.Status.PARTIAL_CONTENT);
+            }
         }
         return comservers;
     }
