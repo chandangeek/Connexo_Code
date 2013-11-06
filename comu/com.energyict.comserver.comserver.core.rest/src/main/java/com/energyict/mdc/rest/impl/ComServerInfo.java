@@ -1,6 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.servers.ComServer;
 
 public class ComServerInfo {
@@ -11,9 +10,8 @@ public class ComServerInfo {
     public boolean active;
     public ComServer.LogLevel serverLogLevel;
     public ComServer.LogLevel communicationLogLevel;
-    public TimeDuration changesInterPollDelay;
-    public TimeDuration schedulingInterPollDelay;
-
+    public TimeDurationInfo changesInterPollDelay;
+    public TimeDurationInfo schedulingInterPollDelay;
 
     public ComServerInfo(ComServer comServer) {
         this.name = comServer.getName();
@@ -21,10 +19,7 @@ public class ComServerInfo {
         this.active = comServer.isActive();
         this.serverLogLevel = comServer.getServerLogLevel();
         this.communicationLogLevel = comServer.getCommunicationLogLevel();
-        this.changesInterPollDelay = comServer.getChangesInterPollDelay();
-        this.schedulingInterPollDelay = comServer.getSchedulingInterPollDelay();
-
-
-
+        this.changesInterPollDelay = new TimeDurationInfo(comServer.getChangesInterPollDelay());
+        this.schedulingInterPollDelay = new TimeDurationInfo(comServer.getSchedulingInterPollDelay());
     }
 }
