@@ -20,12 +20,11 @@ import java.util.List;
 
 public class QueryBuilder {
 
-    private List<QueryBuilderOperation> operations = new ArrayList<>();
-    private Visitor visitor = new QueryBuilderVisitor();
+    private final List<QueryBuilderOperation> operations = new ArrayList<>();
 
     public static QueryBuilder parse(Condition condition) {
         QueryBuilder queryBuilder = new QueryBuilder();
-        condition.visit(queryBuilder.visitor);
+        condition.visit(queryBuilder.new QueryBuilderVisitor());
         return queryBuilder;
     }
 
@@ -39,8 +38,8 @@ public class QueryBuilder {
 
     private class ConditionBuilderVisitor implements OperationVisitor {
 
-        private Stack<Condition> current = new ArrayStack<>();
-        private Stack<QueryBuilderOperation> stack = new ArrayStack<>();
+        private final Stack<Condition> current = new ArrayStack<>();
+        private final Stack<QueryBuilderOperation> stack = new ArrayStack<>();
 
         @Override
         public void visitBooleanOperation(BooleanOperation booleanOperation) {
