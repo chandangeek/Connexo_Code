@@ -16,7 +16,7 @@ public enum Bus {
 	
 	public static final String COMPONENTNAME = "MTR";
 	
-	private static volatile AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
+	private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
 	
 	public static void setServiceLocator(ServiceLocator locator) {
 		Bus.locatorHolder.set(Objects.requireNonNull(locator));
