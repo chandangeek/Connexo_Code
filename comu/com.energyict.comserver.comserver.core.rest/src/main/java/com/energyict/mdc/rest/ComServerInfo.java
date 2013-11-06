@@ -23,5 +23,8 @@ public class ComServerInfo {
         this.communicationLogLevel = comServer.getCommunicationLogLevel();
         this.changesInterPollDelay = comServer.getChangesInterPollDelay();
         this.schedulingInterPollDelay = comServer.getSchedulingInterPollDelay();
+
+
+
     }
 }
