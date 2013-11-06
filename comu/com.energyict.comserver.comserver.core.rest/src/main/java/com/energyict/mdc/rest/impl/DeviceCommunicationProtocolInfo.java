@@ -18,6 +18,7 @@ public class DeviceCommunicationProtocolInfo {
     public int databaseId;
     public String name;
     public String javaClassName;
+    public String deviceProtocolVersion;
 
     public DeviceCommunicationProtocolInfo() {
     }
@@ -26,6 +27,7 @@ public class DeviceCommunicationProtocolInfo {
         this.name = deviceProtocolPluggableClass.getName();
         this.javaClassName = deviceProtocolPluggableClass.getJavaClassName();
         this.databaseId = deviceProtocolPluggableClass.getId();
+        this.deviceProtocolVersion = deviceProtocolPluggableClass.getVersion();
     }
 
     public void update(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {

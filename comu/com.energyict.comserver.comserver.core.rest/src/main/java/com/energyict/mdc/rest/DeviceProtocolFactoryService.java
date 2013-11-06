@@ -1,4 +1,4 @@
-package com.energyict.mdc.rest.impl;
+package com.energyict.mdc.rest;
 
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdw.core.PluggableClass;

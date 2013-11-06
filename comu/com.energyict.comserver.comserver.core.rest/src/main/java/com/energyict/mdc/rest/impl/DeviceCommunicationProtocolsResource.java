@@ -40,7 +40,6 @@ public class DeviceCommunicationProtocolsResource {
 
     private DeviceProtocolPluggableClass createDeviceProtocolPluggableClass(PluggableClass pluggableClass) {
         return Bus.getDeviceProtocolFactoryService().createDeviceProtocolPluggableClassFor(pluggableClass);
-//        return ManagerFactory.getCurrent().getDeviceProtocolPluggableClassFactory().newForPluggableClass(pluggableClass);
     }
 
 }
