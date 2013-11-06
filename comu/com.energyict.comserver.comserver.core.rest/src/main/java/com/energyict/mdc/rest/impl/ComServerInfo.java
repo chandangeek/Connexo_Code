@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class ComServerInfo {
+    public int id;
 
     public String comServerDescriptor;
     public String fullName;
@@ -20,6 +21,7 @@ public class ComServerInfo {
     }
 
     public ComServerInfo(ComServer comServer) {
+        this.id=comServer.getId();
         this.name = comServer.getName();
         this.fullName = comServer.getFullName();
         this.active = comServer.isActive();
