@@ -18,6 +18,9 @@ import org.osgi.service.component.annotations.Deactivate;
 @Component(name="com.energyict.mdc.protocols", service=DeviceProtocolFactoryService.class)
 public class DeviceProtocolFactoryServiceImpl implements DeviceProtocolFactoryService {
 
+    public DeviceProtocolFactoryServiceImpl() {
+    }
+
     @Activate
     public void activate(){
         MeteringWarehouse.createBatchContext(true);
