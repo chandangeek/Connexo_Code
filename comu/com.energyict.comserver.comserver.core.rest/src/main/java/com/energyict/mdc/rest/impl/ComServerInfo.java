@@ -1,4 +1,4 @@
-package com.energyict.mdc.rest;
+package com.energyict.mdc.rest.impl;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.servers.ComServer;
