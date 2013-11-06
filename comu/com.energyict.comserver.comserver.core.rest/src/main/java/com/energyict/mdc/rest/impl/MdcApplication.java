@@ -17,7 +17,7 @@ public class MdcApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(ComServerRest.class, DeviceCommunicationProtocolsResource.class);
+        return ImmutableSet.of(ComServerRest.class, ComPortRest.class, DeviceCommunicationProtocolsResource.class);
     }
 
     @Activate
