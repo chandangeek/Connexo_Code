@@ -50,7 +50,7 @@ public class UsagePointAccountabilityImplTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
