@@ -8,12 +8,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
 @Component(name = "com.elster.mdc.rest", service = Application.class, immediate = true, property = {"alias=/mdc"})
-public class MdcApplication extends Application {
+public class MdcApplication extends Application implements ServiceLocator{
 
     private volatile DeviceProtocolFactoryService deviceProtocolFactoryService;
 
@@ -24,7 +25,7 @@ public class MdcApplication extends Application {
 
     @Activate
     public void activate(BundleContext context) {
-//        Bus.setServiceLocator(this);
+        Bus.setServiceLocator(this);
         MeteringWarehouse.createBatchContext(true);
     }
 
@@ -34,13 +35,13 @@ public class MdcApplication extends Application {
         Environment.getDefault().closeConnection();
     }
 
-//    @Reference
-//    public void setDeviceProtocolFactoryService(DeviceProtocolFactoryService deviceProtocolFactoryService) {
-//        this.deviceProtocolFactoryService = deviceProtocolFactoryService;
-//    }
-//
-//    @Override
-//    public DeviceProtocolFactoryService getDeviceProtocolFactoryService() {
-//        return this.deviceProtocolFactoryService;
-//    }
+    @Reference
+    public void setDeviceProtocolFactoryService(DeviceProtocolFactoryService deviceProtocolFactoryService) {
+        this.deviceProtocolFactoryService = deviceProtocolFactoryService;
+    }
+
+    @Override
+    public DeviceProtocolFactoryService getDeviceProtocolFactoryService() {
+        return this.deviceProtocolFactoryService;
+    }
 }
