@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
@@ -13,45 +16,53 @@ public enum Bus {
 	
 	public static final String COMPONENTNAME = "MTR";
 	
-	private static volatile ServiceLocator locator;
+	private static volatile AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
 	
 	public static void setServiceLocator(ServiceLocator locator) {
-		Bus.locator = locator;
+		Bus.locatorHolder.set(Objects.requireNonNull(locator));
+	}
+	
+	public static void clearServiceLocator(ServiceLocator old) {
+		locatorHolder.compareAndSet(Objects.requireNonNull(old), null);
+	}
+	
+	private static ServiceLocator getLocator() {
+		return locatorHolder.get();
 	}
 	
 	public static OrmClient getOrmClient() {
-		return locator.getOrmClient();
+		return getLocator().getOrmClient();
 	}	
 
 	public static IdsService getIdsService() {
-		return locator.getIdsService();
+		return getLocator().getIdsService();
 	}
 	
 	public static QueryService getQueryService() {
-		return locator.getQueryService();
+		return getLocator().getQueryService();
 	}
 	
 	static ComponentCache getComponentCache() {
-		return locator.getComponentCache();		
+		return getLocator().getComponentCache();		
 	}
 	
 	public static PartyService getPartyService() {
-		return locator.getPartyService();
+		return getLocator().getPartyService();
 	}
 
     public static Clock getClock() {
-        return locator.getClock();
+        return getLocator().getClock();
     }
 
 	public static UserService getUserService() {
-		return locator.getUserService();
+		return getLocator().getUserService();
 	}
 
     public static EventService getEventService() {
-        return locator.getEventService();
+        return getLocator().getEventService();
     }
 
     public static ChannelBuilder getChannelBuilder() {
-        return locator.getChannelBuilder();
+        return getLocator().getChannelBuilder();
     }
 }
