@@ -71,6 +71,14 @@ public class OrmClientImpl implements OrmClient {
 	public DataMapper<UsagePointAccountability> getUsagePointAccountabilityFactory() {
 		return dataModel.getDataMapper(UsagePointAccountability.class, UsagePointAccountabilityImpl.class, TableSpecs.MTR_UPACCOUNTABILITY.name());
 	}
-	
-		
+
+    @Override
+    public DataMapper<EnumeratedUsagePointGroup.Entry> getEnumeratedUsagePointGroupEntryFactory() {
+        return dataModel.getDataMapper(EnumeratedUsagePointGroup.Entry.class, EnumeratedUsagePointGroupImpl.EntryImpl.class, TableSpecs.MTR_ENUM_UP_IN_GROUP.name());
+    }
+
+    @Override
+    public DataMapper<EnumeratedUsagePointGroup> getEnumeratedUsagePointGroupFactory() {
+        return dataModel.getDataMapper(EnumeratedUsagePointGroup.class, EnumeratedUsagePointGroupImpl.class, TableSpecs.MTR_ENUM_UP_GROUP.name());
+    }
 }

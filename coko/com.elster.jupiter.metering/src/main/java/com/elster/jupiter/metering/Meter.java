@@ -1,14 +1,11 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
-import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.util.time.UtcInstant;
 
-public interface Meter extends HasName {
+public interface Meter extends IdentifiedObject {
 	long getId();
-	String getMRID();
-	String getAliasName();
-	String getDescription();
 	String getSerialNumber();
 	String getUtcNumber();
 	ElectronicAddress getElectronicAddress();
