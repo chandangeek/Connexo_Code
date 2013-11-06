@@ -40,8 +40,9 @@ public class DeviceCommunicationProtocolsResource {
         return new DeviceCommunicationProtocolInfo(createDeviceProtocolPluggableClass(MeteringWarehouse.getCurrent().getPluggableClassFactory().find(id)));
     }
 
-    private ServerDeviceProtocolPluggableClass createDeviceProtocolPluggableClass(PluggableClass pluggableClass) {
-        return ManagerFactory.getCurrent().getDeviceProtocolPluggableClassFactory().newForPluggableClass(pluggableClass);
+    private DeviceProtocolPluggableClass createDeviceProtocolPluggableClass(PluggableClass pluggableClass) {
+        return Bus.getDeviceProtocolFactoryService().createDeviceProtocolPluggableClassFor(pluggableClass);
+//        return ManagerFactory.getCurrent().getDeviceProtocolPluggableClassFactory().newForPluggableClass(pluggableClass);
     }
 
 }
