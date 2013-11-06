@@ -16,6 +16,9 @@ public class MdcApplication extends Application implements ServiceLocator{
 
     private volatile DeviceProtocolFactoryService deviceProtocolFactoryService;
 
+    public MdcApplication() {
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(ComServerRest.class, DeviceCommunicationProtocolsResource.class);

@@ -1,8 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.ServerDeviceProtocolPluggableClass;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.PluggableClass;
 import com.energyict.mdw.core.PluggableClassType;
