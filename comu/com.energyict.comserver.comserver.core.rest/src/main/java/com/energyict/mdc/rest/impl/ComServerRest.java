@@ -3,7 +3,6 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
-import com.energyict.mdc.servers.OnlineComServerImpl;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -20,10 +19,10 @@ public class ComServerRest {
     public ComServersInfo getComServers() {
         ComServersInfo comservers = new ComServersInfo();
         for (ComServer comServer : ManagerFactory.getCurrent().getComServerFactory().findAll()) {
-            if (comServer instanceof OnlineComServerImpl) {
+            if (comServer instanceof OnlineComServer) {
                 comservers.comServers.add(new OnlineComServerInfo((OnlineComServer) comServer));
             } else {
-                throw new WebApplicationException(Response.Status.PARTIAL_CONTENT);
+                throw new WebApplicationException("Unsupported ComServer type:"+comServer.getClass().getName(), Response.Status.INTERNAL_SERVER_ERROR);
             }
         }
         return comservers;
