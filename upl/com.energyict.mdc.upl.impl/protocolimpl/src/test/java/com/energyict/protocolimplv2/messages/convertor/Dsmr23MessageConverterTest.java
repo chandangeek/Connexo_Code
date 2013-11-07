@@ -1,20 +1,14 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.Password;
-import com.energyict.cbo.TimeDuration;
-import com.energyict.cbo.Unit;
+import com.energyict.cbo.*;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.Manager;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecFactory;
 import com.energyict.mdw.amr.RegisterMapping;
-import com.energyict.mdw.core.Channel;
-import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.LoadProfile;
-import com.energyict.mdw.core.LoadProfileSpec;
-import com.energyict.mdw.core.Lookup;
-import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.core.*;
+import com.energyict.mdw.crypto.KeyStoreDataVaultProvider;
+import com.energyict.mdw.crypto.SecureRandomProvider;
 import com.energyict.mdw.interfacing.mdc.MdcInterface;
 import com.energyict.mdw.interfacing.mdc.MdcInterfaceProvider;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
@@ -22,16 +16,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.messaging.Messaging;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AdvancedTestMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadProfileMessage;
-import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.WebRTUKP;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,6 +61,8 @@ public class Dsmr23MessageConverterTest {
 
     @Before
     public void beforeEachTest() {
+        DataVaultProvider.instance.set(new KeyStoreDataVaultProvider());
+        RandomProvider.instance.set(new SecureRandomProvider());
         MdcInterfaceProvider.instance.set(mdcInterfaceProvider);
         when(mdcInterfaceProvider.getMdcInterface()).thenReturn(mdcInterface);
         when(mdcInterface.getManager()).thenReturn(manager);
