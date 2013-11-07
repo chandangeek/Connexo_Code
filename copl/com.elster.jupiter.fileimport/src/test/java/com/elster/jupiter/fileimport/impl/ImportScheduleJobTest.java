@@ -89,7 +89,7 @@ public class ImportScheduleJobTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

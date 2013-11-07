@@ -67,7 +67,7 @@ public class DefaultFileHandlerTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

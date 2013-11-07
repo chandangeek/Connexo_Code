@@ -37,7 +37,7 @@ public class SimpleFileNameCollisionResolverTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

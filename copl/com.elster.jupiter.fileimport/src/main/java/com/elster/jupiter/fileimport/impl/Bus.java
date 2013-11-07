@@ -8,54 +8,65 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import org.osgi.service.log.LogService;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 public enum Bus {
     ;
 
     public static final String COMPONENTNAME = "FIM";
 
-    private static volatile ServiceLocator serviceLocator;
+    private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
 
-    static void setServiceLocator(ServiceLocator serviceLocator) {
-        Bus.serviceLocator = serviceLocator;
+    public static void setServiceLocator(ServiceLocator locator) {
+        Bus.locatorHolder.set(Objects.requireNonNull(locator));
     }
 
-    static LogService getLogService() {
-        return serviceLocator.getLogService();
-    }
-
-    static MessageService getMessageService() {
-        return serviceLocator.getMessageService();
-    }
-
-    static CronExpressionParser getCronExpressionParser() {
-        return serviceLocator.getCronExpressionParser();
-    }
-
-    static OrmClient getOrmClient() {
-        return serviceLocator.getOrmClient();
-    }
-
-    static FileNameCollisionResolver getFileNameCollisionResolver() {
-        return serviceLocator.getFileNameCollisionResollver();
+    public static void clearServiceLocator(ServiceLocator old) {
+        locatorHolder.compareAndSet(Objects.requireNonNull(old), null);
     }
 
      static Clock getClock() {
-        return serviceLocator.getClock();
+        return getLocator().getClock();
     }
 
-    static TransactionService getTransactionService() {
-        return serviceLocator.getTransactionService();
+    static CronExpressionParser getCronExpressionParser() {
+        return getLocator().getCronExpressionParser();
     }
 
-    static JsonService getJsonService() {
-        return serviceLocator.getJsonService();
+    static FileNameCollisionResolver getFileNameCollisionResolver() {
+        return getLocator().getFileNameCollisionResollver();
     }
 
     static FileSystem getFileSystem() {
-        return serviceLocator.getFileSystem();
+        return getLocator().getFileSystem();
+    }
+
+    static JsonService getJsonService() {
+        return getLocator().getJsonService();
+    }
+
+    static LogService getLogService() {
+        return getLocator().getLogService();
+    }
+
+    static MessageService getMessageService() {
+        return getLocator().getMessageService();
+    }
+
+    static OrmClient getOrmClient() {
+        return getLocator().getOrmClient();
     }
 
     static Predicates getPredicates() {
-        return serviceLocator.getPredicates();
+        return getLocator().getPredicates();
+    }
+
+    static TransactionService getTransactionService() {
+        return getLocator().getTransactionService();
+    }
+
+    private static ServiceLocator getLocator() {
+        return locatorHolder.get();
     }
 }

@@ -51,7 +51,7 @@ public class CronExpressionSchedulerTest {
     public void tearDown() {
         scheduler.shutdownNow();
 
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

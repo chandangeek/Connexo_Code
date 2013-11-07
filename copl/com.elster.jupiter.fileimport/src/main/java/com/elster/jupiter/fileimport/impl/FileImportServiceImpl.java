@@ -147,7 +147,7 @@ public class FileImportServiceImpl implements InstallService, ServiceLocator, Fi
     @Deactivate
     public void deactivate() {
         cronExpressionScheduler.shutdown();
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(this);
     }
 
     @Override
