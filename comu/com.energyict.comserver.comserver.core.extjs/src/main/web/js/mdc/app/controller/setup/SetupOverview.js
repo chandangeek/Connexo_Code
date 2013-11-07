@@ -1,4 +1,4 @@
-Ext.define('Mdc.controller.Setup', {
+Ext.define('Mdc.controller.setup.SetupOverview', {
     extend: 'Ext.app.Controller',
 
     views: [

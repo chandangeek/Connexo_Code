@@ -9,11 +9,12 @@ Ext.define('Mdc.Application', {
 
     controllers: [
         'Main',
-        'Setup',
-        'history.Setup'
+        'setup.SetupOverview',
+        'history.Setup',
+        'setup.ComServers'
     ],
 
     stores: [
-        // TODO: add stores here
+        'ComServers'
     ]
 });

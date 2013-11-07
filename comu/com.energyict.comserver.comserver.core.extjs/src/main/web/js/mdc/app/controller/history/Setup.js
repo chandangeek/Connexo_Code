@@ -4,10 +4,16 @@ Ext.define('Mdc.controller.history.Setup', {
     rootToken: 'setup',
 
     doConversion: function (tokens) {
-        if (tokens.length > 0 && tokens[1] === 'comservers') {
-            Mdc.getApplication().getSetupController().showComServers();
+        if (tokens.length == 2 && tokens[1] === 'comservers') {
+            Mdc.getApplication().getSetupSetupOverviewController().showComServers();
+        } else if(tokens.length === 3 && tokens[1] === 'comservers'){
+            Mdc.getApplication().getSetupComServersController().showEditView(tokens[2]);
         } else {
-            Mdc.getApplication().getSetupController().showOverview();
+            Mdc.getApplication().getSetupSetupOverviewController().showOverview();
         }
+    },
+
+    tokenizeBrowse: function(item,id) {
+        return this.tokenize([this.rootToken,item, id]);
     }
 });
