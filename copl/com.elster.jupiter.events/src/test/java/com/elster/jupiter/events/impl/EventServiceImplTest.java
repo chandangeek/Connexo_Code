@@ -82,7 +82,7 @@ public class EventServiceImplTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(eventService);
     }
 
     @Test(expected = NoSuchTopicException.class)

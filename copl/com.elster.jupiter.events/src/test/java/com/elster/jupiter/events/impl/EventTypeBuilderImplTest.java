@@ -51,7 +51,7 @@ public class EventTypeBuilderImplTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
