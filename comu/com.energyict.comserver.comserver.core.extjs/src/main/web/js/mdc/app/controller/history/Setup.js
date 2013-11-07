@@ -4,13 +4,22 @@ Ext.define('Mdc.controller.history.Setup', {
     rootToken: 'setup',
 
     doConversion: function (tokens) {
-        if (tokens.length > 0 && tokens[1] === 'comservers') {
-            Mdc.getApplication().getSetupController().showComServers();
+        if (tokens.length == 2 && tokens[1] === 'comservers') {
+            Mdc.getApplication().getSetupSetupOverviewController().showComServers();
+        } else if(tokens.length === 3 && tokens[1] === 'comservers'){
+            Mdc.getApplication().getSetupComServersController().showEditView(tokens[2]);
         } else if (tokens.length > 0 && tokens[1] === 'devicecommunicationprotocols') {
-            Mdc.getApplication().getSetupController().showDeviceCommunicationProtocols();
+                    Mdc.getApplication().getSetupController().showDeviceCommunicationProtocols(); 
         } else {
-            Mdc.getApplication().getSetupController().showOverview();
+            Mdc.getApplication().getSetupSetupOverviewController().showOverview();
         }
+    },
 
+    tokenizeBrowse: function(item,id) {
+        if(id === undefined){
+            return this.tokenize([this.rootToken,item]);
+        } else {
+            return this.tokenize([this.rootToken,item, id]);
+        }
     }
 });
