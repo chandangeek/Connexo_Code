@@ -301,6 +301,24 @@ public enum ColumnConversionImpl {
             String fileName = rs.getString(index);
             return fileName == null ? null : convert(fileName);
         }
+    },
+    CHAR2JSON {
+        @Override
+        public Object convert(String in) {
+            Object[] objects = Bus.getJsonService().deserialize(in, Object[].class);
+            return objects;
+        }
+
+        @Override
+        public Object convertToDb(Object value) {
+            return Bus.getJsonService().serialize(value);
+        }
+
+        @Override
+        public Object convertFromDb(ResultSet rs, int index) throws SQLException {
+            String jsonString = rs.getString(index);
+            return jsonString == null ? null : convert(jsonString);
+        }
     };
 
 	public abstract Object convertToDb(Object value);

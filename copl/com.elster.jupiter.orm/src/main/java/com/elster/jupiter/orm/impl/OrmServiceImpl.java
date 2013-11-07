@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.*;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.orm.internal.*;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.*;
@@ -21,6 +22,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	private volatile DataSource dataSource;
 	private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
+    private volatile JsonService jsonService;
     private final Map<String,DataModel> dataModels = Collections.synchronizedMap(new HashMap<String,DataModel>());
 
     public OrmServiceImpl() {
@@ -95,8 +97,18 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
     public void setClock(Clock clock) {
         this.clock = clock;
     }
-	
-	@Activate
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
+    @Override
+    public JsonService getJsonService() {
+        return jsonService;
+    }
+
+    @Activate
 	public void activate() {
         this.ormClient = new OrmClientImpl();
 		Bus.setServiceLocator(this);

@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.internal;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 
 import java.security.Principal;
@@ -13,4 +14,5 @@ public interface ServiceLocator {
 	Principal getPrincipal();
     Clock getClock();
 	Table getTable(String component, String tableName);
+    JsonService getJsonService();
 }

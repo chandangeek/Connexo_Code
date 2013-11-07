@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.internal;
 
 import com.elster.jupiter.orm.*;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 
 import java.security.Principal;
@@ -32,6 +33,11 @@ public class Bus {
     public static Clock getClock() {
         return locator.getClock();
     }
+
+    public static JsonService getJsonService() {
+        return locator.getJsonService();
+    }
+
     // helper methods
 	
 	private final static String[] trueStrings = { "1" , "y" ,"yes" , "on" };
