@@ -3,10 +3,10 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
-import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -43,9 +43,23 @@ public class ComServerResource {
     public ComServerInfo createComServer(ComServerInfo comServerInfo) {
         if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
-                OnlineComServerShadow comServerShadow = new OnlineComServerShadow();
-                comServerShadow.setName(comServerInfo.name);
-                return new ComServerInfo(ManagerFactory.getCurrent().getComServerFactory().createOnline(comServerShadow));
+                return new ComServerInfo(ManagerFactory.getCurrent().getComServerFactory().createOnline(comServerInfo.asShadow()));
+            } catch (Exception e) {
+                throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            }
+
+        }
+        throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    public ComServerInfo updateComServer(ComServerInfo comServerInfo) {
+        if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
+            try {
+                OnlineComServer onlineComServer = (OnlineComServer) ManagerFactory.getCurrent().getComServerFactory().find(comServerInfo.id);
+                onlineComServer.update(comServerInfo.asShadow());
+                return new ComServerInfo(onlineComServer);
             } catch (Exception e) {
                 throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
             }

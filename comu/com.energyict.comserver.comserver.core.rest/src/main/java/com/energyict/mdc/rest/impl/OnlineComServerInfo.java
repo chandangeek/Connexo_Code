@@ -2,6 +2,7 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.OnlineComServer;
+import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -35,6 +36,17 @@ public class OnlineComServerInfo extends ComServerInfo {
             comPorts_ids.add(comPort.getId());
         }
 
+    }
+
+    public OnlineComServerShadow asShadow() {
+        OnlineComServerShadow comServerShadow = super.asShadow();
+        comServerShadow.setQueryAPIPostUri(queryAPIPostUri);
+        comServerShadow.setUsesDefaultQueryAPIPostUri(usesDefaultQueryAPIPostUri);
+        comServerShadow.setEventRegistrationUri(eventRegistrationUri);
+        comServerShadow.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
+        comServerShadow.setStoreTaskQueueSize(storeTaskQueueSize);
+        comServerShadow.setStoreTaskThreadPriority(storeTaskThreadPriority);
+        return comServerShadow;
     }
 
 }
