@@ -17,5 +17,6 @@ public enum ColumnConversion {
 	NUMBER2INTWRAPPER,
 	CHAR2UNIT,
 	CHAR2CURRENCY,
-    CHAR2FILE;
+    CHAR2FILE,
+    CHAR2JSON
 }

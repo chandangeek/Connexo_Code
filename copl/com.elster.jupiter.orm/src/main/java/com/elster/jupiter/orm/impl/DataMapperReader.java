@@ -182,7 +182,7 @@ public class DataMapperReader<T> {
     }
 
     private SqlBuilder doSelectSql(List<SqlFragment> fragments, String[] orderColumns, boolean lock, SqlBuilder builder) {
-        if (fragments.size() > 0) {
+        if (!fragments.isEmpty()) {
             builder.append(" where ");
             String separator = "";
             for (SqlFragment each : fragments) {
