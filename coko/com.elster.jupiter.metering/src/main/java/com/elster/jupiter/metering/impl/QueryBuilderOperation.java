@@ -9,4 +9,6 @@ public interface QueryBuilderOperation {
     void setPosition(int i);
 
     Condition toCondition(Condition... conditions);
+
+    void setGroupId(long id);
 }

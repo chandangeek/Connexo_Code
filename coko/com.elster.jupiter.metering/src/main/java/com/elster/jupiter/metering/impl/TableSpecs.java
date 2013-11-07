@@ -273,12 +273,12 @@ public enum TableSpecs {
         void describeTable(Table table) {
             Column groupColumn = table.addColumn("GROUP_ID", "number", true, NUMBER2LONG, "groupId");
             Column positionColumn = table.addColumn("POSITION", "number" , true , NUMBER2INT , "position");
-            table.addDiscriminatorColumn("OPERATORTYPE", "char(1)");
+            table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
             table.addColumn("OPERATOR", "VARCHAR2(80)", false, NOCONVERSION, "operator");
             table.addColumn("FIELDNAME", "VARCHAR2(80)", false, NOCONVERSION, "fieldName");
-            table.addColumn("VALUES", "VARCHAR2(256)", false, CHAR2JSON, "values");
+            table.addColumn("BINDVALUES", "VARCHAR2(256)", false, CHAR2JSON, "values");
 
-            table.addPrimaryKeyConstraint("MTR_PK_QUERY_UP_GROUP", groupColumn, positionColumn);
+            table.addPrimaryKeyConstraint("MTR_PK_QUPGOP", groupColumn, positionColumn);
             table.addForeignKeyConstraint("MTR_FK_QUPG_QUPGOP", MTR_QUERY_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup", "operations", "position"), groupColumn);
 
         }

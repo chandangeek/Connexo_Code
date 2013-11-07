@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -31,4 +32,6 @@ public interface OrmClient {
 	DataModel getDataModel();
 
     DataMapper<QueryBuilderOperation> getQueryBuilderOperationFactory();
+
+    DataMapper<QueryUsagePointGroup> getQueryUsagePointGroupFactory();
 }

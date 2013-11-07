@@ -16,6 +16,7 @@ import com.elster.jupiter.util.conditions.Text;
 import com.elster.jupiter.util.conditions.Visitor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class QueryBuilder {
@@ -25,6 +26,12 @@ public class QueryBuilder {
     public static QueryBuilder parse(Condition condition) {
         QueryBuilder queryBuilder = new QueryBuilder();
         condition.visit(queryBuilder.new QueryBuilderVisitor());
+        return queryBuilder;
+    }
+
+    public static QueryBuilder using(List<QueryBuilderOperation> operations) {
+        QueryBuilder queryBuilder = new QueryBuilder();
+        queryBuilder.operations.addAll(operations);
         return queryBuilder;
     }
 
@@ -151,7 +158,11 @@ public class QueryBuilder {
         }
     }
 
-    private void add(QueryBuilderOperation operation) {
+    void add(QueryBuilderOperation operation) {
         operations.add(operation);
+    }
+
+    List<QueryBuilderOperation> getOperations() {
+        return Collections.unmodifiableList(operations);
     }
 }

@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Date;
@@ -23,6 +25,7 @@ public class QueryUsagePointGroupImpl implements QueryUsagePointGroup {
     private String userName;
 
     private List<QueryBuilderOperation> operations;
+    private transient QueryBuilder queryBuilder;
 
     @Override
     public String getAliasName() {
@@ -51,18 +54,48 @@ public class QueryUsagePointGroupImpl implements QueryUsagePointGroup {
 
     @Override
     public List<UsagePoint> getMembers(Date date) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        QueryExecutor<UsagePoint> queryExecutor = Bus.getOrmClient().getUsagePointFactory().with();
+        return Bus.getQueryService().wrap(queryExecutor).select(getCondition());
     }
 
     @Override
     public boolean isMember(UsagePoint usagePoint, Date date) {
-        //TODO automatically generated method body, provide implementation.
-        return false;
+        return getMembers(date).contains(usagePoint);
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    public void setCondition(Condition condition) {
+        queryBuilder = QueryBuilder.parse(condition);
+        operations = queryBuilder.getOperations();
+    }
+
+    @Override
+    public void save() {
+        if (id == 0) {
+            Bus.getOrmClient().getQueryUsagePointGroupFactory().persist(this);
+            for (QueryBuilderOperation operation : getOperations()) {
+                operation.setGroupId(id);
+                Bus.getOrmClient().getQueryBuilderOperationFactory().persist(operation);
+            }
+        }
+
+    }
+
+    private Condition getCondition() {
+        if (queryBuilder == null) {
+            queryBuilder = QueryBuilder.using(getOperations());
+        }
+        return queryBuilder.toCondition();
+    }
+
+    private List<QueryBuilderOperation> getOperations() {
+        if (operations == null) {
+            operations = Bus.getOrmClient().getQueryBuilderOperationFactory().find("groupId", id);
+        }
+        return operations;
     }
 }

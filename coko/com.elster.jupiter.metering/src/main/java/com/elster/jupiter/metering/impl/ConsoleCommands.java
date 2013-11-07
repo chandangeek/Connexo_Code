@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -10,6 +11,8 @@ import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.util.conditions.Comparison;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.Component;
@@ -19,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Component(name="com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {"osgi.command.scope=metering", "osgi.command.function=printDdl", "osgi.command.function=createGroup", "osgi.command.function=updateGroup"}, immediate = true)
+@Component(name="com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {"osgi.command.scope=metering", "osgi.command.function=printDdl", "osgi.command.function=createGroup", "osgi.command.function=updateGroup", "osgi.command.function=createQueryGroup", "osgi.command.function=loadQueryGroup"}, immediate = true)
 public class ConsoleCommands {
 
     private volatile MeteringService meteringService;
@@ -110,6 +113,29 @@ public class ConsoleCommands {
             e.printStackTrace();
         } finally {
             threadPrincipalService.clear();
+        }
+    }
+
+    public void createQueryGroup() {
+        final QueryUsagePointGroupImpl queryUsagePointGroup = new QueryUsagePointGroupImpl();
+        Comparison comparison = Operator.EQUAL.compare("id", 182L);
+        queryUsagePointGroup.setCondition(comparison.not().or(comparison.and(comparison.not())));
+        Optional<User> user = Bus.getUserService().findUser("batch executor");
+        threadPrincipalService.set(user.get());
+        transactionService.execute(new VoidTransaction() {
+            @Override
+            protected void doPerform() {
+                queryUsagePointGroup.save();
+            }
+        });
+    }
+
+    public void loadQueryGroup(long id) {
+        Optional<QueryUsagePointGroup> found = Bus.getOrmClient().getQueryUsagePointGroupFactory().get(id);
+        if (found.isPresent()) {
+            for (UsagePoint usagePoint : found.get().getMembers(Bus.getClock().now())) {
+                System.out.println(usagePoint.getId());
+            }
         }
     }
 

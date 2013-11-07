@@ -13,8 +13,12 @@ public class SimpleConditionOperation extends ConditionOperation {
     private static final Set<Class<?>> ALLOWED_VALUE_TYPES = ImmutableSet.<Class<?>>of(Integer.class, Long.class, Byte.class, Float.class, Character.class, Double.class, Short.class, Boolean.class, String.class);
     static final String TYPE_IDENTIFIER = "SCD";
 
-    private final String fieldName;
-    private final Object[] values;
+    private String fieldName;
+    private Object[] values;
+
+    private SimpleConditionOperation() {
+        // for persistence
+    }
 
     public SimpleConditionOperation(Comparison comparison) {
         fieldName = comparison.getFieldName();

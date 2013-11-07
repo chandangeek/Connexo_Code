@@ -23,10 +23,15 @@ public abstract class AbstractQueryBuilderOperation implements QueryBuilderOpera
 
 
     private int position;
+    private long groupId;
 
     @Override
     public void setPosition(int i) {
         this.position = i;
     }
 
+    @Override
+    public void setGroupId(long id) {
+        groupId = id;
+    }
 }
