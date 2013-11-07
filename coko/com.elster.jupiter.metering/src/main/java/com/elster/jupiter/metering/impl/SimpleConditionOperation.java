@@ -14,6 +14,7 @@ public class SimpleConditionOperation extends ConditionOperation {
     static final String TYPE_IDENTIFIER = "SCD";
 
     private String fieldName;
+    private String operator = Operator.EQUAL.getSymbol();
     private Object[] values;
 
     private SimpleConditionOperation() {

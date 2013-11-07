@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -76,13 +77,23 @@ public class QueryUsagePointGroupImpl implements QueryUsagePointGroup {
     @Override
     public void save() {
         if (id == 0) {
-            Bus.getOrmClient().getQueryUsagePointGroupFactory().persist(this);
-            for (QueryBuilderOperation operation : getOperations()) {
-                operation.setGroupId(id);
-                Bus.getOrmClient().getQueryBuilderOperationFactory().persist(operation);
-            }
+            groupFactory().persist(this);
+        } else {
+            groupFactory().update(this);
+            operationFactory().remove(readOperations());
         }
+        for (QueryBuilderOperation operation : getOperations()) {
+            operation.setGroupId(id);
+            operationFactory().persist(operation);
+        }
+    }
 
+    private DataMapper<QueryBuilderOperation> operationFactory() {
+        return Bus.getOrmClient().getQueryBuilderOperationFactory();
+    }
+
+    private DataMapper<QueryUsagePointGroup> groupFactory() {
+        return Bus.getOrmClient().getQueryUsagePointGroupFactory();
     }
 
     private Condition getCondition() {
@@ -94,8 +105,12 @@ public class QueryUsagePointGroupImpl implements QueryUsagePointGroup {
 
     private List<QueryBuilderOperation> getOperations() {
         if (operations == null) {
-            operations = Bus.getOrmClient().getQueryBuilderOperationFactory().find("groupId", id);
+            operations = readOperations();
         }
         return operations;
+    }
+
+    private List<QueryBuilderOperation> readOperations() {
+        return operationFactory().find("groupId", id);
     }
 }
