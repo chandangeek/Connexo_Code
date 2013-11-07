@@ -11,53 +11,64 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 public enum Bus {
     ;
     public static final String COMPONENTNAME = "APS";
-    private static volatile ServiceLocator serviceLocator;
 
+    private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
+
+    public static void setServiceLocator(ServiceLocator locator) {
+        Bus.locatorHolder.set(Objects.requireNonNull(locator));
+    }
+
+    public static void clearServiceLocator(ServiceLocator old) {
+        locatorHolder.compareAndSet(Objects.requireNonNull(old), null);
+    }
 
     public static OrmClient getOrmClient() {
-        return serviceLocator.getOrmClient();
+        return getLocator().getOrmClient();
     }
 
     public static TransactionService getTransactionService() {
-        return serviceLocator.getTransactionService();
+        return getLocator().getTransactionService();
     }
 
     public static MessageService getMessageService() {
-        return serviceLocator.getMessageService();
+        return getLocator().getMessageService();
     }
 
     public static CronExpressionParser getCronExpressionParser() {
-        return serviceLocator.getCronExpressionParser();
-    }
-
-    public static void setServiceLocator(ServiceLocator serviceLocator) {
-        Bus.serviceLocator = serviceLocator;
+        return getLocator().getCronExpressionParser();
     }
 
     public static FileImportService getFileImportService() {
-        return serviceLocator.getFileImportService();
+        return getLocator().getFileImportService();
     }
 
     public static JsonService getJsonService() {
-        return serviceLocator.getJsonService();
+        return getLocator().getJsonService();
     }
 
     public static UserService getUserService() {
-        return serviceLocator.getUserService();
+        return getLocator().getUserService();
     }
 
     public static ThreadPrincipalService getThreadPrincipalService() {
-        return serviceLocator.getThreadPrincipalService();
+        return getLocator().getThreadPrincipalService();
     }
 
     public static Optional<AppServer> getAppServer() {
-        return serviceLocator.getAppServer();
+        return getLocator().getAppServer();
     }
 
     public static AppServerCreator getAppServerCreator() {
-        return serviceLocator.getAppServerCreator();
+        return getLocator().getAppServerCreator();
+    }
+
+    private static ServiceLocator getLocator() {
+        return locatorHolder.get();
     }
 }

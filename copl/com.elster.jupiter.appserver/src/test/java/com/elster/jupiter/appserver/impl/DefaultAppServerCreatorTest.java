@@ -78,7 +78,7 @@ public class DefaultAppServerCreatorTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

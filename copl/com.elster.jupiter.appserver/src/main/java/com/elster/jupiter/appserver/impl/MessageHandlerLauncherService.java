@@ -55,7 +55,6 @@ public class MessageHandlerLauncherService {
         for (ExecutorService executorService : executors.values()) {
             shutDownServiceWithCancelling(executorService);
         }
-        Bus.setServiceLocator(null);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
