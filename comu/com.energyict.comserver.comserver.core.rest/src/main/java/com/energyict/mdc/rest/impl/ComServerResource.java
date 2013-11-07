@@ -40,6 +40,7 @@ public class ComServerResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo createComServer(ComServerInfo comServerInfo) {
         if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
@@ -55,6 +56,7 @@ public class ComServerResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo comServerInfo) {
         if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
