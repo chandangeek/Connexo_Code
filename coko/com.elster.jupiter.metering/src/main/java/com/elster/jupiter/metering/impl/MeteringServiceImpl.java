@@ -202,7 +202,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Deactivate
     public void deactivate() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(this);
     }
 
     @Override

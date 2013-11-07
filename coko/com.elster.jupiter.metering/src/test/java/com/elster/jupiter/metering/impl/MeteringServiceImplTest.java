@@ -85,7 +85,7 @@ public class MeteringServiceImplTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(meteringService);
     }
 
     @Test
