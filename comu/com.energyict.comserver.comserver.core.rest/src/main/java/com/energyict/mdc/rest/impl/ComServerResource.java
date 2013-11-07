@@ -57,7 +57,7 @@ public class ComServerResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo comServerInfo) {
+    public ComServerInfo updateComServer(@PathParam("id") int id, OnlineComServerInfo comServerInfo) {
         if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
                 OnlineComServer onlineComServer = (OnlineComServer) ManagerFactory.getCurrent().getComServerFactory().find(id);
