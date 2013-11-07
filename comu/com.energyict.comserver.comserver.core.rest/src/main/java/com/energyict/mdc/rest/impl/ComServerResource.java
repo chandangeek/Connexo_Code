@@ -41,7 +41,7 @@ public class ComServerResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo createComServer(ComServerInfo comServerInfo) {
+    public ComServerInfo createComServer(OnlineComServerInfo comServerInfo) {
         if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
                 return new ComServerInfo(ManagerFactory.getCurrent().getComServerFactory().createOnline(comServerInfo.asShadow()));
