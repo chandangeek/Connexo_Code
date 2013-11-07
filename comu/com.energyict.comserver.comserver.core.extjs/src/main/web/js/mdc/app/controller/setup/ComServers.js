@@ -14,6 +14,12 @@ Ext.define('Mdc.controller.setup.ComServers', {
         this.control({
             'setupComServers': {
                 itemdblclick: this.editComServer
+            },
+            'comServerEdit button[action=save]':{
+               click: this.update
+            },
+            'comServerEdit button[action=cancel]':{
+                click: this.cancel
             }
         });
     },
@@ -31,5 +37,19 @@ Ext.define('Mdc.controller.setup.ComServers', {
                 Mdc.getApplication().getMainController().showContent(view);
             }
         });
+    },
+
+    update: function(button){
+        var pnl    = button.up('panel'),
+            form   = pnl.down('form'),
+            record = form.getRecord(),
+            values = form.getValues();
+        record.set(values);
+        record.save();
+    },
+
+    cancel: function(){
+        var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('comservers');
+        Ext.History.add(url);
     }
 });

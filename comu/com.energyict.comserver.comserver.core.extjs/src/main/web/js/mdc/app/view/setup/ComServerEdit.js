@@ -1,10 +1,10 @@
 Ext.define('Mdc.view.setup.ComServerEdit', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.panel.Panel',
     alias: 'widget.comServerEdit',
 
-    title: 'Edit ComServer',
     layout: 'fit',
     autoShow: true,
+    border: 0,
 
     initComponent: function() {
         this.items = [
@@ -20,17 +20,16 @@ Ext.define('Mdc.view.setup.ComServerEdit', {
             }
         ];
 
-//        this.buttons = [
-//            {
-//                text: 'Save',
-//                action: 'save'
-//            },
-//            {
-//                text: 'Cancel',
-//                scope: this,
-//                handler: this.close
-//            }
-//        ];
+        this.buttons = [
+            {
+                text: 'Save',
+                action: 'save'
+            },
+            {
+                text: 'Cancel',
+                action: 'cancel'
+            }
+        ];
 
         this.callParent(arguments);
     }

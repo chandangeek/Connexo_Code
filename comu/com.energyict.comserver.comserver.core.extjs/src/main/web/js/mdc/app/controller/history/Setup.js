@@ -14,6 +14,10 @@ Ext.define('Mdc.controller.history.Setup', {
     },
 
     tokenizeBrowse: function(item,id) {
-        return this.tokenize([this.rootToken,item, id]);
+        if(id === undefined){
+            return this.tokenize([this.rootToken,item]);
+        } else {
+            return this.tokenize([this.rootToken,item, id]);
+        }
     }
 });
