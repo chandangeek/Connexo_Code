@@ -1,7 +1,12 @@
-Ext.define('Mdc.view.setup.Browse', {
+Ext.define('Mdc.view.devicecommunicationprotocol.Browse', {
     extend: 'Ext.container.Container',
-    alias: 'widget.setupBrowse',
+    alias: 'widget.deviceCommunicationProtocolBrowse',
+    cls: 'content-wrapper',
     overflowY: 'auto',
+    requires: [
+        'Mdc.view.devicecommunicationprotocol.List'
+    ],
+
     items: [
         {
             xtype: 'container',
@@ -13,17 +18,12 @@ Ext.define('Mdc.view.setup.Browse', {
             items: [
                 {
                     xtype: 'component',
-                    cls: 'content-container',
-                    html: '<a href="#/setup/comservers">comservers</a>'
+                    html: '<h1>Device Communication Protocols</h1>'
                 },
-
                 {
-                    xtype: 'component',
-                    cls: 'content-container',
-                    html: '<a href="#/deviceCommunicationProtocols">device commununication protocols</a>'
+                    xtype: 'deviceCommunicationProtocolList'
                 }
             ]
-
         }
     ],
 
