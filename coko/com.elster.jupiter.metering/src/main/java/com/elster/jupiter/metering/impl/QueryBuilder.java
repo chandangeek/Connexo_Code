@@ -84,33 +84,35 @@ public class QueryBuilder {
 
         @Override
         public void visitOr(Or or) {
-            add(OpenBracketOperation.OPEN);
+            add(OpenBracketOperation.atPosition(operations.size()));
             or.getConditions().get(0).visit(this);
-            add(OrOperation.OR);
+            add(OrOperation.atPosition(operations.size()));
             or.getConditions().get(1).visit(this);
-            add(CloseBracketOperation.CLOSE);
+            add(CloseBracketOperation.atPosition(operations.size()));
         }
 
         @Override
         public void visitAnd(And and) {
-            add(OpenBracketOperation.OPEN);
+            add(OpenBracketOperation.atPosition(operations.size()));
             and.getConditions().get(0).visit(this);
-            add(AndOperation.AND);
+            add(AndOperation.atPosition(operations.size()));
             and.getConditions().get(1).visit(this);
-            add(CloseBracketOperation.CLOSE);
+            add(CloseBracketOperation.atPosition(operations.size()));
         }
 
         @Override
         public void visitComparison(Comparison comparison) {
-            add(new SimpleConditionOperation(comparison));
+            SimpleConditionOperation operation = new SimpleConditionOperation(comparison);
+            operation.setPosition(operations.size());
+            add(operation);
         }
 
         @Override
         public void visitNot(Not not) {
-            add(NotOperation.NOT);
-            add(OpenBracketOperation.OPEN);
+            add(NotOperation.atPosition(operations.size()));
+            add(OpenBracketOperation.atPosition(operations.size()));
             not.getNegated().visit(this);
-            add(CloseBracketOperation.CLOSE);
+            add(CloseBracketOperation.atPosition(operations.size()));
         }
 
         @Override

@@ -5,6 +5,13 @@ import com.elster.jupiter.util.conditions.Condition;
 public class AndOperation extends BooleanOperation {
 
     public static final AndOperation AND = new AndOperation();
+    public static final String TYPE_IDENTIFIER = "AND";
+
+    public static AndOperation atPosition(int i) {
+        AndOperation andOperation = new AndOperation();
+        andOperation.setPosition(i);
+        return andOperation;
+    }
 
     @Override
     public Condition toCondition(Condition... conditions) {

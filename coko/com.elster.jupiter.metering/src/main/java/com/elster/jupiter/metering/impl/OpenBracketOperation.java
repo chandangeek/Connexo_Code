@@ -2,9 +2,16 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.util.conditions.Condition;
 
-public final class OpenBracketOperation implements QueryBuilderOperation {
+public final class OpenBracketOperation extends AbstractQueryBuilderOperation {
 
     public static final OpenBracketOperation OPEN = new OpenBracketOperation();
+    static final String TYPE_IDENTIFIER = "(";
+
+    public static OpenBracketOperation atPosition(int i) {
+        OpenBracketOperation openBracketOperation = new OpenBracketOperation();
+        openBracketOperation.setPosition(i);
+        return openBracketOperation;
+    }
 
     @Override
     public void visit(OperationVisitor visitor) {

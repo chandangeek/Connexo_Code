@@ -81,4 +81,10 @@ public class OrmClientImpl implements OrmClient {
     public DataMapper<EnumeratedUsagePointGroup> getEnumeratedUsagePointGroupFactory() {
         return dataModel.getDataMapper(EnumeratedUsagePointGroup.class, EnumeratedUsagePointGroupImpl.class, TableSpecs.MTR_ENUM_UP_GROUP.name());
     }
+
+    @Override
+    public DataMapper<QueryBuilderOperation> getQueryBuilderOperationFactory() {
+        return dataModel.getDataMapper(QueryBuilderOperation.class, AbstractQueryBuilderOperation.IMPLEMENTERS, TableSpecs.MTR_QUERY_UP_GROUP_OP.name());
+    }
+
 }

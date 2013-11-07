@@ -22,6 +22,8 @@ public class QueryUsagePointGroupImpl implements QueryUsagePointGroup {
     private UtcInstant modTime;
     private String userName;
 
+    private List<QueryBuilderOperation> operations;
+
     @Override
     public String getAliasName() {
         return aliasName;

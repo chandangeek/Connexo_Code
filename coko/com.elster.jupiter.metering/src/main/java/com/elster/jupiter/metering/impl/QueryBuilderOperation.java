@@ -6,5 +6,7 @@ public interface QueryBuilderOperation {
 
     void visit(OperationVisitor visitor);
 
+    void setPosition(int i);
+
     Condition toCondition(Condition... conditions);
 }

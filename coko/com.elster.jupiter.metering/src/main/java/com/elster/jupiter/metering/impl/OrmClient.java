@@ -29,4 +29,6 @@ public interface OrmClient {
     DataMapper<EnumeratedUsagePointGroup.Entry> getEnumeratedUsagePointGroupEntryFactory();
 	void install(boolean executeDdl , boolean storeMappings);
 	DataModel getDataModel();
+
+    DataMapper<QueryBuilderOperation> getQueryBuilderOperationFactory();
 }
