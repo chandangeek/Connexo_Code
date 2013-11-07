@@ -8,7 +8,6 @@ public class ComServerInfo {
     public int id;
 
     public String comServerDescriptor;
-    public String fullName;
     public String name;
 
     public boolean active;
@@ -23,7 +22,6 @@ public class ComServerInfo {
     public ComServerInfo(ComServer comServer) {
         this.id=comServer.getId();
         this.name = comServer.getName();
-        this.fullName = comServer.getFullName();
         this.active = comServer.isActive();
         this.serverLogLevel = comServer.getServerLogLevel();
         this.communicationLogLevel = comServer.getCommunicationLogLevel();

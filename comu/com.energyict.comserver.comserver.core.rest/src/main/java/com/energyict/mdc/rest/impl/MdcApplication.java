@@ -20,7 +20,7 @@ public class MdcApplication extends Application implements ServiceLocator{
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(ComServerRest.class, ComPortRest.class, DeviceCommunicationProtocolsResource.class);
+        return ImmutableSet.of(ComServerResource.class, ComPortResource.class, DeviceCommunicationProtocolsResource.class);
     }
 
     @Activate
