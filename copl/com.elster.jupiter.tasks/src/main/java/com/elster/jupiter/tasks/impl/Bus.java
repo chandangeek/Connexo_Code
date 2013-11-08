@@ -7,42 +7,53 @@ import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 enum Bus {
     ;
 
     public static final String COMPONENTNAME = "TSK";
 
-    private static volatile ServiceLocator serviceLocator;
+    private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
 
-    public static Clock getClock() {
-        return serviceLocator.getClock();
+    public static void setServiceLocator(ServiceLocator locator) {
+        Bus.locatorHolder.set(Objects.requireNonNull(locator));
     }
 
-    public static void setServiceLocator(final ServiceLocator serviceLocator) {
-        Bus.serviceLocator = serviceLocator;
+    public static void clearServiceLocator(ServiceLocator old) {
+        locatorHolder.compareAndSet(Objects.requireNonNull(old), null);
+    }
+
+    public static Clock getClock() {
+        return getLocator().getClock();
     }
 
     public static MessageService getMessageService() {
-        return serviceLocator.getMessageService();
+        return getLocator().getMessageService();
     }
 
     public static OrmClient getOrmClient() {
-        return serviceLocator.getOrmClient();
+        return getLocator().getOrmClient();
     }
 
     public static QueryService getQueryService() {
-        return serviceLocator.getQueryService();
+        return getLocator().getQueryService();
     }
 
     public static CronExpressionParser getCronExpressionParser() {
-        return serviceLocator.getCronExpressionParser();
+        return getLocator().getCronExpressionParser();
     }
 
     public static TransactionService getTransactionService() {
-        return serviceLocator.getTransactionService();
+        return getLocator().getTransactionService();
     }
 
     public static JsonService getJsonService() {
-        return serviceLocator.getJsonService();
+        return getLocator().getJsonService();
+    }
+
+    private static ServiceLocator getLocator() {
+        return locatorHolder.get();
     }
 }

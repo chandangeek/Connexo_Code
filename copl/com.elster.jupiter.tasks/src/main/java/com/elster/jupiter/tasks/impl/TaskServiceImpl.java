@@ -57,7 +57,7 @@ public class TaskServiceImpl implements TaskService, ServiceLocator, InstallServ
     			Thread.currentThread().interrupt();
     		}
         }
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(this);
     }
 
     @Override

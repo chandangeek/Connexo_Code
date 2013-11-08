@@ -69,7 +69,7 @@ public class DefaultTaskOccurrenceLauncherTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test
