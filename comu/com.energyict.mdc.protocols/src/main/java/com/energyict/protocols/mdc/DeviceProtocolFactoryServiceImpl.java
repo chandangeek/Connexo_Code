@@ -42,10 +42,16 @@ public class DeviceProtocolFactoryServiceImpl implements DeviceProtocolFactorySe
     @Override
     public DeviceProtocol createDeviceProtocolFor(PluggableClass pluggableClass) {
         try {
-            Pluggable pluggable = pluggableClass.newInstanceWithoutProperties();
+            Pluggable pluggable = (Pluggable) (Class.forName(pluggableClass.getJavaClassName())).newInstance();
             return checkForProtocolWrappers(pluggable);
         } catch (BusinessException e) {
             throw CodingException.reflectionError(e, pluggableClass);
+        } catch (ClassNotFoundException e) {
+            throw CodingException.genericReflectionError(e, getClass());
+        } catch (InstantiationException e) {
+            throw CodingException.genericReflectionError(e, getClass());
+        } catch (IllegalAccessException e) {
+            throw CodingException.genericReflectionError(e, getClass());
         }
     }
 
