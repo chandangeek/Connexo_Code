@@ -5,13 +5,36 @@ Ext.define('Uni.view.error.Window', {
     requires: [
     ],
 
+    width: 600,
+    height: 350,
+
+    layout: 'fit',
+
     modal: true,
     constrain: true,
 
+    title: 'Error message',
+
     items: [
         {
-            xtype: 'component',
-            html: 'Here be exceptions'
+            xtype: 'textareafield',
+            itemId: 'message',
+            margin: 10
         }
-    ]
+    ],
+
+    buttons: [
+        {
+            text: 'Report issue'
+        },
+        {
+            text: 'Close' // TODO Close the window.
+        }
+    ],
+
+    setErrorMessage: function (message) {
+        var messageField = this.down('#message');
+        messageField.setValue(message);
+    }
+
 });

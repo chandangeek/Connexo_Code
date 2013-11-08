@@ -12,31 +12,27 @@ Ext.define('Uni.controller.Error', {
     init: function () {
         var me = this;
 
-        Ext.Error.handle = me.handleGenericException;
-        Ext.Ajax.on('requestexception', me.handleRequestException, this);
+        Ext.Error.handle = me.handleGenericError;
+        Ext.Ajax.on('requestexception', me.handleRequestError, this);
     },
 
-    handleGenericException: function (ex) {
-        // TODO
-        console.log('General error');
-        this.showException('TODO');
+    handleGenericError: function (error) {
+        this.showError(error);
     },
 
-    handleRequestException: function (conn, response, options) {
-        // TODO
-        console.log('Request exception');
-        this.showException('TODO');
+    handleRequestError: function (conn, response, options) {
+        this.showError(response.responseText);
     },
 
-    showException: function (ex) {
-        if(this.getWindow() === undefined) {
-            var window = Ext.widget('errorWindow');
+    showError: function (error) {
+        var window = this.getWindow();
+
+        if (window === null) {
+            window = Ext.widget('errorWindow');
             this.setWindow(window);
         }
 
-        // TODO Visualize the exception.
-
-
+        window.setErrorMessage(error);
         window.show();
     },
 
