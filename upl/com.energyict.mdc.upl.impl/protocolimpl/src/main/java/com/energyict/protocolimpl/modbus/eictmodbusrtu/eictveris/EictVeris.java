@@ -71,7 +71,7 @@ public class EictVeris extends Modbus {
 
     @Override
     public String getProtocolDescription() {
-        return "Veris Hawkeye";
+        return "EnergyICT Hawkeye";
     }
     
     public String getProtocolVersion() {

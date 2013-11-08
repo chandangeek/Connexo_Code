@@ -233,7 +233,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
 
     // Deprecated
-    AS300D_ELSTER(10000, "com.energyict.protocolimpl.dlms.elster.as300d.AS300D"),
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),
     INDIGO_PXAR(10003, "com.energyict.protocolimpl.iec1107.indigo.pxar.IndigoPXAR"),
