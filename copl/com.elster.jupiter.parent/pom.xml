@@ -244,6 +244,8 @@
         		<module>../com.elster.jupiter.cbo</module>
 		        <module>../com.elster.jupiter.domain.util</module>
 		        <module>../com.elster.jupiter.events</module>
+                <module>../com.elster.jupiter.events.rest</module>
+                <module>../com.elster.jupiter.config.extjs</module>
 		        <module>../com.elster.jupiter.fileimport</module>
 		        <module>../com.elster.jupiter.http.whiteboard</module>
 		        <module>../com.elster.jupiter.ids</module>
