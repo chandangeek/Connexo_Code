@@ -1,6 +1,5 @@
 package com.elster.jupiter.parties.impl;
 
-import org.junit.After;
 import org.junit.Before;
 
 import static org.fest.reflect.core.Reflection.field;
@@ -16,11 +15,6 @@ public class PersonImplTest extends PartyImplTest {
     @Before
     public void setUp() {
         field("id").ofType(Long.TYPE).in(person).set(ID);
-    }
-
-    @After
-    public void tearDown() {
-
     }
 
     @Override

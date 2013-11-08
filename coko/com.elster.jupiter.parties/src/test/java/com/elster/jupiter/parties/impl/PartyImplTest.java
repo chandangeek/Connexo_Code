@@ -55,7 +55,7 @@ public abstract class PartyImplTest extends EqualsContractTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

@@ -49,7 +49,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 	}
 	
 	public void deactivate(ComponentContext context) {
-		Bus.setServiceLocator(null);
+		Bus.clearServiceLocator(this);
 	}
 
     @Override
