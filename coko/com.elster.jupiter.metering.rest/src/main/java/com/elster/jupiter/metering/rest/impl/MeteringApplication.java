@@ -62,6 +62,6 @@ public class MeteringApplication extends Application implements ServiceLocator {
 	
 	@Deactivate
 	public void deactivate() {
-		Bus.setServiceLocator(null);
+		Bus.clearServiceLocator(this);
 	}
 }

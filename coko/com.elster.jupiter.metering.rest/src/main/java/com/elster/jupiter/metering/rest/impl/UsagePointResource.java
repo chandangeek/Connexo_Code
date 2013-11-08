@@ -83,7 +83,7 @@ public class UsagePointResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.id = id;
-        Bus.getServiceLocator().getTransactionService().execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal()));
+        Bus.getTransactionService().execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal()));
         return getUsagePoint(info.id, securityContext);
 	}
 	  
