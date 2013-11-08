@@ -9,7 +9,7 @@ import java.util.TimeZone;
 /**
  * Osgi component that implements the Clock interface.
  */
-@Component(name = "com.elster.jupiter.time.clock", service = { Clock.class }, immediate = true, property="name=" + Bus.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.time.clock", service = { Clock.class }, immediate = true, property="name=" + "TIM")
 public class ClockServiceImpl implements ServiceLocator, Clock {
 
     private volatile Clock clock;
@@ -25,12 +25,10 @@ public class ClockServiceImpl implements ServiceLocator, Clock {
     @Activate
     public void activate() {
         clock = new DefaultClock();
-        Bus.setServiceLocator(this);
     }
     
     @Deactivate
     public void deactivate() {
-    	Bus.setServiceLocator(null);
     }
 
     @Override
