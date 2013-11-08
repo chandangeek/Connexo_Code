@@ -64,7 +64,7 @@ public class TransactionServiceImplTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(transactionService);
     }
 
     @Test(expected = NestedTransactionException.class)

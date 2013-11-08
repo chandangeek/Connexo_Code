@@ -1,11 +1,13 @@
 package com.elster.jupiter.transaction.impl;
 
+import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.transaction.SqlEvent;
+import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionEvent;
+import com.elster.jupiter.util.time.StopWatch;
+
 import java.sql.Connection;
 import java.sql.SQLException;
-
-import com.elster.jupiter.pubsub.Subscriber;
-import com.elster.jupiter.transaction.*;
-import com.elster.jupiter.util.time.StopWatch;
  
 class TransactionContextImpl implements Subscriber {	
 	private final TransactionServiceImpl  transactionService;
@@ -27,14 +29,13 @@ class TransactionContextImpl implements Subscriber {
 
 	<T> T execute(Transaction<T> transaction) throws SQLException {
 		StopWatch stopWatch = new StopWatch(true);
-		ServiceLocator locator = Bus.getServiceLocator();
-		locator.addThreadSubscriber(this);		
+		Bus.addThreadSubscriber(this);
 		try {
 			return doExecute(transaction);
 		} finally {
 			stopWatch.stop();
-			locator.removeThreadSubscriber(this);
-			locator.publish(new TransactionEvent(transaction,rollback,stopWatch,statementCount,fetchCount));
+			Bus.removeThreadSubscriber(this);
+			Bus.publish(new TransactionEvent(transaction,rollback,stopWatch,statementCount,fetchCount));
 		}		
 	}
 	
