@@ -2,10 +2,10 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.OnlineComServer;
+import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.annotate.JsonManagedReference;
 
 @XmlRootElement(name = "OnlineComServer")
 public class OnlineComServerInfo extends ComServerInfo {
@@ -16,8 +16,7 @@ public class OnlineComServerInfo extends ComServerInfo {
     public int storeTaskQueueSize;
     public int numberOfStoreTaskThreads;
     public int storeTaskThreadPriority;
-    @JsonManagedReference
-    public List<ComPortInfo> comPorts;
+    public List<Integer> comPorts_ids;
 
     public OnlineComServerInfo() {
     }
@@ -32,11 +31,22 @@ public class OnlineComServerInfo extends ComServerInfo {
         this.storeTaskQueueSize = onlineComServer.getStoreTaskQueueSize();
         this.numberOfStoreTaskThreads = onlineComServer.getNumberOfStoreTaskThreads();
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
-        comPorts = new ArrayList<>();
+        comPorts_ids = new ArrayList<>();
         for (ComPort comPort : onlineComServer.getComPorts()) {
-            comPorts.add(new ComPortInfo(comPort, this));
+            comPorts_ids.add(comPort.getId());
         }
 
+    }
+
+    public OnlineComServerShadow asShadow() {
+        OnlineComServerShadow comServerShadow = super.asShadow();
+        comServerShadow.setQueryAPIPostUri(queryAPIPostUri);
+        comServerShadow.setUsesDefaultQueryAPIPostUri(usesDefaultQueryAPIPostUri);
+        comServerShadow.setEventRegistrationUri(eventRegistrationUri);
+        comServerShadow.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
+        comServerShadow.setStoreTaskQueueSize(storeTaskQueueSize);
+        comServerShadow.setStoreTaskThreadPriority(storeTaskThreadPriority);
+        return comServerShadow;
     }
 
 }
