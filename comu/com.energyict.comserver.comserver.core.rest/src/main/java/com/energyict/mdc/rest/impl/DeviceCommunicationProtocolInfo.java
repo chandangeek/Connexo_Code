@@ -23,11 +23,11 @@ public class DeviceCommunicationProtocolInfo {
     public DeviceCommunicationProtocolInfo() {
     }
 
-    public DeviceCommunicationProtocolInfo(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        this.name = deviceProtocolPluggableClass.getName();
-        this.javaClassName = deviceProtocolPluggableClass.getJavaClassName();
-        this.databaseId = deviceProtocolPluggableClass.getId();
-        this.deviceProtocolVersion = deviceProtocolPluggableClass.getVersion();
+    public DeviceCommunicationProtocolInfo(SimpleDeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        this.name = deviceProtocolPluggableClass.getPluggableClass().getName();
+        this.javaClassName = deviceProtocolPluggableClass.getPluggableClass().getJavaClassName();
+        this.databaseId = deviceProtocolPluggableClass.getPluggableClass().getId();
+        this.deviceProtocolVersion = deviceProtocolPluggableClass.getDeviceProtocol().getVersion();
     }
 
     public void update(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {

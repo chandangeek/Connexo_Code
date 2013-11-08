@@ -1,7 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,23 +18,23 @@ public class DeviceCommunicationProtocolInfos {
     DeviceCommunicationProtocolInfos() {
     }
 
-    DeviceCommunicationProtocolInfos(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    DeviceCommunicationProtocolInfos(SimpleDeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         add(deviceProtocolPluggableClass);
     }
 
-    DeviceCommunicationProtocolInfos(Iterable<? extends DeviceProtocolPluggableClass> deviceCommunicationProtocols) {
+    DeviceCommunicationProtocolInfos(Iterable<? extends SimpleDeviceProtocolPluggableClass> deviceCommunicationProtocols) {
         addAll(deviceCommunicationProtocols);
     }
 
-    DeviceCommunicationProtocolInfo add(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    DeviceCommunicationProtocolInfo add(SimpleDeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         DeviceCommunicationProtocolInfo result = new DeviceCommunicationProtocolInfo(deviceProtocolPluggableClass);
         deviceCommunicationProtocols.add(result);
         total++;
         return result;
     }
 
-    void addAll(Iterable<? extends DeviceProtocolPluggableClass> deviceProtocolPluggableClasses) {
-        for (DeviceProtocolPluggableClass each : deviceProtocolPluggableClasses) {
+    void addAll(Iterable<? extends SimpleDeviceProtocolPluggableClass> deviceProtocolPluggableClasses) {
+        for (SimpleDeviceProtocolPluggableClass each : deviceProtocolPluggableClasses) {
             add(each);
         }
     }

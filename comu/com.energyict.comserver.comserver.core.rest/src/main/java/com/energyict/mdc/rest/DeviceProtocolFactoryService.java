@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest;
 
-import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdw.core.PluggableClass;
 
 /**
@@ -14,8 +14,9 @@ public interface DeviceProtocolFactoryService {
      * Create a DeviceProtocolPluggableClass wich contains a DeviceProtocol implementation
      * for the given javaClass of the pluggableClass
      *
+     *
      * @param pluggableClass the pluggableClass to use as model for the DeviceProtocolPluggableClass
      * @return the created DeviceProtocolPluggableClass
      */
-    DeviceProtocolPluggableClass createDeviceProtocolPluggableClassFor(PluggableClass pluggableClass);
+    DeviceProtocol createDeviceProtocolFor(PluggableClass pluggableClass);
 }
