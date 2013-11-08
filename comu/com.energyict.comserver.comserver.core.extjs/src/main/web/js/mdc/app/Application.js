@@ -9,13 +9,10 @@ Ext.define('Mdc.Application', {
 
     controllers: [
         'Main',
-        'Setup',
         'setup.SetupOverview',
         'setup.ComServers',
         'history.Setup',
-               
-        'DeviceCommunicationProtocol',
-        'history.DeviceCommunicationProtocol'
+        'setup.DeviceCommunicationProtocol'
     ],
 
     stores: [
