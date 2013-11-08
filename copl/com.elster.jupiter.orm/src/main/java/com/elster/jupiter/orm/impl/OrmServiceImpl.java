@@ -116,7 +116,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 	
 	@Deactivate
 	public void deactivate() {
-		Bus.setServiceLocator(null);
+		Bus.clearServiceLocator(this);
 	}
 	
 	@Override

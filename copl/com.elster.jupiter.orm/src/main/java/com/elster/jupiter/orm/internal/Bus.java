@@ -7,40 +7,46 @@ import com.elster.jupiter.util.time.Clock;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Bus {
 	public final static String COMPONENTNAME = "ORM";
 	public final static int CATALOGNAMELIMIT = 30;
-	
-	private static volatile ServiceLocator locator;
-	
-	public static void setServiceLocator(ServiceLocator locator) {
-		Bus.locator = locator;
-	}
-	
-	public static OrmClient getOrmClient() {
-		return locator.getOrmClient();
+
+    private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
+
+    public static void setServiceLocator(ServiceLocator locator) {
+        Bus.locatorHolder.set(Objects.requireNonNull(locator));
+    }
+
+    public static void clearServiceLocator(ServiceLocator old) {
+        locatorHolder.compareAndSet(Objects.requireNonNull(old), null);
+    }
+
+    public static OrmClient getOrmClient() {
+		return getLocator().getOrmClient();
 	}
 	
 	public static Connection getConnection(boolean transactionRequired) throws SQLException {
-		return locator.getConnection(transactionRequired);
+		return getLocator().getConnection(transactionRequired);
 	}
 	
 	public static Principal getPrincipal() {
-		return locator.getPrincipal();
+		return getLocator().getPrincipal();
 	}
 
     public static Clock getClock() {
-        return locator.getClock();
+        return getLocator().getClock();
     }
 
     public static JsonService getJsonService() {
-        return locator.getJsonService();
+        return getLocator().getJsonService();
     }
 
     // helper methods
 	
-	private final static String[] trueStrings = { "1" , "y" ,"yes" , "on" };
+	private static final String[] trueStrings = { "1" , "y" ,"yes" , "on" };
 	
 	public static boolean toBoolean(String in) {
 		for (String each : trueStrings) {
@@ -56,7 +62,11 @@ public class Bus {
 	}
 
 	public static Table getTable(String component, String tableName) {
-		return locator.getTable(component,tableName);
-	}	
-	
+		return getLocator().getTable(component, tableName);
+	}
+
+    private static ServiceLocator getLocator() {
+        return locatorHolder.get();
+    }
+
 }
