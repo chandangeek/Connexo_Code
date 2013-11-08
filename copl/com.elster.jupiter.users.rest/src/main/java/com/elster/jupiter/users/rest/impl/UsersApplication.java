@@ -55,7 +55,7 @@ public class UsersApplication extends Application implements ServiceLocator {
     }
 
     public void deactivate(ComponentContext context) {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(this);
     }
 
 
