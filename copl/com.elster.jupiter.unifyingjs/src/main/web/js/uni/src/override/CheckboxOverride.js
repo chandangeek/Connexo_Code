@@ -1,4 +1,4 @@
-Ext.define('Uni.util.CheckboxOverride', {
+Ext.define('Uni.override.CheckboxOverride', {
     override: 'Ext.form.field.Checkbox',
 
     /**

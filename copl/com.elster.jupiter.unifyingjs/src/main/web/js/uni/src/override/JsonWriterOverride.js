@@ -1,4 +1,4 @@
-Ext.define('Uni.util.JsonWriterOverride', {
+Ext.define('Uni.override.JsonWriterOverride', {
     override: 'Ext.data.writer.Json',
 
     /**

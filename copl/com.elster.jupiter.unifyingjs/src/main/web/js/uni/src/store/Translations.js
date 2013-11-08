@@ -13,10 +13,4 @@ Ext.define('Uni.store.Translations', {
             root: 'items'
         }
     }
-//    data: [
-//        {
-//            key: 'navigation',
-//            value: 'Navigation'
-//        }
-//    ]
 });

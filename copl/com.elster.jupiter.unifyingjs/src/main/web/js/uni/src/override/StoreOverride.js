@@ -1,7 +1,7 @@
 /**
  * Stops ExtJS from overriding the storeId property when using the stores property in a controller.
  */
-Ext.define('Uni.util.StoreOverride', {
+Ext.define('Uni.override.StoreOverride', {
     override: 'Ext.app.Application',
 
     getStore: function (name) {

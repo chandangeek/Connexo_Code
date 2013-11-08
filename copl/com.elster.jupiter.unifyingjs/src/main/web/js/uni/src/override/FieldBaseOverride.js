@@ -1,4 +1,4 @@
-Ext.define('Uni.util.FieldBaseOverride', {
+Ext.define('Uni.override.FieldBaseOverride', {
     override: 'Ext.form.field.Base',
 
     /**
