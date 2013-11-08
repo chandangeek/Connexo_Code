@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.PluggableClass;
 import com.energyict.mdw.core.PluggableClassType;
@@ -24,9 +24,9 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolInfos getDeviceCommunicationProtocols() {
-        Set<DeviceProtocolPluggableClass> deviceCommunicationProtocolInfoList = new HashSet<>();
+        Set<SimpleDeviceProtocolPluggableClass> deviceCommunicationProtocolInfoList = new HashSet<>();
         for (PluggableClass pluggableClass : MeteringWarehouse.getCurrent().getPluggableClassFactory().findByType(PluggableClassType.DEVICEPROTOCOL)) {
-            deviceCommunicationProtocolInfoList.add(createDeviceProtocolPluggableClass(pluggableClass));
+            deviceCommunicationProtocolInfoList.add(new SimpleDeviceProtocolPluggableClass(pluggableClass, createDeviceProtocolPluggableClass(pluggableClass)));
         }
         return new DeviceCommunicationProtocolInfos(deviceCommunicationProtocolInfoList);
     }
@@ -34,12 +34,13 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceCommunicationProtocolInfo getComServer(@PathParam("id") int id) {
-        return new DeviceCommunicationProtocolInfo(createDeviceProtocolPluggableClass(MeteringWarehouse.getCurrent().getPluggableClassFactory().find(id)));
+    public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@PathParam("id") int id) {
+        PluggableClass pluggableClass = MeteringWarehouse.getCurrent().getPluggableClassFactory().find(id);
+        return new DeviceCommunicationProtocolInfo(new SimpleDeviceProtocolPluggableClass(pluggableClass, createDeviceProtocolPluggableClass(pluggableClass)));
     }
 
-    private DeviceProtocolPluggableClass createDeviceProtocolPluggableClass(PluggableClass pluggableClass) {
-        return Bus.getDeviceProtocolFactoryService().createDeviceProtocolPluggableClassFor(pluggableClass);
+    private DeviceProtocol createDeviceProtocolPluggableClass(PluggableClass pluggableClass) {
+        return Bus.getDeviceProtocolFactoryService().createDeviceProtocolFor(pluggableClass);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.cpo.Environment;
-import com.energyict.mdc.rest.DeviceProtocolFactoryService;
+import com.energyict.mdc.services.DeviceProtocolFactoryService;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.google.common.collect.ImmutableSet;
