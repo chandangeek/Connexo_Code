@@ -36,7 +36,7 @@ public class AmrSystemImpl implements AmrSystem {
 		return name;
 	}
 	
-	void persist() {
+	void save() {
 		Bus.getOrmClient().getAmrSystemFactory().persist(this);
 	}
 
