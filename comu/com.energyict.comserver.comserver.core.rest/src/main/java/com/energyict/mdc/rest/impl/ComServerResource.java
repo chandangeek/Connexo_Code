@@ -4,6 +4,7 @@ import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -47,6 +48,19 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo getComServer(@PathParam("id") int id) {
         return new OnlineComServerInfo((OnlineComServer) comServerService.find(id));
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteComServer(@PathParam("id") int id) {
+        try {
+            comServerService.deleteComServer(id);
+        } catch (Exception e) {
+            throw new WebApplicationException(Response.serverError().build());
+        }
+        return Response.ok().build();
+
     }
 
     @POST
