@@ -65,7 +65,7 @@ public class AmrSystemImplTest {
     public void testPersist() {
         when(serviceLocator.getOrmClient().getAmrSystemFactory()).thenReturn(factory);
 
-        amrSystem.persist();
+        amrSystem.save();
 
         verify(factory).persist(amrSystem);
     }
