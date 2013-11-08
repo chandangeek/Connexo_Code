@@ -71,9 +71,7 @@ public class ComServerResource {
     public ComServerInfo updateComServer(@PathParam("id") int id, OnlineComServerInfo comServerInfo) {
         if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
-                OnlineComServer onlineComServer = (OnlineComServer) comServerService.find(id);
-                onlineComServer.update(comServerInfo.asShadow());
-                return new ComServerInfo(onlineComServer);
+                return new ComServerInfo(comServerService.updateComServer(id, comServerInfo.asShadow()));
             } catch (Exception e) {
                 throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
             }
