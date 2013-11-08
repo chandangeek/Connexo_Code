@@ -28,19 +28,6 @@
     <dependencies>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>comserver-core-rest</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.energyict</groupId>
-                    <artifactId>mdc-all</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc-all</artifactId>
             <version>${project.version}</version>
             <exclusions>
