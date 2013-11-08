@@ -14,7 +14,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.elster.mdc.rest", service = Application.class, immediate = true, property = {"alias=/mdc"})
-public class MdcApplication extends Application implements ServiceLocator{
+public class MdcApplication extends Application {
 
     private volatile DeviceProtocolFactoryService deviceProtocolFactoryService;
     private volatile ComServerService comServerService;
@@ -26,13 +26,11 @@ public class MdcApplication extends Application implements ServiceLocator{
 
     @Activate
     public void activate(BundleContext context) {
-        Bus.setServiceLocator(this);
         MeteringWarehouse.createBatchContext(true);
     }
 
     @Deactivate
     public void deactivate(){
-        Bus.setServiceLocator(null);
         Environment.getDefault().closeConnection();
     }
 
@@ -41,7 +39,6 @@ public class MdcApplication extends Application implements ServiceLocator{
         this.deviceProtocolFactoryService = deviceProtocolFactoryService;
     }
 
-    @Override
     public DeviceProtocolFactoryService getDeviceProtocolFactoryService() {
         return this.deviceProtocolFactoryService;
     }
