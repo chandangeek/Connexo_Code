@@ -1,11 +1,3 @@
 -classpath: target/classes
 -dsannotations: *
-Import-Package: com.energyict.mdw.core,\
-com.energyict.cpo,\
-com.energyict.mdc,\
-com.energyict.mdc.protocol,\
-com.energyict.mdc.rest,\
-!*
 Private-Package: com.energyict.mdc.protocols.impl
-Embed-Dependency: *;artifactId=!mdc-all|comserver-core-rest;groupId=!com.elster.jupiter|com.energyict
-Embed-Transitive: true

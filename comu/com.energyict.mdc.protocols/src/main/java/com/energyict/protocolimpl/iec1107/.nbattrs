@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE attributes PUBLIC "-//NetBeans//DTD DefaultAttributes 1.0//EN" "http://www.netbeans.org/dtds/attributes-1_0.dtd">
+<attributes version="1.0">
+    <fileobject name="FlagIEC1107Connection.java">
+        <attr name="class_dependency_com.energyict.dialer.connection.Connection" stringvalue="FlagIEC1107Connection"/>
+    </fileobject>
+    <fileobject name="FlagIEC1107ConnectionException.java">
+        <attr name="class_dependency_com.energyict.dialer.connection.ConnectionException" stringvalue="FlagIEC1107ConnectionException"/>
+    </fileobject>
+    <fileobject name="IEC1107Connection.java">
+        <attr name="class_dependency_com.energyict.dialer.connection.Connection" stringvalue="IEC1107Connection"/>
+        <attr name="class_dependency_com.energyict.protocolimpl.base.ProtocolConnection" stringvalue="IEC1107Connection"/>
+    </fileobject>
+</attributes>

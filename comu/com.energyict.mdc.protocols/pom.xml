@@ -19,7 +19,10 @@
     </description>
 
     <properties>
-        <protocols.version>9.0.0-SNAPSHOT</protocols.version>
+        <fest-assertions.version>2.0M8</fest-assertions.version>
+        <protocol.mockito.version>1.9.0</protocol.mockito.version>
+        <proguard.maven.version>2.0.4</proguard.maven.version>
+        <proguard.version>4.8</proguard.version>
     </properties>
 
     <dependencies>
@@ -28,42 +31,119 @@
             <artifactId>comserver-core-rest</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.energyict</groupId>
+                    <artifactId>mdc-all</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>protocolimpl</artifactId>
-            <version>${protocols.version}</version>
-            <scope>runtime</scope>
+            <artifactId>mdc-all</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.aspectj</groupId>
+                    <artifactId>aspectjrt</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.perf4j</groupId>
+                    <artifactId>perf4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.0.4</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>dlms</artifactId>
-            <version>${protocols.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${protocol.mockito.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>protocolcommon</artifactId>
-            <version>${protocols.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>1.4.10</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>protocolimpl-v2</artifactId>
-            <version>${protocols.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>1.4.10</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>protocolimpl-elster</artifactId>
-            <version>${protocols.version}</version>
-            <scope>runtime</scope>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-assert-core</artifactId>
+            <version>${fest-assertions.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict.dataconcentrator.external</groupId>
+            <artifactId>serialio</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>connectiontypes</artifactId>
-            <version>${protocols.version}</version>
-            <scope>runtime</scope>
+            <artifactId>xmodem</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.jms</groupId>
+            <artifactId>jms</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis</artifactId>
+            <version>1.2.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mail</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>axis</groupId>
+            <artifactId>axis-jaxrpc</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>1.6.2</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -76,10 +156,52 @@
                 <configuration>
                     <instructions>
                         <_include>src/main/resources/bnd.bnd</_include>
-                        <!--<Embed-Dependency>*;artifactId=!mdc-all</Embed-Dependency>-->
                     </instructions>
                 </configuration>
             </plugin>
+
+            <!--&lt;!&ndash; This plugin is used to add the 'generated-sources' folder to the source folder.&ndash;&gt;-->
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>build-helper-maven-plugin</artifactId>-->
+                <!--<version>1.4</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>test</id>-->
+                        <!--<phase>generate-sources</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>add-source</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<sources>-->
+                                <!--<source>${basedir}/src/generated-sources/jaxws-maven-plugin/java</source>-->
+                            <!--</sources>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+
+            <!--&lt;!&ndash; This plugin is used to generate the java sources from the wsdl's.&ndash;&gt;-->
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>jaxws-maven-plugin</artifactId>-->
+                <!--<version>1.10</version>-->
+
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>wsimport</goal>-->
+                        <!--</goals>-->
+
+                        <!--<configuration>-->
+                            <!--<wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>-->
+                            <!--<sourceDestDir>${basedir}/src/generated-sources/jaxws-maven-plugin/java</sourceDestDir>-->
+                            <!--<xnocompile>true</xnocompile>-->
+                        <!--</configuration>-->
+
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 </project>
