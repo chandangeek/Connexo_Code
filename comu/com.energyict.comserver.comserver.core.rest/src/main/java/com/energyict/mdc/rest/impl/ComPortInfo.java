@@ -2,13 +2,10 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ports.ComPort;
 import java.util.Date;
-import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name="ComPort")
-
 public class ComPortInfo {
-    @XmlID
     public int id;
     public String name;
     public String comPortType;
