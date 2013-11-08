@@ -2,7 +2,6 @@ Ext.define('Mdc.model.ComServer', {
     extend: 'Ext.data.Model',
     fields: [
         'comServerDescriptor',
-        'fullName',
         'name',
         'active',
         'serverLogLevel',
@@ -14,10 +13,12 @@ Ext.define('Mdc.model.ComServer', {
         'storeTaskQueueSize',
         'numberOfStoreTaskThreads',
         'storeTaskThreadPriority',
-        {name: 'changesInterPollDelayCount',mapping: 'changesInterPollDelay.count'},
-        {name: 'changesInterPollDelayTimeUnit',mapping: 'changesInterPollDelay.timeUnit'},
-        {name: 'schedulingInterPollDelayCount',mapping: 'schedulingInterPollDelay.count'},
-        {name: 'schedulingInterPollDelayTimeUnit',mapping: 'schedulingInterPollDelay.timeUnit'}
+        'changesInterPollDelay',
+        'schedulingInterPollDelay'
+    ],
+    associations: [
+        {name: 'changesInterPollDelay',type: 'hasOne',model:'Mdc.model.TimeInfo',associationKey: 'changesInterPollDelay'},
+        {name: 'schedulingInterPollDelay',type: 'hasOne',model:'Mdc.model.TimeInfo',associationKey: 'schedulingInterPollDelay'},
     ],
     proxy: {
         type: 'rest',

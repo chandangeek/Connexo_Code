@@ -14,19 +14,19 @@ Ext.define('Mdc.view.setup.ComServers', {
                 xtype: 'templatecolumn',
                 tpl: '<table width="100%" border = "0" style="color:dimgrey;font-size:x-small;line-height:110%">' +
                     '<caption style="color:black;font-size:small;line-height:200%;font-weight:bold;text-align:left;caption-side: left">' +
-                        '{fullName} - {comServerDescriptor} - <tpl if="active==true"{active}><span style="color:lightgreen">active</span><tpl else><span style="color:#ff0000">not active</span></tpl>' +
+                        '{name} - {comServerDescriptor} - <tpl if="active==true"{active}><span style="color:lightgreen">active</span><tpl else><span style="color:#ff0000">not active</span></tpl>' +
                     '</caption>' +
                     '<tr>' +
                         '<td>serverLogLevel: </td>' +
                         '<td>{serverLogLevel}</td>' +
                         '<td>changesInterPollDelay: </td>' +
-                        '<td>{changesInterPollDelayCount} {changesInterPollDelayTimeUnit}</td>' +
+                        '<td>{changesInterPollDelay.count} {changesInterPollDelay.timeUnit}</td>' +
                     '</tr>'+
                     '<tr>' +
                         '<td>communicationLogLevel: </td>' +
                         '<td>{communicationLogLevel}</td>' +
                         '<td>schedulingInterPollDelay: </td>' +
-                        '<td>{schedulingInterPollDelayCount} {schedulingInterPollDelayTimeUnit}</td>' +
+                        '<td>{schedulingInterPollDelay.count} {schedulingInterPollDelay.timeUnit}</td>' +
                     '</tr>'+
                     '<tr>' +
                     '<td>storeTaskQueueSize: </td>' +

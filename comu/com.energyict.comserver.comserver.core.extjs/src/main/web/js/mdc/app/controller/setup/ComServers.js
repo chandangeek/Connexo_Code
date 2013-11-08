@@ -40,16 +40,29 @@ Ext.define('Mdc.controller.setup.ComServers', {
     },
 
     update: function(button){
+        var me = this;
         var pnl    = button.up('panel'),
             form   = pnl.down('form'),
             record = form.getRecord(),
             values = form.getValues();
         record.set(values);
-        record.save();
+        record.save({
+            success: function(record,operation){
+                me.showComServerOverview();
+            }
+        });
     },
 
     cancel: function(){
+        this.showComServerOverview();
+    },
+
+    showComServerOverview: function(){
         var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('comservers');
         Ext.History.add(url);
     }
+
+
+
+
 });

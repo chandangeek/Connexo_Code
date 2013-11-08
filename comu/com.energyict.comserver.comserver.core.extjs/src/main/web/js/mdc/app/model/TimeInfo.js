@@ -1,4 +1,4 @@
-Ext.define('Mdc.model.ComServer', {
+Ext.define('Mdc.model.TimeInfo', {
     extend: 'Ext.data.Model',
     fields: ['count','timeUnit']
 });
