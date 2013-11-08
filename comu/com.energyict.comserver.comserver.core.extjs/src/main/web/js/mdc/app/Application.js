@@ -19,6 +19,7 @@ Ext.define('Mdc.Application', {
     ],
 
     stores: [
-        'ComServers'
+        'ComServers',
+        'LogLevels'
     ]
 });
