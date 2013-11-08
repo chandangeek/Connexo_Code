@@ -5,6 +5,7 @@ import com.energyict.comserver.adapters.meterprotocol.MeterProtocolAdapter;
 import com.energyict.comserver.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.comserver.exceptions.CodingException;
 import com.energyict.cpo.Environment;
+import com.energyict.mdc.pluggable.BundleReflectionMagic;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.services.DeviceProtocolFactoryService;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -12,7 +13,7 @@ import com.energyict.mdw.core.Pluggable;
 import com.energyict.mdw.core.PluggableClass;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.SmartMeterProtocol;
-import com.energyict.protocols.common.MdcProtocolReflectionMagic;
+import com.energyict.protocols.common.MdcProtocolClassCreator;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -67,15 +68,19 @@ public class DeviceProtocolFactoryServiceImpl implements DeviceProtocolFactorySe
      *                           </ul>
      */
     protected DeviceProtocol checkForProtocolWrappers(Pluggable protocolInstance) throws BusinessException {
-        MdcProtocolReflectionMagic protocolReflectionMagic = new MdcProtocolReflectionMagic();
-        if (protocolInstance instanceof SmartMeterProtocol) {
-            return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocolInstance);
-        } else if (protocolInstance instanceof MeterProtocol) {
-            return new MeterProtocolAdapter((MeterProtocol) protocolInstance, protocolReflectionMagic);
-        } else if (protocolInstance instanceof DeviceProtocol) {
-            return (DeviceProtocol) protocolInstance;
-        } else {
-            throw new BusinessException("protocolInterfaceNotSupported", "A DeviceProtocol must implement one of the following interfaces : MeterProtocol, SmartMeterProtocol or DeviceProtocol");
+        try {
+            BundleReflectionMagic.setClassCreatorCurrent(new MdcProtocolClassCreator());
+            if (protocolInstance instanceof SmartMeterProtocol) {
+                return new SmartMeterProtocolAdapter((SmartMeterProtocol) protocolInstance);
+            } else if (protocolInstance instanceof MeterProtocol) {
+                return new MeterProtocolAdapter((MeterProtocol) protocolInstance);
+            } else if (protocolInstance instanceof DeviceProtocol) {
+                return (DeviceProtocol) protocolInstance;
+            } else {
+                throw new BusinessException("protocolInterfaceNotSupported", "A DeviceProtocol must implement one of the following interfaces : MeterProtocol, SmartMeterProtocol or DeviceProtocol");
+            }
+        } finally {
+            BundleReflectionMagic.reset();
         }
     }
 }
