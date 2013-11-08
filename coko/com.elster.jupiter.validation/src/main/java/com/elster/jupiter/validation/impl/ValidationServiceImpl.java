@@ -6,14 +6,15 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.validation.ValidationService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.validation", service = {InstallService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
-public class ValidationServiceImpl implements InstallService, ServiceLocator{
+@Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
+public class ValidationServiceImpl implements ValidationService, InstallService, ServiceLocator{
 
     private volatile OrmClient ormClient;
     private volatile ComponentCache componentCache;
