@@ -5,39 +5,45 @@ import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public enum Bus {
     ;
 
 	static final String COMPONENTNAME = "MSG";
-	
-	private static volatile ServiceLocator locator;
-	
-	static void setServiceLocator(ServiceLocator serviceLocator) {
-		locator = serviceLocator;
-	}
-	
-	static Connection getConnection() throws SQLException {
-		return locator.getConnection();
+
+    private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
+
+    public static void setServiceLocator(ServiceLocator locator) {
+        Bus.locatorHolder.set(Objects.requireNonNull(locator));
+    }
+
+    public static void clearServiceLocator(ServiceLocator old) {
+        locatorHolder.compareAndSet(Objects.requireNonNull(old), null);
+    }
+
+    static Connection getConnection() throws SQLException {
+		return locatorHolder.get().getConnection();
 	}
 	
 	static OrmClient getOrmClient() {
-		return locator.getOrmClient();
+		return locatorHolder.get().getOrmClient();
 	}
 
 	public static TransactionService getTransactionService() {
-		return locator.getTransactionService();
+		return locatorHolder.get().getTransactionService();
 	}
 
     static void fire(Object event) {
-        locator.getPublisher().publish(event);
+        locatorHolder.get().getPublisher().publish(event);
     }
 
     static AQFacade getAQFacade() {
-        return locator.getAQFacade();
+        return locatorHolder.get().getAQFacade();
     }
 
     public static ThreadPrincipalService getThreadPrincipalService() {
-        return locator.getThreadPrincipalService();
+        return locatorHolder.get().getThreadPrincipalService();
     }
 }

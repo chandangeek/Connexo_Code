@@ -83,7 +83,6 @@ public class MessageServiceImplTest {
     @After
     public void tearDown() {
         service.deactivate();
-        Bus.setServiceLocator(null);
     }
 
     @Test
