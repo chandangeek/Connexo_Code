@@ -4,19 +4,25 @@ import com.elster.jupiter.util.time.Clock;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Bus {
 	
 	public static final String COMPONENTNAME = "IDS";
-	
-	private static volatile ServiceLocator locator;
-	
-	public static void setServiceLocator(ServiceLocator locator) {
-		Bus.locator = locator;
-	}
-	
-	public static OrmClient getOrmClient() {
-		return locator.getOrmClient();
+
+    private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
+
+    public static void setServiceLocator(ServiceLocator locator) {
+        Bus.locatorHolder.set(Objects.requireNonNull(locator));
+    }
+
+    public static void clearServiceLocator(ServiceLocator old) {
+        locatorHolder.compareAndSet(Objects.requireNonNull(old), null);
+    }
+
+    public static OrmClient getOrmClient() {
+		return getLocator().getOrmClient();
 	}
 	
 	public static Connection getConnection(boolean transactionRequired) throws SQLException {
@@ -24,7 +30,11 @@ public class Bus {
 	}
 
     public static Clock getClock() {
-        return locator.getClock();
+        return getLocator().getClock();
+    }
+
+    private static ServiceLocator getLocator() {
+        return locatorHolder.get();
     }
 
     // pure static class;

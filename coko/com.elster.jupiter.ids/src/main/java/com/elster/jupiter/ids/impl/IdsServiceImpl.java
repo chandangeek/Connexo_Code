@@ -70,7 +70,7 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
     }
 
     public void deactivate(ComponentContext context) {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(this);
     }
 
     public Clock getClock() {
