@@ -306,7 +306,7 @@
             </dependency>
 
             <dependency>
-                <groupId>serialio</groupId>
+                <groupId>com.energyict.dataconcentrator.external</groupId>
                 <artifactId>serialio</artifactId>
                 <version>${serialio.version}</version>
             </dependency>
