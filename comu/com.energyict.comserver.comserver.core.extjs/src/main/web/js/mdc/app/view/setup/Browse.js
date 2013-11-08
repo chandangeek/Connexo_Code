@@ -20,7 +20,7 @@ Ext.define('Mdc.view.setup.Browse', {
                 {
                     xtype: 'component',
                     cls: 'content-container',
-                    html: '<a href="#/deviceCommunicationProtocols">device commununication protocols</a>'
+                    html: '<a href="#/setup/devicecommunicationprotocols">device communication protocols</a>'
                 }
             ]
 

@@ -1,6 +1,6 @@
 Ext.define('Mdc.store.ComServers',{
     requires: [
-        'Mdc.model.ComServer',
+        'Mdc.model.ComServer'
     ],
     autoLoad: true,
     model: 'Mdc.model.ComServer',

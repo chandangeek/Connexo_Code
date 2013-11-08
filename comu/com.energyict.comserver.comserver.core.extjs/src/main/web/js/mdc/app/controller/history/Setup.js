@@ -6,20 +6,22 @@ Ext.define('Mdc.controller.history.Setup', {
     doConversion: function (tokens) {
         if (tokens.length == 2 && tokens[1] === 'comservers') {
             Mdc.getApplication().getSetupSetupOverviewController().showComServers();
-        } else if(tokens.length === 3 && tokens[1] === 'comservers'){
+        } else if (tokens.length === 3 && tokens[1] === 'comservers') {
             Mdc.getApplication().getSetupComServersController().showEditView(tokens[2]);
-        } else if (tokens.length > 0 && tokens[1] === 'devicecommunicationprotocols') {
-                    Mdc.getApplication().getSetupController().showDeviceCommunicationProtocols(); 
+        } else if (tokens.length === 2 && tokens[1] === 'devicecommunicationprotocols') {
+            Mdc.getApplication().getSetupSetupOverviewController().showDeviceCommunicationProtocols();
+        } else if (tokens.length === 3 && tokens[1] === 'devicecommunicationprotocols') {
+            Mdc.getApplication().getSetupDeviceCommunicationProtocolController().showEditView(tokens[2]);
         } else {
             Mdc.getApplication().getSetupSetupOverviewController().showOverview();
         }
     },
 
-    tokenizeBrowse: function(item,id) {
-        if(id === undefined){
-            return this.tokenize([this.rootToken,item]);
+    tokenizeBrowse: function (item, id) {
+        if (id === undefined) {
+            return this.tokenize([this.rootToken, item]);
         } else {
-            return this.tokenize([this.rootToken,item, id]);
+            return this.tokenize([this.rootToken, item, id]);
         }
     }
 });
