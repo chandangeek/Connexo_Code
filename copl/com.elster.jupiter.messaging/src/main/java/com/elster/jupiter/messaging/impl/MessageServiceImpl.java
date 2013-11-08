@@ -57,7 +57,7 @@ public class MessageServiceImpl implements MessageService, InstallService , Serv
 	
 	@Deactivate
 	public void deactivate() {
-		Bus.setServiceLocator(null);
+		Bus.clearServiceLocator(this);
 	}
 	
 	@Override
