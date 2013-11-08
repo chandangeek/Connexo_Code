@@ -1,6 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.rest.DeviceProtocolFactoryService;
+import com.energyict.mdc.services.DeviceProtocolFactoryService;
 
 /**
  * Copyrights EnergyICT

@@ -35,8 +35,6 @@ public class DeviceCommunicationProtocolsResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@PathParam("id") int id) {
-        return new DeviceCommunicationProtocolInfo(createDeviceProtocolPluggableClass(MeteringWarehouse.getCurrent().getPluggableClassFactory().find(id)));
-    public DeviceCommunicationProtocolInfo getComServer(@PathParam("id") int id) {
         PluggableClass pluggableClass = MeteringWarehouse.getCurrent().getPluggableClassFactory().find(id);
         return new DeviceCommunicationProtocolInfo(new SimpleDeviceProtocolPluggableClass(pluggableClass, createDeviceProtocolPluggableClass(pluggableClass)));
     }
