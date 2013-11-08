@@ -6,6 +6,10 @@ Ext.define('Mdc.view.setup.ComServerEdit', {
     autoShow: true,
     border: 0,
 
+    requires: [
+        'Mdc.widget.TimeInfoField'
+    ],
+
     stores: [
         'LogLevels'
     ],
@@ -49,6 +53,11 @@ Ext.define('Mdc.view.setup.ComServerEdit', {
                         queryMode: 'local',
                         displayField: 'level',
                         valueField: 'level'
+                    },
+                    {
+                        xtype: 'timeInfoField',
+                        name : 'changesInterPollDelay',
+                        fieldLabel: 'count : '
                     }
                 ]
             }
