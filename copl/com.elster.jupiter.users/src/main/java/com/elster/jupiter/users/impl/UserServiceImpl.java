@@ -1,26 +1,28 @@
 package com.elster.jupiter.users.impl;
 
-import java.util.List;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.cache.*;
+import com.elster.jupiter.orm.cache.CacheService;
+import com.elster.jupiter.orm.cache.ComponentCache;
+import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.*;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.google.common.base.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.xml.bind.DatatypeConverter;
+import java.util.List;
 
 @Component(
         name = "com.elster.jupiter.users",
@@ -73,7 +75,7 @@ public class UserServiceImpl implements UserService, InstallService, ServiceLoca
 	}
 	
 	public void deactivate(ComponentContext context) {
-		Bus.setServiceLocator(null);
+		Bus.clearServiceLocator(this);
 	}
 
     @Override

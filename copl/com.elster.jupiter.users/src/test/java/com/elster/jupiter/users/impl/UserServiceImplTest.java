@@ -47,7 +47,7 @@ public class UserServiceImplTest {
 
     @After
     public void tearDown() {
-        Bus.setServiceLocator(null);
+        Bus.clearServiceLocator(userService);
     }
 
     @Test
