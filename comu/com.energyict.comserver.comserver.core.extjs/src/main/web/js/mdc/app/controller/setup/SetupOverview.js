@@ -3,7 +3,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
 
     views: [
         'setup.Browse',
-        'setup.ComServers'
+        'setup.ComServers',
+        'setup.devicecommunicationprotocol.List'
     ],
 
     init: function () {
@@ -28,6 +29,9 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     showComServers: function () {
         var widget = Ext.widget('setupComServers');
         Mdc.getApplication().getMainController().showContent(widget);
+    },
+    showDeviceCommunicationProtocols: function () {
+        var widget = Ext.widget('setupDeviceCommunicationProtocols');
+        Mdc.getApplication().getMainController().showContent(widget);
     }
-
 });

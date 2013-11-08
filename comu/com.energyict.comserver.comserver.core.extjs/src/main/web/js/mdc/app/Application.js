@@ -9,13 +9,18 @@ Ext.define('Mdc.Application', {
 
     controllers: [
         'Main',
+        'Setup',
         'setup.SetupOverview',
+        'setup.ComServers',
         'history.Setup',
-        'setup.ComServers'
+               
+        'DeviceCommunicationProtocol',
+        'history.DeviceCommunicationProtocol'
     ],
 
     stores: [
         'ComServers',
-        'LogLevels'
+        'LogLevels',
+        'DeviceCommunicationProtocols'
     ]
 });
