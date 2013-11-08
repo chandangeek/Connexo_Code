@@ -15,7 +15,7 @@ import java.sql.SQLException;
 @XmlRootElement
 public class DeviceCommunicationProtocolInfo {
 
-    public int databaseId;
+    public int id;
     public String name;
     public String javaClassName;
     public String deviceProtocolVersion;
@@ -23,11 +23,11 @@ public class DeviceCommunicationProtocolInfo {
     public DeviceCommunicationProtocolInfo() {
     }
 
-    public DeviceCommunicationProtocolInfo(SimpleDeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        this.name = deviceProtocolPluggableClass.getPluggableClass().getName();
-        this.javaClassName = deviceProtocolPluggableClass.getPluggableClass().getJavaClassName();
-        this.databaseId = deviceProtocolPluggableClass.getPluggableClass().getId();
-        this.deviceProtocolVersion = deviceProtocolPluggableClass.getDeviceProtocol().getVersion();
+    public DeviceCommunicationProtocolInfo(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        this.name = deviceProtocolPluggableClass.getName();
+        this.javaClassName = deviceProtocolPluggableClass.getJavaClassName();
+        this.id = deviceProtocolPluggableClass.getId();
+        this.deviceProtocolVersion = deviceProtocolPluggableClass.getVersion();
     }
 
     public void update(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
