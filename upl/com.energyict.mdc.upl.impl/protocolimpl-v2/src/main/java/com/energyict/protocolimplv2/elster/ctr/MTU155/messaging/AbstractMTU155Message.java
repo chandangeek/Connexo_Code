@@ -1,17 +1,24 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
+import com.energyict.cpo.Environment;
+import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.SmsRequestFactory;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -23,15 +30,37 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractMTU155Message {
 
-    private final DeviceProtocol protocol;
+    /**
+     * An offlineDeviceMessageAttribute representing an empty attribute.
+     * The name and value of this attribute are both returned as empty Strings (<code>""</code>).
+     */
+    private static final OfflineDeviceMessageAttribute emptyOfflineDeviceMessageAttribute = new OfflineDeviceMessageAttribute() {
+        @Override
+        public PropertySpec getPropertySpec() {
+            return null;
+        }
+
+        @Override
+        public String getName() {
+            return "";
+        }
+
+        @Override
+        public String getDeviceMessageAttributeValue() {
+            return "";
+        }
+
+        @Override
+        public DeviceMessage getDeviceMessage() {
+            return null;
+        }
+    };
+
+    private final MTU155 protocol;
     private final RequestFactory factory;
     private final Logger logger;
 
-    private List<Integer> wdbList = new ArrayList();
-
     public abstract boolean canExecuteThisMessage(OfflineDeviceMessage message);
-
-    public abstract CollectedMessage executeMessage(OfflineDeviceMessage message);
 
     public AbstractMTU155Message(Messaging messaging) {
         this.protocol = messaging.getProtocol();
@@ -47,31 +76,67 @@ public abstract class AbstractMTU155Message {
         return MdcManager.getCollectedDataFactory().createCollectedMessageWithLoadProfileData(new DeviceMessageIdentifierById(message.getDeviceMessageId()), collectedLoadProfile);
     }
 
-    protected void addWriteDataBlockToWDBList(int wdb) {
-        wdbList.add(new Integer(wdb));
+    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
+        CollectedMessage collectedMessage = createCollectedMessage(message);
+        resetSMSWriteDataBlockList();
+
+        try {
+            CollectedMessage customCollectedMessage = doExecuteMessage(message);
+            if (customCollectedMessage != null) {   // During execution of the message, a custom CollectedMessage is build up (e.g. containing LoadProfile data)
+                collectedMessage = customCollectedMessage;
+            }
+            setSuccessfulDeviceMessageStatus(collectedMessage, getListOfSMSWriteDataBlocks());
+        } catch (CTRException e) {
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
+             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setFailureInformation(ResultType.Other,
+                    MdcManager.getIssueCollector().addWarning(message, "DeviceMessage.failed",   //Device message ({0}, {1} - {2})) failed: {3}
+                            message.getDeviceMessageId(),
+                            message.getSpecification().getCategory().getName(),
+                            message.getSpecification().getName(),
+                            e.getMessage())
+            );
+        }
+        return collectedMessage;
     }
 
-    protected void setSuccessfulDeviceMessageStatus(CollectedMessage collectedMessage) {
-        if (this.factory instanceof SmsRequestFactory) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.SENT);
-            if (wdbList.isEmpty()) {
-                collectedMessage.setDeviceProtocolInformation("SMS identification number: " + Integer.toString((this.factory).getWriteDataBlockID()));
-            } else {
-                StringBuffer msg = new StringBuffer();
-                msg.append("SMS identification numbers: ");
-                Iterator<Integer> it = wdbList.iterator();
-                while (it.hasNext()){
-                    Integer next = it.next();
-                    msg.append(next);
-                    if (it.hasNext()) {
-                        msg.append(", ");
-                    }
-                }
+    /**
+     * Method in which the pending message will be executed
+     * @param message the OfflineDeviceMessage
+     * @return  null, in case no custom CollectedMessage object is needed
+     *          a custom CollectedMessage object, containing additional collected data (e.g. containing LoadProfile data)
+     * @throws CTRException
+     */
+    protected abstract CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException;
 
-                collectedMessage.setDeviceProtocolInformation(msg.toString());
+    private void resetSMSWriteDataBlockList() {
+        if (factory instanceof SmsRequestFactory) {
+            ((SmsRequestFactory) factory).resetWriteDataBlockList();
+        }
+    }
+
+    private List<WriteDataBlock> getListOfSMSWriteDataBlocks() {
+        if (factory instanceof SmsRequestFactory) {
+            return ((SmsRequestFactory) factory).getListOfWriteDataBlocks();
+        }
+        return null;
+    }
+
+    protected void setSuccessfulDeviceMessageStatus(CollectedMessage collectedMessage, List<WriteDataBlock> writeDataBlockList) {
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+
+        if (this.factory instanceof SmsRequestFactory) {
+            StringBuffer msg = new StringBuffer();
+            msg.append("SMS identification numbers: ");
+            Iterator<WriteDataBlock> it = writeDataBlockList.iterator();
+            while (it.hasNext()) {
+                WriteDataBlock next = it.next();
+                msg.append(next.getWdb());
+                if (it.hasNext()) {
+                    msg.append(", ");
+                }
             }
-        } else {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+            collectedMessage.setDeviceProtocolInformation(msg.toString());
         }
     }
 
@@ -85,7 +150,27 @@ public abstract class AbstractMTU155Message {
         return fieldData;
     }
 
-    public DeviceProtocol getProtocol() {
+    /**
+     * Searches for the {@link OfflineDeviceMessageAttribute}
+     * in the given {@link OfflineDeviceMessage} which corresponds
+     * with the provided name. If no match is found, then the
+     * {@link #emptyOfflineDeviceMessageAttribute}
+     * attribute is returned
+     *
+     * @param offlineDeviceMessage the offlineDeviceMessage to search in
+     * @param attributeName        the name of the OfflineDeviceMessageAttribute to return
+     * @return the requested OfflineDeviceMessageAttribute or {@link #emptyOfflineDeviceMessageAttribute}
+     */
+    protected OfflineDeviceMessageAttribute getDeviceMessageAttribute(OfflineDeviceMessage offlineDeviceMessage, String attributeName) {
+        for (OfflineDeviceMessageAttribute offlineDeviceMessageAttribute : offlineDeviceMessage.getDeviceMessageAttributes()) {
+            if (offlineDeviceMessageAttribute.getName().equals(attributeName)) {
+                return offlineDeviceMessageAttribute;
+            }
+        }
+        return emptyOfflineDeviceMessageAttribute;
+    }
+
+    public MTU155 getProtocol() {
         return protocol;
     }
 

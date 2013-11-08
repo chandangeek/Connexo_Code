@@ -34,18 +34,9 @@ public class TariffDisablePassiveMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-
-        try {
-            disableTariff();
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        disableTariff();
+        return null;
     }
 
     private void disableTariff() throws CTRException {

@@ -16,6 +16,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.P_Session;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.util.Date;
 
@@ -36,37 +37,25 @@ public class WritePDRMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        String pdrString = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String pdrString = getDeviceMessageAttribute(message, DeviceMessageConstants.newPDRAttributeName).getDeviceMessageAttributeValue();
 
-        try {
-            validatePdr(collectedMessage, pdrString);
-            writePdr(pdrString);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-
-        return collectedMessage;
+        validatePdr(pdrString);
+        writePdr(pdrString);
+        return null;
     }
 
-    private void validatePdr(CollectedMessage collectedMessage, String pdr) throws CTRException {
+    private void validatePdr(String pdr) throws CTRException {
         if (pdr.length() != 14) {
-            String msg = "Unable to write pdr. PDR should be 14 digits but was [" + pdr.length() + "] [" + pdr + "]";
-            collectedMessage.setDeviceProtocolInformation(msg);
+            String msg = "Unable to write pdr. PDR should be 14 digits but was " + pdr.length() + " [" + pdr + "]";
             throw new CTRException(msg);
         }
         if (!ProtocolTools.isNumber(pdr)) {
             String msg = "Unable to write pdr. PDR should only contain numbers but was [" + pdr + "]";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
         if (pdr.equalsIgnoreCase("00000000000000")) {
-            String msg = "Unable to write pdr. PDR with a value of '00000000000000' is not allowed!]";
-            collectedMessage.setDeviceProtocolInformation(msg);
+            String msg = "Unable to write pdr. PDR with a value of '00000000000000' is not allowed!";
             throw new CTRException(msg);
         }
     }

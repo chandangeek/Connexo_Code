@@ -13,6 +13,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 /**
  * Copyrights EnergyICT
@@ -33,19 +34,10 @@ public class ChangeDSTMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        boolean enableDST = ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-
-        try {
-            writeDST(enableDST);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        boolean enableDST = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.enableDSTAttributeName).getDeviceMessageAttributeValue());
+        writeDST(enableDST);
+        return null;
     }
 
     public void writeDST(boolean dst) throws CTRException {

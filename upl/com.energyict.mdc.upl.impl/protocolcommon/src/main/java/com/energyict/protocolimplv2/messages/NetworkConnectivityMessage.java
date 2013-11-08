@@ -37,7 +37,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ipAddressAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.portNumberAttributeName)),
     CHANGE_WAKEUP_FREQUENCY(
-            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.wakeupPeriodAttributeName, "0", "1", "2", "3", "4", "5", "6", "7", "8", "9")),
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.wakeupPeriodAttributeName, "1", "2", "4", "6", "8", "12")),
     CHANGE_INACTIVITY_TIMEOUT(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.inactivityTimeoutAttributeName)),
 
     //EIWeb messages

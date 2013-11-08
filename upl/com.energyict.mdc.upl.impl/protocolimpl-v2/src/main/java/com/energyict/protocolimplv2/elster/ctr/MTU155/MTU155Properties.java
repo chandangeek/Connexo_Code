@@ -1,11 +1,15 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.energyict.cpo.PropertySpec;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -54,7 +58,7 @@ public class MTU155Properties {
     public static final BigDecimal DEFAULT_MAX_ALLOWED_INVALID_PROFILE_RESPONSES = new BigDecimal(5);
     public static final Boolean DEFAULT_EXTRACT_INSTALLATION_DATE = true;
     public static final Boolean DEFAULT_REMOVE_DAY_PROFILE_OFFSET = false;
-    public static final String DEFAULT_USE_LONG_FRAME_FORMAT = "1";
+    public static final Boolean DEFAULT_USE_LONG_FRAME_FORMAT = true;
 
     private TypedProperties typedProperties;
 
@@ -64,6 +68,41 @@ public class MTU155Properties {
 
     public MTU155Properties(TypedProperties typedProperties) {
         this.typedProperties = typedProperties;
+    }
+
+    public List<PropertySpec> getRequiredGeneralProperties() {
+        List<PropertySpec> required = new ArrayList<>();
+        required.add(timeZonePropertySpec());
+        return required;
+    }
+
+    public List<PropertySpec> getOptionalGeneralProperties() {
+        List<PropertySpec> optional = new ArrayList<>();
+        optional.add(debugPropertySpec());
+        optional.add(channelBacklogPropertySpec());
+        optional.add(extractInstallationDatePropertySpec());
+        optional.add(removeDayProfileOffsetPropertySpec());
+        return optional;
+    }
+
+    private PropertySpec timeZonePropertySpec() {
+        return PropertySpecFactory.timeZoneInUseReferencePropertySpec(TIMEZONE_PROPERTY_NAME);
+    }
+
+    private PropertySpec debugPropertySpec() {
+        return PropertySpecFactory.booleanPropertySpec(DEBUG_PROPERTY_NAME);
+    }
+
+    private PropertySpec channelBacklogPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(CHANNEL_BACKLOG_PROPERTY_NAME);
+    }
+
+    private PropertySpec extractInstallationDatePropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(EXTRACT_INSTALLATION_DATE_PROPERTY_NAME);
+    }
+
+    private PropertySpec removeDayProfileOffsetPropertySpec() {
+        return PropertySpecFactory.bigDecimalPropertySpec(REMOVE_DAY_PROFILE_OFFSET_PROPERTY_NAME);
     }
 
     public TimeZone getTimeZone() {

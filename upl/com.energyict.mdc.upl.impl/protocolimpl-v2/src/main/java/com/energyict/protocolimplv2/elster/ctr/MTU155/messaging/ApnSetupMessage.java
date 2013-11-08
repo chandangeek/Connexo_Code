@@ -15,6 +15,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.P_Session;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 
 import java.util.Date;
@@ -42,36 +43,25 @@ public class ApnSetupMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        String apn = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
-        String user = message.getDeviceMessageAttributes().get(1).getDeviceMessageAttributeValue().trim();
-        String pssw = message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue().trim();
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String apn = getDeviceMessageAttribute(message, DeviceMessageConstants.apnAttributeName).getDeviceMessageAttributeValue();
+        String user = getDeviceMessageAttribute(message, DeviceMessageConstants.usernameAttributeName).getDeviceMessageAttributeValue();
+        String pssw = getDeviceMessageAttribute(message, DeviceMessageConstants.passwordAttributeName).getDeviceMessageAttributeValue();
 
-        try {
-            validateApnSetupParameters(collectedMessage, apn, user, pssw);
-            writeApnSetup(apn, user, pssw);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return  collectedMessage;
+        validateApnSetupParameters(apn, user, pssw);
+        writeApnSetup(apn, user, pssw);
+        return null;
     }
 
-    private void validateApnSetupParameters(CollectedMessage collectedMessage, String apn, String user, String pssw) throws CTRException {
+    private void validateApnSetupParameters(String apn, String user, String pssw) throws CTRException {
         if (apn.length() > APN_MAX_LENGTH) {
             String msg = "Parameter APN exceeded the maximum length (40 characters).";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         } else if (user.length() > USER_MAX_LENGTH) {
             String msg = "Parameter username exceeded the maximum length (30 characters).";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         } else if (pssw.length() > PASS_MAX_LENGTH) {
             String msg = "Parameter password exceeded the maximum length (30 characters).";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
     }

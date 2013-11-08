@@ -21,6 +21,10 @@ public class CodeTableBase64Parser {
         return getCodeTableFromBase64(new String(base64Content));
     }
 
+    public static CodeObject getCodeTableFromBase64(File file) throws IOException {
+        return getCodeTableFromBase64(ProtocolTools.readBytesFromFile(file));
+    }
+
     public static CodeObject getCodeTableFromBase64(String content) throws IOException {
         try {
             byte[] decodedContent = new BASE64Decoder().decodeBuffer(content);
@@ -35,9 +39,5 @@ public class CodeTableBase64Parser {
         } catch (ClassNotFoundException e) {
             throw new IOException(e.getMessage());
         }
-    }
-
-    public static CodeObject getCodeTableFromBase64(File file) throws IOException {
-        return getCodeTableFromBase64(ProtocolTools.readBytesFromFile(file));
     }
 }

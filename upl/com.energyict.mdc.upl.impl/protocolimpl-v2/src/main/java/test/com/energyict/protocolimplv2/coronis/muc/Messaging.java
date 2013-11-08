@@ -57,7 +57,7 @@ public class Messaging implements DeviceMessageSupport {
                     collectedMessage = writeRadioUserTimeout(pendingMessage);
                 } else {
                     collectedMessage = createCollectedMessage(pendingMessage);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(pendingMessage, "Messages.notSupported"));
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(pendingMessage, "DeviceMessage.notSupported"));
                 }
                 result.addCollectedMessages(collectedMessage);
             }

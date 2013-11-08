@@ -14,6 +14,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 /**
  * Copyrights EnergyICT
@@ -37,28 +38,19 @@ public class WriteConverterMasterDataMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        String converterTypeString = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
-        String converterSerialNumber = message.getDeviceMessageAttributes().get(1).getDeviceMessageAttributeValue().trim();
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String converterTypeString = getDeviceMessageAttribute(message, DeviceMessageConstants.converterTypeAttributeName).getDeviceMessageAttributeValue();
+        String converterSerialNumber = getDeviceMessageAttribute(message, DeviceMessageConstants.converterSerialNumberAttributeName).getDeviceMessageAttributeValue();
 
-        try {
-            ConverterType converterType = ConverterType.fromString(converterTypeString);
-            validateConverterSerialNumber(collectedMessage, converterSerialNumber);
-            writeConverterMasterData(converterType, converterSerialNumber);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+        ConverterType converterType = ConverterType.fromString(converterTypeString);
+        validateConverterSerialNumber(converterSerialNumber);
+        writeConverterMasterData(converterType, converterSerialNumber);
+        return null;
     }
 
-    private String validateConverterSerialNumber(CollectedMessage collectedMessage, String converterSerialAttr) throws CTRException {
+    private String validateConverterSerialNumber(String converterSerialAttr) throws CTRException {
         if (converterSerialAttr.length() > SERIAL_MAX_LENGTH) {
             String msg = "Converter max length is [" + SERIAL_MAX_LENGTH + "] characters, but [" + converterSerialAttr + "] has [" + converterSerialAttr.length() + "] characters.";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
         return converterSerialAttr;

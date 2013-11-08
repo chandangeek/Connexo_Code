@@ -48,19 +48,22 @@ public enum SecurityMessage implements DeviceMessageSpec {
     CHANGE_HLS_SECRET,
     CHANGE_HLS_SECRET_HEX(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(
-            PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.keyTActivationStatusAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.SecurityTimeDurationAttributeName)),
+            PropertySpecFactory.stringPropertySpecWithValues(
+                    DeviceMessageConstants.keyTActivationStatusAttributeName,
+                    DeviceMessageConstants.enableKeyTEncryptionAttributeName,
+                    DeviceMessageConstants.disableKeyTEncryptionAttributeName),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.SecurityTimeDurationAttributeName, new BigDecimal(0), new BigDecimal(255))),
     CHANGE_EXECUTION_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionKeyAttributeName)),
     CHANGE_TEMPORARY_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.temporaryKeyAttributeName)),
     BREAK_OR_RESTORE_SEALS(
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.eventLogResetSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.statusChangeSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.downloadProgramSealAttributeName),
-            PropertySpecFactory.booleanPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName)),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.eventLogResetSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreFactorySettingsSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.statusChangeSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.downloadProgramSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL)),
     TEMPORARY_BREAK_SEALS(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName, new BigDecimal(0)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName, new BigDecimal(0)),
@@ -155,5 +158,11 @@ public enum SecurityMessage implements DeviceMessageSpec {
     @Override
     public DeviceMessageSpecPrimaryKey getPrimaryKey() {
         return new DeviceMessageSpecPrimaryKey(this, name());
+    }
+
+    private static class Constants {
+        public static final String UNCHANGED = "Unchanged";
+        public static final String ENABLE_SEAL = "Enable seal";
+        public static final String DISABLE_SEAL = "Disable seal";
     }
 }

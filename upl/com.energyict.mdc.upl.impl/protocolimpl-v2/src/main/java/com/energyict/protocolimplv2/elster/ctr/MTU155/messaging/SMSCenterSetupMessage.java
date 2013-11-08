@@ -15,6 +15,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.P_Session;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 
 import java.util.Date;
@@ -42,29 +43,20 @@ public class SMSCenterSetupMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        String smscNumber = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
-        try {
-            validateParameters(collectedMessage, smscNumber);
-            writeSMSCNumber(smscNumber);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String smscNumber = getDeviceMessageAttribute(message, DeviceMessageConstants.smsCenterPhoneNumberAttributeName).getDeviceMessageAttributeValue();
+
+        validateParameters(smscNumber);
+        writeSMSCNumber(smscNumber);
+        return null;
     }
 
-    private void validateParameters(CollectedMessage collectedMessage, String smscNumber) throws CTRException {
+    private void validateParameters(String smscNumber) throws CTRException {
         if (smscNumber.length() > SMSC_NUMBER_MAX_LENGTH) {
             String msg = "SMS center number is too long. Max length is " + SMSC_NUMBER_MAX_LENGTH + ". [smscNumber='" + smscNumber + "']";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         } else if (containsInvalidChars(smscNumber)) {
             String msg = "SMS center number contains invalid characters. The number can only contain [" + ALLOWED_CHARS + "]. [smscNumber='" + smscNumber + "']";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
     }

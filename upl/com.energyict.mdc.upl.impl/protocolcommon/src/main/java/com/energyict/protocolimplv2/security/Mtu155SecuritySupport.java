@@ -43,7 +43,6 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         protected int getAccessLevel() {
             return this.accessLevel;
         }
-
     }
 
     @Override

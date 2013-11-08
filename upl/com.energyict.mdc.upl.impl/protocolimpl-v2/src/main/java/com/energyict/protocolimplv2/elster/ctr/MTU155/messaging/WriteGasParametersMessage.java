@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.math.BigDecimal;
 
@@ -45,82 +46,68 @@ public class WriteGasParametersMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        String gasDensityString = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
-        String airDensityString = message.getDeviceMessageAttributes().get(1).getDeviceMessageAttributeValue().trim();
-        String relativeDensityString = message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue().trim();
-        String molecularNitrogenPercentageString = message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue().trim();
-        String carbonDioxidePercentageString = message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue().trim();
-        String molecularHydrogenPercentageString = message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue().trim();
-        String higherCalorificValueString = message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue().trim();
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String gasDensityString = getDeviceMessageAttribute(message, DeviceMessageConstants.gasDensityAttributeName).getDeviceMessageAttributeValue();
+        String airDensityString = getDeviceMessageAttribute(message, DeviceMessageConstants.airDensityAttributeName).getDeviceMessageAttributeValue();
+        String relativeDensityString = getDeviceMessageAttribute(message, DeviceMessageConstants.relativeDensityAttributeName).getDeviceMessageAttributeValue();
+        String molecularNitrogenPercentageString = getDeviceMessageAttribute(message, DeviceMessageConstants.molecularNitrogenPercentageAttributeName).getDeviceMessageAttributeValue();
+        String carbonDioxidePercentageString = getDeviceMessageAttribute(message, DeviceMessageConstants.carbonDioxidePercentageAttributeName).getDeviceMessageAttributeValue();
+        String molecularHydrogenPercentageString = getDeviceMessageAttribute(message, DeviceMessageConstants.molecularHydrogenPercentageAttributeName).getDeviceMessageAttributeValue();
+        String higherCalorificValueString = getDeviceMessageAttribute(message, DeviceMessageConstants.higherCalorificValueAttributeName).getDeviceMessageAttributeValue();
 
-        try {
-            int gasDensity = validateAndGetDensity(collectedMessage, gasDensityString);
-            int airDensity = validateAndGetDensity(collectedMessage, airDensityString);
-            int relDensity = validateAndGetDensity(collectedMessage, relativeDensityString);
-            int n2Percentage = validateAndGetPercentage(collectedMessage, molecularNitrogenPercentageString);
-            int co2Percentage = validateAndGetPercentage(collectedMessage, carbonDioxidePercentageString);
-            int h2Percentage = validateAndGetPercentage(collectedMessage, molecularHydrogenPercentageString);
-            int hcv = validateAndGetHCV(collectedMessage, higherCalorificValueString);
+        int gasDensity = validateAndGetDensity(gasDensityString);
+        int airDensity = validateAndGetDensity(airDensityString);
+        int relDensity = validateAndGetDensity(relativeDensityString);
+        int n2Percentage = validateAndGetPercentage(molecularNitrogenPercentageString);
+        int co2Percentage = validateAndGetPercentage(carbonDioxidePercentageString);
+        int h2Percentage = validateAndGetPercentage(molecularHydrogenPercentageString);
+        int hcv = validateAndGetHCV(higherCalorificValueString);
 
-            writeGasParameters(gasDensity, airDensity, relDensity, n2Percentage, co2Percentage, h2Percentage, hcv);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+        writeGasParameters(gasDensity, airDensity, relDensity, n2Percentage, co2Percentage, h2Percentage, hcv);
+        return null;
     }
 
     private void writeGasParameters(int gasDensity, int airDensity, int relDensity, int n2Percentage, int co2Percentage, int h2Percentage, int hcv) throws CTRException {
         SealConfig sealConfig = new SealConfig(getFactory());
         sealConfig.breakAndRestoreSeal(SealStatusBit.REMOTE_CONFIG_ANALYSIS);
-        addWriteDataBlockToWDBList(getFactory().getWriteDataBlockID());
         getFactory().writeRegister(AttributeType.getQualifierAndValue(), 7, getRawData(gasDensity, airDensity, relDensity, n2Percentage, co2Percentage, h2Percentage, hcv));
-        addWriteDataBlockToWDBList(getFactory().getWriteDataBlockID());
     }
 
-    protected int validateAndGetDensity(CollectedMessage collectedMessage, String densityString) throws CTRException {
+    protected int validateAndGetDensity(String densityString) throws CTRException {
         BigDecimal value = new BigDecimal(densityString);
-        return validateRangeAndPrecision(collectedMessage, value).intValue();
+        return validateRangeAndPrecision(value).intValue();
     }
 
-    protected static BigDecimal validateRangeAndPrecision(CollectedMessage collectedMessage, BigDecimal value) throws CTRException {
+    protected static BigDecimal validateRangeAndPrecision(BigDecimal value) throws CTRException {
         BigDecimal scaledValue = value.movePointRight(KMOLT);
         try {
             int intValue = scaledValue.intValueExact();
             if (intValue > 0x00FFFFFFl) {
                 String msg = "Range to high for [" + value + "]. Max value is [" + MAX_VALUE + "]";
-                collectedMessage.setDeviceProtocolInformation(msg);
                 throw new CTRException(msg);
             } else if (intValue < 0) {
                 String msg = "Range or precision to high for [" + value + "]. Min value is [0.00001] or [0]";
-                collectedMessage.setDeviceProtocolInformation(msg);
                 throw new CTRException(msg);
             }
         } catch (ArithmeticException e) {
             String msg = "Range or precision to high for [" + value + "]: " + e.getMessage();
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
         return scaledValue;
     }
 
-    protected int validateAndGetPercentage(CollectedMessage collectedMessage, String percentageString) throws CTRException {
+    protected int validateAndGetPercentage(String percentageString) throws CTRException {
         BigDecimal value = new BigDecimal(percentageString);
         if ((value.intValue() > 100) || (value.intValue() < 0)) {
             String msg = "Invalid percentage value [" + percentageString + "]. Percentage must be between [100.0] and [0.0]";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
-        return validateRangeAndPrecision(collectedMessage, value).intValue();
+        return validateRangeAndPrecision(value).intValue();
     }
 
-    protected int validateAndGetHCV(CollectedMessage collectedMessage, String hcvString) throws CTRException {
+    protected int validateAndGetHCV(String hcvString) throws CTRException {
         BigDecimal value = new BigDecimal(hcvString);
-        return validateRangeAndPrecision(collectedMessage, value).intValue();
+        return validateRangeAndPrecision(value).intValue();
     }
 
     protected byte[] getRawData(int gasDensity, int airDensity, int relDensity, int n2Percentage, int co2Percentage, int h2Percentage, int hcv) {

@@ -22,21 +22,25 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     WriteExchangeStatus(PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.WriteExchangeStatus)),
     WriteRadioAcknowledge(PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.WriteRadioAcknowledge)),
     WriteRadioUserTimeout(PropertySpecFactory.timeDurationPropertySpec(DeviceMessageConstants.WriteRadioUserTimeout)),
-    WriteNewPDRNumber(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.newPDRAttributeName)),
+    WriteNewPDRNumber(PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.newPDRAttributeName, 14)),
     ConfigureConverterMasterData(
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.converterTypeAttributeName, "VOL1", "VOL2", "VEN1", "VEN2"),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.converterSerialNumberAttributeName)),
     ConfigureGasMeterMasterData(
             PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.meterTypeAttributeName, "MASS", "USON", "CORI", "VENT", "MEMB", "TURB", "ROTO", "Axxx"),
-            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterCaliberAttributeName),
+            PropertySpecFactory.boundedDecimalPropertySpec(
+                    DeviceMessageConstants.meterCaliberAttributeName,
+                    new BigDecimal(0),
+                    new BigDecimal(999999)
+            ),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterSerialNumberAttributeName)),
     ConfigureGasParameters(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.gasDensityAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.airDensityAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.relativeDensityAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.molecularNitrogenAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.carbonDioxideAttributeName),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.molecularHydrogenAttributeName),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.molecularNitrogenPercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.carbonDioxidePercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
+            PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.molecularHydrogenPercentageAttributeName, new BigDecimal(0), new BigDecimal(100)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName)),
 
     //EIWeb general messages

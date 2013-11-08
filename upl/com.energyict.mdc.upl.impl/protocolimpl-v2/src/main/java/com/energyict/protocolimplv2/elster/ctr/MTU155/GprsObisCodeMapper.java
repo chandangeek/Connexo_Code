@@ -115,9 +115,9 @@ public class GprsObisCodeMapper extends ObisCodeMapper {
         RegisterValue registerValue = null;
         ObisCode obis = ProtocolTools.setObisCodeField(registerMapping.getObisCode(), 1, (byte) 0x00);
 
-        if (isObis(obis, OBIS_MTU_IP_ADDRESS)) {
-            registerValue = new RegisterValue(obis, getRequestFactory().getIPAddress());
-        }
+//        if (isObis(obis, OBIS_MTU_IP_ADDRESS)) {
+//            registerValue = new RegisterValue(obis, getRequestFactory().getIPAddress());
+//        }
 
         if (isObis(obis, OBIS_INSTALL_DATE)) {
             getLogger().warning("Installation date cannot be read as a regular register.");

@@ -9,6 +9,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 
 /**
@@ -31,55 +32,42 @@ public class ChangeSealStatusMessage extends AbstractMTU155Message {
     }
 
     @Override
-        public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        Boolean eventLogReset = ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        Boolean restoreFactorySettings = ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        Boolean restoreDefaultSettings = ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        Boolean statusChange = ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        Boolean remoteConversionParamConfig = ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        Boolean remoteAnalysisParamConfig =ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        Boolean downloadProgram = ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        Boolean restoreDefaultPasswords = ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        Boolean eventLogReset = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.eventLogResetSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean restoreFactorySettings = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreFactorySettingsSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean restoreDefaultSettings = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultSettingsSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean statusChange = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.statusChangeSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean remoteConversionParamConfig = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean remoteAnalysisParamConfig =ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean downloadProgram = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.downloadProgramSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean restoreDefaultPasswords = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultPasswordSealAttributeName).getDeviceMessageAttributeValue());
 
-        try {
-            changeAllSealStatuses(collectedMessage, eventLogReset, restoreFactorySettings, restoreDefaultSettings, statusChange, remoteConversionParamConfig, remoteAnalysisParamConfig, downloadProgram, restoreDefaultPasswords);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+        changeAllSealStatuses(eventLogReset, restoreFactorySettings, restoreDefaultSettings, statusChange, remoteConversionParamConfig, remoteAnalysisParamConfig, downloadProgram, restoreDefaultPasswords);
+        return null;
     }
 
-    private void changeAllSealStatuses(CollectedMessage collectedMessage, Boolean eventLogReset, Boolean restoreFactorySettings, Boolean restoreDefaultSettings, Boolean statusChange, Boolean remoteConversionParamConfig, Boolean remoteAnalysisParamConfig, Boolean downloadProgram, Boolean restoreDefaultPasswords) throws CTRException {
-        changeSealStatus(collectedMessage, eventLogReset, SealStatusBit.EVENT_LOG_RESET);
-        changeSealStatus(collectedMessage, restoreFactorySettings, SealStatusBit.FACTORY_CONDITIONS);
-        changeSealStatus(collectedMessage, restoreDefaultSettings, SealStatusBit.DEFAULT_VALUES);
-        changeSealStatus(collectedMessage, statusChange, SealStatusBit.STATUS_CHANGE);
-        changeSealStatus(collectedMessage, remoteConversionParamConfig, SealStatusBit.REMOTE_CONFIG_VOLUME);
-        changeSealStatus(collectedMessage, remoteAnalysisParamConfig, SealStatusBit.REMOTE_CONFIG_ANALYSIS);
-        changeSealStatus(collectedMessage, downloadProgram, SealStatusBit.DOWNLOAD_PROGRAM);
-        changeSealStatus(collectedMessage, restoreDefaultPasswords, SealStatusBit.RESTORE_DEFAULT_PASSWORDS);
+    private void changeAllSealStatuses(Boolean eventLogReset, Boolean restoreFactorySettings, Boolean restoreDefaultSettings, Boolean statusChange, Boolean remoteConversionParamConfig, Boolean remoteAnalysisParamConfig, Boolean downloadProgram, Boolean restoreDefaultPasswords) throws CTRException {
+        changeSealStatus(eventLogReset, SealStatusBit.EVENT_LOG_RESET);
+        changeSealStatus(restoreFactorySettings, SealStatusBit.FACTORY_CONDITIONS);
+        changeSealStatus(restoreDefaultSettings, SealStatusBit.DEFAULT_VALUES);
+        changeSealStatus(statusChange, SealStatusBit.STATUS_CHANGE);
+        changeSealStatus(remoteConversionParamConfig, SealStatusBit.REMOTE_CONFIG_VOLUME);
+        changeSealStatus(remoteAnalysisParamConfig, SealStatusBit.REMOTE_CONFIG_ANALYSIS);
+        changeSealStatus(downloadProgram, SealStatusBit.DOWNLOAD_PROGRAM);
+        changeSealStatus(restoreDefaultPasswords, SealStatusBit.RESTORE_DEFAULT_PASSWORDS);
     }
 
-    private void changeSealStatus(CollectedMessage collectedMessage, Boolean activate, SealStatusBit statusBit) throws CTRException {
+    private void changeSealStatus(Boolean activate, SealStatusBit statusBit) throws CTRException {
         try {
-            if (activate != null) { //TODO: check this out
-                if (activate) {
-                    getLogger().severe("Restoring seal "+statusBit);
-                    getSealConfig().restoreSeal(statusBit);
-                    addWriteDataBlockToWDBList(getFactory().getWriteDataBlockID());
-                } else {
-                    getLogger().severe("Breaking seal "+statusBit);
-                    getSealConfig().breakSealPermanent(statusBit);
-                    addWriteDataBlockToWDBList(getFactory().getWriteDataBlockID());
-                }
+            if (activate) {
+                getLogger().severe("Restoring seal " + statusBit);
+                getSealConfig().restoreSeal(statusBit);
+            } else {
+                getLogger().severe("Breaking seal " + statusBit);
+                getSealConfig().breakSealPermanent(statusBit);
             }
         } catch (CTRException e) {
             String msg = "Error changing seal [" + statusBit + "] to [" + activate + "]: " + e.getMessage();
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
     }

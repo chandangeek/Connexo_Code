@@ -1,14 +1,19 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.messaging;
 
 import com.energyict.cpo.Environment;
+import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.SealStatusBit;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
+
+import java.math.BigDecimal;
 
 /**
  * Copyrights EnergyICT
@@ -31,41 +36,31 @@ public class TemporaryBreakSealMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        int eventLogReset = validateAndGetBreakTime(getDeviceMessageAttribute(message, DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName).getDeviceMessageAttributeValue());
+        int restoreFactorySettings = validateAndGetBreakTime(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName).getDeviceMessageAttributeValue());
+        int restoreDefaultSettings = validateAndGetBreakTime(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName).getDeviceMessageAttributeValue());
+        int statusChange = validateAndGetBreakTime(getDeviceMessageAttribute(message, DeviceMessageConstants.statusChangeSealBreakTimeAttributeName).getDeviceMessageAttributeValue());
+        int remoteConversionParamConfig = validateAndGetBreakTime(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteConversionParametersConfigSealBreakTimeAttributeName).getDeviceMessageAttributeValue());
+        int remoteAnalysisParamConfig = validateAndGetBreakTime(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeName).getDeviceMessageAttributeValue());
+        int downloadProgram = validateAndGetBreakTime(getDeviceMessageAttribute(message, DeviceMessageConstants.downloadProgramSealBreakTimeAttributeName).getDeviceMessageAttributeValue());
+        int restoreDefaultPasswords = validateAndGetBreakTime(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName).getDeviceMessageAttributeValue());
 
-        try {
-            int eventLogReset = validateAndGetBreakTime(collectedMessage, message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-            int restoreFactorySettings = validateAndGetBreakTime(collectedMessage, message.getDeviceMessageAttributes().get(1).getDeviceMessageAttributeValue());
-            int restoreDefaultSettings = validateAndGetBreakTime(collectedMessage, message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue());
-            int statusChange = validateAndGetBreakTime(collectedMessage, message.getDeviceMessageAttributes().get(3).getDeviceMessageAttributeValue());
-            int remoteConversionParamConfig = validateAndGetBreakTime(collectedMessage, message.getDeviceMessageAttributes().get(4).getDeviceMessageAttributeValue());
-            int remoteAnalysisParamConfig = validateAndGetBreakTime(collectedMessage, message.getDeviceMessageAttributes().get(5).getDeviceMessageAttributeValue());
-            int downloadProgram = validateAndGetBreakTime(collectedMessage, message.getDeviceMessageAttributes().get(6).getDeviceMessageAttributeValue());
-            int restoreDefaultPasswords = validateAndGetBreakTime(collectedMessage, message.getDeviceMessageAttributes().get(7).getDeviceMessageAttributeValue());
-
-            changeSealStatus(eventLogReset, SealStatusBit.EVENT_LOG_RESET);
-            changeSealStatus(restoreFactorySettings, SealStatusBit.FACTORY_CONDITIONS);
-            changeSealStatus(restoreDefaultSettings, SealStatusBit.DEFAULT_VALUES);
-            changeSealStatus(statusChange, SealStatusBit.STATUS_CHANGE);
-            changeSealStatus(remoteConversionParamConfig, SealStatusBit.REMOTE_CONFIG_VOLUME);
-            changeSealStatus(remoteAnalysisParamConfig, SealStatusBit.REMOTE_CONFIG_ANALYSIS);
-            changeSealStatus(downloadProgram, SealStatusBit.DOWNLOAD_PROGRAM);
-            changeSealStatus(restoreDefaultPasswords, SealStatusBit.RESTORE_DEFAULT_PASSWORDS);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+        changeSealStatus(eventLogReset, SealStatusBit.EVENT_LOG_RESET);
+        changeSealStatus(restoreFactorySettings, SealStatusBit.FACTORY_CONDITIONS);
+        changeSealStatus(restoreDefaultSettings, SealStatusBit.DEFAULT_VALUES);
+        changeSealStatus(statusChange, SealStatusBit.STATUS_CHANGE);
+        changeSealStatus(remoteConversionParamConfig, SealStatusBit.REMOTE_CONFIG_VOLUME);
+        changeSealStatus(remoteAnalysisParamConfig, SealStatusBit.REMOTE_CONFIG_ANALYSIS);
+        changeSealStatus(downloadProgram, SealStatusBit.DOWNLOAD_PROGRAM);
+        changeSealStatus(restoreDefaultPasswords, SealStatusBit.RESTORE_DEFAULT_PASSWORDS);
+        return null;
     }
 
-    private int validateAndGetBreakTime(CollectedMessage collectedMessage, String breakTimeString) throws CTRException {
+    private int validateAndGetBreakTime(String breakTimeString) throws CTRException {
         int breakTime = Integer.parseInt(breakTimeString);
         if ((breakTime < 0) && (breakTime > MAX_BREAK_TIME)) {
             String msg = "Temporary breaking a seal is only allowed for a time period between 0 and " + MAX_BREAK_TIME + ", but was [" + breakTime + "]";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
         return breakTime;
@@ -76,7 +71,6 @@ public class TemporaryBreakSealMessage extends AbstractMTU155Message {
             if (breakForThisTime != 0) {
                 getLogger().severe("Breaking seal [" + statusBit + "] for a given time [" + breakForThisTime + "]");
                 getSealConfig().breakSealTemporary(statusBit, breakForThisTime);
-                addWriteDataBlockToWDBList(getFactory().getWriteDataBlockID());
             }
         } catch (CTRException e) {
             throw new CTRException("Error breaking seal [" + statusBit + "] for a given time [" + breakForThisTime + "]: " + e.getMessage());

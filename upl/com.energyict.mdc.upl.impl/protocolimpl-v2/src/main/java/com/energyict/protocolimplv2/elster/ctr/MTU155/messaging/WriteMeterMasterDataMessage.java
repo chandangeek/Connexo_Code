@@ -39,52 +39,35 @@ public class WriteMeterMasterDataMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
         String meterTypeString = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
         String meterCaliberString = message.getDeviceMessageAttributes().get(1).getDeviceMessageAttributeValue().trim();
         String meterSerialNumber = message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue().trim();
 
-        try {
-            MeterType meterType = MeterType.fromString(meterTypeString);
-            int meterCaliber = validateAndGetMeterCaliber(collectedMessage, meterCaliberString);
-            validateMeterSerialnumber(collectedMessage, meterSerialNumber);
-
-            writeMeterMasterData(meterType, meterCaliber, meterSerialNumber);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+        MeterType meterType = MeterType.fromString(meterTypeString);
+        int meterCaliber = validateAndGetMeterCaliber(meterCaliberString);
+        validateMeterSerialnumber(meterSerialNumber);
+        writeMeterMasterData(meterType, meterCaliber, meterSerialNumber);
+        return null;
     }
 
-    private int validateAndGetMeterCaliber(CollectedMessage collectedMessage, String meterCaliberAttr) throws CTRException {
-        if (!ProtocolTools.isNumber(meterCaliberAttr)) {
-            String msg = "Meter caliber should only contain digits (0-9), but [" + meterCaliberAttr + "] contains other characters.";
-            collectedMessage.setDeviceProtocolInformation(msg);
-            throw new CTRException(msg);
-        }
+    private int validateAndGetMeterCaliber(String meterCaliberAttr) throws CTRException {
         try {
             int caliber = Integer.valueOf(meterCaliberAttr);
             if (caliber > MAX_CALIBER) {
                 String msg = "Meter caliber has a max value of [" + MAX_CALIBER + "] but was [" + caliber + "]";
-                collectedMessage.setDeviceProtocolInformation(msg);
                 throw new CTRException(msg);
             }
             return caliber;
         } catch (NumberFormatException e) {
             String msg = "Invalid caliber [" + meterCaliberAttr + "], " + e.getMessage();
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
     }
 
-    private void validateMeterSerialnumber(CollectedMessage collectedMessage, String meterSerialAttr) throws CTRException {
+    private void validateMeterSerialnumber(String meterSerialAttr) throws CTRException {
         if (meterSerialAttr.length() > SERIAL_MAX_LENGTH) {
             String msg = "Serial max length is [" + SERIAL_MAX_LENGTH + "] characters, but [" + meterSerialAttr + "] has [" + meterSerialAttr.length() + "] characters.";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
     }

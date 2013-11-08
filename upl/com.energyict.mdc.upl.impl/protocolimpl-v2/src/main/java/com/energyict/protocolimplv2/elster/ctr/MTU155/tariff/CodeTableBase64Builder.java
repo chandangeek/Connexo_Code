@@ -26,14 +26,6 @@ public class CodeTableBase64Builder {
     }
 
     /**
-     * @param codeTableId
-     * @return
-     */
-    public static byte[] getBase64FromCodeTable(int codeTableId) {
-        return getBase64FromCodeTable(mw().getCodeFactory().find(codeTableId));
-    }
-
-    /**
      * @param codeTable
      * @return
      */
@@ -53,14 +45,5 @@ public class CodeTableBase64Builder {
         } catch (Exception e) {
             throw new ApplicationException("Unable to get xml from code table: " + e.getMessage(), e);
         }
-    }
-
-    private static MeteringWarehouse mw() {
-        MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-        if (mw == null) {
-            MeteringWarehouse.createBatchContext();
-            mw = MeteringWarehouse.getCurrent();
-        }
-        return mw;
     }
 }

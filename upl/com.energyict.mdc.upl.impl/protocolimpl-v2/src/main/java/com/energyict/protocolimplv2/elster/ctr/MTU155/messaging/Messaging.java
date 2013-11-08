@@ -10,14 +10,21 @@ import com.energyict.mdc.meterdata.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LoadProfileMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -30,8 +37,6 @@ import java.util.List;
  */
 public class Messaging implements DeviceMessageSupport {
 
-    private static final String EMPTY_FORMAT = "";
-
     private final MTU155 protocol;
 
     public Messaging(MTU155 protocol) {
@@ -41,6 +46,7 @@ public class Messaging implements DeviceMessageSupport {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         List<DeviceMessageSpec> result = new ArrayList<>();
+
         // Change connectivity setup
         result.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS);
         result.add(NetworkConnectivityMessage.CHANGE_SMS_CENTER_NUMBER);
@@ -93,7 +99,10 @@ public class Messaging implements DeviceMessageSupport {
             }
             if (!messageFound) {
                 collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(pendingMessage, "Messages.notSupported"));
+                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(pendingMessage, "DeviceMessage.notSupported",
+                        pendingMessage.getDeviceMessageId(),
+                        pendingMessage.getSpecification().getCategory().getName(),
+                        pendingMessage.getSpecification().getName()));
             }
 
             result.addCollectedMessages(collectedMessage);
@@ -112,47 +121,23 @@ public class Messaging implements DeviceMessageSupport {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.portNumberAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.gasDensityAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.relativeDensityAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.molecularNitrogenAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.carbonDioxideAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.molecularHydrogenAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.higherCalorificValueAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.SecurityTimeDurationAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.statusChangeSealBreakTimeAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.remoteConversionParametersConfigSealBreakTimeAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.downloadProgramSealBreakTimeAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName)) {
-            return String.valueOf(((BigDecimal) messageAttribute).intValue());
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.enableDSTAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.keyTActivationStatusAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.eventLogResetSealAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.restoreFactorySettingsSealAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.statusChangeSealAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.downloadProgramSealAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName)) {
-            return Boolean.toString((Boolean) messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.activityCalendarActivationDateAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.fromDateAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.toDateAttributeName) ||
-                propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName)) {
-            return Long.toString(((Date) messageAttribute).getTime());
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)) {
-            return ((Password) messageAttribute).getValue();
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.activityCalendarCodeTableAttributeName)) {
-            return CodeTableBase64Builder.getXmlStringFromCodeTable((Code) messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.loadProfileAttributeName)) {
-            return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
-        } else {
-            return String.valueOf(messageAttribute).trim();
+        switch (propertySpec.getName()) {
+            case DeviceMessageConstants.activityCalendarActivationDateAttributeName:
+            case DeviceMessageConstants.fromDateAttributeName:
+            case DeviceMessageConstants.toDateAttributeName:
+            case DeviceMessageConstants.firmwareUpdateActivationDateAttributeName:
+                return Long.toString(((Date) messageAttribute).getTime());
+            case DeviceMessageConstants.passwordAttributeName:
+                return ((Password) messageAttribute).getValue();
+            case DeviceMessageConstants.activityCalendarCodeTableAttributeName:
+                return CodeTableBase64Builder.getXmlStringFromCodeTable((Code) messageAttribute);
+            case DeviceMessageConstants.loadProfileAttributeName:
+                return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
+            case DeviceMessageConstants.firmwareUpdateUserFileAttributeName:
+                UserFile userFile = (UserFile) messageAttribute;
+                return new String(userFile.loadFileInByteArray());  //Bytes of the userFile, as a string
+            default:
+                return messageAttribute.toString();
         }
     }
 
@@ -182,14 +167,14 @@ public class Messaging implements DeviceMessageSupport {
                 new ChangeSealStatusMessage(this),
 
                 // Tariff management
-//                new TariffUploadPassiveMessage(this),   //TODO
+                new TariffUploadPassiveMessage(this),
                 new TariffDisablePassiveMessage(this),
 
                 // LoadProfile group
                 new ReadPartialProfileDataMessage(this),
 
                 // Firmware Upgrade
-//                new FirmwareUpgradeMessage(this)      //TODO
+                new FirmwareUpgradeMessage(this)
         };
     }
 

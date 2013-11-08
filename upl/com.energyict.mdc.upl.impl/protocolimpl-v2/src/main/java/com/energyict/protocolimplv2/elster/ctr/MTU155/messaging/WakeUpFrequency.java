@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.AbstractCTRObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.CTRObjectFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 
 /**
@@ -33,19 +34,11 @@ public class WakeUpFrequency extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        int periodInHours = Integer.parseInt(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        int periodInHours = Integer.parseInt(getDeviceMessageAttribute(message, DeviceMessageConstants.wakeupPeriodAttributeName).getDeviceMessageAttributeValue());
 
-        try {
-            writeWakeUp(periodInHours);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+        writeWakeUp(periodInHours);
+        return null;
     }
 
     private void writeWakeUp(int periodInHours) throws CTRException {

@@ -18,6 +18,7 @@ import java.util.TimeZone;
 public class CodeObject implements Serializable {
 
     private int id;
+    private String name;
     private String externalName;
     private int yearFrom;
     private int yearTo;
@@ -37,6 +38,7 @@ public class CodeObject implements Serializable {
     public static CodeObject fromCode(Code code) {
         CodeObject co = new CodeObject();
         co.setId(code.getId());
+        co.setName(code.getName());
         co.setExternalName(code.getExternalName());
         co.setYearFrom(code.getYearFrom());
         co.setYearTo(code.getYearTo());
@@ -175,6 +177,28 @@ public class CodeObject implements Serializable {
         this.interval = interval;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public int getTariffIdentifier() {
+        if (getName() != null) {
+            String[] nameParts = getName().split("_");
+            if (getName().split("_").length > 1) {
+                try {
+                    return Integer.valueOf(nameParts[nameParts.length - 1]);
+                } catch (NumberFormatException e) {
+                    return -1;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public boolean isRebuilt() {
         return rebuilt;
     }
@@ -215,20 +239,13 @@ public class CodeObject implements Serializable {
         this.yearTo = yearTo;
     }
 
-    public String getName() {
-        return "todo!";     //TODO - check this out : name should be in format '[codetablename_XXX] where XXX is 000 - 255]'
-    }
-
-    public int getTariffIdentifier() {
-        return -1;  //TODO - check this out!
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("CodeObject");
         sb.append("{calendars=").append(calendars);
         sb.append(", id=").append(id);
+        sb.append(", name='").append(name).append('\'');
         sb.append(", externalName='").append(externalName).append('\'');
         sb.append(", yearFrom=").append(yearFrom);
         sb.append(", yearTo=").append(yearTo);

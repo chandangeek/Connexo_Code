@@ -6,6 +6,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.CTREncryption;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 
 import java.util.Arrays;
@@ -29,9 +30,10 @@ public class ChangeExecutionKeyMessage extends AbstractChangeKeyMessage {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        String key = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
-        return super.executeMessage(message, key);
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String key = getDeviceMessageAttribute(message, DeviceMessageConstants.executionKeyAttributeName).getDeviceMessageAttributeValue();
+        super.doExecuteMessage(message, key);
+        return null;
     }
 
     @Override

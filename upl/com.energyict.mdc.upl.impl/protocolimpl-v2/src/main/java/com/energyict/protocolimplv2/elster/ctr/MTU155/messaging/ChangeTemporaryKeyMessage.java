@@ -4,6 +4,7 @@ import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 
 /**
@@ -25,9 +26,10 @@ public class ChangeTemporaryKeyMessage extends AbstractChangeKeyMessage {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        String key = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
-        return super.executeMessage(message, key);
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String key = getDeviceMessageAttribute(message, DeviceMessageConstants.temporaryKeyAttributeName).getDeviceMessageAttributeValue();
+        super.doExecuteMessage(message, key);
+        return null;
     }
 
     @Override

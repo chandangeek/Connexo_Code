@@ -16,6 +16,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.IdentificationRe
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.P_Session;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 
 import java.util.Date;
@@ -42,27 +43,18 @@ public class IPSetupMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        String ipAddress = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
-        String tcpPort = message.getDeviceMessageAttributes().get(1).getDeviceMessageAttributeValue().trim();
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String ipAddress = getDeviceMessageAttribute(message, DeviceMessageConstants.ipAddressAttributeName).getDeviceMessageAttributeValue();
+        String tcpPort = getDeviceMessageAttribute(message, DeviceMessageConstants.portNumberAttributeName).getDeviceMessageAttributeValue();
 
-        try {
-            validateIPSetupParameters(collectedMessage, ipAddress, tcpPort);
-            writeIpAddressAndPortNumberSetup();
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+        validateIPSetupParameters(ipAddress, tcpPort);
+        writeIpAddressAndPortNumberSetup();
+        return null;
     }
 
-    private void validateIPSetupParameters(CollectedMessage collectedMessage, String ipAddress, String tcpPort) throws CTRException {
+    private void validateIPSetupParameters(String ipAddress, String tcpPort) throws CTRException {
         if (ipAddress.split("\\.").length != 4) {
             String msg = "Parameter IP_Address contains no valid IP address";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
 
@@ -73,7 +65,6 @@ public class IPSetupMessage extends AbstractMTU155Message {
             }
         } catch (NumberFormatException e) {
             String msg = "Parameter IP_Address contains no valid IP address";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
 
@@ -81,7 +72,6 @@ public class IPSetupMessage extends AbstractMTU155Message {
             int port = Integer.parseInt(tcpPort);
             if (port < 0 || port > 65535) {
                 String msg = "Parameter TCP_Port should be an integer number range 0-65535.";
-                collectedMessage.setDeviceProtocolInformation(msg);
                 throw new CTRException(msg);
 
             } else {
@@ -89,7 +79,6 @@ public class IPSetupMessage extends AbstractMTU155Message {
             }
         } catch (NumberFormatException e) {
             String msg = "Parameter TCP_Port should be an integer number range 0-65535.";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
     }

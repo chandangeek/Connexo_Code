@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsConnection;
@@ -26,13 +27,12 @@ public class SecureGprsConnection extends GprsConnection {
 
     /**
      * 
-     * @param in
-     * @param out
+     * @param comChannel
      * @param properties
      * @param logger
      */
-    public SecureGprsConnection(InputStream in, OutputStream out, MTU155Properties properties, Logger logger) {
-        super(in, out, properties);
+    public SecureGprsConnection(ComChannel comChannel, MTU155Properties properties, Logger logger) {
+        super(comChannel, properties);
         this.ctrEncryption = new CTREncryption(properties);
         this.debug = properties.isDebug();
         this.logger = logger;
@@ -40,12 +40,11 @@ public class SecureGprsConnection extends GprsConnection {
 
     /**
      *
-     * @param in
-     * @param out
+     * @param comChannel
      * @param properties
      */
-    public SecureGprsConnection(InputStream in, OutputStream out, MTU155Properties properties) {
-        this(in, out, properties, null);
+    public SecureGprsConnection(ComChannel comChannel, MTU155Properties properties) {
+        this(comChannel, properties, null);
     }
 
     /**

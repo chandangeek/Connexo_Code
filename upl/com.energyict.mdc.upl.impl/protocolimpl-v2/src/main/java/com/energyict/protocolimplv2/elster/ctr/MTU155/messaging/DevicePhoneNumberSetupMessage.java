@@ -15,6 +15,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.P_Session;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.ReferenceDate;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataBlock;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 
 import java.util.Date;
@@ -42,30 +43,20 @@ public class DevicePhoneNumberSetupMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        String phoneNumber = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String phoneNumber = getDeviceMessageAttribute(message, DeviceMessageConstants.devicePhoneNumberAttributeName).getDeviceMessageAttributeValue();
 
-        try {
-            validatePhoneNumberSetupParameters(collectedMessage, phoneNumber);
-            writeDevicePhoneNumber(phoneNumber);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+        validatePhoneNumberSetupParameters(phoneNumber);
+        writeDevicePhoneNumber(phoneNumber);
+        return null;
     }
 
-    private void validatePhoneNumberSetupParameters(CollectedMessage collectedMessage, String phoneNumber) throws CTRException {
+    private void validatePhoneNumberSetupParameters(String phoneNumber) throws CTRException {
         if (phoneNumber.length() > PHONE_NUMBER_MAX_LENGTH) {
             String msg = "Device phone number is too long. Max length is " + PHONE_NUMBER_MAX_LENGTH + ". [phoneNumber='" + phoneNumber + "']";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         } else if (containsInvalidChars(phoneNumber)) {
             String msg = "Device phone number contains invalid characters. The number can only contain [" + ALLOWED_CHARS + "]. [phoneNumber='" + phoneNumber + "']";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
     }

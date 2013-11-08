@@ -9,6 +9,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 
 /**
@@ -33,21 +34,13 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);
-        boolean keyTActivationStatus = ProtocolTools.getBooleanFromString(message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
-        String activationTimeDurationString = message.getDeviceMessageAttributes().get(1).getDeviceMessageAttributeValue();
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        boolean keyTActivationStatus = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.keyTActivationStatusAttributeName).getDeviceMessageAttributeValue());
+        String activationTimeDurationString = getDeviceMessageAttribute(message, DeviceMessageConstants.SecurityTimeDurationAttributeName).getDeviceMessageAttributeValue();
+        int activationTimeDuration = validateActivationTimeDuration(activationTimeDurationString);
 
-        try {
-            int activationTimeDuration = validateActivationTimeDuration(collectedMessage, activationTimeDurationString);
-            activatingOrDeactivatingKeyT(keyTActivationStatus, activationTimeDuration);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
-        } catch (CTRException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
-        }
-        return collectedMessage;
+        activatingOrDeactivatingKeyT(keyTActivationStatus, activationTimeDuration);
+        return null;
     }
 
     private void activatingOrDeactivatingKeyT(boolean keyTActivationStatus, int activationTimeDuration) throws CTRException {
@@ -56,11 +49,10 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
         getLogger().warning("Successfully changed KeyT activation status to [" + keyTActivationStatus + "] for a period of [" + activationTimeDuration + "]");
     }
 
-    private int validateActivationTimeDuration(CollectedMessage collectedMessage, String activationTimeDurationAttr) throws CTRException {
+    private int validateActivationTimeDuration(String activationTimeDurationAttr) throws CTRException {
         int activationTimeDuration = Integer.valueOf(activationTimeDurationAttr);
         if ((activationTimeDuration < MIN_ACTIVE_TIME) && (activationTimeDuration > MAX_ACTIVE_TIME)) {
             String msg = "Invalid value [" + activationTimeDurationAttr + "] for the time duration. Value should be between " + MIN_ACTIVE_TIME + " and " + MAX_ACTIVE_TIME + ".";
-            collectedMessage.setDeviceProtocolInformation(msg);
             throw new CTRException(msg);
         }
         return activationTimeDuration;

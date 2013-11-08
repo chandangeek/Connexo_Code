@@ -36,7 +36,9 @@ public class DeviceMessageConstants {
     public static final String preparedDataAttributeName = "SecurityMessage.preparedData";
     public static final String signatureAttributeName = "SecurityMessage.signature";
     public static final String verificationKeyAttributeName = "SecurityMessage.verificationKey";
-    public static final String keyTActivationStatusAttributeName = "SecurityMessage.keyT.activationstatusT";
+    public static final String keyTActivationStatusAttributeName = "SecurityMessage.keyT.usage";
+    public static final String enableKeyTEncryptionAttributeName = "SecurityMessage.keyT.enable";
+    public static final String disableKeyTEncryptionAttributeName = "SecurityMessage.keyT.disable";
     public static final String SecurityTimeDurationAttributeName = "SecurityMessage.TimeDuration";
     public static final String executionKeyAttributeName = "SecurityMessage.executionkey";
     public static final String temporaryKeyAttributeName = "SecurityMessage.temporarykey";
@@ -266,9 +268,9 @@ public class DeviceMessageConstants {
     public static final String gasDensityAttributeName = "ConfigurationChangeDeviceMessage.gas.density";
     public static final String airDensityAttributeName = "ConfigurationChangeDeviceMessage.air.density";
     public static final String relativeDensityAttributeName = "ConfigurationChangeDeviceMessage.relative.density";
-    public static final String molecularNitrogenAttributeName = "ConfigurationChangeDeviceMessage.molecularnitrogen.percentage";
-    public static final String carbonDioxideAttributeName = "ConfigurationChangeDeviceMessage.carbondioxide.percentage";
-    public static final String molecularHydrogenAttributeName = "ConfigurationChangeDeviceMessage.molecularhydrogen.percentage";
+    public static final String molecularNitrogenPercentageAttributeName = "ConfigurationChangeDeviceMessage.molecularnitrogen.percentage";
+    public static final String carbonDioxidePercentageAttributeName = "ConfigurationChangeDeviceMessage.carbondioxide.percentage";
+    public static final String molecularHydrogenPercentageAttributeName = "ConfigurationChangeDeviceMessage.molecularhydrogen.percentage";
     public static final String higherCalorificValueAttributeName = "ConfigurationChangeDeviceMessage.highercalorificvalue";
     public static final String month = "month";
     public static final String year = "year";

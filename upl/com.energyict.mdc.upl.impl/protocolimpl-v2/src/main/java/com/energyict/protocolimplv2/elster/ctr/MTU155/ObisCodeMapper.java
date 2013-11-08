@@ -71,8 +71,11 @@ public abstract class ObisCodeMapper {
 
         registerMapping.add(new CTRRegisterMapping("7.0.13.26.0.0", "2.1.6"));      //Tot_Vb_pf   (end of previous billing period)
         registerMapping.add(new CTRRegisterMapping("7.0.13.0.0.255", "2.0.0"));     //Tot_Vm
+        registerMapping.add(new CTRRegisterMapping("7.0.13.0.1.255", "1.1.3"));     //Vm_g
         registerMapping.add(new CTRRegisterMapping("7.0.13.2.0.255", "2.1.0"));     //Tot_Vb
+        registerMapping.add(new CTRRegisterMapping("7.0.13.2.1.255", "1.3.0"));     //Vb_g
         registerMapping.add(new CTRRegisterMapping("7.0.128.1.0.255", "2.3.0"));    //Tot_Vme
+        registerMapping.add(new CTRRegisterMapping("7.0.128.1.1.255", "1.F.0"));    //Vme_g
 
         registerMapping.add(new CTRRegisterMapping("7.0.43.0.0.255", "1.0.0"));     //Qm
         registerMapping.add(new CTRRegisterMapping("7.0.43.1.0.255", "1.2.0"));     //Qb
@@ -81,6 +84,8 @@ public abstract class ObisCodeMapper {
         registerMapping.add(new CTRRegisterMapping("7.0.52.0.0.255", "A.0.0"));     //C, conversion factor
         registerMapping.add(new CTRRegisterMapping("7.0.53.0.1.255", "A.1.6"));     //Z, compressibility, attributed
         registerMapping.add(new CTRRegisterMapping("7.0.53.0.0.255", "A.2.0"));     //Z, compressibility, instantaneous
+
+        registerMapping.add(new CTRRegisterMapping("7.0.43.34.0.255", "1.A.0"));    //Qbc_max
 
         registerMapping.add(new CTRRegisterMapping("7.0.128.2.1.255", "2.3.7"));    //Tot_Vme_f1
         registerMapping.add(new CTRRegisterMapping("7.0.128.2.2.255", "2.3.8"));    //Tot_Vme_f2

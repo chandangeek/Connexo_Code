@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.CTREncryption;
@@ -22,8 +24,8 @@ import java.io.OutputStream;
  */
 public class GprsConnection implements CtrConnection<GPRSFrame> {
 
-    private final OutputStream out;
-    private final InputStream in;
+    /** The ComChannel used for TCP/IP communication with the device **/
+    private final ComChannel comChannel;
 
     private final int retries;
     private final int timeOut;
@@ -32,13 +34,11 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
     private final boolean debug;
 
     /**
-     * @param in
-     * @param out
+     * @param comChannel
      * @param properties
      */
-    public GprsConnection(InputStream in, OutputStream out, MTU155Properties properties) {
-        this.in = in;
-        this.out = out;
+    public GprsConnection(ComChannel comChannel, MTU155Properties properties) {
+        this.comChannel = comChannel;
         this.retries = properties.getRetries();
         this.timeOut = properties.getTimeout();
         this.delayAfterError = properties.getDelayAfterError();
@@ -89,7 +89,8 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
         try {
             while (bytesFromDeviceAvailable()) {
                 delayAfterError(delay);
-                in.read(new byte[1024]);
+                ensureComChannelIsInReadingMode();
+                comChannel.read(new byte[1024]);
             }
         } catch (IOException e) {
             //Absorb
@@ -137,7 +138,8 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
                     ProtocolTools.delay(1);
                 } else {
                     byte[] buffer = new byte[1024];
-                    int len = in.read(buffer);
+                    ensureComChannelIsInReadingMode();
+                    int len = comChannel.read(buffer);
                     for (int ptr = 0; ptr < len; ptr++) {
                         int readByte = buffer[ptr];
                         readByte &= 0x0FF;
@@ -169,7 +171,8 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
      * @throws java.io.IOException
      */
     private boolean bytesFromDeviceAvailable() throws IOException {
-        return in.available() > 0;
+        ensureComChannelIsInReadingMode();
+        return comChannel.available() > 0;
     }
 
     /**
@@ -233,15 +236,19 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
     private void sendFrame(GPRSFrame frame) throws CTRConnectionException {
         try {
             doForcedDelay();
-            if (out != null) {
-                out.write(frame.getBytes());
-                out.flush();
-            } else {
-                throw new CTRConnectionException("Unable to send frame. OutputStream was null.");
-            }
-        } catch (IOException e) {
+            ensureComChannelIsInWritingMode();
+            comChannel.write(frame.getBytes());
+        } catch (CommunicationException e) {
             throw new CTRConnectionException("Unable to send frame.", e);
         }
+    }
+
+    private void ensureComChannelIsInReadingMode() {
+        comChannel.startReading();
+    }
+
+    private void ensureComChannelIsInWritingMode() {
+        comChannel.startWriting();
     }
 
     /**
@@ -256,5 +263,4 @@ public class GprsConnection implements CtrConnection<GPRSFrame> {
     public CTREncryption getCTREncryption() {
         return null;
     }
-
 }

@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.encryption;
 
 import com.energyict.mdc.channels.sms.ProximusSmsSender;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.CtrConnection;
@@ -29,8 +31,8 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
 
     private static int HEADER_LENGTH = 2;
 
-    private final InputStream in;
-    private final OutputStream out;
+    /** The ComChannel used for SMS communication with the device **/
+    private final ComChannel comChannel;
 
     private CTREncryption ctrEncryption;
 
@@ -41,9 +43,8 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
     /**
      * @param properties
      */
-    public SecureSmsConnection(InputStream in, OutputStream out, MTU155Properties properties, Logger logger) {
-        this.in = in;
-        this.out = out;
+    public SecureSmsConnection(ComChannel comChannel, MTU155Properties properties, Logger logger) {
+        this.comChannel = comChannel;
         this.logger = logger;
         this.timeOut = properties.getTimeout();
         this.forcedDelay = properties.getForcedDelay();
@@ -77,13 +78,9 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
     private void sendFrame(SMSFrame frame) throws CTRConnectionException {
         try {
             doForcedDelay();
-            if (out != null) {
-                out.write(frame.getBytes());
-                out.flush();
-            } else {
-                throw new CTRConnectionException("Unable to send frame. OutputStream was null.");
-            }
-        } catch (IOException e) {
+            ensureComChannelIsInWritingMode();
+            comChannel.write(frame.getBytes());
+        } catch (CommunicationException e) {
             throw new CTRConnectionException("Unable to send frame.", e);
         }
     }
@@ -118,7 +115,8 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
                     ProtocolTools.delay(1);
                 } else {
                     byte[] buffer = new byte[260];
-                    int len = in.read(buffer);
+                    ensureComChannelIsInReadingMode();
+                    int len = comChannel.read(buffer);
                     for (int ptr = 0; ptr < len; ptr++) {
                         int readByte = buffer[ptr];
                         readByte &= 0x0FF;
@@ -159,7 +157,8 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
      * @throws java.io.IOException
      */
     private boolean bytesFromDeviceAvailable() throws IOException {
-        return in.available() > 0;
+        ensureComChannelIsInReadingMode();
+        return comChannel.available() > 0;
     }
 
     /**
@@ -172,7 +171,8 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
         try {
             while (bytesFromDeviceAvailable()) {
                 ProtocolTools.delay(delay);
-                in.read(new byte[1024]);
+                ensureComChannelIsInReadingMode();
+                comChannel.read(new byte[1024]);
             }
         } catch (IOException e) {
             //Absorb
@@ -181,5 +181,13 @@ public class SecureSmsConnection implements CtrConnection<SMSFrame> {
 
     public CTREncryption getCTREncryption() {
         return ctrEncryption;
+    }
+
+    private void ensureComChannelIsInReadingMode() {
+        comChannel.startReading();
+    }
+
+    private void ensureComChannelIsInWritingMode() {
+        comChannel.startWriting();
     }
 }

@@ -17,6 +17,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Pars
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.objects.CodeObject;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.rawobjects.RawTariffScheme;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
 import java.util.Date;
@@ -43,31 +44,26 @@ public class TariffUploadPassiveMessage extends AbstractMTU155Message {
     }
 
     @Override
-    public CollectedMessage executeMessage(OfflineDeviceMessage message) {
-        CollectedMessage collectedMessage = createCollectedMessage(message);    //TODO: should be in format "name_x", with x progressive tariff identifier number - maybe adapt to BigDecimal field?
-        String tariffName = message.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue().trim();
-        String codeTableBase64 = message.getDeviceMessageAttributes().get(1).getDeviceMessageAttributeValue().trim();
-        Date activationDate = new Date(Long.parseLong(message.getDeviceMessageAttributes().get(2).getDeviceMessageAttributeValue()));
+    protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
+        String tariffName = getDeviceMessageAttribute(message, DeviceMessageConstants.activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
+        String codeTableBase64 = getDeviceMessageAttribute(message, DeviceMessageConstants.activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
+        Date activationDate = new Date(Long.parseLong(getDeviceMessageAttribute(message, DeviceMessageConstants.activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue()));
 
         try {
-            CodeObject codeObject = validateAndGetCodeObject(collectedMessage, codeTableBase64);
+            CodeObject codeObject = validateAndGetCodeObject(codeTableBase64);
             writeCodeTable(codeObject, tariffName, activationDate);
-            setSuccessfulDeviceMessageStatus(collectedMessage);
+            return null;
         } catch (IOException | BusinessException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            String deviceMessageSpecName = Environment.getDefault().getTranslation(message.getDeviceMessageSpecPrimaryKey().getName());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(message, "Messages.failed", deviceMessageSpecName, message.getDeviceMessageId(), e.getMessage()));
+            throw new CTRException(e.getMessage());
         }
-        return collectedMessage;
     }
 
-    private CodeObject validateAndGetCodeObject(CollectedMessage collectedMessage,String codeTableBase64) throws IOException {
+    private CodeObject validateAndGetCodeObject(String codeTableBase64) throws IOException {
         try {
-        CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(codeTableBase64);
-        CodeObjectValidator.validateCodeObject(codeObject);
-        return codeObject;
+            CodeObject codeObject = CodeTableBase64Parser.getCodeTableFromBase64(codeTableBase64);
+            CodeObjectValidator.validateCodeObject(codeObject);
+            return codeObject;
         } catch (BusinessException e) {
-            collectedMessage.setDeviceProtocolInformation(e.getMessage());
             throw new CTRException(e.getMessage());
         }
     }

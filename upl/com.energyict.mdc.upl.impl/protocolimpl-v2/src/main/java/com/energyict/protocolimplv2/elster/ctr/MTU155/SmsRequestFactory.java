@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.dialer.core.Link;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.SecureSmsConnection;
@@ -41,6 +42,7 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.util.MeterInfo;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -62,14 +64,11 @@ public class SmsRequestFactory implements RequestFactory {
     private static final int REF_DATE_DAYS_AHEAD = 0;
     private MeterInfo meterInfo;
     private int writeDataBlockID;
+    private List<WriteDataBlock> writeDataBlockList;
     private boolean isEK155Protocol;
 
-    public SmsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone,int writeDataBlockID, boolean isEK155Protocol) {
-        this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone, writeDataBlockID, isEK155Protocol);
-    }
-
-    public SmsRequestFactory(InputStream in, OutputStream out, Logger logger, MTU155Properties properties, TimeZone timeZone, int writeDataBlockID, boolean isEK155Protocol) {
-        this.connection = new SecureSmsConnection(in, out, properties, logger);
+    public SmsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, int writeDataBlockID, boolean isEK155Protocol) {
+        this.connection = new SecureSmsConnection(comChannel, properties, logger);
         this.logger = logger;
         this.properties = properties;
         this.timeZone = timeZone;
@@ -78,7 +77,9 @@ public class SmsRequestFactory implements RequestFactory {
     }
 
     public Data writeRegister(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRException {
-        getConnection().sendFrameGetResponse(getRegisterWriteRequest(validityDate, getNewWriteDataBlock(), p_Session, attributeType, objects));
+        WriteDataBlock newWriteDataBlock = getNewWriteDataBlock();
+        writeDataBlockList.add(newWriteDataBlock);
+        getConnection().sendFrameGetResponse(getRegisterWriteRequest(validityDate, newWriteDataBlock, p_Session, attributeType, objects));
         return null;
     }
 
@@ -126,7 +127,9 @@ public class SmsRequestFactory implements RequestFactory {
     }
 
     public Data executeRequest(ReferenceDate validityDate, WriteDataBlock wdb, CTRObjectID id, byte[] data) throws CTRException {
-        getConnection().sendFrameGetResponse(getExecuteRequest(validityDate, getNewWriteDataBlock(), id, data));
+        WriteDataBlock newWriteDataBlock = getNewWriteDataBlock();
+        writeDataBlockList.add(newWriteDataBlock);
+        getConnection().sendFrameGetResponse(getExecuteRequest(validityDate, newWriteDataBlock, id, data));
         return null;
     }
 
@@ -180,9 +183,11 @@ public class SmsRequestFactory implements RequestFactory {
     }
 
     public Data writeRegister(AttributeType attributeType, int numberOfObjects, byte[] rawData) throws CTRException {
+        WriteDataBlock newWriteDataBlock = getNewWriteDataBlock();
+        writeDataBlockList.add(newWriteDataBlock);
         SMSFrame registerWriteRequest = getRegisterWriteRequest(
                 ReferenceDate.getReferenceDate(REF_DATE_DAYS_AHEAD),
-                getNewWriteDataBlock(),
+                newWriteDataBlock,
                 P_Session.getOpenAndClosePSession(),
                 attributeType,
                 numberOfObjects,
@@ -281,6 +286,21 @@ public class SmsRequestFactory implements RequestFactory {
 
     public int getWriteDataBlockID() {
         return writeDataBlockID;
+    }
+
+    /**
+     * The list of all used {@link WriteDataBlock}s for SMS messages.
+     * When sending out an sms, each WriteDataBlock used, will automatically be added to this list, unless the list is reset.
+     */
+    public List<WriteDataBlock> getListOfWriteDataBlocks() {
+        return this.writeDataBlockList;
+    }
+
+    /**
+     * Clears the list of {@link WriteDataBlock}s used in SMS messages.
+     */
+    public void resetWriteDataBlockList() {
+        this.writeDataBlockList = new ArrayList<>();
     }
 
     /****************** GETTER AND SETTERS ******************/

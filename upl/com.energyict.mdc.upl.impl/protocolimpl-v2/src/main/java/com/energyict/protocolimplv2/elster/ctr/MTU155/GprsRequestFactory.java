@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
@@ -108,47 +109,23 @@ public class GprsRequestFactory implements RequestFactory {
     protected boolean isEK155Protocol;
 
     /**
-     * @param link
+     * @param comChannel
      * @param logger
      * @param properties
      */
-    public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone, boolean isEK155Protocol) {
-        this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone, isEK155Protocol);
-        this.link = link;
+    public GprsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, boolean isEK155Protocol) {
+        this(comChannel, logger, properties, timeZone, null, isEK155Protocol);
     }
 
     /**
-     * @param inputStream
-     * @param outputStream
-     * @param logger
-     * @param properties
-     */
-    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone, boolean isEK155Protocol) {
-        this(inputStream, outputStream, logger, properties, timeZone, null, isEK155Protocol);
-    }
-
-    /**
-     * @param link
+     * @param comChannel
      * @param logger
      * @param properties
      * @param timeZone
      * @param identificationStructure
      */
-    public GprsRequestFactory(Link link, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure, boolean isEK155Protocol) {
-        this(link.getInputStream(), link.getOutputStream(), logger, properties, timeZone, identificationStructure, isEK155Protocol);
-        this.link = link;
-    }
-
-    /**
-     * @param inputStream
-     * @param outputStream
-     * @param logger
-     * @param properties
-     * @param timeZone
-     * @param identificationStructure
-     */
-    public GprsRequestFactory(InputStream inputStream, OutputStream outputStream, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure, boolean isEK155Protocol) {
-        this.connection = new SecureGprsConnection(inputStream, outputStream, properties, logger);
+    public GprsRequestFactory(ComChannel comChannel, Logger logger, MTU155Properties properties, TimeZone timeZone, IdentificationResponseStructure identificationStructure, boolean isEK155Protocol) {
+        this.connection = new SecureGprsConnection(comChannel, properties, logger);
         this.logger = logger;
         this.properties = properties;
         this.timeZone = timeZone;
@@ -659,7 +636,6 @@ public class GprsRequestFactory implements RequestFactory {
 
             // If The AckAdditionalDownloadData contains the segment number, we have guarantee the segment (and all previous ones) is correct received.
             int segmentSend = lastAckedSegment.getSegment() + 1;
-            // System.out.println("Send out segment "+segmentSend +" to the meter. Meter acked segment :"+ ackAdditionalDownloadData.getSegment().getSegment()+".");
 
             if (ackAdditionalDownloadData.getSegment().getSegment() != segmentSend) {
                 return false;
@@ -1028,15 +1004,17 @@ public class GprsRequestFactory implements RequestFactory {
     }
 
     public String getIPAddress() {
-        //ToDo: getLink() will always return null! How should this be fixed?
-        String ipAddress = null;
-        if ((getLink() != null) && (getLink().getStreamConnection() != null) && (getLink().getStreamConnection().getSocket() != null)) {
-            InetAddress address = getLink().getStreamConnection().getSocket().getInetAddress();
-            if (address != null) {
-                ipAddress = address.getHostAddress();
-            }
-        }
-        return ipAddress == null ? "Unknown" : ipAddress;
+        getLogger().severe("SmsRequestFactory - getIPAddress method is not supported.");
+        return "Unknown";
+        //ToDo: getLink() will always return null!
+//        String ipAddress = null;
+//        if ((getLink() != null) && (getLink().getStreamConnection() != null) && (getLink().getStreamConnection().getSocket() != null)) {
+//            InetAddress address = getLink().getStreamConnection().getSocket().getInetAddress();
+//            if (address != null) {
+//                ipAddress = address.getHostAddress();
+//            }
+//        }
+//        return ipAddress == null ? "Unknown" : ipAddress;
     }
 
     public MeterInfo getMeterInfo() {

@@ -10,7 +10,12 @@ import com.energyict.mdc.protocol.DeviceProtocolCache;
  */
 public class CTRDeviceProtocolCache implements DeviceProtocolCache {
 
+    /** The last WriteDataBlock ID used in SMS communication. **/
     int smsWriteDataBlockID = 0;
+
+    /** The id of the mending firmware upgrade message, or -1 if no firmware upgrade is pending **/
+    int pendingFirmwareMessageID = -1;
+
     boolean contentChanged;
 
     public CTRDeviceProtocolCache() {
@@ -24,7 +29,18 @@ public class CTRDeviceProtocolCache implements DeviceProtocolCache {
     public void setSmsWriteDataBlockID(int smsWriteDataBlockID) {
         if (this.smsWriteDataBlockID != smsWriteDataBlockID) {
             this.smsWriteDataBlockID = smsWriteDataBlockID;
-            contentChanged = true;
+            this.contentChanged = true;
+        }
+    }
+
+    public int getPendingFirmwareMessageID() {
+        return pendingFirmwareMessageID;
+    }
+
+    public void setPendingFirmwareMessageID(int pendingFirmwareMessageID) {
+        if (this.pendingFirmwareMessageID != pendingFirmwareMessageID) {
+            this.pendingFirmwareMessageID = pendingFirmwareMessageID;
+            this.contentChanged = true;
         }
     }
 
