@@ -54,7 +54,7 @@ public class CreateOrganizationTransactionTest {
 
     @After
     public void tearDown() {
-
+        Bus.clearServiceLocator(serviceLocator);
     }
 
     @Test

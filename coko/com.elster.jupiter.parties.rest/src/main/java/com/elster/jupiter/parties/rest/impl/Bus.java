@@ -6,31 +6,42 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 enum Bus {
     ;
-    private static ServiceLocator serviceLocator;
+    private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
 
-    public static void setServiceLocator(ServiceLocator serviceLocator) {
-        Bus.serviceLocator = serviceLocator;
+    public static void setServiceLocator(ServiceLocator locator) {
+        Bus.locatorHolder.set(Objects.requireNonNull(locator));
+    }
+
+    public static void clearServiceLocator(ServiceLocator old) {
+        locatorHolder.compareAndSet(Objects.requireNonNull(old), null);
     }
 
     public static RestQueryService getQueryService() {
-        return serviceLocator.getQueryService();
+        return getLocator().getQueryService();
     }
 
     public static TransactionService getTransactionService() {
-        return serviceLocator.getTransactionService();
+        return getLocator().getTransactionService();
     }
 
     public static PartyService getPartyService() {
-        return serviceLocator.getPartyService();
+        return getLocator().getPartyService();
     }
 
     public static UserService getUserService() {
-        return serviceLocator.getUserService();
+        return getLocator().getUserService();
     }
 
     public static Clock getClock() {
-        return serviceLocator.getClock();
+        return getLocator().getClock();
+    }
+
+    private static ServiceLocator getLocator() {
+        return locatorHolder.get();
     }
 }
