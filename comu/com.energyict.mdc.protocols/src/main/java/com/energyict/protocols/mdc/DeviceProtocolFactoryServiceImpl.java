@@ -1,4 +1,4 @@
-package com.energyict.protocolsmdc.protocols.impl;
+package com.energyict.protocols.mdc;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.comserver.adapters.meterprotocol.MeterProtocolAdapter;
