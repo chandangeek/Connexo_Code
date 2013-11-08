@@ -36,12 +36,12 @@ public class EventServletWrapper extends HttpServlet {
 
     protected void service(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         Tracker tracker = new Tracker(new URL(request.getRequestURL().toString()));
-        Bus.getServiceLocator().getPublisher().addThreadSubscriber(tracker);
+        Bus.getPublisher().addThreadSubscriber(tracker);
         try {
         	servlet.service(request,response);        	
         } finally {
         	tracker.stop();
-        	Bus.getServiceLocator().getPublisher().removeThreadSubscriber(tracker);
+        	Bus.getPublisher().removeThreadSubscriber(tracker);
         }       
         Bus.fire(tracker);        
     }

@@ -82,7 +82,7 @@ public class ServiceLocatorImpl implements  ServiceLocator {
     public void deactivate() {
     	tracker.close();    	
     	whiteBoard.close();    	
-    	Bus.setServiceLocator(null);    	 	
+    	Bus.clearServiceLocator(this);
     }
     
     @Override
