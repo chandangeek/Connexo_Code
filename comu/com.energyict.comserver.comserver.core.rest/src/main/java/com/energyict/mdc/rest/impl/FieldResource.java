@@ -33,22 +33,31 @@ public class FieldResource {
     @GET
     @Path("/timeUnit")
     public Object getTimeUnits() {
-        final List<String> timeUnitStrings = new ArrayList<>();
-        timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.MILLISECONDS));
-        timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS));
-        timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.MINUTES));
-        timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.HOURS));
-        timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.DAYS));
-        timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.WEEKS));
-        timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.MONTHS));
-        timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.YEARS));
+        final List<Object> timeUnitStrings = new ArrayList<>();
+        int[] timeDurations = new int[] {
+                TimeDuration.MILLISECONDS,
+                TimeDuration.SECONDS,
+                TimeDuration.MINUTES,
+                TimeDuration.HOURS,
+                TimeDuration.DAYS,
+                TimeDuration.WEEKS,
+                TimeDuration.MONTHS,
+                TimeDuration.YEARS
+        };
+
+        for (final int timeDuration : timeDurations) {
+            timeUnitStrings.add(new Object() {
+                public String timeUnit = TimeDuration.getTimeUnitDescription(timeDuration);
+            });
+        }
+
 
         /**
          * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
          * wrapped with meaningful field name.
          */
         return new Object() {
-            public List<String> timeUnits = timeUnitStrings;
+            public List<Object> timeUnits = timeUnitStrings;
         };
 
     }
