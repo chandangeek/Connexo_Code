@@ -830,13 +830,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Mdc.Application": [],
   "Mdc.controller.Main": [],
   "Mdc.view.Main": [],
-  "Mdc.view.Viewport": [],
-       "Mdc.controller.history.DeviceCommunicationProtocol": [],
-       "Mdc.view.devicecommunicationprotocol.List": [],
-       "Mdc.view.devicecommunicationprotocol.Edit": [],
-       "Mdc.view.devicecommunicationprotocol.Browse": [],
-       "Mdc.model.DeviceCommunicationProtocol": [],
-       "Mdc.store.DeviceCommunicationProtocols": []
+  "Mdc.view.Viewport": []
 });
 Ext.ClassManager.addNameAliasMappings({
   "Ext.AbstractComponent": [],
@@ -1828,20 +1822,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Mdc.view.Main": [
     "widget.app-main"
   ],
-  "Mdc.view.Viewport": [],
-    "Mdc.controller.history.DeviceCommunicationProtocol": [],
-    "Mdc.view.devicecommunicationprotocol.List": [
-        "widget.deviceCommunicationProtocolList"
-      ],
-    "Mdc.controller.DeviceCommunicationProtocol": [],
-    "Mdc.view.devicecommunicationprotocol.Edit": [
-        "widget.deviceCommunicationProtocolEdit"
-      ],
-    "Mdc.view.devicecommunicationprotocol.Browse": [
-        "widget.deviceCommunicationProtocolBrowse"
-      ],
-    "Mdc.model.DeviceCommunicationProtocol": [],
-    "Mdc.store.DeviceCommunicationProtocols": []
+  "Mdc.view.Viewport": []
 });
 Ext.setVersion("ext-theme-base", "4.2.1");
 Ext.setVersion("ext-theme-classic", "4.2.1");
