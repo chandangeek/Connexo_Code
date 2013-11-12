@@ -12,29 +12,38 @@ Ext.define('Uni.view.error.Window', {
 
     modal: true,
     constrain: true,
+    closeAction: 'hide',
 
     title: 'Error message',
 
     items: [
         {
             xtype: 'textareafield',
-            itemId: 'message',
+            itemId: 'messagefield',
             margin: 10
         }
     ],
 
-    buttons: [
-        {
-            text: 'Report issue'
-        },
-        {
-            text: 'Close' // TODO Close the window.
-        }
-    ],
+    initComponent: function () {
+        this.buttons = [
+            {
+                text: 'Report issue',
+                action: 'report',
+                disabled: true
+            },
+            {
+                text: 'Close',
+                scope: this,
+                handler: this.close
+            }
+        ];
+
+        this.callParent(arguments);
+    },
 
     setErrorMessage: function (message) {
-        var messageField = this.down('#message');
-        messageField.setValue(message);
+        var errorMessageField = this.down('#messagefield');
+        errorMessageField.setValue(message);
     }
 
 });
