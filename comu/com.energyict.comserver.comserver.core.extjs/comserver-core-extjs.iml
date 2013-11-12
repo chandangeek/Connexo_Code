@@ -4,10 +4,8 @@
     <facet type="Osmorc" name="OSGi">
       <configuration manifestGenerationMode="Manually" manifestLocation="bnd.bnd" jarfileLocation="com.energyict.comserver-core-extjs-1.0.0-SNAPSHOT.jar" outputPathType="CompilerOutputPath" bndFileLocation="" bundlorFileLocation="" bundleActivator="" bundleSymbolicName="com.energyict.comserver-core-extjs" bundleVersion="1.0.0.SNAPSHOT" ignoreFilePattern="" useProjectDefaultManifestFileLocation="false" alwaysRebuildBundleJAR="false" doNotSynchronizeWithMaven="false">
         <additionalProperties>
-          <property key="Bundle-Description" value="Contains ExtJS code for visualizing ComServer objects" />
-          <property key="Bundle-Vendor" value="Elster" />
-          <property key="Bundle-DocURL" value="www.elster.com" />
           <property key="-include" value="bnd.bnd" />
+          <property key="Bundle-Vendor" value="Elster" />
           <property key="Bundle-RequiredExecutionEnvironment" value="JavaSE-1.7" />
           <property key="Bundle-Name" value="EIServer - ComServer - Core ExtJS" />
         </additionalProperties>
@@ -24,6 +22,17 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.core:4.3.1" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.osgi:org.osgi.compendium:4.3.1" level="project" />
+    <orderEntry type="module" module-name="cbo" />
+    <orderEntry type="module" module-name="util" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:14.0.1" level="project" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.1" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.2" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.2" level="project" />
+    <orderEntry type="module" module-name="http.whiteboard" />
+    <orderEntry type="module" module-name="extjs" />
+    <orderEntry type="module" module-name="unifyingjs" />
   </component>
 </module>
 
