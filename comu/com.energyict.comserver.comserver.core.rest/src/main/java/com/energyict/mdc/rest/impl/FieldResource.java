@@ -2,8 +2,8 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.servers.ComServer;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -12,7 +12,7 @@ public class FieldResource {
     @GET
     @Path("/logLevel")
     public Object getLogLevelValues() {
-        final Set<String> logLevelStrings = new HashSet<>();
+        final List<String> logLevelStrings = new ArrayList<>();
         for (ComServer.LogLevel logLevel : ComServer.LogLevel.values()) {
             logLevelStrings.add(logLevel.name());
         }
@@ -22,7 +22,7 @@ public class FieldResource {
          * wrapped with meaningful field name.
          */
         return new Object() {
-            public Set<String> logLevel = logLevelStrings;
+            public List<String> logLevel = logLevelStrings;
         };
 
     }
@@ -30,7 +30,7 @@ public class FieldResource {
     @GET
     @Path("/timeUnit")
     public Object getTimeUnits() {
-        final Set<String> timeUnitStrings = new HashSet<>();
+        final List<String> timeUnitStrings = new ArrayList<>();
         timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.MILLISECONDS));
         timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.SECONDS));
         timeUnitStrings.add(TimeDuration.getTimeUnitDescription(TimeDuration.MINUTES));
@@ -45,7 +45,7 @@ public class FieldResource {
          * wrapped with meaningful field name.
          */
         return new Object() {
-            public Set<String> timeUnits = timeUnitStrings;
+            public List<String> timeUnits = timeUnitStrings;
         };
 
     }
