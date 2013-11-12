@@ -21,6 +21,20 @@ public enum TableSpecs {
             table.addPrimaryKeyConstraint("VAL_PK_VALIDATIONRULESET", idColumn);
             table.addUniqueConstraint("VAL_U_VALIDATIONRULESET", mRIDColumn);
         }
+    },
+    VAL_VALIDATIONRULE {
+        @Override
+        void describeTable(Table table) {
+            table.setJournalTableName("VAL_VALIDATIONRULEJRNL");
+            Column idColumn = table.addAutoIdColumn();
+            table.addColumn("ACTIVE", "char(1)", true, CHAR2BOOLEAN, "active");
+            table.addColumn("ACTION", "number", true, NUMBER2ENUM, "action");
+            table.addColumn("IMPLEMENTATION", "varchar2(80)", false, NOCONVERSION , "implementation");
+            Column ruleSetIdColumn = table.addColumn("RULESETID", "number", true , NUMBER2LONG, "ruleSetId");
+            table.addColumn("POSITION","number",true,NUMBER2INT,"position");
+            table.addPrimaryKeyConstraint("VAL_PK_VALIDATIONRULE", idColumn);
+            table.addForeignKeyConstraint("VAL_FK_RULE", "VAL_VALIDATIONRULESET", CASCADE , new AssociationMapping("ruleSet", "rules", "position"), ruleSetIdColumn);
+        }
     };
 
     public void addTo(DataModel component) {

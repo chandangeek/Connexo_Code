@@ -2,8 +2,13 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public final class ValidationRuleSetImpl implements ValidationRuleSet {
@@ -18,6 +23,8 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     private UtcInstant createTime;
     private UtcInstant modTime;
     private String userName;
+
+    private List<ValidationRule> rules;
 
     private ValidationRuleSetImpl() {
         // for persistence
@@ -114,16 +121,66 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
         if (getId() == 0) {
             validationRuleSetFactory().persist(this);
             Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
+            for (ValidationRule rule : doGetRules()) {
+                ((ValidationRuleImpl) rule).setRuleSetId(getId());
+                ruleFactory().persist(rule);
+            }
         } else {
             validationRuleSetFactory().update(this);
             Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
+
+            //TODO update rules
         }
     }
+
+    private TypeCache<ValidationRule> ruleFactory() {
+        return Bus.getOrmClient().getValidationRuleFactory();
+    }
+
 
     @Override
     public void delete() {
         validationRuleSetFactory().remove(this);
         Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_DELETED.topic(), this);
+    }
+
+    @Override
+    public List<ValidationRule> getRules() {
+        return Collections.unmodifiableList(doGetRules());
+    }
+
+    private List<ValidationRule> doGetRules() {
+        if (rules == null) {
+            rules = new ArrayList<>();
+            for (ValidationRule validationRule : ruleFactory().find()) {
+                if (this.equals(validationRule.getRuleSet())) {
+                    rules.add(validationRule);
+                }
+            }
+        }
+        return  rules;
+    }
+
+    @Override
+    public ValidationRule addRule(ValidationAction action, String implementation) {
+        ValidationRuleImpl newRule = new ValidationRuleImpl(this, action, implementation, doGetRules().size() + 1);
+        rules.add(newRule);
+        return newRule;
+    }
+
+    public void deleteRule(ValidationRule rule) {
+        doGetRules();
+
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder(getName());
+        builder.append('\n');
+        for (ValidationRule validationRule : doGetRules()) {
+            builder.append(validationRule.toString()).append('\n');
+        }
+        return builder.toString();
     }
 
     private TypeCache<ValidationRuleSet> validationRuleSetFactory() {

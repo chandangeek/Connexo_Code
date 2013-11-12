@@ -6,7 +6,9 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.google.common.base.Optional;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -67,5 +69,15 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Override
+    public ValidationRuleSet createValidationRuleSet(String name) {
+        return new ValidationRuleSetImpl(name);
+    }
+
+    @Override
+    public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
+        return getOrmClient().getValidationRuleSetFactory().get(id);
     }
 }
