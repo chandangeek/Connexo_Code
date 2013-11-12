@@ -10,55 +10,106 @@ Ext.define('Mdc.view.setup.ComServerEdit', {
         'Mdc.widget.TimeInfoField'
     ],
 
-    stores: [
-        'LogLevels'
-    ],
-
     initComponent: function() {
         var loglevels = Ext.create('Mdc.store.LogLevels');
 
         this.items = [
             {
                 xtype: 'form',
+                shrinkWrap: 1,
+                defaults: {
+                  labelWidth: 200
+                },
                 items: [
                     {
                         xtype: 'textfield',
                         name : 'id',
-                        fieldLabel: 'Id : '
+                        fieldLabel: 'Id'
                     },
                     {
                         xtype: 'textfield',
                         name : 'name',
-                        fieldLabel: 'Name : '
+                        fieldLabel: 'Name'
+                    },
+                    {
+                        xtype: 'textfield',
+                        name : 'comServerDescriptor',
+                        fieldLabel: 'comServerDescriptor'
                     },
                     {
                         xtype: 'textfield',
                         name : 'active',
-                        fieldLabel: 'active : '
+                        fieldLabel: 'active'
                     },
                     {
                         xtype: 'combobox',
                         name : 'serverLogLevel',
-                        fieldLabel: 'Server log level : ',
+                        fieldLabel: 'Server log level',
                         store: loglevels,
                         queryMode: 'local',
-                        displayField: 'level',
-                        valueField: 'level'
+                        displayField: 'logLevel',
+                        valueField: 'logLevel'
                     },
                     {
                         xtype: 'combobox',
                         name : 'communicationLogLevel',
-                        fieldLabel: 'Communication log level : ',
+                        fieldLabel: 'Communication log level',
                         store: loglevels,
                         queryMode: 'local',
-                        displayField: 'level',
-                        valueField: 'level'
+                        displayField: 'logLevel',
+                        valueField: 'logLevel'
                     },
                     {
                         xtype: 'timeInfoField',
                         name : 'changesInterPollDelay',
-                        fieldLabel: 'count : '
-                    }
+                        fieldLabel: 'changesInterPollDelay '
+                    },
+                    {
+                        xtype: 'timeInfoField',
+                        name : 'schedulingInterPollDelay',
+                        fieldLabel: 'schedulingInterPollDelay '
+                    },
+                    {
+                        xtype: 'textfield',
+                        name : 'queryAPIPostUri',
+                        fieldLabel: 'queryAPIPostUri'
+                    },
+                    {
+                        xtype: 'checkbox',
+                        inputValue: true,
+                        uncheckedValue: 'false',
+                        name : 'usesDefaultQueryAPIPostUri',
+                        fieldLabel: 'usesDefaultQueryAPIPostUri'
+                    },
+                    {
+                        xtype: 'textfield',
+                        name : 'eventRegistrationUri',
+                        fieldLabel: 'eventRegistrationUri'
+                    },
+                    {
+                        xtype: 'checkbox',
+                        inputValue: true,
+                        uncheckedValue: 'false',
+                        name : 'usesDefaultEventRegistrationUri',
+                        fieldLabel: 'usesDefaultEventRegistrationUri'
+                    },
+                    {
+                        xtype: 'textfield',
+                        name : 'storeTaskQueueSize',
+                        fieldLabel: 'storeTaskQueueSize'
+                    },
+                    {
+                        xtype: 'textfield',
+                        name : 'numberOfStoreTaskThreads',
+                        fieldLabel: 'numberOfStoreTaskThreads'
+                    },
+                    {
+                        xtype: 'textfield',
+                        name : 'storeTaskThreadPriority',
+                        fieldLabel: 'storeTaskThreadPriority'
+                    },
+
+
                 ]
             }
         ];

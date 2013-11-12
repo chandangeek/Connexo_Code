@@ -1,5 +1,10 @@
 Ext.define('Mdc.widget.TimeInfoField', {
     extend: 'Ext.form.FieldContainer',
+
+    stores: [
+        'TimeUnits'
+    ],
+
     mixins: {
         field: 'Ext.form.field.Field'
     },
@@ -31,6 +36,7 @@ Ext.define('Mdc.widget.TimeInfoField', {
 
     //@private
     buildField: function () {
+        var timeUnits = Ext.create('Mdc.store.TimeUnits');
         var me = this;
         me.items = [
             Ext.apply({
@@ -40,10 +46,13 @@ Ext.define('Mdc.widget.TimeInfoField', {
                 submitValue: false
             }, me.valueCfg),
             Ext.apply({
-                xtype: 'textfield',
-                itemId: 'unitField',
-                submitValue: false,
-                flex: 1
+                xtype: 'combobox',
+                itemId : 'unitField',
+                store: timeUnits,
+                queryMode: 'local',
+                displayField: 'timeUnit',
+                valueField: 'timeUnit',
+                submitValue: false
             }, me.unitCfg)]
     },
 
@@ -51,10 +60,6 @@ Ext.define('Mdc.widget.TimeInfoField', {
         var me = this,
             value = parseInt(me.valueField.getSubmitValue()),
             timeUnit = me.unitField.getSubmitValue();
-
-        if (!me.quantity) {
-            return null;
-        }
 
         return {
             count: value,
