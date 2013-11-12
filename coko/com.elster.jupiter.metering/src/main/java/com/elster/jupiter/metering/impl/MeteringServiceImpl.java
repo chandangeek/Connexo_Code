@@ -6,6 +6,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -229,4 +230,10 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         return new ChannelBuilderImpl();
     }
 
+    @Override
+    public QueryUsagePointGroup createQueryUqagePointGroup(Condition condition) {
+        QueryUsagePointGroupImpl queryUsagePointGroup = new QueryUsagePointGroupImpl();
+        queryUsagePointGroup.setCondition(condition);
+        return queryUsagePointGroup;
+    }
 }
