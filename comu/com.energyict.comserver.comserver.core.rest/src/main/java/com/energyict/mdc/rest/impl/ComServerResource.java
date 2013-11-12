@@ -16,6 +16,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import org.glassfish.jersey.server.ResourceConfig;
 
 @Path("/comservers")
@@ -31,11 +32,11 @@ public class ComServerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServersInfo getComServers() {
+    public ComServersInfo getComServers(@Context UriInfo uriInfo) {
         ComServersInfo comservers = new ComServersInfo();
         for (ComServer comServer : comServerService.findAll()) {
             if (comServer instanceof OnlineComServer) {
-                comservers.comServers.add(new OnlineComServerInfo((OnlineComServer) comServer));
+                comservers.comServers.add(new OnlineComServerInfo(uriInfo, (OnlineComServer) comServer));
             } else {
                 throw new WebApplicationException("Unsupported ComServer type:"+comServer.getClass().getName(), Response.Status.INTERNAL_SERVER_ERROR);
             }
@@ -46,8 +47,8 @@ public class ComServerResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public OnlineComServerInfo getComServer(@PathParam("id") int id) {
-        return new OnlineComServerInfo((OnlineComServer) comServerService.find(id));
+    public OnlineComServerInfo getComServer(@Context UriInfo uriInfo, @PathParam("id") int id) {
+        return new OnlineComServerInfo(uriInfo, (OnlineComServer) comServerService.find(id));
     }
 
     @DELETE

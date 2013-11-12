@@ -3,10 +3,13 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
 
 public class OnlineComServerInfo extends ComServerInfo {
     public String queryAPIPostUri;
@@ -17,12 +20,12 @@ public class OnlineComServerInfo extends ComServerInfo {
     public int numberOfStoreTaskThreads;
     public int storeTaskThreadPriority;
 
-    public List<Integer> comPorts_ids;
+    public List<Object> comPorts;
 
     public OnlineComServerInfo() {
     }
 
-    public OnlineComServerInfo(OnlineComServer onlineComServer) {
+    public OnlineComServerInfo(@Context final UriInfo uriInfo, final OnlineComServer onlineComServer) {
         super(onlineComServer);
         this.comServerDescriptor="OnlineComServer";
         this.queryAPIPostUri = onlineComServer.getQueryApiPostUri();
@@ -32,9 +35,12 @@ public class OnlineComServerInfo extends ComServerInfo {
         this.storeTaskQueueSize = onlineComServer.getStoreTaskQueueSize();
         this.numberOfStoreTaskThreads = onlineComServer.getNumberOfStoreTaskThreads();
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
-        comPorts_ids = new ArrayList<>();
-        for (ComPort comPort : onlineComServer.getComPorts()) {
-            comPorts_ids.add(comPort.getId());
+        comPorts = new ArrayList<>();
+        for (final ComPort comPort : onlineComServer.getComPorts()) {
+            comPorts.add(new Object() {
+                public Integer id = comPort.getId();
+                public URI href = uriInfo.getBaseUriBuilder().path(ComPortResource.class).path("/"+comPort.getId()).build();
+            });
         }
 
     }
@@ -52,7 +58,7 @@ public class OnlineComServerInfo extends ComServerInfo {
 
     @GET
     @Path("/comports")
-    public List<Integer> getComPorts_ids() {
-        return comPorts_ids;
+    public List<Object> getComPorts() {
+        return comPorts;
     }
 }
