@@ -9,28 +9,15 @@ Ext.define('Uni.override.RestOverride', {
             operation = request.operation,
             records = operation.records || [],
             record = records[0],
-            format = me.format,
-            url = me.getUrl(request),
             id = record ? record.getId() : operation.id;
 
-        if (me.appendId && me.isValidId(id)) {
-            if (!url.match(/\/$/)) {
-                url += '/';
-            }
+        id = Ext.String.htmlEncode(id);
 
-            id = Ext.String.htmlEncode(id);
-            url += id;
+        if (record) {
+            record.setId(id);
+        } else {
+            operation.id = id;
         }
-
-        if (format) {
-            if (!url.match(/\.$/)) {
-                url += '.';
-            }
-
-            url += format;
-        }
-
-        request.url = url;
 
         return me.callParent(arguments);
     }
