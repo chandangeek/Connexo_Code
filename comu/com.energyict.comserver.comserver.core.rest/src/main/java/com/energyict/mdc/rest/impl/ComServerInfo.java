@@ -4,12 +4,17 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 @XmlRootElement
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comServerDescriptor")
+@JsonSubTypes({ @JsonSubTypes.Type(value = OnlineComServerInfo.class, name = "OnlineComServer")
+     /*, @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "RemoteComServer")*/
+     /*, @JsonSubTypes.Type(value = OfflineComServerInfo.class, name = "OfflineComServer")*/ })
 public class ComServerInfo {
     public int id;
 
-    public String comServerDescriptor;
     public String name;
 
     public boolean active;

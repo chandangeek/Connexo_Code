@@ -58,7 +58,7 @@ public class ComServerResource {
         try {
             comServerService.deleteComServer(id);
         } catch (Exception e) {
-            throw new WebApplicationException(Response.serverError().build());
+            throw new WebApplicationException(e, Response.serverError().build());
         }
         return Response.ok().build();
 
@@ -68,15 +68,15 @@ public class ComServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo createComServer(OnlineComServerInfo comServerInfo) {
-        if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
+//        if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
                 return new ComServerInfo(comServerService.createOnline(comServerInfo.asShadow()));
             } catch (Exception e) {
-                throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
             }
 
-        }
-        throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+//        }
+//        throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
     }
 
     @PUT
@@ -84,15 +84,15 @@ public class ComServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo updateComServer(@PathParam("id") int id, OnlineComServerInfo comServerInfo) {
-        if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
+//        if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
                 return new ComServerInfo(comServerService.updateComServer(id, comServerInfo.asShadow()));
             } catch (Exception e) {
-                throw new WebApplicationException(e);
+                throw new WebApplicationException(e, Response.serverError().build());
             }
 
-        }
-        throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
+//        }
+//        throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
     }
 
 

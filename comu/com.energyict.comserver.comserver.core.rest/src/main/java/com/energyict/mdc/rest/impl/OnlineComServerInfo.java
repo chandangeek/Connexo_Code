@@ -28,7 +28,6 @@ public class OnlineComServerInfo extends ComServerInfo {
 
     public OnlineComServerInfo(@Context final UriInfo uriInfo, final OnlineComServer onlineComServer) {
         super(onlineComServer);
-        this.comServerDescriptor="OnlineComServer";
         this.queryAPIPostUri = onlineComServer.getQueryApiPostUri();
         this.usesDefaultQueryAPIPostUri = onlineComServer.usesDefaultQueryApiPostUri();
         this.eventRegistrationUri = onlineComServer.getEventRegistrationUri();
@@ -44,7 +43,6 @@ public class OnlineComServerInfo extends ComServerInfo {
                 public URI href = comPortUriBuilder.build(comPort.getId());
             });
         }
-
     }
 
     public OnlineComServerShadow asShadow() {
