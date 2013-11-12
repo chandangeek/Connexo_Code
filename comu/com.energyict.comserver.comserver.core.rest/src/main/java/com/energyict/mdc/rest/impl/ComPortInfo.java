@@ -4,7 +4,7 @@ import com.energyict.mdc.ports.ComPort;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="ComPort")
+@XmlRootElement
 public class ComPortInfo {
     public int id;
     public String name;
@@ -16,6 +16,8 @@ public class ComPortInfo {
     public boolean bound;
     public int comserver_id;
 
+    public ComPortInfo() {
+    }
 
     public ComPortInfo(ComPort comPort) {
         this.id = comPort.getId();

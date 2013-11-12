@@ -46,7 +46,7 @@ public class ComServerResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo getComServer(@PathParam("id") int id) {
+    public OnlineComServerInfo getComServer(@PathParam("id") int id) {
         return new OnlineComServerInfo((OnlineComServer) comServerService.find(id));
     }
 
@@ -87,7 +87,7 @@ public class ComServerResource {
             try {
                 return new ComServerInfo(comServerService.updateComServer(id, comServerInfo.asShadow()));
             } catch (Exception e) {
-                throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+                throw new WebApplicationException(e);
             }
 
         }

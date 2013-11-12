@@ -5,9 +5,9 @@ import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 
-@XmlRootElement(name = "OnlineComServer")
 public class OnlineComServerInfo extends ComServerInfo {
     public String queryAPIPostUri;
     public boolean usesDefaultQueryAPIPostUri;
@@ -16,6 +16,7 @@ public class OnlineComServerInfo extends ComServerInfo {
     public int storeTaskQueueSize;
     public int numberOfStoreTaskThreads;
     public int storeTaskThreadPriority;
+
     public List<Integer> comPorts_ids;
 
     public OnlineComServerInfo() {
@@ -49,4 +50,9 @@ public class OnlineComServerInfo extends ComServerInfo {
         return comServerShadow;
     }
 
+    @GET
+    @Path("/comports")
+    public List<Integer> getComPorts_ids() {
+        return comPorts_ids;
+    }
 }
