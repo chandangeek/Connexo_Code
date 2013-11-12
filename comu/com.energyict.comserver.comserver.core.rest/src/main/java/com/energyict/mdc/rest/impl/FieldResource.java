@@ -12,9 +12,12 @@ public class FieldResource {
     @GET
     @Path("/logLevel")
     public Object getLogLevelValues() {
-        final List<String> logLevelStrings = new ArrayList<>();
+        final List<Object> logLevelStrings = new ArrayList<>();
         for (ComServer.LogLevel logLevel : ComServer.LogLevel.values()) {
-            logLevelStrings.add(logLevel.name());
+            final String myLogLevel = logLevel.name();
+            logLevelStrings.add(new Object() {
+                public String logLevel = myLogLevel;
+            });
         }
 
         /**
@@ -22,7 +25,7 @@ public class FieldResource {
          * wrapped with meaningful field name.
          */
         return new Object() {
-            public List<String> logLevel = logLevelStrings;
+            public List<Object> logLevels = logLevelStrings;
         };
 
     }
