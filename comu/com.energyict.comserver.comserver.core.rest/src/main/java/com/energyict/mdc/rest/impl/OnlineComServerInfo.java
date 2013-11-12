@@ -9,6 +9,7 @@ import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 public class OnlineComServerInfo extends ComServerInfo {
@@ -36,10 +37,11 @@ public class OnlineComServerInfo extends ComServerInfo {
         this.numberOfStoreTaskThreads = onlineComServer.getNumberOfStoreTaskThreads();
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
         comPorts = new ArrayList<>();
+        final UriBuilder comPortUriBuilder = uriInfo.getBaseUriBuilder().path(ComPortResource.class).path(ComPortResource.class, "getComPort");
         for (final ComPort comPort : onlineComServer.getComPorts()) {
             comPorts.add(new Object() {
                 public Integer id = comPort.getId();
-                public URI href = uriInfo.getBaseUriBuilder().path(ComPortResource.class).path("/"+comPort.getId()).build();
+                public URI href = comPortUriBuilder.build(comPort.getId());
             });
         }
 
