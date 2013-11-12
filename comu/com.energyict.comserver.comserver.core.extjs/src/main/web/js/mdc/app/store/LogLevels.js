@@ -1,8 +1,14 @@
 Ext.define('Mdc.store.LogLevels',{
-    fields: ['level'],
+    autoLoad: true,
+    fields: ['logLevel'],
     storeId: 'loglevels',
-    data: [
-        {'level':'TRACE'},
-        {'level':'WARN'}
-    ]
+
+    proxy: {
+        type: 'rest',
+        url: '../../api/mdc/field/logLevel',
+        reader: {
+            type: 'json',
+            root: 'logLevels'
+        }
+    }
 });

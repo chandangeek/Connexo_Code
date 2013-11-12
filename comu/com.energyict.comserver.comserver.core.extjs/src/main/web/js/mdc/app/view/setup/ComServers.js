@@ -45,6 +45,13 @@ Ext.define('Mdc.view.setup.ComServers', {
             }
         ];
 
+        this.buttons = [
+            {
+                text: 'Add',
+                action: 'add'
+            }
+        ];
+
         this.callParent();
     }
 });
