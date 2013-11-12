@@ -35,10 +35,7 @@ public class DeviceCommunicationProtocolInfo {
         shadow.setName(this.name);
         try {
             deviceProtocolPluggableClass.update(shadow);
-        } catch (SQLException e) {
-            System.out.print("TODO - No logger yet on DeviceCommunicationProtocolInfo -> " + e.getMessage());
-            e.printStackTrace(System.err);
-        } catch (BusinessException e) {
+        } catch (SQLException | BusinessException e) {
             System.out.print("TODO - No logger yet on DeviceCommunicationProtocolInfo -> " + e.getMessage());
             e.printStackTrace(System.err);
         }
