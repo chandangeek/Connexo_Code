@@ -39,4 +39,6 @@ public interface MeteringService {
     List<JournalEntry<ServiceLocation>> findServiceLocationJournal(long id);
 
     QueryUsagePointGroup createQueryUqagePointGroup(Condition condition);
+
+    Optional<QueryUsagePointGroup> getQueryUsagePointGroup(long id);
 }

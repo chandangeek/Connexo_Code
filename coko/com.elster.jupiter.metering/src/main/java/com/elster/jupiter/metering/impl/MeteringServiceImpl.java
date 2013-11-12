@@ -236,4 +236,9 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         queryUsagePointGroup.setCondition(condition);
         return queryUsagePointGroup;
     }
+
+    @Override
+    public Optional<QueryUsagePointGroup> getQueryUsagePointGroup(long id) {
+        return getOrmClient().getQueryUsagePointGroupFactory().get(id);
+    }
 }
