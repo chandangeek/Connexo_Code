@@ -2,6 +2,7 @@ Ext.define('Mdc.view.setup.Browse', {
     extend: 'Ext.container.Container',
     alias: 'widget.setupBrowse',
     overflowY: 'auto',
+    padding: 10,
     items: [
         {
             xtype: 'container',
