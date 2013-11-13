@@ -17,8 +17,8 @@ Ext.define('Mdc.model.ComServer', {
         'schedulingInterPollDelay'
     ],
     associations: [
-        {name: 'changesInterPollDelay',type: 'hasOne',model:'Mdc.model.TimeInfo',associationKey: 'changesInterPollDelay'},
-        {name: 'schedulingInterPollDelay',type: 'hasOne',model:'Mdc.model.TimeInfo',associationKey: 'schedulingInterPollDelay'},
+        {name: 'changesInterPollDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'changesInterPollDelay'},
+        {name: 'schedulingInterPollDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'schedulingInterPollDelay'},
     ],
     proxy: {
         type: 'rest',

@@ -1,9 +1,9 @@
-Ext.define('Mdc.view.setup.ComServers', {
+Ext.define('Mdc.view.setup.comserver.ComServers', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.setupComServers',
     overflowY: 'auto',
     layout: 'fit',
-
+    itemId: 'comservergrid',
 
     store: Ext.create('Mdc.store.ComServers'),
     requires: ['Ext.ux.PreviewPlugin'],
@@ -49,6 +49,10 @@ Ext.define('Mdc.view.setup.ComServers', {
             {
                 text: 'Add',
                 action: 'add'
+            },
+            {
+                text: 'Delete',
+                action: 'delete'
             }
         ];
 

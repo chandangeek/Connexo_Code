@@ -2,75 +2,89 @@ Ext.define('Mdc.controller.setup.ComServers', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'setup.ComServers',
-        'setup.ComServerEdit'
+        'setup.comserver.ComServers',
+        'setup.comserver.ComServerEdit'
     ],
 
     stores: [
         'ComServers'
     ],
 
-    init: function() {
+    refs: [
+        {
+            ref: 'comServerGrid',
+            selector: 'viewport #comservergrid'
+        }
+    ],
+
+    init: function () {
         this.control({
             'setupComServers': {
                 itemdblclick: this.editComServer
             },
-            'comServerEdit button[action=save]':{
-               click: this.update
+            'comServerEdit button[action=save]': {
+                click: this.update
             },
-            'comServerEdit button[action=cancel]':{
+            'comServerEdit button[action=cancel]': {
                 click: this.cancel
             },
-            'setupComServers button[action=add]':{
+            'setupComServers button[action=add]': {
                 click: this.add
+            },
+            'setupComServers button[action=delete]': {
+                click: this.delete
             }
         });
     },
 
-    editComServer: function(grid,record){
-        var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('comservers',record.getId());
+    editComServer: function (grid, record) {
+        var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('comservers', record.getId());
         Ext.History.add(url);
     },
 
-    showEditView: function(id){
+    showEditView: function (id) {
         var view = Ext.widget('comServerEdit');
         Ext.ModelManager.getModel('Mdc.model.ComServer').load(id, {
-            success: function(comserver) {
+            success: function (comserver) {
                 view.down('form').loadRecord(comserver);
                 Mdc.getApplication().getMainController().showContent(view);
             }
         });
     },
 
-    update: function(button){
+    update: function (button) {
         var me = this;
-        var pnl    = button.up('panel'),
-            form   = pnl.down('form'),
+        var pnl = button.up('panel'),
+            form = pnl.down('form'),
             record = form.getRecord() || Ext.create(Mdc.model.ComServer),
             values = form.getValues();
         record.set(values);
         record.save({
-            success: function(record,operation){
+            success: function (record, operation) {
                 me.showComServerOverview();
             }
         });
     },
 
-    cancel: function(){
+    cancel: function () {
         this.showComServerOverview();
     },
 
-    showComServerOverview: function(){
+    showComServerOverview: function () {
         var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('comservers');
         Ext.History.add(url);
     },
 
-    add: function(){
-        var view = Ext.widget('comServerEdit');
-        Mdc.getApplication().getMainController().showContent(view);
+    add: function () {
+        var url = Mdc.getApplication().getHistorySetupController().tokenizeAddComserver();
+        Ext.History.add(url);
+    },
+
+    delete: function () {
+        console.log(this.getComServerGrid());
+        var recordArray = this.getComServerGrid().getSelectionModel().getSelection();
+        if (recordArray.length > 0) {
+            recordArray[0].destroy();
+        }
     }
-
-
-
-
 });

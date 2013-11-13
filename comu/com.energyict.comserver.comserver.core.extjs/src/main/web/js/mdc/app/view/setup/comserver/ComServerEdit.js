@@ -1,4 +1,4 @@
-Ext.define('Mdc.view.setup.ComServerEdit', {
+Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.comServerEdit',
 
@@ -37,8 +37,10 @@ Ext.define('Mdc.view.setup.ComServerEdit', {
                         fieldLabel: 'comServerDescriptor'
                     },
                     {
-                        xtype: 'textfield',
+                        xtype: 'checkbox',
                         name : 'active',
+                        inputValue: true,
+                        uncheckedValue: 'false',
                         fieldLabel: 'active'
                     },
                     {

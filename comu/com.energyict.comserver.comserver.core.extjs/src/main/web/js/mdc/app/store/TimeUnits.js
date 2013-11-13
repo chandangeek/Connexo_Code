@@ -1,8 +1,8 @@
 Ext.define('Mdc.store.TimeUnits',{
     requires: [
-        'Mdc.model.TimeUnit'
+        'Mdc.model.field.TimeUnit'
     ],
-    model: 'Mdc.model.TimeUnit',
+    model: 'Mdc.model.field.TimeUnit',
     autoLoad: true,
     storeId: 'TimeUnits',
 

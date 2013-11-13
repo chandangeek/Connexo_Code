@@ -3,7 +3,7 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
 
     views: [
         'setup.Browse',
-        'setup.ComServers',
+        'setup.comserver.ComServers',
         'setup.devicecommunicationprotocol.List'
     ],
 

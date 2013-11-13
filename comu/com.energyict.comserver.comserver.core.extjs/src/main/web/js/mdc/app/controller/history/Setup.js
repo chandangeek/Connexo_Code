@@ -7,7 +7,11 @@ Ext.define('Mdc.controller.history.Setup', {
         if (tokens.length == 2 && tokens[1] === 'comservers') {
             Mdc.getApplication().getSetupSetupOverviewController().showComServers();
         } else if (tokens.length === 3 && tokens[1] === 'comservers') {
-            Mdc.getApplication().getSetupComServersController().showEditView(tokens[2]);
+            if(tokens[2]==='create'){
+                Mdc.getApplication().getSetupComServersController().showEditView();
+            } else {
+                Mdc.getApplication().getSetupComServersController().showEditView(tokens[2]);
+            }
         } else if (tokens.length === 2 && tokens[1] === 'devicecommunicationprotocols') {
             Mdc.getApplication().getSetupSetupOverviewController().showDeviceCommunicationProtocols();
         } else if (tokens.length === 3 && tokens[1] === 'devicecommunicationprotocols') {
@@ -23,5 +27,9 @@ Ext.define('Mdc.controller.history.Setup', {
         } else {
             return this.tokenize([this.rootToken, item, id]);
         }
+    },
+
+    tokenizeAddComserver: function(){
+        return this.tokenize([this.rootToken, 'comservers','create']);
     }
 });
