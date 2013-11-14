@@ -10,7 +10,7 @@ import java.util.Map;
 public class Filter {
     public static final String PROPERTY = "property";
     public static final String VALUE = "value";
-    Map<String,String> filterProperties = new HashMap<>();
+    private Map<String,String> filterProperties = new HashMap<>();
     public Filter(JSONArray filterArray) {
         for(int i = 0; i < filterArray.length(); i++)
         {

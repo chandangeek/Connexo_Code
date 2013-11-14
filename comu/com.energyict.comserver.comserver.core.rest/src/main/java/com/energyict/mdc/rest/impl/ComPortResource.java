@@ -27,13 +27,15 @@ public class ComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortsInfo getComServers(@QueryParam("filter") JSONArray filter) {
+    public ComPortsInfo getComPorts(@QueryParam("filter") JSONArray filter) {
         ComPortsInfo comPorts = new ComPortsInfo();
         if(filter!=null){
             Filter comPortFilter = new Filter(filter);
-            ComServer comServer = ManagerFactory.getCurrent().getComServerFactory().find(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
-            for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findByComServer(comServer)){
-                comPorts.comPorts.add(new ComPortInfo(comPort));
+            if(comPortFilter.getFilterProperties().get("comserver_id")!="null"){
+                ComServer comServer = ManagerFactory.getCurrent().getComServerFactory().find(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
+                for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findByComServer(comServer)){
+                    comPorts.comPorts.add(new ComPortInfo(comPort));
+                }
             }
         } else {
             for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findAll()) {
