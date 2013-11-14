@@ -3,7 +3,9 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
+import org.json.JSONArray;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -11,6 +13,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -24,10 +27,18 @@ public class ComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortsInfo getComServers() {
+    public ComPortsInfo getComServers(@QueryParam("filter") JSONArray filter) {
         ComPortsInfo comPorts = new ComPortsInfo();
-        for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findAll()) {
+        if(filter!=null){
+            Filter comPortFilter = new Filter(filter);
+            ComServer comServer = ManagerFactory.getCurrent().getComServerFactory().find(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
+            for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findByComServer(comServer)){
                 comPorts.comPorts.add(new ComPortInfo(comPort));
+            }
+        } else {
+            for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findAll()) {
+                    comPorts.comPorts.add(new ComPortInfo(comPort));
+            }
         }
         return comPorts;
     }
