@@ -1,16 +1,13 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
 public class OnlineComServerInfo extends ComServerInfo {
     public String queryAPIPostUri;
@@ -36,14 +33,14 @@ public class OnlineComServerInfo extends ComServerInfo {
         this.storeTaskQueueSize = onlineComServer.getStoreTaskQueueSize();
         this.numberOfStoreTaskThreads = onlineComServer.getNumberOfStoreTaskThreads();
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
-        comPorts = new ArrayList<>();
-        final UriBuilder comPortUriBuilder = uriInfo.getBaseUriBuilder().path(ComPortResource.class).path(ComPortResource.class, "getComPort");
-        for (final ComPort comPort : onlineComServer.getComPorts()) {
-            comPorts.add(new Object() {
-                public Integer id = comPort.getId();
-                public URI href = comPortUriBuilder.build(comPort.getId());
-            });
-        }
+//        comPorts = new ArrayList<>();
+//        final UriBuilder comPortUriBuilder = uriInfo.getBaseUriBuilder().path(ComPortResource.class).path(ComPortResource.class, "getComPort");
+//        for (final ComPort comPort : onlineComServer.getComPorts()) {
+//            comPorts.add(new Object() {
+//                public Integer id = comPort.getId();
+//                public URI href = comPortUriBuilder.build(comPort.getId());
+//            });
+//        }
 
     }
 

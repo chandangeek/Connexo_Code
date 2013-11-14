@@ -1,8 +1,10 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ManagerFactory;
+import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -18,6 +20,16 @@ public class ComPortResource {
 
     public ComPortResource(@Context Application application) {
 //        deviceProtocolFactoryService=((ServiceLocator)((ResourceConfig)application).getApplication()).getDeviceProtocolFactoryService();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComPortsInfo getComServers() {
+        ComPortsInfo comPorts = new ComPortsInfo();
+        for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findAll()) {
+                comPorts.comPorts.add(new ComPortInfo(comPort));
+        }
+        return comPorts;
     }
 
     @GET
