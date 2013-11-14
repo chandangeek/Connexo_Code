@@ -35,7 +35,18 @@ public enum TableSpecs {
             table.addPrimaryKeyConstraint("VAL_PK_VALIDATIONRULE", idColumn);
             table.addForeignKeyConstraint("VAL_FK_RULE", "VAL_VALIDATIONRULESET", CASCADE , new AssociationMapping("ruleSet", "rules", "position"), ruleSetIdColumn);
         }
+    },
+    VAL_VALIDATIONRULEPROPS {
+        @Override
+        void describeTable(Table table) {
+            Column nameColumn = table.addColumn("NAME", "varchar2(80)", true, NOCONVERSION, "name");
+            table.addColumn("VALUE", "number", true, NUMBER2LONG, "value");
+            Column ruleIdColumn = table.addColumn("RULEID", "number", true , NUMBER2LONG, "ruleId");
+            table.addPrimaryKeyConstraint("VAL_PK_VALRULEPROPS", ruleIdColumn, nameColumn);
+            table.addForeignKeyConstraint("VAL_FK_RULEPROPS", "VAL_VALIDATIONRULE", CASCADE , new AssociationMapping("rule"), ruleIdColumn);
+        }
     };
+
 
     public void addTo(DataModel component) {
         Table table = component.addTable(name());
