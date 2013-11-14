@@ -7,4 +7,8 @@ public interface ValidationService {
     ValidationRuleSet createValidationRuleSet(String name);
 
     Optional<ValidationRuleSet> getValidationRuleSet(long id);
+
+    Validator getValidator(String implementation);
+
+
 }

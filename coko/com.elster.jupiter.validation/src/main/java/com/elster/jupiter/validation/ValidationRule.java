@@ -15,4 +15,6 @@ public interface ValidationRule {
 
     ValidationRuleSet getRuleSet();
 
+    Validator getValidator();
+
 }

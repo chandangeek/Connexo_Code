@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.Validator;
 
 public class ValidationRuleImpl implements ValidationRule {
 
@@ -15,6 +16,7 @@ public class ValidationRuleImpl implements ValidationRule {
 
     private int position;
     private transient ValidationRuleSet ruleSet;
+    private transient Validator validator;
 
     private ValidationRuleImpl() {}     //for persistence
 
@@ -32,6 +34,17 @@ public class ValidationRuleImpl implements ValidationRule {
             ruleSet = Bus.getOrmClient().getValidationRuleSetFactory().get(ruleSetId).get();
         }
         return ruleSet;
+    }
+
+    @Override
+    public Validator getValidator() {
+        if (validator == null) {
+            validator = Bus.getValidationService().getValidator(this.implementation);
+            if (validator == null) {
+
+            }
+        }
+        return validator;
     }
 
     @Override

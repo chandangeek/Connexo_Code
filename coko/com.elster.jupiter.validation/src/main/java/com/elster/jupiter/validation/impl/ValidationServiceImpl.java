@@ -6,14 +6,13 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.*;
 import com.google.common.base.Optional;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
 public class ValidationServiceImpl implements ValidationService, InstallService, ServiceLocator{
@@ -21,6 +20,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private volatile OrmClient ormClient;
     private volatile ComponentCache componentCache;
     private volatile EventService eventService;
+    private volatile List<ValidatorFactory> validatorFactories = new ArrayList<ValidatorFactory>();
 
     @Activate
     public void activate(BundleContext context) {
@@ -79,5 +79,29 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
         return getOrmClient().getValidationRuleSetFactory().get(id);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
+    public void addResource(ValidatorFactory validatorfactory) {
+        validatorFactories.add(validatorfactory);
+    }
+
+    public void removeResource(ValidatorFactory validatorfactory) {
+        validatorFactories.remove(validatorfactory);
+    }
+
+    @Override
+    public Validator getValidator(String implementation) {
+        for (ValidatorFactory factory : validatorFactories) {
+            if (factory.available().get().contains(implementation)) {
+                return factory.create(implementation);
+            }
+        }
+        throw new ValidatorNotFoundException(implementation);
+    }
+
+    @Override
+    public ValidationService getValidationService() {
+        return this;
     }
 }

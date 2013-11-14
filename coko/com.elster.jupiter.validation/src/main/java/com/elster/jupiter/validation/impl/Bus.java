@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.cache.ComponentCache;
+import com.elster.jupiter.validation.ValidationService;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,4 +37,9 @@ public enum Bus {
     public static EventService getEventService() {
         return getLocator().getEventService();
     }
+
+    public static ValidationService getValidationService() {
+        return getLocator().getValidationService();
+    }
+
 }
