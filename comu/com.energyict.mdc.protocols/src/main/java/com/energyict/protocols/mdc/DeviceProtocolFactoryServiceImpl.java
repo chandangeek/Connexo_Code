@@ -11,6 +11,7 @@ import com.energyict.mdc.services.DeviceProtocolFactoryService;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.Pluggable;
 import com.energyict.mdw.core.PluggableClass;
+import com.energyict.mdw.shadow.PluggableClassShadow;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.SmartMeterProtocol;
 import com.energyict.protocols.common.MdcProtocolClassCreator;
@@ -18,25 +19,27 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
+import java.sql.SQLException;
+
 /**
  * Copyrights EnergyICT
  * Date: 06/11/13
  * Time: 11:03
  */
-@Component(name="com.energyict.mdc.protocols", service=DeviceProtocolFactoryService.class, immediate = true)
+@Component(name = "com.energyict.mdc.protocols", service = DeviceProtocolFactoryService.class, immediate = true)
 public class DeviceProtocolFactoryServiceImpl implements DeviceProtocolFactoryService {
 
     public DeviceProtocolFactoryServiceImpl() {
     }
 
     @Activate
-    public void activate(){
+    public void activate() {
         MeteringWarehouse.createBatchContext(true);
         System.out.println("Activating DeviceProtocolFactoryService");
     }
 
     @Deactivate
-    public void deactivate(){
+    public void deactivate() {
         Environment.getDefault().closeConnection();
         System.out.println("Deactivating DeviceProtocolFactoryService");
     }
@@ -55,6 +58,26 @@ public class DeviceProtocolFactoryServiceImpl implements DeviceProtocolFactorySe
         } catch (IllegalAccessException e) {
             throw CodingException.genericReflectionError(e, pluggableClass.getClass());
         }
+    }
+
+    @Override
+    public PluggableClass createDeviceProtocol(PluggableClassShadow shadow) throws BusinessException, SQLException {
+        return MeteringWarehouse.getCurrent().getPluggableClassFactory().create(shadow);
+    }
+
+    @Override
+    public PluggableClass updateDeviceProtocol(int id, PluggableClassShadow shadow) throws BusinessException, SQLException {
+        PluggableClass pluggableClass = MeteringWarehouse.getCurrent().getPluggableClassFactory().find(id);
+        if (pluggableClass != null) {
+            pluggableClass.update(shadow);
+        }
+        return pluggableClass;
+    }
+
+    @Override
+    public void deleteDeviceProtocol(int id) throws BusinessException, SQLException {
+        PluggableClass pluggableClass = MeteringWarehouse.getCurrent().getPluggableClassFactory().find(id);
+        pluggableClass.delete();
     }
 
     /**
