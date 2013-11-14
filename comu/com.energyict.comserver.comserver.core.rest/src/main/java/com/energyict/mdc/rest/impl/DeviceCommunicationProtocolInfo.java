@@ -1,11 +1,9 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdw.core.PluggableClassType;
 import com.energyict.mdw.shadow.PluggableClassShadow;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.sql.SQLException;
 
 /**
  * Copyrights EnergyICT
@@ -30,14 +28,11 @@ public class DeviceCommunicationProtocolInfo {
         this.deviceProtocolVersion = deviceProtocolPluggableClass.getDeviceProtocol().getVersion();
     }
 
-    public void update(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        PluggableClassShadow shadow = deviceProtocolPluggableClass.getShadow();
+    public PluggableClassShadow asShadow() {
+        PluggableClassShadow shadow = new PluggableClassShadow();
         shadow.setName(this.name);
-        try {
-            deviceProtocolPluggableClass.update(shadow);
-        } catch (SQLException | BusinessException e) {
-            System.out.print("TODO - No logger yet on DeviceCommunicationProtocolInfo -> " + e.getMessage());
-            e.printStackTrace(System.err);
-        }
+        shadow.setJavaClassName(this.javaClassName);
+        shadow.setPluggableType(PluggableClassType.DEVICEPROTOCOL);
+        return shadow;
     }
 }
