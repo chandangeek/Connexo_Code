@@ -49,19 +49,25 @@ Ext.define('Mdc.controller.setup.ComServers', {
 
     showEditView: function (id) {
         var view = Ext.widget('comServerEdit');
-        Ext.ModelManager.getModel('Mdc.model.ComServer').load(id, {
-            success: function (comserver) {
-                var comPorts = comserver.comPorts();
-                comPorts.load({
-                    callback: function(records,operation,success){
-                        view.down('form').loadRecord(comserver);
-                        view.down('#comportgrid').reconfigure(comPorts,null);
-                        Mdc.getApplication().getMainController().showContent(view);
-                        console.log(comPorts.data);
-                    }
-                });
-            }
-        });
+        if(id){
+            Ext.ModelManager.getModel('Mdc.model.ComServer').load(id, {
+                success: function (comserver) {
+                    var comPorts = comserver.comPorts();
+                    comPorts.load({
+                        callback: function(records,operation,success){
+                            view.down('form').loadRecord(comserver);
+                            view.down('#comportgrid').reconfigure(comPorts,null);
+                            Mdc.getApplication().getMainController().showContent(view);
+                            console.log(comPorts.data);
+                        }
+                    });
+                }
+            });
+        } else {
+            var view = Ext.widget('comServerEdit');
+            Mdc.getApplication().getMainController().showContent(view);
+        }
+
     },
 
     update: function (button) {
