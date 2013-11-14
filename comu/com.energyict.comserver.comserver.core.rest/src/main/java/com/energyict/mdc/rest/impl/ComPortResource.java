@@ -31,11 +31,9 @@ public class ComPortResource {
         ComPortsInfo comPorts = new ComPortsInfo();
         if(filter!=null){
             Filter comPortFilter = new Filter(filter);
-            if(comPortFilter.getFilterProperties().get("comserver_id")!="null"){
-                ComServer comServer = ManagerFactory.getCurrent().getComServerFactory().find(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
-                for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findByComServer(comServer)){
-                    comPorts.comPorts.add(new ComPortInfo(comPort));
-                }
+            ComServer comServer = ManagerFactory.getCurrent().getComServerFactory().find(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
+            for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findByComServer(comServer)){
+                comPorts.comPorts.add(new ComPortInfo(comPort));
             }
         } else {
             for (ComPort comPort : ManagerFactory.getCurrent().getComPortFactory().findAll()) {
