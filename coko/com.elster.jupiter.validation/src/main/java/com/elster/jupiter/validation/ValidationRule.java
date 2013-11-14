@@ -17,4 +17,9 @@ public interface ValidationRule {
 
     Validator getValidator();
 
+    void setAction(ValidationAction action);
+
+    void setImplementation(String implementation);
+
+    void setPosition(int position);
 }

@@ -68,6 +68,21 @@ public class ValidationRuleImpl implements ValidationRule {
     }
 
     @Override
+    public void setAction(ValidationAction action) {
+        this.action = action;
+    }
+
+    @Override
+    public void setImplementation(String implementation) {
+        this.implementation = implementation;
+    }
+
+    @Override
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    @Override
     public void activate() {
         setActive(true);
     }

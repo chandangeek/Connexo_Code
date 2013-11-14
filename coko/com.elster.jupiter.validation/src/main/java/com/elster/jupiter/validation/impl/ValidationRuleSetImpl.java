@@ -25,6 +25,7 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     private String userName;
 
     private List<ValidationRule> rules;
+    private List<ValidationRule> deletedRules = new ArrayList<ValidationRule>();
 
     private ValidationRuleSetImpl() {
         // for persistence
@@ -129,8 +130,22 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
             validationRuleSetFactory().update(this);
             Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
 
-            //TODO update rules
+            //add new rules & update existing rules
+            for (ValidationRule rule : doGetRules()) {
+                if (rule.getId() == 0) {
+                    ((ValidationRuleImpl) rule).setRuleSetId(getId());
+                    ruleFactory().persist(rule);
+                } else {
+                    ruleFactory().update(rule);
+                }
+            }
+
+            //delete rules
+            for (ValidationRule rule : deletedRules) {
+                ruleFactory().remove(rule);
+            }
         }
+        deletedRules = new ArrayList<ValidationRule>();
     }
 
     private TypeCache<ValidationRule> ruleFactory() {
@@ -169,8 +184,13 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     }
 
     public void deleteRule(ValidationRule rule) {
+        deletedRules.add(rule);
         doGetRules();
-
+        rules.remove(rule);
+        int position = 1;
+        for (ValidationRule validationRule : rules) {
+            ((ValidationRuleImpl) validationRule).setPosition(position++);
+        }
     }
 
     @Override
