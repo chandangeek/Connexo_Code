@@ -1,6 +1,10 @@
 Ext.define('Mdc.view.setup.comserver.ComServers', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.setupComServers',
+
+    requires: [
+        'Mdc.store.ComServers'
+    ],
     overflowY: 'auto',
     layout: 'fit',
     itemId: 'comservergrid',

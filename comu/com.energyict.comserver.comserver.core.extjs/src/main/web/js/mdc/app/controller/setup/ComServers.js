@@ -1,6 +1,11 @@
 Ext.define('Mdc.controller.setup.ComServers', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Mdc.model.ComServer',
+        'Mdc.model.ComPort'
+    ],
+
     views: [
         'setup.comserver.ComServers',
         'setup.comserver.ComServerEdit'
@@ -46,8 +51,15 @@ Ext.define('Mdc.controller.setup.ComServers', {
         var view = Ext.widget('comServerEdit');
         Ext.ModelManager.getModel('Mdc.model.ComServer').load(id, {
             success: function (comserver) {
-                view.down('form').loadRecord(comserver);
-                Mdc.getApplication().getMainController().showContent(view);
+                var comPorts = comserver.comPorts();
+                comPorts.load({
+                    callback: function(records,operation,success){
+                        view.down('form').loadRecord(comserver);
+                        view.down('#comportgrid').reconfigure(comPorts,null);
+                        Mdc.getApplication().getMainController().showContent(view);
+                        console.log(comPorts.data);
+                    }
+                });
             }
         });
     },

@@ -1,6 +1,8 @@
 Ext.define('Mdc.widget.TimeInfoField', {
     extend: 'Ext.form.FieldContainer',
-
+    requires: [
+        'Mdc.store.TimeUnits'
+    ],
     stores: [
         'TimeUnits'
     ],

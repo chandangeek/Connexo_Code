@@ -8,21 +8,37 @@ Ext.define('Mdc.view.setup.Browse', {
             xtype: 'container',
             cls: 'content-container',
             layout: {
-                type: 'vbox',
-                align: 'stretch'
+                type: 'column'
             },
             items: [
                 {
-                    xtype: 'component',
-                    cls: 'content-container',
-                    html: '<a href="#/setup/comservers">comservers</a>'
-                },
+                    xtype: 'fieldset',
+                    collapsible: true,
+                    title: 'RMR',
+                    padding: 10,
+                    layout: 'vbox',
+                    items: [
+                        {
+                            xtype: 'component',
+                            cls: 'content-container',
+                            html: '<a href="#/setup/comservers">comservers</a>'
+                        },
 
+                        {
+                            xtype: 'component',
+                            cls: 'content-container',
+                            html: '<a href="#/setup/devicecommunicationprotocols">device communication protocols</a>'
+                        }
+                    ],
+                    columnWidth: 0.5,
+                    margin: '10 5 10 10'
+                },
                 {
-                    xtype: 'component',
-                    cls: 'content-container',
-                    html: '<a href="#/setup/devicecommunicationprotocols">device communication protocols</a>'
+                    border: 0,
+                    columnWidth: 0.5,
+                    margin: '10 5 10 10'
                 }
+
             ]
 
         }
