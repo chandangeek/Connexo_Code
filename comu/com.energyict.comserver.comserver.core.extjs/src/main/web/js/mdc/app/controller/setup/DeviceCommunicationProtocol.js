@@ -13,10 +13,16 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
         'setup.devicecommunicationprotocol.List',
         'setup.devicecommunicationprotocol.Edit'
     ],
+    refs: [
+        {
+            ref: 'deviceCommunicationProtocolGrid',
+            selector: 'viewport #devicecommunicationprotocolgrid'
+        }
+    ],
 
     init: function () {
         this.control({
-            '#setupDeviceCommunicationProtocols': {
+            'setupDeviceCommunicationProtocols': {
                 itemdblclick: this.editDeviceCommunicationProtocol
             },
             'deviceCommunicationProtocolEdit button[action=save]': {
@@ -24,6 +30,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
             },
             'deviceCommunicationProtocolEdit button[action=cancel]': {
                 click: this.cancelDeviceCommunicationProtocol
+            },
+            'setupDeviceCommunicationProtocols button[action=add]': {
+                click: this.add
+            },
+            'setupDeviceCommunicationProtocols button[action=delete]': {
+                click: this.delete
             }
         });
     },
@@ -33,6 +45,10 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
         Ext.ModelManager.getModel('Mdc.model.DeviceCommunicationProtocol').load(id, {
             success: function (deviceCommunicationProtocol) {
                 view.down('form').loadRecord(deviceCommunicationProtocol);
+                if (id != undefined) {
+                    var deviceCommunicationProtocolId = view.down('#deviceCommunicationProtocolId');
+                    deviceCommunicationProtocolId.hidden = false;
+                }
                 Mdc.getApplication().getMainController().showContent(view);
             }
         });
@@ -43,18 +59,38 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocol', {
         Ext.History.add(url);
     },
     updateDeviceCommunicationProtocol: function (button) {
-        var win = button.up('panel') ,
-            form = win.down('form'),
-            record = form.getRecord(),
+        var me = this;
+        var pnl = button.up('panel') ,
+            form = pnl.down('form'),
+            record = form.getRecord() || Ext.create(Mdc.model.DeviceCommunicationProtocol),
             values = form.getValues();
 
         record.set(values);
-        record.save();
+        record.save({
+            success: function (record, operation) {
+                me.showComServerOverview();
+            }
+        });
+    },
+
+    showDeviceCommunicationProtocolOverview: function () {
+        var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('devicecommunicationprotocols');
+        Ext.History.add(url);
     },
 
     cancelDeviceCommunicationProtocol: function () {
-        console.log('cancel');
-        var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('devicecommunicationprotocols');
+        this.showDeviceCommunicationProtocolOverview();
+    },
+
+    add: function () {
+        var url = Mdc.getApplication().getHistorySetupController().tokenizeAddDeviceCommunicationProtocol();
         Ext.History.add(url);
+    },
+
+    delete: function () {
+        var recordArray = this.getDeviceCommunicationProtocolGrid().getSelectionModel().getSelection();
+        if (recordArray.length > 0) {
+            recordArray[0].destroy();
+        }
     }
 });

@@ -2,7 +2,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.List', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.setupDeviceCommunicationProtocols',
     store: Ext.create('Mdc.store.DeviceCommunicationProtocols'),
-    itemId: 'setupDeviceCommunicationProtocols',
+    itemId: 'devicecommunicationprotocolgrid',
     overflowY: 'auto',
     layout: 'fit',
     requires: ['Ext.ux.PreviewPlugin'],
@@ -16,12 +16,29 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.List', {
                     '{id} - {name}' +
                     '</caption>' +
                     '<tr>' +
-                    '<td>Java class name: &nbsp; &nbsp;{javaClassName}</td>' +
+                    '<td>Java class name: </td> ' +
+                    '<td>{javaClassName}</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>Device protocol version: </td>' +
+                    '<td>{deviceProtocolVersion}</td>' +
                     '</tr>' +
                     '</table>',
                 flex: 1
             }
         ];
+
+        this.buttons = [
+            {
+                text: 'Add',
+                action: 'add'
+            },
+            {
+                text: 'Delete',
+                action: 'delete'
+            }
+        ];
+
         this.callParent(arguments);
     }
 });

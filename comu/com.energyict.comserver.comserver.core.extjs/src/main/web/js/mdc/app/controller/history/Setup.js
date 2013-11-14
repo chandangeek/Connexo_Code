@@ -7,17 +7,17 @@ Ext.define('Mdc.controller.history.Setup', {
         if (tokens.length > 1 && tokens[1] === 'comservers') {
             this.handleComServerTokens(tokens);
         } else if (tokens.length > 1 && tokens[1] === 'devicecommunicationprotocols') {
-           this.handleCommunicationProtocolTokens(tokens);
+            this.handleCommunicationProtocolTokens(tokens);
         } else {
             this.unknownTokensReturnToOverview();
         }
     },
 
-    handleComServerTokens: function(tokens){
+    handleComServerTokens: function (tokens) {
         if (tokens.length == 2) {
             Mdc.getApplication().getSetupSetupOverviewController().showComServers();
         } else if (tokens.length === 3) {
-            if(tokens[2]==='create'){
+            if (tokens[2] === 'create') {
                 Mdc.getApplication().getSetupComServersController().showEditView();
             } else {
                 Mdc.getApplication().getSetupComServersController().showEditView(tokens[2]);
@@ -27,17 +27,21 @@ Ext.define('Mdc.controller.history.Setup', {
         }
     },
 
-    handleCommunicationProtocolTokens: function(tokens){
+    handleCommunicationProtocolTokens: function (tokens) {
         if (tokens.length === 2) {
             Mdc.getApplication().getSetupSetupOverviewController().showDeviceCommunicationProtocols();
         } else if (tokens.length === 3) {
-            Mdc.getApplication().getSetupDeviceCommunicationProtocolController().showEditView(tokens[2]);
+            if (tokens[2] === 'create') {
+                Mdc.getApplication().getSetupDeviceCommunicationProtocolController().showEditView();
+            } else {
+                Mdc.getApplication().getSetupDeviceCommunicationProtocolController().showEditView(tokens[2]);
+            }
         } else {
             this.unknownTokensReturnToOverview();
         }
     },
 
-    unknownTokensReturnToOverview: function(){
+    unknownTokensReturnToOverview: function () {
         Mdc.getApplication().getSetupSetupOverviewController().showOverview();
     },
 
@@ -49,7 +53,11 @@ Ext.define('Mdc.controller.history.Setup', {
         }
     },
 
-    tokenizeAddComserver: function(){
-        return this.tokenize([this.rootToken, 'comservers','create']);
+    tokenizeAddComserver: function () {
+        return this.tokenize([this.rootToken, 'comservers', 'create']);
+    },
+
+    tokenizeAddDeviceCommunicationProtocol: function () {
+        return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'create']);
     }
 });
