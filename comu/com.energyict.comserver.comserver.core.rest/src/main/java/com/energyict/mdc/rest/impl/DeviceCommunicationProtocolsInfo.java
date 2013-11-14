@@ -10,19 +10,19 @@ import java.util.List;
  * Time: 11:21
  */
 @XmlRootElement
-public class DeviceCommunicationProtocolInfos {
+public class DeviceCommunicationProtocolsInfo {
     public int total;
 
     public List<DeviceCommunicationProtocolInfo> deviceCommunicationProtocols = new ArrayList<>();
 
-    DeviceCommunicationProtocolInfos() {
+    DeviceCommunicationProtocolsInfo() {
     }
 
-    DeviceCommunicationProtocolInfos(SimpleDeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+    DeviceCommunicationProtocolsInfo(SimpleDeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         add(deviceProtocolPluggableClass);
     }
 
-    DeviceCommunicationProtocolInfos(Iterable<? extends SimpleDeviceProtocolPluggableClass> deviceCommunicationProtocols) {
+    DeviceCommunicationProtocolsInfo(Iterable<? extends SimpleDeviceProtocolPluggableClass> deviceCommunicationProtocols) {
         addAll(deviceCommunicationProtocols);
     }
 
