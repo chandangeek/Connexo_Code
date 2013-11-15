@@ -49,15 +49,6 @@ public class ComPortResource {
         }
         return comPorts;
     }
-//
-    private void findByFilter(JSONArray filter, ComPortsInfo comPorts) {
-        Filter comPortFilter = new Filter(filter);
-        int comserver_id = Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id"));
-        ComServer comServer = comServerService.find(comserver_id);
-        for (ComPort comPort : comPortService.findByComServer(comServer)){
-            comPorts.comPorts.add(new ComPortInfo(comPort));
-        }
-    }
 
     @GET
     @Path("/{id}")
