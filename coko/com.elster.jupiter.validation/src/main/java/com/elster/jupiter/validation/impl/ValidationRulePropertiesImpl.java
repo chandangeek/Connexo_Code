@@ -45,7 +45,7 @@ public class ValidationRulePropertiesImpl implements ValidationRuleProperties {
         return builder.toString();
     }
 
-
-
-
+    public void setRuleId(long ruleId) {
+        this.ruleId = ruleId;
+    }
 }

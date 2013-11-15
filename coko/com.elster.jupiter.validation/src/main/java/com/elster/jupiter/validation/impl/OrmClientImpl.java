@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 public class OrmClientImpl implements OrmClient {
@@ -21,6 +22,11 @@ public class OrmClientImpl implements OrmClient {
     @Override
     public TypeCache<ValidationRule> getValidationRuleFactory() {
         return Bus.getComponentCache().getTypeCache(ValidationRule.class, ValidationRuleImpl.class, TableSpecs.VAL_VALIDATIONRULE.name());
+    }
+
+    @Override
+    public TypeCache<ValidationRuleProperties> getValidationRulePropertiesFactory() {
+        return Bus.getComponentCache().getTypeCache(ValidationRuleProperties.class, ValidationRulePropertiesImpl.class, TableSpecs.VAL_VALIDATIONRULEPROPS.name());
     }
 
     @Override

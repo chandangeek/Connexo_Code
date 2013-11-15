@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation;
 
+import java.util.List;
+
 public interface ValidationRule {
     long getId();
 
@@ -23,4 +25,7 @@ public interface ValidationRule {
 
     void setPosition(int position);
 
+    List<ValidationRuleProperties> getProperties();
+
+    ValidationRuleProperties addProperty(String name, long value);
 }

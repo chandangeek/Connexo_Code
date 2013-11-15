@@ -3,6 +3,10 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public final class ValidationRuleImpl implements ValidationRule {
 
     private long id;
@@ -15,6 +19,8 @@ public final class ValidationRuleImpl implements ValidationRule {
     private int position;
     private transient ValidationRuleSet ruleSet;
     private transient Validator validator;
+
+    private List<ValidationRuleProperties> properties;
 
     private ValidationRuleImpl() {}     //for persistence
 
@@ -132,6 +138,15 @@ public final class ValidationRuleImpl implements ValidationRule {
             doPersist();
         } else {
             doUpdate();
+            // remove all properties
+            for (ValidationRuleProperties property : loadProperties()) {
+                rulePropertiesFactory().remove(property);
+            }
+        }
+        //create new properties
+        for (ValidationRuleProperties property : doGetProperties()) {
+            ((ValidationRulePropertiesImpl) property).setRuleId(id);
+            rulePropertiesFactory().persist(property);
         }
     }
 
@@ -141,5 +156,38 @@ public final class ValidationRuleImpl implements ValidationRule {
 
     private void doPersist() {
         ruleFactory().persist(this);
+    }
+
+    @Override
+    public List<ValidationRuleProperties> getProperties() {
+        return Collections.unmodifiableList(doGetProperties());
+    }
+
+    private List<ValidationRuleProperties> doGetProperties() {
+        if (properties == null) {
+            properties = loadProperties();
+        }
+        return  properties;
+    }
+
+    private ArrayList<ValidationRuleProperties> loadProperties() {
+        ArrayList<ValidationRuleProperties> validationRulesProperties = new ArrayList<>();
+        for (ValidationRuleProperties property : rulePropertiesFactory().find()) {
+            if (this.equals(property.getRule())) {
+                validationRulesProperties.add(property);
+            }
+        }
+        return validationRulesProperties;
+    }
+
+    @Override
+    public ValidationRuleProperties addProperty(String name, long value) {
+        ValidationRulePropertiesImpl newProperty = new ValidationRulePropertiesImpl(this, name, value);
+        properties.add(newProperty);
+        return newProperty;
+    }
+
+    private TypeCache<ValidationRuleProperties> rulePropertiesFactory() {
+        return Bus.getOrmClient().getValidationRulePropertiesFactory();
     }
 }
