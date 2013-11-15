@@ -9,12 +9,12 @@ public class ConsecutiveZerosValidator implements Validator {
 
     @Override
     public List<String> getrequiredKeys() {
-        return new ArrayList();
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getOptionalKeys() {
-        return new ArrayList();
+        return new ArrayList<>();
     }
 
     @Override
