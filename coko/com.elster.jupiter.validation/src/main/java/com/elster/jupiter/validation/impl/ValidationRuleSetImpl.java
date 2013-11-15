@@ -1,10 +1,14 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.util.collections.ArrayDiffList;
+import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.collect.FluentIterable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +29,6 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     private String userName;
 
     private List<ValidationRule> rules;
-    private List<ValidationRule> deletedRules = new ArrayList<ValidationRule>();
 
     private ValidationRuleSetImpl() {
         // for persistence
@@ -120,32 +123,41 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     @Override
     public void save() {
         if (getId() == 0) {
-            validationRuleSetFactory().persist(this);
-            Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
-            for (ValidationRule rule : doGetRules()) {
-                ((ValidationRuleImpl) rule).setRuleSetId(getId());
-                ruleFactory().persist(rule);
-            }
+            doPersist();
         } else {
-            validationRuleSetFactory().update(this);
-            Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
-
-            //add new rules & update existing rules
-            for (ValidationRule rule : doGetRules()) {
-                if (rule.getId() == 0) {
-                    ((ValidationRuleImpl) rule).setRuleSetId(getId());
-                    ruleFactory().persist(rule);
-                } else {
-                    ruleFactory().update(rule);
-                }
-            }
-
-            //delete rules
-            for (ValidationRule rule : deletedRules) {
-                ruleFactory().remove(rule);
-            }
+            doUpdate();
         }
-        deletedRules = new ArrayList<ValidationRule>();
+    }
+
+    private void doUpdate() {
+        validationRuleSetFactory().update(this);
+
+        DiffList<ValidationRule> entryDiff = ArrayDiffList.fromOriginal(loadRules());
+        entryDiff.clear();
+        if (rules != null) {
+            entryDiff.addAll(rules);
+        }
+        for (ValidationRule rule : entryDiff.getRemovals()) {
+            ruleFactory().remove(rule);
+        }
+
+        for (ValidationRule rule : entryDiff.getRemaining()) {
+            ruleFactory().update(rule);
+        }
+
+        for (ValidationRule rule : entryDiff.getAdditions()) {
+            ruleFactory().persist(rule);
+        }
+        Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
+    }
+
+    private void doPersist() {
+        validationRuleSetFactory().persist(this);
+        Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
+        for (ValidationRule rule : doGetRules()) {
+            ((ValidationRuleImpl) rule).setRuleSetId(getId());
+            ruleFactory().persist(rule);
+        }
     }
 
     private TypeCache<ValidationRule> ruleFactory() {
@@ -166,14 +178,19 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
 
     private List<ValidationRule> doGetRules() {
         if (rules == null) {
-            rules = new ArrayList<>();
-            for (ValidationRule validationRule : ruleFactory().find()) {
-                if (this.equals(validationRule.getRuleSet())) {
-                    rules.add(validationRule);
-                }
-            }
+            rules = loadRules();
         }
         return  rules;
+    }
+
+    private ArrayList<ValidationRule> loadRules() {
+        ArrayList<ValidationRule> validationRules = new ArrayList<>();
+        for (ValidationRule validationRule : ruleFactory().find()) {
+            if (this.equals(validationRule.getRuleSet())) {
+                validationRules.add(validationRule);
+            }
+        }
+        return validationRules;
     }
 
     @Override
@@ -184,7 +201,6 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     }
 
     public void deleteRule(ValidationRule rule) {
-        deletedRules.add(rule);
         doGetRules();
         rules.remove(rule);
         int position = 1;

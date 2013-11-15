@@ -93,7 +93,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Override
     public Validator getValidator(String implementation) {
         for (ValidatorFactory factory : validatorFactories) {
-            if (factory.available().get().contains(implementation)) {
+            if (factory.available().contains(implementation)) {
                 return factory.create(implementation);
             }
         }

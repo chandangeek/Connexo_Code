@@ -1,6 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import org.junit.After;
 import org.junit.Before;
@@ -9,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Arrays;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
@@ -25,8 +29,24 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ServiceLocator serviceLocator;
+
     @Mock
-    private TypeCache<ValidationRuleSet> factory;
+    private TypeCache<ValidationRule> ruleFactory;
+    @Mock
+    private TypeCache<ValidationRuleSet> setFactory;
+
+    @Before
+    public void setUp() {
+        when(serviceLocator.getOrmClient().getValidationRuleSetFactory()).thenReturn(setFactory);
+        when(serviceLocator.getOrmClient().getValidationRuleFactory()).thenReturn(ruleFactory);
+        validationRuleSet = new ValidationRuleSetImpl(NAME);
+
+        Bus.setServiceLocator(serviceLocator);
+    }
+    @After
+    public void tearDown() {
+        Bus.clearServiceLocator(serviceLocator);
+    }
 
     @Override
     protected Object getInstanceA() {
@@ -37,7 +57,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         return validationRuleSet;
     }
 
-    private void setId(ValidationRuleSetImpl entity, long id) {
+    private void setId(Object entity, long id) {
         field("id").ofType(Long.TYPE).in(entity).set(id);
     }
 
@@ -65,18 +85,6 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         return null;
     }
 
-    @Before
-    public void setUp() {
-        validationRuleSet = new ValidationRuleSetImpl(NAME);
-
-        Bus.setServiceLocator(serviceLocator);
-    }
-
-    @After
-    public void tearDown() {
-        Bus.clearServiceLocator(serviceLocator);
-    }
-
     @Test
     public void testGetNameAfterCreation() {
         assertThat(validationRuleSet.getName()).isEqualTo(NAME);
@@ -84,25 +92,81 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testPersist() {
-        when(serviceLocator.getOrmClient().getValidationRuleSetFactory()).thenReturn(factory);
-
         validationRuleSet.save();
 
-        verify(factory).persist(validationRuleSet);
+        verify(setFactory).persist(validationRuleSet);
     }
 
     @Test
     public void testUpdate() {
-        when(serviceLocator.getOrmClient().getValidationRuleSetFactory()).thenReturn(factory);
-        simulateSaved();
+        setId(validationRuleSet, ID);
 
         validationRuleSet.save();
 
-        verify(factory).update(validationRuleSet);
+        verify(setFactory).update(validationRuleSet);
 
     }
 
-    private void simulateSaved() {
-        field("id").ofType(Long.TYPE).in(validationRuleSet).set(ID);
+    @Test
+    public void testPersistWithRules() {
+        ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+
+        validationRuleSet.save();
+
+        verify(setFactory).persist(validationRuleSet);
+        verify(ruleFactory).persist(rule1);
     }
+
+    @Test
+    public void testDeleteWithRules() {
+        ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        setId(validationRuleSet, ID);
+        setId(rule1, 1001L);
+
+        validationRuleSet.delete();
+
+        verify(setFactory).remove(validationRuleSet);
+    }
+
+    @Test
+    public void testUpdateWithRulesPerformsNecessaryDBOperations() {
+        setId(validationRuleSet, ID);
+        ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        setId(rule1, 1001L);
+        ValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B");
+        setId(rule2, 1002L);
+        when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
+
+        validationRuleSet.deleteRule(rule1);
+        ValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C");
+
+        validationRuleSet.save();
+
+        verify(setFactory).update(validationRuleSet);
+        verify(ruleFactory).remove(rule1);
+        verify(ruleFactory).update(rule2);
+        verify(ruleFactory).persist(rule3);
+
+    }
+
+    @Test
+    public void testUpdateWithRulesProperlyUpdatesPositions() {
+        setId(validationRuleSet, ID);
+        ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        setId(rule1, 1001L);
+        ValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B");
+        setId(rule2, 1002L);
+        when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
+
+        validationRuleSet.deleteRule(rule1);
+        ValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C");
+
+        validationRuleSet.save();
+
+        assertThat(field("position").ofType(Integer.TYPE).in(rule2).get()).isEqualTo(1);
+        assertThat(field("position").ofType(Integer.TYPE).in(rule3).get()).isEqualTo(2);
+
+    }
+
+
 }

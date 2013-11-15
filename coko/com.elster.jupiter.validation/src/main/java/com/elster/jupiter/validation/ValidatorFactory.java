@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface ValidatorFactory {
 
-    ThreadLocal<List<String>> available();
+    List<String> available();
 
     Validator create(String implementation);
 }

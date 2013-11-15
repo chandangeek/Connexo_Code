@@ -1,11 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.*;
 
-public class ValidationRuleImpl implements ValidationRule {
+public final class ValidationRuleImpl implements ValidationRule {
 
     private long id;
     private boolean active;
@@ -39,9 +36,9 @@ public class ValidationRuleImpl implements ValidationRule {
     @Override
     public Validator getValidator() {
         if (validator == null) {
-            validator = Bus.getValidationService().getValidator(this.implementation);
+            validator = Bus.getValidator(this.implementation);
             if (validator == null) {
-
+                throw new ValidatorNotFoundException(implementation);
             }
         }
         return validator;
@@ -101,6 +98,20 @@ public class ValidationRuleImpl implements ValidationRule {
         StringBuilder builder = new StringBuilder();
         builder.append(getImplementation()).append(' ').append(getAction().name()).append(' ').append(isActive());
         return builder.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        return id == ((ValidationRuleImpl) o).id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 
     private void setActive(boolean active) {

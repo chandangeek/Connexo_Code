@@ -4,8 +4,8 @@ import com.elster.jupiter.util.exception.BaseException;
 
 public class ValidatorNotFoundException extends BaseException {
 
-    public ValidatorNotFoundException(String validator) {
+    public ValidatorNotFoundException(String implementation) {
         super(ExceptionTypes.NO_SUCH_VALIDATOR, "Validator {0} does not exist.");
-        set("validator", validator);
+        set("implementation", implementation);
     }
 }
