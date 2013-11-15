@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.QueryUsagePointGroup;
@@ -238,7 +239,19 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Override
-    public Optional<QueryUsagePointGroup> getQueryUsagePointGroup(long id) {
+    public Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id) {
         return getOrmClient().getQueryUsagePointGroupFactory().get(id);
+    }
+
+    @Override
+    public EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name) {
+        EnumeratedUsagePointGroup group = new EnumeratedUsagePointGroupImpl();
+        group.setName(name);
+        return group;
+    }
+
+    @Override
+    public Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id) {
+        return getOrmClient().getEnumeratedUsagePointGroupFactory().get(id);
     }
 }
