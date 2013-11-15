@@ -7,7 +7,7 @@ import org.osgi.service.component.annotations.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component(name = "com.elster.jupiter.validators.DefaultValidatorFactory", service = ValidatorFactory.class, immediate=true)
+@Component(name = "com.elster.jupiter.validators.DefaultValidatorFactory", service = ValidatorFactory.class, immediate = true)
 public class DefaultValidatorFactory implements ValidatorFactory {
 
     static final String RatedPowerValidator = "com.elster.jupiter.validators.RatedPowerValidator";
@@ -16,25 +16,20 @@ public class DefaultValidatorFactory implements ValidatorFactory {
     static final String ConsecutiveZerosValidator = "com.elster.jupiter.validators.ConsecutiveZerosValidator";
 
     @Override
-    public ThreadLocal<List<String>> available() {
-        ThreadLocal<List<String>> validators = new ThreadLocal<List<String>>() {
-            protected List<String> initialValue() {
-                List<String> result = new ArrayList<String>();
-                result.add(RatedPowerValidator);
-                result.add(MinimalUsageExpectedValidator);
-                result.add(MinMaxValidator);
-                result.add(ConsecutiveZerosValidator);
-                return result;
-            }
-        };
-        return validators;
+    public List<String> available() {
+        List<String> result = new ArrayList<String>();
+        result.add(RatedPowerValidator);
+        result.add(MinimalUsageExpectedValidator);
+        result.add(MinMaxValidator);
+        result.add(ConsecutiveZerosValidator);
+        return result;
     }
 
     @Override
     public Validator create(String implementation) {
         if (implementation.equals(RatedPowerValidator)) {
             return new RatedPowerValidator();
-        } else if  (implementation.equals(MinimalUsageExpectedValidator)) {
+        } else if (implementation.equals(MinimalUsageExpectedValidator)) {
             return new MinimalUsageExpectedValidator();
         } else if (implementation.equals(MinMaxValidator)) {
             return new MinMaxValidator();
