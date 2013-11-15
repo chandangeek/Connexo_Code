@@ -13,6 +13,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -33,21 +34,21 @@ public class ComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortsInfo getComPorts() {
-        ComPortsInfo comPortsInfo = new ComPortsInfo();
-        for (ComPort comPort : comPortService.findAll()) {
-                comPortsInfo.comPorts.add(new ComPortInfo(comPort));
+    public ComPortsInfo getComPorts(@QueryParam("filter") JSONArray filter) {
+        ComPortsInfo comPorts = new ComPortsInfo();
+        if(filter!=null){
+            Filter comPortFilter = new Filter(filter);
+            ComServer comServer = comServerService.find(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
+            for (ComPort comPort : comPortService.findByComServer(comServer)){
+                comPorts.comPorts.add(new ComPortInfo(comPort));
+            }
+        } else {
+            for (ComPort comPort : comPortService.findAll()) {
+                    comPorts.comPorts.add(new ComPortInfo(comPort));
+            }
         }
-        return comPortsInfo;
+        return comPorts;
     }
-
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public ComPortsInfo getComPorts(@QueryParam("filter") JSONArray filter) {
-//        ComPortsInfo comPortsInfo = new ComPortsInfo();
-//        findByFilter(filter, comPortsInfo);
-//        return comPortsInfo;
-//    }
 //
     private void findByFilter(JSONArray filter, ComPortsInfo comPorts) {
         Filter comPortFilter = new Filter(filter);
