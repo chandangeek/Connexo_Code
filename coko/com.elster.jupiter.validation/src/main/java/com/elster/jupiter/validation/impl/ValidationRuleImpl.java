@@ -190,6 +190,11 @@ public final class ValidationRuleImpl implements ValidationRule {
         return newProperty;
     }
 
+    @Override
+    public void deleteProperty(ValidationRuleProperties property) {
+        doGetProperties().remove(property);
+    }
+
     private TypeCache<ValidationRuleProperties> rulePropertiesFactory() {
         return Bus.getOrmClient().getValidationRulePropertiesFactory();
     }

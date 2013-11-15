@@ -28,4 +28,6 @@ public interface ValidationRule {
     List<ValidationRuleProperties> getProperties();
 
     ValidationRuleProperties addProperty(String name, long value);
+
+    void deleteProperty(ValidationRuleProperties property);
 }

@@ -153,11 +153,11 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
 
     private void doPersist() {
         validationRuleSetFactory().persist(this);
-        Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
         for (ValidationRule rule : doGetRules()) {
             ((ValidationRuleImpl) rule).setRuleSetId(getId());
             ((ValidationRuleImpl) rule).save();
         }
+        Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
     }
 
     private TypeCache<ValidationRule> ruleFactory() {
@@ -200,6 +200,7 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
         return newRule;
     }
 
+    @Override
     public void deleteRule(ValidationRule rule) {
         doGetRules();
         rules.remove(rule);
