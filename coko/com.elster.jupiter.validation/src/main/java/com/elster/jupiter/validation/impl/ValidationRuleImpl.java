@@ -104,6 +104,9 @@ public final class ValidationRuleImpl implements ValidationRule {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(getImplementation()).append(' ').append(getAction().name()).append(' ').append(isActive());
+        for (ValidationRuleProperties property : doGetProperties()) {
+            builder.append(property.toString()).append('\n');
+        }
         return builder.toString();
     }
 
@@ -183,11 +186,13 @@ public final class ValidationRuleImpl implements ValidationRule {
     @Override
     public ValidationRuleProperties addProperty(String name, long value) {
         ValidationRulePropertiesImpl newProperty = new ValidationRulePropertiesImpl(this, name, value);
-        properties.add(newProperty);
+        doGetProperties().add(newProperty);
         return newProperty;
     }
 
     private TypeCache<ValidationRuleProperties> rulePropertiesFactory() {
         return Bus.getOrmClient().getValidationRulePropertiesFactory();
     }
+
+
 }

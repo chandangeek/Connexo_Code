@@ -81,6 +81,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
         return getOrmClient().getValidationRuleSetFactory().get(id);
     }
 
+    @Override
+    public List<ValidationRuleSet> getValidationRuleSets() {
+        return getOrmClient().getValidationRuleSetFactory().find();
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
     public void addResource(ValidatorFactory validatorfactory) {
         validatorFactories.add(validatorfactory);
