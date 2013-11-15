@@ -22,4 +22,5 @@ public interface ValidationRule {
     void setImplementation(String implementation);
 
     void setPosition(int position);
+
 }

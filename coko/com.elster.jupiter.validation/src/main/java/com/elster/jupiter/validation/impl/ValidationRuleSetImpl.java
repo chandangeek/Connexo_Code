@@ -138,15 +138,15 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
             entryDiff.addAll(rules);
         }
         for (ValidationRule rule : entryDiff.getRemovals()) {
-            ruleFactory().remove(rule);
+            ((ValidationRuleImpl) rule).delete();
         }
 
         for (ValidationRule rule : entryDiff.getRemaining()) {
-            ruleFactory().update(rule);
+            ((ValidationRuleImpl) rule).save();
         }
 
         for (ValidationRule rule : entryDiff.getAdditions()) {
-            ruleFactory().persist(rule);
+            ((ValidationRuleImpl) rule).save();
         }
         Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
     }
@@ -156,7 +156,7 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
         Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
         for (ValidationRule rule : doGetRules()) {
             ((ValidationRuleImpl) rule).setRuleSetId(getId());
-            ruleFactory().persist(rule);
+            ((ValidationRuleImpl) rule).save();
         }
     }
 

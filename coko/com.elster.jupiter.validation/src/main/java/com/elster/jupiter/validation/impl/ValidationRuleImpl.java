@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.*;
 
 public final class ValidationRuleImpl implements ValidationRule {
@@ -116,5 +117,29 @@ public final class ValidationRuleImpl implements ValidationRule {
 
     private void setActive(boolean active) {
         this.active = active;
+    }
+
+    private TypeCache<ValidationRule> ruleFactory() {
+        return Bus.getOrmClient().getValidationRuleFactory();
+    }
+
+    public void delete() {
+        ruleFactory().remove(this);
+    }
+
+    public void save() {
+        if (getId() == 0) {
+            doPersist();
+        } else {
+            doUpdate();
+        }
+    }
+
+    private void doUpdate() {
+        ruleFactory().update(this);
+    }
+
+    private void doPersist() {
+        ruleFactory().persist(this);
     }
 }
