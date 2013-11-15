@@ -1,7 +1,11 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ManagerFactory;
+import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.servers.ComServer;
+import com.energyict.mdc.services.ComPortService;
+import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,12 +16,46 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.json.JSONArray;
 
 @Path("/comports")
 public class ComPortResource {
 
+    private final ComPortService comPortService;
+    private final ComServerService comServerService;
+
     public ComPortResource(@Context Application application) {
 //        deviceProtocolFactoryService=((ServiceLocator)((ResourceConfig)application).getApplication()).getDeviceProtocolFactoryService();
+        comPortService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getComPortService();
+        comServerService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getComServerService();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComPortsInfo getComPorts() {
+        ComPortsInfo comPortsInfo = new ComPortsInfo();
+        for (ComPort comPort : comPortService.findAll()) {
+                comPortsInfo.comPorts.add(new ComPortInfo(comPort));
+        }
+        return comPortsInfo;
+    }
+
+//    @GET
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public ComPortsInfo getComPorts(@QueryParam("filter") JSONArray filter) {
+//        ComPortsInfo comPortsInfo = new ComPortsInfo();
+//        findByFilter(filter, comPortsInfo);
+//        return comPortsInfo;
+//    }
+//
+    private void findByFilter(JSONArray filter, ComPortsInfo comPorts) {
+        Filter comPortFilter = new Filter(filter);
+        int comserver_id = Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id"));
+        ComServer comServer = comServerService.find(comserver_id);
+        for (ComPort comPort : comPortService.findByComServer(comServer)){
+            comPorts.comPorts.add(new ComPortInfo(comPort));
+        }
     }
 
     @GET

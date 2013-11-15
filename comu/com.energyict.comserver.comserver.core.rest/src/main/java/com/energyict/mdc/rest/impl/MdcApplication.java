@@ -1,8 +1,9 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.cpo.Environment;
-import com.energyict.mdc.services.DeviceProtocolFactoryService;
+import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
+import com.energyict.mdc.services.DeviceProtocolFactoryService;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
@@ -18,6 +19,7 @@ public class MdcApplication extends Application {
 
     private volatile DeviceProtocolFactoryService deviceProtocolFactoryService;
     private volatile ComServerService comServerService;
+    private volatile ComPortService comPortService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -55,4 +57,12 @@ public class MdcApplication extends Application {
         this.comServerService = comServerService;
     }
 
+    public ComPortService getComPortService() {
+        return comPortService;
+    }
+
+    @Reference
+    public void setComPortService(ComPortService comPortService) {
+        this.comPortService = comPortService;
+    }
 }
