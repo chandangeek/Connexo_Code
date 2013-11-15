@@ -21,7 +21,16 @@ Ext.define('Mdc.model.ComServer', {
     associations: [
         {name: 'changesInterPollDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'changesInterPollDelay'},
         {name: 'schedulingInterPollDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'schedulingInterPollDelay'},
-        {name: 'comPorts',type: 'hasMany',model:'Mdc.model.ComPort',foreignKey: 'comserver_id',associationKey: 'comPorts'}
+        {name: 'comPorts',type: 'hasMany',model:'Mdc.model.ComPort',foreignKey: 'comserver_id',associationKey: 'comPorts', storeConfig: {
+            proxy: {
+                type: 'rest',
+                url: '../../api/mdc/comports',
+                reader: {
+                    type: 'json',
+                    root: 'ComPorts'
+                }
+            }
+        }}
     ],
     proxy: {
         type: 'rest',

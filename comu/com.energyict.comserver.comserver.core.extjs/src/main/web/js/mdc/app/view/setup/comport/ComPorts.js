@@ -16,6 +16,8 @@ Ext.define('Mdc.view.setup.comport.ComPorts', {
                     '<tr>' +
                     '<td>description: </td>' +
                     '<td>{description}</td>' +
+                    '<td>modificationDate:</td>' +
+                    '<td>{modificationDate:date("d/m/Y - h:i:s")}</td>'+
                     '</tr>'+
                     '</table>',
                 flex:1

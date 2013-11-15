@@ -11,6 +11,7 @@ Ext.define('Mdc.Application', {
         'Main',
         'setup.SetupOverview',
         'setup.ComServers',
+        'setup.ComPorts',
         'history.Setup',
         'setup.DeviceCommunicationProtocol'
     ],

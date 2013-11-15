@@ -5,7 +5,7 @@ Ext.define('Mdc.model.ComPort', {
         'name',
         'comPortType',
         'description',
-        'modificationDate',
+        {name:'modificationDate',type: 'date',dateFormat:'time'},
         'numberOfSimultaneousConnections',
         'active',
         'bound',
@@ -15,8 +15,7 @@ Ext.define('Mdc.model.ComPort', {
         type: 'rest',
         url: '../../api/mdc/comports',
         reader: {
-            type: 'json',
-            root: 'ComPorts'
+            type: 'json'
         }
     }
 });
