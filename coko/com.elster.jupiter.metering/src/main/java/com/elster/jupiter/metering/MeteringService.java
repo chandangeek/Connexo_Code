@@ -40,5 +40,9 @@ public interface MeteringService {
 
     QueryUsagePointGroup createQueryUqagePointGroup(Condition condition);
 
-    Optional<QueryUsagePointGroup> getQueryUsagePointGroup(long id);
+    Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id);
+
+    EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name);
+
+    Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id);
 }
