@@ -3,7 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 
-public class ValidationRulePropertiesImpl implements ValidationRuleProperties {
+public final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private String name;
     private long value;
@@ -47,5 +47,25 @@ public class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     public void setRuleId(long ruleId) {
         this.ruleId = ruleId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ValidationRulePropertiesImpl that = (ValidationRulePropertiesImpl) o;
+
+        if (ruleId != that.ruleId) return false;
+        if (!name.equals(that.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + (int) (ruleId ^ (ruleId >>> 32));
+        return result;
     }
 }
