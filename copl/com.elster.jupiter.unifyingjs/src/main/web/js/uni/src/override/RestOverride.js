@@ -12,12 +12,14 @@ Ext.define('Uni.override.RestOverride', {
             id = record ? record.getId() : operation.id;
 
         // Encodes HTML characters such as '/' and '@'.
-        id = encodeURIComponent(id);
+        if (id !== undefined) {
+            id = encodeURIComponent(id);
 
-        if (record) {
-            record.setId(id);
-        } else {
-            operation.id = id;
+            if (record) {
+                record.setId(id);
+            } else {
+                operation.id = id;
+            }
         }
 
         return me.callParent(arguments);
