@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public final class ValidationRuleSetImpl implements ValidationRuleSet {
+final class ValidationRuleSetImpl implements ValidationRuleSet {
 
     private long id;
     private String mRID;

@@ -3,7 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 
-public final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
+final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private String name;
     private long value;

@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -113,13 +114,14 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public void applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
-        //TODO automatically generated method body, provide implementation.
+        Optional<MeterActivationValidation> found = Bus.getOrmClient().getMeterActivationValidationFactory().get(meterActivation.getId());
+        MeterActivationValidation meterActivationValidation = found.or(new MeterActivationValidationImpl(meterActivation));
+        meterActivationValidation.setRuleSet(ruleSet);
 
-    }
+        for (Channel channel : meterActivation.getChannels()) {
+            ChannelValidation channelValidation = meterActivationValidation.addChannelValidation(channel);
+        }
 
-    @Override
-    public Optional<ValidationRuleSet> ruleSetFor(MeterActivation meterActivation) {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        meterActivationValidation.save();
     }
 }
