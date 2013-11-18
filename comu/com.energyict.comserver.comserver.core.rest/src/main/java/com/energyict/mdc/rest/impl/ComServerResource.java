@@ -3,6 +3,7 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
+import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -36,7 +37,7 @@ public class ComServerResource {
         ComServersInfo comservers = new ComServersInfo();
         for (ComServer comServer : comServerService.findAll()) {
             if (comServer instanceof OnlineComServer) {
-                comservers.comServers.add(new OnlineComServerInfo(uriInfo, (OnlineComServer) comServer));
+                comservers.comServers.add(new OnlineComServerInfo((OnlineComServer) comServer));
             } else {
                 throw new WebApplicationException("Unsupported ComServer type:"+comServer.getClass().getName(), Response.Status.INTERNAL_SERVER_ERROR);
             }
@@ -47,8 +48,8 @@ public class ComServerResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public OnlineComServerInfo getComServer(@Context UriInfo uriInfo, @PathParam("id") int id) {
-        return new OnlineComServerInfo(uriInfo, (OnlineComServer) comServerService.find(id));
+    public OnlineComServerInfo getComServer(@PathParam("id") int id) {
+        return new OnlineComServerInfo((OnlineComServer) comServerService.find(id));
     }
 
     @DELETE
@@ -70,7 +71,7 @@ public class ComServerResource {
     public ComServerInfo createComServer(OnlineComServerInfo comServerInfo) {
 //        if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
-                return new ComServerInfo(comServerService.createOnline(comServerInfo.asShadow()));
+                return new ComServerInfo(comServerService.createOnline(comServerInfo.asShadow(new OnlineComServerShadow())));
             } catch (Exception e) {
                 throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
             }
@@ -86,7 +87,9 @@ public class ComServerResource {
     public ComServerInfo updateComServer(@PathParam("id") int id, OnlineComServerInfo comServerInfo) {
 //        if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
-                return new ComServerInfo(comServerService.updateComServer(id, comServerInfo.asShadow()));
+                OnlineComServer comServer = (OnlineComServer) comServerService.find(id);
+
+                return new ComServerInfo(comServerService.updateComServer(id, comServerInfo.asShadow(comServer.getShadow())));
             } catch (Exception e) {
                 throw new WebApplicationException(e, Response.serverError().build());
             }
