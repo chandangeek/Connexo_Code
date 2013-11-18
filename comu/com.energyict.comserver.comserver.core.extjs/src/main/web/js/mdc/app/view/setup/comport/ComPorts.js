@@ -24,6 +24,17 @@ Ext.define('Mdc.view.setup.comport.ComPorts', {
             }
         ];
 
+        this.buttons = [
+            {
+                text: 'Add',
+                action: 'add'
+            },
+            {
+                text: 'Delete',
+                action: 'delete'
+            }
+        ];
+
         this.callParent();
     }
 });

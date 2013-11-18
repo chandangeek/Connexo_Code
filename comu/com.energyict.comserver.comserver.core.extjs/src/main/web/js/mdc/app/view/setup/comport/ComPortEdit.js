@@ -10,7 +10,7 @@ Ext.define('Mdc.view.setup.comport.ComPortEdit', {
 
 
     initComponent: function () {
-
+        var comporttypes = Ext.create('Mdc.store.ComPortTypes');
         this.items = [
             {
                 xtype: 'form',
@@ -36,9 +36,13 @@ Ext.define('Mdc.view.setup.comport.ComPortEdit', {
                                 fieldLabel: 'Name'
                             },
                             {
-                                xtype: 'textfield',
+                                xtype: 'combobox',
                                 name: 'comPortType',
-                                fieldLabel: 'comPortType'
+                                fieldLabel: 'Communication port type',
+                                store: comporttypes,
+                                queryMode: 'local',
+                                displayField: 'comPortType',
+                                valueField: 'comPortType'
                             },
                             {
                                 xtype: 'textfield',

@@ -14,6 +14,18 @@ Ext.define('Mdc.controller.setup.ComPorts', {
         this.control({
             'comPorts': {
                 itemdblclick: this.editComPort
+            },
+            'comPorts button[action=add]': {
+                click: this.add
+            },
+            'comPorts button[action=delete]': {
+                click: this.delete
+            },
+            'comPortEdit button[action=save]': {
+                click: this.update
+            },
+            'comPortEdit button[action=cancel]': {
+                click: this.cancel
             }
         });
     },
@@ -38,5 +50,32 @@ Ext.define('Mdc.controller.setup.ComPorts', {
 //            Mdc.getApplication().getMainController().showContent(view);
 //        }
 
+    },
+
+    update: function(button){
+        var me = this;
+        var pnl = button.up('panel'),
+            form = pnl.down('form'),
+            record = form.getRecord() || Ext.create(Mdc.model.ComServer),
+            values = form.getValues();
+        record.set(values);
+        record.save({
+            success: function (record, operation) {
+                me.showComServerOverview();
+            }
+        });
+    },
+
+    cancel: function(){
+        console.log('cancel');
+        Ext.History.back();
+    },
+
+    add: function(){
+        console.log('add');
+    },
+
+    delete: function(){
+        console.log('delete');
     }
 });
