@@ -45,4 +45,6 @@ public interface MeteringService {
     EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name);
 
     Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id);
+
+    Optional<MeterActivation> findMeterActivation(long meterActivationId);
 }

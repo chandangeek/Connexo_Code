@@ -254,4 +254,9 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     public Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id) {
         return getOrmClient().getEnumeratedUsagePointGroupFactory().get(id);
     }
+
+    @Override
+    public Optional<MeterActivation> findMeterActivation(long id) {
+        return getOrmClient().getMeterActivationFactory().get(id);
+    }
 }
