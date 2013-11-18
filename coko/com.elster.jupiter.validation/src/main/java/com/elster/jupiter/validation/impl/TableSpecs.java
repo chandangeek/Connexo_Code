@@ -42,7 +42,7 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column nameColumn = table.addColumn("NAME", "varchar2(80)", true, NOCONVERSION, "name");
-            table.addColumn("VALUE", "number", true, NUMBER2LONG, "value");
+            table.addColumn("VALUE", "number", true, NOCONVERSION, "value");
             Column ruleIdColumn = table.addColumn("RULEID", "number", true, NUMBER2LONG, "ruleId");
             table.addPrimaryKeyConstraint("VAL_PK_VALRULEPROPS", ruleIdColumn, nameColumn);
             table.addForeignKeyConstraint("VAL_FK_RULEPROPS", "VAL_VALIDATIONRULE", CASCADE, new AssociationMapping("rule"), ruleIdColumn);
