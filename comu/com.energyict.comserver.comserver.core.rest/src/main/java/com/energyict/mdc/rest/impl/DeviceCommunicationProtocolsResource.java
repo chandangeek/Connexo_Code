@@ -73,7 +73,7 @@ public class DeviceCommunicationProtocolsResource {
         try {
             PluggableClass pluggableClass = deviceProtocolService.create(deviceCommunicationProtocolInfo.asShadow());
             //TODO check if we just can't return the object we received
-            return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(deviceCommunicationProtocolInfo.id));
+            return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(pluggableClass.getId()));
         } catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -87,7 +87,7 @@ public class DeviceCommunicationProtocolsResource {
         try {
             PluggableClass pluggableClass = deviceProtocolService.update(id, deviceCommunicationProtocolInfo.asShadow());
             //TODO check if we just can't return the object we received
-            return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(deviceCommunicationProtocolInfo.id));
+            return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(pluggableClass.getId()));
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }

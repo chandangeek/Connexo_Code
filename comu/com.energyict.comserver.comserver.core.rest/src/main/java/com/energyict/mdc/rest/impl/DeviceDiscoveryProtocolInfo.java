@@ -39,7 +39,7 @@ public class DeviceDiscoveryProtocolInfo {
         PluggableClassShadow shadow = new PluggableClassShadow();
         shadow.setName(this.name);
         shadow.setJavaClassName(this.javaClassName);
-        shadow.setPluggableType(PluggableClassType.DEVICEPROTOCOL);
+        shadow.setPluggableType(PluggableClassType.DISCOVERYPROTOCOL);
         return shadow;
     }
 }
