@@ -6,7 +6,7 @@ import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.DeviceProtocolService;
 import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
-import com.energyict.mdc.services.InboundDeviceProtocolService
+import com.energyict.mdc.services.InboundDeviceProtocolService;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
