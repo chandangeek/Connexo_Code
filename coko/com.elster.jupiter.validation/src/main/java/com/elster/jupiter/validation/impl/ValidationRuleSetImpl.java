@@ -3,12 +3,10 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.google.common.collect.FluentIterable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -183,7 +181,7 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
         return  rules;
     }
 
-    private ArrayList<ValidationRule> loadRules() {
+    private List<ValidationRule> loadRules() {
         ArrayList<ValidationRule> validationRules = new ArrayList<>();
         for (ValidationRule validationRule : ruleFactory().find()) {
             if (this.equals(validationRule.getRuleSet())) {

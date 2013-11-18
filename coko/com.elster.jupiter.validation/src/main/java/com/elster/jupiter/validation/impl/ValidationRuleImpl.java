@@ -6,6 +6,7 @@ import com.elster.jupiter.validation.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public final class ValidationRuleImpl implements ValidationRule {
 
@@ -16,13 +17,16 @@ public final class ValidationRuleImpl implements ValidationRule {
 
     private long ruleSetId;
 
+    @SuppressWarnings("unused")
     private int position;
     private transient ValidationRuleSet ruleSet;
     private transient Validator validator;
 
     private List<ValidationRuleProperties> properties;
 
-    private ValidationRuleImpl() {}     //for persistence
+    private ValidationRuleImpl() {
+        //for persistence
+    }
 
     public ValidationRuleImpl(ValidationRuleSet ruleSet, ValidationAction action, String implementation, int position) {
         this.ruleSet = ruleSet;
@@ -112,8 +116,12 @@ public final class ValidationRuleImpl implements ValidationRule {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         return id == ((ValidationRuleImpl) o).id;
 
@@ -121,7 +129,7 @@ public final class ValidationRuleImpl implements ValidationRule {
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return Objects.hash(id);
     }
 
     private void setActive(boolean active) {
@@ -170,10 +178,10 @@ public final class ValidationRuleImpl implements ValidationRule {
         if (properties == null) {
             properties = loadProperties();
         }
-        return  properties;
+        return properties;
     }
 
-    private ArrayList<ValidationRuleProperties> loadProperties() {
+    private List<ValidationRuleProperties> loadProperties() {
         ArrayList<ValidationRuleProperties> validationRulesProperties = new ArrayList<>();
         for (ValidationRuleProperties property : rulePropertiesFactory().find()) {
             if (this.equals(property.getRule())) {
