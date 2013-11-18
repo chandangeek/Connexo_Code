@@ -1,6 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.servers.ComServer;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,5 +61,24 @@ public class FieldResource {
             public List<Object> timeUnits = timeUnitStrings;
         };
 
+    }
+
+    @GET
+    @Path("/comPortType")
+    public Object getComPortTypes() {
+        final List<Object> allComPortTypes = new ArrayList<>();
+        /**
+         * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
+         * wrapped with meaningful field name.
+         */
+        final Object wrapper = new Object(){
+            public List<Object> comPortTypes = allComPortTypes;
+        };
+        for (final ComPortType comPortTypeEnum : ComPortType.values()) {
+            allComPortTypes.add(new Object(){
+                public String comPortType = comPortTypeEnum.name();
+            });
+        }
+        return wrapper;
     }
 }

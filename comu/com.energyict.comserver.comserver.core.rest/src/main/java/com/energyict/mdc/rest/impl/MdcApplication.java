@@ -1,21 +1,21 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.cpo.Environment;
+import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.DeviceProtocolService;
 import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
-import com.energyict.mdc.services.InboundDeviceProtocolService;
+import com.energyict.mdc.services.InboundDeviceProtocolService
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.google.common.collect.ImmutableSet;
+import java.util.Set;
+import javax.ws.rs.core.Application;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-
-import javax.ws.rs.core.Application;
-import java.util.Set;
 
 @Component(name = "com.elster.mdc.rest", service = Application.class, immediate = true, property = {"alias=/mdc"})
 public class MdcApplication extends Application {
@@ -23,6 +23,7 @@ public class MdcApplication extends Application {
     private volatile DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
     private volatile DeviceProtocolService deviceProtocolService;
     private volatile ComServerService comServerService;
+    private volatile ComPortService comPortService;
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
 
@@ -37,7 +38,6 @@ public class MdcApplication extends Application {
 
     @Activate
     public void activate(BundleContext context) {
-        System.out.println("Starting the MDC application in the MDC Rest bundle");
         MeteringWarehouse.createBatchContext(true);
     }
 
@@ -46,14 +46,6 @@ public class MdcApplication extends Application {
         Environment.getDefault().closeConnection();
     }
 
-    public ComServerService getComServerService() {
-        return comServerService;
-    }
-
-    @Reference
-    public void setComServerService(ComServerService comServerService) {
-        this.comServerService = comServerService;
-    }
 
     @Reference
     public void setDeviceProtocolPluggableClassService(DeviceProtocolPluggableClassService deviceProtocolPluggableClassService) {
@@ -69,6 +61,23 @@ public class MdcApplication extends Application {
         this.deviceProtocolService = deviceProtocolService;
     }
 
+    public ComServerService getComServerService() {
+        return comServerService;
+    }
+
+    @Reference
+    public void setComServerService(ComServerService comServerService) {
+        this.comServerService = comServerService;
+    }
+    
+    public ComPortService getComPortService() {
+        return comPortService;
+    }
+
+    @Reference
+    public void setComPortService(ComPortService comPortService) {
+        this.comPortService = comPortService;
+    }
     public DeviceProtocolService getDeviceProtocolService() {
         return deviceProtocolService;
     }
