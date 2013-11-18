@@ -1,20 +1,24 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.comserver.exceptions.CodingException;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.services.DeviceProtocolFactoryService;
-import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
+import com.energyict.mdc.services.DeviceProtocolService;
 import com.energyict.mdw.core.PluggableClass;
-import com.energyict.mdw.core.PluggableClassType;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Copyrights EnergyICT
@@ -24,42 +28,29 @@ import java.util.Set;
 @Path("/devicecommunicationprotocols")
 public class DeviceCommunicationProtocolsResource {
 
-    private final DeviceProtocolFactoryService deviceProtocolFactoryService;
+    private final DeviceProtocolService deviceProtocolService;
+    private final DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
 
     public DeviceCommunicationProtocolsResource(@Context Application application) {
-        this.deviceProtocolFactoryService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getDeviceProtocolFactoryService();
+        this.deviceProtocolPluggableClassService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getDeviceProtocolPluggableClassService();
+        this.deviceProtocolService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getDeviceProtocolService();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolsInfo getDeviceCommunicationProtocols() {
-        Set<SimpleDeviceProtocolPluggableClass> deviceCommunicationProtocolInfoList = new HashSet<>();
-        for (PluggableClass pluggableClass : MeteringWarehouse.getCurrent().getPluggableClassFactory().findByType(PluggableClassType.DEVICEPROTOCOL)) {
-            try {
-                deviceCommunicationProtocolInfoList.add(new SimpleDeviceProtocolPluggableClass(pluggableClass, createDeviceProtocolPluggableClass(pluggableClass)));
-            } catch (CodingException e) {
-                if (e.getMessageId().equals("CSC-DEV-125")) {
-                    // this is just the genericReflection Error, we could make it more precise by checking if it was a ClassNotFound
-                    System.out.println(e.getMessage());
-                }
-            }
+        DeviceCommunicationProtocolsInfo deviceCommunicationProtocolInfos = new DeviceCommunicationProtocolsInfo();
+        for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : this.deviceProtocolPluggableClassService.findAll()) {
+            deviceCommunicationProtocolInfos.deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(deviceProtocolPluggableClass));
         }
-        return new DeviceCommunicationProtocolsInfo(deviceCommunicationProtocolInfoList);
+        return deviceCommunicationProtocolInfos;
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@PathParam("id") int id) {
-        PluggableClass pluggableClass = MeteringWarehouse.getCurrent().getPluggableClassFactory().find(id);
-        if (pluggableClass == null) {
-            throw new WebApplicationException("Unsupported DeviceCommunicationProtocol ID : " + id, Response.Status.NOT_FOUND);
-        }
-        return new DeviceCommunicationProtocolInfo(new SimpleDeviceProtocolPluggableClass(pluggableClass, createDeviceProtocolPluggableClass(pluggableClass)));
-    }
-
-    private DeviceProtocol createDeviceProtocolPluggableClass(PluggableClass pluggableClass) {
-        return this.deviceProtocolFactoryService.createDeviceProtocolFor(pluggableClass);
+        return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(id));
     }
 
     @DELETE
@@ -67,7 +58,7 @@ public class DeviceCommunicationProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteDeviceCommunicationProtocol(@PathParam("id") int id) {
         try {
-            this.deviceProtocolFactoryService.deleteDeviceProtocol(id);
+            this.deviceProtocolService.delete(id);
         } catch (Exception e) {
             throw new WebApplicationException(Response.serverError().build());
         }
@@ -78,10 +69,11 @@ public class DeviceCommunicationProtocolsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) {
+    public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws WebApplicationException {
         try {
-            PluggableClass pluggableClass = deviceProtocolFactoryService.createDeviceProtocol(deviceCommunicationProtocolInfo.asShadow());
-            return new DeviceCommunicationProtocolInfo(new SimpleDeviceProtocolPluggableClass(pluggableClass, createDeviceProtocolPluggableClass(pluggableClass)));
+            PluggableClass pluggableClass = deviceProtocolService.create(deviceCommunicationProtocolInfo.asShadow());
+            //TODO check if we just can't return the object we received
+            return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(deviceCommunicationProtocolInfo.id));
         } catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -93,8 +85,9 @@ public class DeviceCommunicationProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolInfo updateDeviceCommunicationProtocol(@PathParam("id") int id, DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) {
         try {
-            PluggableClass pluggableClass = deviceProtocolFactoryService.updateDeviceProtocol(id, deviceCommunicationProtocolInfo.asShadow());
-            return new DeviceCommunicationProtocolInfo(new SimpleDeviceProtocolPluggableClass(pluggableClass, createDeviceProtocolPluggableClass(pluggableClass)));
+            PluggableClass pluggableClass = deviceProtocolService.update(id, deviceCommunicationProtocolInfo.asShadow());
+            //TODO check if we just can't return the object we received
+            return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(deviceCommunicationProtocolInfo.id));
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }
