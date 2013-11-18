@@ -12,6 +12,7 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 import static org.fest.reflect.core.Reflection.field;
@@ -30,7 +31,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     public static final String PROPERTY_NAME = "min";
     public static final String PROPERTY_NAME_2 = "max";
     public static final String PROPERTY_NAME_3 = "other_property";
-    public static final long PROPERTY_VALUE = 100;
+    public static final BigDecimal PROPERTY_VALUE = new BigDecimal(100);
 
     private ValidationRuleImpl validationRule;
 

@@ -1,21 +1,19 @@
 package com.elster.jupiter.validation.impl;
 
-import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.reflect.core.Reflection.field;
+import java.math.BigDecimal;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationRulePropertiesImplTest extends EqualsContractTest {
 
     public static final String MIN = "min";
-    public static final int VALUE = 100;
+    public static final BigDecimal VALUE = new BigDecimal(100);
     public static final String MAX = "max";
-    public static final int OTHER_VALUE = 1000;
+    public static final BigDecimal OTHER_VALUE = new BigDecimal(1000);
     private ValidationRulePropertiesImpl property;
 
     @Mock

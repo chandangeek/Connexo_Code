@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -192,7 +193,7 @@ public final class ValidationRuleImpl implements ValidationRule {
     }
 
     @Override
-    public ValidationRuleProperties addProperty(String name, long value) {
+    public ValidationRuleProperties addProperty(String name, BigDecimal value) {
         ValidationRulePropertiesImpl newProperty = new ValidationRulePropertiesImpl(this, name, value);
         doGetProperties().add(newProperty);
         return newProperty;

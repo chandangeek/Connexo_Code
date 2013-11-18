@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface ValidationRule {
@@ -27,7 +28,7 @@ public interface ValidationRule {
 
     List<ValidationRuleProperties> getProperties();
 
-    ValidationRuleProperties addProperty(String name, long value);
+    ValidationRuleProperties addProperty(String name, BigDecimal value);
 
     void deleteProperty(ValidationRuleProperties property);
 }
