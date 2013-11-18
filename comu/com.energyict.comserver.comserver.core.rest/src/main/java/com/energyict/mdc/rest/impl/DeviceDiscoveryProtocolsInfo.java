@@ -8,12 +8,13 @@ import java.util.HashSet;
 
 /**
  * Copyrights EnergyICT
- * Date: 05/11/13
- * Time: 11:21
+ * Date: 15/11/13
+ * Time: 12:16
  */
 @XmlRootElement
-public class DeviceCommunicationProtocolsInfo {
+public class DeviceDiscoveryProtocolsInfo {
+
     @XmlElement
-    @XmlElementWrapper(name = "DeviceProtocolPluggableClass")
-    public Collection<? super DeviceCommunicationProtocolInfo> deviceCommunicationProtocolInfos = new HashSet<>();
+    @XmlElementWrapper(name = "InboundDeviceProtocolPluggableClass")
+    public Collection<? super DeviceDiscoveryProtocolInfo> deviceDiscoveryProtocolInfos = new HashSet<>();
 }
