@@ -9,13 +9,13 @@ import com.energyict.mdc.ports.UDPBasedInboundComPort;
 public class ComPortInfoFactory {
     public static ComPortInfo asInfo(ComPort comPort) {
         if (TCPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
-            return new TcpComPortInfo((TCPBasedInboundComPort) comPort);
+            return new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort);
         }
         if (ModemBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
-            return new ModemComPortInfo((ModemBasedInboundComPort) comPort);
+            return new ModemInboundComPortInfo((ModemBasedInboundComPort) comPort);
         }
         if (UDPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
-            return new UdpComPortInfo((UDPBasedInboundComPort) comPort);
+            return new UdpInboundComPortInfo((UDPBasedInboundComPort) comPort);
         }
         if (OutboundComPort.class.isAssignableFrom(comPort.getClass())) {
             return new OutboundComPortInfo((OutboundComPort) comPort);

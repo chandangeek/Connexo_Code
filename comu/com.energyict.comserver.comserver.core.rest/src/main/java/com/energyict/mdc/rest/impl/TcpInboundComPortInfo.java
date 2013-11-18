@@ -3,15 +3,15 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
 
-public class TcpComPortInfo extends ComPortInfo {
+public class TcpInboundComPortInfo extends ComPortInfo {
     public int comPortPool_id;
     public int numberOfSimultaneousConnections;
     public int portNumber;
 
-    public TcpComPortInfo() {
+    public TcpInboundComPortInfo() {
     }
 
-    public TcpComPortInfo(TCPBasedInboundComPort comPort) {
+    public TcpInboundComPortInfo(TCPBasedInboundComPort comPort) {
         super(comPort);
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
         this.portNumber = comPort.getPortNumber();

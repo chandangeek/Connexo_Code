@@ -1,7 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
@@ -50,6 +49,6 @@ public class ComPortResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortInfo getComPort(@PathParam("id") int id) {
-        return new TcpComPortInfo((TCPBasedInboundComPort) comPortService.find(id));
+        return ComPortInfoFactory.asInfo(comPortService.find(id));
     }
 }

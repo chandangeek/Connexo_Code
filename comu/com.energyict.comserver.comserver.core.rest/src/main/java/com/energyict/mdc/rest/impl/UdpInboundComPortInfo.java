@@ -4,12 +4,12 @@ import com.energyict.mdc.ports.UDPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 import com.energyict.mdc.shadow.ports.UDPBasedInboundComPortShadow;
 
-public class UdpComPortInfo extends ComPortInfo {
+public class UdpInboundComPortInfo extends ComPortInfo {
 
-    public UdpComPortInfo() {
+    public UdpInboundComPortInfo() {
     }
 
-    public UdpComPortInfo(UDPBasedInboundComPort comPort) {
+    public UdpInboundComPortInfo(UDPBasedInboundComPort comPort) {
         super(comPort);
     }
 

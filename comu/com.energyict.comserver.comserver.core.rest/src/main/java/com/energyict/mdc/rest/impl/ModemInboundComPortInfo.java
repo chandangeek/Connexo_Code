@@ -3,12 +3,12 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.ports.ModemBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
 
-public class ModemComPortInfo extends ComPortInfo {
+public class ModemInboundComPortInfo extends ComPortInfo {
 
-    public ModemComPortInfo() {
+    public ModemInboundComPortInfo() {
     }
 
-    public ModemComPortInfo(ModemBasedInboundComPort comPort) {
+    public ModemInboundComPortInfo(ModemBasedInboundComPort comPort) {
         super(comPort);
     }
 
