@@ -22,4 +22,13 @@ public class InboundDeviceProtocolServiceImpl extends AbstractPluggableClassServ
             throw CodingException.genericReflectionError(e, pluggableClass.getJavaClassName());
         }
     }
+
+    @Override
+    public InboundDeviceProtocol createInboundDeviceProtocolFor(String javaClassName) {
+        try {
+            return (InboundDeviceProtocol) (Class.forName(javaClassName)).newInstance();
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw CodingException.genericReflectionError(e, javaClassName);
+        }
+    }
 }

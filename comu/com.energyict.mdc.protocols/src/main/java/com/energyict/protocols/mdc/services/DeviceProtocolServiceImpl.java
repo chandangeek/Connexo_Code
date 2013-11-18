@@ -32,6 +32,17 @@ public class DeviceProtocolServiceImpl extends AbstractPluggableClassServiceImpl
         }
     }
 
+    @Override
+    public DeviceProtocol createDeviceProtocolFor(String javaClassName) {
+        try {
+            Pluggable pluggable = (Pluggable) (Class.forName(javaClassName)).newInstance();
+            return checkForProtocolWrappers(pluggable);
+        } catch (BusinessException e) {
+            throw CodingException.genericReflectionError(e, javaClassName);
+        } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+            throw CodingException.genericReflectionError(e, javaClassName);
+        }    }
+
     /**
      * Check if the given {@link Pluggable} needs a Protocol adapter to create a {@link DeviceProtocol}
      *
