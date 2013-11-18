@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
@@ -108,5 +109,17 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Override
     public ValidationService getValidationService() {
         return this;
+    }
+
+    @Override
+    public void applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
+        //TODO automatically generated method body, provide implementation.
+
+    }
+
+    @Override
+    public Optional<ValidationRuleSet> ruleSetFor(MeterActivation meterActivation) {
+        //TODO automatically generated method body, provide implementation.
+        return null;
     }
 }
