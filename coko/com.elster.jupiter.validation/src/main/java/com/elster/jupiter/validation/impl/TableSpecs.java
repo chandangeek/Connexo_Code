@@ -51,7 +51,7 @@ public enum TableSpecs {
     VAL_MA_VALIDATION {
         @Override
         void describeTable(Table table) {
-            Column idColumn = table.addColumn("ID", "number", true, NUMBER2LONG, "id", "ID", true);
+            Column idColumn = table.addColumn("ID", "number", true, NUMBER2LONG, "id");
             Column ruleSetIdColumn = table.addColumn("RULESETID", "number", false, NUMBER2LONG, "ruleSetId");
             table.addColumn("LASTRUN", "number", false, NUMBER2UTCINSTANT, "lastRun");
             table.addPrimaryKeyConstraint("VAL_PK_MA_VALIDATION", idColumn);
@@ -62,8 +62,8 @@ public enum TableSpecs {
     VAL_CH_VALIDATION {
         @Override
         void describeTable(Table table) {
-            Column idColumn = table.addColumn("ID", "number", true, NUMBER2LONG, "id", "ID", true);
-            Column meterActivationValidationColumn = table.addColumn("RULESETID", "number", false, NUMBER2LONG, "ruleSetId");
+            Column idColumn = table.addColumn("ID", "number", true, NUMBER2LONG, "id");
+            Column meterActivationValidationColumn = table.addColumn("MAV_ID", "number", false, NUMBER2LONG, "meterActivationValidationId");
             table.addColumn("LASTCHECKED", "number", false, NUMBER2UTCINSTANT, "lastChecked");
             table.addPrimaryKeyConstraint("VAL_PK_CH_VALIDATION", idColumn);
             table.addForeignKeyConstraint("VAL_FK_CH_VALIDATION_CH", "MTR", "MTR_CHANNEL", DeleteRule.RESTRICT, "channel", idColumn);
