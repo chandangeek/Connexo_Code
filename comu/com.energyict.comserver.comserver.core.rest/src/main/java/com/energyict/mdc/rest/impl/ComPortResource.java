@@ -5,8 +5,6 @@ import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
-import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -51,7 +49,7 @@ public class ComPortResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ComPortInfo getComPort(@Context UriInfo uriInfo, @PathParam("id") int id) {
+    public ComPortInfo getComPort(@PathParam("id") int id) {
         return new TcpComPortInfo((TCPBasedInboundComPort) comPortService.find(id));
     }
 }
