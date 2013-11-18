@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.cbo.LittleEndianOutputStream;
 import com.energyict.cbo.Password;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.protocolsmdc.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.meterdata.CollectedAddressProperties;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.ports.InboundComPort;

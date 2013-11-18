@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.cpo.TypedProperties;
-import com.energyict.protocolsmdc.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;

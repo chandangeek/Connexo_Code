@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.eict.eiweb;
 import com.energyict.comserver.time.Clocks;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.protocolsmdc.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.mdc.channels.inbound.EIWebConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.LegacyMessageConverter;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;

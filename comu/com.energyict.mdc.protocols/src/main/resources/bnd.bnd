@@ -1,3 +1,2 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.energyict.mdc.protocols.impl

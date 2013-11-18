@@ -18,7 +18,7 @@ import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.protocolsmdc.protocoltasks.ACE4000DeviceProtocolDialect;
+import com.energyict.protocols.mdc.protocoltasks.ACE4000DeviceProtocolDialect;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
