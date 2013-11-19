@@ -109,16 +109,22 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     @Override
     public void validate(Interval interval) {
         for (Channel channel : getMeterActivation().getChannels()) {
-            for (ValidationRule validationRule : getRuleSet().getRules()) {
-                for (ReadingType channelReadingType : channel.getReadingTypes()) {
-                    if (validationRule.getReadingTypes().contains(channelReadingType)) {
-                        ValidationStats stats = validationRule.getValidator().validate(channel, channelReadingType, interval);
-                        validationForChannel(channel).setLastChecked(Bus.getClock().now());
-                    }
+            validateChannel(interval, channel);
+        }
+        lastRun = new UtcInstant(Bus.getClock().now());
+        save();
+    }
+
+    private void validateChannel(Interval interval, Channel channel) {
+        for (ValidationRule validationRule : getRuleSet().getRules()) {
+            ChannelValidation channelValidation = validationForChannel(channel);
+            for (ReadingType channelReadingType : channel.getReadingTypes()) {
+                if (validationRule.getReadingTypes().contains(channelReadingType)) {
+                    ValidationStats stats = validationRule.getValidator().validate(channel, channelReadingType, interval);
+                    channelValidation.setLastChecked(stats.getLastChecked());
                 }
             }
         }
-
     }
 
     private ChannelValidation validationForChannel(Channel channel) {
@@ -127,6 +133,6 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
                 return channelValidation;
             }
         }
-        return null;
+        return addChannelValidation(channel);
     }
 }
