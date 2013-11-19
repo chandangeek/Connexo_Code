@@ -133,7 +133,7 @@ public enum Unit {
     MINUTE("minute", "min", Dimension.TIME, BigDecimal.valueOf(60)),
     HOUR("hour", "h", Dimension.TIME, Constants.BD3600),
     QUANTITY_POWER_45("quantity power 45", "Q45",Dimension.DIMENSIONLESS),
-    QUANTITY_POWER_60("quantity power 45", "Q45",Dimension.DIMENSIONLESS),
+    QUANTITY_POWER_60("quantity power 60", "Q60",Dimension.DIMENSIONLESS),
     QUANTITY_ENERGY_45("quantity energy 45", "Q45h",Dimension.DIMENSIONLESS),
     QUANTITY_ENERGY_60("quantity energy 60", "Q60h",Dimension.DIMENSIONLESS),
     JOULES_PER_KG("joule per kg","J/kg",Dimension.SPECIFIC_ENERGY),

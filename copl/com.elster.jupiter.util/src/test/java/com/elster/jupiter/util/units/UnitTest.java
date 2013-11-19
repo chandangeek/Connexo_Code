@@ -3,6 +3,8 @@ package com.elster.jupiter.util.units;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -29,6 +31,15 @@ public class UnitTest {
         for (Unit unit : Unit.values()) {
             assertThat(Unit.get(unit.getAsciiSymbol())).isEqualTo(unit);
         }
+    }
+    
+    @Test
+    public void testName() {
+    	Set<String> set = new HashSet<>();
+    	for (Unit unit : Unit.values()) {
+    		set.add(unit.getName());
+    	}
+    	assertThat(Unit.values().length == set.size());
     }
 
     @Test(expected = IllegalArgumentException.class)
