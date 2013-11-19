@@ -35,4 +35,6 @@ public interface ValidationRule {
     void deleteProperty(ValidationRuleProperties property);
 
     List<ReadingType> getReadingTypes();
+
+    void addReadingType(ReadingType readingType);
 }

@@ -233,5 +233,13 @@ final class ValidationRuleImpl implements ValidationRule {
         return readingTypesInRule;
     }
 
+    @Override
+    public void addReadingType(ReadingType readingType) {
+        ReadingTypeInValidationRuleImpl readingTypeInValidationRule =
+                new ReadingTypeInValidationRuleImpl(this, readingType);
+        doGetReadingTypesInValidationRule().add(readingTypeInValidationRule);
+        Bus.getOrmClient().getReadingTypesInValidationRuleFactory().persist(readingTypeInValidationRule);
+    }
+
 
 }
