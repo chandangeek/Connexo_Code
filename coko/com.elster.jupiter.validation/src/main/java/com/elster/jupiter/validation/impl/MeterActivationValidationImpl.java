@@ -2,12 +2,15 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationStats;
 import com.google.common.collect.FluentIterable;
 
 import java.util.Collections;
@@ -104,12 +107,26 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     }
 
     @Override
-    public void validate() {
+    public void validate(Interval interval) {
         for (Channel channel : getMeterActivation().getChannels()) {
             for (ValidationRule validationRule : getRuleSet().getRules()) {
-
+                for (ReadingType channelReadingType : channel.getReadingTypes()) {
+                    if (validationRule.getReadingTypes().contains(channelReadingType)) {
+                        ValidationStats stats = validationRule.getValidator().validate(channel, channelReadingType, interval);
+                        validationForChannel(channel).setLastChecked(Bus.getClock().now());
+                    }
+                }
             }
         }
 
+    }
+
+    private ChannelValidation validationForChannel(Channel channel) {
+        for (ChannelValidation channelValidation : getChannelValidations()) {
+            if (channelValidation.getChannel().equals(channel)) {
+                return channelValidation;
+            }
+        }
+        return null;
     }
 }

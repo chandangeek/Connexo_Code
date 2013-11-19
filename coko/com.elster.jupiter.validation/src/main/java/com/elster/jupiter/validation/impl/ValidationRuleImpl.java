@@ -16,9 +16,11 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 final class ValidationRuleImpl implements ValidationRule {
 
@@ -249,8 +251,8 @@ final class ValidationRuleImpl implements ValidationRule {
     }
 
     @Override
-    public List<ReadingType> getReadingTypes() {
-        List<ReadingType> result = new ArrayList<ReadingType>();
+    public Set<ReadingType> getReadingTypes() {
+        Set<ReadingType> result = new HashSet<>();
         for (ReadingTypeInValidationRule readingTypeInRule : getReadingTypesInRule()) {
             result.add(readingTypeInRule.getReadingType());
         }

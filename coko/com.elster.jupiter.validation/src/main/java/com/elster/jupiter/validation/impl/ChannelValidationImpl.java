@@ -51,6 +51,13 @@ final class ChannelValidationImpl implements ChannelValidation {
         lastChecked = new UtcInstant(date);
     }
 
+    public Channel getChannel() {
+        if (channel == null) {
+            channel = Bus.getMeteringService().findChannel(id).get();
+        }
+        return channel;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

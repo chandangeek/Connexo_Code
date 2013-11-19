@@ -5,6 +5,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface ValidationRule {
     long getId();
@@ -37,7 +38,7 @@ public interface ValidationRule {
 
     Map<String, Quantity> getProps();
 
-    List<ReadingType> getReadingTypes();
+    Set<ReadingType> getReadingTypes();
 
     ReadingTypeInValidationRule addReadingType(ReadingType readingType);
 }

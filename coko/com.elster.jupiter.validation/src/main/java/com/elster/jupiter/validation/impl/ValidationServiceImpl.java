@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.*;
 import com.google.common.base.Optional;
@@ -26,6 +27,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private volatile ComponentCache componentCache;
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
+    private volatile Clock clock;
     private volatile List<ValidatorFactory> validatorFactories = new ArrayList<ValidatorFactory>();
 
     @Activate
@@ -85,6 +87,16 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Override
+    public Clock getClock() {
+        return clock;
     }
 
     @Override
