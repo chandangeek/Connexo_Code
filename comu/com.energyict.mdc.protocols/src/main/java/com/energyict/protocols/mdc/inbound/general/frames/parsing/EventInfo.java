@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general.frames.parsing;
 
 import com.energyict.cim.EndDeviceEventTypeMapping;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 
@@ -21,7 +21,7 @@ import java.util.TimeZone;
 public class EventInfo {
 
     private static final int UNKNOWN = 0;
-    private static final String PROTOCOL_EVENTVALUE = Environment.getDefault().getTranslation("protocol.eventvalue");
+    private static final String PROTOCOL_EVENTVALUE = EnvironmentImpl.getDefault().getTranslation("protocol.eventvalue");
     private String info;
     private int logBookId;
 

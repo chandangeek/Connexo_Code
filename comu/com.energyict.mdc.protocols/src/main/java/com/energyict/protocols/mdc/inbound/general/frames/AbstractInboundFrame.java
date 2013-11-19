@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.protocols.mdc.inbound.general.frames.parsing.InboundParameters;
 import com.energyict.mdw.core.Device;
@@ -95,7 +95,7 @@ public abstract class AbstractInboundFrame {
     private boolean findDevice() {
         this.serialNumberPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
         device = getDeviceIdentifierBySerialNumberPlaceHolder().findDevice();
-        Environment.getDefault().closeConnection();
+        EnvironmentImpl.getDefault().closeConnection();
         return device != null;
     }
 

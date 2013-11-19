@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.genericprotocolimpl.common.StoreObject;
@@ -200,7 +200,7 @@ public abstract class AbstractGenericMbusPoolingProtocol extends MbusMessages {
 //            log(Level.FINEST, e.getMessage());
 //
 //            /** Close the connection after an SQL exception, connection will startup again if requested */
-//            Environment.getDefault().closeConnection();
+//            EnvironmentImpl.getDefault().closeConnection();
 //
 //            throw new BusinessException(e);
 //        } finally {
@@ -208,7 +208,7 @@ public abstract class AbstractGenericMbusPoolingProtocol extends MbusMessages {
 //                getLogger().info("Meter " + getFullShadow().getRtuShadow().getSerialNumber() + " has completely finished.");
 //            }
 //            if (getStoreObject() != null) {
-//                Environment.getDefault().execute(getStoreObject());
+//                EnvironmentImpl.getDefault().execute(getStoreObject());
 //            }
 //        }
 //    }
@@ -217,7 +217,7 @@ public abstract class AbstractGenericMbusPoolingProtocol extends MbusMessages {
      * Closes the current databaseConnection (if we have one)
      */
     protected void releaseConnectionFromPool() {
-        Environment.getDefault().closeConnection();
+        EnvironmentImpl.getDefault().closeConnection();
     }
 
     public Logger getLogger() {

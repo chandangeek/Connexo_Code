@@ -340,7 +340,7 @@ public class MK10Push {
 //                sendDebug("** SQLException **", 1);
 //                e.printStackTrace();
 //                // Close the connection after an SQL exception, connection will startup again if requested
-//                Environment.getDefault().closeConnection();
+//                EnvironmentImpl.getDefault().closeConnection();
 //                throw e;
 //            }
 //        }

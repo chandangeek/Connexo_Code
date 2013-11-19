@@ -30,9 +30,9 @@ public class RtuDLMSCache
     private int version;
     private int associationlevel;
     private String objectdescription;
-    
+
     private int iNROfObjects;
-    
+
     /** Creates a new instance of RtuDLMSCache */
     public RtuDLMSCache(int rtuid)
     {
@@ -46,15 +46,15 @@ public class RtuDLMSCache
         objectdescription=null;
         iNROfObjects=0;
     }
-    
+
     synchronized public void saveObjectList(UniversalObject[] universalObject) throws SQLException {
        for (int i=0;i<universalObject.length;i++) {
-          longname = universalObject[i].getLN(); 
+          longname = universalObject[i].getLN();
           shortname = universalObject[i].getBaseName();
           classid = universalObject[i].getClassID();
           version = universalObject[i].getVersion();
           objectdescription = DLMSUtils.getInfoLN(universalObject[i].getLNArray());
-         
+
           try {
              doInsert();
           }
@@ -64,11 +64,11 @@ public class RtuDLMSCache
              }
              else throw e;
           }
-         
+
        } // for (int i=0;i<universalObject.length;i++)
-       
+
     } // synchronized public void saveObjectList(UniversalObject[] universalObject)
-    
+
     public UniversalObject[] getObjectList () throws SQLException
     {
        PreparedStatement statement = null;
@@ -76,7 +76,7 @@ public class RtuDLMSCache
        UniversalObject universalObject = null;
        List UniversalObjectList = new ArrayList();
        Connection connection = getDefaultConnection();
-       
+
        try
        {
           statement = connection.prepareStatement(
@@ -88,7 +88,7 @@ public class RtuDLMSCache
           do
           {
               iNROfObjects++;
-              
+
               // Retrieve field values from ctable
               logicaldevice = resultSet.getInt(1);
               longname = resultSet.getString(2);
@@ -105,7 +105,7 @@ public class RtuDLMSCache
               universalObject.setVersion(version);
               universalObject.setLN(longname);
               UniversalObjectList.add(universalObject);
-              
+
           } while (resultSet.next());
        }
        finally
@@ -113,19 +113,19 @@ public class RtuDLMSCache
           if (resultSet != null) resultSet.close();
           if (statement != null) statement.close();
        }
-      
+
        UniversalObject[] uarray = new UniversalObject[UniversalObjectList.size()];
        for (int i = 0;i<UniversalObjectList.size();i++) uarray[i] = (UniversalObject)UniversalObjectList.get(i);
 
        return uarray;
-       
+
     } // public UniversalObject[] getObjectList (Connection connection, int iRtuID) throws SQLException
 
     public void clearCache() throws SQLException
     {
        Statement statement = null;
        Connection connection = getDefaultConnection();
-       
+
        try
        {
           statement = connection.createStatement();
@@ -136,14 +136,14 @@ public class RtuDLMSCache
        {
           if (statement != null) statement.close();
        }
-       
+
     } // public void clearCache()
-    
+
     private void doInsert() throws SQLException {
        Connection connection = getDefaultConnection();
        PreparedStatement statement = connection.prepareStatement(
     		   "insert into eisdlmscache (RTUID, LOGICALDEVICE, LONGNAME, SHORTNAME, CLASSID, VERSION, ASSOCIATIONLEVEL, OBJECTDESCRIPTION) values(?,0,?,?,?,?,0,?)");
-                        
+
        try {
     	   statement.setInt(1,rtuid);
     	   statement.setString(2,longname);
@@ -156,7 +156,7 @@ public class RtuDLMSCache
     	   statement.close();
        }
     } // private doInsert() throws SQLException
-    
+
     private void doUpdate() throws SQLException
     {
        PreparedStatement statement = null;
@@ -171,16 +171,16 @@ public class RtuDLMSCache
           statement.setInt(4,0);
           statement.setString(5,objectdescription);
           statement.setInt(6,rtuid);
-          statement.setString(7,longname);          
+          statement.setString(7,longname);
           statement.executeUpdate();
        } finally {
     	   statement.close();
        }
-      
+
     } // private void doUpdate() throws SQLException
-    
+
     private Connection getDefaultConnection() {
-       return Environment.getDefault().getConnection();
+       return EnvironmentImpl.getDefault().getConnection();
     }
 
 } // public class RtuDLMSCache

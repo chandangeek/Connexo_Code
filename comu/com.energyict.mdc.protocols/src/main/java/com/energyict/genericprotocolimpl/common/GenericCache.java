@@ -12,26 +12,26 @@ import java.sql.SQLException;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.DatabaseException;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.cpo.SqlBuilder;
 import com.energyict.cpo.Transaction;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 
 /**
- * 
+ *
  * @author gna
  *
  */
 public class GenericCache {
-	
+
 	public static Object startCacheMechanism(Device meter) throws FileNotFoundException, IOException {
 		Object cacheObject = null;
 		SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? ");
         builder.bindInt(meter.getId());
         PreparedStatement stmnt;
 		try {
-			stmnt = builder.getStatement(Environment.getDefault().getConnection());
+			stmnt = builder.getStatement(EnvironmentImpl.getDefault().getConnection());
 
 	        try {
 	              InputStream in = null;
@@ -62,7 +62,7 @@ public class GenericCache {
 		}
 		return cacheObject;
 	}
-	
+
 	public static void stopCacheMechanism(final Device meter, final Object cacheObject) throws BusinessException, SQLException {
 		Transaction tr = new Transaction() {
 			public Object doExecute() throws SQLException, BusinessException {
@@ -74,13 +74,13 @@ public class GenericCache {
 			private void createOrUpdateDeviceCache() throws SQLException {
 				SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ?");
 				builder.bindInt(meter.getId());
-				PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		
+				PreparedStatement stmnt = builder.getStatement(EnvironmentImpl.getDefault().getConnection());
 				try {
 					ResultSet rs = stmnt.executeQuery();
 					if (!rs.next()) {
 						builder = new SqlBuilder("insert into eisdevicecache (rtuid, content, mod_date) values (?,empty_blob(),sysdate)");
 						builder.bindInt(meter.getId());
-						PreparedStatement insertStmnt = builder.getStatement(Environment.getDefault().getConnection());
+						PreparedStatement insertStmnt = builder.getStatement(EnvironmentImpl.getDefault().getConnection());
 						try {
 							insertStmnt.executeUpdate();
 						}
@@ -96,7 +96,7 @@ public class GenericCache {
 			private void updateCacheContent() throws SQLException {
 				SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? for update");
 				builder.bindInt(meter.getId());
-				PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());		
+				PreparedStatement stmnt = builder.getStatement(EnvironmentImpl.getDefault().getConnection());
 				try {
 					ResultSet rs = stmnt.executeQuery();
 					if (!rs.next()) {
@@ -127,5 +127,5 @@ public class GenericCache {
 			throw new SQLException("Failed to execute the stopCacheMechanism." + e);
 		}
 	}
-	
+
 }

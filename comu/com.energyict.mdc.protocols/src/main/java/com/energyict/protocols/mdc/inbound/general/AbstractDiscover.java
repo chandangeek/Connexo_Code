@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
@@ -32,8 +32,8 @@ import java.util.List;
  */
 public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
 
-    private static final String TIMEOUT_KEY = Environment.getDefault().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = Environment.getDefault().getTranslation("protocol.retries");
+    private static final String TIMEOUT_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.timeout");
+    private static final String RETRIES_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.retries");
 
     private static final int TIMEOUT_DEFAULT = 10000;          //TODO are these defaults OK ?
     private static final int RETRIES_DEFAULT = 2;

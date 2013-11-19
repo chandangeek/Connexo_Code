@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;
@@ -339,7 +339,7 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages {
 //            if (!databaseException) {
 //                updateCache(this.scheduler.getRtu().getId(), getDlmsCache());
 //                if (getStoreObject() != null) {
-//                    Environment.getDefault().execute(getStoreObject());
+//                    EnvironmentImpl.getDefault().execute(getStoreObject());
 //                }
 //            }
 //        }
@@ -349,7 +349,7 @@ public abstract class AbstractGenericPoolingProtocol extends MeterMessages {
      * Closes the current databaseConnection (if we have one)
      */
     protected void releaseConnectionFromPool() {
-        Environment.getDefault().closeConnection();
+        EnvironmentImpl.getDefault().closeConnection();
     }
 
 //    protected CommunicationScheduler getCommunicationScheduler() {
