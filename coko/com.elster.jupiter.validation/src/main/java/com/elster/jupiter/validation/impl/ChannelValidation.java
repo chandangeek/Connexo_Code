@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.Channel;
+
 import java.util.Date;
 
 interface ChannelValidation {
@@ -11,4 +13,6 @@ interface ChannelValidation {
     Date getLastChecked();
 
     void setLastChecked(Date date);
+
+    Channel getChannel();
 }

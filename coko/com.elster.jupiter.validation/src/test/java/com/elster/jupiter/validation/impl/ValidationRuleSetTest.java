@@ -1,9 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,10 +71,10 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
+    protected Iterable<?> getInstancesNotEqualToA() {
         ValidationRuleSetImpl set = new ValidationRuleSetImpl(NAME);
         setId(set, OTHER_ID);
-        return set;
+        return ImmutableList.of(set);
     }
 
     @Override

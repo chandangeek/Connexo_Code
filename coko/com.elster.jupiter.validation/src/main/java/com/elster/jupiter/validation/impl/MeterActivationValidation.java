@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import java.util.Set;
@@ -22,5 +23,5 @@ public interface MeterActivationValidation {
 
     Set<ChannelValidation> getChannelValidations();
 
-    void validate();
+    void validate(Interval interval);
 }

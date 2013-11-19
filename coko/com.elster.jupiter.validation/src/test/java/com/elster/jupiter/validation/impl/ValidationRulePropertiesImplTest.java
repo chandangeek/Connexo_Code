@@ -1,8 +1,10 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationRule;
+import com.google.common.collect.ImmutableList;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -35,8 +37,8 @@ public class ValidationRulePropertiesImplTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
-        return new ValidationRulePropertiesImpl(rule, MAX, OTHER_VALUE);
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return ImmutableList.of(new ValidationRulePropertiesImpl(rule, MAX, OTHER_VALUE));
     }
 
     @Override
