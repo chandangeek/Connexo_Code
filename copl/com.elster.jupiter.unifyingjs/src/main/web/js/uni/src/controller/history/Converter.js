@@ -5,10 +5,6 @@ Ext.define('Uni.controller.history.Converter', {
         'Uni.controller.history.EventBus'
     ],
 
-    config: {
-        rootToken: null
-    },
-
     rootToken: null, // Implemented by extending classes.
 
     init: function () {
@@ -17,7 +13,7 @@ Ext.define('Uni.controller.history.Converter', {
 
         eventBus.addTokenObserver(function (tokens) {
             me.doConversion(tokens);
-        }, me.getRootToken());
+        }, me.rootToken);
     },
 
     doConversion: function (tokens) {
