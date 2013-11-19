@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation;
 
+import com.elster.jupiter.metering.ReadingType;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -32,5 +34,5 @@ public interface ValidationRule {
 
     void deleteProperty(ValidationRuleProperties property);
 
-    List<ReadingTypeInValidationRule> getReadingTypesInRule();
+    List<ReadingType> getReadingTypes();
 }

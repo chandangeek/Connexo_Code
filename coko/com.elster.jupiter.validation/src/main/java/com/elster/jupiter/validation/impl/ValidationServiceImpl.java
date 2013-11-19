@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
@@ -22,6 +23,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private volatile OrmClient ormClient;
     private volatile ComponentCache componentCache;
     private volatile EventService eventService;
+    private volatile MeteringService meteringService;
     private volatile List<ValidatorFactory> validatorFactories = new ArrayList<ValidatorFactory>();
 
     @Activate
@@ -50,6 +52,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
+    public MeteringService getMeteringService() {
+        return meteringService;
+    }
+
+    @Override
     public EventService getEventService() {
         return eventService;
     }
@@ -69,8 +76,13 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Reference
-    public void setEventService(EventService eventService) {
+     public void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Override

@@ -35,11 +35,6 @@ class OrmClientImpl implements OrmClient {
     }
 
     @Override
-    public TypeCache<ReadingType> getReadingTypeFactory() {
-        return Bus.getComponentCache().getTypeCache(ReadingType.class, ReadingTypeImpl.class, com.elster.jupiter.metering.impl.TableSpecs.MTR_READINGTYPE.name());
-    }
-
-    @Override
     public DataMapper<ReadingTypeInValidationRule> getReadingTypesInValidationRuleFactory() {
         return dataModel.getDataMapper(ReadingTypeInValidationRule.class, ReadingTypeInValidationRuleImpl.class, TableSpecs.VAL_READINGTYPEINVALRULE.name());
     }

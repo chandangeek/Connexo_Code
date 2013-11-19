@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.*;
 import com.google.common.collect.ImmutableList;
@@ -212,9 +213,17 @@ final class ValidationRuleImpl implements ValidationRule {
         return Bus.getOrmClient().getValidationRulePropertiesFactory();
     }
 
-    @Override
     public List<ReadingTypeInValidationRule> getReadingTypesInRule() {
         return ImmutableList.copyOf(doGetReadingTypesInValidationRule());
+    }
+
+    @Override
+    public List<ReadingType> getReadingTypes() {
+        List<ReadingType> result = new ArrayList<ReadingType>();
+        for (ReadingTypeInValidationRule readingTypeInRule : getReadingTypesInRule()) {
+            result.add(readingTypeInRule.getReadingType());
+        }
+        return result;
     }
 
     private List<ReadingTypeInValidationRule> doGetReadingTypesInValidationRule() {

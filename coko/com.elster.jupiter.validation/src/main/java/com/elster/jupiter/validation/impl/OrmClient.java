@@ -22,8 +22,6 @@ interface OrmClient {
 
     TypeCache<ValidationRuleProperties> getValidationRulePropertiesFactory();
 
-    TypeCache<ReadingType> getReadingTypeFactory();
-
     DataMapper<ReadingTypeInValidationRule> getReadingTypesInValidationRuleFactory();
 
     DataMapper<MeterActivationValidation> getMeterActivationValidationFactory();
