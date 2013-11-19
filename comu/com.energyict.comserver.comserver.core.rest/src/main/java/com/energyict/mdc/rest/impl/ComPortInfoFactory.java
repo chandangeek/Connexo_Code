@@ -5,9 +5,10 @@ import com.energyict.mdc.ports.ModemBasedInboundComPort;
 import com.energyict.mdc.ports.OutboundComPort;
 import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.ports.UDPBasedInboundComPort;
+import com.energyict.mdc.shadow.ports.ComPortShadow;
 
 public class ComPortInfoFactory {
-    public static ComPortInfo asInfo(ComPort comPort) {
+    public static ComPortInfo<? extends ComPortShadow> asInfo(ComPort comPort) {
         if (TCPBasedInboundComPort.class.isAssignableFrom(comPort.getClass())) {
             return new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort);
         }

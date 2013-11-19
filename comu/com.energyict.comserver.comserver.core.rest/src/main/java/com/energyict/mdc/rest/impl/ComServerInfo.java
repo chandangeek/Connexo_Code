@@ -22,14 +22,12 @@ public class ComServerInfo {
 
     public int id;
     public String name;
-
     public boolean active;
-
     public ComServer.LogLevel serverLogLevel;
     public ComServer.LogLevel communicationLogLevel;
     public TimeDurationInfo changesInterPollDelay;
     public TimeDurationInfo schedulingInterPollDelay;
-    public List<ComPortInfo> comPorts;
+    public List<ComPortInfo<? extends ComPortShadow>> comPorts;
 
     public ComServerInfo() {
     }
