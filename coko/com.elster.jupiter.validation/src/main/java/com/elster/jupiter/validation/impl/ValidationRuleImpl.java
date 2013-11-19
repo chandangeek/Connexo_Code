@@ -265,7 +265,7 @@ final class ValidationRuleImpl implements ValidationRule {
     }
 
     private List<ReadingTypeInValidationRule> loadReadingTypesInValidationRule() {
-        return readingTypesInRuleFactory().find("rule",this);
+        return readingTypesInRuleFactory().find("ruleId",this.getId());
     }
 
     @Override
@@ -278,7 +278,7 @@ final class ValidationRuleImpl implements ValidationRule {
 
     private ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType){
         for (ReadingTypeInValidationRule readingTypeInValidationRule : doGetReadingTypesInValidationRule()) {
-            if (readingTypeInValidationRule.equals(readingType)) {
+            if (readingTypeInValidationRule.getReadingType().equals(readingType)) {
                 return readingTypeInValidationRule;
             }
         }

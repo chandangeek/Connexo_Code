@@ -73,10 +73,9 @@ public enum TableSpecs {
 
     VAL_READINGTYPEINVALRULE {
         void describeTable(Table table) {
-            Column idColumn = table.addAutoIdColumn();
             Column ruleIdColumn = table.addColumn("RULEID", "number", true, NUMBER2LONG, "ruleId");
             Column readingTypeMRIDColumn = table.addColumn("READINGTYPEMRID","varchar2(80)",true,NOCONVERSION,"readingTypeMRID");
-            table.addPrimaryKeyConstraint("VAL_PK_RTYPEINVALRULE", idColumn);
+            table.addPrimaryKeyConstraint("VAL_PK_RTYPEINVALRULE", ruleIdColumn, readingTypeMRIDColumn);
             table.addForeignKeyConstraint("VAL_FK_RTYPEINVALRULE_RULE", VAL_VALIDATIONRULE.name(), DeleteRule.CASCADE, new AssociationMapping("rule", "readingTypesInRule"),ruleIdColumn);
             table.addForeignKeyConstraint("VAL_FK_RTYPEINVALRULE_RTYPE", "MTR", "MTR_READINGTYPE", DeleteRule.RESTRICT, "readingType", readingTypeMRIDColumn);
         }

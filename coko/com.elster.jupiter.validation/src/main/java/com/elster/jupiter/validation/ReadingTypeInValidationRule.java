@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.ReadingType;
  * To change this template use File | Settings | File Templates.
  */
 public interface ReadingTypeInValidationRule {
-    long getId();
 
     ValidationRule getRule();
 
