@@ -1,10 +1,9 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ports.OutboundComPort;
-import com.energyict.mdc.shadow.ports.ComPortShadow;
 import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
 
-public class OutboundComPortInfo extends ComPortInfo {
+public class OutboundComPortInfo extends ComPortInfo<OutboundComPortShadow> {
 
     public OutboundComPortInfo() {
     }
@@ -14,7 +13,12 @@ public class OutboundComPortInfo extends ComPortInfo {
     }
 
     @Override
-    public ComPortShadow asShadow() {
+    protected void writeToShadow(OutboundComPortShadow shadow) {
+        super.writeToShadow(shadow);
+    }
+
+    @Override
+    public OutboundComPortShadow asShadow() {
         OutboundComPortShadow shadow = new OutboundComPortShadow();
         this.writeToShadow(shadow);
         return shadow;

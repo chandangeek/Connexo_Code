@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
@@ -50,6 +51,18 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public OnlineComServerInfo getComServer(@PathParam("id") int id) {
         return new OnlineComServerInfo((OnlineComServer) comServerService.find(id));
+    }
+
+    @GET
+    @Path("/{id}/comports")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComPortsInfo getComPortsForComServerServer(@PathParam("id") int id) {
+        ComServer comServer = comServerService.find(id);
+        ComPortsInfo wrapper = new ComPortsInfo();
+        for (ComPort comPort : comServer.getComPorts()) {
+            wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
+        }
+        return wrapper;
     }
 
     @DELETE

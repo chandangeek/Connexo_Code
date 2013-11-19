@@ -15,14 +15,14 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
         @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "MODEM_INBOUND"),
         @JsonSubTypes.Type(value = OutboundComPortInfo.class, name = "OUTBOUND"),
         @JsonSubTypes.Type(value = UdpInboundComPortInfo.class, name = "UDP_INBOUND") })
-public abstract class ComPortInfo {
+public abstract class ComPortInfo<T extends ComPortShadow> {
 
     public int id;
     public String name;
     public String description;
     public boolean active;
     public boolean bound;
-    public String comPortType;
+    public ComPortType comPortType;
     public int comserver_id;
     public int numberOfSimultaneousConnections;
     public Date modificationDate;
@@ -37,18 +37,18 @@ public abstract class ComPortInfo {
         this.active = comPort.isActive();
         this.bound = comPort.isInbound();
         this.comserver_id = comPort.getComServer().getId();
-        this.comPortType = comPort.getComPortType().name();
+        this.comPortType = comPort.getComPortType();
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
         this.modificationDate = comPort.getModificationDate();
     }
 
-    protected void writeToShadow(ComPortShadow shadow) {
+    protected void writeToShadow(T shadow) {
         shadow.setName(name);
         shadow.setDescription(description);
         shadow.setComServerId(comserver_id);
         shadow.setActive(active);
-        shadow.setType(ComPortType.valueOf(this.comPortType));
+        shadow.setType(this.comPortType);
     }
 
-    public abstract ComPortShadow asShadow();
+    public abstract T asShadow();
 }

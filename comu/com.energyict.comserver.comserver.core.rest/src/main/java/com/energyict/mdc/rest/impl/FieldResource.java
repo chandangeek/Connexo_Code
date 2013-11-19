@@ -1,12 +1,21 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.servers.ComServer;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+
+/**
+ * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
+ * wrapped with meaningful field name.
+ */
 
 @Path("/field")
 public class FieldResource {
@@ -21,10 +30,6 @@ public class FieldResource {
             });
         }
 
-        /**
-         * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
-         * wrapped with meaningful field name.
-         */
         return new Object() {
             public List<Object> logLevels = logLevelStrings;
         };
@@ -52,11 +57,6 @@ public class FieldResource {
             });
         }
 
-
-        /**
-         * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
-         * wrapped with meaningful field name.
-         */
         return new Object() {
             public List<Object> timeUnits = timeUnitStrings;
         };
@@ -67,18 +67,78 @@ public class FieldResource {
     @Path("/comPortType")
     public Object getComPortTypes() {
         final List<Object> allComPortTypes = new ArrayList<>();
-        /**
-         * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
-         * wrapped with meaningful field name.
-         */
         final Object wrapper = new Object(){
-            public List<Object> comPortTypes = allComPortTypes;
+            public ComPortType[] comPortTypes = ComPortType.values();
         };
         for (final ComPortType comPortTypeEnum : ComPortType.values()) {
             allComPortTypes.add(new Object(){
-                public String comPortType = comPortTypeEnum.name();
+                public Enum comPortType = comPortTypeEnum;
             });
         }
         return wrapper;
     }
+
+    @GET
+    @Path("/parity")
+    public Object getParities() {
+        final List<Object> allParities = new ArrayList<>();
+        final Object wrapper = new Object(){
+            public List<Object> parities = allParities;
+        };
+        for (final Parities parityEnum : Parities.values()) {
+            allParities.add(new Object() {
+                public Enum parity = parityEnum;
+            });
+        }
+        return wrapper;
+    }
+
+    @GET
+    @Path("/flowcontrol")
+    public Object getFlowControls() {
+        final List<Object> allFlowControls = new ArrayList<>();
+        final Object wrapper = new Object(){
+            public List<Object> flowControls = allFlowControls;
+        };
+        for (final FlowControl flowControlEnum : FlowControl.values()) {
+            allFlowControls.add(new Object() {
+                public Enum flowControl = flowControlEnum;
+            });
+        }
+
+        return wrapper;
+    }
+
+    @GET
+    @Path("/noofdatabits")
+    public Object getNrOfDataBits() {
+        final List<Object> allDataBits = new ArrayList<>();
+        final Object wrapper = new Object(){
+            public List<Object> nrOfDataBits = allDataBits;
+        };
+        for (final NrOfDataBits nrOfDataBitsEnum : NrOfDataBits.values()) {
+            allDataBits.add(new Object() {
+                public Enum nrOfDataBits = nrOfDataBitsEnum;
+            });
+        }
+
+        return wrapper;
+    }
+
+    @GET
+    @Path("/noofstopbits")
+    public Object getNrOfStopBits() {
+        final List<Object> allStopBits = new ArrayList<>();
+        final Object wrapper = new Object(){
+            public List<Object> nrOfStopBits = allStopBits;
+        };
+        for (final NrOfStopBits nrOfStopBitsEnum : NrOfStopBits.values()) {
+            allStopBits.add(new Object() {
+                public Enum nrOfStopBits = nrOfStopBitsEnum;
+            });
+        }
+
+        return wrapper;
+    }
+
 }
