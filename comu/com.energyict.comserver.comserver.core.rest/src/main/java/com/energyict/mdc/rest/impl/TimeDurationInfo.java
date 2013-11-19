@@ -14,4 +14,8 @@ public class TimeDurationInfo {
         this.timeUnit=TimeDuration.getTimeUnitDescription(timeDuration.getTimeUnitCode());
     }
 
+    public TimeDuration asTimeDuration() {
+        return new TimeDuration(this.count+" "+this.timeUnit);
+    }
+
 }

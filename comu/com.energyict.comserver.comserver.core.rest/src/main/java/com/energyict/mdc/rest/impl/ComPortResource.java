@@ -30,19 +30,19 @@ public class ComPortResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortsInfo getComPorts(@QueryParam("filter") JSONArray filter) {
-        ComPortsInfo comPorts = new ComPortsInfo();
+        ComPortsInfo wrapper = new ComPortsInfo();
         if(filter!=null){
             Filter comPortFilter = new Filter(filter);
             ComServer comServer = comServerService.find(Integer.parseInt(comPortFilter.getFilterProperties().get("comserver_id")));
             for (ComPort comPort : comPortService.findByComServer(comServer)){
-                comPorts.comPorts.add(ComPortInfoFactory.asInfo(comPort));
+                wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
             }
         } else {
             for (ComPort comPort : comPortService.findAll()) {
-                    comPorts.comPorts.add(ComPortInfoFactory.asInfo(comPort));
+                    wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
             }
         }
-        return comPorts;
+        return wrapper;
     }
 
     @GET

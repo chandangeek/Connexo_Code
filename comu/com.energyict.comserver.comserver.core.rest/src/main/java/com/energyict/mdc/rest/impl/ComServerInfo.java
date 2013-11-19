@@ -1,6 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.ShadowList;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.ComServer;
@@ -54,8 +53,8 @@ public class ComServerInfo {
         shadow.setActive(active);
         shadow.setServerLogLevel(serverLogLevel);
         shadow.setCommunicationLogLevel(communicationLogLevel);
-        shadow.setChangesInterPollDelay(new TimeDuration(changesInterPollDelay.count+" "+changesInterPollDelay.timeUnit));
-        shadow.setSchedulingInterPollDelay(new TimeDuration(schedulingInterPollDelay.count+" "+schedulingInterPollDelay.timeUnit));
+        shadow.setChangesInterPollDelay(changesInterPollDelay.asTimeDuration());
+        shadow.setSchedulingInterPollDelay(schedulingInterPollDelay.asTimeDuration());
 
         updateComPorts(shadow);
 

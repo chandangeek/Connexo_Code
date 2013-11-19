@@ -11,5 +11,5 @@ import java.util.Collection;
 public class ComPortsInfo {
     @XmlElement
     @XmlElementWrapper(name = "ComPorts")
-    public Collection<? super ComPortInfo> comPorts = new ArrayList<>();
+    public Collection<ComPortInfo> comPorts = new ArrayList<>();
 }

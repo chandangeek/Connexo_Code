@@ -5,7 +5,6 @@ import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
 
 public class TcpInboundComPortInfo extends ComPortInfo {
     public int comPortPool_id;
-    public int numberOfSimultaneousConnections;
     public int portNumber;
 
     public TcpInboundComPortInfo() {
@@ -13,7 +12,6 @@ public class TcpInboundComPortInfo extends ComPortInfo {
 
     public TcpInboundComPortInfo(TCPBasedInboundComPort comPort) {
         super(comPort);
-        this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
         this.portNumber = comPort.getPortNumber();
         this.comPortPool_id = comPort.getComPortPool().getId();
     }
@@ -21,7 +19,6 @@ public class TcpInboundComPortInfo extends ComPortInfo {
     public TCPBasedInboundComPortShadow asShadow() {
         TCPBasedInboundComPortShadow shadow = new TCPBasedInboundComPortShadow();
         super.writeToShadow(shadow);
-        shadow.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
         shadow.setInboundComPortPoolId(this.comPortPool_id);
         shadow.setPortNumber(this.portNumber);
         return shadow;

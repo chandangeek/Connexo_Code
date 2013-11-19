@@ -3,6 +3,7 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
+import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonSubTypes;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
@@ -15,6 +16,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
         @JsonSubTypes.Type(value = OutboundComPortInfo.class, name = "OUTBOUND"),
         @JsonSubTypes.Type(value = UdpInboundComPortInfo.class, name = "UDP_INBOUND") })
 public abstract class ComPortInfo {
+
     public int id;
     public String name;
     public String description;
@@ -22,6 +24,8 @@ public abstract class ComPortInfo {
     public boolean bound;
     public String comPortType;
     public int comserver_id;
+    public int numberOfSimultaneousConnections;
+    public Date modificationDate;
 
     public ComPortInfo() {
     }
@@ -34,6 +38,8 @@ public abstract class ComPortInfo {
         this.bound = comPort.isInbound();
         this.comserver_id = comPort.getComServer().getId();
         this.comPortType = comPort.getComPortType().name();
+        this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
+        this.modificationDate = comPort.getModificationDate();
     }
 
     protected void writeToShadow(ComPortShadow shadow) {
