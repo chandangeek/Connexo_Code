@@ -11,7 +11,6 @@ import java.util.Objects;
 
 public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationRule {
 
-    private long id;
     private long ruleId;
     private String readingTypeMRID;
 
@@ -26,11 +25,6 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
         this.ruleId = rule.getId();
         this.readingType = readingType;
         this.readingTypeMRID = readingType.getMRID();
-    }
-
-    @Override
-    public long getId() {
-        return id;
     }
 
     @Override
@@ -62,24 +56,24 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
                 '}';
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof ReadingTypeInValidationRuleImpl)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         ReadingTypeInValidationRuleImpl that = (ReadingTypeInValidationRuleImpl) o;
 
-        return id == that.id;
+        if (ruleId != that.ruleId) return false;
+        if (!readingTypeMRID.equals(that.readingTypeMRID)) return false;
 
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        int result = (int) (ruleId ^ (ruleId >>> 32));
+        result = 31 * result + readingTypeMRID.hashCode();
+        return result;
     }
-
 }

@@ -267,7 +267,7 @@ final class ValidationRuleImpl implements ValidationRule {
     }
 
     private List<ReadingTypeInValidationRule> loadReadingTypesInValidationRule() {
-        return readingTypesInRuleFactory().find("readingType",this);
+        return readingTypesInRuleFactory().find("ruleId",this.getId());
     }
 
     @Override
@@ -278,10 +278,22 @@ final class ValidationRuleImpl implements ValidationRule {
         return readingTypeInValidationRule;
     }
 
-    /*@Override
-    public void deleteReadingType(ReadingTypeInValidationRule readingTypeInValidationRule) {
-        doGetReadingTypesInValidationRule().remove(readingTypeInValidationRule);
-    }           */
+    private ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType){
+        for (ReadingTypeInValidationRule readingTypeInValidationRule : doGetReadingTypesInValidationRule()) {
+            if (readingTypeInValidationRule.getReadingType().equals(readingType)) {
+                return readingTypeInValidationRule;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteReadingType(ReadingType readingType) {
+        ReadingTypeInValidationRule readingTypeInValidationRule = getReadingTypeInRule(readingType);
+        if (readingTypeInValidationRule != null) {
+            doGetReadingTypesInValidationRule().remove(readingTypeInValidationRule);
+        }
+    }
 
 
 }
