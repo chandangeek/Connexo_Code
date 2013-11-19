@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.time;
 
-import com.elster.jupiter.tasks.impl.test.util.EqualsContractTest;
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.google.common.collect.ImmutableList;
 import org.fest.assertions.api.BooleanAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -260,8 +261,19 @@ public class IntervalTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
-        return new Interval(date2, date5);
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return ImmutableList.of(
+                new Interval(date1, date2),
+                new Interval(date1, date3),
+                new Interval(date1, date4),
+                new Interval(date1, date6),
+                new Interval(date1, date7),
+                new Interval(date3, date4),
+                new Interval(date3, date7),
+                new Interval(date4, date6),
+                new Interval(date4, date7),
+                new Interval(date6, date7)
+                );
     }
 
     @Override

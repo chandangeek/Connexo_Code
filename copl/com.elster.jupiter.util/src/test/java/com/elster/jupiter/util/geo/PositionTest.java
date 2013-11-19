@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.geo;
 
-import com.elster.jupiter.tasks.impl.test.util.EqualsContractTest;
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -30,8 +31,8 @@ public class PositionTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
-        return JOHANNESBURG;
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return ImmutableList.of(JOHANNESBURG);
     }
 
     @Override

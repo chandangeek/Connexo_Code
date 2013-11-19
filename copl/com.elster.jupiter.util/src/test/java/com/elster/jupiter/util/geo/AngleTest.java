@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.geo;
 
-import com.elster.jupiter.tasks.impl.test.util.EqualsContractTest;
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -24,7 +25,11 @@ public class AngleTest extends EqualsContractTest {
     }
 
     @Override
-    protected Angle getInstanceNotEqualToA() {
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return ImmutableList.of(getInstanceNotEqualToA());
+    }
+
+    private Angle getInstanceNotEqualToA() {
         return new Angle(BigDecimal.valueOf(1457, 2));
     }
 

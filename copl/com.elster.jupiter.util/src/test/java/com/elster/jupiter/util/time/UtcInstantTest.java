@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.time;
 
-import com.elster.jupiter.tasks.impl.test.util.EqualsContractTest;
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -217,8 +218,8 @@ public class UtcInstantTest extends EqualsContractTest {
     }
 
     @Override
-    protected UtcInstant getInstanceNotEqualToA() {
-        return new UtcInstant(60464650116353L);
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return ImmutableList.of(new UtcInstant(60464650116353L));
     }
 
     @Override
