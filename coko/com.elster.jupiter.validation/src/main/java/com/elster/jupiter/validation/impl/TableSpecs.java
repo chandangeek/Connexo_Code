@@ -6,8 +6,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
-import java.util.List;
-
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
@@ -44,7 +42,7 @@ public enum TableSpecs {
         @Override
         void describeTable(Table table) {
             Column nameColumn = table.addColumn("NAME", "varchar2(80)", true, NOCONVERSION, "name");
-            table.addColumn("VALUE", "number", true, NOCONVERSION, "value");
+            table.addQuantityColumns("VALUE", true, "value");
             Column ruleIdColumn = table.addColumn("RULEID", "number", true, NUMBER2LONG, "ruleId");
             table.addPrimaryKeyConstraint("VAL_PK_VALRULEPROPS", ruleIdColumn, nameColumn);
             table.addForeignKeyConstraint("VAL_FK_RULEPROPS", "VAL_VALIDATIONRULE", CASCADE, new AssociationMapping("rule"), ruleIdColumn);
@@ -80,7 +78,7 @@ public enum TableSpecs {
             Column readingTypeMRIDColumn = table.addColumn("READINGTYPEMRID","varchar2(80)",true,NOCONVERSION,"readingTypeMRID");
             table.addPrimaryKeyConstraint("VAL_PK_RTYPEINVALRULE", idColumn);
             table.addForeignKeyConstraint("VAL_FK_RTYPEINVALRULE_RULE", VAL_VALIDATIONRULE.name(), DeleteRule.CASCADE, new AssociationMapping("rule", "readingTypesInRule"),ruleIdColumn);
-            table.addForeignKeyConstraint("VAL_FK_RTYPEINVALRULE_RTYPE", "MTR_READINGTYPE", DeleteRule.RESTRICT, new AssociationMapping("readingType"),readingTypeMRIDColumn);
+            table.addForeignKeyConstraint("VAL_FK_RTYPEINVALRULE_RTYPE", "MTR", "MTR_READINGTYPE", DeleteRule.RESTRICT, "readingType", readingTypeMRIDColumn);
         }
     };
 

@@ -21,4 +21,6 @@ public interface MeterActivationValidation {
     void save();
 
     Set<ChannelValidation> getChannelValidations();
+
+    void validate();
 }

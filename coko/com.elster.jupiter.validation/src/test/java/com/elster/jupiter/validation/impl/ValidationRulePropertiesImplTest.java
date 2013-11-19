@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -11,9 +13,9 @@ import java.math.BigDecimal;
 public class ValidationRulePropertiesImplTest extends EqualsContractTest {
 
     public static final String MIN = "min";
-    public static final BigDecimal VALUE = new BigDecimal(100);
+    public static final Quantity VALUE = Unit.UNITLESS.amount(new BigDecimal(100)) ;
     public static final String MAX = "max";
-    public static final BigDecimal OTHER_VALUE = new BigDecimal(1000);
+    public static final Quantity OTHER_VALUE = Unit.UNITLESS.amount(new BigDecimal(1000));
     private ValidationRulePropertiesImpl property;
 
     @Mock
@@ -39,11 +41,11 @@ public class ValidationRulePropertiesImplTest extends EqualsContractTest {
 
     @Override
     protected boolean canBeSubclassed() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 }

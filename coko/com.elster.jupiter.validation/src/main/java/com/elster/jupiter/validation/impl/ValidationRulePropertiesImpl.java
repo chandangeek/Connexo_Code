@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 
@@ -8,14 +9,14 @@ import java.math.BigDecimal;
 final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private String name;
-    private BigDecimal value;
+    private Quantity value;
     private long ruleId;
 
     private transient ValidationRule rule;
 
     private ValidationRulePropertiesImpl() {}     //for persistence
 
-    public ValidationRulePropertiesImpl(ValidationRule rule, String name, BigDecimal value) {
+    public ValidationRulePropertiesImpl(ValidationRule rule, String name, Quantity value) {
         this.rule = rule;
         this.name = name;
         this.value = value;
@@ -36,7 +37,7 @@ final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
     }
 
     @Override
-    public BigDecimal getValue() {
+    public Quantity getValue() {
         return value;
     }
 

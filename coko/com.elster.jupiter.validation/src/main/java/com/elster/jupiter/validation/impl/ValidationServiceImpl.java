@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.*;
 import com.google.common.base.Optional;
 import org.osgi.framework.BundleContext;
@@ -16,6 +17,7 @@ import org.osgi.service.component.annotations.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
 public class ValidationServiceImpl implements ValidationService, InstallService, ServiceLocator{
@@ -110,10 +112,10 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
-    public Validator getValidator(String implementation) {
+    public Validator getValidator(String implementation, Map<String, Quantity> props) {
         for (ValidatorFactory factory : validatorFactories) {
             if (factory.available().contains(implementation)) {
-                return factory.create(implementation);
+                return factory.create(implementation, props);
             }
         }
         throw new ValidatorNotFoundException(implementation);
@@ -136,4 +138,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
         meterActivationValidation.save();
     }
+
+
 }

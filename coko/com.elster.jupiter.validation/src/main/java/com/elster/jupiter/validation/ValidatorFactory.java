@@ -1,17 +1,13 @@
 package com.elster.jupiter.validation;
 
-import java.util.List;
+import com.elster.jupiter.util.units.Quantity;
 
-/**
- * Created with IntelliJ IDEA.
- * User: igh
- * Date: 13/11/13
- * Time: 9:48
- * To change this template use File | Settings | File Templates.
- */
+import java.util.List;
+import java.util.Map;
+
 public interface ValidatorFactory {
 
     List<String> available();
 
-    Validator create(String implementation);
+    Validator create(String implementation, Map<String, Quantity> props);
 }

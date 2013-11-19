@@ -1,9 +1,10 @@
 package com.elster.jupiter.validation;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.units.Quantity;
 
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 public interface ValidationRule {
     long getId();
@@ -30,9 +31,11 @@ public interface ValidationRule {
 
     List<ValidationRuleProperties> getProperties();
 
-    ValidationRuleProperties addProperty(String name, BigDecimal value);
+    ValidationRuleProperties addProperty(String name, Quantity value);
 
     void deleteProperty(ValidationRuleProperties property);
+
+    Map<String, Quantity> getProps();
 
     List<ReadingType> getReadingTypes();
 }

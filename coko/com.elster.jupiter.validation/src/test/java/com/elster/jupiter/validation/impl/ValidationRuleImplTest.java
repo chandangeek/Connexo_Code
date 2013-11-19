@@ -1,6 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -31,7 +33,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     public static final String PROPERTY_NAME = "min";
     public static final String PROPERTY_NAME_2 = "max";
     public static final String PROPERTY_NAME_3 = "other_property";
-    public static final BigDecimal PROPERTY_VALUE = new BigDecimal(100);
+    public static final Quantity PROPERTY_VALUE = Unit.UNITLESS.amount(new BigDecimal(100));
 
     private ValidationRuleImpl validationRule;
 

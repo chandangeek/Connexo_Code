@@ -2,13 +2,21 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.cache.TypeCache;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.Validator;
+import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 final class ValidationRuleImpl implements ValidationRule {
@@ -53,7 +61,7 @@ final class ValidationRuleImpl implements ValidationRule {
     @Override
     public Validator getValidator() {
         if (validator == null) {
-            validator = Bus.getValidator(this.implementation);
+            validator = Bus.getValidator(this.implementation, getProps());
             if (validator == null) {
                 throw new ValidatorNotFoundException(implementation);
             }
@@ -198,7 +206,7 @@ final class ValidationRuleImpl implements ValidationRule {
     }
 
     @Override
-    public ValidationRuleProperties addProperty(String name, BigDecimal value) {
+    public ValidationRuleProperties addProperty(String name, Quantity value) {
         ValidationRulePropertiesImpl newProperty = new ValidationRulePropertiesImpl(this, name, value);
         doGetProperties().add(newProperty);
         return newProperty;
@@ -207,6 +215,15 @@ final class ValidationRuleImpl implements ValidationRule {
     @Override
     public void deleteProperty(ValidationRuleProperties property) {
         doGetProperties().remove(property);
+    }
+
+    @Override
+    public Map<String, Quantity> getProps() {
+        ImmutableMap.Builder<String, Quantity> builder = ImmutableMap.builder();
+        for (ValidationRuleProperties validationRuleProperties : getProperties()) {
+            builder.put(validationRuleProperties.getName(), validationRuleProperties.getValue());
+        }
+        return builder.build();
     }
 
     private TypeCache<ValidationRuleProperties> rulePropertiesFactory() {
@@ -232,6 +249,5 @@ final class ValidationRuleImpl implements ValidationRule {
         }
         return readingTypesInRule;
     }
-
 
 }

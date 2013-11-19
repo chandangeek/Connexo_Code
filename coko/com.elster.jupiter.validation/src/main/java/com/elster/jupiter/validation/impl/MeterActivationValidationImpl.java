@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.FluentIterable;
 
@@ -100,5 +101,15 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     @Override
     public Set<ChannelValidation> getChannelValidations() {
         return Collections.unmodifiableSet(doGetChannelValidations());
+    }
+
+    @Override
+    public void validate() {
+        for (Channel channel : getMeterActivation().getChannels()) {
+            for (ValidationRule validationRule : getRuleSet().getRules()) {
+
+            }
+        }
+
     }
 }
