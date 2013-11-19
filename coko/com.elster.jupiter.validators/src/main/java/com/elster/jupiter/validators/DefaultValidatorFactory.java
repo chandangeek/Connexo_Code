@@ -1,11 +1,13 @@
 package com.elster.jupiter.validators;
 
+import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component(name = "com.elster.jupiter.validators.DefaultValidatorFactory", service = ValidatorFactory.class, immediate = true)
 public class DefaultValidatorFactory implements ValidatorFactory {
@@ -26,15 +28,15 @@ public class DefaultValidatorFactory implements ValidatorFactory {
     }
 
     @Override
-    public Validator create(String implementation) {
+    public Validator create(String implementation, Map<String, Quantity> props) {
         if (implementation.equals(RatedPowerValidator)) {
-            return new RatedPowerValidator();
+            return new RatedPowerValidator(props);
         } else if (implementation.equals(MinimalUsageExpectedValidator)) {
-            return new MinimalUsageExpectedValidator();
+            return new MinimalUsageExpectedValidator(props);
         } else if (implementation.equals(MinMaxValidator)) {
-            return new MinMaxValidator();
+            return new MinMaxValidator(props);
         } else if (implementation.equals(ConsecutiveZerosValidator)) {
-            return new ConsecutiveZerosValidator();
+            return new ConsecutiveZerosValidator(props);
         } else {
             return null;
         }
