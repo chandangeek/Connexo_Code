@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.*;
+import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -15,6 +16,9 @@ public final class ValidationRuleImpl implements ValidationRule {
     private boolean active;
     private ValidationAction action;
     private String implementation; //validator name
+
+    // associations
+    private List<ReadingTypeInValidationRule> readingTypesInRule;
 
     private long ruleSetId;
 
@@ -206,6 +210,18 @@ public final class ValidationRuleImpl implements ValidationRule {
 
     private TypeCache<ValidationRuleProperties> rulePropertiesFactory() {
         return Bus.getOrmClient().getValidationRulePropertiesFactory();
+    }
+
+    @Override
+    public List<ReadingTypeInValidationRule> getReadingTypesInRule() {
+        return ImmutableList.copyOf(doGetReadingTypesInValidationRule());
+    }
+
+    private List<ReadingTypeInValidationRule> doGetReadingTypesInValidationRule() {
+        if (readingTypesInRule == null) {
+            readingTypesInRule = Bus.getOrmClient().getReadingTypesInValidationRuleFactory().find("readingType",this);
+        }
+        return readingTypesInRule;
     }
 
 

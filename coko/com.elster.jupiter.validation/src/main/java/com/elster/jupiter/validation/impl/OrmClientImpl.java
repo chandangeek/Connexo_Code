@@ -1,7 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.impl.ReadingTypeImpl;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -27,6 +31,16 @@ public class OrmClientImpl implements OrmClient {
     @Override
     public TypeCache<ValidationRuleProperties> getValidationRulePropertiesFactory() {
         return Bus.getComponentCache().getTypeCache(ValidationRuleProperties.class, ValidationRulePropertiesImpl.class, TableSpecs.VAL_VALIDATIONRULEPROPS.name());
+    }
+
+    @Override
+    public TypeCache<ReadingType> getReadingTypeFactory() {
+        return Bus.getComponentCache().getTypeCache(ReadingType.class, ReadingTypeImpl.class, com.elster.jupiter.metering.impl.TableSpecs.MTR_READINGTYPE.name());
+    }
+
+    @Override
+    public DataMapper<ReadingTypeInValidationRule> getReadingTypesInValidationRuleFactory() {
+        return dataModel.getDataMapper(ReadingTypeInValidationRule.class, ReadingTypeInValidationRuleImpl.class, TableSpecs.VAL_READINGTYPEINVALRULE.name());
     }
 
     @Override

@@ -31,4 +31,6 @@ public interface ValidationRule {
     ValidationRuleProperties addProperty(String name, BigDecimal value);
 
     void deleteProperty(ValidationRuleProperties property);
+
+    List<ReadingTypeInValidationRule> getReadingTypesInRule();
 }
