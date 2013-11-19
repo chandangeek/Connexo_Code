@@ -1,6 +1,6 @@
 package com.elster.jupiter.util.geo;
 
-import com.elster.jupiter.tasks.impl.test.util.ComparableContractTest;
+import com.elster.jupiter.devtools.tests.ComparableContractTest;
 import com.google.common.collect.ImmutableSet;
 
 import java.math.BigDecimal;
