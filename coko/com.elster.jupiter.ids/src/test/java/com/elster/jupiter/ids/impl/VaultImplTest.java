@@ -1,5 +1,8 @@
 package com.elster.jupiter.ids.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.google.common.collect.ImmutableList;
+
 public class VaultImplTest extends EqualsContractTest {
 
     private static final long ID = 15L;
@@ -19,8 +22,8 @@ public class VaultImplTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
-        return new VaultImpl(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT, true);
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return ImmutableList.of(new VaultImpl(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT, true));
     }
 
     @Override

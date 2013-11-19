@@ -1,8 +1,10 @@
 package com.elster.jupiter.ids.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.ids.IntervalLengthUnit;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
+import com.google.common.collect.ImmutableList;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -55,10 +57,10 @@ public class TimeSeriesImplTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
+    protected Iterable<?> getInstancesNotEqualToA() {
         TimeSeriesImpl series = new TimeSeriesImpl(vault, recordSpec, TimeZone.getTimeZone("Asia/Calcutta"));
         simulateSaved(series, ID + 1);
-        return series;
+        return ImmutableList.of(series);
     }
 
     @Override
