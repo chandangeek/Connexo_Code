@@ -1,11 +1,11 @@
 package com.elster.jupiter.validation;
 
-import java.math.BigDecimal;
+import com.elster.jupiter.util.units.Quantity;
 
 public interface ValidationRuleProperties {
     String getName();
 
-    BigDecimal getValue();
+    Quantity getValue();
 
     ValidationRule getRule();
 }

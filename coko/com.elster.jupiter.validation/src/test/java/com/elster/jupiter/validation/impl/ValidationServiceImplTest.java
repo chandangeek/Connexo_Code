@@ -68,7 +68,7 @@ public class ValidationServiceImplTest {
         when(serviceLocator.getValidationService()).thenReturn(validationService);
         when(serviceLocator.getOrmClient()).thenReturn(ormClient);
         when(factory.available()).thenReturn(Arrays.asList(validator.getClass().getName()));
-        when(factory.create(validator.getClass().getName())).thenReturn(validator);
+        when(factory.create(validator.getClass().getName(), null)).thenReturn(validator);
         when(ormClient.getValidationRuleSetFactory()).thenReturn(validationRuleSetFactory);
         when(ormClient.getValidationRuleFactory()).thenReturn(validationRuleFactory);
         when(ormClient.getMeterActivationValidationFactory()).thenReturn(meterActivationValidationFactory);
@@ -86,14 +86,14 @@ public class ValidationServiceImplTest {
     public void testGetImplementation() {
         validationService.addResource(factory);
 
-        Validator found = validationService.getValidator(validator.getClass().getName());
+        Validator found = validationService.getValidator(validator.getClass().getName(), null);
 
         assertThat(found).isNotNull().isEqualTo(validator);
     }
 
     @Test(expected = ValidatorNotFoundException.class)
     public void testGetValidatorThrowsNotFoundExceptionIfNoFactoryProvidesImplementation() {
-        validationService.getValidator(validator.getClass().getName());
+        validationService.getValidator(validator.getClass().getName(), null);
     }
 
     @Test
