@@ -15,11 +15,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 
 import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 
-public class ChannelImpl implements Channel {
+public final class ChannelImpl implements Channel {
 	
 	private static final int REGULARVAULTID = 1;
 	private static final int IRREGULARVAULTID = 2;
@@ -267,5 +268,21 @@ public class ChannelImpl implements Channel {
     @Override
     public long getVersion() {
         return version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return id == ((ChannelImpl) o).id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
