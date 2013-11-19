@@ -8,8 +8,8 @@ import static org.fest.assertions.api.Assertions.assertThat;
 
 public class ReadingTypeImplTest extends EqualsContractTest {
 
-    private static final String MRID = "1.2.7.4.0.8.1.8.16.9.11";
-    private static final String MRID2 = "1.2.3.4.0.8.1.9.16.9.11";
+    private static final String MRID = "0.0.7.4.0.8.2.8.16.9.11.0.0.0.0.0.0.0";
+    private static final String MRID2 = "0.0.7.1.0.8.2.9.16.9.110.0.0.0.0.0.0.0";
     private static final String ALIAS = "alias";
     private ReadingTypeImpl readingType = new ReadingTypeImpl(MRID, ALIAS);
 
@@ -56,11 +56,6 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     @Test
     public void testGetAliasName() {
         assertThat(readingType.getAliasName()).isEqualTo(ALIAS);
-    }
-
-    @Test
-    public void testGetName() {
-        assertThat(readingType.getName()).isEqualTo("10-minute Average IntervalData Net Demand Interharmonic8 Phase-N (Gsr)");
     }
 
     @Test

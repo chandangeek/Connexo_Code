@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.Currency;
+
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.UtcInstant;
@@ -7,18 +9,26 @@ import com.elster.jupiter.cbo.*;
 
 public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
-    private static final int MRID_FIELD_COUNT = 11;
-    private static final int TIME_INDEX = 0;
-    private static final int DATA_QUALIFIER_INDEX = 1;
-    private static final int ACCUMULATION_INDEX = 2;
-    private static final int FLOW_DIRECTION_INDEX = 3;
-    private static final int UNIT_OF_MEASURE_INDEX2 = 5;
-    private static final int UNIT_OF_MEASURE_INDEX1 = 4;
-    private static final int MEASUREMENT_CATEGORY_INDEX1 = 6;
-    private static final int MEASUREMENT_CATEGORY_INDEX2 = 7;
-    private static final int PHASE_INDEX = 8;
-    private static final int METRIC_MULTIPLIER_INDEX = 9;
-    private static final int BASE_UNIT_INDEX = 10;
+    private static final int MRID_FIELD_COUNT = 18;
+    private static final int MACRO_PERIOD = 0;
+    private static final int AGGREGATE = 1;
+    private static final int MEASURING_PERIOD = 2;
+    private static final int ACCUMULATION = 3;
+    private static final int FLOW_DIRECTION = 4;
+    private static final int COMMODITY = 5;
+    private static final int MEASUREMENT_KIND = 6;
+    private static final int INTERHARMONIC_NUMERATOR = 7;
+    private static final int INTERHARMONIC_DENOMINATOR = 8;
+    private static final int ARGUMENT_NUMERATOR = 9;
+    private static final int ARGUMENT_DENOMINATOR = 10;
+    private static final int TOU = 11;
+    private static final int CPP = 12;
+    private static final int CONSUMPTION_TIER = 13;
+    private static final int PHASES = 14;
+    private static final int MULTIPLIER = 15;
+    private static final int UNIT = 16;
+    private static final int CURRENCY = 17;
+    
     // persistent fields
 	private String mRID;
 	private String aliasName;
@@ -31,15 +41,22 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private String userName;
 	
 	// transient fields
-	private TimeAttribute timeAttribute;
-	private DataQualifier dataQualifier;
+	private MacroPeriod macroPeriod;
+	private Aggregate aggregate;
+	private TimeAttribute measuringPeriod;
 	private Accumulation accumulation;
 	private FlowDirection flowDirection;
-	private UnitOfMeasureCategory unitOfMeasureCategory;
-	private MeasurementCategory measurementCategory;
-	private Phase phase;
-	private MetricMultiplier metricMultiplier; 
-	private ReadingTypeUnit baseUnit;
+	private Commodity commodity;
+	private MeasurementKind measurementKind;
+	private RationalNumber interharmonic;
+	private RationalNumber argument;
+	private int tou;
+	private int cpp;
+	private int consumptionTier;
+	private Phase phases;
+	private MetricMultiplier multiplier;
+	private ReadingTypeUnit unit;
+	private Currency currency;
 	
 	@SuppressWarnings("unused")
 	private ReadingTypeImpl() {		
@@ -71,32 +88,63 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		if (parts.length != MRID_FIELD_COUNT) {
 			throw new IllegalArgumentException(mRID);
 		}
-		timeAttribute = TimeAttribute.get(parse(parts[TIME_INDEX]));
-		dataQualifier = DataQualifier.get(parse(parts[DATA_QUALIFIER_INDEX]));
-		accumulation = Accumulation.get(parse(parts[ACCUMULATION_INDEX]));
-		flowDirection = FlowDirection.get(parse(parts[FLOW_DIRECTION_INDEX]));
-		unitOfMeasureCategory = UnitOfMeasureCategory.get(parse(parts[UNIT_OF_MEASURE_INDEX1]),parse(parts[UNIT_OF_MEASURE_INDEX2]));
-		measurementCategory = MeasurementCategory.get(parse(parts[MEASUREMENT_CATEGORY_INDEX1]),parse(parts[MEASUREMENT_CATEGORY_INDEX2]));
-		phase = Phase.get(parse(parts[PHASE_INDEX]));
-		metricMultiplier = MetricMultiplier.get(parse(parts[METRIC_MULTIPLIER_INDEX]));
-		baseUnit = ReadingTypeUnit.get(parse(parts[BASE_UNIT_INDEX]));
+		macroPeriod = MacroPeriod.get(parse(parts[MACRO_PERIOD]));
+		aggregate = Aggregate.get(parse(parts[AGGREGATE]));
+		measuringPeriod = TimeAttribute.get(parse(parts[MEASURING_PERIOD]));
+		accumulation = Accumulation.get(parse(parts[ACCUMULATION]));
+		flowDirection = FlowDirection.get(parse(parts[FLOW_DIRECTION]));
+		commodity = Commodity.get(parse(parts[COMMODITY]));
+		measurementKind = MeasurementKind.get(parse(parts[MEASUREMENT_KIND]));
+		interharmonic = asRational(parts,INTERHARMONIC_NUMERATOR,INTERHARMONIC_DENOMINATOR);
+		argument = asRational(parts,ARGUMENT_NUMERATOR,ARGUMENT_DENOMINATOR);
+		tou = parse(parts[TOU]);
+		cpp = parse(parts[CPP]);
+		consumptionTier = parse(parts[CONSUMPTION_TIER]);
+		phases = Phase.get(parse(parts[PHASES]));
+		multiplier = MetricMultiplier.get(parse(parts[MULTIPLIER]));
+		unit = ReadingTypeUnit.get(parse(parts[UNIT]));
+		currency = getCurrency(parse(parts[CURRENCY]));
 	}
 		
+	
+	private Currency getCurrency(int numericCode) {
+		for (Currency each : Currency.getAvailableCurrencies()) {
+			if (each.getNumericCode() == numericCode) {
+				return each;
+			}
+		}
+		throw new IllegalArgumentException("Invalid currency code " + numericCode);
+	}
 	private int parse(String intString) {
 		return Integer.parseInt(intString);
+	}
+	
+	private RationalNumber asRational(String[] parts , int numeratorOffset , int denominatorOffset) {
+		int numerator = parse(parts[numeratorOffset]);
+		int denominator = parse(parts[denominatorOffset]);
+		if (numerator == 0 && denominator == 0) {
+			return null;
+		} else {
+			return new RationalNumber(numerator, denominator);
+		}
 	}
 	
 	public String getName() {
 		StringBuilder builder = new StringBuilder();
 		String connector = "";
-		if (timeAttribute.isApplicable()) {
+		if (macroPeriod.isApplicable()) {
 			builder.append(connector);
-			builder.append(timeAttribute.getDescription());
+			builder.append(macroPeriod.getDescription());
 			connector = " ";
 		}
-		if (dataQualifier.isApplicable()) {
+		if (aggregate.isApplicable()) {
 			builder.append(connector);
-			builder.append(dataQualifier.getDescription());
+			builder.append(aggregate.getDescription());
+			connector = " ";
+		}
+		if (measuringPeriod.isApplicable()) {
+			builder.append(connector);
+			builder.append(measuringPeriod.getDescription());
 			connector = " ";
 		}
 		if (accumulation.isApplicable()) {
@@ -109,26 +157,61 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 			builder.append(flowDirection.getDescription());
 			connector = " ";
 		}
-		if (unitOfMeasureCategory.isApplicable()) {
+		if (commodity.isApplicable()) {
 			builder.append(connector);
-			builder.append(unitOfMeasureCategory.getDescription());
+			builder.append(commodity.getDescription());
 			connector = " ";
 		}
-		if (measurementCategory.isApplicable()) {
+		if (measurementKind.isApplicable()) {
 			builder.append(connector);
-			builder.append(measurementCategory.getDescription());
+			builder.append(measurementKind.getDescription());
 			connector = " ";
 		}
-		if (phase.isApplicable()) {
+		if (interharmonic != null) {
 			builder.append(connector);
-			builder.append(phase.getDescription());
+			builder.append("Interharmonic: ");
+			builder.append(interharmonic);
 			connector = " ";
 		}
-		if (baseUnit.isApplicable()) {
+		if (argument != null) {
+			builder.append(connector);
+			builder.append("Argument: ");
+			builder.append(argument);
+			connector = " ";
+		}
+		if (tou > 0) {
+			builder.append(connector);
+			builder.append("Tou: ");
+			builder.append(tou);
+			connector = " ";
+		}
+		if (cpp > 0) {
+			builder.append(connector);
+			builder.append("Cpp: ");
+			builder.append(cpp);
+				connector = " ";
+		}
+		if (consumptionTier > 0) {
+			builder.append(connector);
+			builder.append("Consumption Tier: ");
+			builder.append(consumptionTier);
+			connector = " ";
+		}
+		if (phases.isApplicable()) {
+			builder.append(connector);
+			builder.append(phases.getDescription());
+			connector = " ";
+		}
+		if (unit.isApplicable()) {
 			builder.append(" (");
-			builder.append(metricMultiplier.getSymbol());
-			builder.append(baseUnit.getSymbol());
+			builder.append(multiplier.getSymbol());
+			builder.append(unit.getSymbol());
 			builder.append(")");
+		}
+		if (currency != null) {
+			builder.append(" (");
+			builder.append(currency.getCurrencyCode());
+			builder.append(")");	
 		}
 		return builder.toString();
 	}
@@ -143,7 +226,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	}
 
 	IntervalLength getIntervalLength() {
-		return IntervalLength.forCimCode(timeAttribute.getId());
+		return IntervalLength.forCimCode(macroPeriod.getId());
 	}
 
     @Override
@@ -168,9 +251,9 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	public boolean isCumulativeReadingType(ReadingType readingType) {
 		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
 		return 
-			this.timeAttribute == other.timeAttribute &&			
-			this.accumulation == Accumulation.INTERVALDATA &&
-			other.accumulation == Accumulation.CUMULATIVE;
+			this.measuringPeriod == other.measuringPeriod &&			
+			this.accumulation == Accumulation.DELTADELTA &&
+			other.accumulation == Accumulation.BULKQUANTITY;
 	}
 
     @Override

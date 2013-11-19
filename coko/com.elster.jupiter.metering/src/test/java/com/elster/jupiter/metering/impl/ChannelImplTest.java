@@ -36,13 +36,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelImplTest {
 
-    private static final String MRID1 = "11.2.7.4.0.8.1.8.16.9.11";
-    private static final String MRID2 = "11.2.3.4.0.8.1.9.16.9.11";
-    private static final String MRID3 = "13.2.3.4.0.8.1.10.16.9.11";
-    private static final String MRID4 = "11.2.3.4.0.8.1.10.16.9.11";
-    private static final String MRID1_IRR = "0.2.7.4.0.8.1.8.16.9.11";
-    private static final String MRID2_IRR = "0.2.3.4.0.8.1.9.16.9.11";
-    private static final String MRID4_IRR = "0.2.3.4.0.8.1.10.16.9.11";
+    private static final String MRID1 = "11.2.2.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID2 = "11.2.2.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID3 = "13.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID4 = "11.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID1_IRR = "0.2.2.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID2_IRR = "0.2.2.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID4_IRR = "0.2.2.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
     private static final long METER_ACTIVATION_ID = 164;
     private static final long ID = 15L;
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Calcutta");

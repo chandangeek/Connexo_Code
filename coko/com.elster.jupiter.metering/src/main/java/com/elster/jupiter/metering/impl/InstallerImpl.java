@@ -126,12 +126,12 @@ public class InstallerImpl {
     }
 
     private void createReadingTypes() {
-        new ReadingTypeImpl("2.6.7.1.0.12.0.0.0.3.72", "15m Active+ kWh").persist();
-        new ReadingTypeImpl("2.6.7.19.0.12.0.0.0.3.72", "15m Active- kWh").persist();
-        new ReadingTypeImpl("2.6.7.4.0.12.0.0.0.3.72", "15m Active Net kWh").persist();
-        new ReadingTypeImpl("2.6.7.5.0.12.0.0.0.3.73", "15m Reactive+ kVArh").persist();
-        new ReadingTypeImpl("2.6.7.13.0.12.0.0.0.3.73", "15m Reactive- kVArh").persist();
-        new ReadingTypeImpl("2.6.7.6.0.12.0.0.0.3.73", "15m Reactive Total kVArh").persist();
+        new ReadingTypeImpl("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "15m Active+ kWh").persist();
+        new ReadingTypeImpl("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "15m Active- kWh").persist();
+        new ReadingTypeImpl("0.0.2.4.4.1.12.0.0.0.0.0.0.0.0.3.72.0", "15m Active Net kWh").persist();
+        new ReadingTypeImpl("0.0.2.4.2.1.12.0.0.0.0.0.0.0.0.3.73.0", "15m Reactive+ kVArh").persist();
+        new ReadingTypeImpl("0.0.2.4.3.1.12.0.0.0.0.0.0.0.0.3.73.0", "15m Reactive- kVArh").persist();
+        new ReadingTypeImpl("0.0.2.4.20.1.12.0.0.0.0.0.0.0.0.3.73.0", "15m Reactive Total kVArh").persist();
     }
 
     private void createPartyRoles(PartyService partyService) {
