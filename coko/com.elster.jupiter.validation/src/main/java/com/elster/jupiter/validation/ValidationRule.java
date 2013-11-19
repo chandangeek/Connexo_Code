@@ -36,5 +36,5 @@ public interface ValidationRule {
 
     List<ReadingType> getReadingTypes();
 
-    void addReadingType(ReadingType readingType);
+    ReadingTypeInValidationRule addReadingType(ReadingType readingType);
 }

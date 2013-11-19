@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.*;
 import com.google.common.collect.ImmutableList;
@@ -159,11 +160,20 @@ final class ValidationRuleImpl implements ValidationRule {
             for (ValidationRuleProperties property : loadProperties()) {
                 rulePropertiesFactory().remove(property);
             }
+            //remove all reading types
+            for (ReadingTypeInValidationRule readingTypeInValidationRule : loadReadingTypesInValidationRule()) {
+                readingTypesInRuleFactory().remove(readingTypeInValidationRule);
+            }
         }
         //create new properties
         for (ValidationRuleProperties property : doGetProperties()) {
             ((ValidationRulePropertiesImpl) property).setRuleId(id);
             rulePropertiesFactory().persist(property);
+        }
+        //create new readingTypes
+        for (ReadingTypeInValidationRule readingTypeInValidationRule : this.doGetReadingTypesInValidationRule()) {
+            ((ReadingTypeInValidationRuleImpl) readingTypeInValidationRule).setRuleId(id);
+            readingTypesInRuleFactory().persist(readingTypeInValidationRule);
         }
     }
 
@@ -213,6 +223,10 @@ final class ValidationRuleImpl implements ValidationRule {
         return Bus.getOrmClient().getValidationRulePropertiesFactory();
     }
 
+    private DataMapper<ReadingTypeInValidationRule> readingTypesInRuleFactory() {
+        return Bus.getOrmClient().getReadingTypesInValidationRuleFactory();
+    }
+
     public List<ReadingTypeInValidationRule> getReadingTypesInRule() {
         return ImmutableList.copyOf(doGetReadingTypesInValidationRule());
     }
@@ -228,18 +242,27 @@ final class ValidationRuleImpl implements ValidationRule {
 
     private List<ReadingTypeInValidationRule> doGetReadingTypesInValidationRule() {
         if (readingTypesInRule == null) {
-            readingTypesInRule = Bus.getOrmClient().getReadingTypesInValidationRuleFactory().find("readingType",this);
+            readingTypesInRule = loadReadingTypesInValidationRule();
         }
         return readingTypesInRule;
     }
 
+    private List<ReadingTypeInValidationRule> loadReadingTypesInValidationRule() {
+        return readingTypesInRuleFactory().find("readingType",this);
+    }
+
     @Override
-    public void addReadingType(ReadingType readingType) {
+    public ReadingTypeInValidationRule addReadingType(ReadingType readingType) {
         ReadingTypeInValidationRuleImpl readingTypeInValidationRule =
                 new ReadingTypeInValidationRuleImpl(this, readingType);
         doGetReadingTypesInValidationRule().add(readingTypeInValidationRule);
-        Bus.getOrmClient().getReadingTypesInValidationRuleFactory().persist(readingTypeInValidationRule);
+        return readingTypeInValidationRule;
     }
+
+    /*@Override
+    public void deleteReadingType(ReadingTypeInValidationRule readingTypeInValidationRule) {
+        doGetReadingTypesInValidationRule().remove(readingTypeInValidationRule);
+    }           */
 
 
 }

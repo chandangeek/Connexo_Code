@@ -41,6 +41,10 @@ public class ReadingTypeInValidationRuleImpl implements ReadingTypeInValidationR
         return rule;
     }
 
+    public void setRuleId(long ruleId) {
+        this.ruleId = ruleId;
+    }
+
     @Override
     public ReadingType getReadingType() {
         if (readingType == null) {
