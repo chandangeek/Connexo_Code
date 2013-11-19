@@ -7,6 +7,7 @@ import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.DeviceProtocolService;
 import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.InboundDeviceProtocolService;
+import com.energyict.mdc.services.LicensedProtocolService;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
@@ -26,6 +27,7 @@ public class MdcApplication extends Application {
     private volatile ComPortService comPortService;
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
+    private volatile LicensedProtocolService licensedProtocolService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -33,7 +35,8 @@ public class MdcApplication extends Application {
                 ComPortResource.class,
                 DeviceCommunicationProtocolsResource.class,
                 FieldResource.class,
-                DeviceDiscoveryProtocolsResource.class);
+                DeviceDiscoveryProtocolsResource.class,
+                LicensedProtocolResource.class);
     }
 
     @Activate
@@ -98,5 +101,14 @@ public class MdcApplication extends Application {
 
     public InboundDeviceProtocolPluggableClassService getInboundDeviceProtocolPluggableClassService() {
         return inboundDeviceProtocolPluggableClassService;
+    }
+
+    @Reference
+    public void setLicensedProtocolService(LicensedProtocolService licensedProtocolService) {
+        this.licensedProtocolService = licensedProtocolService;
+    }
+
+    public LicensedProtocolService getLicensedProtocolService() {
+        return licensedProtocolService;
     }
 }
