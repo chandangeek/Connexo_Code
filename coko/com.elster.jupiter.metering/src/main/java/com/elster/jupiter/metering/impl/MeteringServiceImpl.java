@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -258,5 +259,10 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     @Override
     public Optional<MeterActivation> findMeterActivation(long id) {
         return getOrmClient().getMeterActivationFactory().get(id);
+    }
+
+    @Override
+    public Optional<Channel> findChannel(long id) {
+        return getOrmClient().getChannelFactory().get(id);
     }
 }
