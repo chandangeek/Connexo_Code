@@ -21,7 +21,8 @@ public enum FlowDirection {
 		Q3 (17,"Q3"),
 		Q4 (18,"Q4"),
 		REVERSE (19,"Reverse"),
-		TOTAL (20,"Total");
+		TOTAL (20,"Total"),
+		TOTALBYPHASE (21,"Total");
 	
 	
 	private final int id;

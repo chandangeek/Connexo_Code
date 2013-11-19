@@ -1,6 +1,7 @@
 package com.elster.jupiter.cbo;
 
 public enum MetricMultiplier {
+	PICO(-12,"p"),
 	NANO (-9,"n"),
 	MICRO (-6,"\u00b5"),
 	MILLI (-3,"m"),
@@ -11,7 +12,8 @@ public enum MetricMultiplier {
 	HECTO (2,"h"),
 	KILO (3,"k"),
 	MEGA (6,"M"),
-	GIGA (9,"G");
+	GIGA (9,"G"),
+	TERA(12,"T");
 	
 	private final int multiplier;
 	private final String symbol;

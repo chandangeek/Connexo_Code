@@ -7,10 +7,11 @@ public enum Accumulation {
 	CUMULATIVE (3,"Cumulative"),
 	DELTADELTA (4,"DeltaDelta"),
 	INDICATING(6,"Indicating"),
-	INTERVALDATA(7,"IntervalData"),
-	RECORDEDDATA(8,"RecordedData"),
 	SUMMATION(9,"Summation"),
-	TIMEDELAY(10,"TimeDelay");
+	TIMEDELAY(10,"TimeDelay"),
+	INSTANTANEOUS(12,"Instantaneous"),
+	LATCHINGQUANTITY(13,"LatchingQuantity"),
+	BOUNDEDQUANTITY(14,"BoundedQuantity");
 	
 	private final int id;
 	private final String description;
@@ -34,7 +35,7 @@ public enum Accumulation {
 		return "Accumulation " + id + " : " + description;
 	}
 	
-	int getId() {
+	public int getId() {
 		return id;
 	}
 	
