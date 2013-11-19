@@ -143,22 +143,6 @@ public class TimeSeriesImplTest extends EqualsContractTest {
         assertThat(series.isValidDateTime(date)).isFalse();
     }
 
-    @Test
-    public void testTimeZones() {
-        Date summer = new DateTime(2013, 7, 1, 12, 0, 0, 0, DateTimeZone.UTC).toDate();
-        Date winter = new DateTime(2013, 1, 1, 12, 0, 0, 0, DateTimeZone.UTC).toDate();
-        for (String zone : TimeZone.getAvailableIDs()) {
-            TimeZone timeZone = TimeZone.getTimeZone(zone);
-
-
-
-            System.out.println(zone + " : " + offsetHours((long) timeZone.getRawOffset()) + " : " + offsetHours(timeZone.getOffset(winter.getTime())) + " : " + offsetHours(timeZone.getOffset(summer.getTime())));
-
-
-        }
-
-    }
-
     private double offsetHours(long offset) {
         return (offset / (1000d * 60 * 60));
     }
