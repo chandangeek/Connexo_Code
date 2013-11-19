@@ -265,7 +265,7 @@ final class ValidationRuleImpl implements ValidationRule {
     }
 
     private List<ReadingTypeInValidationRule> loadReadingTypesInValidationRule() {
-        return readingTypesInRuleFactory().find("readingType",this);
+        return readingTypesInRuleFactory().find("rule",this);
     }
 
     @Override
