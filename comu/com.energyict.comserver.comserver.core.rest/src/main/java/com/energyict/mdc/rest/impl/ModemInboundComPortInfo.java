@@ -23,7 +23,6 @@ public class ModemInboundComPortInfo extends ComPortInfo<ModemBasedInboundComPor
     public List<String> modemInitStrings;
     public String addressSelector;
     public String postDialCommands;
-    public SerialPortConfiguration serialPortConfiguration;
     public String comPortName;
     public BaudrateValue baudrate;
     public NrOfDataBits nrOfDataBits;
@@ -46,7 +45,6 @@ public class ModemInboundComPortInfo extends ComPortInfo<ModemBasedInboundComPor
         this.modemInitStrings = comPort.getModemInitStrings();
         this.addressSelector = comPort.getAddressSelector();
         this.postDialCommands = comPort.getPostDialCommands();
-        this.serialPortConfiguration = comPort.getSerialPortConfiguration();
         this.comPortName = comPort.getSerialPortConfiguration().getComPortName();
         this.baudrate = comPort.getSerialPortConfiguration().getBaudrate();
         this.nrOfDataBits = comPort.getSerialPortConfiguration().getNrOfDataBits();
@@ -68,7 +66,6 @@ public class ModemInboundComPortInfo extends ComPortInfo<ModemBasedInboundComPor
         shadow.setModemInitStrings(this.modemInitStrings);
         shadow.setAddressSelector(this.addressSelector);
         shadow.setPostDialCommands(this.postDialCommands);
-        shadow.setSerialPortConfiguration(this.serialPortConfiguration);
         shadow.setSerialPortConfiguration(new SerialPortConfiguration(
                 this.comPortName,
                 this.baudrate,

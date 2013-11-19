@@ -94,7 +94,7 @@ public class FieldResource {
     }
 
     @GET
-    @Path("/flowcontrol")
+    @Path("/flowControl")
     public Object getFlowControls() {
         final List<Object> allFlowControls = new ArrayList<>();
         final Object wrapper = new Object(){
@@ -110,7 +110,7 @@ public class FieldResource {
     }
 
     @GET
-    @Path("/noofdatabits")
+    @Path("/noOfDataBits")
     public Object getNrOfDataBits() {
         final List<Object> allDataBits = new ArrayList<>();
         final Object wrapper = new Object(){
@@ -126,7 +126,7 @@ public class FieldResource {
     }
 
     @GET
-    @Path("/noofstopbits")
+    @Path("/noOfStopBits")
     public Object getNrOfStopBits() {
         final List<Object> allStopBits = new ArrayList<>();
         final Object wrapper = new Object(){
