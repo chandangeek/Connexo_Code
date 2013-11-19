@@ -38,4 +38,6 @@ public interface ValidationRule {
     Map<String, Quantity> getProps();
 
     List<ReadingType> getReadingTypes();
+
+    void addReadingType(ReadingType readingType);
 }
