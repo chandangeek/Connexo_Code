@@ -276,10 +276,22 @@ final class ValidationRuleImpl implements ValidationRule {
         return readingTypeInValidationRule;
     }
 
-    /*@Override
-    public void deleteReadingType(ReadingTypeInValidationRule readingTypeInValidationRule) {
-        doGetReadingTypesInValidationRule().remove(readingTypeInValidationRule);
-    }           */
+    private ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType){
+        for (ReadingTypeInValidationRule readingTypeInValidationRule : doGetReadingTypesInValidationRule()) {
+            if (readingTypeInValidationRule.equals(readingType)) {
+                return readingTypeInValidationRule;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void deleteReadingType(ReadingType readingType) {
+        ReadingTypeInValidationRule readingTypeInValidationRule = getReadingTypeInRule(readingType);
+        if (readingTypeInValidationRule != null) {
+            doGetReadingTypesInValidationRule().remove(readingTypeInValidationRule);
+        }
+    }
 
 
 }

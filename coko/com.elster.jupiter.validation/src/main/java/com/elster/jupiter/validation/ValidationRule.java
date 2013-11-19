@@ -40,4 +40,6 @@ public interface ValidationRule {
     List<ReadingType> getReadingTypes();
 
     ReadingTypeInValidationRule addReadingType(ReadingType readingType);
+
+    void deleteReadingType(ReadingType readingType);
 }
