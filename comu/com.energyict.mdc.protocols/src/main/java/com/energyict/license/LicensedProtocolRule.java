@@ -269,6 +269,11 @@ public enum LicensedProtocolRule implements LicensedProtocol {
         return this.families;
     }
 
+    @Override
+    public String getName() {
+        return name();
+    }
+
 
     /**
      * Returns the LicensedProtocolRule that is uniquely identified by the code.
