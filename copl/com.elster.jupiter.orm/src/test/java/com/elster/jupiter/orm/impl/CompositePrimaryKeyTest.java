@@ -1,5 +1,8 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.google.common.collect.ImmutableList;
+
 public class CompositePrimaryKeyTest extends EqualsContractTest {
 
     private static final CompositePrimaryKey COMPOSITE_PRIMARY_KEY = new CompositePrimaryKey("A", "B", "C");
@@ -15,8 +18,11 @@ public class CompositePrimaryKeyTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
-        return new CompositePrimaryKey("A", "R", "C");
+    protected Iterable<?> getInstancesNotEqualToA() {
+        CompositePrimaryKey middle = new CompositePrimaryKey("A", "R", "C");
+        CompositePrimaryKey first = new CompositePrimaryKey("R", "B", "C");
+        CompositePrimaryKey last = new CompositePrimaryKey("A", "B", "R");
+        return ImmutableList.of(middle, first, last);
     }
 
     @Override
