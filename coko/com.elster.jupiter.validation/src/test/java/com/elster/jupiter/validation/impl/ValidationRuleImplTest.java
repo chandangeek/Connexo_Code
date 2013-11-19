@@ -1,12 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleProperties;
-import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,10 +48,23 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Mock
     private TypeCache<ValidationRuleProperties>  rulePropertiesFactory;
 
+    @Mock
+    private DataMapper<ReadingTypeInValidationRule> readingTypesInRuleFactory;
+
+    @Mock
+    private ReadingType readingType1;
+
+    @Mock
+    private ReadingType readingType2;
+
+    @Mock
+    private ReadingType readingType3;
+
     @Before
     public void setUp() {
         when(serviceLocator.getOrmClient().getValidationRuleFactory()).thenReturn(ruleFactory);
         when(serviceLocator.getOrmClient().getValidationRulePropertiesFactory()).thenReturn(rulePropertiesFactory);
+        when(serviceLocator.getOrmClient().getReadingTypesInValidationRuleFactory()).thenReturn(readingTypesInRuleFactory);
         Bus.setServiceLocator(serviceLocator);
     }
 
@@ -147,6 +159,58 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         verify(rulePropertiesFactory).remove(property2);
         verify(rulePropertiesFactory).persist(property2);
         verify(rulePropertiesFactory).persist(property3);
+
+    }
+
+    @Test
+    public void testPersistWithReadingTypes() {
+        ValidationRuleImpl newRule =
+                new ValidationRuleImpl(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION);
+        ReadingTypeInValidationRule readingTypeInValidationRule =
+                newRule.addReadingType(readingType1);
+
+        newRule.save();
+
+        verify(ruleFactory).persist(newRule);
+        verify(readingTypesInRuleFactory).persist(readingTypeInValidationRule);
+    }
+
+    @Test
+    public void testDeleteWithReadingTypes() {
+        ValidationRuleImpl newRule =
+                new ValidationRuleImpl(ruleSet, ValidationAction.FAIL, IMPLEMENTATION, POSITION);
+        ReadingTypeInValidationRule readingTypeInValidationRule =
+                newRule.addReadingType(readingType1);
+        field("id").ofType(Long.TYPE).in(newRule).set(ID);
+
+        newRule.delete();
+
+        verify(ruleFactory).remove(newRule);
+    }
+
+    @Test
+    public void testUpdateWithRulesAndReadingTypesPerformsNecessaryDBOperations() {
+        when(readingType1.getMRID()).thenReturn("1");
+        when(readingType2.getMRID()).thenReturn("2");
+        when(readingType3.getMRID()).thenReturn("3");
+//        when(validationRule.getReadingTypeInRule(readingType1)).thenReturn(type1);
+//        when(validationRule.getReadingTypeInRule(readingType2)).thenReturn(type2);
+
+        ReadingTypeInValidationRule type1 = validationRule.addReadingType(readingType1);
+        ReadingTypeInValidationRule type2 = validationRule.addReadingType(readingType2);
+
+        when(readingTypesInRuleFactory.find("ruleId", validationRule.getId())).thenReturn(Arrays.asList(type1, type2));
+
+        validationRule.deleteReadingType(readingType1);
+        ReadingTypeInValidationRule type3 = validationRule.addReadingType(readingType3);
+
+        validationRule.save();
+
+        verify(ruleFactory).update(validationRule);
+        verify(readingTypesInRuleFactory).remove(type1);
+        verify(readingTypesInRuleFactory).remove(type2);
+        verify(readingTypesInRuleFactory).persist(type2);
+        verify(readingTypesInRuleFactory).persist(type3);
 
     }
 

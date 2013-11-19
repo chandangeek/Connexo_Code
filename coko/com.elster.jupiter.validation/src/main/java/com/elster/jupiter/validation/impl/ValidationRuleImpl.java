@@ -276,7 +276,7 @@ final class ValidationRuleImpl implements ValidationRule {
         return readingTypeInValidationRule;
     }
 
-    private ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType){
+    public ReadingTypeInValidationRule getReadingTypeInRule(ReadingType readingType){
         for (ReadingTypeInValidationRule readingTypeInValidationRule : doGetReadingTypesInValidationRule()) {
             if (readingTypeInValidationRule.getReadingType().equals(readingType)) {
                 return readingTypeInValidationRule;
