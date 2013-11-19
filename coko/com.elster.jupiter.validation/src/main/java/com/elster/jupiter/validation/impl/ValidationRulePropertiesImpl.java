@@ -5,7 +5,7 @@ import com.elster.jupiter.validation.ValidationRuleProperties;
 
 import java.math.BigDecimal;
 
-public final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
+final class ValidationRulePropertiesImpl implements ValidationRuleProperties {
 
     private String name;
     private BigDecimal value;

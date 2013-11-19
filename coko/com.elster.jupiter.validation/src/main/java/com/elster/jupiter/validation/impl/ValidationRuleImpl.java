@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public final class ValidationRuleImpl implements ValidationRule {
+final class ValidationRuleImpl implements ValidationRule {
 
     private long id;
     private boolean active;

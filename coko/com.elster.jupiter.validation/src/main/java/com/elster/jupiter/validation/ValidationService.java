@@ -13,7 +13,5 @@ public interface ValidationService {
 
     void applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation);
 
-    Optional<ValidationRuleSet> ruleSetFor(MeterActivation meterActivation);
-
     List<ValidationRuleSet> getValidationRuleSets();
 }
