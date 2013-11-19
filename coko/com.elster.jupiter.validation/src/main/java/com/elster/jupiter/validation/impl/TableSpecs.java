@@ -80,7 +80,7 @@ public enum TableSpecs {
             Column readingTypeMRIDColumn = table.addColumn("READINGTYPEMRID","varchar2(80)",true,NOCONVERSION,"readingTypeMRID");
             table.addPrimaryKeyConstraint("VAL_PK_RTYPEINVALRULE", idColumn);
             table.addForeignKeyConstraint("VAL_FK_RTYPEINVALRULE_RULE", VAL_VALIDATIONRULE.name(), DeleteRule.CASCADE, new AssociationMapping("rule", "readingTypesInRule"),ruleIdColumn);
-            table.addForeignKeyConstraint("VAL_FK_RTYPEINVALRULE_RTYPE", "MTR_READINGTYPE", DeleteRule.RESTRICT, new AssociationMapping("readingType"),readingTypeMRIDColumn);
+            table.addForeignKeyConstraint("VAL_FK_RTYPEINVALRULE_RTYPE", "MTR", "MTR_READINGTYPE", DeleteRule.RESTRICT, "readingType",readingTypeMRIDColumn);
         }
     };
 
