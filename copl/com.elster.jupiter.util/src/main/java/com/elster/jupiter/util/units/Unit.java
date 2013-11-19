@@ -9,7 +9,7 @@ import static java.math.BigDecimal.ZERO;
  * An enumeration of all supported units.
  */
 public enum Unit {
-
+	//CIM units
     UNITLESS("unitless", "", Dimension.DIMENSIONLESS),
     METER("meter", "m", Dimension.LENGTH),
     KILOGRAM("kilogram", "kg", Dimension.MASS),
@@ -86,25 +86,69 @@ public enum Unit {
     BOOLEAN("boolean", "status", Dimension.DIMENSIONLESS),
     BOOLEAN_ARRAY("boolean array", "statuses", Dimension.DIMENSIONLESS),
     COUNT("count", "Count", Dimension.DIMENSIONLESS),
-    DECIBEL_MILLIWATT("decibel milliwatt", "dBm", Dimension.POWER), // TO DO convert to SI
+    DECIBEL_MILLIWATT("decibel milliwatt", "dBm", Dimension.POWER), // TODO convert to SI
     ENCODED_VALUE("encoded value", "Code", Dimension.DIMENSIONLESS),
     WATT_HOUR_PER_ROTATION("watt hours per rotation", "Wh/rev", Dimension.ENERGY, Constants.BD3600),
     VOLT_AMPERE_REACTIVE_HOUR_PER_ROTATION("volt ampere reactive hours per rotation", "VArh/rev", Dimension.REACTIVE_ENERGY, Constants.BD3600),
     VOLT_AMPERE_HOUR_PER_ROTATION("volt ampere hours per rotation", "VAh/rev", Dimension.APPARENT_ENERGY, Constants.BD3600),
-    END_DEVICE_EVENT_CODE("end device event code", "MeCode", Dimension.DIMENSIONLESS),
-
+    END_DEVICE_EVENT_CODE("end device event code", "MeCode", Dimension.DIMENSIONLESS), //118
+    CUBIC_FEET("cubic feet","ft\u00b3","ft3",Dimension.VOLUME,Constants.CUBIC_METER_PER_CUBIC_FOOT),
+    CUBIC_FEET_COMPENSATED("cubic feet compensated","ft\u00b3(compensated)","ft3(compensated)",Dimension.VOLUME,Constants.CUBIC_METER_PER_CUBIC_FOOT),
+    CUBIC_FEET_UNCOMPENSATED("cubic feet uncompensated","ft\u00b3(uncompensated)","ft3(uncompensated)",Dimension.VOLUME,Constants.CUBIC_METER_PER_CUBIC_FOOT),
+    CUBIC_FEET_PER_HOUR("cubic feet per hour","ft\u00b3/h","ft3/h",Dimension.VOLUME_FLOW,Constants.CUBIC_METER_PER_CUBIC_FOOT,Constants.BD3600),
+    CUBIC_FEET_COMPENSATED_PER_HOUR("cubic feet compensated per hour","ft\u00b3(compensated)/h","ft3(compensated)/h",Dimension.VOLUME_FLOW,Constants.CUBIC_METER_PER_CUBIC_FOOT,Constants.BD3600),
+    CUBIC_FEET_UNCOMPENSATED_PER_HOUR("cubic feet uncompensated per hour","ft\u00b3(uncompensated)/h","ft3(uncompensated)/h",Dimension.VOLUME_FLOW,Constants.CUBIC_METER_PER_CUBIC_FOOT,Constants.BD3600),
+    CUBIC_METER_PER_HOUR("cubic meter per hour","m\u00b3/h","m3/h",Dimension.VOLUME_FLOW,ONE,Constants.BD3600),
+    CUBIC_METER_COMPENSATED_PER_HOUR("cubic meter compensated per hour","m\u00b3(compensated)/h","m3(compensated)/h",Dimension.VOLUME_FLOW,ONE,Constants.BD3600),
+    CUBIC_METER_UNCOMPENSATED_PER_HOUR("cubic meter uncompensated per hour","m\u00b3(uncompensated)/h","m3(uncompensated)/h",Dimension.VOLUME_FLOW,ONE,Constants.BD3600),
+    USGALLON("us gallon","USGal",Dimension.VOLUME,Constants.CUBIC_METER_PER_USGALLON),
+    USGALLON_PER_HOUR("us gallon per hour","USGal/h",Dimension.VOLUME_FLOW,Constants.CUBIC_METER_PER_USGALLON,Constants.BD3600),
+    IMPERIALGALLON("imperial gallon","ImperialGal",Dimension.VOLUME,Constants.CUBIC_METER_PER_IMPERIALGALLON),
+    IMPERIALGALLON_PER_HOUR("imperial gallon per hour","ImperarialGal/h",Dimension.VOLUME_FLOW,Constants.CUBIC_METER_PER_IMPERIALGALLON,Constants.BD3600),
+    BRITISH_THERMAL_UNIT("british thermal unit","BTU",Dimension.ENERGY,Constants.JOULE_PER_BTU),
+    BRITISH_THERMAL_UNIT_PER_HOUR("british thermal unit per hour","BTU/h",Dimension.POWER,Constants.JOULE_PER_BTU,Constants.BD3600),
+    LITRE("litre","L",Dimension.VOLUME,ONE,Constants.BD1000),
+    LITRE_PER_HOUR("litre per hour", "L/h", Dimension.VOLUME_FLOW, ONE, Constants.BD3600.multiply(Constants.BD1000)),
+    LITRE_COMPENSATED_PER_HOUR("litre compensated per hour","L(compensated)/h",Dimension.VOLUME_FLOW, ONE, Constants.BD3600.multiply(Constants.BD1000)),
+    LITRE_UNCOMPENSATED_PER_HOUR("litre uncompensated per hour","L(uncompensated)/h",Dimension.VOLUME_FLOW,ONE,Constants.BD3600.multiply(Constants.BD1000)),   
+    PASCAL_GAUGE("pascal gauge","PaG",Dimension.PRESSURE),
+    POUND_PER_SQUARE_INCH_ABSOLUTE("pounds per square inch, absolute","ps/A",Dimension.PRESSURE,Constants.NEWTON_PER_POUND,Constants.SQUARE_METER_PER_SQUARE_INCH),
+    POUND_PER_SQUARE_INCH_GAUGE("pounds per square inch, gauge","ps/G",Dimension.PRESSURE,Constants.NEWTON_PER_POUND,Constants.SQUARE_METER_PER_SQUARE_INCH),
+    LITRE_PER_LITRE("liter per liter","L/L",Dimension.DIMENSIONLESS),
+    GRAM_PER_GRAM("gram per gram","g/g",Dimension.DIMENSIONLESS),
+    MOL_PER_M3("mol per m3","mol/m\u00b3","mol/m3",Dimension.VOLUME_CONCENTRATION),
+    MOL_PER_MOL("mol per mol","mol/mol",Dimension.DIMENSIONLESS),
+    MOL_PER_KG("mol per kg","mol/kg",Dimension.MASS_CONCENTRATION),
+    METER_PER_METER("meter per meter","m/m",Dimension.DIMENSIONLESS),
+    SECOND_PER_SECOND("second per second","s/s",Dimension.DIMENSIONLESS),
+    HERZ_PER_HERZ("herz per herz","Hz/Hz",Dimension.DIMENSIONLESS),
+    VOLT_PER_VOLT("volt per volt","V/V",Dimension.DIMENSIONLESS),
+    AMPERE_PER_AMPERE("ampere per ampere","A/A",Dimension.DIMENSIONLESS),
+    WATT_PER_VOLTAMPERE("watt per voltampere","W/VA",Dimension.DIMENSIONLESS),
+    REVOLUTIONS("revolutions","rev",Dimension.DIMENSIONLESS), //154
+    PASCAL_ABSOLUTE("pascal absolute","PaA",Dimension.PRESSURE),
+    LITRE_UNCOMPENSATED("litre uncompensated","L(uncompensated)",Dimension.VOLUME,ONE,Constants.BD1000),
+    LITRE_COMPENSATED("litre compensated","L(compensated)",Dimension.VOLUME,ONE,Constants.BD1000),
+    KATAL("katal","kat",Dimension.CATALYTIC_ACTIVITY),
+    MINUTE("minute", "min", Dimension.TIME, BigDecimal.valueOf(60)),
+    HOUR("hour", "h", Dimension.TIME, Constants.BD3600),
+    QUANTITY_POWER_45("quantity power 45", "Q45",Dimension.DIMENSIONLESS),
+    QUANTITY_POWER_60("quantity power 45", "Q45",Dimension.DIMENSIONLESS),
+    QUANTITY_ENERGY_45("quantity energy 45", "Q45h",Dimension.DIMENSIONLESS),
+    QUANTITY_ENERGY_60("quantity energy 60", "Q60h",Dimension.DIMENSIONLESS),
+    JOULES_PER_KG("joule per kg","J/kg",Dimension.SPECIFIC_ENERGY),
+    CUBIC_METER_UNCOMPENSATED("cubic meter uncompensated","m\u00b3(uncompensated)","m3(uncompensated)",Dimension.VOLUME),
+    CUBIC_METER_COMPENSATED("cubic meter compensated","m\u00b3(compensated)","m3(compensated)",Dimension.VOLUME),
+    WATT_PER_WATT("watt per watt","W/W",Dimension.DIMENSIONLESS), // 168
+    THERM("therm", "therm", Dimension.ENERGY, Constants.JOULE_PER_THERM),
+    // Other units
     YEAR("year", "a", Dimension.TIME, BigDecimal.valueOf(3600L * 24 * 365)),
     MONTH("month", "mo", Dimension.TIME, BigDecimal.valueOf(3600L * 24 * 30)),
     DAY("day", "d", Dimension.TIME, Constants.BD86400),
-    HOUR("hour", "h", Dimension.TIME, Constants.BD3600),
-    MINUTE("minute", "min", Dimension.TIME, BigDecimal.valueOf(60)),
     NORMAL_CUBIC_METER("normal cubic meter", "Nm\u00b3", "Nm3", Dimension.VOLUME),
-    CUBIC_METER_PER_HOUR("cubic meter per hour", "m\u00b3/h", "m3/h", Dimension.VOLUME_FLOW, ONE, Constants.BD3600, ZERO),
     NORMAL_CUBIC_METER_PER_HOUR("normal cubic meter per hour", "Nm\u00b3/h", "Nm3/h", Dimension.VOLUME_FLOW, ONE, Constants.BD3600, ZERO),
     CUBIC_METER_PER_DAY("cubic meter per day", "m\u00b3/d", "m3/d", Dimension.VOLUME_FLOW, ONE, Constants.BD86400, ZERO),
     NORMAL_CUBIC_METER_PER_DAY("normal cubic meter per day", "Nm\u00b3/d", "Nm3/d", Dimension.VOLUME_FLOW, ONE, Constants.BD86400, ZERO),
-    LITER("liter", "l", Dimension.VOLUME, ONE, Constants.BD1000),
-
     PER_HOUR("per hour", "/h", Dimension.FREQUENCY, ONE, Constants.BD3600),
     MOLE_PER_CENT("mole percent hour", "mol%/", Dimension.DIMENSIONLESS, ONE, Constants.BD100),
     PERCENT("percent", "%", Dimension.DIMENSIONLESS, ONE, Constants.BD100),
@@ -113,16 +157,15 @@ public enum Unit {
     TON("ton", "t", Dimension.MASS, Constants.BD1000),
     KILOGRAM_PER_HOUR("kilogram per hour", "kg/h", Dimension.MASSFLOW, ONE, Constants.BD3600),
     TON_PER_HOUR("ton per hour", "t/h", Dimension.MASSFLOW, Constants.BD1000, Constants.BD3600),
-    LITER_PER_HOUR("liter per hour", "l/h", Dimension.VOLUME_FLOW, ONE, Constants.BD3600.multiply(Constants.BD1000)),
-    // TODO verify and check UK AND US units from com.energyict.cbo.BaseUnit
+   // TODO verify and check UK AND US units from com.energyict.cbo.BaseUnit
     FOOT("foot", "ft", Dimension.LENGTH, Constants.METER_PER_FOOT),
     FOOT_PER_SECOND("foot per second", "ft/s", Dimension.SPEED, Constants.METER_PER_FOOT),
-    CUBIC_FOOT("cubic foot", "cf", Dimension.VOLUME, Constants.CUBIC_METER_PER_CUBIC_FOOT),
-    CUBIC_FOOT_PER_HOUR("cubic foot per hour", "cf/h", Dimension.VOLUME_FLOW, Constants.CUBIC_METER_PER_CUBIC_FOOT, Constants.BD3600),
     CUBIC_FOOT_PER_DAY("cubic foot per day", "cf/d", Dimension.VOLUME_FLOW, Constants.CUBIC_METER_PER_CUBIC_FOOT, Constants.BD86400),
-    THERM("therm", "thm", Dimension.ENERGY, Constants.JOULE_PER_THERM),
     THERM_PER_HOUR("therm per hour", "thm/h", Dimension.POWER, Constants.JOULE_PER_THERM, Constants.BD3600),
     THERM_PER_DAY("therm per day", "thm/d", Dimension.POWER, Constants.JOULE_PER_THERM, Constants.BD86400);
+   
+    
+    
     private static final int EXTRA_PRECISION = 6;
 
     private final String name;
@@ -194,6 +237,12 @@ public enum Unit {
         BigDecimal SQUARE_METER_PER_SQUARE_FOOT = METER_PER_FOOT.multiply(METER_PER_FOOT);
         BigDecimal CUBIC_METER_PER_CUBIC_FOOT = SQUARE_METER_PER_SQUARE_FOOT.multiply(METER_PER_FOOT);
         BigDecimal JOULE_PER_THERM = BigDecimal.valueOf(105505585257348L, 6);
+        BigDecimal CUBIC_METER_PER_USGALLON = BigDecimal.valueOf(378541178L,11);
+        BigDecimal CUBIC_METER_PER_IMPERIALGALLON = BigDecimal.valueOf(454609188L,11);
+        BigDecimal JOULE_PER_BTU = BigDecimal.valueOf(105505585L,5);
+        BigDecimal NEWTON_PER_POUND = BigDecimal.valueOf(4448222L,6);
+        BigDecimal METER_PER_INCH = BigDecimal.valueOf(254,4);
+        BigDecimal SQUARE_METER_PER_SQUARE_INCH = METER_PER_INCH.multiply(METER_PER_INCH);
     }
 
     public String getName() {

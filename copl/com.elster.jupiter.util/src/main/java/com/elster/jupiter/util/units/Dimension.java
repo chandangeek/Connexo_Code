@@ -81,6 +81,10 @@ public final class Dimension implements HasName {
 	public static final Dimension ABSORBED_DOSE = new Dimension("absorbed dose",2,0,-2,0);
 	public static final Dimension DOSE_EQUIVALENT = new Dimension("absorbed dose",2,0,-2,0);
 	public static final Dimension MASSFLOW = new Dimension("mass flow dose",0,1,-1,0);
+	public static final Dimension VOLUME_CONCENTRATION = new Dimension("volume concentration",-3,0,0,0,0,1,0);
+	public static final Dimension MASS_CONCENTRATION = new Dimension("mass concentration",0,-1,0,0,0,1,0);
+	public static final Dimension CATALYTIC_ACTIVITY = new Dimension("catalytic activity",0,0,-1,0,0,1,0);
+	public static final Dimension SPECIFIC_ENERGY = new Dimension("specific energy",2,1,-3,0);
 		
 	public String getName() {
 		return name;
