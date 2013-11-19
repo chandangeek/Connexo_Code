@@ -1,5 +1,6 @@
 package com.elster.jupiter.parties.impl;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 
 import static org.fest.reflect.core.Reflection.field;
@@ -40,10 +41,10 @@ public class PersonImplTest extends PartyImplTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
-        PersonImpl equalInstance = new PersonImpl(FIRST_NAME, LAST_NAME);
-        field("id").ofType(Long.TYPE).in(equalInstance).set(OTHER_ID);
-        return equalInstance;
+    protected Iterable<?> getInstancesNotEqualToA() {
+        PersonImpl unequalInstance = new PersonImpl(FIRST_NAME, LAST_NAME);
+        field("id").ofType(Long.TYPE).in(unequalInstance).set(OTHER_ID);
+        return ImmutableList.of(unequalInstance);
     }
 
     @Override

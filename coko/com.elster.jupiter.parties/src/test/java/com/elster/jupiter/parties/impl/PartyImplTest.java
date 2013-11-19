@@ -1,5 +1,6 @@
 package com.elster.jupiter.parties.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;

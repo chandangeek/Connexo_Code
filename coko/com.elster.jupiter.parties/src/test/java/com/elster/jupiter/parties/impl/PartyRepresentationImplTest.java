@@ -1,8 +1,10 @@
 package com.elster.jupiter.parties.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -48,8 +50,8 @@ public class PartyRepresentationImplTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
-        return new PartyRepresentationImpl(party, user1, Interval.startAt(new Date(0)));
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return ImmutableList.of(new PartyRepresentationImpl(party, user1, Interval.startAt(new Date(0))));
     }
 
     @Override
