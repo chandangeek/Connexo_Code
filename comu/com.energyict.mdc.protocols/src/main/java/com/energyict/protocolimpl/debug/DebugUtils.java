@@ -1,11 +1,16 @@
 package com.energyict.protocolimpl.debug;
 
 import com.energyict.cbo.ApplicationException;
-import com.energyict.cpo.Environment;
+import com.energyict.cbo.DatabaseException;
+import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.dialer.core.*;
 import com.energyict.protocolimpl.base.DebuggingObserver;
+import oracle.jdbc.OracleDriver;
 
 import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
@@ -124,9 +129,44 @@ public class DebugUtils {
 			Properties properties = new Properties();
 			properties.load(fis);
             fis.close();
-			Environment.setDefault(properties);
+			EnvironmentImpl.setDefault(
+                    new DebugEnvironment(
+                            properties.getProperty("jdbcUrl"),
+                            properties.getProperty("dbUser"),
+                            properties.getProperty("dbPassword")));
 		} catch (IOException e) {
 			throw new ApplicationException(e);
 		}
 	}
+
+    private static class DebugEnvironment extends EnvironmentImpl {
+        private Connection connection;
+
+        private DebugEnvironment (String jdbcUrl, String dbUser, String dbPassword) {
+            super();
+            this.establishConnection(jdbcUrl, dbUser, dbPassword);
+        }
+
+        private void establishConnection (String jdbcUrl, String dbUser, String dbPassword) {
+            try {
+                DriverManager.registerDriver(new OracleDriver());
+                this.connection = DriverManager.getConnection(jdbcUrl, dbUser, dbPassword);
+            }
+            catch (SQLException e) {
+                throw new DatabaseException(e);
+            }
+        }
+
+        @Override
+        public Connection getConnection () {
+            return this.connection;
+        }
+
+        @Override
+        public boolean useOraLobs () {
+            return false;   // function empty_blob() not available
+        }
+
+    }
+
 }

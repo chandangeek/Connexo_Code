@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedData;
@@ -86,8 +86,8 @@ public class RequestDiscoverTest {
     protected byte[] inboundFrame;
 
     private static final int LOGBOOK_ID = 10;
-    private static final String TIMEOUT_KEY = Environment.getDefault().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = Environment.getDefault().getTranslation("protocol.retries");
+    private static final String TIMEOUT_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.timeout");
+    private static final String RETRIES_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.retries");
 
     @Before
     public void initialize() {

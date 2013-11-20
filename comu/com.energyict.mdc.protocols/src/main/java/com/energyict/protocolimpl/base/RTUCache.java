@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.base;
 
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.DatabaseException;
-import com.energyict.cpo.Environment;
+import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.cpo.SqlBuilder;
 import com.energyict.cpo.Transaction;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -42,7 +42,7 @@ public class RTUCache {
         builder.bindInt(rtuid);
         PreparedStatement stmnt;
 		try {
-			stmnt = builder.getStatement(Environment.getDefault().getConnection());
+			stmnt = builder.getStatement(EnvironmentImpl.getDefault().getConnection());
 
 	        try {
 	              InputStream in = null;
@@ -98,13 +98,13 @@ public class RTUCache {
 			private void createOrUpdateDeviceCache() throws SQLException {
 				SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ?");
 				builder.bindInt(rtuid);
-				PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());
+				PreparedStatement stmnt = builder.getStatement(EnvironmentImpl.getDefault().getConnection());
 				try {
 					ResultSet rs = stmnt.executeQuery();
 					if (!rs.next()) {
 						builder = new SqlBuilder("insert into eisdevicecache (rtuid, content, mod_date) values (?,empty_blob(),sysdate)");
 						builder.bindInt(rtuid);
-						PreparedStatement insertStmnt = builder.getStatement(Environment.getDefault().getConnection());
+						PreparedStatement insertStmnt = builder.getStatement(EnvironmentImpl.getDefault().getConnection());
 						try {
 							insertStmnt.executeUpdate();
 						}
@@ -118,13 +118,13 @@ public class RTUCache {
 			}
 
             /**
-             * Select the EISDEVICECACHE from the DB and update the content 
+             * Select the EISDEVICECACHE from the DB and update the content
              * @throws SQLException
              */
 			private void updateCacheContent() throws SQLException {
 				SqlBuilder builder = new SqlBuilder("select content from eisdevicecache where rtuid = ? for update");
 				builder.bindInt(rtuid);
-				PreparedStatement stmnt = builder.getStatement(Environment.getDefault().getConnection());
+				PreparedStatement stmnt = builder.getStatement(EnvironmentImpl.getDefault().getConnection());
 				try {
 					ResultSet rs = stmnt.executeQuery();
 					if (!rs.next()) {
