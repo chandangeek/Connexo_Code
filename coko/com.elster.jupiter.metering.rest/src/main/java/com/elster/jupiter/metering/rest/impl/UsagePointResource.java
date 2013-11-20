@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReading;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -152,7 +152,7 @@ public class UsagePointResource {
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
         for (Channel channel : meterActivation.getChannels()) {
             if (channel.getId() == channelId) {
-                List<IntervalReading> intervalReadings = channel.getIntervalReadings(fromDate, toDate);
+                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(fromDate, toDate);
                 return new ReadingInfos(intervalReadings);
             }
         }
@@ -181,7 +181,7 @@ public class UsagePointResource {
 
     private ReadingInfos doGetReadingTypeReadings(long id, String mRID, Date fromDate, Date toDate, SecurityContext securityContext) {
         ReadingType readingType = null;
-        List<IntervalReading> readings = new ArrayList<>();
+        List<IntervalReadingRecord> readings = new ArrayList<>();
         for (MeterActivation meterActivation : meterActivationsForReadingTypeWithMRID(id, mRID, securityContext)) {
             if (readingType == null) {
                 readingType = FluentIterable.from(meterActivation.getReadingTypes()).firstMatch(new MRIDMatcher(mRID)).get();
