@@ -55,7 +55,7 @@ public class MeterActivationImplTest {
 
         Bus.setServiceLocator(serviceLocator);
 
-        meterActivation = new MeterActivationImpl(usagePoint, ACTIVATION_TIME, meter);
+        meterActivation = new MeterActivationImpl(meter,usagePoint, ACTIVATION_TIME);
 
         when(serviceLocator.getOrmClient().getChannelFactory().find("meterActivation", meterActivation)).thenReturn(Arrays.asList(channel1, channel2));
     }

@@ -38,18 +38,22 @@ public class MeterActivationImpl implements MeterActivation {
 	private MeterActivationImpl() {	
 	}
 	
-	MeterActivationImpl(UsagePoint usagePoint , Date start , Meter meter) {
-		this.usagePointId = usagePoint == null ? 0 : usagePoint.getId();
-		this.usagePoint = usagePoint;
+	MeterActivationImpl(Meter meter , UsagePoint usagePoint , Date start ) {
 		this.meterId = meter == null ? 0 : meter.getId();
 		this.meter = meter;
+		this.usagePointId = usagePoint == null ? 0 : usagePoint.getId();
+		this.usagePoint = usagePoint;
 		this.interval = Interval.startAt(start);
 	}
 	
 	public MeterActivationImpl(UsagePoint usagePoint, Date at) {
-		this(usagePoint,at,null);
+		this(null,usagePoint,at);
 	}
 
+	public MeterActivationImpl(Meter meter, Date at) {
+		this(meter,null,at);
+	}
+	
 	@Override
 	public long getId() {	
 		return id;

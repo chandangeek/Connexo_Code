@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
@@ -12,18 +13,13 @@ public interface Meter extends IdentifiedObject {
 	String getSerialNumber();
 	String getUtcNumber();
 	ElectronicAddress getElectronicAddress();
-	AmrSystem getAmrSystem();
-	
+	AmrSystem getAmrSystem();	
 	void save();
-
     UtcInstant getCreateTime();
-
     UtcInstant getModTime();
-
     long getVersion();
-
     void delete();
-    
     void store(MeterReading reading);
 	List<MeterActivation> getMeterActivations();
+	MeterActivation activate(Date date);
 }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.cbo.ElectronicAddress;
@@ -152,5 +153,12 @@ public class MeterImpl implements Meter {
 	
 	private Channel findChannel(Reading reading) {
 		return null;
+	}
+	
+	@Override
+	public MeterActivation activate(Date start) {
+		MeterActivation result = new MeterActivationImpl(this, start);
+		Bus.getOrmClient().getMeterActivationFactory().persist(result);
+		return result;
 	}
 }
