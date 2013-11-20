@@ -74,7 +74,7 @@ public class PartyInRoleImpl implements PartyInRole {
     }
 
     void terminate(Date date) {
-        if (!interval.contains(date)) {
+        if (!interval.contains(date,Interval.EndpointBehavior.CLOSED_OPEN)) {
             throw new IllegalArgumentException();
         }
         interval = interval.withEnd(date);

@@ -193,7 +193,7 @@ abstract class PartyImpl implements Party {
                 toUpdate = (PartyInRoleImpl) candidate; // safe cast as we only ever add that type.
             }
         }
-        if (toUpdate == null || !partyInRole.getInterval().contains(date)) {
+        if (toUpdate == null || !partyInRole.getInterval().contains(date,Interval.EndpointBehavior.CLOSED_OPEN)) {
             throw new IllegalArgumentException();
         }
         toUpdate.terminate(date);
@@ -214,7 +214,7 @@ abstract class PartyImpl implements Party {
     public void unappointDelegate(User user, Date end) {
         List<PartyRepresentation> representations = getRepresentations();
         for (PartyRepresentation representation : representations) {
-            if (representation.getDelegate().equals(user) && representation.getInterval().contains(end)) {
+            if (representation.getDelegate().equals(user) && representation.getInterval().contains(end,Interval.EndpointBehavior.CLOSED_OPEN)) {
                 representation.setInterval(representation.getInterval().withEnd(end));
                 Bus.getOrmClient().getPartyRepresentationFactory().update(representation);
                 save();
