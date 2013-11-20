@@ -2,18 +2,17 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.UtcInstant;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationStats;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Ordering;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,7 +21,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     private long id;
     private transient MeterActivation meterActivation;
     private long ruleSetId;
-    private transient ValidationRuleSet ruleSet;
+    private transient IValidationRuleSet ruleSet;
     private UtcInstant lastRun;
     private Set<ChannelValidation> channelValidations;
     private transient boolean saved;
@@ -47,7 +46,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     }
 
     @Override
-    public ValidationRuleSet getRuleSet() {
+    public IValidationRuleSet getRuleSet() {
         if (ruleSet == null) {
             ruleSet = Bus.getOrmClient().getValidationRuleSetFactory().get(ruleSetId).get();
         }
@@ -56,7 +55,7 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
 
     @Override
     public void setRuleSet(ValidationRuleSet ruleSet) {
-        this.ruleSet = ruleSet;
+        this.ruleSet = (IValidationRuleSet) ruleSet;
         this.ruleSetId = ruleSet == null ? 0 : ruleSet.getId();
     }
 
@@ -116,23 +115,34 @@ class MeterActivationValidationImpl implements MeterActivationValidation {
     }
 
     private void validateChannel(Interval interval, Channel channel) {
-        for (ValidationRule validationRule : getRuleSet().getRules()) {
-            ChannelValidation channelValidation = validationForChannel(channel);
-            for (ReadingType channelReadingType : channel.getReadingTypes()) {
-                if (validationRule.getReadingTypes().contains(channelReadingType)) {
-                    ValidationStats stats = validationRule.getValidator().validate(channel, channelReadingType, interval);
-                    channelValidation.setLastChecked(stats.getLastChecked());
-                }
+        Date earliestLastChecked = null;
+        for (IValidationRule validationRule : getRuleSet().getRules()) {
+            Date lastChecked = validationRule.validateChannel(channel, interval);
+            if (lastChecked != null) {
+                earliestLastChecked = earliestLastChecked == null ? lastChecked : Ordering.natural().min(lastChecked, earliestLastChecked);
             }
+        }
+        if (earliestLastChecked != null) {
+            findOrAddValidationFor(channel).setLastChecked(earliestLastChecked);
         }
     }
 
-    private ChannelValidation validationForChannel(Channel channel) {
+    private ChannelValidation findOrAddValidationFor(final Channel channel) {
+        ChannelValidation channelValidation = findValidationFor(channel);
+        return channelValidation == null ? addChannelValidation(channel) : channelValidation;
+    }
+
+    private ChannelValidation findValidationFor(final Channel channel) {
         for (ChannelValidation channelValidation : getChannelValidations()) {
             if (channelValidation.getChannel().equals(channel)) {
                 return channelValidation;
             }
         }
-        return addChannelValidation(channel);
+        return null;
+    }
+
+    @Override
+    public Date getLastRun() {
+        return lastRun.toDate();
     }
 }

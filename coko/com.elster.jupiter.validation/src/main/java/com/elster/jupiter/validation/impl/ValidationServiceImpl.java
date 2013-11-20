@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.Upcast;
 import com.elster.jupiter.util.time.Clock;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.*;
@@ -23,6 +24,7 @@ import java.util.Map;
 @Component(name = "com.elster.jupiter.validation", service = {InstallService.class, ValidationService.class}, property = "name=" + Bus.COMPONENTNAME, immediate = true)
 public class ValidationServiceImpl implements ValidationService, InstallService, ServiceLocator{
 
+    private static final Upcast<IValidationRuleSet,ValidationRuleSet> UPCAST = new Upcast<>();
     private volatile OrmClient ormClient;
     private volatile ComponentCache componentCache;
     private volatile EventService eventService;
@@ -106,12 +108,12 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
-        return getOrmClient().getValidationRuleSetFactory().get(id);
+        return getOrmClient().getValidationRuleSetFactory().get(id).transform(UPCAST);
     }
 
     @Override
     public List<ValidationRuleSet> getValidationRuleSets() {
-        return getOrmClient().getValidationRuleSetFactory().find();
+        return new ArrayList<ValidationRuleSet>(getOrmClient().getValidationRuleSetFactory().find());
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)

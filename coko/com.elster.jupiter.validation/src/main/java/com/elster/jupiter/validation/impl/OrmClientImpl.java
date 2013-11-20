@@ -20,13 +20,13 @@ class OrmClientImpl implements OrmClient {
     }
 
     @Override
-    public TypeCache<ValidationRuleSet> getValidationRuleSetFactory() {
-        return Bus.getComponentCache().getTypeCache(ValidationRuleSet.class, ValidationRuleSetImpl.class, TableSpecs.VAL_VALIDATIONRULESET.name());
+    public TypeCache<IValidationRuleSet> getValidationRuleSetFactory() {
+        return Bus.getComponentCache().getTypeCache(IValidationRuleSet.class, ValidationRuleSetImpl.class, TableSpecs.VAL_VALIDATIONRULESET.name());
     }
 
     @Override
-    public TypeCache<ValidationRule> getValidationRuleFactory() {
-        return Bus.getComponentCache().getTypeCache(ValidationRule.class, ValidationRuleImpl.class, TableSpecs.VAL_VALIDATIONRULE.name());
+    public TypeCache<IValidationRule> getValidationRuleFactory() {
+        return Bus.getComponentCache().getTypeCache(IValidationRule.class, ValidationRuleImpl.class, TableSpecs.VAL_VALIDATIONRULE.name());
     }
 
     @Override

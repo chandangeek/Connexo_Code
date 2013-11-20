@@ -8,7 +8,6 @@ import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
 import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.ImmutableList;
@@ -49,7 +48,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     private ValidationRuleSet ruleSet;
 
     @Mock
-    private TypeCache<ValidationRule> ruleFactory;
+    private TypeCache<IValidationRule> ruleFactory;
 
     @Mock
     private TypeCache<ValidationRuleProperties>  rulePropertiesFactory;

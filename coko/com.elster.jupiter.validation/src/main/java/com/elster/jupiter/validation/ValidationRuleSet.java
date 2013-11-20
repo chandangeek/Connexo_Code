@@ -22,7 +22,7 @@ public interface ValidationRuleSet extends IdentifiedObject {
 
     void delete();
 
-    List<ValidationRule> getRules();
+    List<? extends ValidationRule> getRules();
 
     ValidationRule addRule(ValidationAction action, String implementation);
 

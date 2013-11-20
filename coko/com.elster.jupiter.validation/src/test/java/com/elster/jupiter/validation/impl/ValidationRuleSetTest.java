@@ -4,7 +4,6 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.orm.cache.TypeCache;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
@@ -33,9 +32,9 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     private ServiceLocator serviceLocator;
 
     @Mock
-    private TypeCache<ValidationRule> ruleFactory;
+    private TypeCache<IValidationRule> ruleFactory;
     @Mock
-    private TypeCache<ValidationRuleSet> setFactory;
+    private TypeCache<IValidationRuleSet> setFactory;
 
     @Before
     public void setUp() {
@@ -111,7 +110,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Test
     public void testPersistWithRules() {
-        ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
 
         validationRuleSet.save();
 
@@ -133,14 +132,14 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Test
     public void testUpdateWithRulesPerformsNecessaryDBOperations() {
         setId(validationRuleSet, ID);
-        ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
         setId(rule1, 1001L);
-        ValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B");
+        IValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B");
         setId(rule2, 1002L);
         when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
 
         validationRuleSet.deleteRule(rule1);
-        ValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C");
+        IValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C");
 
         validationRuleSet.save();
 
@@ -154,14 +153,14 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Test
     public void testUpdateWithRulesProperlyUpdatesPositions() {
         setId(validationRuleSet, ID);
-        ValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
+        IValidationRule rule1 = validationRuleSet.addRule(ValidationAction.FAIL, "A");
         setId(rule1, 1001L);
-        ValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B");
+        IValidationRule rule2 = validationRuleSet.addRule(ValidationAction.FAIL, "B");
         setId(rule2, 1002L);
         when(ruleFactory.find()).thenReturn(Arrays.asList(rule1, rule2));
 
         validationRuleSet.deleteRule(rule1);
-        ValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C");
+        IValidationRule rule3 = validationRuleSet.addRule(ValidationAction.FAIL, "C");
 
         validationRuleSet.save();
 

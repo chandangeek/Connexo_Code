@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.cache.TypeCache;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
@@ -24,9 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationServiceImplTest {
@@ -48,9 +45,9 @@ public class ValidationServiceImplTest {
     @Mock
     private Validator validator;
     @Mock
-    private TypeCache<ValidationRuleSet> validationRuleSetFactory;
+    private TypeCache<IValidationRuleSet> validationRuleSetFactory;
     @Mock
-    private TypeCache<ValidationRule> validationRuleFactory;
+    private TypeCache<IValidationRule> validationRuleFactory;
     @Mock
     private MeterActivation meterActivation;
     @Mock

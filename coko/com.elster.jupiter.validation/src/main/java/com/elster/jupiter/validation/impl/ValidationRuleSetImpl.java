@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public final class ValidationRuleSetImpl implements ValidationRuleSet {
+public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     private long id;
     private String mRID;
@@ -26,7 +26,7 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     private UtcInstant modTime;
     private String userName;
 
-    private List<ValidationRule> rules;
+    private List<IValidationRule> rules;
 
     private ValidationRuleSetImpl() {
         // for persistence
@@ -130,35 +130,35 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     private void doUpdate() {
         validationRuleSetFactory().update(this);
 
-        DiffList<ValidationRule> entryDiff = ArrayDiffList.fromOriginal(loadRules());
+        DiffList<IValidationRule> entryDiff = ArrayDiffList.fromOriginal(loadRules());
         entryDiff.clear();
         if (rules != null) {
             entryDiff.addAll(rules);
         }
-        for (ValidationRule rule : entryDiff.getRemovals()) {
-            ((ValidationRuleImpl) rule).delete();
+        for (IValidationRule rule : entryDiff.getRemovals()) {
+            rule.delete();
         }
 
-        for (ValidationRule rule : entryDiff.getRemaining()) {
-            ((ValidationRuleImpl) rule).save();
+        for (IValidationRule rule : entryDiff.getRemaining()) {
+            rule.save();
         }
 
-        for (ValidationRule rule : entryDiff.getAdditions()) {
-            ((ValidationRuleImpl) rule).save();
+        for (IValidationRule rule : entryDiff.getAdditions()) {
+            rule.save();
         }
         Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_UPDATED.topic(), this);
     }
 
     private void doPersist() {
         validationRuleSetFactory().persist(this);
-        for (ValidationRule rule : doGetRules()) {
+        for (IValidationRule rule : doGetRules()) {
             ((ValidationRuleImpl) rule).setRuleSetId(getId());
             ((ValidationRuleImpl) rule).save();
         }
         Bus.getEventService().postEvent(EventType.VALIDATIONRULESET_CREATED.topic(), this);
     }
 
-    private TypeCache<ValidationRule> ruleFactory() {
+    private TypeCache<IValidationRule> ruleFactory() {
         return Bus.getOrmClient().getValidationRuleFactory();
     }
 
@@ -170,20 +170,20 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     }
 
     @Override
-    public List<ValidationRule> getRules() {
+    public List<IValidationRule> getRules() {
         return Collections.unmodifiableList(doGetRules());
     }
 
-    private List<ValidationRule> doGetRules() {
+    private List<IValidationRule> doGetRules() {
         if (rules == null) {
             rules = loadRules();
         }
         return  rules;
     }
 
-    private List<ValidationRule> loadRules() {
-        ArrayList<ValidationRule> validationRules = new ArrayList<>();
-        for (ValidationRule validationRule : ruleFactory().find()) {
+    private List<IValidationRule> loadRules() {
+        ArrayList<IValidationRule> validationRules = new ArrayList<>();
+        for (IValidationRule validationRule : ruleFactory().find()) {
             if (this.equals(validationRule.getRuleSet())) {
                 validationRules.add(validationRule);
             }
@@ -192,7 +192,7 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     }
 
     @Override
-    public ValidationRule addRule(ValidationAction action, String implementation) {
+    public IValidationRule addRule(ValidationAction action, String implementation) {
         ValidationRuleImpl newRule = new ValidationRuleImpl(this, action, implementation, doGetRules().size() + 1);
         rules.add(newRule);
         return newRule;
@@ -203,8 +203,8 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
         doGetRules();
         rules.remove(rule);
         int position = 1;
-        for (ValidationRule validationRule : rules) {
-            ((ValidationRuleImpl) validationRule).setPosition(position++);
+        for (IValidationRule validationRule : rules) {
+            validationRule.setPosition(position++);
         }
     }
 
@@ -212,13 +212,13 @@ public final class ValidationRuleSetImpl implements ValidationRuleSet {
     public String toString() {
         StringBuilder builder = new StringBuilder(getName());
         builder.append('\n');
-        for (ValidationRule validationRule : doGetRules()) {
+        for (IValidationRule validationRule : doGetRules()) {
             builder.append(validationRule.toString()).append('\n');
         }
         return builder.toString();
     }
 
-    private TypeCache<ValidationRuleSet> validationRuleSetFactory() {
+    private TypeCache<IValidationRuleSet> validationRuleSetFactory() {
         return Bus.getOrmClient().getValidationRuleSetFactory();
     }
 
