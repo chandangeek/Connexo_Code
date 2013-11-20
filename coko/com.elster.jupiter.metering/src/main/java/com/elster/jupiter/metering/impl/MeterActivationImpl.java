@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.BaseReading;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -55,6 +55,11 @@ public class MeterActivationImpl implements MeterActivation {
 		return id;
 	}
 
+	@Override
+	public Interval getInterval() {
+		return interval;
+	}
+	
 	@Override
 	public Optional<UsagePoint> getUsagePoint() {
 		if (usagePointId == 0) {
@@ -116,7 +121,7 @@ public class MeterActivationImpl implements MeterActivation {
 	}
 
 	@Override
-	public List<BaseReading> getReadings(Date from, Date to,ReadingType readingType) {		 
+	public List<BaseReadingRecord> getReadings(Date from, Date to,ReadingType readingType) {		 
 		Interval requested = new Interval(from, to);
         if (!requested.overlaps(interval)) {
             return Collections.emptyList();

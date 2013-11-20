@@ -1,15 +1,15 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.IntervalReading;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 
 /**
  * Decorates an IntervalReading by selecting only certain values in a possibly different order.
  */
-public class FilteredIntervalReading extends FilteredBaseReading implements IntervalReading {
+public class FilteredIntervalReadingRecord extends FilteredBaseReadingRecord implements IntervalReadingRecord {
 
-    private final IntervalReading source;    
+    private final IntervalReadingRecord source;    
 
-    FilteredIntervalReading(IntervalReading source, int... indices) {
+    FilteredIntervalReadingRecord(IntervalReadingRecord source, int... indices) {
         super(source,indices);
         this.source = source;        
     }

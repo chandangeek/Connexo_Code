@@ -1,9 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.List;
+
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableList;
 
 public class MeterImpl implements Meter {
 	// persistent fields
@@ -24,6 +32,8 @@ public class MeterImpl implements Meter {
 	
 	// associations
 	private AmrSystem amrSystem;
+	private List<MeterActivation> meterActivations;
+	private MeterActivation currentMeterActivation;
 	
 	@SuppressWarnings("unused")
 	private MeterImpl() {
@@ -61,6 +71,18 @@ public class MeterImpl implements Meter {
 		return name ==  null ? "" : name;
 	}
 
+	@Override
+	public List<MeterActivation> getMeterActivations() {
+		return ImmutableList.copyOf(doGetMeterActivations());
+	}
+	
+	private  List<MeterActivation> doGetMeterActivations() {
+		if (meterActivations == null) {
+			meterActivations = Bus.getOrmClient().getMeterActivationFactory().find("meter",this);
+		}
+		return meterActivations;
+	}
+	
 	
 	@Override
 	public void save() {
@@ -116,4 +138,19 @@ public class MeterImpl implements Meter {
     public long getVersion() {
         return version;
     }
+
+	@Override
+	public void store(MeterReading meterReading) {
+		ReadingStorer storer = Bus.getMeteringService().createOverrulingStorer();
+		for (Reading each : meterReading.getReadings()) {
+			Channel channel = findChannel(each);
+			if (channel != null) {
+				storer.addReading(channel,each);
+			}
+		}
+	}
+	
+	private Channel findChannel(Reading reading) {
+		return null;
+	}
 }

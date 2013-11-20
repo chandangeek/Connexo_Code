@@ -2,11 +2,11 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReading;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 
-public class IntervalReadingImpl extends BaseReadingImpl implements IntervalReading {
+public class IntervalReadingRecordImpl extends BaseReadingRecordImpl implements IntervalReadingRecord {
 	
-	IntervalReadingImpl(Channel channel, TimeSeriesEntry entry) {
+	IntervalReadingRecordImpl(Channel channel, TimeSeriesEntry entry) {
 		super(channel,entry);
 	}
 

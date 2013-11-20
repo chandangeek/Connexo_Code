@@ -27,7 +27,7 @@ public abstract class AbstractBaseReadingImplTest {
     private static final Date DATE = new DateTime(2013, 9, 20, 10, 11, 14).toDate();
     private static final Date RECORD_DATE = new DateTime(2013, 9, 19, 10, 11, 14).toDate();
     private static final BigDecimal VALUE = new BigDecimal("14.15");
-    private BaseReadingImpl baseReading;
+    private BaseReadingRecordImpl baseReading;
 
     @Mock
     private TimeSeriesEntry entry;
@@ -58,7 +58,7 @@ public abstract class AbstractBaseReadingImplTest {
 
     }
 
-    abstract BaseReadingImpl createInstanceToTest(Channel channel, TimeSeriesEntry entry);
+    abstract BaseReadingRecordImpl createInstanceToTest(Channel channel, TimeSeriesEntry entry);
 
     @Test
     public void testGetChannel() {

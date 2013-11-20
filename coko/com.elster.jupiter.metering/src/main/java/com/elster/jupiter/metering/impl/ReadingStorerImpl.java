@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.readings.Reading;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -25,6 +26,11 @@ public class ReadingStorerImpl implements ReadingStorer {
 		this.storer.add(channel.getTimeSeries(), dateTime, entries);
 	}
 
+	@Override 
+	public void addReading(Channel channel , Reading reading) {
+		addReading(channel,reading.getTimeStamp(),reading.getValue());
+	}
+	
 	@Override
 	public void addReading(Channel channel, Date dateTime, BigDecimal value) {
 		this.storer.add(channel.getTimeSeries(), dateTime, PROCESSING_FLAGS_DEFAULT, 0L, value);

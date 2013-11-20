@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
@@ -64,5 +65,9 @@ public enum Bus {
 
     public static ChannelBuilder getChannelBuilder() {
         return getLocator().getChannelBuilder();
+    }
+    
+    public static MeteringService getMeteringService() {
+    	return getLocator().getMeteringService();
     }
 }

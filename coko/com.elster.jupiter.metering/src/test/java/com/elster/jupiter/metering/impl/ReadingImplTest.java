@@ -6,7 +6,7 @@ import com.elster.jupiter.metering.Channel;
 public class ReadingImplTest extends AbstractBaseReadingImplTest {
 
     @Override
-    BaseReadingImpl createInstanceToTest(Channel channel, TimeSeriesEntry entry) {
-        return new ReadingImpl(channel, entry);
+    BaseReadingRecordImpl createInstanceToTest(Channel channel, TimeSeriesEntry entry) {
+        return new ReadingRecordImpl(channel, entry);
     }
 }
