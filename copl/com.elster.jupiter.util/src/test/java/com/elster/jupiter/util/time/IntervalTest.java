@@ -226,14 +226,14 @@ public class IntervalTest extends EqualsContractTest {
         assertThat(Interval.startAt(date4).isCurrent(clock)).isFalse();
     }
 
-    @Test
-    public void testInterSectionForNonOverlappingIsEmpty() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterSectionForNonOverlappingThrowsException() {
         Interval intersection = new Interval(date1, date2).intersection(new Interval(date3, date4));
         assertThat(intersection.getStart()).isEqualTo(intersection.getEnd());
     }
 
-    @Test
-    public void testInterSectionForAbuttingIsEmpty() {
+    @Test(expected = IllegalArgumentException.class)
+    public void testInterSectionForAbuttingThrowsException() {
         Interval intersection = new Interval(date1, date2).intersection(new Interval(date2, date3));
         assertThat(intersection.getStart()).isEqualTo(intersection.getEnd());
     }
