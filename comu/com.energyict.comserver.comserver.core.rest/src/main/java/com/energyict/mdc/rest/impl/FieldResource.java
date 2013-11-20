@@ -7,6 +7,7 @@ import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.servers.ComServer;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.GET;
@@ -19,6 +20,29 @@ import javax.ws.rs.Path;
 
 @Path("/field")
 public class FieldResource {
+
+    @GET
+    @Path("/")
+    public Object getAllFields() {
+        final List<Object> allFields = new ArrayList<>();
+        for (Method method : FieldResource.class.getMethods()) {
+            if (method.isAnnotationPresent(Path.class)) {
+                Path annotation = method.getAnnotation(Path.class);
+                final String path = annotation.value();
+                if (path.length()>1) {
+                    allFields.add(new Object() {
+                        public String field = path.substring(1);
+                    });
+                }
+            }
+        }
+
+        return new Object() {
+            public List<Object> fields = allFields;
+        };
+
+    }
+
     @GET
     @Path("/logLevel")
     public Object getLogLevelValues() {

@@ -84,7 +84,7 @@ public class ComServerResource {
     public ComServerInfo createComServer(OnlineComServerInfo comServerInfo) {
 //        if (comServerInfo.comServerDescriptor.equals("OnlineComServer")) {
             try {
-                return new ComServerInfo(comServerService.createOnline(comServerInfo.asShadow(new OnlineComServerShadow())));
+                return new ComServerInfo(comServerService.createOnline(comServerInfo.writeToShadow(new OnlineComServerShadow())));
             } catch (Exception e) {
                 throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
             }
@@ -102,7 +102,7 @@ public class ComServerResource {
             try {
                 OnlineComServer comServer = (OnlineComServer) comServerService.find(id);
 
-                return new ComServerInfo(comServerService.updateComServer(id, comServerInfo.asShadow(comServer.getShadow())));
+                return new ComServerInfo(comServerService.updateComServer(id, comServerInfo.writeToShadow(comServer.getShadow())));
             } catch (Exception e) {
                 throw new WebApplicationException(e, Response.serverError().build());
             }

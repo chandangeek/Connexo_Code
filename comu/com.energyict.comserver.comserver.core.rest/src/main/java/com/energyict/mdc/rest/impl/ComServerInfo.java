@@ -46,7 +46,7 @@ public class ComServerInfo {
         }
     }
 
-    public OnlineComServerShadow asShadow(OnlineComServerShadow shadow) {
+    public OnlineComServerShadow writeToShadow(OnlineComServerShadow shadow) {
         shadow.setName(name);
         shadow.setActive(active);
         shadow.setServerLogLevel(serverLogLevel);

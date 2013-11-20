@@ -26,8 +26,8 @@ public class OnlineComServerInfo extends ComServerInfo {
         this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
     }
 
-    public OnlineComServerShadow asShadow(OnlineComServerShadow comServerShadow) {
-        super.asShadow(comServerShadow);
+    public OnlineComServerShadow writeToShadow(OnlineComServerShadow comServerShadow) {
+        super.writeToShadow(comServerShadow);
         comServerShadow.setQueryAPIPostUri(queryAPIPostUri);
         comServerShadow.setUsesDefaultQueryAPIPostUri(usesDefaultQueryAPIPostUri);
         comServerShadow.setEventRegistrationUri(eventRegistrationUri);
