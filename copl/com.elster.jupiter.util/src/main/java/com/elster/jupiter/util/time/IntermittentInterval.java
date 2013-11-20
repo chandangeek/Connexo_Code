@@ -209,7 +209,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
      */
     public boolean contains(Date date) {
         for (Interval period : intervals) {
-            if (period.contains(date)) {
+            if (period.contains(date,Interval.EndpointBehavior.CLOSED_OPEN)) {
                 return true;
             }
         }
@@ -370,7 +370,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
             return null;
         }
         Interval candidate = intervals.get(i);
-        return candidate.contains(date) ? candidate : null;
+        return candidate.contains(date,Interval.EndpointBehavior.CLOSED_OPEN) ? candidate : null;
     }
 
     private int calculateHash() {

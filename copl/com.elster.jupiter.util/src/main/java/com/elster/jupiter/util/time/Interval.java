@@ -6,20 +6,20 @@ import java.util.Date;
 import java.util.Objects;
 
 /**
- * Interval represents a Date range that may be close, open or half open.
- * All methods that accept a Date instance allow null as value, and will interpret this to mean the Interval is open at the appropriate bound.
+ * 
+ * Interval represents a Date range that may be finite or infinite at either end.
+ * All instance creation methods that accept a Date instance allow null as value, and will interpret this to mean the Interval is infinite at the approriate bound.
+ * 
  */
 public final class Interval {
-	public static final long ETERNITY = 1_000_000_000_000_000_000L;
-    private static final int BITS_PER_INT = 32;
-    private static final int PRIME = 31;
+	private static final long ETERNITY = 1_000_000_000_000_000_000L;
 
     private final long start;
 	private final long end;
 
     /**
-     * @param start Date instance marking the start of the interval, or null to signify the interval is open at the start
-     * @param end Date instance marking the end of the interval, or null to signify the interval is open at the end
+     * @param start Date instance marking the start of the interval, or null to signify the interval is infinite at the start
+     * @param end Date instance marking the end of the interval, or null to signify the interval is infinite at the end
      */
 	public Interval(Date start, Date end) {
 		this.start = getStartValue(start);
@@ -38,7 +38,7 @@ public final class Interval {
     }
 
     /**
-     * Static factory method to create a half open Interval that starts at the given Date.
+     * Static factory method to create an infinite Interval that starts at the given Date.
      * @param start
      * @return
      */
@@ -55,21 +55,22 @@ public final class Interval {
 	}
 
     /**
+     * As this method is used for validity check, the CLOSED_OPEN endpoint behavior is used.
      * @param clock
      * @return true if the current time according to the given Clock is contained in this Interval.
      */
 	public boolean isCurrent(Clock clock) {
 		long now = clock.now().getTime();
-		return contains(now);
+		return contains(now,EndpointBehavior.CLOSED_OPEN);
 	}
 
-    private boolean contains(long now) {
-        return start <= now && now < end;
+    private boolean contains(long when,EndpointBehavior behavior) {
+    	return behavior.contains(this,when);
     }
 
     /**
      * @param other
-     * @return true if there is at least one Date instance that would be contained in both this Interval, as in the given Interval, false otherwise.
+     * @return true if there is at least one Date instance different that would be contained in both this Interval, as in the given Interval, false otherwise.
      */
     public boolean overlaps(Interval other) {
         return other.end > start && end > other.start;
@@ -117,8 +118,8 @@ public final class Interval {
      * @param date
      * @return true if the given instance is contained within this Date range.
      */
-    public boolean contains(Date date) {
-        return contains(date.getTime());
+    public boolean contains(Date date , EndpointBehavior behavior) {
+        return contains(Objects.requireNonNull(date.getTime()) , behavior);
     }
 
     /**
@@ -249,4 +250,30 @@ public final class Interval {
     public boolean isEmpty() {
         return start == end && start != -ETERNITY && end != ETERNITY;
     }
-}
+    
+    public enum EndpointBehavior {
+    	CLOSED_OPEN {
+    		boolean contains(Interval interval , long when) {
+    			return when >= interval.start && when < interval.end;
+    		}
+    	},
+    	OPEN_CLOSED {
+    		boolean contains(Interval interval , long when) {
+    			return when > interval.start && when <= interval.end;
+    		}
+		},
+    	CLOSED_CLOSED {
+    		boolean contains(Interval interval , long when) {
+    			return when >= interval.start && when <= interval.end;
+    		}
+		},
+    	OPEN_OPEN {
+    		boolean contains(Interval interval , long when) {
+    			return when > interval.start && when < interval.end;
+    		}
+		};
+    	
+    	abstract boolean contains(Interval interval , long when);
+    }
+ 
+ }

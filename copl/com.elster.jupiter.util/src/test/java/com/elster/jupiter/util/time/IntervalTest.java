@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.time;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+
 import com.google.common.collect.ImmutableList;
 import org.fest.assertions.api.BooleanAssert;
 import org.junit.Test;
@@ -9,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Date;
+
+import static com.elster.jupiter.util.time.Interval.EndpointBehavior.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -25,6 +28,7 @@ public class IntervalTest extends EqualsContractTest {
     private final Date date8 = new Date(8000);
 
     private final Interval interval = new Interval(date3, date6);
+
 
     @Mock
     private Clock clock;
@@ -149,28 +153,41 @@ public class IntervalTest extends EqualsContractTest {
     }
 
     @Test
-    public void testClosedIntervalContainsTrueWithin() {
-        assertThat(new Interval(date2, date4).contains(date3)).isTrue();
+    public void testFiniteIntervalContainsTrueWithin() {
+    	for (Interval.EndpointBehavior each : Interval.EndpointBehavior.values()) {
+    		assertThat(new Interval(date2, date4).contains(date3,each)).isTrue();
+    	}
     }
 
     @Test
-    public void testClosedIntervalContainsTrueAtStart() {
-        assertThat(new Interval(date2, date4).contains(date2)).isTrue();
+    public void testFiniteIntervalAtStart() {
+        assertThat(new Interval(date2, date4).contains(date2,CLOSED_OPEN)).isTrue();
+        assertThat(new Interval(date2, date4).contains(date2,CLOSED_CLOSED)).isTrue();
+        assertThat(new Interval(date2, date4).contains(date2,OPEN_CLOSED)).isFalse();
+        assertThat(new Interval(date2, date4).contains(date2,OPEN_OPEN)).isFalse();
     }
 
     @Test
-    public void testClosedIntervalContainsFalseAtEnd() {
-        assertThat(new Interval(date2, date4).contains(date4)).isFalse();
+    public void testFiniteIntervalAtEnd() {
+        assertThat(new Interval(date2, date4).contains(date4,CLOSED_OPEN)).isFalse();
+        assertThat(new Interval(date2, date4).contains(date4,OPEN_OPEN)).isFalse();
+        assertThat(new Interval(date2, date4).contains(date4,CLOSED_CLOSED)).isTrue();
+        assertThat(new Interval(date2, date4).contains(date4,OPEN_CLOSED)).isTrue();
     }
 
     @Test
-    public void testOpenIntervalContainsTrueWithin() {
-        assertThat(new Interval(null, null).contains(date3)).isTrue();
+    public void testInfiniteIntervalContainsTrueWithin() {
+    	for (Interval.EndpointBehavior each : Interval.EndpointBehavior.values()) {
+    		assertThat(new Interval(null, null).contains(date3,each)).isTrue();
+    	}
     }
 
     @Test
-    public void testEmptyIntervalContainsFalse() {
-        assertThat(new Interval(date2, date2).contains(date2)).isFalse();
+    public void testEmptyInterval() {
+        assertThat(new Interval(date2, date2).contains(date2,CLOSED_OPEN)).isFalse();
+        assertThat(new Interval(date2, date2).contains(date2,OPEN_CLOSED)).isFalse();
+        assertThat(new Interval(date2, date2).contains(date2,OPEN_OPEN)).isFalse();
+        assertThat(new Interval(date2, date2).contains(date2,CLOSED_CLOSED)).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)
