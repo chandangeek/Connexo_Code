@@ -1,6 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cpo.Environment;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
@@ -46,7 +45,7 @@ public class MdcApplication extends Application {
 
     @Deactivate
     public void deactivate(){
-        Environment.getDefault().closeConnection();
+
     }
 
 
