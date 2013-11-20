@@ -4,8 +4,7 @@ Ext.define('Uni.model.MenuItem', {
         'text',
         'href',
         'glyph',
-        'index',
-        ''
+        'index'
     ],
     associations: [
         {
