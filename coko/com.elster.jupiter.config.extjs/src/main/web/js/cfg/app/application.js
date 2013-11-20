@@ -9,7 +9,9 @@ Ext.define('Cfg.Application', {
     controllers: [
         'Main',
         'EventType',
-        'history.EventType'
+        'Validation',
+        'history.EventType',
+        'history.Validation'
     ],
 
     stores: [
