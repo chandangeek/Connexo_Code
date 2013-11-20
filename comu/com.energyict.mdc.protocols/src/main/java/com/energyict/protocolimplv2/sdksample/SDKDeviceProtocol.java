@@ -35,6 +35,7 @@ import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -118,6 +119,16 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     public List<PropertySpec> getOptionalProperties() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
         optionalProperties.add(PropertySpecFactory.booleanPropertySpec(defaultOptionalProperty));
+        optionalProperties.add(PropertySpecFactory.codeTableReferencePropertySpec("SDKCodeTableProperty"));
+        optionalProperties.add(PropertySpecFactory.obisCodePropertySpecWithValues("SDKObisCodeProperty",
+                ObisCode.fromString("1.0.1.8.0.255"),
+                ObisCode.fromString("1.0.1.8.1.255"),
+                ObisCode.fromString("1.0.1.8.2.255"),
+                ObisCode.fromString("1.0.2.8.0.255"),
+                ObisCode.fromString("1.0.2.8.1.255"),
+                ObisCode.fromString("1.0.2.8.2.255")));
+        optionalProperties.add(PropertySpecFactory.bigDecimalPropertySpec("SDKBigDecimalWithDefault", new BigDecimal("666.156")));
+        optionalProperties.add(PropertySpecFactory.dateTimePropertySpec("MyDateTimeProperty"));
         return optionalProperties;
     }
 
