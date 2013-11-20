@@ -1,16 +1,21 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.orm.cache.TypeCache;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.util.units.Unit;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationStats;
+import com.elster.jupiter.validation.Validator;
 import com.google.common.collect.ImmutableList;
+import org.joda.time.DateMidnight;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,8 +25,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
 
+import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -38,32 +48,32 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     public static final String PROPERTY_NAME_2 = "max";
     public static final String PROPERTY_NAME_3 = "other_property";
     public static final Quantity PROPERTY_VALUE = Unit.UNITLESS.amount(new BigDecimal(100));
+    private static final Interval INTERVAL = new Interval(new DateMidnight(2012, 12, 1).toDate(), new DateMidnight(2012, 12, 5).toDate());
+    private static final Date DATE1 = new DateMidnight(2012, 12, 3).toDate();
+    private static final Date DATE2 = new DateMidnight(2012, 12, 4).toDate();
 
     private ValidationRuleImpl validationRule;
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ServiceLocator serviceLocator;
-
     @Mock
     private ValidationRuleSet ruleSet;
-
     @Mock
     private TypeCache<IValidationRule> ruleFactory;
-
     @Mock
     private TypeCache<ValidationRuleProperties>  rulePropertiesFactory;
-
     @Mock
     private DataMapper<ReadingTypeInValidationRule> readingTypesInRuleFactory;
-
     @Mock
     private ReadingType readingType1;
-
     @Mock
     private ReadingType readingType2;
-
     @Mock
     private ReadingType readingType3;
+    @Mock
+    private Channel channel;
+    @Mock
+    private Validator validator;
 
     @Before
     public void setUp() {
@@ -217,6 +227,41 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         verify(readingTypesInRuleFactory).persist(type2);
         verify(readingTypesInRuleFactory).persist(type3);
 
+    }
+
+    @Test
+    public void testValidateChannelWhenNoReadingTypesMatch() {
+        validationRule.addReadingType(readingType1);
+        validationRule.addReadingType(readingType2);
+
+        when(channel.getReadingTypes()).thenReturn(Arrays.asList(readingType3));
+
+        assertThat(validationRule.validateChannel(channel, INTERVAL)).isNull();
+    }
+
+    @Test
+    public void testValidateChannelWhenOneReadingTypeMatches() {
+        when(serviceLocator.getValidator(eq(IMPLEMENTATION), any(Map.class))).thenReturn(validator);
+        when(validator.validate(channel, readingType2, INTERVAL)).thenReturn(new ValidationStats(DATE1, 0));
+        validationRule.addReadingType(readingType1);
+        validationRule.addReadingType(readingType2);
+
+        when(channel.getReadingTypes()).thenReturn(Arrays.asList(readingType2, readingType3));
+
+        assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(DATE1);
+    }
+
+    @Test
+    public void testValidateChannelWhenAllReadingTypesMatch() {
+        when(serviceLocator.getValidator(eq(IMPLEMENTATION), any(Map.class))).thenReturn(validator);
+        when(validator.validate(channel, readingType1, INTERVAL)).thenReturn(new ValidationStats(DATE1, 0));
+        when(validator.validate(channel, readingType2, INTERVAL)).thenReturn(new ValidationStats(DATE2, 0));
+        validationRule.addReadingType(readingType1);
+        validationRule.addReadingType(readingType2);
+
+        when(channel.getReadingTypes()).thenReturn(Arrays.asList(readingType1, readingType2));
+
+        assertThat(validationRule.validateChannel(channel, INTERVAL)).isEqualTo(DATE1);
     }
 
 }
