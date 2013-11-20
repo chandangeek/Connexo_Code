@@ -14,7 +14,7 @@ Ext.define('Cfg.controller.Validation', {
         this.initMenu();
 
         this.control({
-            'eventtypeList button[action=save]': {
+            'valiationrulesetList button[action=save]': {
                 click: this.saveRuleSets
             }
         });
