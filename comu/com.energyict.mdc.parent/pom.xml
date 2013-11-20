@@ -451,7 +451,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <_include>bnd.bnd</_include>
+                        <_include>src/main/resources/bnd.bnd</_include>
                     </instructions>
                 </configuration>
             </plugin>
