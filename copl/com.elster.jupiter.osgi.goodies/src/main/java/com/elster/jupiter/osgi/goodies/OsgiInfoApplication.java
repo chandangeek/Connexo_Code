@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @SuppressWarnings("deprecation")
-@Component(name = "com.elster.jupiter.metering.rest" , service=Application.class , immediate = true , property = {"alias=/goodies"} )
+@Component(name = "com.elster.jupiter.osgi.goodies" , service=Application.class , immediate = true , property = {"alias=/goodies"} )
 public class OsgiInfoApplication extends Application {
 	
 	static volatile PackageAdmin admin;
