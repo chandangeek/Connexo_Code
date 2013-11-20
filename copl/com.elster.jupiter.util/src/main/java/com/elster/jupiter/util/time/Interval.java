@@ -119,7 +119,7 @@ public final class Interval {
      * @return true if the given instance is contained within this Date range.
      */
     public boolean contains(Date date , EndpointBehavior behavior) {
-        return contains(Objects.requireNonNull(date.getTime()) , behavior);
+        return contains(Objects.requireNonNull(date).getTime() , behavior);
     }
 
     /**
@@ -133,6 +133,7 @@ public final class Interval {
     /**
      * @param date
      * @return a new Interval with the same end specification as this one, yet with the given start Date.
+     * @throws IllegalArgumentException if the intersection is empty.
      */
     public Interval withStart(Date date) {
         return new Interval(getStartValue(date), end);
@@ -140,7 +141,7 @@ public final class Interval {
 
     public Interval intersection(Interval interval) {
         if (!overlaps(interval)) {
-            return new Interval(start, start);
+            throw new IllegalArgumentException();
         }
         return new Interval(Ordering.natural().max(start, interval.start), Ordering.natural().min(end, interval.end));
     }
