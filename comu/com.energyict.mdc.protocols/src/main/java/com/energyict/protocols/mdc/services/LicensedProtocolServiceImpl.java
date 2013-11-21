@@ -1,6 +1,7 @@
 package com.energyict.protocols.mdc.services;
 
 import com.energyict.license.LicensedProtocolRule;
+import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.services.LicensedProtocolService;
 import com.energyict.mdw.core.LicensedProtocol;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -26,5 +27,15 @@ public class LicensedProtocolServiceImpl implements LicensedProtocolService {
             }
         }
         return allLicensedProtocols;
+    }
+
+    @Override
+    public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
+        for (LicensedProtocolRule licensedProtocolRule : LicensedProtocolRule.values()) {
+            if(licensedProtocolRule.getClassName().equals(deviceProtocolPluggableClass.getJavaClassName())){
+                return licensedProtocolRule;
+            }
+        }
+        return null;
     }
 }
