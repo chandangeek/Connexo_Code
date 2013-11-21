@@ -32,25 +32,6 @@ Ext.define('Cfg.view.validation.Edit', {
             }
         ];
 
-        var columns = [
-            {
-                text: 'Id',
-                dataIndex: 'id'
-            },
-            {
-                text: 'Active',
-                dataIndex: 'active'
-            },
-            {
-                text: 'Action',
-                dataIndex: 'action'
-            },
-            {
-                text: 'Implementation',
-                dataIndex: 'implementation'
-            }
-        ];
-
 
         this.items = [
             {
@@ -70,7 +51,8 @@ Ext.define('Cfg.view.validation.Edit', {
                     {
                         xtype: 'textfield',
                         name: 'id',
-                        fieldLabel: 'Id'
+                        fieldLabel: 'Id',
+                        readOnly: true
                     },
                     {
                         xtype: 'textfield',
@@ -102,8 +84,29 @@ Ext.define('Cfg.view.validation.Edit', {
                         itemId: 'validationruleList',
                         flex: 1,
                         store: 'ValidationRules',
-                        columns: columns
-                    } ]
+                        columns: {
+                            defaults: {
+                                flex: 1
+                            },
+                            items: [
+                                { header: 'Id', dataIndex: 'id' },
+                                { header: 'Active', dataIndex: 'active', xtype: 'checkcolumn',
+                                    editor: {
+                                        xtype: 'checkbox',
+                                        cls: 'x-grid-checkheader-editor'
+                                    } } ,
+                                { header: 'Action', dataIndex: 'action', field: {
+
+                                    xtype: 'combobox',
+                                    store: 'ValidationActions'
+
+
+                                }},
+                                { header: 'Implementation', dataIndex: 'implementation' }
+                            ]
+                        }
+                    }
+                ]
             }
         ];
 

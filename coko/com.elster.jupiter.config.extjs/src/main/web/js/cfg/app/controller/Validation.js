@@ -3,7 +3,8 @@ Ext.define('Cfg.controller.Validation', {
 
     stores: [
         'ValidationRuleSets',
-        'ValidationRules'
+        'ValidationRules',
+        "ValidationActions"
     ],
 
     views: [
