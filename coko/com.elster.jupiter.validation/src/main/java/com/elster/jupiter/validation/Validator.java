@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface Validator {
 
-    List<String> getrequiredKeys();
+    List<String> getRequiredKeys();
 
     List<String> getOptionalKeys();
 
