@@ -9,6 +9,7 @@ Ext.define('Cfg.view.validation.List', {
             flex: 1
         },
         items: [
+            { header: 'Id', dataIndex: 'id' },
             { header: 'Name', dataIndex: 'name' },
             { header: 'Description', dataIndex: 'description' }
         ]

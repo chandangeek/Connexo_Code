@@ -13,14 +13,5 @@ Ext.define('Cfg.store.ValidationRuleSets', {
         }
     }
 
-    /*proxy: {
-     type: 'ajax',
-     url: './resources/data/eventtypes.json',
-     reader: {
-     type: 'json',
-     root: 'rows'
-     }
-     }  */
-
 
 });

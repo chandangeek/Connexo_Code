@@ -2,11 +2,20 @@ Ext.define('Cfg.controller.Validation', {
     extend: 'Ext.app.Controller',
 
     stores: [
-        'ValidationRuleSets'
+        'ValidationRuleSets',
+        'ValidationRules'
     ],
 
     views: [
-        'validation.Browse'
+        'validation.Browse',
+        'validation.Edit'
+    ],
+
+    refs: [
+        {
+            ref: 'rulesGrid',
+            selector: 'validationrulesetEdit #validationruleList'
+        }
     ],
 
 
@@ -16,8 +25,17 @@ Ext.define('Cfg.controller.Validation', {
         this.control({
             'valiationrulesetList button[action=save]': {
                 click: this.saveRuleSets
+            },
+            '#validationrulesetList': {
+                itemdblclick: this.editValidationRuleSet
             }
         });
+    },
+
+    editValidationRuleSet: function (grid, record) {
+        var view = Ext.widget('validationrulesetEdit');
+        view.down('form').loadRecord(record);
+        this.getRulesGrid().reconfigure(record.rules());
     },
 
     saveRuleSets: function (button) {
