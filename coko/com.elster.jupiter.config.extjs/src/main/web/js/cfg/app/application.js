@@ -15,7 +15,8 @@ Ext.define('Cfg.Application', {
     ],
 
     stores: [
-        'EventTypes'
+        'EventTypes',
+        'ValidationRuleSets'
     ],
     launch: function () {
         // Removes the loading indicator.
