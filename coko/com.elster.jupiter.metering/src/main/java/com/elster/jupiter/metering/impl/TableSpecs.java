@@ -186,7 +186,7 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METERACTIVATION", idColumn);
 			table.addForeignKeyConstraint("MTR_FK_METERACTUSAGEPOINT",MTR_USAGEPOINT.name(),RESTRICT, new AssociationMapping("usagePoint", "meterActivations", "interval.start", "currentMeterActivation") , usagePointIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_METER.name(),RESTRICT, new AssociationMapping("meter" , "meterActivations", "interval.start", "currentMeterActivatnion") , meterIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_METER.name(),RESTRICT, new AssociationMapping("meter" , "meterActivations", "interval.start", "currentMeterActivation") , meterIdColumn);
 		}
 	},
 	MTR_CHANNEL {

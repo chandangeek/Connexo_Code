@@ -3,6 +3,8 @@ package com.elster.jupiter.metering;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.elster.jupiter.metering.readings.Reading;
+
 public interface ReadingStorer {
 
     void addIntervalReading(Channel channel, Date dateTime, long profileStatus, BigDecimal... values);
@@ -16,4 +18,6 @@ public interface ReadingStorer {
     boolean overrules();
 
     void execute();
+
+	void addReading(Channel channel, Reading reading);
 }

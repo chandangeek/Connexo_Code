@@ -13,8 +13,8 @@ public class IntervalReadingImplTest extends AbstractBaseReadingImplTest {
     private static final long PROFILE_STATUS = 214L;
 
     @Override
-    BaseReadingImpl createInstanceToTest(Channel channel, TimeSeriesEntry entry) {
-        return new IntervalReadingImpl(channel, entry);
+    BaseReadingRecordImpl createInstanceToTest(Channel channel, TimeSeriesEntry entry) {
+        return new IntervalReadingRecordImpl(channel, entry);
     }
 
     @Test
@@ -24,7 +24,7 @@ public class IntervalReadingImplTest extends AbstractBaseReadingImplTest {
 
         when(entry.getLong(1)).thenReturn(PROFILE_STATUS);
 
-        IntervalReadingImpl intervalReading = new IntervalReadingImpl(channel, entry);
+        IntervalReadingRecordImpl intervalReading = new IntervalReadingRecordImpl(channel, entry);
 
         assertThat(intervalReading.getProfileStatus()).isEqualTo(PROFILE_STATUS);
     }

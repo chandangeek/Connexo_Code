@@ -7,9 +7,9 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.metering.IntervalReading;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.Reading;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -209,11 +209,11 @@ public class ChannelImplTest extends EqualsContractTest {
         when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(2)).thenReturn(VALUE);
 
-        List<IntervalReading> intervalReadings = channel.getIntervalReadings(FROM, TO);
+        List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(FROM, TO);
 
         assertThat(intervalReadings).hasSize(1);
 
-        IntervalReading intervalReading = intervalReadings.get(0);
+        IntervalReadingRecord intervalReading = intervalReadings.get(0);
 
         assertThat(intervalReading.getReadingTypes()).hasSize(2)
                 .contains(readingType1)
@@ -227,11 +227,11 @@ public class ChannelImplTest extends EqualsContractTest {
         when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
 
-        List<IntervalReading> intervalReadings = channel.getIntervalReadings(readingType1, FROM, TO);
+        List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(readingType1, FROM, TO);
 
         assertThat(intervalReadings).hasSize(1);
 
-        IntervalReading intervalReading = intervalReadings.get(0);
+        IntervalReadingRecord intervalReading = intervalReadings.get(0);
 
         assertThat(intervalReading.getReadingTypes()).hasSize(1)
                 .contains(readingType1);
@@ -244,11 +244,11 @@ public class ChannelImplTest extends EqualsContractTest {
         when(regularTimeSeries.getEntries(FROM, TO)).thenReturn(Arrays.asList(timeSeriesEntry));
         when(timeSeriesEntry.getBigDecimal(anyInt())).thenReturn(VALUE);
 
-        List<Reading> registerReadings = channel.getRegisterReadings(FROM, TO);
+        List<ReadingRecord> registerReadings = channel.getRegisterReadings(FROM, TO);
 
         assertThat(registerReadings).hasSize(1);
 
-        Reading registerReading = registerReadings.get(0);
+        ReadingRecord registerReading = registerReadings.get(0);
 
         assertThat(registerReading.getReadingTypes()).hasSize(2)
                 .contains(readingType1)

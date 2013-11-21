@@ -1,8 +1,8 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.BaseReading;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReading;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import org.joda.time.DateTime;
@@ -43,7 +43,7 @@ public class MeterActivationImplTest {
     @Mock
     private ReadingType readingType1, readingType2, readingType3;
     @Mock
-    private IntervalReading reading1, reading2;
+    private IntervalReadingRecord reading1, reading2;
 
     @Before
     public void setUp() {
@@ -55,7 +55,7 @@ public class MeterActivationImplTest {
 
         Bus.setServiceLocator(serviceLocator);
 
-        meterActivation = new MeterActivationImpl(usagePoint, ACTIVATION_TIME, meter);
+        meterActivation = new MeterActivationImpl(meter,usagePoint, ACTIVATION_TIME);
 
         when(serviceLocator.getOrmClient().getChannelFactory().find("meterActivation", meterActivation)).thenReturn(Arrays.asList(channel1, channel2));
     }
@@ -128,7 +128,7 @@ public class MeterActivationImplTest {
     @Test
     public void testGetReadings() {
         Date to = new DateTime(2300, 2, 28, 14, 15, 9, 2).toDate();
-        when(channel1.getReadings(readingType1, ACTIVATION_TIME, END)).thenReturn(Arrays.<BaseReading>asList(reading1, reading2));
+        when(channel1.getReadings(readingType1, ACTIVATION_TIME, END)).thenReturn(Arrays.<BaseReadingRecord>asList(reading1, reading2));
 
         meterActivation.endAt(END);
 

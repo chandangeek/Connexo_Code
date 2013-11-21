@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.metering.BaseReading;
+import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableList;
 
 import java.math.BigDecimal;
@@ -12,11 +14,11 @@ import java.util.Date;
 import java.util.List;
 
 
-public abstract class BaseReadingImpl implements BaseReading {
+public abstract class BaseReadingRecordImpl implements BaseReadingRecord  {
 	private final Channel channel;
 	private final TimeSeriesEntry entry;
 	
-	BaseReadingImpl(Channel channel , TimeSeriesEntry entry) {
+	BaseReadingRecordImpl(Channel channel , TimeSeriesEntry entry) {
 		this.channel = channel;
 		this.entry = entry;
 	}
@@ -81,7 +83,7 @@ public abstract class BaseReadingImpl implements BaseReading {
 	public ReadingType getReadingType(int offset) {
 		return channel.getReadingTypes().get(offset);
 	}
-
+	
 	@Override
 	public List<ReadingType> getReadingTypes() {
 		return channel.getReadingTypes();
@@ -92,4 +94,19 @@ public abstract class BaseReadingImpl implements BaseReading {
 		return entry.getLong(0);
 	}
 
+	@Override
+	public BigDecimal getSensorAccuracy() {
+		return null;
+	}
+	
+	@Override
+	public String getSource() {
+		return null;
+	}
+	
+	@Override
+	public Interval getTimePeriod() {
+		return null;
+	}
+	
 }

@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.IntervalReading;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import org.junit.After;
 import org.junit.Before;
@@ -23,16 +23,16 @@ public class FilteredReadingTest {
     private static final BigDecimal VALUE2 = BigDecimal.valueOf(2, 0);
     private static final BigDecimal VALUE3 = BigDecimal.valueOf(3, 0);
     private static final BigDecimal VALUE4 = BigDecimal.valueOf(4, 0);
-    private FilteredIntervalReading filteredReading;
+    private FilteredIntervalReadingRecord filteredReading;
 
     @Mock
-    private IntervalReading source;
+    private IntervalReadingRecord source;
     @Mock
     private ReadingType readingType1, readingType2, readingType3, readingType4;
 
     @Before
     public void setUp() {
-        filteredReading = new FilteredIntervalReading(source, 1, 3, 0);
+        filteredReading = new FilteredIntervalReadingRecord(source, 1, 3, 0);
 
         when(source.getReadingType(1)).thenReturn(readingType1);
         when(source.getReadingType(2)).thenReturn(readingType2);

@@ -180,68 +180,68 @@ public final class ChannelImpl implements Channel {
 	}
 
 	@Override
-	public List<IntervalReading> getIntervalReadings(Date from, Date to) {
+	public List<IntervalReadingRecord> getIntervalReadings(Date from, Date to) {
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
-		ImmutableList.Builder<IntervalReading> builder = ImmutableList.builder();
+		ImmutableList.Builder<IntervalReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
-			builder.add(new IntervalReadingImpl(this, entry));
+			builder.add(new IntervalReadingRecordImpl(this, entry));
 		}
 		return builder.build();
 	}
 	
 	@Override 
-	public List<BaseReading> getReadings(Date from, Date to) {
+	public List<BaseReadingRecord> getReadings(Date from, Date to) {
 		boolean isRegular = getIntervalLength() != null;
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
-		ImmutableList.Builder<BaseReading> builder = ImmutableList.builder();
+		ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
-			builder.add(isRegular ? new IntervalReadingImpl(this, entry) : new ReadingImpl(this, entry));
+			builder.add(isRegular ? new IntervalReadingRecordImpl(this, entry) : new ReadingRecordImpl(this, entry));
 		}
 		return builder.build();
 	}
 
     @Override
-    public List<IntervalReading> getIntervalReadings(ReadingType readingType, Date from, Date to) {
+    public List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Date from, Date to) {
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
-        ImmutableList.Builder<IntervalReading> builder = ImmutableList.builder();
+        ImmutableList.Builder<IntervalReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
-            IntervalReadingImpl reading = new IntervalReadingImpl(this, entry);
-            builder.add(new FilteredIntervalReading(reading, getReadingTypes().indexOf(readingType)));
+            IntervalReadingRecordImpl reading = new IntervalReadingRecordImpl(this, entry);
+            builder.add(new FilteredIntervalReadingRecord(reading, getReadingTypes().indexOf(readingType)));
         }
         return builder.build();
     }
 
     @Override
-    public List<Reading> getRegisterReadings(ReadingType readingType, Date from, Date to) {
+    public List<ReadingRecord> getRegisterReadings(ReadingType readingType, Date from, Date to) {
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
-        ImmutableList.Builder<Reading> builder = ImmutableList.builder();
+        ImmutableList.Builder<ReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
-            ReadingImpl reading = new ReadingImpl(this, entry);
-            builder.add(new FilteredReading(reading, getReadingTypes().indexOf(readingType)));
+            ReadingRecordImpl reading = new ReadingRecordImpl(this, entry);
+            builder.add(new FilteredReadingRecord(reading, getReadingTypes().indexOf(readingType)));
         }
         return builder.build();
     }
 
     @Override
-    public List<BaseReading> getReadings(ReadingType readingType, Date from, Date to) {
+    public List<BaseReadingRecord> getReadings(ReadingType readingType, Date from, Date to) {
     	boolean isRegular = getIntervalLength() != null;
     	int index = getReadingTypes().indexOf(readingType);
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
-        ImmutableList.Builder<BaseReading> builder = ImmutableList.builder();
+        ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
         for (TimeSeriesEntry entry : entries) {
             builder.add(
             	isRegular ? 
-            	new FilteredIntervalReading(new IntervalReadingImpl(this, entry), index) :
-            	new FilteredReading(new ReadingImpl(this, entry),index));
+            	new FilteredIntervalReadingRecord(new IntervalReadingRecordImpl(this, entry), index) :
+            	new FilteredReadingRecord(new ReadingRecordImpl(this, entry),index));
         }
         return builder.build();
     }
     @Override
-	public List<Reading> getRegisterReadings(Date from, Date to) {
+	public List<ReadingRecord> getRegisterReadings(Date from, Date to) {
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
-		ImmutableList.Builder <Reading> builder = ImmutableList.builder();
+		ImmutableList.Builder <ReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
-			builder.add(new ReadingImpl(this, entry));
+			builder.add(new ReadingRecordImpl(this, entry));
 		}
 		return builder.build();
 	}

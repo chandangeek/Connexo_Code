@@ -10,13 +10,13 @@ public interface Channel {
 	MeterActivation getMeterActivation();
 	TimeSeries getTimeSeries();
     List<ReadingType> getReadingTypes();
-    List<IntervalReading> getIntervalReadings(Date from , Date to);
-    List<Reading> getRegisterReadings(Date from, Date to);
-    List<BaseReading> getReadings(Date from, Date to);
+    List<IntervalReadingRecord> getIntervalReadings(Date from , Date to);
+    List<ReadingRecord> getRegisterReadings(Date from, Date to);
+    List<BaseReadingRecord> getReadings(Date from, Date to);
 	ReadingType getMainReadingType();
 	ReadingType getCumulativeReadingType();
     long getVersion();
-    List<Reading> getRegisterReadings(ReadingType readingType, Date from, Date to);
-    List<IntervalReading> getIntervalReadings(ReadingType readingType, Date from, Date to);
-    List<BaseReading> getReadings(ReadingType readingType, Date from, Date to);
+    List<ReadingRecord> getRegisterReadings(ReadingType readingType, Date from, Date to);
+    List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Date from, Date to);
+    List<BaseReadingRecord> getReadings(ReadingType readingType, Date from, Date to);
 }

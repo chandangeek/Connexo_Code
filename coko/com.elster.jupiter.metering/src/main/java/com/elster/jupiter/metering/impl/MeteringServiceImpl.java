@@ -265,4 +265,9 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     public Optional<Channel> findChannel(long id) {
         return getOrmClient().getChannelFactory().get(id);
     }
+	@Override
+	public MeteringService getMeteringService() {
+		return this;
+	}
+
 }
