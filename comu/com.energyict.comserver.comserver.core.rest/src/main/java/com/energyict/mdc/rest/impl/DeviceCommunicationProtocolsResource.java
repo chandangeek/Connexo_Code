@@ -3,6 +3,8 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.DeviceProtocolService;
+import com.energyict.mdc.services.LicensedProtocolService;
+import com.energyict.mdw.core.LicensedProtocol;
 import com.energyict.mdw.core.PluggableClass;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -31,10 +33,12 @@ public class DeviceCommunicationProtocolsResource {
 
     private final DeviceProtocolService deviceProtocolService;
     private final DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
+    private final LicensedProtocolService licensedProtocolService;
 
     public DeviceCommunicationProtocolsResource(@Context Application application) {
         this.deviceProtocolPluggableClassService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getDeviceProtocolPluggableClassService();
         this.deviceProtocolService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getDeviceProtocolService();
+        this.licensedProtocolService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getLicensedProtocolService();
     }
 
     @GET
@@ -42,7 +46,8 @@ public class DeviceCommunicationProtocolsResource {
     public DeviceCommunicationProtocolsInfo getDeviceCommunicationProtocols(@Context UriInfo uriInfo) {
         DeviceCommunicationProtocolsInfo deviceCommunicationProtocolInfos = new DeviceCommunicationProtocolsInfo();
         for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : this.deviceProtocolPluggableClassService.findAll()) {
-            deviceCommunicationProtocolInfos.deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass));
+            LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
+            deviceCommunicationProtocolInfos.deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol));
         }
         return deviceCommunicationProtocolInfos;
     }
@@ -51,7 +56,9 @@ public class DeviceCommunicationProtocolsResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") int id) {
-        return new DeviceCommunicationProtocolInfo(uriInfo, this.deviceProtocolPluggableClassService.find(id));
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.deviceProtocolPluggableClassService.find(id);
+        LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
+        return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol);
     }
 
     @DELETE
@@ -74,7 +81,9 @@ public class DeviceCommunicationProtocolsResource {
         try {
             PluggableClass pluggableClass = deviceProtocolService.create(deviceCommunicationProtocolInfo.asShadow());
             //TODO check if we just can't return the object we received
-            return new DeviceCommunicationProtocolInfo(uriInfo, this.deviceProtocolPluggableClassService.find(pluggableClass.getId()));
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.deviceProtocolPluggableClassService.find(pluggableClass.getId());
+            LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
+            return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol);
         } catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -88,7 +97,9 @@ public class DeviceCommunicationProtocolsResource {
         try {
             PluggableClass pluggableClass = deviceProtocolService.update(id, deviceCommunicationProtocolInfo.asShadow());
             //TODO check if we just can't return the object we received
-            return new DeviceCommunicationProtocolInfo(uriInfo, this.deviceProtocolPluggableClassService.find(pluggableClass.getId()));
+            DeviceProtocolPluggableClass deviceProtocolPluggableClass = this.deviceProtocolPluggableClassService.find(pluggableClass.getId());
+            LicensedProtocol licensedProtocol = this.licensedProtocolService.findLicensedProtocolFor(deviceProtocolPluggableClass);
+            return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol);
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }

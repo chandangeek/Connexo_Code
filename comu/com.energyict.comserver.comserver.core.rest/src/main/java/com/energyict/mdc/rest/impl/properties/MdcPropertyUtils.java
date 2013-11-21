@@ -40,7 +40,7 @@ public class MdcPropertyUtils {
         return MdcPropertyValueInfoFactory.asInfo(properties.getProperty(propertySpec.getName()));
     }
 
-    static PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
+    private static PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
         PropertySpecPossibleValues<?> possibleValues = propertySpec.getPossibleValues();
         if (possibleValues == null) {
             return null;
@@ -49,14 +49,22 @@ public class MdcPropertyUtils {
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
                 possibleObjects[i] = MdcPropertyValueInfoFactory.asInfo(possibleValues.getAllValues().get(i));
             }
+            PropertySelectionMode selectionMode = mapPropertySelectionMode(propertySpec.getSelectionMode());
+            if(selectionMode.equals(PropertySelectionMode.UNSPECIFIED) && possibleObjects.length > 1){
+                /*
+                We set the selectionMode to ComboBox if we more than 1 possible value (otherwise it can be it is the default value)
+                and the current selectionMode is not specified (otherwise the frontEnd will not be able to show them)
+                 */
+                selectionMode = PropertySelectionMode.COMBOBOX;
+            }
             return new PredefinedPropertyValuesInfo<>(
                     possibleObjects,
-                    mapPropertySelectionMode(propertySpec.getSelectionMode()),
+                    selectionMode,
                     propertySpec.getPossibleValues().isExhaustive());
         }
     }
 
-    static  Object getDefaultValue(PropertySpec<?> propertySpec) {
+    private static  Object getDefaultValue(PropertySpec<?> propertySpec) {
         PropertySpecPossibleValues<?> possibleValues = propertySpec.getPossibleValues();
         if (possibleValues == null) {
             return null;
@@ -64,7 +72,7 @@ public class MdcPropertyUtils {
         return MdcPropertyValueInfoFactory.asInfo(possibleValues.getDefault());
     }
 
-    static  Object getInheritedProperty(TypedProperties properties, PropertySpec<?> propertySpec) {
+    private static  Object getInheritedProperty(TypedProperties properties, PropertySpec<?> propertySpec) {
         TypedProperties inheritedProperties = properties.getInheritedProperties();
         if (inheritedProperties == null) {
             return null;
@@ -72,7 +80,7 @@ public class MdcPropertyUtils {
         return getPropertyValue(inheritedProperties, propertySpec);
     }
 
-    static  PropertySelectionMode mapPropertySelectionMode(AttributeValueSelectionMode selectionMode) {
+    private static  PropertySelectionMode mapPropertySelectionMode(AttributeValueSelectionMode selectionMode) {
         return PropertySelectionMode.values()[selectionMode.ordinal()];
     }
 }
