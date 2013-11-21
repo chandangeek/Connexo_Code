@@ -2,11 +2,11 @@ Ext.define('Cfg.controller.Validation', {
     extend: 'Ext.app.Controller',
 
     stores: [
-
+        'ValidationRuleSets'
     ],
 
     views: [
-
+        'validation.Browse'
     ],
 
 
@@ -33,7 +33,7 @@ Ext.define('Cfg.controller.Validation', {
     initMenu: function () {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: 'Validation',
-            href: Cfg.getApplication().getHistoryEventTypeController().tokenizeShowOverview(),
+            href: Cfg.getApplication().getHistoryValidationController().tokenizeShowOverview(),
             glyph: 'xe01e@icomoon'
         });
 
@@ -41,7 +41,8 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     showOverview: function () {
-
+        var widget = Ext.widget('validationrulesetBrowse');
+        Cfg.getApplication().getMainController().showContent(widget);
     }
 
 });

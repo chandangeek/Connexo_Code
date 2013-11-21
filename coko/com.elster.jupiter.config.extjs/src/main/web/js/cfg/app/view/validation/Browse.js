@@ -1,6 +1,6 @@
 Ext.define('Cfg.view.validation.Browse', {
     extend: 'Ext.container.Container',
-    alias: 'widget.validationRuleSetBrowse',
+    alias: 'widget.validationrulesetBrowse',
     cls: 'content-wrapper',
     overflowY: 'auto',
     requires: [
@@ -21,7 +21,7 @@ Ext.define('Cfg.view.validation.Browse', {
                     html: '<h1>Rule Sets</h1>'
                 },
                 {
-                    xtype: 'valiationrulesetList'
+                    xtype: 'validationrulesetList'
                 }
             ]
         }

@@ -1,9 +1,9 @@
 Ext.define('Cfg.view.validation.List', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.validationrulesetList',
-    itemId: 'eventtypeList',
-    title: 'All Event Types',
-    store: 'EventTypes',
+    itemId: 'validationrulesetList',
+    title: 'All Rule Sets',
+    store: 'ValidationRuleSets',
     columns: {
         defaults: {
             flex: 1
