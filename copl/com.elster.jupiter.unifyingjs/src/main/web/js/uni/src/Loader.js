@@ -9,6 +9,7 @@ Ext.define('Uni.Loader', {
     requires: [
         'Ext.tip.QuickTipManager',
         'Ext.state.CookieProvider',
+        'Uni.controller.Breadcrumb',
         'Uni.controller.Error',
         'Uni.controller.Navigation',
         'Uni.util.I18n'
@@ -18,7 +19,7 @@ Ext.define('Uni.Loader', {
         this.loadFont();
         this.loadTooltips();
         this.loadStateManager();
-        this.loadRequirements();
+        this.loadOverrides();
 
         callback.call();
     },
@@ -35,7 +36,8 @@ Ext.define('Uni.Loader', {
         Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
     },
 
-    loadRequirements: function () {
+    loadOverrides: function () {
+        Ext.require('Uni.override.ApplicationOverride');
         Ext.require('Uni.override.CheckboxOverride');
         Ext.require('Uni.override.FieldBaseOverride');
         Ext.require('Uni.override.JsonWriterOverride');

@@ -1,10 +1,10 @@
-Ext.define('Uni.view.navigation.Breadcrumbs', {
+Ext.define('Uni.view.breadcrumb.Trail', {
     extend: 'Ext.container.Container',
-    alias: 'widget.navigationBreadcrumbs',
+    alias: 'widget.breadcrumbTrail',
 
     requires: [
-        'Uni.view.navigation.breadcrumb.Link',
-        'Uni.view.navigation.breadcrumb.Separator'
+        'Uni.view.breadcrumb.Link',
+        'Uni.view.breadcrumb.Separator'
     ],
 
     layout: {
@@ -18,7 +18,7 @@ Ext.define('Uni.view.navigation.Breadcrumbs', {
     },
 
     addBreadcrumbItem: function (item) {
-        var link = Ext.widget('navigationBreadcrumbLink', {
+        var link = Ext.widget('breadcrumbLink', {
             text: item.data.text
         });
 
@@ -45,9 +45,9 @@ Ext.define('Uni.view.navigation.Breadcrumbs', {
 
     addBreadcrumbComponent: function (component) {
         var itemCount = this.items.getCount();
-        console.log(itemCount);
+
         if (itemCount % 2 === 1) {
-            this.add(Ext.widget('navigationBreadcrumbSeparator'));
+            this.add(Ext.widget('breadcrumbSeparator'));
         }
 
         this.add(component);
