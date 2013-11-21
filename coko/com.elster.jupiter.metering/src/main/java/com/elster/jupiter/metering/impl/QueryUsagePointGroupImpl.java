@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.UtcInstant;
 
@@ -20,10 +19,14 @@ public class QueryUsagePointGroupImpl implements QueryUsagePointGroup {
     private String aliasName;
     private String type;
 
-    private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
-    private String userName;
+    @SuppressWarnings("unused")
+	private long version;
+    @SuppressWarnings("unused")
+	private UtcInstant createTime;
+    @SuppressWarnings("unused")
+	private UtcInstant modTime;
+    @SuppressWarnings("unused")
+	private String userName;
 
     private List<QueryBuilderOperation> operations;
     private transient QueryBuilder queryBuilder;
@@ -55,8 +58,7 @@ public class QueryUsagePointGroupImpl implements QueryUsagePointGroup {
 
     @Override
     public List<UsagePoint> getMembers(Date date) {
-        QueryExecutor<UsagePoint> queryExecutor = Bus.getOrmClient().getUsagePointFactory().with();
-        return Bus.getQueryService().wrap(queryExecutor).select(getCondition());
+        return Bus.getMeteringService().getUsagePointQuery().select(getCondition());
     }
 
     @Override
