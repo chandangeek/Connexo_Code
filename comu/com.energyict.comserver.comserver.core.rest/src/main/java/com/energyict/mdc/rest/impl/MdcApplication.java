@@ -31,7 +31,9 @@ public class MdcApplication extends Application {
                 DeviceCommunicationProtocolsResource.class,
                 FieldResource.class,
                 DeviceDiscoveryProtocolsResource.class,
-                LicensedProtocolResource.class);
+                LicensedProtocolResource.class,
+                TimeZoneInUseResource.class,
+                CodeTableResource.class);
     }
 
     @Reference

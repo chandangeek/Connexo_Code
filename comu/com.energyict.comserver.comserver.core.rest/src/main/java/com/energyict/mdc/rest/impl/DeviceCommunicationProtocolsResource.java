@@ -19,6 +19,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * Copyrights EnergyICT
@@ -38,10 +39,10 @@ public class DeviceCommunicationProtocolsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceCommunicationProtocolsInfo getDeviceCommunicationProtocols() {
+    public DeviceCommunicationProtocolsInfo getDeviceCommunicationProtocols(@Context UriInfo uriInfo) {
         DeviceCommunicationProtocolsInfo deviceCommunicationProtocolInfos = new DeviceCommunicationProtocolsInfo();
         for (DeviceProtocolPluggableClass deviceProtocolPluggableClass : this.deviceProtocolPluggableClassService.findAll()) {
-            deviceCommunicationProtocolInfos.deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(deviceProtocolPluggableClass));
+            deviceCommunicationProtocolInfos.deviceCommunicationProtocolInfos.add(new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass));
         }
         return deviceCommunicationProtocolInfos;
     }
@@ -49,8 +50,8 @@ public class DeviceCommunicationProtocolsResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@PathParam("id") int id) {
-        return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(id));
+    public DeviceCommunicationProtocolInfo getDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") int id) {
+        return new DeviceCommunicationProtocolInfo(uriInfo, this.deviceProtocolPluggableClassService.find(id));
     }
 
     @DELETE
@@ -69,11 +70,11 @@ public class DeviceCommunicationProtocolsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws WebApplicationException {
+    public DeviceCommunicationProtocolInfo createDeviceCommunicationProtocol(@Context UriInfo uriInfo, DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) throws WebApplicationException {
         try {
             PluggableClass pluggableClass = deviceProtocolService.create(deviceCommunicationProtocolInfo.asShadow());
             //TODO check if we just can't return the object we received
-            return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(pluggableClass.getId()));
+            return new DeviceCommunicationProtocolInfo(uriInfo, this.deviceProtocolPluggableClassService.find(pluggableClass.getId()));
         } catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -83,11 +84,11 @@ public class DeviceCommunicationProtocolsResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public DeviceCommunicationProtocolInfo updateDeviceCommunicationProtocol(@PathParam("id") int id, DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) {
+    public DeviceCommunicationProtocolInfo updateDeviceCommunicationProtocol(@Context UriInfo uriInfo, @PathParam("id") int id, DeviceCommunicationProtocolInfo deviceCommunicationProtocolInfo) {
         try {
             PluggableClass pluggableClass = deviceProtocolService.update(id, deviceCommunicationProtocolInfo.asShadow());
             //TODO check if we just can't return the object we received
-            return new DeviceCommunicationProtocolInfo(this.deviceProtocolPluggableClassService.find(pluggableClass.getId()));
+            return new DeviceCommunicationProtocolInfo(uriInfo, this.deviceProtocolPluggableClassService.find(pluggableClass.getId()));
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }
