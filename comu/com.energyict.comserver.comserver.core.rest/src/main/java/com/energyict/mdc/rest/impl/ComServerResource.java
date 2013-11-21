@@ -25,8 +25,8 @@ public class ComServerResource {
 
     private ComServerService comServerService;
 
-    public ComServerResource(@BeanParam ComServerServiceResolver comServerServiceResolver) {
-        comServerService = comServerServiceResolver.getComServerService();
+    public ComServerResource(@BeanParam ComServerServiceHolder comServerServiceHolder) {
+        comServerService = comServerServiceHolder.getComServerService();
     }
 
     @GET

@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.services.DeviceProtocolPluggableClassService;
@@ -27,6 +28,7 @@ public class MdcApplication extends Application {
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(ComServerResource.class,
                 ComPortResource.class,
+                ComPortPoolResource.class,
                 DeviceCommunicationProtocolsResource.class,
                 FieldResource.class,
                 DeviceDiscoveryProtocolsResource.class,
@@ -48,8 +50,13 @@ public class MdcApplication extends Application {
     }
 
     @Reference
+    public void setComPortPoolService(ComPortPoolService comPortPoolService) {
+        ComPortPoolServiceHolder.setComPortPoolService(comPortPoolService);
+    }
+
+    @Reference
     public void setComServerService(ComServerService comServerService) {
-        ComServerServiceResolver.setComServerService(comServerService);
+        ComServerServiceHolder.setComServerService(comServerService);
     }
     
     public ComPortService getComPortService() {

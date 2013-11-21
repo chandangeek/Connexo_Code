@@ -2,7 +2,7 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.services.ComServerService;
 
-public class ComServerServiceResolver  {
+public class ComServerServiceHolder {
     private static ComServerService comServerService;
 
     public ComServerService getComServerService() {

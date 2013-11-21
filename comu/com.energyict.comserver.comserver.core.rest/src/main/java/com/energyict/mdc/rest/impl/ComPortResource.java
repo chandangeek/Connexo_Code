@@ -24,10 +24,10 @@ public class ComPortResource {
     private final ComPortService comPortService;
     private final ComServerService comServerService;
 
-    public ComPortResource(@BeanParam ComServerServiceResolver comServerServiceResolver, @Context Application application) {
+    public ComPortResource(@BeanParam ComServerServiceHolder comServerServiceHolder, @Context Application application) {
 //        deviceProtocolFactoryService=((ServiceLocator)((ResourceConfig)application).getApplication()).getDeviceProtocolFactoryService();
         comPortService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getComPortService();
-        comServerService = comServerServiceResolver.getComServerService();
+        comServerService = comServerServiceHolder.getComServerService();
     }
 
     @GET
