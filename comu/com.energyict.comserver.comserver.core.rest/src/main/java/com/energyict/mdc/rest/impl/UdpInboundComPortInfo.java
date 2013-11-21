@@ -1,15 +1,17 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.UDPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.UDPBasedInboundComPortShadow;
 
-public class UdpInboundComPortInfo extends ComPortInfo<UDPBasedInboundComPortShadow> {
+public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundComPortShadow> {
 
     public int comPortPool_id;
     public int portNumber;
     public int bufferSize;
 
     public UdpInboundComPortInfo() {
+        this.comPortType = ComPortType.UDP;
     }
 
     public UdpInboundComPortInfo(UDPBasedInboundComPort comPort) {

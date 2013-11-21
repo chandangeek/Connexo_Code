@@ -11,7 +11,7 @@ import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class ModemInboundComPortInfo extends ComPortInfo<ModemBasedInboundComPortShadow> {
+public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboundComPortShadow> {
 
     public int ringCount;
     public int maximumNumberOfDialErrors;

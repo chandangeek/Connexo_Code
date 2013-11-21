@@ -2,6 +2,7 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.cpo.ShadowList;
 import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 import com.energyict.mdc.shadow.ports.InboundComPortShadow;
@@ -27,7 +28,8 @@ public class ComServerInfo {
     public ComServer.LogLevel communicationLogLevel;
     public TimeDurationInfo changesInterPollDelay;
     public TimeDurationInfo schedulingInterPollDelay;
-    public List<ComPortInfo<? extends ComPortShadow>> comPorts;
+    public List<InboundComPortInfo<? extends ComPortShadow>> inboundComPorts;
+    public List<OutboundComPortInfo> outboundComPorts;
 
     public ComServerInfo() {
     }
@@ -40,9 +42,14 @@ public class ComServerInfo {
         this.communicationLogLevel = comServer.getCommunicationLogLevel();
         this.changesInterPollDelay = new TimeDurationInfo(comServer.getChangesInterPollDelay());
         this.schedulingInterPollDelay = new TimeDurationInfo(comServer.getSchedulingInterPollDelay());
-        comPorts = new ArrayList<>(comServer.getComPorts().size());
+        inboundComPorts = new ArrayList<>();
+        outboundComPorts = new ArrayList<>();
         for (final ComPort comPort : comServer.getComPorts()) {
-            comPorts.add(ComPortInfoFactory.asInfo(comPort));
+            if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
+                inboundComPorts.add(ComPortInfoFactory.asInboundInfo(comPort));
+            } else {
+                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(comPort));
+            }
         }
     }
 
@@ -54,18 +61,16 @@ public class ComServerInfo {
         shadow.setChangesInterPollDelay(changesInterPollDelay.asTimeDuration());
         shadow.setSchedulingInterPollDelay(schedulingInterPollDelay.asTimeDuration());
 
-        updateComPorts(shadow);
-
+        updateInboundComPorts(shadow);
+        updateOutboundComPorts(shadow);
 
         return shadow;
     }
 
-    private void updateComPorts(OnlineComServerShadow shadow) {
+    private void updateInboundComPorts(OnlineComServerShadow shadow) {
         ShadowList<InboundComPortShadow> inboundComPortShadows = shadow.getInboundComPortShadows();
-        ShadowList<OutboundComPortShadow> outboundComPortShadows = shadow.getOutboundComPortShadows();
         List<InboundComPortShadow> toBeDeletedInbound = new ArrayList<>(inboundComPortShadows);
-        List<OutboundComPortShadow> toBeDeletedOutbound = new ArrayList<>(outboundComPortShadows);
-        for (ComPortInfo comPort : comPorts) {
+        for (InboundComPortInfo comPort : inboundComPorts) {
             boolean configuredComPortFound = false;
             for (InboundComPortShadow comPortShadow : inboundComPortShadows) {
                 if (comPort.id==comPortShadow.getId()) {
@@ -74,6 +79,21 @@ public class ComServerInfo {
                     toBeDeletedInbound.remove(comPortShadow);
                 }
             }
+            if (!configuredComPortFound) {
+                ComPortShadow comPortShadow = comPort.asShadow();
+                inboundComPortShadows.add((InboundComPortShadow) comPortShadow);
+            }
+        }
+        for (InboundComPortShadow inboundComPortShadow : toBeDeletedInbound) {
+            inboundComPortShadows.remove(inboundComPortShadow);
+        }
+    }
+
+    private void updateOutboundComPorts(OnlineComServerShadow shadow) {
+        ShadowList<OutboundComPortShadow> outboundComPortShadows = shadow.getOutboundComPortShadows();
+        List<OutboundComPortShadow> toBeDeletedOutbound = new ArrayList<>(outboundComPortShadows);
+        for (OutboundComPortInfo comPort : outboundComPorts) {
+            boolean configuredComPortFound = false;
             for (OutboundComPortShadow comPortShadow : outboundComPortShadows) {
                 if (comPort.id==comPortShadow.getId()) {
                     configuredComPortFound=true;
@@ -83,15 +103,8 @@ public class ComServerInfo {
             }
             if (!configuredComPortFound) {
                 ComPortShadow comPortShadow = comPort.asShadow();
-                if (InboundComPortShadow.class.isAssignableFrom(comPortShadow.getClass())) {
-                    inboundComPortShadows.add((InboundComPortShadow) comPortShadow);
-                } else {
-                    outboundComPortShadows.add((OutboundComPortShadow) comPortShadow);
-                }
+                outboundComPortShadows.add((OutboundComPortShadow) comPortShadow);
             }
-        }
-        for (InboundComPortShadow inboundComPortShadow : toBeDeletedInbound) {
-            inboundComPortShadows.remove(inboundComPortShadow);
         }
         for (OutboundComPortShadow outboundComPortShadow : toBeDeletedOutbound) {
             outboundComPortShadows.remove(outboundComPortShadow);

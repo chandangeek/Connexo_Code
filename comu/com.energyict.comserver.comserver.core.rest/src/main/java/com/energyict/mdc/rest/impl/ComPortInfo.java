@@ -5,16 +5,8 @@ import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.codehaus.jackson.annotate.JsonSubTypes;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 @XmlRootElement
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comPortDescriptor")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = TcpInboundComPortInfo.class, name = "TCP_INBOUND"),
-        @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "MODEM_INBOUND"),
-        @JsonSubTypes.Type(value = OutboundComPortInfo.class, name = "OUTBOUND"),
-        @JsonSubTypes.Type(value = UdpInboundComPortInfo.class, name = "UDP_INBOUND") })
 public abstract class ComPortInfo<T extends ComPortShadow> {
 
     public int id;
