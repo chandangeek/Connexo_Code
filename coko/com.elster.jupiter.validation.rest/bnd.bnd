@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.events.validation.impl
+Private-Package: com.elster.jupiter.validation.rest.impl
 

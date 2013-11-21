@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation.rest.impl;
 
-import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import javax.xml.bind.annotation.XmlRootElement;
