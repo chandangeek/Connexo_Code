@@ -18,7 +18,6 @@ public class MdcApplication extends Application {
 
     private volatile DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
     private volatile DeviceProtocolService deviceProtocolService;
-    private volatile ComServerService comServerService;
     private volatile ComPortService comPortService;
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
@@ -48,13 +47,9 @@ public class MdcApplication extends Application {
         this.deviceProtocolService = deviceProtocolService;
     }
 
-    public ComServerService getComServerService() {
-        return comServerService;
-    }
-
     @Reference
     public void setComServerService(ComServerService comServerService) {
-        this.comServerService = comServerService;
+        ComServerServiceResolver.setComServerService(comServerService);
     }
     
     public ComPortService getComPortService() {

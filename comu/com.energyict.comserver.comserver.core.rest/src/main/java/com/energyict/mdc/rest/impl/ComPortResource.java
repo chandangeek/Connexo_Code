@@ -4,6 +4,7 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -21,10 +22,10 @@ public class ComPortResource {
     private final ComPortService comPortService;
     private final ComServerService comServerService;
 
-    public ComPortResource(@Context Application application) {
+    public ComPortResource(@BeanParam ComServerServiceResolver comServerServiceResolver, @Context Application application) {
 //        deviceProtocolFactoryService=((ServiceLocator)((ResourceConfig)application).getApplication()).getDeviceProtocolFactoryService();
         comPortService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getComPortService();
-        comServerService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getComServerService();
+        comServerService = comServerServiceResolver.getComServerService();
     }
 
     @GET

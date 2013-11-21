@@ -5,6 +5,7 @@ import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -14,22 +15,18 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import org.glassfish.jersey.server.ResourceConfig;
 
 @Path("/comservers")
 public class ComServerResource {
 
-    private final ComServerService comServerService;
+    private ComServerService comServerService;
 
-    public ComServerResource(@Context Application application) {
-//        ContextResolver<DeviceProtocolFactoryService> resolver = providers.getContextResolver(DeviceProtocolFactoryService.class, MediaType.WILDCARD_TYPE);
-//        deviceProtocolFactoryService = resolver.getContext(DeviceProtocolFactoryService.class);
-        comServerService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getComServerService();
+    public ComServerResource(@BeanParam ComServerServiceResolver comServerServiceResolver) {
+        comServerService = comServerServiceResolver.getComServerService();
     }
 
     @GET
