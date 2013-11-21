@@ -92,7 +92,7 @@ public class FieldResource {
     public Object getComPortTypes() {
         final List<Object> allComPortTypes = new ArrayList<>();
         final Object wrapper = new Object(){
-            public ComPortType[] comPortTypes = ComPortType.values();
+            public List<Object> comPortTypes = allComPortTypes;
         };
         for (final ComPortType comPortTypeEnum : ComPortType.values()) {
             allComPortTypes.add(new Object(){
