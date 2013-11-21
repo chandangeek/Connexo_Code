@@ -1,10 +1,31 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.ApplicationException;
+import com.energyict.cbo.BusinessException;
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericRead;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.ZigBeeSASStartup;
+import com.energyict.dlms.cosem.ZigBeeSETCControl;
+import com.energyict.dlms.cosem.ZigbeeHanManagement;
 import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
@@ -14,8 +35,10 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.TestObject;
-import com.energyict.mdw.core.*;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.MeteringWarehouseFactory;
+import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
@@ -32,7 +55,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -718,11 +744,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
-        // nothing to do
-    }
-
-    @Override
     protected TimeZone getTimeZone() {
         return getDlmsSession().getTimeZone();
     }
@@ -804,17 +825,18 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                                     }
                                     break;
                                     case 3: { // MESSAGE
-                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-                                        rms.setContents(csvParser.getTestObject(i).getData());
-                                        rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
-                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-                                        doMessage(rm);
-                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-                                            to.setResult("OK");
-                                        } else {
-                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-                                        }
-                                        hasWritten = true;
+                                        //TODO this form of Messages is not supported, change it according to the new DeviceMessage support
+//                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
+//                                        rms.setContents(csvParser.getTestObject(i).getData());
+//                                        rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
+//                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+//                                        doMessage(rm);
+//                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+//                                            to.setResult("OK");
+//                                        } else {
+//                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+//                                        }
+//                                        hasWritten = true;
                                     }
                                     break;
                                     case 4: { // WAIT

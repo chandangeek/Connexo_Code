@@ -135,11 +135,6 @@ public class InHomeDisplayMessageExecutor extends GenericMessageExecutor {
     }
 
     @Override
-    public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
-        // nothing to do
-    }
-
-    @Override
     protected TimeZone getTimeZone() {
         return ((InHomeDisplay) this.protocol).getTimeZone();
     }

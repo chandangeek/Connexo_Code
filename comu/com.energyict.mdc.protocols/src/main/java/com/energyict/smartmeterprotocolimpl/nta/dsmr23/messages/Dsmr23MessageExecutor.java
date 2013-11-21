@@ -64,9 +64,7 @@ import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Lookup;
 import com.energyict.mdw.core.LookupEntry;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.UserFile;
-import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -641,17 +639,18 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                                     }
                                     break;
                                     case 3: { // MESSAGE
-                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-                                        rms.setContents(csvParser.getTestObject(i).getData());
-                                        rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
-                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-                                        doMessage(rm);
-                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-                                            to.setResult("OK");
-                                        } else {
-                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-                                        }
-                                        hasWritten = true;
+                                        //TODO this form of Messages is not supported, change it according to the new DeviceMessage support
+//                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
+//                                        rms.setContents(csvParser.getTestObject(i).getData());
+//                                        rms.setRtuId(getRtuFromDatabaseBySerialNumber().getId());
+//                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+//                                        doMessage(rm);
+//                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+//                                            to.setResult("OK");
+//                                        } else {
+//                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+//                                        }
+//                                        hasWritten = true;
                                     }
                                     break;
                                     case 4: { // WAIT
@@ -1169,11 +1168,6 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
     protected void log(final Level level, final String msg) {
         this.dlmsSession.getLogger().log(level, msg);
-    }
-
-    @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
-        //nothing to do
     }
 
     @Override

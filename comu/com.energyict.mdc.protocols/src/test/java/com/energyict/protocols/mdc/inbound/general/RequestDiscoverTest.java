@@ -26,6 +26,7 @@ import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocolimpl.debug.DebugUtils;
 import com.energyict.util.IssueCollector;
 import com.energyict.util.IssueCollectorProvider;
 import org.junit.Before;
@@ -88,9 +89,16 @@ public class RequestDiscoverTest {
     private static final int LOGBOOK_ID = 10;
     private static final String TIMEOUT_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.timeout");
     private static final String RETRIES_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.retries");
+    private static class NoPropertiesEnvironment extends EnvironmentImpl {
 
+        @Override
+        public void closeConnection() {
+            // do nothing
+        }
+    }
     @Before
     public void initialize() {
+        EnvironmentImpl.setDefault(new NoPropertiesEnvironment());
         ArrayList<LogBook> logBooks = new ArrayList<>();
         logBooks.add(logBook);
         when(logBook.getId()).thenReturn(LOGBOOK_ID);
