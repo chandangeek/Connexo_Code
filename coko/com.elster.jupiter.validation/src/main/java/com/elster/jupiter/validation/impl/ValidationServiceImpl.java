@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.Upcast;
 import com.elster.jupiter.util.time.Clock;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.*;
 import com.google.common.base.Optional;
@@ -114,6 +115,15 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Override
     public List<ValidationRuleSet> getValidationRuleSets() {
         return new ArrayList<ValidationRuleSet>(getOrmClient().getValidationRuleSetFactory().find());
+    }
+
+    @Override
+    public void validate(MeterActivation meterActivation, Interval interval) {
+        Optional<MeterActivationValidation> found = getOrmClient().getMeterActivationValidationFactory().get(meterActivation.getId());
+        if (found.isPresent()) {
+            found.get().validate(interval);
+        }
+
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
