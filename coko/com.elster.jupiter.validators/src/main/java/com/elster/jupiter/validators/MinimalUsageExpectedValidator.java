@@ -19,7 +19,7 @@ public class MinimalUsageExpectedValidator implements Validator {
     }
 
     @Override
-    public List<String> getrequiredKeys() {
+    public List<String> getRequiredKeys() {
         return new ArrayList<>();
     }
 
