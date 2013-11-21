@@ -6,6 +6,7 @@ import com.energyict.mdc.channels.serial.NrOfDataBits;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
 import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.ModemBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.ModemBasedInboundComPortShadow;
 import java.math.BigDecimal;
@@ -31,6 +32,7 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     public Parities parity;
 
     public ModemInboundComPortInfo() {
+        this.comPortType = ComPortType.SERIAL;
     }
 
     public ModemInboundComPortInfo(ModemBasedInboundComPort comPort) {

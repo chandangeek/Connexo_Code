@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
 
@@ -8,6 +9,7 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
     public int portNumber;
 
     public TcpInboundComPortInfo() {
+        this.comPortType = ComPortType.TCP;
     }
 
     public TcpInboundComPortInfo(TCPBasedInboundComPort comPort) {
