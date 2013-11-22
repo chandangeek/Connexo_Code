@@ -129,6 +129,7 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 ObisCode.fromString("1.0.2.8.2.255")));
         optionalProperties.add(PropertySpecFactory.bigDecimalPropertySpec("SDKBigDecimalWithDefault", new BigDecimal("666.156")));
         optionalProperties.add(PropertySpecFactory.dateTimePropertySpec("MyDateTimeProperty"));
+//        optionalProperties.add(PropertySpecFactory.fixedLengthHexStringPropertySpec("MyFixedHexStringPropertySpec", 16));
         return optionalProperties;
     }
 
