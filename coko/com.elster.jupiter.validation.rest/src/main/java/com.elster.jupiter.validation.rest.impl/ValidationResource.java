@@ -35,6 +35,19 @@ public class ValidationResource {
         infos.total = actions.length;
         return infos;
     }
+
+    @GET
+    @Path("/validators")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
+        ValidatorInfos infos = new ValidatorInfos();
+        List<String> toAdd = Bus.getValidationService().getAvailableValidators();
+        for (String implementation : toAdd) {
+            infos.add(implementation);
+        }
+        infos.total = toAdd.size();
+        return infos;
+    }
 	
 
 
