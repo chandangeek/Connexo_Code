@@ -12,10 +12,16 @@ Ext.define('Cfg.view.validation.Edit', {
     constrain: true,
     autoShow: true,
     requires: [
-        'Ext.grid.*'
+        'Ext.grid.*'    ,
+        'Cfg.store.ValidationActions',
+        'Cfg.store.Validators'
     ],
 
     initComponent: function () {
+        this.cellEditing = new Ext.grid.plugin.CellEditing({
+            clicksToEdit: 1
+        });
+
         this.buttons = [
             {
                 text: 'Clone',
@@ -84,6 +90,7 @@ Ext.define('Cfg.view.validation.Edit', {
                         itemId: 'validationruleList',
                         flex: 1,
                         store: 'ValidationRules',
+                        plugins: [this.cellEditing],
                         columns: {
                             defaults: {
                                 flex: 1
@@ -95,14 +102,29 @@ Ext.define('Cfg.view.validation.Edit', {
                                         xtype: 'checkbox',
                                         cls: 'x-grid-checkheader-editor'
                                     } } ,
-                                { header: 'Action', dataIndex: 'action', field: {
-
-                                    xtype: 'combobox',
-                                    store: 'ValidationActions'
-
-
-                                }},
-                                { header: 'Implementation', dataIndex: 'implementation' }
+                                {   header: 'Action',
+                                    dataIndex: 'action',
+                                    width: 130,
+                                    editor: new Ext.form.field.ComboBox({
+                                        typeAhead: true,
+                                        queryMode: 'local',
+                                        displayField: 'action',
+                                        valueField: 'action',
+                                        triggerAction: 'all',
+                                        store: Ext.create('Cfg.store.ValidationActions')
+                                    })
+                                },
+                                { header: 'Implementation', dataIndex: 'implementation',
+                                    width: 130,
+                                    editor: new Ext.form.field.ComboBox({
+                                        typeAhead: true,
+                                        queryMode: 'local',
+                                        displayField: 'implementation',
+                                        valueField: 'implementation',
+                                        triggerAction: 'all',
+                                        store: Ext.create('Cfg.store.Validators')
+                                    })
+                                }
                             ]
                         }
                     }
