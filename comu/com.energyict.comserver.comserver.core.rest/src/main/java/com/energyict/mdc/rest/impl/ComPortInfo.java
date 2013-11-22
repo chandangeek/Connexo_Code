@@ -1,9 +1,16 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.channels.serial.BaudrateValue;
+import com.energyict.mdc.channels.serial.FlowControl;
+import com.energyict.mdc.channels.serial.NrOfDataBits;
+import com.energyict.mdc.channels.serial.NrOfStopBits;
+import com.energyict.mdc.channels.serial.Parities;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -18,6 +25,25 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public int comserver_id;
     public int numberOfSimultaneousConnections;
     public Date modificationDate;
+    public Integer ringCount;
+    public Integer maximumNumberOfDialErrors;
+    public TimeDurationInfo connectTimeout;
+    public TimeDurationInfo delayAfterConnect;
+    public TimeDurationInfo delayBeforeSend;
+    public TimeDurationInfo atCommandTimeout;
+    public BigDecimal atCommandTry;
+    public List<String> modemInitStrings;
+    public String addressSelector;
+    public String postDialCommands;
+    public String comPortName;
+    public BaudrateValue baudrate;
+    public NrOfDataBits nrOfDataBits;
+    public NrOfStopBits nrOfStopBits;
+    public FlowControl flowControl;
+    public Parities parity;
+    public Integer comPortPool_id;
+    public Integer portNumber;
+    public Integer bufferSize;
 
     public ComPortInfo() {
     }

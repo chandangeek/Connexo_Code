@@ -5,8 +5,6 @@ import com.energyict.mdc.ports.TCPBasedInboundComPort;
 import com.energyict.mdc.shadow.ports.TCPBasedInboundComPortShadow;
 
 public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundComPortShadow> {
-    public int comPortPool_id;
-    public int portNumber;
 
     public TcpInboundComPortInfo() {
         this.comPortType = ComPortType.TCP;

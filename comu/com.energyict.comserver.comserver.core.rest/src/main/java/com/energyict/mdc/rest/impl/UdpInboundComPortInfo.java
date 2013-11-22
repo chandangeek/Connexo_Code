@@ -6,10 +6,6 @@ import com.energyict.mdc.shadow.ports.UDPBasedInboundComPortShadow;
 
 public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundComPortShadow> {
 
-    public int comPortPool_id;
-    public int portNumber;
-    public int bufferSize;
-
     public UdpInboundComPortInfo() {
         this.comPortType = ComPortType.UDP;
     }
