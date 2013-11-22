@@ -1,18 +1,18 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 public class MessageDiscoverMeters extends MessageContent {
-	
+
 	protected final static String ELEMENTNAME = "discoverMeters";
 	protected final static String SCRIPTIDELEMENTNAME = "scriptID";
-	
+
 	public final static int READMETERLIST = 0;
 	public final static int RESETANDREDISCOVER = 1;
     public final static int RESET = 2;
 	public final static int DISCOVER = 3;
-        
+
 	private int scriptId;
 
 	public MessageDiscoverMeters() {
@@ -33,7 +33,7 @@ public class MessageDiscoverMeters extends MessageContent {
 			throw new ApplicationException("Cannot create MessageWriteRegister");
 		}
 	}
-	
+
         public boolean isScriptIdREADMETERLIST() {
             return getScriptId()==READMETERLIST;
         }
@@ -46,8 +46,8 @@ public class MessageDiscoverMeters extends MessageContent {
         public boolean isScriptIdDISCOVER() {
             return getScriptId()==DISCOVER;
         }
-        
-        
+
+
 	public int getScriptId() {
 		return scriptId;
 	}

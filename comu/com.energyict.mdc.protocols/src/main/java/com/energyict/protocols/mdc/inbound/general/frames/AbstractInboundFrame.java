@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
-import com.energyict.cpo.EnvironmentImpl;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.protocols.mdc.inbound.general.frames.parsing.InboundParameters;
 import com.energyict.mdw.core.Device;

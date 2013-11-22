@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

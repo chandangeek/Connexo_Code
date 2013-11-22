@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.CM32;
 
 import java.util.Date;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.protocol.ProtocolUtils;
 
 public class HeaderField {
@@ -24,7 +24,7 @@ public class HeaderField {
 	private String configVersion;
 
 	public HeaderField() {}
-	
+
 	public void parse(byte[] header) {
 		parseSourceType(ProtocolUtils.getSubArray(header, 0, 15));
 		parseSourceVersion(ProtocolUtils.getSubArray(header, 16, 31));
@@ -42,9 +42,9 @@ public class HeaderField {
 		parseInterval(ProtocolUtils.getSubArray(header, 224, 239));
 		parseConfigVersion(ProtocolUtils.getSubArray(header, 240, 255));
 	}
-	
+
 	public String toString() {
-		return 
+		return
 			"SrcType=" + this.sourceType + "\n" +
 			"SrcVer=" + this.sourceversion + "\n" +
 			"Src ID=" + this.sourceIdentity + "\n" +
@@ -60,15 +60,15 @@ public class HeaderField {
 			"dataSize=" + this.dataSize + "\n" +
 			"Interval=" + this.interval + "\n" +
 			"ConfigVersion=" + this.configVersion + "\n";
-			
+
 	}
-	
+
 	public static void main(String[] args) {
 		HeaderField header = new HeaderField();
 		header.parse(exampleHeader);
 		System.out.println(header.toString());
 	}
-	
+
 	protected String parseValues(byte[] data) {
 		StringBuffer buf = new StringBuffer("");
 		for (int i = 7; i < 16; i++) {
@@ -84,19 +84,19 @@ public class HeaderField {
 	protected void parseSourceType(byte[] data) {
 		this.sourceType = parseValues(data);
 	}
-	
+
 	protected void parseSourceVersion(byte[] data) {
 		this.sourceversion = parseValues(data);
 	}
-	
+
 	protected void parseSourceIdetity(byte[] data) {
 		this.sourceIdentity = parseValues(data);
 	}
-	
+
 	protected void parseTimeSent(byte[] data) {
-		
+
 	}
-	
+
 	protected void parseConfigStart(byte[] data) {
 		String value = parseValues(data);
 		try {
@@ -106,7 +106,7 @@ public class HeaderField {
 			throw new ApplicationException("HeaderField pares error: Invalid config seek value '" + value + "'");
 		}
 	}
-	
+
 	protected void parseConfigSize(byte[] data) {
 		String value = parseValues(data);
 		try {
@@ -116,15 +116,15 @@ public class HeaderField {
 			throw new ApplicationException("HeaderField pares error: Invalid config size value '" + value + "'");
 		}
 	}
-	
+
 	protected void parseDataType(byte[] data) {
 		this.dataType = parseValues(data);
 	}
-	
+
 	protected void parseDataStartDate(byte[] data) {
-		
+
 	}
-	
+
 	protected void parseNumberOfDays(byte[] data) {
 		String value = parseValues(data);
 		try {
@@ -134,7 +134,7 @@ public class HeaderField {
 			throw new ApplicationException("HeaderField pares error: Invalid number of days value '" + value + "'");
 		}
 	}
-	
+
 	protected void parseDataRecordSize(byte[] data) {
 		String value = parseValues(data);
 		try {
@@ -144,7 +144,7 @@ public class HeaderField {
 			throw new ApplicationException("HeaderField pares error: Invalid data record size value '" + value + "'");
 		}
 	}
-	
+
 	protected void parseNumberOfRecords(byte[] data) {
 		String value = parseValues(data);
 		try {
@@ -188,7 +188,7 @@ public class HeaderField {
 	protected void parseConfigVersion(byte[] data) {
 		this.configVersion = parseValues(data);
 	}
-	
+
 	public String getSourceType() {
 		return sourceType;
 	}
@@ -308,10 +308,10 @@ public class HeaderField {
 	protected void setConfigVersion(String configVersion) {
 		this.configVersion = configVersion;
 	}
-	
+
 	static byte[] exampleHeader = {
 	0x53, 0x72, 0x63, 0x54, 0x79, 0x70, 0x3D, 0x43, 0x4D, 0x2D, 0x33, 0x32, 0x00, 0x00, 0x00, 0x00,
-	0x53, 0x72, 0x63, 0x56, 0x65, 0x72, 0x3D, 0x31, 0x30, 0x31, 0x33, 0x31, 0x5F, 0x34, 0x2E, 0x35,	
+	0x53, 0x72, 0x63, 0x56, 0x65, 0x72, 0x3D, 0x31, 0x30, 0x31, 0x33, 0x31, 0x5F, 0x34, 0x2E, 0x35,
 	0x53, 0x72, 0x63, 0x20, 0x49, 0x44, 0x3D, 0x30, 0x30, 0x33, 0x36, 0x30, 0x00, 0x00, 0x00, 0x00,
 	0x54, 0x58, 0x20, 0x54, 0x69, 0x6D, 0x3D, 0x31, 0x35, 0x3A, 0x32, 0x38, 0x3A, 0x33, 0x37, 0x00,
 	0x54, 0x58, 0x20, 0x44, 0x61, 0x74, 0x3D, 0x30, 0x38, 0x2F, 0x31, 0x31, 0x2F, 0x30, 0x36, 0x00,
@@ -326,6 +326,6 @@ public class HeaderField {
 	0x44, 0x20, 0x53, 0x69, 0x7A, 0x65, 0x3D, 0x36, 0x31, 0x34, 0x34, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x44, 0x20, 0x4D, 0x69, 0x6E, 0x73, 0x3D, 0x33, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x43, 0x66, 0x67, 0x56, 0x65, 0x72, 0x3D, 0x33, 0x34, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-	
+
 
 }

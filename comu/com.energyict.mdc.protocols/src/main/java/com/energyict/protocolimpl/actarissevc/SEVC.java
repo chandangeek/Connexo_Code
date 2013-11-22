@@ -10,6 +10,7 @@ import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -37,7 +38,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /*
- * 
+ *
  * @version  1.0
  * @author   Koenraad Vanderschaeve
  * <P>
@@ -555,14 +556,14 @@ public class SEVC extends PluggableMeterProtocol implements HHUEnabler, SerialNu
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
     }
 
     public void release() throws IOException {

@@ -2,6 +2,7 @@ package com.energyict.protocolimpl.dlms.idis.xml;
 
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -43,7 +44,7 @@ public class XMLParser {
      *
      * @throws org.xml.sax.SAXException when the xml parsing fails
      * @throws java.io.IOException      when the communication fails
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *
      */
     public void parseXML(String xml) throws IOException {

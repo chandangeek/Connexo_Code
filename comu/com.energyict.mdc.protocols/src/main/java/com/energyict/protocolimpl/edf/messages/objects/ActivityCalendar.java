@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 import java.util.*;
 
 public class ActivityCalendar extends ComplexCosemObject {
-	
+
 	protected final static String ELEMENTNAME = "activityCalendar";
 	protected final static String ACTIVENAME = "activeCalendarName";
 	protected final static String ACTIVESEASONPROFILES = "activeSeasonProfiles";
@@ -17,7 +17,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 	protected final static String PASSIVEWEEKPROFILES = "passiveWeekProfiles";
 	protected final static String PASSIVEDAYPROFILES = "passiveDayProfiles";
 	protected final static String SWITCHTIMENAME = "activatePassiveCalendarTime";
-	
+
 
 	private OctetString activeCalendarName = new OctetString();
 	private List activeSeasonProfiles = new ArrayList();
@@ -28,11 +28,11 @@ public class ActivityCalendar extends ComplexCosemObject {
 	private List passiveWeekProfiles = new ArrayList();
 	private List passiveDayProfiles = new ArrayList();
 	private CosemCalendar activatePassiveCalendarTime = new CosemCalendar();
-	
+
 	public ActivityCalendar() {
 		super();
 	}
-	
+
 	public ActivityCalendar(String activeCalendarName,	String passiveCalendarName) {
 		super();
 		this.activeCalendarName = new OctetString(activeCalendarName);
@@ -60,7 +60,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 				Element thisElement = (Element) childs.item(i);
 				SeasonProfile segment = new SeasonProfile(thisElement);
 				activeSeasonProfiles.add(segment);
-			}	
+			}
 		} else {
 			throw new ApplicationException("Cannot create ACtivityCalendar");
 		}
@@ -71,7 +71,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 				Element thisElement = (Element) childs.item(i);
 				WeekProfile segment = new WeekProfile(thisElement);
 				activeWeekProfiles.add(segment);
-			}	
+			}
 		} else {
 			throw new ApplicationException("Cannot create ACtivityCalendar");
 		}
@@ -82,7 +82,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 				Element thisElement = (Element) childs.item(i);
 				DayProfile segment = new DayProfile(thisElement);
 				activeDayProfiles.add(segment);
-			}	
+			}
 		} else {
 			throw new ApplicationException("Cannot create ACtivityCalendar");
 		}
@@ -99,7 +99,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 				Element thisElement = (Element) childs.item(i);
 				SeasonProfile segment = new SeasonProfile(thisElement);
 				passiveSeasonProfiles.add(segment);
-			}	
+			}
 		} else {
 			throw new ApplicationException("Cannot create ACtivityCalendar");
 		}
@@ -110,7 +110,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 				Element thisElement = (Element) childs.item(i);
 				WeekProfile segment = new WeekProfile(thisElement);
 				passiveWeekProfiles.add(segment);
-			}	
+			}
 		} else {
 			throw new ApplicationException("Cannot create ACtivityCalendar");
 		}
@@ -121,7 +121,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 				Element thisElement = (Element) childs.item(i);
 				DayProfile segment = new DayProfile(thisElement);
 				passiveDayProfiles.add(segment);
-			}	
+			}
 		} else {
 			throw new ApplicationException("Cannot create ACtivityCalendar");
 		}
@@ -133,7 +133,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 		}
 
 	}
-	
+
         public String toString() {
             // Generated code by ToStringBuilder
             StringBuffer strBuff = new StringBuffer();
@@ -148,9 +148,9 @@ public class ActivityCalendar extends ComplexCosemObject {
             strBuff.append("   passiveSeasonProfiles="+getPassiveSeasonProfiles()+"\n");
             strBuff.append("   passiveWeekProfiles="+getPassiveWeekProfiles()+"\n");
             return strBuff.toString();
-        }        
-        
-        
+        }
+
+
 	public byte getActiveCalendarName() {
 		return activeCalendarName.getOctets()[0];
 	}
@@ -166,7 +166,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 	public void setActiveSeasonProfiles(List activeSeasonProfiles) {
 		this.activeSeasonProfiles = activeSeasonProfiles;
 	}
-	
+
 	public void addActiveSeasonProfiles(SeasonProfile profile){
 		activeSeasonProfiles.add(profile);
 	}
@@ -238,7 +238,7 @@ public class ActivityCalendar extends ComplexCosemObject {
 	public void addPassiveDayProfiles(DayProfile profile){
 		passiveDayProfiles.add(profile);
 	}
-	
+
 	public CosemCalendar getActivatePassiveCalendarTime() {
 		return activatePassiveCalendarTime;
 	}

@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class C1222ResponseParms 
+public class C1222ResponseParms
 {
 	private String applicationContext = "";
 	private String calledApTitle;
@@ -167,7 +167,7 @@ public class C1222ResponseParms
 			default: break;
 		}
     }
-    
+
     private void extractAndSetUserInformation(byte[] byteArray) throws IOException
     {
 		int tempUserInfoIndirectReference = 0;
@@ -177,18 +177,18 @@ public class C1222ResponseParms
 		int pos = 0;
 		int tempLength = 0;
 
-		if (byteArray[pos] != 0x28) 
+		if (byteArray[pos] != 0x28)
 			throw new ApplicationException("First byte of user information must be 0x28");
-		
+
 		tempLength = byteArray[++pos]; // read off length bytes
 		if ((tempLength & 0x80) != 0)
 		{
 			tempLength &= 0x7F;
 			pos = pos + tempLength;
 		}
-		
+
 		tempUserInfoIndirectReference = byteArray[++pos];
-		
+
 		tempLength = byteArray[++pos]; // read off length bytes
 		if ((tempLength & 0x80) != 0)
 		{
@@ -226,36 +226,36 @@ public class C1222ResponseParms
 		setUserInformation(tempUserInformation);
 		setMac(tempMac);
     }
-    
+
     private long extractInteger(byte[] byteArray)
     {
     	long result = 0;
     	byte fieldType = byteArray[0];
-    	
-    	if (fieldType != 0x02) 
+
+    	if (fieldType != 0x02)
     		throw new ApplicationException("Invalid Field Type");
-    	
+
 		for(int i = 2; i < byteArray.length; i++)
 		{
 			result <<= 8;
 			result |= byteArray[i];
 		}
-		
+
     	return result;
     }
-    
+
     private String extractUid(byte[] byteArray)
     {
     	StringBuffer result = new StringBuffer();
     	byte fieldType = byteArray[0];
 
-    	if (fieldType != 0x80 && fieldType != 0x06) 
+    	if (fieldType != 0x80 && fieldType != 0x06)
     		throw new ApplicationException("Invalid Field Type");
-    	
+
     	result.append(byteArray[2] / 40);
     	result.append(".");
     	result.append(byteArray[2] % 40);
-    	
+
     	long number = 0;
 		for(int i = 3; i < byteArray.length; i++)
 		{
@@ -273,8 +273,8 @@ public class C1222ResponseParms
 				number += (long)(myByte & 0x7F);
 			}
 		}
-		
-    	return result.toString();    	
+
+    	return result.toString();
     }
 
     public void reset() {

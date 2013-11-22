@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.cpo.EnvironmentImpl;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;

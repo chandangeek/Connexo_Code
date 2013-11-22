@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer.register;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.protocolimpl.iec1107.cewe.ceweprometer.CewePrometer;
 

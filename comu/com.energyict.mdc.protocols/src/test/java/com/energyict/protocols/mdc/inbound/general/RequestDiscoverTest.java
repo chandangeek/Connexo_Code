@@ -2,7 +2,7 @@ package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.cpo.EnvironmentImpl;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedData;

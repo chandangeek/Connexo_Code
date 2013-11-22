@@ -17,7 +17,7 @@
 
 package com.energyict.protocolimpl.dlms.as220;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
@@ -676,7 +676,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
             RtuDLMS rtu = new RtuDLMS(rtuid);
@@ -686,11 +686,11 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
@@ -700,7 +700,7 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 

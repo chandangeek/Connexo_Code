@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messaging.messages;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.mdw.shadow.OldDeviceMessageShadow;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
@@ -41,7 +41,7 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
      * Create an XML string that matches the format of an {@link FirmwareUpdateMessage}
      *
      * @return The xml string
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      */
     private final String getCustomMessageContent() throws BusinessException {
         try {

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.kenda.medo;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -169,10 +169,10 @@ public class Medo extends PluggableMeterProtocol implements RegisterProtocol {
 //			int protocolRetriesProperty, int forcedDelay, int echoCancelling,
 //			int protocolCompatible, Encryptor encryptor,
 //			HalfDuplexController halfDuplexController) throws IOException {
-//		
+//
 //		this.inputStream=inputStream;
 //		this.outputStream=outputStream;
-//							
+//
 //		return null;
 //	}
 

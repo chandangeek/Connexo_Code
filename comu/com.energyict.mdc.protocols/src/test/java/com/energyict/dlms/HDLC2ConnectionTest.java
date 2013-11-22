@@ -1,9 +1,9 @@
 /**
- * 
+ *
  */
 package com.energyict.dlms;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -18,10 +18,10 @@ import static org.junit.Assert.fail;
 /**
  * @author gna
  * @since 10-feb-2010
- * 
+ *
  */
 public class HDLC2ConnectionTest {
-    
+
     private static Logger logger;
 
     @BeforeClass
@@ -39,13 +39,13 @@ public class HDLC2ConnectionTest {
 	    con.getHDLCParameters(DLMSUtils.hexStringToByteArray(strWithNegotiations));
 	    assertEquals(80, con.getServerMaxRXIFSize());
 	    assertEquals(40, con.getServerMaxTXIFSize());
-	    
+
 	    con = new HDLC2Connection(null, null, 0, 0, 0, 1, 33, 1, 2, -1, -1);
 	    con.initServerMaxSizes();
 	    con.getHDLCParameters(DLMSUtils.hexStringToByteArray(strWithoutNegotiations));
 	    assertEquals(128, con.getServerMaxRXIFSize());
 	    assertEquals(128, con.getServerMaxTXIFSize());
-	    
+
 	} catch (ConnectionException e) {
 	    logger.log(Level.INFO, e.getMessage());
 	    e.printStackTrace();

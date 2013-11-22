@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.a140;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -127,7 +127,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#
      *      setProperties(java.util.Properties)
      */
@@ -212,7 +212,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#init( java.io.InputStream,
      *      java.io.OutputStream, java.util.TimeZone, java.util.logging.Logger)
      */
@@ -323,7 +323,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.
      *      ProtocolLink#getFlagIEC1107Connection()
      */
@@ -333,7 +333,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107. ProtocolLink#getLogger()
      */
     public Logger getLogger() {
@@ -342,7 +342,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getPassword()
      */
     public String getPassword() {
@@ -351,7 +351,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getTimeZone()
      */
     public TimeZone getTimeZone() {
@@ -369,7 +369,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel,
      *      boolean)
      */
@@ -385,7 +385,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel)
      */
     public void enableHHUSignOn(SerialCommunicationChannel commChannel)
@@ -395,7 +395,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.HHUEnabler#getHHUDataReadout()
      */
     public byte[] getHHUDataReadout() {
@@ -404,7 +404,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.SerialNumber#getSerialNumber(com.energyict.dialer.core.SerialCommunicationChannel,
      *      java.lang.String)
      */
@@ -445,7 +445,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.base.MeterExceptionInfo#getExceptionInfo(java.lang.String)
      */
     public String getExceptionInfo(String id) {
@@ -461,7 +461,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -470,7 +470,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -630,7 +630,7 @@ public class A140 extends PluggableMeterProtocol implements ProtocolLink, HHUEna
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getDataReadout()
      */
     public byte[] getDataReadout() {

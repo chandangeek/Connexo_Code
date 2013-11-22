@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.sdksample;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -431,7 +432,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     /**
      * {@inheritDoc}
      */
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             /* Use the RTUCache to set the blob (cache) to the database */
             RTUCache rtu = new RTUCache(rtuid);
@@ -449,7 +450,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
     /**
      * {@inheritDoc}
      */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
 
             /* Use the RTUCache to get the blob from the database */

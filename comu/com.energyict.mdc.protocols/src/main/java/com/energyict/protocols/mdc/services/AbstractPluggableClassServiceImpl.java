@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.services;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.PluggableClass;
 import com.energyict.mdw.shadow.PluggableClassShadow;

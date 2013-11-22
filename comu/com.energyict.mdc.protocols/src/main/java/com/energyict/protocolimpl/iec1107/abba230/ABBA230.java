@@ -25,6 +25,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.EventMapper;
@@ -771,7 +772,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
       * @see com.energyict.protocol.MeterProtocol#fetchCache(int)
       */
     public Object fetchCache(int rtuid)
-            throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+            throws java.sql.SQLException, BusinessException {
         return null;
     }
 
@@ -786,7 +787,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
       * @see com.energyict.protocol.MeterProtocol#updateCache(int, java.lang.Object)
       */
     public void updateCache(int rtuid, Object cacheObject)
-            throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+            throws java.sql.SQLException, BusinessException {
     }
 
     /* method not supported

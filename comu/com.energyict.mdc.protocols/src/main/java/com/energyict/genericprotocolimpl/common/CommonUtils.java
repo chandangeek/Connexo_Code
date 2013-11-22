@@ -1,19 +1,18 @@
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.DeviceConfiguration;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.DeviceTypeFactoryProvider;
 import com.energyict.mdw.core.Folder;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.coreimpl.DeviceFactoryImpl;
+import com.energyict.mdw.core.FolderFactoryProvider;
 import com.energyict.mdw.shadow.DeviceShadow;
 import com.energyict.mdw.task.CreateDeviceTransaction;
 import com.energyict.metadata.Criterium;
-import com.energyict.metadata.TypeDescriptor;
 import com.energyict.protocol.InvalidPropertyException;
 
 import java.io.IOException;
@@ -42,7 +41,7 @@ public final class CommonUtils {
      * @throws BusinessException if business exception occurred
      */
     public static Device findOrCreateDeviceBySerialNumber(String serialNumber, String deviceTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException {
-        List<Device> result = mw().getDeviceFactory().findBySerialNumber(serialNumber);
+        List<Device> result = DeviceFactoryProvider.instance.get().getDeviceFactory().findBySerialNumber(serialNumber);
         if (result.size() == 1) {        // we found the Device so return it
             return result.get(0);
         } else if (result.size() > 1) {
@@ -64,7 +63,7 @@ public final class CommonUtils {
      * @throws BusinessException if business exception occurred
      */
     public static Device findDeviceBySerialNumber(String serialNumber) throws IOException, SQLException, BusinessException {
-        List<Device> result = mw().getDeviceFactory().findBySerialNumber(serialNumber);
+        List<Device> result = DeviceFactoryProvider.instance.get().getDeviceFactory().findBySerialNumber(serialNumber);
         if (result.size() == 1) {        // we found the Device so return it
             return result.get(0);
         } else if (result.size() > 1) {
@@ -88,7 +87,7 @@ public final class CommonUtils {
      * @throws BusinessException if business exception occurred
      */
     public static Device findOrCreateDeviceByDeviceId(String deviceId, String deviceTypeProperty, String folderExtNameProperty) throws IOException, SQLException, BusinessException {
-        List<Device> result = mw().getDeviceFactory().findByDeviceId(deviceId);
+        List<Device> result = DeviceFactoryProvider.instance.get().getDeviceFactory().findByDeviceId(deviceId);
         if (result.size() == 1) {        // we found the Device so return it
             return result.get(0);
         } else if (result.size() > 1) {
@@ -121,7 +120,7 @@ public final class CommonUtils {
         shadow.setSerialNumber(serialNumber);
 
         if (folderExtNameProperty != null) {
-            Folder result = mw().getFolderFactory().findByExternalName(folderExtNameProperty);
+            Folder result = FolderFactoryProvider.instance.get().getFolderFactory().findByExternalName(folderExtNameProperty);
             if (result != null) {
                 shadow.setFolderId(result.getId());
             } // else the new Device will be placed in the prototype folder
@@ -154,7 +153,7 @@ public final class CommonUtils {
 //        shadow.setDeviceId(deviceId);
 
         if (folderExtNameProperty != null) {
-            Folder result = mw().getFolderFactory().findByExternalName(folderExtNameProperty);
+            Folder result = FolderFactoryProvider.instance.get().getFolderFactory().findByExternalName(folderExtNameProperty);
             if (result != null) {
                 shadow.setFolderId(result.getId());
             } // else the new Device will be placed in the prototype folder
@@ -195,7 +194,7 @@ public final class CommonUtils {
      */
     public static DeviceType getDeviceType (String deviceTypeProperty) throws InvalidPropertyException {
         if (deviceTypeProperty != null) {
-            DeviceType deviceType = mw().getDeviceTypeFactory().find(deviceTypeProperty);
+            DeviceType deviceType = DeviceTypeFactoryProvider.instance.get().getDeviceTypeFactory().find(deviceTypeProperty);
             if (deviceType == null) {
                 throw new InvalidPropertyException("No rtutype defined with name '" + deviceTypeProperty + "'.");
             } else if (deviceType.getConfigurations().get(0).getPrototypeDevice() == null) {
@@ -205,36 +204,6 @@ public final class CommonUtils {
             }
         } else {
             throw new InvalidPropertyException("No automatic meter creation: no property DeviceType defined.");
-        }
-    }
-
-    /**
-     * Short notation for the current MeteringWarehous
-     */
-    public static MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
-    }
-
-    /**
-     * Find a Device for the given phoneNumber
-     *
-     * @param phoneNumber the device phoneNumber as String
-     * @return one single Device
-     * @throws IOException when no device or more then one device was found with the given phoneNumber
-     */
-    public static Device findDeviceByPhoneNumber(String phoneNumber) throws IOException {
-        DeviceFactoryImpl factory = (DeviceFactoryImpl) mw().getDeviceFactory();
-        TypeDescriptor type = factory.getTypeDescriptor();
-        com.energyict.metadata.SearchFilter filter = new com.energyict.metadata.SearchFilter(type);
-        filter.addAnd(Criterium.eq(type.getAttributeDescriptor("phoneNumber"), phoneNumber));
-        List<Device> result = factory.findBySearchFilter(filter);
-        if (result.size() == 1) {
-            return result.get(0);
-        } else if (result.size() > 1) {
-            throw new IOException("Multiple meters found in database with phoneNumber " + phoneNumber);
-        } else {
-            throw new IOException("No meter found in database with phoneNumber " + phoneNumber);
         }
     }
 

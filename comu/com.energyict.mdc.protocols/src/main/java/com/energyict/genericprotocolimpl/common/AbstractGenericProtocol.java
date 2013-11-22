@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 

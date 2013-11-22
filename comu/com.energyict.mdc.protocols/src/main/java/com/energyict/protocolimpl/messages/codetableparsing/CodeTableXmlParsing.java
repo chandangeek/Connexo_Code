@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.messages.codetableparsing;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.MeteringWarehouse;
 import org.apache.commons.logging.Log;

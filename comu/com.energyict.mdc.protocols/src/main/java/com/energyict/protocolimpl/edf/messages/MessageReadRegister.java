@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 public class MessageReadRegister extends MessageContent {
 
 	protected final static String ELEMENTNAME = "onDemandReadRegister";
 	protected final static String OBISCODEELEMENTNAME = "obisCode";
-	
+
 	private String obisCode;
 
 	public MessageReadRegister() {

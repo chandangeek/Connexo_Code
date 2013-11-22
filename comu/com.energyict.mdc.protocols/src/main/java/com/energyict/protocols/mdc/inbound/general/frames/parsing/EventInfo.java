@@ -1,7 +1,7 @@
 package com.energyict.protocols.mdc.inbound.general.frames.parsing;
 
 import com.energyict.cim.EndDeviceEventTypeMapping;
-import com.energyict.cpo.EnvironmentImpl;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
 

@@ -11,6 +11,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -77,7 +78,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
     private Logger logger;
     private SiemensSCTM siemensSCTM;
 
-    //validateProperties     
+    //validateProperties
     private String strID;
     private String strPassword;
     private String nodeId;
@@ -323,7 +324,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
 //    	else if (meterSeconds >= 29){
 //    		delay = ((59 - meterSeconds + offSet) * 1000) - roundTripTime;
 //    	}
-//    	
+//
 //    	else{
 //    		delay = ((offSet - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
 //    	}
@@ -363,7 +364,7 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
 //		else if (meterSeconds >= 29){
 //			delay = ((59 - meterSeconds + 30)*1000);
 //		}
-//		
+//
 //		else{
 //			delay = ((30 - meterCal.get(Calendar.SECOND)) * 1000) - roundTripTime;
 //		}
@@ -593,14 +594,14 @@ abstract public class Metcom extends PluggableMeterProtocol implements HalfDuple
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
     }
 
     // implement HalfDuplexEnabler

@@ -13,6 +13,7 @@ package com.energyict.protocolimpl.eicttest;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -132,28 +133,28 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         msgSpec.add(tagSpec);
         return msgSpec;
     }
-	
+
 	private MessageSpec addUpgradeMsg1(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		
+
         MessageTagSpec rootTag = new MessageTagSpec(tagName);
 		MessageTagSpec fileId = new MessageTagSpec(INCLUDE_FILE_TAG);
 		fileId.add(new MessageValueSpec());
         rootTag.add(fileId);
-		
+
         msgSpec.add(rootTag);
         return msgSpec;
     }
 
 	private MessageSpec addUpgradeMsg2(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
-		
+
         MessageTagSpec rootTag = new MessageTagSpec(tagName);
 		rootTag.add(new MessageValueSpec());
-		
+
 		MessageTagSpec fileId = new MessageTagSpec(INCLUDE_FILE_TAG);
 		fileId.add(new MessageValueSpec());
-		
+
         rootTag.add(fileId);
         msgSpec.add(rootTag);
         return msgSpec;
@@ -162,7 +163,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
-	
+
     public String writeTag(MessageTag msgTag) {
         StringBuffer buf = new StringBuffer();
 
@@ -206,7 +207,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     public String writeValue(MessageValue value) {
         return value.getValue();
     }
-	
+
     protected void doConnect() throws IOException {
         getLogger().info("call abstract method doConnect()");
         getLogger().info("--> at that point, we have a communicationlink with the meter (modem, direct, optical, ip, ...)");
@@ -234,7 +235,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         getLogger().info("--> here we read the profiledata for "+getLoadProfileObisCode().toString()+" from the meter and construct a profiledata object");
 
         ProfileData pd = new ProfileData();
-        
+
 		boolean isCumulative = false;
 		if (getLoadProfileObisCode().getD() == 1) {
 			isCumulative = false;
@@ -244,7 +245,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 			throw new NoSuchRegisterException("Invalid load profile request "
 					+ getLoadProfileObisCode().toString());
 		}
-        
+
 		if (isCumulative == false) {
 			pd.addChannel(new ChannelInfo(0, 0, "EICT test profile "
 					+ getLoadProfileObisCode().toString() + " channel 1", Unit
@@ -362,7 +363,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 				id.addValue(calculateValue(cal, 20, 5));
 				id.addValue(calculateValueCumulative(cal, 100));
 			}
-           
+
            pd.addInterval(id);
            cal.add(Calendar.SECOND, getProfileInterval());
         }
@@ -371,7 +372,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 		pd.addEvent(new MeterEvent(now, MeterEvent.APPLICATION_ALERT_START, "EICT Test (" + version + ")"));
         return pd;
     }
-    
+
 	private BigDecimal calculateValue(Calendar cal, long base, long amplitude) {
 		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal
 				.get(Calendar.DST_OFFSET));
@@ -394,7 +395,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
 			return new BigDecimal(base - amplitude + delta);
 		}
 	}
-    
+
 	private BigDecimal calculateValueCumulative(Calendar cal, long amplitude)
 			throws UnsupportedException, IOException {
 		int utcOffset = (cal.get(Calendar.ZONE_OFFSET) + cal
@@ -458,7 +459,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         //getLogger().info("call overridden method translateRegister()");
         return new RegisterInfo(obisCode.getDescription());
     }
-	
+
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
     	getLogger().info("call overrided method readRegister("+obisCode+")");
         getLogger().info("--> request the register from the meter here");
@@ -488,7 +489,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         	fromTime = now.getTime();
 
         }
-		
+
 		Boolean suspect = false;
 		Calendar cal = Calendar.getInstance();
         if (getProfileInterval() <= 0) {
@@ -545,7 +546,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         list.add("LoadProfileObisCode");
         return list;
     }
-	
+
     protected ProtocolConnection doInit(InputStream inputStream,OutputStream outputStream,int timeoutProperty,int protocolRetriesProperty,int forcedDelay,int echoCancelling,int protocolCompatible,Encryptor encryptor,HalfDuplexController halfDuplexController) throws IOException {
         getLogger().info("call doInit(...)");
         getLogger().info("--> construct the ProtocolConnection and all other object here");
@@ -566,7 +567,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         long currenttime = new Date().getTime();
         return new Date(currenttime-(1000*30));
     }
-	
+
     public void setTime() throws IOException {
         getLogger().info("call setTime() (this method is called automatically when needed)");
         getLogger().info("--> sync the metertime with the systemtime here");
@@ -582,7 +583,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
         //return "EICT Test protocol version";
     }
-	
+
     public String getFirmwareVersion() throws IOException, UnsupportedException {
         getLogger().info("call getFirmwareVersion()");
         getLogger().info("--> report the firmware version and other important meterinfo here");
@@ -609,7 +610,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     /**
      * {@inheritDoc}
      */
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
         if(rtuid != 0){
             /* Use the RTUCache to set the blob (cache) to the database */
             RTUCache rtu = new RTUCache(rtuid);
@@ -627,7 +628,7 @@ public class EICTTestProtocol extends AbstractProtocol implements MessageProtoco
     /**
      * {@inheritDoc}
      */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         if(rtuid != 0){
 
             /* Use the RTUCache to get the blob from the database */

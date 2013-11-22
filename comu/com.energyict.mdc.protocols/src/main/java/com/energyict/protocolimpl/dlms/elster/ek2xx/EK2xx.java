@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.elster.ek2xx;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
@@ -305,7 +305,7 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 

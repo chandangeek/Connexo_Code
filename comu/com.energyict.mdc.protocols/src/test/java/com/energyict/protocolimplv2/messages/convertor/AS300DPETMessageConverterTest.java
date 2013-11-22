@@ -6,7 +6,8 @@ import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterReading;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Group;
+import com.energyict.mdw.core.DeviceFactory;
+import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
@@ -14,8 +15,9 @@ import com.energyict.protocol.messaging.Messaging;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.smartmeterprotocolimpl.elster.apollo5.AS300DPET;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -23,7 +25,10 @@ import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Test that creates OfflineDeviceMessages (the attributes are all filled with dummy values) and converts them to the legacy XML message,
@@ -34,6 +39,33 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
+
+    private static final int DEVICE_ID = 97;
+
+    @Mock
+    private DeviceFactory deviceFactory;
+    @Mock
+    private DeviceFactoryProvider deviceFactoryProvider;
+    @Mock
+    private Device device;
+
+    @Before
+    public void initializeMocksAndFactories () {
+        when(this.deviceFactoryProvider.getDeviceFactory()).thenReturn(this.deviceFactory);
+        DeviceFactoryProvider.instance.set(this.deviceFactoryProvider);
+        when(this.device.getId()).thenReturn(DEVICE_ID);
+        when(this.deviceFactory.find(DEVICE_ID)).thenReturn(this.device);
+
+        Register register = mock(Register.class);
+        List<RegisterReading> registerReadings = new ArrayList<>(1);
+
+        RegisterReading registerReading = mock(RegisterReading.class);
+        when(registerReading.getText()).thenReturn("KeyPair1");
+        registerReadings.add(registerReading);
+
+        when(register.getLastXReadings(any(Integer.class))).thenReturn(registerReadings);
+        when(this.device.getRegister(any(ObisCode.class))).thenReturn(register);
+    }
 
     @Test
     public void testAllianderPETMessageConversion() {
@@ -71,29 +103,15 @@ public class AS300DPETMessageConverterTest extends AS300MessageConverterTest {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.randomBytesAttributeName:
                 return "random";
-            case DeviceMessageConstants.deviceGroupAttributeName:
+            case DeviceMessageConstants.deviceListAttributeName:
                 return getMockedDeviceGroup();
             default:
                 return super.getPropertySpecValue(propertySpec);
         }
     }
 
-    private Group getMockedDeviceGroup() {
-        Group deviceGroup = mock(Group.class);
-        Device member = mock(Device.class);
-        Register register = mock(Register.class);
-        List<RegisterReading> registerReadings = new ArrayList<>(1);
-        List<Device> members = new ArrayList<>(1);
-
-        RegisterReading registerReading = mock(RegisterReading.class);
-        when(registerReading.getText()).thenReturn("KeyPair1");
-        registerReadings.add(registerReading);
-
-        when(register.getLastXReadings(any(Integer.class))).thenReturn(registerReadings);
-        when(member.getRegister(any(ObisCode.class))).thenReturn(register);
-        members.add(member);
-
-        doReturn(members).when(deviceGroup).getMembers();
-        return deviceGroup;
+    private String getMockedDeviceGroup() {
+        return String.valueOf(DEVICE_ID);
     }
+
 }

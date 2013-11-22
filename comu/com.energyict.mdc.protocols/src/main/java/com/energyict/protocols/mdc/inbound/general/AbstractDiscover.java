@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.cpo.EnvironmentImpl;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;

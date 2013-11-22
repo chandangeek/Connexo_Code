@@ -21,6 +21,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.InvalidPropertyException;
@@ -259,7 +260,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.timeZone = timeZone;
-        //this.logger = logger;     
+        //this.logger = logger;
 
         bCRN = 0;
         boolAbort = false;
@@ -637,7 +638,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 
         blockscount = lNROfBlocks - 1;
         do {
-//System.out.println("KV_DEBUG> blockscount "+blockscount);            
+//System.out.println("KV_DEBUG> blockscount "+blockscount);
             for (lMBN = (blockscount % 256); lMBN >= 0; lMBN--) {
 //System.out.println("KV_DEBUG> lMBN "+lMBN);
                 if (!sendAndWaitForDataBlock(iProtocolTimeoutProperty, iProtocolRetriesProperty, RemoteDataBlockBuffer, MasterDataBlockAckBuffer)) {
@@ -653,14 +654,14 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
 //                   if (((lMBN == (lNROfBlocks-1)) || (lMBN == (lNROfBlocks-2))) && (includeEvents)) {
                     if (((lMBN == (blockscount % 256)) || (lMBN == ((blockscount % 256) - 1))) && (includeEvents)) {
 
-//System.out.println("KV_DEBUG> event block lMBN "+lMBN);                       
+//System.out.println("KV_DEBUG> event block lMBN "+lMBN);
                         parseEvents(RemoteDataBlockBuffer, profileData, bYear);
 
                         if (lMBN == ((blockscount % 256) - 1)) {
                             includeEvents = false;
                         }
                     } else {
-//System.out.println("KV_DEBUG> interval block lMBN "+lMBN);                       
+//System.out.println("KV_DEBUG> interval block lMBN "+lMBN);
                         parseIntervals(RemoteDataBlockBuffer, profileData, bNROfChannels, bYear);
                     }
                 }
@@ -733,7 +734,7 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
                 return (MeterEvent.OTHER);
         } // switch(iLogCode)
 
-    } // private void mapLogCodes(int iLogCode) 
+    } // private void mapLogCodes(int iLogCode)
 
     private void parseIntervals(byte[] byteReceiveBuffer, ProfileData profileData, byte bNROfChannels, byte bYear) throws IOException {
         for (int i = 0; i < (int) (256 / 2); i++) // 1 block contains 128 interval values
@@ -741,11 +742,11 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             channelValues[bChannelNR] = new Long(((long) byteReceiveBuffer[RDB_DATA + i * 2] & 0x000000FF) * 256 +
                     ((long) byteReceiveBuffer[RDB_DATA + i * 2 + 1] & 0x000000FF));
             if (bChannelNR-- <= 0) {
-                // Fill profileData         
+                // Fill profileData
                 IntervalData intervalData = new IntervalData(new Date(gcalendarEarliestTimeIntervalRequested.getTime().getTime()));
 
                 intervalData.addValues(channelValues);
-                //for (int t=0;t<bNROfChannels;t++) intervalData.addValue(channelValues[t]);        
+                //for (int t=0;t<bNROfChannels;t++) intervalData.addValue(channelValues[t]);
                 profileData.addInterval(intervalData);
 
                 bChannelNR = (byte) (bNROfChannels - (byte) 1);
@@ -1221,14 +1222,14 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
     }
 
     public void release() throws IOException {
@@ -1278,5 +1279,5 @@ public class DukePower extends PluggableMeterProtocol implements SerialNumber {
             return new String(baos.toByteArray());
         }
 
-    } // public String getIResponse()    
+    } // public String getIResponse()
 }

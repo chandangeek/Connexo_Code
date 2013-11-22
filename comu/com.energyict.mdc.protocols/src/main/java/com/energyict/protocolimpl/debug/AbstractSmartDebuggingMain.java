@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.*;
 import com.energyict.dialer.coreimpl.OpticalDialer;

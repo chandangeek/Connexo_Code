@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cpo.*;
 import com.energyict.mdw.core.*;
 import com.energyict.mdw.shadow.OldDeviceMessageShadow;

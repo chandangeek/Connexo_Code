@@ -6,6 +6,7 @@ import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.dlms.cosem.*;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.Register;

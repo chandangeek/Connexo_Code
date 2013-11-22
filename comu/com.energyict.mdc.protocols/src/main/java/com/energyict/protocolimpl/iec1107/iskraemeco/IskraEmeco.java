@@ -6,7 +6,7 @@
 
 /*
  *  Changes:
- *  KV 15022005 Changed RegisterConfig to allow B field obiscodes != 1 
+ *  KV 15022005 Changed RegisterConfig to allow B field obiscodes != 1
  */
 package com.energyict.protocolimpl.iec1107.iskraemeco;
 
@@ -18,6 +18,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.IEC1107HHUConnection;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.InvalidPropertyException;
@@ -449,14 +450,14 @@ public class IskraEmeco extends PluggableMeterProtocol implements ProtocolLink, 
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
     }
 
     public ProtocolChannelMap getProtocolChannelMap() {

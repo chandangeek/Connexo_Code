@@ -1,18 +1,16 @@
 /**
  * MK10DemandValuesExecuter.java
- * 
+ *
  * Created on 16-jan-2009, 15:44:57 by jme
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.mdw.core.AmrJournalEntry;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Level;
 
 /**
  * @author jme
@@ -21,7 +19,7 @@ import java.util.logging.Level;
 public class MK10DemandValuesExecuter {
 
 	private static final int DEBUG 			= 0;
-	
+
 	private MK10ProtocolExecuter executer 	= null;
     private Date validatedLastReading		= null;
     private Date now						= null;
@@ -33,7 +31,7 @@ public class MK10DemandValuesExecuter {
 	public MK10DemandValuesExecuter(MK10ProtocolExecuter mk10ProtocolExecuter) {
 		this.executer = mk10ProtocolExecuter;
 	}
-	
+
 	/*
 	 * Private getters, setters and methods
 	 */
@@ -45,7 +43,7 @@ public class MK10DemandValuesExecuter {
     private int getConfigNumberOfChannels() {
         return getExecuter().getMeter().getChannels().size();
     }
-	
+
     private int getExtraIntervals() {
     	return Integer.parseInt(getExecuter().getProperties().getProperty("ExtraIntervals", "0").trim());
 	}
@@ -84,7 +82,7 @@ public class MK10DemandValuesExecuter {
         else
             return lastReading;
     }
-    
+
     public ProfileData validateProfileData(ProfileData profileData, Date date) {
         Iterator it = profileData.getIntervalDatas().iterator();
         while (it.hasNext()) {
@@ -96,7 +94,7 @@ public class MK10DemandValuesExecuter {
         }
         return profileData;
     }
-    
+
 	public ProfileData getReadDemandValues() throws IOException, BusinessException {
 
 	    if (getExtraIntervals() > 0) {
@@ -105,7 +103,7 @@ public class MK10DemandValuesExecuter {
 	    	this.validatedLastReading = validateLastReading(getExecuter().getMeter().getLastReading(), getExecuter().getMeter().getTimeZone());
 	    }
 	    this.now = new Date(); //Calendar.getInstance().getTime();
-		
+
 //		// Partial data read
 //    	getExecuter().log(Level.INFO,	"retrieve interval data from " + (new java.util.Date(validatedLastReading.getTime())) +	" to " + now);
 //        if (validatedLastReading.getTime() > Calendar.getInstance().getTime().getTime()) {
@@ -118,7 +116,7 @@ public class MK10DemandValuesExecuter {
 //        }
         return null;
 	}
-	
+
 //	public ProfileData getReadAllDemandValues() throws IOException, BusinessException {
 //	    if (getExtraIntervals() > 0) {
 //	    	this.validatedLastReading = validateLastReading(new Date(getExecuter().getMeter().getLastReading().getTime() - getExtraIntervals() * getExecuter().getMk10Protocol().getInfoTypeProfileInterval() * 1000), getExecuter().getMeter().getTimeZone());
@@ -128,7 +126,7 @@ public class MK10DemandValuesExecuter {
 //	    this.now = new Date(); //Calendar.getInstance().getTime();
 //	    return getExecuter().getMk10Protocol().getProfileData(getExecuter().getCommunicationProfile().getReadMeterEvents());
 //	}
-	
+
 	/*
 	 * Public getters and setters
 	 */
@@ -136,9 +134,9 @@ public class MK10DemandValuesExecuter {
 	public Date getNow() {
 		return now;
 	}
-	
+
 	public Date getValidatedLastReading() {
 		return validatedLastReading;
 	}
-	
+
 }

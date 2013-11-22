@@ -2,19 +2,19 @@ package com.energyict.protocolimpl.enermet.e120;
 
 import java.util.HashMap;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 
 /**
  * Contains a map linking the id's of the meter units to Unit Objects.
- * 
+ *
  * @author fbo
  */
-class UnitMap { 
-    
+class UnitMap {
+
     private static HashMap map = new HashMap();
-    
+
     static {
         add( 0, Unit.getUndefined() );
         add( 1, Unit.get( BaseUnit.WATT, 0) );
@@ -35,7 +35,7 @@ class UnitMap {
         add( 16, Unit.get( BaseUnit.VOLTAMPEREREACTIVEHOUR, 9) );
         add( 17, Unit.get( BaseUnit.VOLT, 0) );
         add( 18, Unit.get( BaseUnit.AMPERE, 0) );
-        // cosf    
+        // cosf
         add( 19, Unit.get( BaseUnit.UNITLESS, 0) );
         add( 20, Unit.get( BaseUnit.CUBICMETER, 0) );
         add( 21, Unit.get( BaseUnit.LITER, 0) );
@@ -66,45 +66,45 @@ class UnitMap {
         add( 47, Unit.get( BaseUnit.MINUTE, 0) );
         add( 48, Unit.get( BaseUnit.SECOND, 0) );
     }
-    
+
     private int id;
     private Unit unit;
-    
+
     public static Unit get(int id){
-        Unit unit = ((UnitMap)map.get(""+id)).getUnit(); 
+        Unit unit = ((UnitMap)map.get(""+id)).getUnit();
         if( unit == null )
             throw new ApplicationException("Unit: " + id + " is not supported");
         return unit;
     }
-    
+
     public UnitMap(int id, Unit unit) {
         this.id = id;
         this.unit = unit;
     }
-    
+
     private static void add(int id, Unit aUnit){
         map.put(""+id, new UnitMap(id, aUnit));
     }
-    
+
     public int getId() {
         return id;
     }
-    
+
     public void setId(int id) {
         this.id = id;
     }
-    
+
     public Unit getUnit() {
         return unit;
     }
-    
+
     public void setUnit(Unit unit) {
         this.unit = unit;
     }
-    
+
     public String toString( ){
         String u = ( (unit!=null)?unit.toString():"");
-        return "Enermet Unit [" + id + " ," + u + "]"; 
+        return "Enermet Unit [" + id + " ," + u + "]";
     }
-    
+
 }

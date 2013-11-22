@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.messages.*;
 import com.energyict.protocolimplv2.messages.enums.DSTAlgorithm;
 

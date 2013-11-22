@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.dlms.g3;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.Transaction;
+import com.energyict.mdc.common.Transaction;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
@@ -276,7 +276,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
                 return new G3Cache();
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 
@@ -293,7 +293,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
             };
             MeteringWarehouse.getCurrent().execute(tr);
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 }

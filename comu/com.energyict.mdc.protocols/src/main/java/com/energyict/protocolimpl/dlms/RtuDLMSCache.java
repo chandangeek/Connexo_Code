@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cpo.*;
 import com.energyict.dlms.DLMSUtils;
 
 import java.util.*;
 import java.sql.*;
 
 import com.energyict.dlms.UniversalObject;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 
 /**
  * @version : 1.0

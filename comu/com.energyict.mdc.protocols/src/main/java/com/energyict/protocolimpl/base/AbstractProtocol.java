@@ -12,6 +12,7 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
@@ -147,7 +148,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     int requestHeader; // Request Meter's profile header info (typycal VDEW)
     int scaler; // Scaler to use when retrieving data from the meter
     int forcedDelay; // Delay before data send
-    int halfDuplex; // halfduplex enable/disable & delay in ms. (0=disabled, >0 enabled and delay in ms.) 
+    int halfDuplex; // halfduplex enable/disable & delay in ms. (0=disabled, >0 enabled and delay in ms.)
 
     byte[] dataReadout;
     boolean requestDataReadout;
@@ -157,7 +158,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     private BigDecimal adjustChannelMultiplier;
     private BigDecimal adjustRegisterMultiplier;
 
-    private int dtrBehaviour; // 0=force low, 1 force high, 2 don't force anything 
+    private int dtrBehaviour; // 0=force low, 1 force high, 2 don't force anything
 
     /**
      * Default constructor
@@ -183,7 +184,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     public AbstractProtocol(Encryptor encryptor) {
         this(false, encryptor);
     }
-    /* Creates a new instance of AbstractProtocol, default constructor 
+    /* Creates a new instance of AbstractProtocol, default constructor
      *  @param requestDataReadout true if the datadump is needed to read registers.
      *         We only use a datadump if there is no possibility in programming mode to read registers individual.
      *         Datadump registers are always cached.
@@ -284,7 +285,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
 //    public void setTime() throws IOException {
 //    }
     /*
-     * Override this method if the subclass wants to set a specific register 
+     * Override this method if the subclass wants to set a specific register
      */
 
     /**
@@ -301,7 +302,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     public void setRegister(String name, String value) throws IOException, NoSuchRegisterException, UnsupportedException {
     }
     /*
-     * Override this method if the subclass wants to get a specific register 
+     * Override this method if the subclass wants to get a specific register
      */
 
     /**
@@ -362,7 +363,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         result.add(PROP_ADJUST_CHANNEL_MULTIPLIER);
         result.add(PROP_ADJUST_REGISTER_MULTIPLIER);
 
-// if needed, add following codelines into the overridden doGetOptionalKeys() method        
+// if needed, add following codelines into the overridden doGetOptionalKeys() method
 //        result.add("RequestHeader"));
 //        result.add("Scaler"));
 
@@ -479,10 +480,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @param rtuid       database id of the meter
      * @param cacheObject cache data to store
      * @throws java.sql.SQLException thrown when something goes wrong during updating
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *                               thrown when something goes wrong in the caching businesslogic
      */
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
     }
 
     /**
@@ -499,10 +500,10 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @param rtuid meter database id
      * @return cache data object
      * @throws java.sql.SQLException thrown when something goes wrong during fetch
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *                               thrown when something goes wrong in the caching businesslogic
      */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
@@ -572,7 +573,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      * @throws com.energyict.dialer.connection.ConnectionException
      *          thrown when a connection exception happens
      */
-    /* 
+    /*
      *  Default implementation of the HHU interfacing. These classes can be overridden by
      *  the subclass if the implementation should be different.
      */
@@ -614,8 +615,8 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      */
     /*
      *  This method must be overridden by the subclass to implement meter specific error
-     *  messages. Us sample code of a static map with error codes below as a sample and 
-     *  use code in method as a sample of how to retrieve the error code.  
+     *  messages. Us sample code of a static map with error codes below as a sample and
+     *  use code in method as a sample of how to retrieve the error code.
      *  This code has been taken from a real protocol implementation.
      */
 /*
@@ -631,14 +632,14 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
         if (exceptionInfo != null)
            return id+", "+exceptionInfo;
         else
-           return "No meter specific exception info for "+id; 
+           return "No meter specific exception info for "+id;
         */
         return null;
     }
 
 
     /*******************************************************************************************
-     D i a l i n S c h e d u l e P r o t o c o l  i n t e r f a c e 
+     D i a l i n S c h e d u l e P r o t o c o l  i n t e r f a c e
      *******************************************************************************************/
     /**
      * Setter for setting the meters next scheduled dialin time & date. It is the time & date
@@ -687,7 +688,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
      *  or the meter does not provide a datadump. The method is used by the Hand-Held mechanism to uniquely identify
      *  a meter device (com.energyict.protocolimpl.base.IEC1107HHUConnection).
      *  Use the sample code below as an example how to retrieve the serialnumber from a meter using a level 0
-     *  security (=no password). 
+     *  security (=no password).
      *  This code has been taken from a real protocol implementation.
      */
     public String getSerialNumber(DiscoverInfo discoverInfo) throws IOException {
@@ -708,7 +709,7 @@ public abstract class AbstractProtocol extends PluggableMeterProtocol implements
     }
 
     /*******************************************************************************************
-     G e t t e r s  &  s e t t e r s  o f  p r o p e r t i e s 
+     G e t t e r s  &  s e t t e r s  o f  p r o p e r t i e s
      *******************************************************************************************/
 
     /**

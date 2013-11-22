@@ -1,8 +1,9 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.cbo.ApplicationException;
-import com.energyict.cbo.DatabaseException;
-import com.energyict.cpo.EnvironmentImpl;
+import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.common.DatabaseException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.dialer.core.*;
 import com.energyict.protocolimpl.base.DebuggingObserver;
 import oracle.jdbc.OracleDriver;
@@ -120,7 +121,7 @@ public class DebugUtils {
     }
 
     /**
-	 * Create a new default {@link com.energyict.cpo.Environment}
+	 * Create a new default {@link Environment}
 	 */
 	public static void createEnvironment() {
 		try {

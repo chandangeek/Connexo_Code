@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.sdksample;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;

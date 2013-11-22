@@ -1,7 +1,7 @@
 package com.energyict.genericprotocolimpl.common.pooling;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.EnvironmentImpl;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.dialer.core.Link;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.DLMSConnectionException;

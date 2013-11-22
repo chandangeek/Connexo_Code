@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.maxsys2510;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -133,7 +133,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol# setProperties(java.util.Properties)
      */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
@@ -321,7 +321,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#connect()
      */
     public void connect() throws IOException {
@@ -352,7 +352,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
      */
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -367,7 +367,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -379,7 +379,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
@@ -388,9 +388,9 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     }
 
-    /* 
+    /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
      */
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -403,7 +403,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -412,7 +412,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -573,7 +573,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getDataReadout()
      */
     public byte[] getDataReadout() {

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.landisgyr.us.maxsys2510;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
@@ -138,7 +138,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol# setProperties(java.util.Properties)
      */
     public void setProperties(Properties p) throws InvalidPropertyException, MissingPropertyException {
@@ -290,7 +290,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
                 byte[] arg = {arg1, arg2, arg3, arg4};
                 xCommand.setArgumnt(arg);
                 linkLayer.send(xCommand);
-//	            getLogger().info(xCommand.toString()); 
+//	            getLogger().info(xCommand.toString());
 
             }
         } catch (NumberFormatException e) {
@@ -300,7 +300,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#init( java.io.InputStream, java.io.OutputStream, java.util.TimeZone,
      *      java.util.logging.Logger)
      */
@@ -342,7 +342,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#connect()
      */
     public void connect() throws IOException {
@@ -402,7 +402,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(boolean)
      */
     public ProfileData getProfileData(boolean includeEvents) throws IOException {
@@ -417,7 +417,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
@@ -428,7 +428,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileData(java.util.Date, java.util.Date, boolean)
      */
     public ProfileData getProfileData(Date from, Date to, boolean includeEvents) throws IOException {
@@ -437,9 +437,9 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     }
 
-    /* 
+    /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.MeterProtocol#getProfileInterval()
      */
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -452,7 +452,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#readRegister(com.energyict.obis.ObisCode)
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
@@ -461,7 +461,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocol.RegisterProtocol#translateRegister(com.energyict.obis.ObisCode)
      */
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -628,7 +628,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.energyict.protocolimpl.iec1107.ProtocolLink#getDataReadout()
      */
     public byte[] getDataReadout() {
@@ -851,7 +851,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
         byte[] arg = {arg1, arg2, arg3, arg4};
         System.out.println(ProtocolUtils.outputHexString(arg));
 
-//		int value = 
+//		int value =
         //byte d = (byte)Integer.get
         //byte b = 0x(int)
         //System.out.println(0x80 & 0xC0);
@@ -870,7 +870,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
             Properties properties = new Properties();
             properties.setProperty(MeterProtocol.PASSWORD, "0000");
 
-            
+
 //            properties.setProperty(PK_EXTENDED_LOGGING, "2");
 
             properties.setProperty(MeterProtocol.SERIALNUMBER, "DEVICE_ID_3");
@@ -887,7 +887,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
             TimeZone ect = TimeZone.getTimeZone("ECT");
             max.init(is, os, ect, Logger.getLogger("name"));
             max.connect();
-            
+
         } catch (LinkException e) {
             System.out.println("MaxSys, DialerException, " + e.getMessage());
             max.disconnect();

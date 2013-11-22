@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.EnvironmentImpl;
-import com.energyict.cpo.Transaction;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
+import com.energyict.mdc.common.Transaction;
 import com.energyict.mdw.amr.*;
 import com.energyict.mdw.core.*;
 
