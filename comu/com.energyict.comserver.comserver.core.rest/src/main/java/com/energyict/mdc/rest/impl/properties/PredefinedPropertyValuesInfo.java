@@ -1,15 +1,24 @@
 package com.energyict.mdc.rest.impl.properties;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Copyrights EnergyICT
  * Date: 19/11/13
  * Time: 11:38
  */
+@XmlRootElement
 public class PredefinedPropertyValuesInfo<T> {
 
-    final T[] possibleValues;
-    final PropertySelectionMode selectionMode;
-    final boolean exhaustive;
+    public T[] possibleValues;
+    public PropertySelectionMode selectionMode;
+    public boolean exhaustive;
+
+    /**
+     * Default constructor 4 JSON deserialization
+     */
+    public PredefinedPropertyValuesInfo() {
+    }
 
     public PredefinedPropertyValuesInfo(T[] possibleValues, PropertySelectionMode selectionMode, boolean exhaustive) {
         this.possibleValues = possibleValues;

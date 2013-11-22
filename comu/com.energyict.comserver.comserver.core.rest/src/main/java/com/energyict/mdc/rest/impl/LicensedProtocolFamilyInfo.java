@@ -12,8 +12,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class LicensedProtocolFamilyInfo {
 
-    public final String protocolFamilyName;
-    public final int protocolFamilyCode;
+    public String protocolFamilyName;
+    public int protocolFamilyCode;
+
+    public LicensedProtocolFamilyInfo() {
+    }
 
     public LicensedProtocolFamilyInfo(ProtocolFamily familyRule) {
         protocolFamilyName = familyRule.getName();

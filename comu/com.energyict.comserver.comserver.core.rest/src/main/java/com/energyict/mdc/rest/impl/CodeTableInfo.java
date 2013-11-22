@@ -15,6 +15,9 @@ public class CodeTableInfo {
     public int codeTableId;
     public String name;
 
+    public CodeTableInfo() {
+    }
+
     public CodeTableInfo(Code codeTable) {
         codeTableId = codeTable.getId();
         name = codeTable.getName();

@@ -2,18 +2,14 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.dynamicattributes.AttributeValueSelectionMode;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
-import com.energyict.mdc.rest.impl.properties.PredefinedPropertyValuesInfo;
 import com.energyict.mdc.rest.impl.properties.PropertyInfo;
-import com.energyict.mdc.rest.impl.properties.PropertySelectionMode;
+import com.energyict.mdc.rest.impl.properties.PropertyValueInfo;
 import com.energyict.mdw.core.LicensedProtocol;
 import com.energyict.mdw.core.PluggableClassType;
 import com.energyict.mdw.shadow.PluggableClassShadow;
-import com.google.common.base.Optional;
 
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -78,7 +74,10 @@ public class DeviceCommunicationProtocolInfo {
         TypedProperties typedProperties = TypedProperties.empty();
         if(this.propertyInfos != null){
             for (PropertyInfo propertyInfo : this.propertyInfos) {
-                typedProperties.setProperty(propertyInfo.getKey(), propertyInfo.getPropertyValueInfo().getValue());
+                PropertyValueInfo propertyValueInfo = propertyInfo.getPropertyValueInfo();
+                if(propertyValueInfo != null && propertyValueInfo.getValue() != null){
+                    typedProperties.setProperty(propertyInfo.getKey(), propertyValueInfo.getValue());
+                }
             }
         }
         return typedProperties;

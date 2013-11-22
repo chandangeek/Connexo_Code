@@ -1,15 +1,24 @@
 package com.energyict.mdc.rest.impl.properties;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Copyrights EnergyICT
  * Date: 19/11/13
  * Time: 11:40
  */
+@XmlRootElement
 public class PropertyValueInfo<T> {
 
-    final Object inheritedValue;
-    final Object defaultValue;
-    Object value;
+    public T inheritedValue;
+    public T defaultValue;
+    public T value;
+
+    /**
+     * Default constructor 4 JSON deserialization
+     */
+    public PropertyValueInfo() {
+    }
 
     public PropertyValueInfo(T value, T inheritedValue, T defaultValue) {
         this(inheritedValue, defaultValue);
@@ -21,20 +30,15 @@ public class PropertyValueInfo<T> {
         this.defaultValue = defaultValue;
     }
 
-    public Object getValue() {
-        return value;
-    }
-
-    public void setValue(T value) {
-        this.value = value;
-    }
-
-    public Object getInheritedValue() {
+    public T getInheritedValue() {
         return inheritedValue;
     }
 
-    public Object getDefaultValue() {
+    public T getDefaultValue() {
         return defaultValue;
     }
 
+    public T getValue() {
+        return value;
+    }
 }
