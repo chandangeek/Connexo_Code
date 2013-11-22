@@ -36,7 +36,7 @@ public class DeviceCommunicationProtocolInfo {
     public DeviceCommunicationProtocolInfo() {
     }
 
-    public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol) {
+    public DeviceCommunicationProtocolInfo(final UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, LicensedProtocol licensedProtocol, boolean embedProperties) {
         this.name = deviceProtocolPluggableClass.getName();
         this.id = deviceProtocolPluggableClass.getId();
         try {
@@ -46,10 +46,12 @@ public class DeviceCommunicationProtocolInfo {
             e.printStackTrace(System.err);
             this.deviceProtocolVersion = "*** PROTOCOL NOT SUPPORTED IN THE CURRENT OSGI BUNDLE YET ***";
         }
-        List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass);
-        this.propertyInfos = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
         if(licensedProtocol != null){
             this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol);
+        }
+        if(embedProperties){
+            List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass);
+            this.propertyInfos = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
         }
     }
 
@@ -68,6 +70,17 @@ public class DeviceCommunicationProtocolInfo {
         shadow.setName(this.name);
         shadow.setJavaClassName(this.licensedProtocol.protocolJavaClassName);
         shadow.setPluggableType(PluggableClassType.DEVICEPROTOCOL);
+        shadow.setProperties(getTypedProperties());
         return shadow;
+    }
+
+    private TypedProperties getTypedProperties() {
+        TypedProperties typedProperties = TypedProperties.empty();
+        if(this.propertyInfos != null){
+            for (PropertyInfo propertyInfo : this.propertyInfos) {
+                typedProperties.setProperty(propertyInfo.getKey(), propertyInfo.getPropertyValueInfo().getValue());
+            }
+        }
+        return typedProperties;
     }
 }
