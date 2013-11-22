@@ -5,7 +5,8 @@ Ext.define('Cfg.controller.Validation', {
         'ValidationRuleSets',
         'ValidationRules',
         'ValidationActions',
-        'Validators'
+        'Validators',
+        'ValidationRuleProperties'
     ],
 
     views: [
@@ -17,6 +18,10 @@ Ext.define('Cfg.controller.Validation', {
         {
             ref: 'rulesGrid',
             selector: 'validationrulesetEdit #validationruleList'
+        } ,
+        {
+            ref: 'rulePropertiesGrid',
+            selector: 'validationrulesetEdit #validationrulepropertiesList'
         }
     ],
 
@@ -30,6 +35,9 @@ Ext.define('Cfg.controller.Validation', {
             },
             '#validationrulesetList': {
                 itemdblclick: this.editValidationRuleSet
+            } ,
+            '#validationruleList' : {
+                itemdblclick: this.editValidationRuleProperties
             }
         });
     },
@@ -38,6 +46,12 @@ Ext.define('Cfg.controller.Validation', {
         var view = Ext.widget('validationrulesetEdit');
         view.down('form').loadRecord(record);
         this.getRulesGrid().reconfigure(record.rules());
+    },
+
+    editValidationRuleProperties: function (grid, record) {
+        var view = Ext.widget('validationrulesetEdit');
+        view.down('form').loadRecord(record);
+        this.getRulePropertiesGrid().reconfigure(record.properties());
     },
 
     saveRuleSets: function (button) {

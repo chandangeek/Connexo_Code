@@ -14,7 +14,8 @@ Ext.define('Cfg.view.validation.Edit', {
     requires: [
         'Ext.grid.*'    ,
         'Cfg.store.ValidationActions',
-        'Cfg.store.Validators'
+        'Cfg.store.Validators',
+        'Cfg.store.ValidationRuleProperties'
     ],
 
     initComponent: function () {
@@ -79,7 +80,7 @@ Ext.define('Cfg.view.validation.Edit', {
                 margin: '0 10 10 10',
                 padding: '0 5 5 5',
                 layout: {
-                    type: 'hbox',
+                    type: 'vbox',
                     align: 'stretch'
                 },
                 flex: 1,
@@ -96,8 +97,8 @@ Ext.define('Cfg.view.validation.Edit', {
                                 flex: 1
                             },
                             items: [
-                                { header: 'Id', dataIndex: 'id', flex: 0.05 },
-                                { header: 'Active', dataIndex: 'active', flex: 0.15, xtype: 'checkcolumn',
+                                { header: 'Id', dataIndex: 'id', flex: 0.1 },
+                                { header: 'Active', dataIndex: 'active', flex: 0.20, xtype: 'checkcolumn',
                                     editor: {
                                         xtype: 'checkbox',
                                         cls: 'x-grid-checkheader-editor'
@@ -114,7 +115,7 @@ Ext.define('Cfg.view.validation.Edit', {
                                         store: Ext.create('Cfg.store.ValidationActions')
                                     })
                                 },
-                                { header: 'Implementation', dataIndex: 'implementation',
+                                { header: 'Validation', dataIndex: 'implementation',
                                     editor: new Ext.form.field.ComboBox({
                                         typeAhead: true,
                                         queryMode: 'local',
@@ -126,6 +127,36 @@ Ext.define('Cfg.view.validation.Edit', {
                                 }
                             ]
                         }
+                    },
+                    {
+                        xtype: 'fieldset',
+                        title: 'Properties',
+                        margin: '0 10 10 10',
+                        padding: '0 5 5 5',
+                        layout: {
+                            type: 'hbox',
+                            align: 'stretch'
+                        },
+                        flex: 1,
+                        items: [
+                            {
+                                xtype: 'gridpanel',
+                                title: 'Properties',
+                                itemId: 'validationrulepropertiesList',
+                                flex: 1,
+                                store: 'ValidationRuleProperties',
+                                plugins: [this.cellEditing],
+                                columns: {
+                                    defaults: {
+                                        flex: 1
+                                    },
+                                    items: [
+                                        { header: 'Name', dataIndex: 'name'},
+                                        { header: 'Value', dataIndex: 'value'}
+                                    ]
+                                }
+                            }
+                        ]
                     }
                 ]
             }

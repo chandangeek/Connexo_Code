@@ -5,6 +5,14 @@ Ext.define('Cfg.model.ValidationRule', {
         'active',
         'action',
         'implementation'
+    ],
+    associations: [
+        {
+            type: 'hasMany',
+            model: 'Cfg.model.ValidationRuleProperty',
+            associationKey: 'properties',
+            name: 'properties'
+        }
     ]
 });
 
