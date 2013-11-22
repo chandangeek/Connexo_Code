@@ -6,6 +6,7 @@ import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -31,7 +32,6 @@ public class ComPortPoolResource {
     }
 
     @GET
-    @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     public Object getAllComPortPools() {
         final ComPortPoolsInfo infos = new ComPortPoolsInfo();
@@ -58,18 +58,15 @@ public class ComPortPoolResource {
         }
     }
 
-//    @POST
-//    @Path("/")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public ComPortPoolInfo createComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPoolShadow> comPortPoolInfo) {
-//        try {
-//            ComPortPool<ComPortPoolShadow> comPortPool = comPortPoolService.find(id);
-//            comPortPool.update(comPortPoolInfo.asShadow());
-//            return ComPortPoolInfoFactory.asInfo(comPortPool);
-//        } catch (Exception e) {
-//            throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ComPortPoolInfo createComPortPool(ComPortPoolInfo<ComPortPoolShadow> comPortPoolInfo) {
+        try {
+            return ComPortPoolInfoFactory.asInfo(comPortPoolService.createComPortPool(comPortPoolInfo.asShadow()));
+        } catch (Exception e) {
+            throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

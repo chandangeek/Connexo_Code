@@ -25,9 +25,11 @@ public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPool
     protected void writeToShadow(OutboundComPortPoolShadow shadow) {
         super.writeToShadow(shadow);
         shadow.setTaskExecutionTimeout(this.taskExecutionTimeout.asTimeDuration());
-        List<Integer> outboundComPortsIds = new ArrayList<>(outboundComPorts.size());
-        for (OutboundComPortInfo outboundComPort : this.outboundComPorts) {
-            outboundComPortsIds.add(outboundComPort.id);
+        List<Integer> outboundComPortsIds = new ArrayList<>();
+        if (this.outboundComPorts!=null && !this.outboundComPorts.isEmpty()) {
+            for (OutboundComPortInfo outboundComPort : this.outboundComPorts) {
+                outboundComPortsIds.add(outboundComPort.id);
+            }
         }
         shadow.setOutboundComPortIds(outboundComPortsIds);
     }

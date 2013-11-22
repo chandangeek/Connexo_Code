@@ -22,7 +22,6 @@ import javax.ws.rs.Path;
 public class FieldResource {
 
     @GET
-    @Path("/")
     public Object getAllFields() {
         final List<Object> allFields = new ArrayList<>();
         for (Method method : FieldResource.class.getMethods()) {
