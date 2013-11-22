@@ -28,7 +28,6 @@ import com.energyict.dlms.cosem.attributeobjects.RegisterZigbeeDeviceData;
 import com.energyict.dlms.cosem.attributeobjects.ZigBeeIEEEAddress;
 import com.energyict.genericprotocolimpl.common.GenericMessageExecutor;
 import com.energyict.genericprotocolimpl.common.ParseUtils;
-import com.energyict.genericprotocolimpl.common.messages.GenericMessaging;
 import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.genericprotocolimpl.webrtu.common.csvhandling.CSVParser;
@@ -124,9 +123,9 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             if (changeHanSAS) {
                 changeHanSAS(messageHandler);
             } else if (createHan) {
-                createHanNetwork(messageHandler);
+                createHanNetwork();
             } else if (removeHan) {
-                removeHanNetwork(messageHandler);
+                removeHanNetwork();
             } else if (joinZigBeeSlave) {
                 joinZigBeeSlave(messageHandler);
             } else if (removeZigBeeMirror) {
@@ -134,15 +133,15 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             } else if (removeZigBeeSlave) {
                 removeZigBeeSlave(messageHandler);
             } else if (removeAllZigBeeSlaves) {
-                removeAllZigBeeSlaves(messageHandler);
+                removeAllZigBeeSlaves();
             } else if (backupZigBeeHanParameters) {
-                backupZigBeeHanParameters(messageHandler);
+                backupZigBeeHanParameters();
             } else if (restoreZigBeeParameters) {
                 restoreZigBeeHanParameters(messageHandler);
             } else if (readZigBeeStatus) {
                 readZigBeeStatus();
             } else if (modemPingSetup) {
-                modemPingSetup(messageHandler, content);
+                modemPingSetup(messageHandler);
             } else if (firmwareUpdate) {
                 firmwareUpdate(messageHandler, content, trackingId);
             } else if (zigbeeNCPFirmwareUpgrade) {
@@ -150,7 +149,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             } else if (testMessage) {
                 testMessage(messageHandler);
             } else if (xmlCOnfig) {
-                xmlConfigMessage(messageHandler, content);
+                xmlConfigMessage(content);
             } else if (enableWebserver) {
                 enableWebserver();
             } else if (disableWebserver) {
@@ -165,16 +164,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                 log(Level.INFO, "Message not supported : " + content);
                 success = false;
             }
-        } catch (IOException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (BusinessException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (SQLException e) {
-            log(Level.SEVERE, "Message failed : " + e.getMessage());
-            success = false;
-        } catch (InterruptedException e) {
+        } catch (IOException | BusinessException | SQLException | InterruptedException e) {
             log(Level.SEVERE, "Message failed : " + e.getMessage());
             success = false;
         }
@@ -187,7 +177,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private void xmlConfigMessage(MessageHandler messageHandler, String fullContent) throws IOException {
+    private void xmlConfigMessage (String fullContent) throws IOException {
 
         String firstTag = "<XMLConfig>";
         String lastTag = "</XMLConfig>";
@@ -207,7 +197,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     }
 
-     private void reboot() throws IOException {
+     private void reboot() {
         getLogger().info("Executing Reboot message.");
         getLogger().info("Warning: Device will reboot at the end of the communication session.");
         ((UkHub) protocol).setReboot(true);
@@ -231,7 +221,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         ((UkHub)protocol).setReboot(true);
     }
 
-    private void modemPingSetup(MessageHandler messageHandler, String content) throws IOException {
+    private void modemPingSetup (MessageHandler messageHandler) throws IOException {
         getLogger().info("Executing GPRS Modem Ping Setup message");
 
         int pingInterval = messageHandler.getPingInterval();
@@ -354,12 +344,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         }
     }
 
-    private String getIncludedContent(final String content) {
-        int begin = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG) + GenericMessaging.INCLUDED_USERFILE_TAG.length() + 1;
-        int end = content.indexOf(GenericMessaging.INCLUDED_USERFILE_TAG, begin) - 2;
-        return content.substring(begin, end);
-    }
-
     private void changeHanSAS(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Sending message : Change Zigbee HAN SAS");
         String extendedPanId = messageHandler.getChangeHanSasExtendedPanId();
@@ -458,7 +442,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         log(Level.INFO, "Restore ZigBee Han Keys successful");
     }
 
-    private void backupZigBeeHanParameters(final MessageHandler messageHandler) throws IOException, BusinessException, SQLException {
+    private void backupZigBeeHanParameters () throws IOException, BusinessException, SQLException {
         log(Level.INFO, "Sending message : Backup ZigBee Han Keys");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.backup();
@@ -545,18 +529,18 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     }
 
-    private void removeAllZigBeeSlaves(MessageHandler messageHandler) throws IOException {
+    private void removeAllZigBeeSlaves () throws IOException {
         log(Level.INFO, "Sending message : Remove all ZigBee slaves");
         getCosemObjectFactory().getZigBeeSETCControl().unRegisterAllDevices();
     }
 
-    private void createHanNetwork(final MessageHandler messageHandler) throws IOException {
+    private void createHanNetwork () throws IOException {
         log(Level.INFO, "Sending message : Create HAN Network");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.createHan();
     }
 
-    private void removeHanNetwork(final MessageHandler messageHandler) throws IOException {
+    private void removeHanNetwork () throws IOException {
         log(Level.INFO, "Sending message : Remove HAN Network");
         ZigbeeHanManagement hanManagement = getCosemObjectFactory().getZigbeeHanManagement();
         hanManagement.removeHan();
@@ -575,25 +559,25 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         List<AbstractDataType> allDataTypes = eventArray.getAllDataTypes();
 
         // Write the eventArray to a UserFile.
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(" -- Debug Logbook [" + from.getTime() + " - " + to.getTime() + "] --");
-        buffer.append("\r\n");
-        buffer.append("\r\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append(" -- Debug Logbook [").append(from.getTime()).append(" - ").append(to.getTime()).append("] --");
+        builder.append("\r\n");
+        builder.append("\r\n");
 
         for (int i = 0; i < allDataTypes.size(); i++) {
             Date time = ((Structure) allDataTypes.get(i)).getDataType(0).getOctetString().getDateTime(getTimeZone()).getValue().getTime();
             int index = ((Structure) allDataTypes.get(i)).getDataType(1).getUnsigned16().intValue();
             String message = ((Structure) allDataTypes.get(i)).getDataType(2).getOctetString().stringValue().trim();
 
-            buffer.append(time);
-            buffer.append("  ");
-            buffer.append(String.format("%05d", index));
-            buffer.append("  ");
-            buffer.append(message);
-            buffer.append("\r\n");
+            builder.append(time);
+            builder.append("  ");
+            builder.append(String.format("%05d", index));
+            builder.append("  ");
+            builder.append(message);
+            builder.append("\r\n");
         }
 
-        StringBuffer fileName = new StringBuffer("DebugLogbook");
+        StringBuilder fileName = new StringBuilder("DebugLogbook");
         fileName.append("_");
         fileName.append(protocol.getDlmsSession().getProperties().getSerialNumber());
         fileName.append("_");
@@ -605,7 +589,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         fileName.append("_");
         fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), buffer.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
         mw().getUserFileFactory().create(ufs);
 
         log(Level.INFO, "Stored readout of debug logbook in userFile: " + fileName);
@@ -624,17 +608,17 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         List<AbstractDataType> allDataTypes = eventArray.getAllDataTypes();
 
         // Write the eventArray to a UserFile.
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(" -- Elster Logbook [" + from.getTime() + " - " + to.getTime() + "] --");
-        buffer.append("\r\n");
-        buffer.append("\r\n");
-        buffer.append("<Date and time> <Firmware event ID> <Counter index>");
-        buffer.append("\r\n");
-        buffer.append("    Firmware version on all HAN devices:");
-        buffer.append("\r\n");
-        buffer.append("    <IEEE address> <application version> <hardware version> <stack version>");
-        buffer.append("\r\n");
-        buffer.append("\r\n");
+        StringBuilder builder = new StringBuilder();
+        builder.append(" -- Elster Logbook [").append(from.getTime()).append(" - ").append(to.getTime()).append("] --");
+        builder.append("\r\n");
+        builder.append("\r\n");
+        builder.append("<Date and time> <Firmware event ID> <Counter index>");
+        builder.append("\r\n");
+        builder.append("    Firmware version on all HAN devices:");
+        builder.append("\r\n");
+        builder.append("    <IEEE address> <application version> <hardware version> <stack version>");
+        builder.append("\r\n");
+        builder.append("\r\n");
 
         for (int i = 0; i < allDataTypes.size(); i++) {
             Date time = ((Structure) allDataTypes.get(i)).getDataType(0).getOctetString().getDateTime(getTimeZone()).getValue().getTime();
@@ -643,17 +627,17 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             int counterIndex = ((Structure) allDataTypes.get(i)).getDataType(2).getUnsigned16().intValue();
             Array HANdeviceOTA = (Array) ((Structure) allDataTypes.get(i)).getDataType(3);
 
-            buffer.append(time);
-            buffer.append("  ");
-            buffer.append(String.format("%05d", eventID));
-            buffer.append("  ");
-            buffer.append(String.format("%05d", counterIndex));
-            buffer.append("\r\n");
-            buffer.append(getHANDeviceOTAStatus(HANdeviceOTA));
-            buffer.append("\r\n");
+            builder.append(time);
+            builder.append("  ");
+            builder.append(String.format("%05d", eventID));
+            builder.append("  ");
+            builder.append(String.format("%05d", counterIndex));
+            builder.append("\r\n");
+            builder.append(getHANDeviceOTAStatus(HANdeviceOTA));
+            builder.append("\r\n");
         }
 
-        StringBuffer fileName = new StringBuffer("ElsterLogbook");
+        StringBuilder fileName = new StringBuilder("ElsterLogbook");
         fileName.append("_");
         fileName.append(protocol.getDlmsSession().getProperties().getSerialNumber());
         fileName.append("_");
@@ -665,7 +649,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         fileName.append("_");
         fileName.append(ProtocolTools.getFormattedDate("yyyy-MM-dd_HH.mm.ss"));
 
-        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), buffer.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
+        UserFileShadow ufs = ProtocolTools.createUserFileShadow(fileName.toString(), builder.toString().trim().getBytes("UTF-8"), getFolderIdFromHub(), "txt");
         mw().getUserFileFactory().create(ufs);
 
         log(Level.INFO, "Stored readout of Elster logbook in userFile: " + fileName);
@@ -675,7 +659,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = null;
         try {
-            if (timeString != null && !timeString.equalsIgnoreCase("0") && !timeString.equals("")) {
+            if (timeString != null && !"0".equalsIgnoreCase(timeString) && !"".equals(timeString)) {
                 date = formatter.parse(timeString);
             }
         } catch (ParseException e) {
@@ -699,29 +683,29 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
     }
 
     private String getHANDeviceOTAStatus(Array array) {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < array.nrOfDataTypes(); i++) {
             byte[] macAddressBytes = ((Structure) array.getDataType(i)).getDataType(0).getOctetString().getContentByteArray();
             int applicationFirmwareVersion = ((Structure) array.getDataType(i)).getDataType(1).getUnsigned8().intValue();
             int hardwareFirmwareVersion = ((Structure) array.getDataType(i)).getDataType(2).getUnsigned8().intValue();
             int stackFirmwareVersion = ((Structure) array.getDataType(i)).getDataType(3).getUnsigned8().intValue();
 
-            buffer.append("    ");
-            buffer.append(getMacAddress(macAddressBytes));
-            buffer.append("  ");
-            buffer.append(String.format("%03d", applicationFirmwareVersion));
-            buffer.append("  ");
-            buffer.append(String.format("%03d", hardwareFirmwareVersion));
-            buffer.append("  ");
-            buffer.append(String.format("%03d", stackFirmwareVersion));
-            buffer.append("\r\n");
+            builder.append("    ");
+            builder.append(getMacAddress(macAddressBytes));
+            builder.append("  ");
+            builder.append(String.format("%03d", applicationFirmwareVersion));
+            builder.append("  ");
+            builder.append(String.format("%03d", hardwareFirmwareVersion));
+            builder.append("  ");
+            builder.append(String.format("%03d", stackFirmwareVersion));
+            builder.append("\r\n");
         }
 
-        return buffer.toString();
+        return builder.toString();
     }
 
     private String getMacAddress(byte[] macAddressBytes) {
-        StringBuffer mac = new StringBuffer();
+        StringBuilder mac = new StringBuilder();
         for (byte each : macAddressBytes) {
             String temp = Integer.toHexString((int) each & 0xFF).toUpperCase();
             mac.append((temp.length() < 2) ? "0" + temp : temp);
@@ -738,11 +722,6 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     private Logger getLogger() {
         return getDlmsSession().getLogger();
-    }
-
-    @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
-        // nothing to do
     }
 
     @Override
@@ -786,7 +765,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
         int failures = 0;
         String userFileId = messageHandler.getTestUserFileId();
         Date currentTime;
-        if (!userFileId.equalsIgnoreCase("")) {
+        if (!"".equalsIgnoreCase(userFileId)) {
             if (ParseUtils.isInteger(userFileId)) {
                 UserFile uf = mw().getUserFileFactory().find(Integer.parseInt(userFileId));
                 if (uf != null) {
@@ -817,7 +796,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                                     break;
                                     case 2: { // ACTION
                                         GenericInvoke gi = getCosemObjectFactory().getGenericInvoke(to.getObisCode(), to.getClassId(), to.getMethod());
-                                        if (to.getData().equalsIgnoreCase("")) {
+                                        if ("".equalsIgnoreCase(to.getData())) {
                                             gi.invoke();
                                         } else {
                                             gi.invoke(ParseUtils.hexStringToByteArray(to.getData()));
@@ -827,17 +806,18 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
                                     }
                                     break;
                                     case 3: { // MESSAGE
-                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
-                                        rms.setContents(csvParser.getTestObject(i).getData());
-                                        rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
-                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
-                                        doMessage(rm);
-                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
-                                            to.setResult("OK");
-                                        } else {
-                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
-                                        }
-                                        hasWritten = true;
+                                        //TODO this form of Messages is not supported, change it according to the new DeviceMessage support
+//                                        OldDeviceMessageShadow rms = new OldDeviceMessageShadow();
+//                                        rms.setContents(csvParser.getTestObject(i).getData());
+//                                        rms.setRtuId(getRtuFromDatabaseBySerialNumberAndClientMac().getId());
+//                                        OldDeviceMessage rm = mw().getRtuMessageFactory().create(rms);
+//                                        doMessage(rm);
+//                                        if (rm.getState().getId() == rm.getState().CONFIRMED.getId()) {
+//                                            to.setResult("OK");
+//                                        } else {
+//                                            to.setResult("MESSAGE failed, current state " + rm.getState().getId());
+//                                        }
+//                                        hasWritten = true;
                                     }
                                     break;
                                     case 4: { // WAIT
@@ -867,14 +847,14 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
                             } catch (Exception e) {
                                 if (!hasWritten) {
-                                    if ((to.getExpected() != null) && (e.getMessage().indexOf(to.getExpected()) != -1)) {
+                                    if ((to.getExpected() != null) && (e.getMessage().contains(to.getExpected()))) {
                                         to.setResult(e.getMessage());
                                         log(Level.INFO, "Test " + i + " has successfully finished.");
                                         hasWritten = true;
                                     } else {
                                         log(Level.INFO, "Test " + i + " has failed.");
                                         String eMessage;
-                                        if (e.getMessage().indexOf("\r\n") != -1) {
+                                        if (e.getMessage().contains("\r\n")) {
                                             eMessage = e.getMessage().substring(0, e.getMessage().indexOf("\r\n")) + "...";
                                         } else {
                                             eMessage = e.getMessage();

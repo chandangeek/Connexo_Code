@@ -1,9 +1,9 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Folder;
 import com.energyict.mdw.core.FolderAction;
