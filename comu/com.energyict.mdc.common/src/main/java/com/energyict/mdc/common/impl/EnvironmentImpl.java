@@ -1,5 +1,7 @@
 package com.energyict.mdc.common.impl;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.ApplicationComponent;
 import com.energyict.mdc.common.ApplicationContext;
 import com.energyict.mdc.common.ApplicationException;
@@ -18,7 +20,13 @@ import com.energyict.mdc.common.Transaction;
 import com.energyict.mdc.common.TransactionContext;
 import com.energyict.mdc.common.Translator;
 import oracle.jdbc.OracleConnection;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -39,6 +47,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
+@Component(name="com.energyict.mdc.environment", service = Environment.class)
 public class EnvironmentImpl implements Environment {
 
     /**
@@ -47,11 +56,6 @@ public class EnvironmentImpl implements Environment {
      */
     private static final String APPLICATIONCONTEXT = "APPLICATIONCONTEXT";
     private static final int DEFAULT_BATCH_SIZE = 1000;
-
-    /**
-     * The Single instance of this class.
-     */
-    private static Environment soleInstance = null;
 
     /**
      * The objects that are globally shared and made available by name.
@@ -73,7 +77,15 @@ public class EnvironmentImpl implements Environment {
      */
     private ThreadLocal<BusinessEventManager> eventManagerHolder;
 
-    protected EnvironmentImpl () {
+    /**
+     * The Jupiter DataSource from which Connections are acquired.
+     */
+    private volatile DataSource dataSource;
+    private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile BundleContext context;
+
+    public EnvironmentImpl () {
         this.localNamedObjectsHolder = new ThreadLocal<NamedObjects>() {
             protected NamedObjects initialValue () {
                 return new LocalNamedObjects();
@@ -88,6 +100,55 @@ public class EnvironmentImpl implements Environment {
                 return getApplicationContext().createEventManager();
             }
         };
+    }
+
+    public DataSource getDataSource () {
+        return dataSource;
+    }
+
+    @Reference
+    public void setDataSource (DataSource dataSource) {
+        System.out.println("DataSource is being injected into the MDC environment: " + dataSource);
+        this.dataSource = dataSource;
+    }
+
+    public TransactionService getTransactionService () {
+        return transactionService;
+    }
+
+    @Reference
+    public void setTransactionService (TransactionService transactionService) {
+        System.out.println("Transaction service is being injected into the MDC environment: " + transactionService);
+        this.transactionService = transactionService;
+    }
+
+    public ThreadPrincipalService getThreadPrincipalService () {
+        return threadPrincipalService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService (ThreadPrincipalService threadPrincipalService) {
+        System.out.println("Thread principle service is being injected into the MDC environment: " + threadPrincipalService);
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Activate
+    public void activate (BundleContext context) {
+        try {
+            this.context = context;
+            Environment.DEFAULT.set(this);
+            System.out.println("MDC environment is actived");
+        }
+        catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
+    @Deactivate
+    public void deactivate () {
+        Environment.DEFAULT.set(null);
+        this.context = null;
+        System.out.println("MDC environment is deactived");
     }
 
     @Override
@@ -147,7 +208,7 @@ public class EnvironmentImpl implements Environment {
     @Override
     public Connection getConnection () {
         try {
-            return Bus.getEnvironmentAdapter().getDataSource().getConnection();
+            return this.getDataSource().getConnection();
         }
         catch (SQLException e) {
             throw new DatabaseException(e);
@@ -176,7 +237,7 @@ public class EnvironmentImpl implements Environment {
 
     @Override
     public String getProperty (String key) {
-        return Bus.getEnvironmentAdapter().getProperty(key);
+        return this.context.getProperty(key);
     }
 
     @Override
@@ -188,7 +249,7 @@ public class EnvironmentImpl implements Environment {
              * once a transaction context is setup. */
             this.getConnection().close();
         }
-        return getTransactionContext().execute(transaction, this.getEventManager());
+        return getTransactionContext().execute(transaction, this.getTransactionService(), this.getEventManager());
     }
 
     @Override

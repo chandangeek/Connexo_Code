@@ -1,7 +1,6 @@
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.impl.Bus;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
+import com.elster.jupiter.transaction.TransactionService;
 
 import java.sql.SQLException;
 
@@ -97,12 +96,12 @@ public class TransactionContext {
         return jmsSessionContext;
     }
 
-    public <T> T execute (Transaction<T> transaction, TransactionResource resource) throws SQLException, BusinessException {
+    public <T> T execute (Transaction<T> transaction, TransactionService transactionService, TransactionResource resource) throws SQLException, BusinessException {
         T result = null;
         boolean success = false;
         try {
             this.nestCount++;
-            this.doExecute(transaction);
+            this.doExecute(transaction, transactionService);
             success = true;
         }
         finally {
@@ -116,11 +115,11 @@ public class TransactionContext {
         return result;
     }
 
-    private <T> T doExecute (final Transaction<T> transaction) throws BusinessException, SQLException {
+    private <T> T doExecute (final Transaction<T> transaction, TransactionService transactionService) throws BusinessException, SQLException {
         if (this.nestCount == 1) {
             // Top level transaction
             try {
-                return Bus.getEnvironmentAdapter().getTransactionService().execute(new com.elster.jupiter.transaction.Transaction<T>() {
+                return transactionService.execute(new com.elster.jupiter.transaction.Transaction<T>() {
                     @Override
                     public T perform () {
                         try {
