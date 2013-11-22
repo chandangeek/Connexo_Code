@@ -1,6 +1,8 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdw.core.TimeZoneInUse;
+import com.energyict.mdw.coreimpl.TimeZoneInUseFactoryImpl;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.TimeZone;
@@ -11,7 +13,7 @@ import java.util.TimeZone;
  * Time: 10:45
  */
 @XmlRootElement
-public class TimeZoneInUseInfo {
+public class TimeZoneInUseInfo implements MdcResourceProperty {
 
     public TimeZone timeZone;
 
@@ -20,4 +22,8 @@ public class TimeZoneInUseInfo {
     }
 
 
+    @Override
+    public Object fromResourceObject() {
+        return new TimeZoneInUseFactoryImpl().find(timeZone);
+    }
 }

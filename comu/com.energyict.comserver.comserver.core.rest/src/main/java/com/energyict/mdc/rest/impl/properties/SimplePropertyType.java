@@ -11,7 +11,7 @@ import java.util.Date;
  */
 public enum SimplePropertyType {
     NUMBER(Number.class),
-    STRING(String.class),
+    TEXT(String.class),
 //    LARGE_STRING, // more then one line of text
     BOOLEAN(Boolean.class),
     CLOCK(Date.class),

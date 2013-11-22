@@ -42,10 +42,10 @@ public class DeviceCommunicationProtocolInfo {
             e.printStackTrace(System.err);
             this.deviceProtocolVersion = "*** PROTOCOL NOT SUPPORTED IN THE CURRENT OSGI BUNDLE YET ***";
         }
-        if(licensedProtocol != null){
+        if (licensedProtocol != null) {
             this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol);
         }
-        if(embedProperties){
+        if (embedProperties) {
             List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass);
             this.propertyInfos = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
         }
@@ -72,11 +72,17 @@ public class DeviceCommunicationProtocolInfo {
 
     private TypedProperties getTypedProperties() {
         TypedProperties typedProperties = TypedProperties.empty();
-        if(this.propertyInfos != null){
+        if (this.propertyInfos != null) {
             for (PropertyInfo propertyInfo : this.propertyInfos) {
                 PropertyValueInfo propertyValueInfo = propertyInfo.getPropertyValueInfo();
-                if(propertyValueInfo != null && propertyValueInfo.getValue() != null){
+                if (propertyValueInfo != null && propertyValueInfo.getValue() != null) {
                     typedProperties.setProperty(propertyInfo.getKey(), propertyValueInfo.getValue());
+//                    Object value = propertyValueInfo.getValue();
+//                    if (MdcResourceProperty.class.isAssignableFrom(value.getClass())) {
+//                        typedProperties.setProperty(propertyInfo.getKey(), ((MdcResourceProperty) value).fromResourceObject());
+//                    } else {
+//                        typedProperties.setProperty(propertyInfo.getKey(), value);
+//                    }
                 }
             }
         }
