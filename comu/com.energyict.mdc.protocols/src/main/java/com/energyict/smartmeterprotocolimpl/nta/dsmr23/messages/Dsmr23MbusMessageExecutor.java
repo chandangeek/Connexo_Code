@@ -20,7 +20,6 @@ import com.energyict.genericprotocolimpl.common.messages.MessageHandler;
 import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -397,11 +396,6 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
 
     protected DlmsSession getDlmsSession() {
         return dlmsSession;
-    }
-
-    @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException {
-        //nothing to do
     }
 
     @Override

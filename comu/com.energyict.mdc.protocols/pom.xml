@@ -51,13 +51,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.0.4</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
@@ -145,6 +138,12 @@
             <version>4.3.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.7.3</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -159,49 +158,6 @@
                     </instructions>
                 </configuration>
             </plugin>
-
-            <!--&lt;!&ndash; This plugin is used to add the 'generated-sources' folder to the source folder.&ndash;&gt;-->
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>build-helper-maven-plugin</artifactId>-->
-                <!--<version>1.4</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>test</id>-->
-                        <!--<phase>generate-sources</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>add-source</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<sources>-->
-                                <!--<source>${basedir}/src/generated-sources/jaxws-maven-plugin/java</source>-->
-                            <!--</sources>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
-
-            <!--&lt;!&ndash; This plugin is used to generate the java sources from the wsdl's.&ndash;&gt;-->
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>jaxws-maven-plugin</artifactId>-->
-                <!--<version>1.10</version>-->
-
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>wsimport</goal>-->
-                        <!--</goals>-->
-
-                        <!--<configuration>-->
-                            <!--<wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>-->
-                            <!--<sourceDestDir>${basedir}/src/generated-sources/jaxws-maven-plugin/java</sourceDestDir>-->
-                            <!--<xnocompile>true</xnocompile>-->
-                        <!--</configuration>-->
-
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
         </plugins>
     </build>
 </project>

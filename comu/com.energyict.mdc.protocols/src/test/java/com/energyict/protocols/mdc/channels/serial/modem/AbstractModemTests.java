@@ -1,17 +1,40 @@
 package com.energyict.protocols.mdc.channels.serial.modem;
 
+import com.energyict.comserver.monitor.ComServerMonitorImplMBean;
+import com.energyict.comserver.monitor.EventAPIStatistics;
+import com.energyict.comserver.monitor.ManagementBeanFactory;
+import com.energyict.comserver.monitorimpl.ComServerMonitor;
+import com.energyict.comserver.monitorimpl.ManagementBeanFactoryImpl;
+import com.energyict.comserver.scheduling.RunningComServer;
+import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
  * Date: 22/11/12
  * Time: 12:19
  */
+@RunWith(MockitoJUnitRunner.class)
 public class AbstractModemTests {
 
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
+    @Mock(extraInterfaces = ComServerMonitor.class)
+    private ComServerMonitorImplMBean comServerMonitor;
+    @Mock
+    private EventAPIStatistics eventAPIStatistics;
 
     protected static final String RUBBISH_FOR_FLUSH = "rubbishForFlush";
     protected static final String PHONE_NUMBER = "00123456789";
@@ -19,6 +42,13 @@ public class AbstractModemTests {
     protected final List<String> OK_LIST = Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "CONNECT 9600", "OK", "OK");
 
     protected final String comPortName = "blabla";
+
+    @Before
+    public void initializeMocksAndFactories () {
+        ManagementBeanFactoryImpl.setInstance(managementBeanFactory);
+        when(managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(comServerMonitor);
+        when(((ComServerMonitor)comServerMonitor).getEventApiStatistics()).thenReturn(eventAPIStatistics);
+    }
 
     protected class TestableSerialComChannel extends SerialComChannel {
 

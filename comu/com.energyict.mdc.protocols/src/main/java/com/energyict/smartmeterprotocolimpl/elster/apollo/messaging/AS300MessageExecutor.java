@@ -31,7 +31,6 @@ import com.energyict.genericprotocolimpl.nta.messagehandling.NTAMessageHandler;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.mdw.core.UserFile;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
@@ -710,11 +709,6 @@ public class AS300MessageExecutor extends GenericMessageExecutor {
 
     private boolean isTextToIHDMessage(final String messageContent) {
         return (messageContent != null) && messageContent.contains(AS300Messaging.TEXT_TO_IHD);
-    }
-
-    @Override
-    public void doMessage(final OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException {
-        // nothing to do
     }
 
     @Override

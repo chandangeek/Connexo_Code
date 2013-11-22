@@ -2,14 +2,24 @@ package com.energyict.protocols.mdc.channels.ip.socket;
 
 import com.energyict.cbo.TimeConstants;
 import com.energyict.cbo.TimeDuration;
+import com.energyict.comserver.monitor.ComServerMonitorImplMBean;
+import com.energyict.comserver.monitor.EventAPIStatistics;
+import com.energyict.comserver.monitor.ManagementBeanFactory;
+import com.energyict.comserver.monitorimpl.ComServerMonitor;
+import com.energyict.comserver.monitorimpl.ManagementBeanFactoryImpl;
+import com.energyict.comserver.scheduling.RunningComServer;
 import com.energyict.cpo.TypedProperties;
-import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.tasks.ConnectionTaskPropertyImpl;
+import com.energyict.protocols.mdc.channels.ip.OutboundIpConnectionType;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
@@ -17,7 +27,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link com.energyict.protocols.mdc.channels.ip.socket.OutboundTcpIpConnectionType} component.
@@ -25,10 +37,24 @@ import static org.mockito.Mockito.mock;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-07-24 (16:03)
  */
+@RunWith(MockitoJUnitRunner.class)
 public class OutboundTcpIpConnectionTypeTest {
 
     private static final int DEFAULT_HTTP_PORT = 8080;
 
+    @Mock
+    private ManagementBeanFactory managementBeanFactory;
+    @Mock(extraInterfaces = ComServerMonitor.class)
+    private ComServerMonitorImplMBean comServerMonitor;
+    @Mock
+    private EventAPIStatistics eventAPIStatistics;
+
+    @Before
+    public void initializeMocksAndFactories () {
+        ManagementBeanFactoryImpl.setInstance(managementBeanFactory);
+        when(managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(comServerMonitor);
+        when(((ComServerMonitor)comServerMonitor).getEventApiStatistics()).thenReturn(eventAPIStatistics);
+    }
     @Test(expected = UnknownHostException.class)
     public void testConnectToUnknownHost () throws Throwable {
         OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
@@ -53,7 +79,7 @@ public class OutboundTcpIpConnectionTypeTest {
         OutboundTcpIpConnectionType connectionType = new OutboundTcpIpConnectionType();
         ComPort comPort = getMockedComPort();
 
-        int timeOut = 3;    // seconds
+        int timeOut = 1;    // seconds
         ArrayList<ConnectionTaskProperty> properties = getConnectionProperties("10.0.13.13", DEFAULT_HTTP_PORT, timeOut);
         long timeBeforeConnect = System.currentTimeMillis();
 

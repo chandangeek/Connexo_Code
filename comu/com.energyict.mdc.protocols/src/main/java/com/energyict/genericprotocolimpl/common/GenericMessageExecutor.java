@@ -5,7 +5,6 @@ import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.protocol.LoadProfileReader;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -16,7 +15,6 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -26,8 +24,6 @@ import java.util.TimeZone;
  * @BeginChanges: GNA |21042009| Changed the SingleActionScheduler Execution time, according to BlueBook9th the executionTime is an Array of Structures of 2 OctetStrings
  */
 public abstract class GenericMessageExecutor {
-
-    abstract public void doMessage(OldDeviceMessage rtuMessage) throws BusinessException, SQLException, IOException;
 
     abstract protected TimeZone getTimeZone();
 
