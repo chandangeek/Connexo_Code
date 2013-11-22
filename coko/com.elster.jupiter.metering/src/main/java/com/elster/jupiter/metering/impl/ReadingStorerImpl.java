@@ -64,6 +64,7 @@ public class ReadingStorerImpl implements ReadingStorer {
 		return storer.overrules();
 	}
 
+    @Override
     public Map<Channel, Interval> getScope() {
         return Collections.unmodifiableMap(scope);
     }
