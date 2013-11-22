@@ -126,6 +126,17 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     }
 
+    @Override
+    public List<String> getAvailableValidators() {
+        List<String> result = new ArrayList<String>();
+        for (ValidatorFactory factory : validatorFactories) {
+            for (String implementation : factory.available()) {
+                result.add(implementation);
+            }
+        }
+        return result;
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE , policy = ReferencePolicy.DYNAMIC)
     public void addResource(ValidatorFactory validatorfactory) {
         validatorFactories.add(validatorfactory);
