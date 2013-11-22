@@ -136,7 +136,7 @@ public class TransactionContext {
                             try {
                                 /* Close the Jupiter connection that was created
                                  * for the purpose of this transaction. */
-                                EnvironmentImpl.getDefault().getConnection().close();
+                                Environment.DEFAULT.get().getConnection().close();
                             }
                             catch (SQLException e) {
                                 throw new RuntimeSQLException(e);

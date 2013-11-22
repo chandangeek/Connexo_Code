@@ -1,7 +1,5 @@
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.impl.EnvironmentImpl;
-
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
@@ -25,11 +23,11 @@ public class UserEnvironment implements Translator {
     }
 
     private Translator getTranslator () {
-        return EnvironmentImpl.getDefault();
+        return Environment.DEFAULT.get();
     }
 
     public Locale getLocale () {
-        return EnvironmentImpl.getDefault().getLocale();
+        return Environment.DEFAULT.get().getLocale();
     }
 
     public String getTranslation (String key) {

@@ -2,6 +2,7 @@ package com.energyict.mdc.common.impl;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.Environment;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -62,6 +63,7 @@ public class EnvironmentAdapter {
         try {
             this.context = context;
             Bus.setEnvironmentAdapter(this);
+            Environment.DEFAULT.set(new EnvironmentImpl());
             System.out.println("MDC environment is actived");
         }
         catch (Exception e) {
@@ -72,6 +74,7 @@ public class EnvironmentAdapter {
     @Deactivate
     public void deactivate () {
         Bus.clearEnvironmentAdapter(this);
+        Environment.DEFAULT.set(null);
         this.context = null;
         System.out.println("MDC environment is deactived");
     }

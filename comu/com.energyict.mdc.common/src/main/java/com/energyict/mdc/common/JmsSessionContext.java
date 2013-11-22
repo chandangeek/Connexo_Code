@@ -1,6 +1,5 @@
 package com.energyict.mdc.common;
 
-import com.energyict.mdc.common.impl.EnvironmentImpl;
 import oracle.jms.AQjmsQueueConnectionFactory;
 import oracle.jms.AQjmsSession;
 
@@ -17,7 +16,7 @@ public class JmsSessionContext {
     public AQjmsSession getSession() throws BusinessException, SQLException {
         if (session == null) {
             try {
-                java.sql.Connection dbConnection = EnvironmentImpl.getDefault().getUnwrappedConnection();
+                java.sql.Connection dbConnection = Environment.DEFAULT.get().getUnwrappedConnection();
                 connection = AQjmsQueueConnectionFactory.createQueueConnection(dbConnection);
                 connection.start();
                 try {

@@ -124,22 +124,6 @@ public class EnvironmentImpl implements Environment {
         }
     }
 
-    public static synchronized Environment getDefault () {
-        if (soleInstance == null) {
-            try {
-                soleInstance = new EnvironmentImpl();
-            }
-            catch (Exception ex) {
-                throw new ApplicationException(ex);
-            }
-        }
-        return soleInstance;
-    }
-
-    public static synchronized void setDefault (Environment environment) {
-        soleInstance = environment;
-    }
-
     @Override
     public void closeConnection () {
         close();
