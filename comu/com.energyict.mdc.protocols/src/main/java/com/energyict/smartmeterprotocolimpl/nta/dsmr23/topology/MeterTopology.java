@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSAttribute;

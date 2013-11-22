@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.powermeasurement.ion;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Utils;
 import com.energyict.cpo.PropertySpec;

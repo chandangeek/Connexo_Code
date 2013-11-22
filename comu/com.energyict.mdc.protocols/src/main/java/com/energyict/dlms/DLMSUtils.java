@@ -6,7 +6,7 @@
 
 package com.energyict.dlms;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.Integer64;
 import com.energyict.obis.ObisCode;

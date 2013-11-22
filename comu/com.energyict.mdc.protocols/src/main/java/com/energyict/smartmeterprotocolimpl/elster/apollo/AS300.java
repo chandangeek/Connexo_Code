@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Link;
 import com.energyict.dialer.coreimpl.IPDialer;
@@ -268,7 +268,7 @@ public class AS300 extends AbstractSmartDlmsProtocol implements SimpleMeter, Mes
      * @param link                     Link created by the comserver, can be null if a NullDialer is configured
      * @param logger                   Logger object - when using a level of warning or higher message will be stored in the communication session's database log,
      *                                 messages with a level lower than warning will only be logged in the file log if active.
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *                             if a business exception occurred
      * @throws java.io.IOException if an io exception occurred
      */

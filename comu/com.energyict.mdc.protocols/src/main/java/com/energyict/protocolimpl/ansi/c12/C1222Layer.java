@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.ansi.c12;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;

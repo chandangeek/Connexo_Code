@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 
 /**
  * Unchecked exception for interrupt handling.

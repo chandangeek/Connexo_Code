@@ -1,19 +1,19 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 import java.util.*;
 
 public class DayProfile extends ComplexCosemObject {
-	
+
 	protected final static String ELEMENTNAME = "dayProfile";
 	protected final static String DAYIDNAME = "dayId";
 	protected final static String SEGMENTSNAME = "segments";
-	
+
 	private int dayId;
 	private List segments = new ArrayList();
-	
+
 	public DayProfile() {
 		super();
 	}
@@ -38,7 +38,7 @@ public class DayProfile extends ComplexCosemObject {
 				Element segmentElement = (Element) childs.item(i);
 				DayProfileSegment segment = new DayProfileSegment(segmentElement);
 				segments.add(segment);
-			}	
+			}
 		} else {
 			throw new ApplicationException("Cannot create DayProfile");
 		}
@@ -51,8 +51,8 @@ public class DayProfile extends ComplexCosemObject {
             strBuff.append("   dayId="+getDayId()+"\n");
             strBuff.append("   segments="+getSegments()+"\n");
             return strBuff.toString();
-        }        
-        
+        }
+
 	public int getDayId() {
 		return dayId;
 	}
@@ -60,7 +60,7 @@ public class DayProfile extends ComplexCosemObject {
 	public void setDayId(int dayId) {
 		this.dayId = dayId;
 	}
-	
+
 	public List getSegments() {
 		return segments;
 	}
@@ -72,7 +72,7 @@ public class DayProfile extends ComplexCosemObject {
 	public void addSegment(DayProfileSegment segment){
 		this.segments.add(segment);
 	}
-	
+
 	public Element generateXMLElement(Document document) {
 		Element root = document.createElement(ELEMENTNAME);
 		Element dayIdElement = document.createElement(DAYIDNAME);

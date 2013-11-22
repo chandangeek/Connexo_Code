@@ -1,12 +1,12 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.protocolimpl.edf.messages.objects.ComplexCosemObject;
 import com.energyict.protocolimpl.edf.messages.objects.ComplexCosemObjectFactory;
 import org.w3c.dom.*;
 
 public class MessageWriteRegister extends MessageContent{
-	
+
 	protected final static String ELEMENTNAME = "onDemandWriteRegister";
 	protected final static String OBISCODEELEMENTNAME = "obisCode";
 	protected final static String VALUEELEMENTNAME = "value";
@@ -23,7 +23,7 @@ public class MessageWriteRegister extends MessageContent{
 		this.obisCode = obisCode;
 		this.value = value;
 	}
-	
+
 	public MessageWriteRegister(Element element){
 		super(element);
 		NodeList obisCodes = element.getElementsByTagName(OBISCODEELEMENTNAME);

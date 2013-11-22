@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.services;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.comserver.adapters.meterprotocol.MeterProtocolAdapter;
 import com.energyict.comserver.adapters.smartmeterprotocol.SmartMeterProtocolAdapter;
 import com.energyict.comserver.exceptions.CodingException;

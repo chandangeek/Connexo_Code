@@ -39,6 +39,7 @@ import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
@@ -1574,7 +1575,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
             RtuDLMS rtu = new RtuDLMS(rtuid);
@@ -1584,11 +1585,11 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
@@ -1598,7 +1599,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 

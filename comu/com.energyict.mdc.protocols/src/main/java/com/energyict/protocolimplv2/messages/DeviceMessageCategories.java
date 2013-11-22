@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages;
 
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageCategoryPrimaryKey;
 import com.energyict.mdc.messages.DeviceMessageSpec;

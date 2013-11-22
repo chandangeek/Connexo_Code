@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DlmsSession;

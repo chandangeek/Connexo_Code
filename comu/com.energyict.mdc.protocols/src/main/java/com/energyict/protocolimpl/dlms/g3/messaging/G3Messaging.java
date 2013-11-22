@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.g3.messaging;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.*;

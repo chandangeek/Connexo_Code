@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.ppmi1;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocol.*;
@@ -13,9 +13,9 @@ import java.util.Date;
 
 /**
  * This method is used to hide all the unused methods of MeterProtocol
- * 
+ *
  * @author jme
- * 
+ *
  */
 public abstract class AbstractPPM extends PluggableMeterProtocol implements HHUEnabler, SerialNumber, MeterExceptionInfo, RegisterProtocol {
 

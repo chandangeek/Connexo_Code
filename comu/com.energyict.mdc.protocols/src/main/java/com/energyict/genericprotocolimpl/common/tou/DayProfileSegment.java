@@ -1,24 +1,18 @@
 package com.energyict.genericprotocolimpl.common.tou;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import com.energyict.cbo.ApplicationException;
-
 public class DayProfileSegment {
-	
+
 	protected final static String ELEMENTNAME = "dayProfileSegment";
 	protected final static String STARTNAME = "startTime";
 	protected final static String ACTIONNAME = "action";
-	
+
 	private OctetString startTime = new OctetString();
 	private ActionItem action = new ActionItem();
 
 	public DayProfileSegment() {
 		super();
 	}
-	
+
 	public DayProfileSegment(String startTime,
 			String scriptLogicalName, int scriptSelector) {
 		super();
@@ -32,7 +26,7 @@ public class DayProfileSegment {
 		this.startTime = new OctetString(startTime);
 		this.action = new ActionItem(scriptLogicalName,scriptSelector);
 	}
-        
+
 	public String getStartTime() {
 		return startTime.convertOctetStringToString();
 	}

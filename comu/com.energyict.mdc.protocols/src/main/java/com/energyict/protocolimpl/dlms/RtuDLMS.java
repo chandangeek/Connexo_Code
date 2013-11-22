@@ -1,13 +1,16 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.EnvironmentImpl;
-import com.energyict.cpo.Transaction;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.Transaction;
 import com.energyict.mdw.core.MeteringWarehouse;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class RtuDLMS {
 
@@ -32,7 +35,9 @@ public class RtuDLMS {
           statement = connection.prepareStatement("select confprogchange from eisdlms where rtuid = ?");
           statement.setInt(1,rtuid);
           resultSet = statement.executeQuery();
-          if (!resultSet.next()) throw new NotFoundException("ERROR: No rtu record found!");
+          if (!resultSet.next()) {
+              throw new NotFoundException("ERROR: No rtu record found!");
+          }
           iCount=0;
           do
           {
@@ -41,19 +46,25 @@ public class RtuDLMS {
               confprogchange = resultSet.getInt(1);
           } while (resultSet.next());
 
-          if (iCount >1) throw new BusinessException("ERROR: NR of records found > 1!");
+          if (iCount >1) {
+              throw new BusinessException("ERROR: NR of records found > 1!");
+          }
        }
        finally
        {
-          if (resultSet != null) resultSet.close();
-          if (statement != null) statement.close();
+          if (resultSet != null) {
+              resultSet.close();
+          }
+          if (statement != null) {
+              statement.close();
+          }
        }
 
        return confprogchange;
 
     } // public int getConfProgChange(int rtuid)
 
-    synchronized public void setConfProgChange(int confprogchange) throws SQLException
+    public synchronized void setConfProgChange(int confprogchange) throws SQLException
     {
        try
        {
@@ -65,7 +76,9 @@ public class RtuDLMS {
           {
              doUpdate(confprogchange);
           }
-          else throw e;
+          else {
+              throw e;
+          }
        }
 
     } // synchronized public void setConfProgChange(int confprogchange) throws SQLException
@@ -86,7 +99,9 @@ public class RtuDLMS {
           throw e;
        }
        finally {
-          if (statement != null) statement.close();
+          if (statement != null) {
+              statement.close();
+          }
        }
 
     }
@@ -94,26 +109,22 @@ public class RtuDLMS {
     void doInsert(int confprogchange) throws SQLException
     {
        Connection connection = getDefaultConnection();
-       PreparedStatement statement = connection.prepareStatement(
-    		   "insert into eisdlms (RTUID, CONFPROGCHANGE) values(?,?)");
 
-       try {
-    	   statement.setInt(1,rtuid);
-    	   statement.setInt(2, confprogchange);
-           statement.executeUpdate();
-       } finally {
-    	   statement.close();
-       }
+        try (PreparedStatement statement = connection.prepareStatement("insert into eisdlms (RTUID, CONFPROGCHANGE) values(?,?)")) {
+            statement.setInt(1, rtuid);
+            statement.setInt(2, confprogchange);
+            statement.executeUpdate();
+        }
     }
 
     private Connection getDefaultConnection() {
-       return EnvironmentImpl.getDefault().getConnection();
+       return Environment.DEFAULT.get().getConnection();
     }
 
 
     public void saveObjectList(final int confProgChange, final UniversalObject[] universalObject) throws BusinessException, SQLException    {
         Transaction tr = new Transaction() {
-            public Object doExecute() throws SQLException, BusinessException {
+            public Object doExecute() throws SQLException {
 
                 RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
                 rtuCache.saveObjectList(universalObject);

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;

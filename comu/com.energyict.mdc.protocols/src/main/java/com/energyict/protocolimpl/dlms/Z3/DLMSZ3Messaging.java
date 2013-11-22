@@ -12,7 +12,7 @@ package com.energyict.protocolimpl.dlms.Z3;
  */
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
@@ -249,7 +249,7 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
 //			case DLMSCOSEMGlobals.TYPEDESC_ARRAY:{
 //				Array array = new Array();
 ////				array.
-//				
+//
 //			};break;
 
                 case BOOLEAN: {

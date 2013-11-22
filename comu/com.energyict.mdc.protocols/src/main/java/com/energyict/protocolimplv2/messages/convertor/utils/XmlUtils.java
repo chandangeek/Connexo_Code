@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.messages.convertor.utils;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 

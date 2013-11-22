@@ -1,19 +1,12 @@
 package com.energyict.genericprotocolimpl.common.tou;
 
-import com.energyict.cbo.ApplicationException;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 public class ActivityCalendar  {
-	
+
 	protected final static String ELEMENTNAME = "activityCalendar";
 	protected final static String ACTIVENAME = "activeCalendarName";
 	protected final static String ACTIVESEASONPROFILES = "activeSeasonProfiles";
@@ -24,7 +17,7 @@ public class ActivityCalendar  {
 	protected final static String PASSIVEWEEKPROFILES = "passiveWeekProfiles";
 	protected final static String PASSIVEDAYPROFILES = "passiveDayProfiles";
 	protected final static String SWITCHTIMENAME = "activatePassiveCalendarTime";
-	
+
 
 	private OctetString activeCalendarName = new OctetString();
 	private List activeSeasonProfiles = new ArrayList();
@@ -36,14 +29,14 @@ public class ActivityCalendar  {
 	private List passiveDayProfiles = new ArrayList();
 	private CosemCalendar activatePassiveCalendarTime; /* = new CosemCalendar();*/
 	private List specialDays = new ArrayList();
-	
+
 	private ActivityCalendarReader reader;
 	private ActivityCalendarWriter writer;
-	
+
 	public ActivityCalendar() {
 		super();
 	}
-	
+
 	public ActivityCalendar(String activeCalendarName,	String passiveCalendarName) {
 		super();
 		this.activeCalendarName = new OctetString(activeCalendarName);
@@ -55,24 +48,24 @@ public class ActivityCalendar  {
 		this.activeCalendarName = new OctetString(activeCalendarName);
 		this.passiveCalendarName = new OctetString(passiveCalendarName);
 	}
-	
+
 	public void setReader(ActivityCalendarReader reader) {
 		this.reader = reader;
 	}
-	
+
 	public void setWriter(ActivityCalendarWriter writer) {
 		this.writer = writer;
 	}
-	
+
 	public void read(InputStream stream) {
 		reader.read(stream);
 	}
-	
+
 	public void write (OutputStream stream) {
 		writer.write(stream);
 	}
 
-	
+
     public String toString() {
             // Generated code by ToStringBuilder
             StringBuffer strBuff = new StringBuffer();
@@ -87,9 +80,9 @@ public class ActivityCalendar  {
             strBuff.append("   passiveSeasonProfiles="+getPassiveSeasonProfiles()+"\n");
             strBuff.append("   passiveWeekProfiles="+getPassiveWeekProfiles()+"\n");
             return strBuff.toString();
-    }        
-        
-        
+    }
+
+
 	public byte getActiveCalendarName() {
 		return activeCalendarName.getOctets()[0];
 	}
@@ -105,7 +98,7 @@ public class ActivityCalendar  {
 	public void setActiveSeasonProfiles(List activeSeasonProfiles) {
 		this.activeSeasonProfiles = activeSeasonProfiles;
 	}
-	
+
 	public void addActiveSeasonProfiles(SeasonProfile profile){
 		activeSeasonProfiles.add(profile);
 	}
@@ -142,11 +135,11 @@ public class ActivityCalendar  {
 		setPassiveCalendarName(new OctetString(passiveCalendarName));
 	}
 
-	
+
 	public void setPassiveCalendarName(OctetString passiveCalendarName) {
 		this.passiveCalendarName = passiveCalendarName;
 	}
-	
+
 	public List getPassiveSeasonProfiles() {
 		return passiveSeasonProfiles;
 	}
@@ -182,7 +175,7 @@ public class ActivityCalendar  {
 	public void addPassiveDayProfiles(DayProfile profile){
 		passiveDayProfiles.add(profile);
 	}
-	
+
 	public CosemCalendar getActivatePassiveCalendarTime() {
 		return activatePassiveCalendarTime;
 	}
@@ -191,11 +184,11 @@ public class ActivityCalendar  {
 			CosemCalendar activatePassiveCalendarTime) {
 		this.activatePassiveCalendarTime = activatePassiveCalendarTime;
 	}
-	
+
 	public void addSpecialDay(SpecialDay specialDay) {
 		this.specialDays.add(specialDay);
 	}
-	
+
 	public void addDummyDay(int index) {
 		byte[] date = new byte[12];
 		date[0]= (byte) 0xFF;
@@ -206,11 +199,11 @@ public class ActivityCalendar  {
 		SpecialDay dummy = new SpecialDay(index, date, 255);
 		addSpecialDay(dummy);
 	}
-	
+
 	public SpecialDay getSpecialDay(int i) {
 		return (SpecialDay) specialDays.get(i);
 	}
-	
+
 	public List getSpecialDays() {
 		return specialDays;
 	}

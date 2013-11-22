@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 import java.util.Calendar;
@@ -11,23 +11,23 @@ public class SeasonProfile extends ComplexCosemObject {
 	protected final static String NAMEELEMENTNAME = "name";
 	protected final static String STARTELEMENTNAME = "start";
 	protected final static String WEEKELEMENTNAME = "week";
-	
+
 	private OctetString name = new OctetString();
 	private CosemCalendar start = new CosemCalendar();
 	private OctetString week = new OctetString();
-	
-	
+
+
 	public SeasonProfile() {
 		super();
 	}
-	
+
 	public SeasonProfile(String name, Calendar calendar, boolean isDaylightSavingsTimeActive, String week){
 		super();
 		this.name = new OctetString(name);
 		this.start = new CosemCalendar(calendar,isDaylightSavingsTimeActive);
 		this.week = new OctetString(week);
 	}
-	
+
 	public SeasonProfile(byte name, byte[] start, byte week){
 		super();
 		this.name = new OctetString(name);
@@ -54,9 +54,9 @@ public class SeasonProfile extends ComplexCosemObject {
 			week = new OctetString(weeks.item(0).getFirstChild().getNodeValue());
 		} else {
 			throw new ApplicationException("Cannot create SeasonProfile");
-		}		
+		}
 	}
-        
+
         public String toString() {
             // Generated code by ToStringBuilder
             StringBuffer strBuff = new StringBuffer();
@@ -66,7 +66,7 @@ public class SeasonProfile extends ComplexCosemObject {
             strBuff.append("   week="+getWeek()+"\n");
             return strBuff.toString();
         }
-        
+
 	public Element generateXMLElement(Document document) {
 		Element root = document.createElement(ELEMENTNAME);
 		Element nameElement = document.createElement(NAMEELEMENTNAME);

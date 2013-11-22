@@ -1,13 +1,10 @@
 package com.energyict.protocolimpl.utils;
 
-import com.energyict.cbo.BusinessException;
-import com.energyict.cbo.ProcessingException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.core.DeviceType;
 import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.shadow.DeviceTypeShadow;
 import com.energyict.mdw.shadow.amr.RegisterMappingShadow;
-import com.energyict.mdw.shadow.amr.RegisterSpecShadow;
 import com.energyict.obis.ObisCode;
 
 import java.sql.SQLException;

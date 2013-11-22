@@ -1,13 +1,13 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 public class MessagePerformanceTest extends MessageContent {
-	
+
 	protected final static String ELEMENTNAME = "performanceTest";
 	protected final static String SCRIPTIDELEMENTNAME = "scriptID";
-	
+
 	private int scriptId;
 
 	public MessagePerformanceTest() {
@@ -29,7 +29,7 @@ public class MessagePerformanceTest extends MessageContent {
 			throw new ApplicationException("Cannot create MessageWriteRegister");
 		}
 	}
-	
+
 	public int getScriptId() {
 		return scriptId;
 	}

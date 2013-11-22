@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.kamstrup.unigas300;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -223,10 +224,10 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
      * @param rtuid
      * @return
      * @throws java.sql.SQLException
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *
      */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
@@ -244,10 +245,10 @@ public abstract class AbstractUnigas300 extends PluggableMeterProtocol implement
      * @param rtuid
      * @param cacheObject
      * @throws java.sql.SQLException
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *
      */
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
     }
 
     /**

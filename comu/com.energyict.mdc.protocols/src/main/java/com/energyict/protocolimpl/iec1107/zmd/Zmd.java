@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.zmd;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
@@ -684,4 +684,4 @@ public class Zmd extends PluggableMeterProtocol implements HHUEnabler, ProtocolL
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
-} 
+}

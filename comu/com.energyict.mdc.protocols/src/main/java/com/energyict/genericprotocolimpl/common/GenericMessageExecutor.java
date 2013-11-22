@@ -1,6 +1,6 @@
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -25,13 +25,13 @@ import java.util.TimeZone;
  */
 public abstract class GenericMessageExecutor {
 
-    abstract protected TimeZone getTimeZone();
+    protected abstract TimeZone getTimeZone();
 
     public void importMessage(String message, DefaultHandler handler) throws BusinessException {
         try {
 
             byte[] bai = message.getBytes();
-            InputStream i = (InputStream) new ByteArrayInputStream(bai);
+            InputStream i = new ByteArrayInputStream(bai);
 
             SAXParserFactory factory = SAXParserFactory.newInstance();
             SAXParser saxParser = factory.newSAXParser();
@@ -109,11 +109,9 @@ public abstract class GenericMessageExecutor {
 
     public AXDRDateTime convertUnixToDateTime(String time, TimeZone timeZone) throws IOException {
         try {
-            AXDRDateTime dateTime = null;
             Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(Long.parseLong(time) * 1000);
-            dateTime = new AXDRDateTime(cal);
-            return dateTime;
+            return new AXDRDateTime(cal);
         } catch (NumberFormatException e) {
             e.printStackTrace();
             throw new IOException("Could not parse " + time + " to a long value");

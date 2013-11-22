@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.a1440;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;

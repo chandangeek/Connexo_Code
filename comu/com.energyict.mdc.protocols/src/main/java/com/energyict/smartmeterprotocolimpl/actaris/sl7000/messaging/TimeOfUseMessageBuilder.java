@@ -7,7 +7,7 @@ package com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging;
  * Time: 11:59
  */
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 

@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -13,15 +13,15 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
 public abstract class MessageContent {
-	
+
 	protected final static String ORDINALATTRIBUTENAME = "ordinal";
-	
+
 	private int ordinal;
 
 	public MessageContent() {
 		super();
 	}
-	
+
 	public MessageContent(int ordinal) {
 		super();
 		this.ordinal = ordinal;

@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.*;

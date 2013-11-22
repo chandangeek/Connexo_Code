@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.iec1107.cewe.ceweprometer;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.HalfDuplexController;
@@ -144,13 +144,13 @@ public class CewePrometer extends AbstractProtocol  {
 
     /** property for logger that must be fetched (1 or 2) */
     private int pLogger = PD_LOGGER;
-    
-    /** property for extended logging 
+
+    /** property for extended logging
      * null - 0: off
      * 1: on fetch ALL possible obis codes
      * 2: on fetch obis codes supported by connected meter and values */
     private int pExtendedLogging;
-    
+
     private IEC1107Connection connection = null;
     private ObisCodeMapper obisCodeMapper = null;
     /** event parser (for event log register)  */
@@ -158,13 +158,13 @@ public class CewePrometer extends AbstractProtocol  {
 
     /** TOU-select for every TOU register */
     private int[] touMap = null;
-    /** nr of meter channels: */ 
+    /** nr of meter channels: */
     private Integer channelCount = null;
     /** channelInfo registers retrieved from  */
     private List<ChannelInfo> channelInfo = null;
     /** timeDiff: time difference (millis) between system and meter */
     private long timeDiff = 0;
-    
+
     private List<BillingPointIndex> billingPoints = null;
 
 	private boolean software7E1;
@@ -191,40 +191,40 @@ public class CewePrometer extends AbstractProtocol  {
     /** during connect:
      * 1) check firmware version
      * 2) trigger extended logging
-     * 
+     *
      * The minimum firmware version is 1.2.0.  It is (probably) not difficult
      * to support older meter versions.  But just in case throw an exception.
-     * 
+     *
      * @see com.energyict.protocolimpl.base.AbstractProtocol#doConnect()
      */
-    protected void doConnect() throws IOException {   
+    protected void doConnect() throws IOException {
 
         getFirmwareVersionObject().before(MINIMUM_FW_VERSION);
 
         int v1 = getRegisters().getrFirmwareVersionOld().asInt(0);
         int v2 = getRegisters().getrFirmwareVersionOld().asInt(1);
-        
+
         double v = Double.parseDouble( v1 + "." + v2 );
-        
+
         if( v < 1.2 ) {
             throw new ApplicationException("Meter firmware version " + getFirmwareVersion() + " is not supported.  " + "Minimum version "+MINIMUM_FW_VERSION+".");
         }
-        
+
         if(pExtendedLogging==1)
             getLogger().info(getObisCodeMapper().toString() );
-        
+
         if(pExtendedLogging==2)
             getLogger().info(getObisCodeMapper().getExtendedLogging());
-        
+
     }
 
     /* (non-Javadoc)
      * @see com.energyict.protocolimpl.base.AbstractProtocol#doDisConnect()
      */
-    protected void doDisConnect() throws IOException { 
-        /* when in doubt, do nothing */  
+    protected void doDisConnect() throws IOException {
+        /* when in doubt, do nothing */
     }
-    
+
     IEC1107Connection getConnection( ){
         return connection;
     }
@@ -233,7 +233,7 @@ public class CewePrometer extends AbstractProtocol  {
     public List getRequiredKeys() {
         return  new ArrayList();
     }
-    
+
     /** @see AbstractProtocol#doGetOptionalKeys() */
     protected List doGetOptionalKeys() {
         ArrayList result = new ArrayList();
@@ -268,7 +268,7 @@ public class CewePrometer extends AbstractProtocol  {
         return d;
     }
 
-    /* timeDiff is written to SlideTime register   
+    /* timeDiff is written to SlideTime register
      *  @see AbstractProtocol#setTime() */
     public void setTime() throws IOException {
 
@@ -307,8 +307,8 @@ public class CewePrometer extends AbstractProtocol  {
     public String getProtocolVersion() {
         return "$Date: 2013-10-31 11:22:19 +0100 (Thu, 31 Oct 2013) $";
     }
-    
-    /** Fetch firware version. 
+
+    /** Fetch firware version.
      * @see AbstractProtocol#getFirmwareVersion()
      */
     public FirmwareVersion getFirmwareVersionObject() throws IOException, UnsupportedException {
@@ -356,7 +356,7 @@ public class CewePrometer extends AbstractProtocol  {
     /** Read profile data in 2 (easy) steps:
      *
      * 1) read the profiledata
-     * 2) if needed read event log book      
+     * 2) if needed read event log book
      *
      * @param from
      * @param includeEvents enable or disable tht reading of meterevents
@@ -390,14 +390,14 @@ public class CewePrometer extends AbstractProtocol  {
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new ObisCodeMapper(this).getRegisterInfo(obisCode);
     }
-    
+
     /** (non-Javadoc)
      * @see com.energyict.protocolimpl.base.AbstractProtocol#readRegister(com.energyict.obis.ObisCode)
      */
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         return getObisCodeMapper().getRegisterValue(obisCode);
     }
-    
+
     /** Create a meter command in ByteArray form
      * @param register to read
      * @param arg arguments
@@ -424,32 +424,32 @@ public class CewePrometer extends AbstractProtocol  {
 
         return response;
     }
-    
-    
-    /** send write command 
-     * 
+
+
+    /** send write command
+     *
      * The CewePrometer returns and Error code when a write command fails.
      * This is a good/valid response according to the IEC62056-21 spec.  However
-     * the IEC1107Connection class does not excpect/handle an ERROR code after a 
+     * the IEC1107Connection class does not excpect/handle an ERROR code after a
      * write command.
-     * 
-     * This is why this kind of error checking is introduced in this write 
-     * method. The error handling/checking could be done in the 
+     *
+     * This is why this kind of error checking is introduced in this write
+     * method. The error handling/checking could be done in the
      * IEC1107Connection class, which would be more general/reusable/correct.
-     * 
-     * But it could potentially introduce errors in other IEC1107 protocols. 
-     * Hence CewePrometer does the checking for his own. 
+     *
+     * But it could potentially introduce errors in other IEC1107 protocols.
+     * Hence CewePrometer does the checking for his own.
      * fbl 09/10/2007
-     * 
+     *
      * */
     public void write(String cmd) throws IOException {
         byte [] iecCmd = IEC1107Connection.WRITE1;
         byte [] b = cmd.getBytes();
         String r = connection.sendRawCommandFrameAndReturn(iecCmd, b);
-        
+
         if( ( null!=r ) && ( r.indexOf( "ER" ) != -1 ) ) {
             String id = r.substring(4,7);
-            throw new WriteException( getExceptionInfo(id) );  
+            throw new WriteException( getExceptionInfo(id) );
         }
     }
 
@@ -491,16 +491,16 @@ public class CewePrometer extends AbstractProtocol  {
         }
     }
 
-    /** Translate a billing point into a Register Id.    
-     * 
+    /** Translate a billing point into a Register Id.
+     *
      * For example, a meter contains following "Historical period time stamps"
-     * 
-     * -> Mon Jan 01 00:00:00 CET 2007      
-     * -> Thu Dec 14 16:40:57 CET 2006      
-     * -> Sat Jan 01 00:00:02 CET 2000      
-     * -> Fri Jun 03 09:04:32 CEST 2005     
-     * -> Sat Jan 01 00:00:02 CET 2000      
-     * -> Thu Apr 01 14:01:04 CEST 2004     
+     *
+     * -> Mon Jan 01 00:00:00 CET 2007
+     * -> Thu Dec 14 16:40:57 CET 2006
+     * -> Sat Jan 01 00:00:02 CET 2000
+     * -> Fri Jun 03 09:04:32 CEST 2005
+     * -> Sat Jan 01 00:00:02 CET 2000
+     * -> Thu Apr 01 14:01:04 CEST 2004
      * -> Thu Jan 01 00:00:00 CET 1970
      * -> Thu Jan 01 00:00:00 CET 1970
      * -> Thu Jan 01 00:00:00 CET 1970
@@ -512,12 +512,12 @@ public class CewePrometer extends AbstractProtocol  {
      *
      * "Thu Jan 01 00:00:00 CET 1970" actually means 'no billing point' so all
      * values with this date need to be omitted.
-     * 
-     * "Sat Jan 01 00:00:02 CET 2000" occurs twice, since we can not know 
-     * which billing point is the older or newer one, we just sort them like
-     * the other billing points.  
      *
-     * The resulting billing point list looks like this. 
+     * "Sat Jan 01 00:00:02 CET 2000" occurs twice, since we can not know
+     * which billing point is the older or newer one, we just sort them like
+     * the other billing points.
+     *
+     * The resulting billing point list looks like this.
      *                                                            idx    bp
      * -> BillingPointIndex[1, Mon Jan 01 00:00:00 CET 2007]    -> 0  -> VZ
      * -> BillingPointIndex[2, Thu Dec 14 16:40:57 CET 2006]    -> 1  -> VZ-1
@@ -525,16 +525,16 @@ public class CewePrometer extends AbstractProtocol  {
      * -> BillingPointIndex[6, Thu Apr 01 14:01:04 CEST 2004]   -> 3  -> VZ-3
      * -> BillingPointIndex[3, Sat Jan 01 00:00:02 CET 2000]    -> 4  -> VZ-4
      * -> BillingPointIndex[5, Sat Jan 01 00:00:02 CET 2000]    -> 5  -> VZ-5
-     * 
+     *
      * @param billingPoint to translate/map
-     * @return Register Id of the billing point 
+     * @return Register Id of the billing point
      * @throws IOException
      */
     public int getRow(int billingPoint) throws IOException {
-        
+
         /* no need to fetch any historical registers, just return 0 */
         if(billingPoint==255) return 0;
-        
+
         /* lazily init the billing points collection */
         if(billingPoints==null){
             billingPoints = new ArrayList();
@@ -546,25 +546,25 @@ public class CewePrometer extends AbstractProtocol  {
             }
             Collections.sort(billingPoints, Collections.reverseOrder());
         }
-        
+
         int abs = Math.abs(billingPoint);
         if( abs < billingPoints.size()   )
             return billingPoints.get(abs).index;
-        
+
         /* meter does not have data for abs nr of billing points */
-        return -1; 
-        
+        return -1;
+
     }
-    
-    /** 
+
+    /**
      * @param   source
-     * @return  index of source 
+     * @return  index of source
      *          -1 if no TOU register configured for source
      * @throws  IOException
      */
     public int getTouIndex(int source) throws IOException {
         if( touMap == null ) { // fetch
-            touMap = new int[] { -1, -1, -1, -1, -1, -1, -1, -1 };    
+            touMap = new int[] { -1, -1, -1, -1, -1, -1, -1, -1 };
             String t = getRegisters().getrTouRegisterSelect().asString();
             int ti = 0;
             for(int idx = 0; idx < 16; idx=idx+2 ){
@@ -578,11 +578,11 @@ public class CewePrometer extends AbstractProtocol  {
         }
         return -1;  // not found
     }
-    
+
     /** method for displaying TOU-select register */
     private String touToString( ){
         StringBuffer r = new StringBuffer();
-        
+
         for(int i = 0; i<touMap.length; i++ ){
             switch(touMap[i]) {
                 case 0x00: r.append( "active energy imp.    \n" ); break;
@@ -600,13 +600,13 @@ public class CewePrometer extends AbstractProtocol  {
                 default: r.append( "unknown: " + touMap[i] +  "\n" );
             }
         }
-        
+
         return r.toString();
     }
 
- 
+
     public String getExceptionInfo(String id) {
         return CeweExceptionInfo.getExceptionInfo(id);
     }
-    
+
 }

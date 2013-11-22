@@ -1,14 +1,14 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 public class MessagePostXmlFile extends MessageContent {
-	
+
 	protected final static String ELEMENTNAME = "postXmlFile";
 	protected final static String FILENAMEELEMENTNAME = "filename";
-	
-	
+
+
 	private String filename;
 
 	public MessagePostXmlFile() {
@@ -30,7 +30,7 @@ public class MessagePostXmlFile extends MessageContent {
 			throw new ApplicationException("Cannot create MessageWriteRegister");
 		}
 	}
-	
+
 	public String getFilename() {
 		return filename;
 	}

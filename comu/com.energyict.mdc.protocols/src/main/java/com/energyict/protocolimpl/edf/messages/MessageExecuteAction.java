@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edf.messages;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.protocolimpl.edf.messages.objects.ComplexCosemObject;
 import com.energyict.protocolimpl.edf.messages.objects.ComplexCosemObjectFactory;
 import org.w3c.dom.*;
@@ -26,7 +26,7 @@ public class MessageExecuteAction extends MessageContent {
 		this.methodId = methodId;
 		this.methodData = methodData;
 	}
-	
+
 	public MessageExecuteAction(Element element){
 		super(element);
 		NodeList obisCodes = element.getElementsByTagName(OBISCODEELEMENTNAME);

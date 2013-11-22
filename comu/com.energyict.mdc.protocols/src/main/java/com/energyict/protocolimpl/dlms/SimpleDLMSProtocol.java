@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.dlms;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.NotFoundException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
@@ -919,7 +919,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param rtuid Database ID of the RTU
      * @return the protocol specific cache object
      * @throws java.sql.SQLException Thrown in case of an SQLException
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *                               Thrown in case of an BusinessException
      */
     public Object fetchCache(int rtuid) throws SQLException, BusinessException {
@@ -932,7 +932,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 
@@ -942,7 +942,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
      * @param rtuid       Database ID of the RTU
      * @param cacheObject the protocol specific cach object
      * @throws java.sql.SQLException Thrown in case of an SQLException
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *                               Thrown in case of an BusinessException
      */
     public void updateCache(int rtuid, Object cacheObject) throws SQLException, BusinessException {
@@ -955,7 +955,7 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 

@@ -6,7 +6,7 @@
  */
 package com.energyict.genericprotocolimpl.edmi.mk10;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.dialer.core.Link;
 import com.energyict.genericprotocolimpl.edmi.mk10.executer.MK10ProtocolExecuter;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;

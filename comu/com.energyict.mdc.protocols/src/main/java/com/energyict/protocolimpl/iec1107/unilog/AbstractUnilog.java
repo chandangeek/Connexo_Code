@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.unilog;
 import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
@@ -222,10 +223,10 @@ public abstract class AbstractUnilog extends PluggableMeterProtocol implements R
      * @param rtuid
      * @return
      * @throws java.sql.SQLException
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *
      */
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
@@ -243,10 +244,10 @@ public abstract class AbstractUnilog extends PluggableMeterProtocol implements R
      * @param rtuid
      * @param cacheObject
      * @throws java.sql.SQLException
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *
      */
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
     }
 
     /**

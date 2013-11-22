@@ -1,6 +1,6 @@
 package com.energyict.protocols.mdc.channels.sms;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -131,7 +131,7 @@ public class ProximusSmsSender {
      *
      * @throws org.xml.sax.SAXException when the xml parsing fails
      * @throws java.io.IOException      when the communication fails
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *
      */
     protected ResultType parseResponseMessage(String xml) {

@@ -1,6 +1,7 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.*;
+import com.energyict.mdc.common.ApplicationException;
 
 /**
  * This enum contains the mapping between DLMS unit codes and the EIServer event codes.

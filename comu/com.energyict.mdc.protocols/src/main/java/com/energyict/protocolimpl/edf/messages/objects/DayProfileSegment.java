@@ -1,21 +1,21 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 public class DayProfileSegment extends ComplexCosemObject {
-	
+
 	protected final static String ELEMENTNAME = "dayProfileSegment";
 	protected final static String STARTNAME = "startTime";
 	protected final static String ACTIONNAME = "action";
-	
+
 	private OctetString startTime = new OctetString();
 	private ActionItem action = new ActionItem();
 
 	public DayProfileSegment() {
 		super();
 	}
-	
+
 	public DayProfileSegment(String startTime,
 			String scriptLogicalName, int scriptSelector) {
 		super();
@@ -50,7 +50,7 @@ public class DayProfileSegment extends ComplexCosemObject {
 //        public static void main(String[] args) {
 //            System.out.println(com.energyict.protocolimpl.base.ToStringBuilder.genCode(new DayProfileSegment()));
 //        }
-        
+
 	public String getStartTime() {
 		return startTime.convertOctetStringToString();
 	}
@@ -74,7 +74,7 @@ public class DayProfileSegment extends ComplexCosemObject {
 	public void setAction(ActionItem action) {
 		this.action = action;
 	}
-	
+
 	public Element generateXMLElement(Document document) {
 		Element root = document.createElement(ELEMENTNAME);
 		Element startElement = document.createElement(STARTNAME);

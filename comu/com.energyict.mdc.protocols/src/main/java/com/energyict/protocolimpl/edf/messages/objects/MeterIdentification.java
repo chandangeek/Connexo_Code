@@ -1,15 +1,15 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 public class MeterIdentification extends ComplexCosemObject {
-	
+
 	protected final static String ELEMENTNAME = "meter";
 	protected final static String IDNAME = "id";
-	
+
 	private OctetString id = new OctetString();
-	
+
 	public MeterIdentification() {
 		super();
 	}
@@ -49,7 +49,7 @@ public class MeterIdentification extends ComplexCosemObject {
             }
             return strBuff.toString();
         }
-    
+
 	public String getId() {
 		return id.convertOctetStringToString();
 	}

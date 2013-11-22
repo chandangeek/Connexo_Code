@@ -12,6 +12,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.Dialer;
 import com.energyict.dialer.core.DialerFactory;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -148,7 +149,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
         getPactRegisterFactory().getFileTransfer().deleteFile();
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
@@ -507,7 +508,7 @@ public class PRIPact extends PluggableMeterProtocol implements ProtocolLink, Reg
     }
 
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException,
-            com.energyict.cbo.BusinessException {
+            BusinessException {
     }
 
     // implementation of ProtocolLink

@@ -1,8 +1,8 @@
 package com.energyict.genericprotocolimpl.common;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
-import com.energyict.cpo.Transaction;
+import com.energyict.mdc.common.Transaction;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterReadingStorer;
 import com.energyict.mdw.core.Channel;

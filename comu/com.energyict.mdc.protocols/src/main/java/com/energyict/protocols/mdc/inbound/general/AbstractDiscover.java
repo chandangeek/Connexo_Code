@@ -1,21 +1,21 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.cpo.EnvironmentImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
-import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 import com.energyict.protocol.ProtocolImplFactory;
 import com.energyict.protocol.ProtocolInstantiator;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
 import com.energyict.protocol.meteridentification.IdentificationFactory;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.protocols.mdc.inbound.general.frames.AbstractInboundFrame;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,8 +32,8 @@ import java.util.List;
  */
 public abstract class AbstractDiscover implements BinaryInboundDeviceProtocol {
 
-    private static final String TIMEOUT_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.retries");
+    private static final String TIMEOUT_KEY = Environment.DEFAULT.get().getTranslation("protocol.timeout");
+    private static final String RETRIES_KEY = Environment.DEFAULT.get().getTranslation("protocol.retries");
 
     private static final int TIMEOUT_DEFAULT = 10000;          //TODO are these defaults OK ?
     private static final int RETRIES_DEFAULT = 2;

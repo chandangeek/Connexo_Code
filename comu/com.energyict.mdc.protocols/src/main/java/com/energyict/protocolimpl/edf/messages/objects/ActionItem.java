@@ -1,21 +1,21 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 public class ActionItem extends ComplexCosemObject{
-	
+
 	protected final static String ELEMENTNAME = "actionItem";
 	protected final static String NAMEELEMENTNAME = "name";
 	protected final static String SELECTORELEMENTNAME = "selector";
-	
+
 	private OctetString logicalName = new OctetString();
 	private int selector;
 
 	public ActionItem() {
 		super();
 	}
-	
+
 	public ActionItem(String name, int selector){
 		this.logicalName = new OctetString(name);
 		this.selector = selector;
@@ -55,7 +55,7 @@ public class ActionItem extends ComplexCosemObject{
             strBuff.append("   selector="+getSelector()+"\n");
             return strBuff.toString();
         }
-        
+
 	public String getLogicalName() {
 		return logicalName.convertOctetStringToString();
 	}
@@ -90,6 +90,6 @@ public class ActionItem extends ComplexCosemObject{
 		root.appendChild(selectorElement);
 		return root;
 	}
-	
+
 
 }

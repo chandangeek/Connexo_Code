@@ -12,6 +12,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.meteridentification.DiscoverInfo;
@@ -277,13 +278,13 @@ public abstract class AbstractIEC1107Protocol extends PluggableMeterProtocol imp
 
     // Cach mechanism of the MeterProtocol interface
     public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException,
-            com.energyict.cbo.BusinessException {
+            BusinessException {
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 

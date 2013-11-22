@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.eict.ukhub.messaging;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.smartmeterprotocolimpl.eict.ukhub.ObisCodeProvider;

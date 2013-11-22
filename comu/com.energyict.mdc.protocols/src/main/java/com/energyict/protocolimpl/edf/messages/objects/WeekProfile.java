@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 public class WeekProfile extends ComplexCosemObject {
-	
+
 	protected final static String ELEMENTNAME = "weekProfile";
 	protected final static String NAMEELEMENTNAME = "name";
 	protected final static String DAYELEMENTNAME = "days";
@@ -15,7 +15,7 @@ public class WeekProfile extends ComplexCosemObject {
 	protected final static String FRIDAYATTRIBUTE = "friday";
 	protected final static String SATURDAYATTRIBUTE = "saturday";
 	protected final static String SUNDAYATTRIBUTE = "sunday";
-	
+
 	private OctetString name = new OctetString();
 	private int monday;
 	private int tuesday;
@@ -33,12 +33,12 @@ public class WeekProfile extends ComplexCosemObject {
 		super();
 		this.name = new OctetString(name);
 	}
-	
+
 	public WeekProfile(byte name){
 		super();
 		this.name = new OctetString(name);
 	}
-	
+
 	public WeekProfile(Element element) {
 		super(element);
 		NodeList names = element.getElementsByTagName(NAMEELEMENTNAME);
@@ -60,10 +60,10 @@ public class WeekProfile extends ComplexCosemObject {
 		} else {
 			throw new ApplicationException("Cannot create WeekProfile");
 		}
-		
+
 	}
 
-        
+
         public String toString() {
             // Generated code by ToStringBuilder
             StringBuffer strBuff = new StringBuffer();
@@ -77,8 +77,8 @@ public class WeekProfile extends ComplexCosemObject {
             strBuff.append("   tuesday="+getTuesday()+"\n");
             strBuff.append("   wednesday="+getWednesday()+"\n");
             return strBuff.toString();
-        }        
-        
+        }
+
 	public byte getName() {
 		return name.getOctets()[0];
 	}

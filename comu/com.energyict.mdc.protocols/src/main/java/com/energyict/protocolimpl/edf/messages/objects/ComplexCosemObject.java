@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -13,7 +13,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
 public abstract class ComplexCosemObject {
-	
+
 	public ComplexCosemObject() {
 		super();
 	}
@@ -38,6 +38,6 @@ public abstract class ComplexCosemObject {
 			throw new ApplicationException("Could not encode the document in xml");
 		}
 	}
-	
+
 	public abstract Element generateXMLElement(Document document);
 }

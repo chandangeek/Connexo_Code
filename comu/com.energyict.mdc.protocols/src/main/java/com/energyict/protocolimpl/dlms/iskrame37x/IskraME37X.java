@@ -3,7 +3,7 @@
  * @author Koenraad Vanderschaeve
  * <P>
  * <B>Description :</B><BR>
- * Class that implements the DLMS COSEM meter protocol of the Iskra ME37x meter with LN referencing. 
+ * Class that implements the DLMS COSEM meter protocol of the Iskra ME37x meter with LN referencing.
  * <BR>
  * <B>@beginchanges</B><BR>
 KV|11042007|Initial version
@@ -42,6 +42,7 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.ChannelInfo;
@@ -596,7 +597,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 System.out.println("Index error: " + e.getMessage());
             }
 
-        } // if (capturedObjects == null) 
+        } // if (capturedObjects == null)
 
         return capturedObjects;
 
@@ -1005,7 +1006,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
     public String getDeviceAddress() throws IOException {
         String devId = getCosemObjectFactory().getGenericRead(ObisCode.fromByteArray(new byte[]{0, 0, 42, 0, 0, (byte) 255}), DLMSUtils.attrLN2SN(2), 1).getString();
         return devId;
-    } // public String getSerialNumber() throws IOException      
+    } // public String getSerialNumber() throws IOException
 
 
     // KV 19012004
@@ -1442,7 +1443,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
         return dlmsCache;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             RtuDLMSCache rtuCache = new RtuDLMSCache(rtuid);
             RtuDLMS rtu = new RtuDLMS(rtuid);
@@ -1452,11 +1453,11 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             DLMSCache dc = (DLMSCache) cacheObject;
             if (dc.contentChanged()) {
@@ -1466,7 +1467,7 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
                 rtu.setConfProgChange(dc.getConfProgChange());
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 

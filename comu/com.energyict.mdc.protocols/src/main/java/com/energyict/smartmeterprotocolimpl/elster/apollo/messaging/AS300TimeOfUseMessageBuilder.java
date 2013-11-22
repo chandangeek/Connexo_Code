@@ -1,6 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocol.messaging.TimeOfUseMessageBuilder;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;

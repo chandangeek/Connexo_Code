@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.iec1107.abba1350;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
@@ -247,8 +247,8 @@ public class ABBA1350
                     + e.getMessage());
         }
 
-//		if ((failOnUnitMismatch < 0) || (loadProfileNumber > 1)) 
-//			throw new InvalidPropertyException("Invalid value for failOnUnitMismatch (" + failOnUnitMismatch + ") This property can only be 1 (to enable) or 0 (to disable). "); 
+//		if ((failOnUnitMismatch < 0) || (loadProfileNumber > 1))
+//			throw new InvalidPropertyException("Invalid value for failOnUnitMismatch (" + failOnUnitMismatch + ") This property can only be 1 (to enable) or 0 (to disable). ");
 
         if ((loadProfileNumber < MIN_LOADPROFILE) || (loadProfileNumber > MAX_LOADPROFILE)) {
             throw new InvalidPropertyException("Invalid loadProfileNumber (" + loadProfileNumber + "). Minimum value: " + MIN_LOADPROFILE + " Maximum value: " + MAX_LOADPROFILE);
@@ -1075,4 +1075,4 @@ public class ABBA1350
         }
 
     }
-} 
+}

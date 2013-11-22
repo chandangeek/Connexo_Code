@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.*;
 
 public class DemandManagement extends ComplexCosemObject {
-	
+
 	protected final static String ELEMENTNAME = "demandManagement";
 	protected final static String MAXATTRIBUTE = "maxloadThreshold";
 	protected final static String SUBSCRIBEDATTRIBUTE = "subscribedThreshold";
@@ -13,7 +13,7 @@ public class DemandManagement extends ComplexCosemObject {
 	protected final static String ATTRIBUTEATTRIBUTE = "monitoredAttribute";
 	protected final static String UPACTIONNAME = "upAction";
 	protected final static String DOWNACTIONNAME = "downAction";
-	
+
 	private int maxloadThreshold;
 	private int subscribedThreshold;
 	private int monitoredClass;
@@ -25,7 +25,7 @@ public class DemandManagement extends ComplexCosemObject {
 	public DemandManagement() {
 		super();
 	}
-	
+
 	public DemandManagement(int maxloadThreshold, int subscribedThreshold) {
 		super();
 		this.maxloadThreshold = maxloadThreshold;
@@ -70,8 +70,8 @@ public class DemandManagement extends ComplexCosemObject {
             strBuff.append("   subscribedThreshold="+getSubscribedThreshold()+"\n");
             strBuff.append("   up="+getUp()+"\n");
             return strBuff.toString();
-        }        
-        
+        }
+
 	public int getMaxloadThreshold() {
 		return maxloadThreshold;
 	}
@@ -103,7 +103,7 @@ public class DemandManagement extends ComplexCosemObject {
 	public void setMonitoredName(String monitoredName) {
 		this.monitoredName = new OctetString(monitoredName);
 	}
-	
+
 	public byte[] getMonitoredNameOctets() {
 		return monitoredName.getOctets();
 	}
@@ -145,13 +145,13 @@ public class DemandManagement extends ComplexCosemObject {
 		    root.setAttribute(CLASSNAMEATTRIBUTE, ""+monitoredName.convertOctetStringToString());
 		}
 		root.setAttribute(ATTRIBUTEATTRIBUTE,""+monitoredAttribute);
-		
+
 		if( up != null ) {
     		Element upAction = document.createElement(UPACTIONNAME);
     		upAction.appendChild(up.generateXMLElement(document));
     		root.appendChild(upAction);
 		}
-		
+
 		if( down != null ) {
     		Element downAction = document.createElement(DOWNACTIONNAME);
     		downAction.appendChild(down.generateXMLElement(document));

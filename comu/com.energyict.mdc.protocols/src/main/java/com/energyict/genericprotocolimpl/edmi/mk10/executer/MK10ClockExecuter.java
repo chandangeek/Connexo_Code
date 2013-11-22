@@ -1,12 +1,12 @@
 /**
  * MK10ClockExecuter.java
- * 
+ *
  * Created on 16-jan-2009, 14:14:47 by jme
- * 
+ *
  */
 package com.energyict.genericprotocolimpl.edmi.mk10.executer;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocolimpl.edmi.mk10.MK10;
 
@@ -35,7 +35,7 @@ public class MK10ClockExecuter {
     public MK10ClockExecuter(MK10ProtocolExecuter mk10ProtocolExecuter) {
 		this.executer = mk10ProtocolExecuter;
 	}
-	
+
 	/*
 	 * Private getters, setters and methods
 	 */
@@ -53,11 +53,11 @@ public class MK10ClockExecuter {
 
         return true;
     }
-    
+
     private MK10ProtocolExecuter getExecuter() {
 		return executer;
 	}
-    
+
     private long getDiff(java.util.Date systemDate, java.util.Date date) {
         return Math.abs(date.getTime() - systemDate.getTime());
     }
@@ -84,7 +84,7 @@ public class MK10ClockExecuter {
 	}
 
 	private void log(Level level, String msg) {
-		getExecuter().log(level, msg);		
+		getExecuter().log(level, msg);
 	}
 
 	private MK10 getMk10Protocol() {
@@ -104,12 +104,12 @@ public class MK10ClockExecuter {
 	 */
 
     public long verifyAndSetMeterTime(TimeZone timeZone) throws IOException, BusinessException {
-        
+
         java.util.Date systemDate = Calendar.getInstance().getTime();	// get the system time
         java.util.Date meterDate = getExecuter().getMk10Protocol().getTime();			// get the meter time (NOT roundtrip corrected !!!)
 
         log(Level.INFO, "metertime = " + format.format(meterDate) + " (" + meterDate.getTime() + "), systemtime = " + format.format(systemDate) + " (" + systemDate.getTime() + ")");
-        
+
         long diff = getDiff(systemDate, meterDate);
         long signedDiff = meterDate.getTime() - systemDate.getTime();
         log(Level.INFO, "Difference between metertime and systemtime is " + signedDiff + " ms");
@@ -135,7 +135,7 @@ public class MK10ClockExecuter {
 //        }
         return signedDiff;
     }
-    
+
     public boolean verifyMeterMaxTimeDiff(boolean collectOutsiteMaxTimeDiff) throws IOException, BusinessException {
         // verify the meter time difference against the max difference in the configuration
         // get the system time

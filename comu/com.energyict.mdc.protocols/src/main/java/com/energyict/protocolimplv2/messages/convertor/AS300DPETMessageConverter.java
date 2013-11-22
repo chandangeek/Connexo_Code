@@ -1,20 +1,22 @@
 package com.energyict.protocolimplv2.messages.convertor;
 
-import com.energyict.cbo.ApplicationException;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdw.amr.Register;
 import com.energyict.mdw.amr.RegisterReading;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.Group;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleValueMessageEntry;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +27,7 @@ import java.util.Map;
  * @since 28/10/13 - 14:22
  */
 
-public class AS300DPETMessageConverter extends AS300MessageConverter {;
+public class AS300DPETMessageConverter extends AS300MessageConverter {
 
     private static final String KEY = "Key";
     private static final ObisCode PUBLIC_KEYS_OBISCODE = ObisCode.fromString("0.128.0.2.0.2");
@@ -47,12 +49,35 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {;
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
-            case DeviceMessageConstants.deviceGroupAttributeName:
-                Group deviceGroup = (Group) messageAttribute;
-                return encodeGroup(deviceGroup);    //Notice: this method requires DB access (which should be present at this moment)
+            case DeviceMessageConstants.deviceListAttributeName:
+                String deviceIdList = (String) messageAttribute;
+                return encodeDevices(this.findDevices(this.parseIds(deviceIdList)));    //Notice: this method requires DB access (which should be present at this moment)
             default:
                 return super.format(propertySpec, messageAttribute);
         }
+    }
+
+    private List<DeviceIdentifier> parseIds (String deviceIds) {
+        try {
+            String[] stringIds = deviceIds.split(",");
+            List<DeviceIdentifier> ids = new ArrayList<>(stringIds.length);
+            for (String stringId : stringIds) {
+                ids.add(new DeviceIdentifierById(stringId));
+            }
+            return ids;
+        }
+        catch (NumberFormatException e) {
+            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+        }
+    }
+
+    private List<Device> findDevices (List<DeviceIdentifier> deviceIds) {
+        List<Device> devices = new ArrayList<>(deviceIds.size());
+        for (DeviceIdentifier deviceId : deviceIds) {
+            Device device = deviceId.findDevice();
+            devices.add(device);
+        }
+        return devices;
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
@@ -60,23 +85,22 @@ public class AS300DPETMessageConverter extends AS300MessageConverter {;
     }
 
     /**
-     * Return an XML representation of the key pairs of all devices present in the group
-     * @param group the {@link Group} containing all devices
+     * Returns an XML representation of the key pairs of all devices in the List.
+     * @param devices The List of {@link Device}s
      */
-    private String encodeGroup(Group group) {
+    private String encodeDevices (List<Device> devices) {
         StringBuilder builder = new StringBuilder();
         int index = 1;
         try {
-            for (Object member : group.getMembers()) {
-                Device device = (Device) member;
+            for (Device device : devices) {
                 Register register = device.getRegister(PUBLIC_KEYS_OBISCODE);
                 if (register != null) {
                     List<RegisterReading> lastXReadings = register.getLastXReadings(1);
-                    if (lastXReadings.size() > 0) {
+                    if (!lastXReadings.isEmpty()) {
                         String keyPair = lastXReadings.get(0).getText();
-                        builder.append("<" + KEY + String.valueOf(index) + ">");
+                        builder.append("<" + KEY).append(String.valueOf(index)).append(">");
                         builder.append(keyPair);
-                        builder.append("</" + KEY + String.valueOf(index) + ">");
+                        builder.append("</" + KEY).append(String.valueOf(index)).append(">");
                         index++;
                     } else {
                         ApplicationException e = new ApplicationException("Device with serial number " + device.getSerialNumber() + " doesn't have a value for the Public Key register (" + PUBLIC_KEYS_OBISCODE.toString() + ")!");

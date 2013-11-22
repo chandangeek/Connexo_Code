@@ -1,6 +1,6 @@
 package com.energyict.protocolimpl.edf.messages.objects;
 
-import com.energyict.cbo.ApplicationException;
+import com.energyict.mdc.common.ApplicationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.StringReader;
 
 public class ComplexCosemObjectFactory {
-	
+
 	public static ComplexCosemObject createCosemObject(String xml){
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
@@ -58,5 +58,5 @@ public class ComplexCosemObjectFactory {
 		}
 		throw new ApplicationException("Cannot determine ComplexCosemObject Type");
 	}
-	
+
 }

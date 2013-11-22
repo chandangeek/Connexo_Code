@@ -10,6 +10,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.InvalidPropertyException;
 import com.energyict.protocol.MeterProtocol;
@@ -425,14 +426,14 @@ public class Kamstrup extends PluggableMeterProtocol implements ProtocolLink, Re
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
     }
 
     public ChannelMap getChannelMap() {

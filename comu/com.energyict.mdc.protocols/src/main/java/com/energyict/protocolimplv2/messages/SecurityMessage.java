@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
-import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.mdc.common.UserEnvironment;
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
@@ -72,7 +72,7 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName, new BigDecimal(0))),
     GENERATE_NEW_PUBLIC_KEY,
     GENERATE_NEW_PUBLIC_KEY_FROM_RANDOM(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.randomBytesAttributeName)),
-    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(PropertySpecFactory.groupReferencePropertySpec(DeviceMessageConstants.deviceGroupAttributeName)),
+    SET_PUBLIC_KEYS_OF_AGGREGATION_GROUP(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.deviceListAttributeName)),
     DISABLE_DLMS_AUTHENTICATION_LEVEL_P0(
             PropertySpecFactory.stringPropertySpecWithValues(
                     DeviceMessageConstants.authenticationLevelAttributeName,

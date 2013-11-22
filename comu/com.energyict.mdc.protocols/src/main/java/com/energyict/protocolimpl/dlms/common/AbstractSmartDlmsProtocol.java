@@ -1,8 +1,8 @@
 package com.energyict.protocolimpl.dlms.common;
 
-import com.energyict.cbo.BusinessException;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.cbo.NotFoundException;
-import com.energyict.cpo.Transaction;
+import com.energyict.mdc.common.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
@@ -214,7 +214,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      * @param rtuid - the RTU database id
      * @return a DLMS cache object
      * @throws java.sql.SQLException if a database access error occurs
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *                               if multiple records were found
      */
     @Override
@@ -228,7 +228,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
                 return new DLMSCache(null, -1);
             }
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 
@@ -238,11 +238,11 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      * @param rtuid       - the RTU database id
      * @param cacheObject - the DLMSCache
      * @throws java.sql.SQLException if a database access error occurs
-     * @throws com.energyict.cbo.BusinessException
+     * @throws BusinessException
      *                               if multiple records were found
      */
     @Override
-    public void updateCache(final int rtuid, final Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(final int rtuid, final Object cacheObject) throws java.sql.SQLException, BusinessException {
         if (rtuid != 0) {
             Transaction tr = new Transaction() {
                 public Object doExecute() throws BusinessException, SQLException {
@@ -255,7 +255,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
             };
             MeteringWarehouse.getCurrent().execute(tr);
         } else {
-            throw new com.energyict.cbo.BusinessException("invalid RtuId!");
+            throw new BusinessException("invalid RtuId!");
         }
     }
 

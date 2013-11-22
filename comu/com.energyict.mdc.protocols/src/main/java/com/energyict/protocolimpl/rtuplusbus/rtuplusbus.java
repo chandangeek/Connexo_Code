@@ -7,6 +7,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HalfDuplexEnabler;
 import com.energyict.protocol.IntervalData;
@@ -114,7 +115,7 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
 
     int halfDuplex;
 
-    // Time difference in ms between system time and rtu time 
+    // Time difference in ms between system time and rtu time
     private long rtuTimeDelta[];
 
     public rtuplusbus() { // Create an RtuPlusBusFrame instance in order to Read / Write Frames
@@ -656,14 +657,14 @@ public class rtuplusbus extends PluggableMeterProtocol implements HalfDuplexEnab
         return null;
     }
 
-    public Object fetchCache(int rtuid) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public Object fetchCache(int rtuid) throws java.sql.SQLException, BusinessException {
         return null;
     }
 
     public void setCache(Object cacheObject) {
     }
 
-    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, com.energyict.cbo.BusinessException {
+    public void updateCache(int rtuid, Object cacheObject) throws java.sql.SQLException, BusinessException {
     }
 
     public void release() throws IOException {
