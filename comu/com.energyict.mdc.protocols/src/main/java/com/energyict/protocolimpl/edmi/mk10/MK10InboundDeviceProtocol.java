@@ -1,10 +1,10 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.genericprotocolimpl.edmi.mk10.packets.PushPacket;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
@@ -33,8 +33,8 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
 
     private static final int TIMEOUT_DEFAULT = 10000;
     private static final int RETRIES_DEFAULT = 2;
-    private static final String TIMEOUT_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.retries");
+    private static final String TIMEOUT_KEY = Environment.DEFAULT.get().getTranslation("protocol.timeout");
+    private static final String RETRIES_KEY = Environment.DEFAULT.get().getTranslation("protocol.retries");
 
     private DeviceIdentifierBySerialNumber deviceIdentifier;
     private InboundDiscoveryContext context;

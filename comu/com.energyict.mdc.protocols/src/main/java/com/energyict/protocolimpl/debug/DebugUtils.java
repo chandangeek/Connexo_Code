@@ -130,7 +130,7 @@ public class DebugUtils {
 			Properties properties = new Properties();
 			properties.load(fis);
             fis.close();
-			EnvironmentImpl.setDefault(
+			Environment.DEFAULT.set(
                     new DebugEnvironment(
                             properties.getProperty("jdbcUrl"),
                             properties.getProperty("dbUser"),

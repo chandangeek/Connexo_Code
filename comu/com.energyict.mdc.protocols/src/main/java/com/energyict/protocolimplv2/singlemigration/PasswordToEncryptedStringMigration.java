@@ -1,7 +1,7 @@
 package com.energyict.protocolimplv2.singlemigration;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdw.core.DataVault;
 import com.energyict.mdw.core.DataVaultProvider;
@@ -51,7 +51,7 @@ public class PasswordToEncryptedStringMigration {
         for (final Pair<String, String> statement : statements) {
             transactionExecutor.execute(new Transaction<Void>() {
                 @Override
-                public Void doExecute() throws BusinessException, SQLException {
+                public Void doExecute() throws SQLException {
                     try {
                         doMigrate(statement.getFirst(), statement.getLast());
                     } catch (SQLException e) {
@@ -68,8 +68,8 @@ public class PasswordToEncryptedStringMigration {
         }
         transactionExecutor.execute(new Transaction<Void>() {
             @Override
-            public Void doExecute() throws BusinessException, SQLException {
-                try (PreparedStatement updateStatement = EnvironmentImpl.getDefault().getConnection().prepareStatement("update eisrelationattributetype set valuefactory = ? where valuefactory = ?")) {
+            public Void doExecute() throws SQLException {
+                try (PreparedStatement updateStatement = Environment.DEFAULT.get().getConnection().prepareStatement("update eisrelationattributetype set valuefactory = ? where valuefactory = ?")) {
                     updateStatement.setString(1, "com.energyict.dynamicattributes.EncryptedStringFactory");
                     updateStatement.setString(2, "com.energyict.dynamicattributes.PasswordFactory");
                     updateStatement.executeUpdate();
@@ -81,7 +81,7 @@ public class PasswordToEncryptedStringMigration {
 
     private void doMigrate(String selectSql, String updateSql) throws SQLException {
         List<PasswordIdObject> passwords = new ArrayList<>();
-        try (Statement statement = EnvironmentImpl.getDefault().getConnection().createStatement()) {
+        try (Statement statement = Environment.DEFAULT.get().getConnection().createStatement()) {
             final ResultSet resultSet = statement.executeQuery(selectSql);
             while (resultSet.next()) {
                 PasswordIdObject passwordIdObject = new PasswordIdObject();
@@ -96,7 +96,7 @@ public class PasswordToEncryptedStringMigration {
                 if (password.getPassword() != null) {
                     final DataVault keyVault = getPasswordVault();
                     final String encrypt = keyVault.encrypt(password.getPassword().getBytes());
-                    try (PreparedStatement updateStatement = EnvironmentImpl.getDefault().getConnection().prepareStatement(updateSql)) {
+                    try (PreparedStatement updateStatement = Environment.DEFAULT.get().getConnection().prepareStatement(updateSql)) {
                         updateStatement.setString(1, encrypt);
                         updateStatement.setInt(2, password.getId());
                         updateStatement.executeUpdate();

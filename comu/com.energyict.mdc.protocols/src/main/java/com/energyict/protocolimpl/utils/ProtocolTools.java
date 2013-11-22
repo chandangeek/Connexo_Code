@@ -1,7 +1,7 @@
 package com.energyict.protocolimpl.utils;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdw.core.CommunicationProtocol;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.MeteringWarehouse;
@@ -1255,8 +1255,8 @@ public final class ProtocolTools {
      * Close the databaseConnection when it is not needed so optimal database pooling can be used
      */
     public static void closeConnection() {
-        if(!EnvironmentImpl.getDefault().isInTransaction()){
-            EnvironmentImpl.getDefault().closeConnection();
+        if (!Environment.DEFAULT.get().isInTransaction()) {
+            Environment.DEFAULT.get().closeConnection();
         }
     }
 

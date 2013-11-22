@@ -18,10 +18,7 @@ public class DeleteRegisterReadings extends AbstractFolderAction implements Tran
 
         this.folder = folder;
 
-        EnvironmentImpl.getDefault().execute(this);
-
-
-
+        MeteringWarehouse.getCurrent().execute(this);
     }
 
     public Date lastWeek( ) {
@@ -45,48 +42,30 @@ public class DeleteRegisterReadings extends AbstractFolderAction implements Tran
             MeteringWarehouse.getCurrent().getRegisterReadingFactory();
 
 
-        Iterator fi = folder.getRtus().iterator();
+        for (Device rtu : folder.getRtus()) {
+            rtu.updateLastReading(lastWeek());
+            rtu.updateLastLogbook(lastMonth());
 
-        while( fi.hasNext() ) {
-
-            Device rtu = (Device)fi.next();
-
-
-            rtu.updateLastReading( lastWeek() );
-            rtu.updateLastLogbook( lastMonth() );
-
-            Iterator ir = rtu.getRegisters().iterator();
-            while( ir.hasNext() ) {
-
-                Register rtuRegister = (Register) ir.next();
-                rtuRegister.getReadingAfterOrEqual( new Date() );
-
-                Iterator rrrI = factory.findByRegister( rtuRegister.getId() ).iterator();
-
-                while( rrrI.hasNext() )
-                    ( (RegisterReading) rrrI.next() ).delete();
-
-
+            for (Register rtuRegister : rtu.getRegisters()) {
+                rtuRegister.getReadingAfterOrEqual(new Date());
+                for (RegisterReading registerReading : factory.findByRegister(rtuRegister.getId())) {
+                    (registerReading).delete();
+                }
             }
 
             Iterator i = rtu.getChannels().iterator();
-            while( i.hasNext() ) {
-
+            while (i.hasNext()) {
                 Channel channel = (Channel) i.next();
                 channel.removeAll(new Date(0), new Date());
 
             }
 
             i = rtu.getEvents().iterator();
-            while( i.hasNext() ) {
-
+            while (i.hasNext()) {
                 DeviceEvent event = (DeviceEvent) i.next();
                 event.delete();
-
             }
-
         }
-
         return null;
     }
 

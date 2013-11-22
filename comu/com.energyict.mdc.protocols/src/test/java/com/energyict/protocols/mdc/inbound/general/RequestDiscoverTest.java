@@ -2,8 +2,9 @@ package com.energyict.protocols.mdc.inbound.general;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.cpo.TypedProperties;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
@@ -26,12 +27,10 @@ import com.energyict.mdw.core.LogBook;
 import com.energyict.mdw.core.LogBookFactory;
 import com.energyict.mdw.core.LogBookFactoryProvider;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimpl.debug.DebugUtils;
 import com.energyict.util.IssueCollector;
 import com.energyict.util.IssueCollectorProvider;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -45,7 +44,10 @@ import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests that mock the comchannel and stub an incoming frame to test the inbound parsing of the RequestDiscover implementation
@@ -87,8 +89,9 @@ public class RequestDiscoverTest {
     protected byte[] inboundFrame;
 
     private static final int LOGBOOK_ID = 10;
-    private static final String TIMEOUT_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = EnvironmentImpl.getDefault().getTranslation("protocol.retries");
+    private static final String TIMEOUT_KEY = Environment.DEFAULT.get().getTranslation("protocol.timeout");
+    private static final String RETRIES_KEY = Environment.DEFAULT.get().getTranslation("protocol.retries");
+
     private static class NoPropertiesEnvironment extends EnvironmentImpl {
 
         @Override
@@ -96,9 +99,10 @@ public class RequestDiscoverTest {
             // do nothing
         }
     }
+
     @Before
     public void initialize() {
-        EnvironmentImpl.setDefault(new NoPropertiesEnvironment());
+        Environment.DEFAULT.set(new NoPropertiesEnvironment());
         ArrayList<LogBook> logBooks = new ArrayList<>();
         logBooks.add(logBook);
         when(logBook.getId()).thenReturn(LOGBOOK_ID);

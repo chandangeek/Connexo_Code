@@ -1,12 +1,16 @@
 package com.energyict.protocolimpl.dlms;
 
 import com.energyict.dlms.DLMSUtils;
-
-import java.util.*;
-import java.sql.*;
-
 import com.energyict.dlms.UniversalObject;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
+import com.energyict.mdc.common.Environment;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @version : 1.0
@@ -47,7 +51,7 @@ public class RtuDLMSCache
         iNROfObjects=0;
     }
 
-    synchronized public void saveObjectList(UniversalObject[] universalObject) throws SQLException {
+    public synchronized void saveObjectList(UniversalObject[] universalObject) throws SQLException {
        for (int i=0;i<universalObject.length;i++) {
           longname = universalObject[i].getLN();
           shortname = universalObject[i].getBaseName();
@@ -62,7 +66,9 @@ public class RtuDLMSCache
              if ("23000".equals(e.getSQLState())) {
                 doUpdate();
              }
-             else throw e;
+             else {
+                 throw e;
+             }
           }
 
        } // for (int i=0;i<universalObject.length;i++)
@@ -73,7 +79,7 @@ public class RtuDLMSCache
     {
        PreparedStatement statement = null;
        ResultSet resultSet = null;
-       UniversalObject universalObject = null;
+       UniversalObject universalObject;
        List UniversalObjectList = new ArrayList();
        Connection connection = getDefaultConnection();
 
@@ -83,7 +89,9 @@ public class RtuDLMSCache
           	"select logicaldevice,longname,shortname,classid,version,associationlevel,objectdescription from eisdlmscache where rtuid = ?");
           statement.setInt(1,rtuid);
           resultSet = statement.executeQuery();
-          if (!resultSet.next()) return null;
+          if (!resultSet.next()) {
+              return null;
+          }
           iNROfObjects=0;
           do
           {
@@ -110,12 +118,18 @@ public class RtuDLMSCache
        }
        finally
        {
-          if (resultSet != null) resultSet.close();
-          if (statement != null) statement.close();
+          if (resultSet != null) {
+              resultSet.close();
+          }
+          if (statement != null) {
+              statement.close();
+          }
        }
 
        UniversalObject[] uarray = new UniversalObject[UniversalObjectList.size()];
-       for (int i = 0;i<UniversalObjectList.size();i++) uarray[i] = (UniversalObject)UniversalObjectList.get(i);
+       for (int i = 0;i<UniversalObjectList.size();i++) {
+           uarray[i] = (UniversalObject) UniversalObjectList.get(i);
+       }
 
        return uarray;
 
@@ -134,32 +148,31 @@ public class RtuDLMSCache
        }
        finally
        {
-          if (statement != null) statement.close();
+          if (statement != null) {
+              statement.close();
+          }
        }
 
     } // public void clearCache()
 
     private void doInsert() throws SQLException {
        Connection connection = getDefaultConnection();
-       PreparedStatement statement = connection.prepareStatement(
-    		   "insert into eisdlmscache (RTUID, LOGICALDEVICE, LONGNAME, SHORTNAME, CLASSID, VERSION, ASSOCIATIONLEVEL, OBJECTDESCRIPTION) values(?,0,?,?,?,?,0,?)");
 
-       try {
-    	   statement.setInt(1,rtuid);
-    	   statement.setString(2,longname);
-           statement.setInt(3,shortname);
-           statement.setInt(4,classid);
-           statement.setInt(5,version);
-           statement.setString(6, objectdescription);
-           statement.executeUpdate();
-       } finally {
-    	   statement.close();
-       }
+        try (PreparedStatement statement = connection.prepareStatement(
+                "insert into eisdlmscache (RTUID, LOGICALDEVICE, LONGNAME, SHORTNAME, CLASSID, VERSION, ASSOCIATIONLEVEL, OBJECTDESCRIPTION) values(?,0,?,?,?,?,0,?)")) {
+            statement.setInt(1, rtuid);
+            statement.setString(2, longname);
+            statement.setInt(3, shortname);
+            statement.setInt(4, classid);
+            statement.setInt(5, version);
+            statement.setString(6, objectdescription);
+            statement.executeUpdate();
+        }
     } // private doInsert() throws SQLException
 
     private void doUpdate() throws SQLException
     {
-       PreparedStatement statement = null;
+       PreparedStatement statement;
        Connection connection = getDefaultConnection();
        String sqlString =
            "update eisdlmscache SET shortname=?,classid=?,version=?,associationlevel=?,objectdescription=? where rtuid = ? and longname = ?";
@@ -180,7 +193,7 @@ public class RtuDLMSCache
     } // private void doUpdate() throws SQLException
 
     private Connection getDefaultConnection() {
-       return EnvironmentImpl.getDefault().getConnection();
+       return Environment.DEFAULT.get().getConnection();
     }
 
-} // public class RtuDLMSCache
+}

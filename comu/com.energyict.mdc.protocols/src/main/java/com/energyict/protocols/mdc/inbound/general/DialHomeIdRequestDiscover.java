@@ -1,8 +1,8 @@
 package com.energyict.protocols.mdc.inbound.general;
 
-import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.common.Environment;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class DialHomeIdRequestDiscover extends RequestDiscover {
 
-    private static final String CALL_HOME_ID = EnvironmentImpl.getDefault().getTranslation("deviceDialHomeId");
+    private static final String CALL_HOME_ID = Environment.DEFAULT.get().getTranslation("deviceDialHomeId");
 
     @Override
     public List<PropertySpec> getRequiredProperties() {

@@ -1,11 +1,11 @@
 package com.energyict.protocols.mdc.inbound.general.frames;
 
-import com.energyict.mdc.common.impl.EnvironmentImpl;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.meterdata.CollectedData;
-import com.energyict.protocols.mdc.inbound.general.frames.parsing.InboundParameters;
 import com.energyict.mdw.core.Device;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumberPlaceHolder;
 import com.energyict.protocolimplv2.identifiers.SerialNumberPlaceHolder;
+import com.energyict.protocols.mdc.inbound.general.frames.parsing.InboundParameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +95,7 @@ public abstract class AbstractInboundFrame {
     private boolean findDevice() {
         this.serialNumberPlaceHolder.setSerialNumber(getInboundParameters().getSerialNumber());
         device = getDeviceIdentifierBySerialNumberPlaceHolder().findDevice();
-        EnvironmentImpl.getDefault().closeConnection();
+        Environment.DEFAULT.get().closeConnection();
         return device != null;
     }
 
