@@ -16,7 +16,18 @@ public enum EventType {
     CHANNEL_DELETED("channel/DELETED"),
     METER_CREATED("meter/CREATED", true),
     METER_UPDATED("meter/UPDATED", true),
-    METER_DELETED("meter/DELETED", true);
+    METER_DELETED("meter/DELETED", true),
+    READINGS_CREATED("reading/CREATED") {
+        @Override
+        public void install() {
+            Bus.getEventService().buildEventTypeWithTopic(topic())
+                    .name(name())
+                    .component(Bus.COMPONENTNAME)
+                    .category("Crud")
+                    .scope("System")
+                    .shouldPublish().create().save();
+        }
+    };
 
     private static final String NAMESPACE = "com/elster/jupiter/metering/";
     private final String topic;

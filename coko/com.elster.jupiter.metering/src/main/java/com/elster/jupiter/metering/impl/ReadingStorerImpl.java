@@ -52,6 +52,7 @@ public class ReadingStorerImpl implements ReadingStorer {
 	@Override
 	public void execute() {
 		storer.execute();
+        Bus.getEventService().postEvent(EventType.READINGS_CREATED.topic(), this);
 	}
 
 }
