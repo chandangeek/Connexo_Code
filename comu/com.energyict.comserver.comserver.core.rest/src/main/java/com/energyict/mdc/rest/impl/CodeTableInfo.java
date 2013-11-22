@@ -1,6 +1,5 @@
-package com.energyict.mdc.rest.impl.properties.propertycontexts;
+package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.rest.impl.properties.PropertyContext;
 import com.energyict.mdw.core.Code;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Time: 15:08
  */
 @XmlRootElement
-public class CodeTableInfo implements PropertyContext {
+public class CodeTableInfo {
 
     public int codeTableId;
     public String name;

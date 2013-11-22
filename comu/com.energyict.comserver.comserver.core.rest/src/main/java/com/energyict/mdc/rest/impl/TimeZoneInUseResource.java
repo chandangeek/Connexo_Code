@@ -1,7 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.rest.impl.properties.propertycontexts.TimeZoneInUseInfo;
-import com.energyict.mdc.rest.impl.properties.propertycontexts.TimeZoneInUseInfos;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.mdw.core.TimeZoneInUseFactoryProvider;
 

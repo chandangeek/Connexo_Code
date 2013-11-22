@@ -1,7 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.rest.impl.properties.propertycontexts.CodeTableInfo;
-import com.energyict.mdc.rest.impl.properties.propertycontexts.CodeTableInfos;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.coreimpl.CodeFactoryImpl;
 

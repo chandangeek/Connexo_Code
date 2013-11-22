@@ -1,6 +1,5 @@
-package com.energyict.mdc.rest.impl.properties.propertycontexts;
+package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.rest.impl.properties.PropertyContext;
 import com.energyict.mdw.core.TimeZoneInUse;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -12,7 +11,7 @@ import java.util.TimeZone;
  * Time: 10:45
  */
 @XmlRootElement
-public class TimeZoneInUseInfo implements PropertyContext {
+public class TimeZoneInUseInfo {
 
     public TimeZone timeZone;
 

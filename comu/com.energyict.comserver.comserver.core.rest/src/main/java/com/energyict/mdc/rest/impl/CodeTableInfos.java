@@ -1,4 +1,4 @@
-package com.energyict.mdc.rest.impl.properties.propertycontexts;
+package com.energyict.mdc.rest.impl;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -8,13 +8,13 @@ import java.util.HashSet;
 
 /**
  * Copyrights EnergyICT
- * Date: 20/11/13
- * Time: 15:53
+ * Date: 21/11/13
+ * Time: 15:14
  */
 @XmlRootElement
-public class TimeZoneInUseInfos {
+public class CodeTableInfos {
 
     @XmlElement
-    @XmlElementWrapper(name = "TimeZoneInUse")
-    public Collection<? super TimeZoneInUseInfo> timeZonesInUse = new HashSet<>();
+    @XmlElementWrapper(name = "Code")
+    public Collection<? super CodeTableInfo> codeTableInfos = new HashSet<>();
 }

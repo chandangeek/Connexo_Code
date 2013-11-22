@@ -1,9 +1,8 @@
 package com.energyict.mdc.rest.impl.properties;
 
 import com.energyict.mdc.rest.impl.CodeTableResource;
-import com.energyict.mdc.rest.impl.TimeZoneInUseResource;
-import com.energyict.mdc.rest.impl.properties.propertycontexts.CodeTableInfo;
-import com.energyict.mdc.rest.impl.properties.propertycontexts.TimeZoneInUseInfo;
+import com.energyict.mdc.rest.impl.CodeTableInfo;
+import com.energyict.mdc.rest.impl.TimeZoneInUseInfo;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.TimeZoneInUse;
 

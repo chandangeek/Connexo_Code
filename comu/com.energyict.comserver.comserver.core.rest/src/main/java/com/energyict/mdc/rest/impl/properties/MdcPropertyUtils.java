@@ -12,15 +12,25 @@ import java.util.List;
 public class MdcPropertyUtils {
 
     public static void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, List<PropertySpec> optionalProperties, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
-        for (PropertySpec<?> propertySpec : optionalProperties) {
-            PropertyValueInfo<?> propertyValueInfo = new PropertyValueInfo<>(getPropertyValue(properties, propertySpec), getInheritedProperty(properties, propertySpec), getDefaultValue(propertySpec));
+        for (PropertySpec propertySpec : optionalProperties) {
+            PropertyValueInfo propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
             SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
             PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(simplePropertyType, getPropertyValidationRule(), getPredefinedPropertyValueInfo(propertySpec), getReferenceUri(uriInfo, propertySpec, simplePropertyType));
             propertyInfoList.add(new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, false));
         }
     }
 
-    private static URI getReferenceUri(final UriInfo uriInfo, PropertySpec<?> propertySpec, SimplePropertyType simplePropertyType) {
+    private static PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec propertySpec) {
+        Object propertyValue = getPropertyValue(properties, propertySpec);
+        Object inheritedProperty = getInheritedProperty(properties, propertySpec);
+        Object defaultValue = getDefaultValue(propertySpec);
+        if(propertyValue == null && inheritedProperty == null && defaultValue == null){
+            return null;
+        }
+        return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue);
+    }
+
+    private static URI getReferenceUri(final UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
         if(simplePropertyType == SimplePropertyType.REFERENCE){
             return MdcPropertyValueInfoFactory.getReferenceUriFor(uriInfo, propertySpec.getDomain().getValueType());
         } else {
@@ -40,8 +50,8 @@ public class MdcPropertyUtils {
         return MdcPropertyValueInfoFactory.asInfo(properties.getProperty(propertySpec.getName()));
     }
 
-    private static PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
-        PropertySpecPossibleValues<?> possibleValues = propertySpec.getPossibleValues();
+    private static PredefinedPropertyValuesInfo getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         if (possibleValues == null) {
             return null;
         } else {
@@ -64,15 +74,15 @@ public class MdcPropertyUtils {
         }
     }
 
-    private static  Object getDefaultValue(PropertySpec<?> propertySpec) {
-        PropertySpecPossibleValues<?> possibleValues = propertySpec.getPossibleValues();
+    private static  Object getDefaultValue(PropertySpec propertySpec) {
+        PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         if (possibleValues == null) {
             return null;
         }
         return MdcPropertyValueInfoFactory.asInfo(possibleValues.getDefault());
     }
 
-    private static  Object getInheritedProperty(TypedProperties properties, PropertySpec<?> propertySpec) {
+    private static  Object getInheritedProperty(TypedProperties properties, PropertySpec propertySpec) {
         TypedProperties inheritedProperties = properties.getInheritedProperties();
         if (inheritedProperties == null) {
             return null;
