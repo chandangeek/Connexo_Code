@@ -96,15 +96,15 @@ Ext.define('Cfg.view.validation.Edit', {
                                 flex: 1
                             },
                             items: [
-                                { header: 'Id', dataIndex: 'id' },
-                                { header: 'Active', dataIndex: 'active', xtype: 'checkcolumn',
+                                { header: 'Id', dataIndex: 'id', flex: 0.05 },
+                                { header: 'Active', dataIndex: 'active', flex: 0.15, xtype: 'checkcolumn',
                                     editor: {
                                         xtype: 'checkbox',
                                         cls: 'x-grid-checkheader-editor'
                                     } } ,
                                 {   header: 'Action',
                                     dataIndex: 'action',
-                                    width: 130,
+                                    flex: 0.3,
                                     editor: new Ext.form.field.ComboBox({
                                         typeAhead: true,
                                         queryMode: 'local',
@@ -115,7 +115,6 @@ Ext.define('Cfg.view.validation.Edit', {
                                     })
                                 },
                                 { header: 'Implementation', dataIndex: 'implementation',
-                                    width: 130,
                                     editor: new Ext.form.field.ComboBox({
                                         typeAhead: true,
                                         queryMode: 'local',
