@@ -18,6 +18,9 @@ public class LicensedProtocolInfo {
     public int licensedProtocolRuleCode;
     public LicensedProtocolFamilyInfo[] protocolFamilies;
 
+    public LicensedProtocolInfo() {
+    }
+
     public LicensedProtocolInfo(LicensedProtocol licensedProtocolRule) {
         protocolName = licensedProtocolRule.getName();
         protocolJavaClassName = licensedProtocolRule.getClassName();
