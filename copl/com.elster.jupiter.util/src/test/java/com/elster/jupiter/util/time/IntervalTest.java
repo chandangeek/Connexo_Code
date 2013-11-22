@@ -262,6 +262,64 @@ public class IntervalTest extends EqualsContractTest {
         assertThat(intersection).isEqualTo(new Interval(date5, date6));
     }
 
+    @Test
+    public void testSpanToIncludeDistinctIntervals() {
+        assertThat(new Interval(date1, date2).spanToInclude(new Interval(date5, date6))).isEqualTo(new Interval(date1, date6));
+    }
+
+    @Test
+    public void testSpanToIncludeAbutting() {
+        assertThat(new Interval(date1, date5).spanToInclude(new Interval(date5, date6))).isEqualTo(new Interval(date1, date6));
+    }
+
+    @Test
+    public void testSpanToIncludeOverlapping() {
+        assertThat(new Interval(date1, date5).spanToInclude(new Interval(date2, date6))).isEqualTo(new Interval(date1, date6));
+    }
+
+    @Test
+    public void testSpanToIncludeAlreadyIncluded() {
+        Interval interval = new Interval(date1, date6);
+        assertThat(interval.spanToInclude(new Interval(date2, date3))).isSameAs(interval);
+    }
+
+    @Test
+    public void testSpanToIncludeIncludedInArg() {
+        Interval interval = new Interval(date1, date6);
+        assertThat(new Interval(date2, date3).spanToInclude(interval)).isSameAs(interval);
+    }
+
+    @Test
+    public void testSpanToIncludeTimeBefore() {
+        Interval interval = new Interval(date3, date5);
+        assertThat(interval.spanToInclude(date2)).isEqualTo(new Interval(date2, date5));
+    }
+
+    @Test
+    public void testSpanToIncludeTimeAfter() {
+        Interval interval = new Interval(date3, date5);
+        assertThat(interval.spanToInclude(date6)).isEqualTo(new Interval(date3, date6));
+    }
+
+    @Test
+    public void testSpanToIncludeTimeAtStart() {
+        Interval interval = new Interval(date3, date5);
+        assertThat(interval.spanToInclude(date3)).isSameAs(interval);
+    }
+
+    @Test
+    public void testSpanToIncludeTimeAtEnd() {
+        Interval interval = new Interval(date3, date5);
+        assertThat(interval.spanToInclude(date5)).isSameAs(interval);
+
+    }
+
+    @Test
+    public void testSpanToIncludeTimeWithin() {
+        Interval interval = new Interval(date3, date5);
+        assertThat(interval.spanToInclude(date4)).isSameAs(interval);
+    }
+
     @Override
     protected boolean canBeSubclassed() {
         return false;

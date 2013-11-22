@@ -321,19 +321,19 @@ public class IntermittentIntervalTest {
 	@Test
 	public void testToSpanningPeriod() {
 		IntermittentInterval union = new IntermittentInterval(ONE_TO_TWO, THREE_TO_FOUR, FIVE_TO_SIX);
-		assertEquals(new Interval(ONE, SIX), union.toSpanningPeriod());
-		assertEquals(new Interval(ONE, SIX), union.toSpanningPeriod());
+		assertEquals(new Interval(ONE, SIX), union.toSpanningInterval());
+		assertEquals(new Interval(ONE, SIX), union.toSpanningInterval());
 	}
 
 	@Test
 	public void testToSpanningPeriodOpenEnded() {
 		IntermittentInterval union = new IntermittentInterval(BIGBANG_TO_TWO, THREE_TO_FOUR, FIVE_TO_INFINITY);
-		assertEquals(ALWAYS, union.toSpanningPeriod());
+		assertEquals(ALWAYS, union.toSpanningInterval());
 	}
 
 	@Test
 	public void testToSpanningPeriodEmpty() {
-		assertNull(new IntermittentInterval().toSpanningPeriod());
+		assertNull(new IntermittentInterval().toSpanningInterval());
 	}
 
 	@Test

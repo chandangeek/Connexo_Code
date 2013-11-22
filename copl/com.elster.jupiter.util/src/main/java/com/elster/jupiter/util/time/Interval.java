@@ -251,7 +251,24 @@ public final class Interval {
     public boolean isEmpty() {
         return start == end && start != -ETERNITY && end != ETERNITY;
     }
-    
+
+    public Interval spanToInclude(Interval other) {
+        if (this.includes(other)) {
+            return this;
+        }
+        if (other.includes(this)) {
+            return other;
+        }
+        return new Interval(Ordering.natural().min(start, other.start), Ordering.natural().max(end, other.end));
+    }
+
+    public Interval spanToInclude(Date date) {
+        if (this.contains(date, EndpointBehavior.CLOSED_CLOSED)) {
+            return this;
+        }
+        return new Interval(Ordering.natural().min(start, date.getTime()), Ordering.natural().max(end, date.getTime()));
+    }
+
     public enum EndpointBehavior {
     	CLOSED_OPEN {
     		boolean contains(Interval interval , long when) {
