@@ -5,7 +5,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.ext.Provider;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -58,12 +57,6 @@ public class WhiteBoard {
         secureConfig.register(JacksonFeature.class);
         secureConfig.register(RoleFilter.class);
         secureConfig.register(RolesAllowedDynamicFeature.class);
-        for (Object object : application.getSingletons()) {
-            if (object.getClass().isAnnotationPresent(Provider.class)) {
-                System.err.println("Registered "+object);
-                secureConfig.register(object);
-            }
-        }
 
         if (debug) {        	       
         	secureConfig.register(LoggingFilter.class);
