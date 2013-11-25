@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.google.common.base.Optional;
+
 public interface TimeSeries {
 	long getId();
 	Date getFirstDateTime();
@@ -18,6 +20,7 @@ public interface TimeSeries {
 	RecordSpec getRecordSpec();
 	boolean add(Date dateTime , boolean overrule , Object... values);
     List<TimeSeriesEntry> getEntries(Date from , Date to);
+    Optional<TimeSeriesEntry> getEntry(Date when);
 	boolean isValidDateTime(Date date);
 	TimeZone getTimeZone();
 }

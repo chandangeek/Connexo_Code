@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,6 +34,8 @@ public final class VaultImpl implements Vault {
     private static final int ID_COLUMN_INDEX = 1;
     private static final int FROM_COLUMN_INDEX = 2;
     private static final int TO_COLUMN_INDEX = 3;
+    private static final int WHEN_COLUMN_INDEX = 2;
+    
     //persistent fields
 	private String componentName;
 	private long id;
@@ -428,9 +431,23 @@ public final class VaultImpl implements Vault {
 		}
 	}
 	
+	Optional<TimeSeriesEntry> getEntry(TimeSeriesImpl timeSeries,Date when) {
+		try {
+			return Optional.fromNullable(doGetEntry(timeSeries,when));
+		} catch (SQLException ex) {
+			throw new UnderlyingSQLFailedException(ex);
+		}
+	}
+	
 	private String rangeSql(TimeSeries timeSeries) {
 		StringBuilder builder = selectSql(timeSeries);
 		builder.append(" AND UTCSTAMP > ? and UTCSTAMP <= ? order by UTCSTAMP");
+		return builder.toString();
+	}
+	
+	private String entrySql(TimeSeries timeSeries) {
+		StringBuilder builder = selectSql(timeSeries);
+		builder.append(" AND UTCSTAMP = ? ");
 		return builder.toString();
 	}
 	
@@ -450,6 +467,19 @@ public final class VaultImpl implements Vault {
 		}
 		return result;
 	}
+	
+	private TimeSeriesEntry doGetEntry(TimeSeriesImpl timeSeries, Date when) throws SQLException {
+		try (Connection connection = getConnection(false)) {
+			try (PreparedStatement statement = connection.prepareStatement(entrySql(timeSeries))) {
+				statement.setLong(ID_COLUMN_INDEX,timeSeries.getId());
+				statement.setLong(WHEN_COLUMN_INDEX, when.getTime());
+				try (ResultSet rs = statement.executeQuery()) {
+					return rs.next() ? new TimeSeriesEntryImpl(timeSeries, rs) : null;					
+				}
+			}
+		}
+	}
+	
 		
 	StringBuilder selectSql(RecordSpec recordSpec) {
 		StringBuilder builder = new StringBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");

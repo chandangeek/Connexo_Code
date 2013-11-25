@@ -8,7 +8,9 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.plumbing.Bus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
@@ -262,7 +264,13 @@ public final class TimeSeriesImpl implements TimeSeries {
 		return ImmutableList.copyOf(((VaultImpl) getVault()).getEntries(this, from, to));
 	}
 	
-	TimeSeries lock() {
+    
+    @Override 
+    public Optional<TimeSeriesEntry> getEntry(Date when) {
+    	return ((VaultImpl) getVault()).getEntry(this,when);
+    }
+    
+    TimeSeries lock() {
 		return getFactory().lock(getId());
 	}
 	
