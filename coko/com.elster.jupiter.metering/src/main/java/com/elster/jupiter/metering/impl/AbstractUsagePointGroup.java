@@ -1,9 +1,16 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
+import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.UsagePointGroup;
 import com.elster.jupiter.util.time.UtcInstant;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 
 public abstract class AbstractUsagePointGroup implements UsagePointGroup {
+    // ORM inheritance map
+    static final Map<String, Class<? extends UsagePointGroup>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends UsagePointGroup>>of(QueryUsagePointGroup.TYPE_IDENTIFIER, QueryUsagePointGroupImpl.class, EnumeratedUsagePointGroup.TYPE_IDENTIFIER, EnumeratedUsagePointGroupImpl.class);
 
     protected long id;
     private String name;

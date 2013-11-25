@@ -1,8 +1,21 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.*;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.QueryUsagePointGroup;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.cache.TypeCache;
+import com.google.common.collect.ImmutableMap;
 
 public class OrmClientImpl implements OrmClient {
 	
@@ -78,13 +91,18 @@ public class OrmClientImpl implements OrmClient {
     }
 
     @Override
-    public DataMapper<EnumeratedUsagePointGroup> getEnumeratedUsagePointGroupFactory() {
-        return dataModel.getDataMapper(EnumeratedUsagePointGroup.class, EnumeratedUsagePointGroupImpl.class, TableSpecs.MTR_ENUM_UP_GROUP.name());
+    public DataMapper<UsagePointGroup> getUsagePointGroupFactory() {
+        return dataModel.getDataMapper(UsagePointGroup.class, AbstractUsagePointGroup.IMPLEMENTERS, TableSpecs.MTR_UP_GROUP.name());
     }
 
     @Override
     public DataMapper<QueryUsagePointGroup> getQueryUsagePointGroupFactory() {
-        return dataModel.getDataMapper(QueryUsagePointGroup.class, QueryUsagePointGroupImpl.class, TableSpecs.MTR_QUERY_UP_GROUP.name());
+        return dataModel.getDataMapper(QueryUsagePointGroup.class, ImmutableMap.<String, Class<?extends QueryUsagePointGroup>>of(QueryUsagePointGroup.TYPE_IDENTIFIER, QueryUsagePointGroupImpl.class), TableSpecs.MTR_UP_GROUP.name());
+    }
+
+    @Override
+    public DataMapper<EnumeratedUsagePointGroup> getEnumeratedUsagePointGroupFactory() {
+        return dataModel.getDataMapper(EnumeratedUsagePointGroup.class, ImmutableMap.<String, Class<?extends EnumeratedUsagePointGroup>>of(EnumeratedUsagePointGroup.TYPE_IDENTIFIER, EnumeratedUsagePointGroupImpl.class), TableSpecs.MTR_UP_GROUP.name());
     }
 
     @Override
