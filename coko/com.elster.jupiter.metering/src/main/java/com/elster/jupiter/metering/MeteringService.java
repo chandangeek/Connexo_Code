@@ -37,4 +37,6 @@ public interface MeteringService {
     Condition hasAccountability(Date when);
 
     List<JournalEntry<ServiceLocation>> findServiceLocationJournal(long id);
+
+	Query<Meter> getMeterQuery();
 }

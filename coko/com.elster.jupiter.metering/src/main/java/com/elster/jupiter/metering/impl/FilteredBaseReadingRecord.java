@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.*;
-import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.time.Interval;
 

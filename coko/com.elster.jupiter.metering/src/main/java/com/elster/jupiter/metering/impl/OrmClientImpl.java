@@ -38,8 +38,8 @@ public class OrmClientImpl implements OrmClient {
 	}
 	
 	@Override
-	public DataMapper<Meter> getMeterFactory() {
-		return dataModel.getDataMapper(Meter.class, MeterImpl.class, TableSpecs.MTR_METER.name());
+	public DataMapper<EndDevice> getEndDeviceFactory() {
+		return dataModel.getDataMapper(EndDevice.class, AbstractEndDeviceImpl.IMPLEMENTERS, TableSpecs.MTR_ENDDEVICE.name());
 	}
 
 	@Override
