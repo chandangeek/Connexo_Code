@@ -10,17 +10,19 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
  */
 public class ReadInputRegistersRequest extends AbstractRequest {
     
-    private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_READINPUTREGISTER);
+    private RequestData requestData = new RequestData(FunctionCode.READ_INPUT_REGISTER.getFunctionCode());
          
     private int[] registers;
     
@@ -40,7 +42,7 @@ public class ReadInputRegistersRequest extends AbstractRequest {
     
     protected void parse(ResponseData responseData) throws IOException {
         if (((responseData.getData().length-1)%2) != 0)
-            throw new ModbusException("ReadInputRegistersRequest, parse, length error",ModbusException.PARSE_LENGTH_ERROR); 
+            throw new ModbusException("ReadInputRegistersRequest.parse(): Failed to parse the response - response data has invalid length.");
         else {
             int nrOfRegisters = (responseData.getData().length-1) / 2;
             setRegisters(new int[nrOfRegisters]);

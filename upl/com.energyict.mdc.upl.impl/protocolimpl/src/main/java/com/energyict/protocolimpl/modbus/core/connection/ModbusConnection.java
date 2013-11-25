@@ -11,15 +11,22 @@
 package com.energyict.protocolimpl.modbus.core.connection;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.ConnectionRS485;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.meteridentification.MeterType;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocolimpl.base.CRCGenerator;
+import com.energyict.protocolimpl.base.ProtocolConnection;
+import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
-import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCode;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author Koen
@@ -95,10 +102,14 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      * @throws NestedIOException
      * @throws ConnectionException
      */
-    protected void assembleAndSend(RequestData requestData) throws NestedIOException, ConnectionException {
-        byte[] data = ProtocolUtils.concatByteArrays(new byte[]{(byte) getAddress()}, requestData.getFrameData());
-        int crc = CRCGenerator.calcCRCModbus(data);
-        sendRawData(ProtocolUtils.concatByteArrays(data, new byte[]{(byte) (crc % 256), (byte) (crc / 256)}));
+    protected void assembleAndSend(RequestData requestData) throws ConnectionException {
+        try {
+            byte[] data = ProtocolUtils.concatByteArrays(new byte[]{(byte) getAddress()}, requestData.getFrameData());
+            int crc = CRCGenerator.calcCRCModbus(data);
+            sendRawData(ProtocolUtils.concatByteArrays(data, new byte[]{(byte) (crc % 256), (byte) (crc / 256)}));
+        } catch (NestedIOException e) {
+            throw new ProtocolConnectionException(e.getCause().getMessage());
+        }
     }
 
     /**
@@ -125,23 +136,17 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                     throw new ProtocolConnectionException("ModbusConnection, sendRequest(), unknow physicalLayer=" + physicalLayer + " property! Correct first");
                 }
 
-                if (responseData.isException()) {
-                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), exception " + responseData.getExceptionString() + " received!");
-                }
                 return responseData;
-            } catch (ConnectionException e) {
-                if (DEBUG >= 1) {
-                    System.out.println("KV_DEBUG> CRC_ERROR retry=" + retry + " of getMaxRetries()=" + getMaxRetries());
+            } catch (ConnectionException e) { // A connection related timeout exception
+                if (retry++ >= getMaxRetries()) {
+                    throw e;
+                }
+            } catch (ModbusException e) { // A non-connection modbus specific related exception > in some cases reties are applicable
+                if (!e.isRetryAllowed()) {  // In case retrying is useless (we will hit the same error again), immediately throw the error
+                    throw e;
                 }
                 if (retry++ >= getMaxRetries()) {
-                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage());
-                }
-            } catch (ModbusException e) {
-                if (DEBUG >= 1) {
-                    System.out.println("KV_DEBUG> ModbusException retry=" + retry + " of getMaxRetries()=" + getMaxRetries());
-                }
-                if (retry++ >= getMaxRetries()) {
-                    throw new ProtocolConnectionException("ModbusConnection, sendRequest(), error maxRetries (" + getMaxRetries() + "), " + e.getMessage());
+                    throw e;
                 }
             }
         }
@@ -159,10 +164,9 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      *
      * @param requestData
      * @return
-     * @throws NestedIOException
      * @throws IOException
      */
-    protected ResponseData receiveDataLength(RequestData requestData) throws NestedIOException, IOException {
+    protected ResponseData receiveDataLength(RequestData requestData) throws ModbusException, ConnectionException {
         long protocolTimeout;
         int kar;
         int state = STATE_WAIT_FOR_ADDRESS;
@@ -181,107 +185,110 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
         copyEchoBuffer();
         while (true) {
 
-            if ((kar = readIn()) != -1) {
+            try {
+                if ((kar = readIn()) != -1) {
 
-                if (DEBUG >= 2) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex(((int) kar));
-                }
-
-                allDataArrayOutputStream.write(kar); // accumulate frame
-
-                switch (state) {
-                    case STATE_WAIT_FOR_ADDRESS: {
-                        if (kar == getAddress()) {
-                            allDataArrayOutputStream.reset();
-                            allDataArrayOutputStream.write(kar);
-                            responseData.setAddress(kar);
-                            state = STATE_WAIT_FOR_FUNCTIONCODE;
-                            len = 0;
-                            protocolTimeout = System.currentTimeMillis() + responseTimeout;
-                        } else {
-                            allDataArrayOutputStream.reset();
-                        }
+                    if (DEBUG >= 2) {
+                        System.out.print(",0x");
+                        ProtocolUtils.outputHex(((int) kar));
                     }
-                    break; // STATE_WAIT_FOR_ADDRESS
 
-                    case STATE_WAIT_FOR_FUNCTIONCODE: {
-                        if (kar == requestData.getFunctionCode()) {
-                            responseData.setFunctionCode(kar);
+                    allDataArrayOutputStream.write(kar); // accumulate frame
 
-                            if ((responseData.getFunctionCode() == FunctionCodeFactory.FUNCTIONCODE_WRITEMULTIPLEREGISTER) ||
-                                    (responseData.getFunctionCode() == FunctionCodeFactory.FUNCTIONCODE_WRITESINGLEREGISTER)) {
-                                len = 4 + 2;  // 4 bytes data + 2 bytes crc
-                                state = STATE_WAIT_FOR_DATA;
+                    switch (state) {
+                        case STATE_WAIT_FOR_ADDRESS: {
+                            if (kar == getAddress()) {
+                                allDataArrayOutputStream.reset();
+                                allDataArrayOutputStream.write(kar);
+                                responseData.setAddress(kar);
+                                state = STATE_WAIT_FOR_FUNCTIONCODE;
+                                len = 0;
+                                protocolTimeout = System.currentTimeMillis() + responseTimeout;
                             } else {
-                                state = STATE_WAIT_FOR_LENGTH;
+                                allDataArrayOutputStream.reset();
                             }
-                        } else if (kar == (requestData.getFunctionCode() + 0x80)) {
-                            functionErrorCode = kar;
-                            state = STATE_WAIT_FOR_EXCEPTIONCODE;
-                        } else {
-                            throw new ProtocolConnectionException("receiveDataLength() should receive the functioncode!", PROTOCOL_ERROR);
                         }
-                    }
-                    break; // STATE_WAIT_FOR_FUNCTIONCODE
+                        break; // STATE_WAIT_FOR_ADDRESS
 
-                    case STATE_WAIT_FOR_EXCEPTIONCODE: {
+                        case STATE_WAIT_FOR_FUNCTIONCODE: {
+                            if (kar == requestData.getFunctionCode()) {
+                                responseData.setFunctionCode(kar);
 
-                        throw new ModbusException("receiveDataLength() functionErrorCode 0x" + Integer.toHexString(functionErrorCode) + ", exception code 0x" + Integer.toHexString(kar) + ", received!", PROTOCOL_ERROR, functionErrorCode, kar);
-                    } // STATE_WAIT_FOR_EXCEPTIONCODE
-
-                    case STATE_WAIT_FOR_LENGTH: {
-                        resultDataArrayOutputStream.write(kar);
-                        len = (kar + 2); // add 2 bytes for the CRC
-                        state = STATE_WAIT_FOR_DATA;
-                    }
-                    break; // STATE_WAIT_FOR_LENGTH
-
-                    // we should not use the length to check if the complete frame is received. However, the problem lays within java not behaving
-                    // realtime enough to implement the correct Modbus Phy layer timing T = 3.5 kar
-                    // Gaps between receiving data from the underlying serial logic can take up to 30 ms...
-                    case STATE_WAIT_FOR_DATA: {
-                        resultDataArrayOutputStream.write(kar);
-                        if (--len <= 0) {
-                            try {
-                                Thread.sleep(interframeTimeout);
-                            }
-                            catch (InterruptedException e) {
-                                // absorb
-                            }
-                            byte[] data = allDataArrayOutputStream.toByteArray();
-                            if (data.length <= 2) {
-                                throw new ProtocolConnectionException("receiveDataLength() PROTOCOL Error", PROTOCOL_ERROR);
-                            }
-                            int crc = ((int) data[data.length - 1] & 0xff) << 8 | ((int) data[data.length - 2] & 0xff);
-                            data = ProtocolUtils.getSubArray2(data, 0, data.length - 2);
-                            int crc2 = CRCGenerator.calcCRCModbus(data);
-                            if (crc2 == crc) {
-                                data = resultDataArrayOutputStream.toByteArray();
-                                responseData.setData(ProtocolUtils.getSubArray2(data, 0, data.length - 2));
-                                if (DEBUG >= 2) {
-                                    System.out.println("KV_DEBUG> " + responseData);
+                                if ((responseData.getFunctionCode() == FunctionCode.WRITE_MULTIPLE_REGISTER.getFunctionCode()) ||
+                                        (responseData.getFunctionCode() == FunctionCode.WRITE_SINGLE_REGISTER.getFunctionCode())) {
+                                    len = 4 + 2;  // 4 bytes data + 2 bytes crc
+                                    state = STATE_WAIT_FOR_DATA;
+                                } else {
+                                    state = STATE_WAIT_FOR_LENGTH;
                                 }
-                                return responseData;
+                            } else if (kar == (requestData.getFunctionCode() + 0x80)) {
+                                functionErrorCode = kar;
+                                state = STATE_WAIT_FOR_EXCEPTIONCODE;
                             } else {
-                                if (DEBUG >= 2) {
-                                    System.out.println("KV_DEBUG> CRC_ERROR ");
-                                }
-                                throw new ProtocolConnectionException("receiveDataLength() CRC Error", CRC_ERROR);
+                                throw new ModbusException("receiveDataLength() should receive the functioncode!");
                             }
                         }
+                        break; // STATE_WAIT_FOR_FUNCTIONCODE
 
-                    }
-                    break; // STATE_WAIT_FOR_DATA
+                        case STATE_WAIT_FOR_EXCEPTIONCODE: {
+                            throw new ModbusException(functionErrorCode, kar);
+                        } // STATE_WAIT_FOR_EXCEPTIONCODE
 
-                    default:
-                        throw new ProtocolConnectionException("receiveDataLength() invalid state!", PROTOCOL_ERROR);
+                        case STATE_WAIT_FOR_LENGTH: {
+                            resultDataArrayOutputStream.write(kar);
+                            len = (kar + 2); // add 2 bytes for the CRC
+                            state = STATE_WAIT_FOR_DATA;
+                        }
+                        break; // STATE_WAIT_FOR_LENGTH
 
-                } // switch(iState)
+                        // we should not use the length to check if the complete frame is received. However, the problem lays within java not behaving
+                        // realtime enough to implement the correct Modbus Phy layer timing T = 3.5 kar
+                        // Gaps between receiving data from the underlying serial logic can take up to 30 ms...
+                        case STATE_WAIT_FOR_DATA: {
+                            resultDataArrayOutputStream.write(kar);
+                            if (--len <= 0) {
+                                try {
+                                    Thread.sleep(interframeTimeout);
+                                }
+                                catch (InterruptedException e) {
+                                    // absorb
+                                }
+                                byte[] data = allDataArrayOutputStream.toByteArray();
+                                if (data.length <= 2) {
+                                    throw new ModbusException("receiveDataLength() PROTOCOL Error");
+                                }
+                                int crc = ((int) data[data.length - 1] & 0xff) << 8 | ((int) data[data.length - 2] & 0xff);
+                                data = ProtocolUtils.getSubArray2(data, 0, data.length - 2);
+                                int crc2 = CRCGenerator.calcCRCModbus(data);
+                                if (crc2 == crc) {
+                                    data = resultDataArrayOutputStream.toByteArray();
+                                    responseData.setData(ProtocolUtils.getSubArray2(data, 0, data.length - 2));
+                                    if (DEBUG >= 2) {
+                                        System.out.println("KV_DEBUG> " + responseData);
+                                    }
+                                    return responseData;
+                                } else {
+                                    if (DEBUG >= 2) {
+                                        System.out.println("KV_DEBUG> CRC_ERROR ");
+                                    }
+                                    throw new ModbusException("receiveDataLength() CRC Error");
+                                }
+                            }
 
-                //allDataArrayOutputStream.write(kar); // accumulate frame
+                        }
+                        break; // STATE_WAIT_FOR_DATA
 
-            } // if ((iNewKar = readIn()) != -1)
+                        default:
+                            throw new ModbusException("receiveDataLength() invalid state!");
+
+                    } // switch(iState)
+
+                    //allDataArrayOutputStream.write(kar); // accumulate frame
+
+                } // if ((iNewKar = readIn()) != -1)
+            } catch (NestedIOException e) {     // wrapped around InterruptedException
+                throw new ProtocolConnectionException(e.getCause().getMessage());
+            }
 
             // in case of a response timeout
             if (((long) (System.currentTimeMillis() - protocolTimeout)) > 0) {
@@ -302,7 +309,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
      * @throws NestedIOException
      * @throws IOException
      */
-    protected ResponseData receiveDataModbus(RequestData requestData) throws NestedIOException, IOException {
+    protected ResponseData receiveDataModbus(RequestData requestData) throws ConnectionException, ModbusException {
         long protocolTimeout, interframe;
         int kar;
         int state = STATE_WAIT_FOR_ADDRESS;
@@ -323,67 +330,70 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
         }
         copyEchoBuffer();
         while (true) {
+            try {
+                if ((kar = readIn()) != -1) {
 
-            if ((kar = readIn()) != -1) {
+                    if (state != STATE_WAIT_FOR_ADDRESS) {
+                        interframe = System.currentTimeMillis() + interframeTimeout;
+                    } // // 3.5 cher T @ 2400 (supposed as lowest baudrate)
 
-                if (state != STATE_WAIT_FOR_ADDRESS) {
-                    interframe = System.currentTimeMillis() + interframeTimeout;
-                } // // 3.5 cher T @ 2400 (supposed as lowest baudrate)
+                    if (DEBUG >= 2) {
+                        System.out.print(",0x");
+                        ProtocolUtils.outputHex(((int) kar));
+                    }
 
-                if (DEBUG >= 2) {
-                    System.out.print(",0x");
-                    ProtocolUtils.outputHex(((int) kar));
-                }
+                    allDataArrayOutputStream.write(kar); // accumulate frame
 
-                allDataArrayOutputStream.write(kar); // accumulate frame
-
-                switch (state) {
-                    case STATE_WAIT_FOR_ADDRESS: {
-                        if (kar == getAddress()) {
-                            allDataArrayOutputStream.reset();
-                            allDataArrayOutputStream.write(kar);
-                            responseData.setAddress(kar);
-                            state = STATE_WAIT_FOR_FUNCTIONCODE;
-                            if (DEBUG >= 2) {
-                                System.out.println("KV_DEBUG> address received");
+                    switch (state) {
+                        case STATE_WAIT_FOR_ADDRESS: {
+                            if (kar == getAddress()) {
+                                allDataArrayOutputStream.reset();
+                                allDataArrayOutputStream.write(kar);
+                                responseData.setAddress(kar);
+                                state = STATE_WAIT_FOR_FUNCTIONCODE;
+                                if (DEBUG >= 2) {
+                                    System.out.println("KV_DEBUG> address received");
+                                }
+                            } else {
+                                allDataArrayOutputStream.reset();
                             }
-                        } else {
-                            allDataArrayOutputStream.reset();
                         }
-                    }
-                    break; // STATE_WAIT_FOR_ADDRESS
+                        break; // STATE_WAIT_FOR_ADDRESS
 
-                    case STATE_WAIT_FOR_FUNCTIONCODE: {
-                        if (kar == requestData.getFunctionCode()) {
-                            responseData.setFunctionCode(kar);
-                            state = STATE_WAIT_FOR_DATA;
-                        } else if (kar == (requestData.getFunctionCode() + 0x80)) {
-                            functionErrorCode = kar;
-                            state = STATE_WAIT_FOR_EXCEPTIONCODE;
-                        } else {
-                            throw new ProtocolConnectionException("receiveDataModbus() should receive the functioncode!", PROTOCOL_ERROR);
+                        case STATE_WAIT_FOR_FUNCTIONCODE: {
+                            if (kar == requestData.getFunctionCode()) {
+                                responseData.setFunctionCode(kar);
+                                state = STATE_WAIT_FOR_DATA;
+                            } else if (kar == (requestData.getFunctionCode() + 0x80)) {
+                                functionErrorCode = kar;
+                                state = STATE_WAIT_FOR_EXCEPTIONCODE;
+                            } else {
+                                throw new ProtocolConnectionException("receiveDataModbus() should receive the functioncode!", PROTOCOL_ERROR);
+                            }
+
                         }
+                        break; // STATE_WAIT_FOR_FUNCTIONCODE
 
-                    }
-                    break; // STATE_WAIT_FOR_FUNCTIONCODE
+                        case STATE_WAIT_FOR_EXCEPTIONCODE: {
+                            throw new ModbusException(functionErrorCode, kar);
+                        } // STATE_WAIT_FOR_EXCEPTIONCODE
 
-                    case STATE_WAIT_FOR_EXCEPTIONCODE: {
-                        throw new ModbusException("receiveDataModbus() functionErrorCode 0x" + Integer.toHexString(functionErrorCode) + ", exception code 0x" + Integer.toHexString(kar) + ", received!", PROTOCOL_ERROR, functionErrorCode, kar);
-                    } // STATE_WAIT_FOR_EXCEPTIONCODE
+                        case STATE_WAIT_FOR_DATA: {
+                            resultDataArrayOutputStream.write(kar);
+                        }
+                        break; // STATE_WAIT_FOR_DATA
 
-                    case STATE_WAIT_FOR_DATA: {
-                        resultDataArrayOutputStream.write(kar);
-                    }
-                    break; // STATE_WAIT_FOR_DATA
+                        default:
+                            throw new ProtocolConnectionException("receiveDataModbus() invalid state!", PROTOCOL_ERROR);
 
-                    default:
-                        throw new ProtocolConnectionException("receiveDataModbus() invalid state!", PROTOCOL_ERROR);
+                    } // switch(iState)
 
-                } // switch(iState)
+                    //allDataArrayOutputStream.write(kar); // accumulate frame
 
-                //allDataArrayOutputStream.write(kar); // accumulate frame
-
-            } // if ((iNewKar = readIn()) != -1)
+                } // if ((iNewKar = readIn()) != -1)
+            } catch (NestedIOException e) {
+                throw new ProtocolConnectionException(e.getCause().getMessage());
+            }
 
             // frame received, check validity
             if (state != STATE_WAIT_FOR_ADDRESS) {

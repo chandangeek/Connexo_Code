@@ -535,3 +535,7 @@
 -keepnames class com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.MbusDevice
 
 -keepnames class com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880
+
+-keepnames class com.energyict.smartmeterprotocolimpl.iskra.mt880.IskraMT880
+
+-keepnames class com.energyict.protocolimpl.modbus.generic.Generic

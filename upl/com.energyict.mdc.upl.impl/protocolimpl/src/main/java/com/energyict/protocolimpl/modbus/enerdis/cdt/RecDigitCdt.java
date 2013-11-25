@@ -1,12 +1,22 @@
 package com.energyict.protocolimpl.modbus.enerdis.cdt;
 
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
-
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.modbus.core.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /** 
  * RecDigit Cct meter is a pulse counter. 
@@ -81,8 +91,13 @@ abstract public class RecDigitCdt extends Modbus {
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         AbstractRegister r  = getRegisterFactory().findRegister(obisCode);
         String key          = r.getName();
-        
-        return r.registerValue(key);
+
+        try {
+            return r.registerValue(key);
+        } catch (ModbusException e) {
+            getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
+        }
     }
     
     /** Transformation coefficient V */

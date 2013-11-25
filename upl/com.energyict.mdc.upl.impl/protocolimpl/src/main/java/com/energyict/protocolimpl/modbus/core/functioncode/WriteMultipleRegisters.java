@@ -10,11 +10,12 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
-
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
 
 /**
  *
@@ -22,7 +23,7 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class WriteMultipleRegisters extends AbstractRequest {
     
-    private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_WRITEMULTIPLEREGISTER);
+    private RequestData requestData = new RequestData(FunctionCode.WRITE_MULTIPLE_REGISTER.getFunctionCode());
     
     int writeStartingAddress;
     int writeQuantityOfRegisters;
@@ -42,7 +43,7 @@ public class WriteMultipleRegisters extends AbstractRequest {
         readStartingAddress = ProtocolUtils.getInt(responseData.getData(),0, 2);
         readQuantityOfRegisters = ProtocolUtils.getInt(responseData.getData(),2, 2);
         if ((readStartingAddress != writeStartingAddress) || (readQuantityOfRegisters != writeQuantityOfRegisters)) {
-            throw new ModbusException("WriteSingleRegister, parse, write error",ModbusException.WRITE_ERROR);
+            throw new ModbusException("WriteMultipleRegisters, parse, write error");
         }
     }
 

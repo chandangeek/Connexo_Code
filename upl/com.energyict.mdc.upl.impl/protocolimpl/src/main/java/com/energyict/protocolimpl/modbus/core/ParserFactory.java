@@ -10,8 +10,9 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import java.util.*;
-import java.io.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -40,7 +41,7 @@ public class ParserFactory {
         Parser parser = (Parser)parsers.get(key);
         if (parser != null)
             return parser;
-        throw new IOException("ParserFactory, parser "+key+" does not exist!");
+        throw new ModbusException("ParserFactory, parser "+key+" does not exist!");
     }
     
 } // public class ParserFactory

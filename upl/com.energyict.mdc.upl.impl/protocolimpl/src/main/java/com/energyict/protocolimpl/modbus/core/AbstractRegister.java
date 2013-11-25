@@ -10,13 +10,21 @@
 
 package com.energyict.protocolimpl.modbus.core;
 
-import com.energyict.cbo.*;
-import com.energyict.obis.*;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocolimpl.modbus.core.functioncode.*;
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadDeviceIdentification;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersRequest;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadInputRegistersRequest;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReportSlaveId;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteMultipleRegisters;
+import com.energyict.protocolimpl.modbus.core.functioncode.WriteSingleRegister;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  *
@@ -112,12 +120,16 @@ public class AbstractRegister {
     
     public ReadHoldingRegistersRequest getReadHoldingRegistersRequest() throws IOException {
         return getRegisterFactory().getFunctionCodeFactory().getReadHoldingRegistersRequest(getReg()-(getRegisterFactory().isZeroBased()?1:0),getRange());
-    } 
+    }
 
     public ReadInputRegistersRequest getReadInputRegistersRequest() throws IOException {
         return getRegisterFactory().getFunctionCodeFactory().getReadInputRegistersRequest(getReg()-(getRegisterFactory().isZeroBased()?1:0),getRange());
     }
-    
+
+    public ReadHoldingRegistersRequest getReadCoilStatusRequest() throws IOException {
+        return getRegisterFactory().getFunctionCodeFactory().getReadHoldingRegistersRequest(getReg()-(getRegisterFactory().isZeroBased()?1:0),getRange());
+    }
+
     public WriteSingleRegister getWriteSingleRegister(int writeRegisterValue) throws IOException {
         return getRegisterFactory().getFunctionCodeFactory().getWriteSingleRegister(getReg()-(getRegisterFactory().isZeroBased()?1:0), writeRegisterValue);
     }
@@ -129,13 +141,18 @@ public class AbstractRegister {
     public ReportSlaveId getReportSlaveId() throws IOException {
         return getRegisterFactory().getFunctionCodeFactory().getReportSlaveId();
     }
+
+    public ReadStatuses getCoilStatuses() throws IOException {
+        return getRegisterFactory().getFunctionCodeFactory().getReadCoilStatuses(getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0), getRange());
+    }
+
+    public ReadStatuses getInputStatuses() throws IOException {
+        return getRegisterFactory().getFunctionCodeFactory().getReadInputStatuses(getReg() - (getRegisterFactory().isZeroBased() ? 1 : 0), getRange());
+    }
     
     public ReadDeviceIdentification getReadDeviceIdentification(int readDeviceIdCode, int objectID) throws IOException {
         return getRegisterFactory().getFunctionCodeFactory().getReadDeviceIdentification(readDeviceIdCode, objectID);
     }
-    
-    
-    
     
     public Date dateValue() throws IOException {
         if (this instanceof HoldingRegister)
@@ -144,19 +161,31 @@ public class AbstractRegister {
             return (Date)getRegisterFactory().getParserFactory().get(getParser()==null?"Date":getParser()).val(getReadInputRegistersRequest().getRegisters(), this);
         throw new IOException ("AbstractRegister, dateValue(), invalid registertype "+this.getClass().getName());
     }
+
     public Object value() throws IOException {
-        if (this instanceof HoldingRegister)
-            return getRegisterFactory().getParserFactory().get(getParser()==null?"BigDecimal":getParser()).val(getReadHoldingRegistersRequest().getRegisters(), this);
-        else if (this instanceof InputRegister)
-            return getRegisterFactory().getParserFactory().get(getParser()==null?"BigDecimal":getParser()).val(getReadInputRegistersRequest().getRegisters(), this);
-        throw new IOException ("AbstractRegister, quantityValue(), invalid registertype "+this.getClass().getName());
+        if (this instanceof HoldingRegister) {
+            return getRegisterFactory().getParserFactory().get(getParser() == null ? "BigDecimal" : getParser()).val(getReadHoldingRegistersRequest().getRegisters(), this);
+        } else if (this instanceof InputRegister) {
+            return getRegisterFactory().getParserFactory().get(getParser() == null ? "BigDecimal" : getParser()).val(getReadInputRegistersRequest().getRegisters(), this);
+        } else if (this instanceof ReportSlaveIDRegister) {
+            return getReportSlaveId();
+        } else if (this instanceof CoilStatusRegister) {
+            return getCoilStatuses();
+        } else if (this instanceof  InputStatusRegister) {
+            return getInputStatuses();
+        }
+
+        throw new IOException("AbstractRegister, quantityValue(), invalid registertype " + this.getClass().getName());
     }
     public Quantity quantityValue() throws IOException {
-        if (this instanceof HoldingRegister)
-            return new Quantity((BigDecimal)getRegisterFactory().getParserFactory().get(getParser()==null?"BigDecimal":getParser()).val(getReadHoldingRegistersRequest().getRegisters(), this),getUnit());
-        else if (this instanceof InputRegister)
-            return new Quantity((BigDecimal)getRegisterFactory().getParserFactory().get(getParser()==null?"BigDecimal":getParser()).val(getReadInputRegistersRequest().getRegisters(), this),getUnit());
-        throw new IOException ("AbstractRegister, quantityValue(), invalid registertype "+this.getClass().getName());
+        if (this instanceof HoldingRegister) {
+            return new Quantity((BigDecimal) getRegisterFactory().getParserFactory().get(getParser() == null ? "BigDecimal" : getParser()).val(getReadHoldingRegistersRequest().getRegisters(), this), getUnit());
+        } else if (this instanceof InputRegister) {
+            return new Quantity((BigDecimal) getRegisterFactory().getParserFactory().get(getParser() == null ? "BigDecimal" : getParser()).val(getReadInputRegistersRequest().getRegisters(), this), getUnit());
+        } else if (this instanceof ReportSlaveIDRegister) {
+            return new Quantity(new BigDecimal(getReportSlaveId().getSlaveId()), Unit.getUndefined());
+        }
+        throw new IOException("AbstractRegister, quantityValue(), invalid registertype " + this.getClass().getName());
     }
     public Object objectValueWithParser(String key) throws IOException {
         if (this instanceof HoldingRegister)
@@ -180,22 +209,16 @@ public class AbstractRegister {
         throw new IOException ("AbstractRegister, quantityValueWithParser(), invalid registertype "+this.getClass().getName());
         
     }
-    
-    public RegisterValue registerValue(String key) 
-        throws IOException {
-        
+
+    public RegisterValue registerValue(String key) throws IOException {
         if (this instanceof HoldingRegister) {
-            
             Parser p = getRegisterFactory().getParserFactory().get(parser);
             int [] value = getReadHoldingRegistersRequest().getRegisters();
             return (RegisterValue)p.val(value, this);
-            
         }
-        
-        String msg = "AbstractRegister, registerValue(), invalid registertype "
-                     + this.getClass().getName();
-        throw new IOException (msg);
 
+        String msg = "AbstractRegister, registerValue(), invalid registertype " + this.getClass().getName();
+        throw new ModbusException(msg);
     }
 
     public String getParser() {

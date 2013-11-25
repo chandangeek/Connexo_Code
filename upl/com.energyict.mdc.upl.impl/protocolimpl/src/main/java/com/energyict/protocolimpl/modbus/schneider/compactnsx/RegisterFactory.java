@@ -6,7 +6,12 @@ package com.energyict.protocolimpl.modbus.schneider.compactnsx;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocolimpl.modbus.core.*;
+import com.energyict.protocolimpl.modbus.core.AbstractRegister;
+import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
+import com.energyict.protocolimpl.modbus.core.HoldingRegister;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.Parser;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -142,7 +147,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                     return bd.movePointLeft(1);
             	} else {
                     getModBus().getLogger().info("Register " + register.getObisCode() + " is not accessible when System Type is 30 or 31");
-            		throw new ModbusException("Not supported when Systemtype is 30 or 31",(short) 0,0x83,0x02);
+            		throw new ModbusException("Not supported when Systemtype is 30 or 31");
             	}
             }
         });
@@ -163,7 +168,7 @@ public class RegisterFactory extends AbstractRegisterFactory {
                     return bd.movePointLeft(2);
             	} else {
                     getModBus().getLogger().info("Register " + register.getObisCode() + " is not accessible when System Type is 30 or 31");
-            		throw new ModbusException("Not supported when Systemtype is 30 or 31",(short) 0,0x83,0x02);
+            		throw new ModbusException("Not supported when Systemtype is 30 or 31");
             	}
             }
         });

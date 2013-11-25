@@ -10,10 +10,12 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
 
 /**
  *
@@ -21,7 +23,7 @@ import com.energyict.protocol.ProtocolUtils;
  */
 public class WriteSingleRegister extends AbstractRequest {
     
-    private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_WRITESINGLEREGISTER);
+    private RequestData requestData = new RequestData(FunctionCode.WRITE_SINGLE_REGISTER.getFunctionCode());
         
     int writeRegisterAddress;
     int writeRegisterValue;
@@ -41,7 +43,7 @@ public class WriteSingleRegister extends AbstractRequest {
         readRegisterAddress = ProtocolUtils.getInt(responseData.getData(),0, 2);
         readRegisterValue = ProtocolUtils.getInt(responseData.getData(),2, 2);
         if ((readRegisterAddress != writeRegisterAddress) || (readRegisterValue != writeRegisterValue)) {
-            throw new ModbusException("WriteSingleRegister, parse, write error",ModbusException.WRITE_ERROR);
+            throw new ModbusException("WriteSingleRegister, parse, write error");
         }
         
     }

@@ -1,17 +1,9 @@
-/*
- * AbstractRequest.java
- *
- * Created on 19 september 2005, 16:25
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
- */
-
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
 
 /**
  *
@@ -35,10 +27,7 @@ abstract public class AbstractRequest {
     
     public void build() throws IOException {
        prepareBuild();
-       byte[] data=null;
        ResponseData responseData = functionCodeFactory.getModbus().getModbusConnection().sendRequest(getRequestData());
        parse(responseData);
     }
-
-    
 }

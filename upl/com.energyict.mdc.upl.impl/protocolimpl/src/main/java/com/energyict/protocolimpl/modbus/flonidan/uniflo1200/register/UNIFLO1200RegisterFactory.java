@@ -7,12 +7,6 @@
 
 package com.energyict.protocolimpl.modbus.flonidan.uniflo1200.register;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -22,6 +16,12 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegisterFactory;
 import com.energyict.protocolimpl.modbus.core.Modbus;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.flonidan.uniflo1200.parsers.UNIFLO1200Parsers;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  *
@@ -111,12 +111,9 @@ public class UNIFLO1200RegisterFactory extends AbstractRegisterFactory {
         	}
         	
         	return new RegisterValue(obisCode, returnQuantity, returnEventTime, returnFromTime, returnToTime, returnReadTime, returnRtuRegisterID, returnText);
-        }
-        catch(ModbusException e) {
-            if ((e.getExceptionCode()==0x02) && (e.getFunctionErrorCode()==0x83))
-                throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-            else
-                throw e;
+        } catch (ModbusException e) {
+            getModBus().getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
         }
 
 	}

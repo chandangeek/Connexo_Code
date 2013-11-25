@@ -1,26 +1,19 @@
-/*
- * ReadHoldingRegistersRequest.java
- *
- * Created on 19 september 2005, 16:24
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
- */
-
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.ModbusException;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
+
 /**
  *
  * @author Koen
  */
 public class ReadHoldingRegistersRequest extends AbstractRequest {
     
-    private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_READHOLDINGREGISTER);
+    private RequestData requestData = new RequestData(FunctionCode.READ_HOLDING_REGISTER.getFunctionCode());
          
     private int[] registers;
     
@@ -40,7 +33,7 @@ public class ReadHoldingRegistersRequest extends AbstractRequest {
     
     protected void parse(ResponseData responseData) throws IOException {
         if (((responseData.getData().length-1)%2) != 0)
-            throw new ModbusException("ReadHoldingRegistersRequest, parse, length error",ModbusException.PARSE_LENGTH_ERROR); 
+            throw new ModbusException("ReadHoldingRegistersRequest.parse(): Failed to parse the response - response data has invalid length.");
         else {
             int nrOfRegisters = (responseData.getData().length-1) / 2;
             setRegisters(new int[nrOfRegisters]);
@@ -70,5 +63,4 @@ public class ReadHoldingRegistersRequest extends AbstractRequest {
     public void setRegisters(int[] registers) {
         this.registers = registers;
     }
-
 }

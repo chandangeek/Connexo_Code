@@ -10,11 +10,10 @@
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
 
-import java.io.*;
-
-import com.energyict.protocolimpl.modbus.core.Modbus;
-import com.energyict.protocolimpl.modbus.core.connection.*;
 import com.energyict.protocolimpl.base.ParseUtils;
+import com.energyict.protocolimpl.modbus.core.Modbus;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
@@ -22,13 +21,6 @@ import com.energyict.protocolimpl.base.ParseUtils;
 public class FunctionCodeFactory {
     
     private Modbus modbus;
-    
-    public static final int FUNCTIONCODE_READINPUTREGISTER=4;
-    public static final int FUNCTIONCODE_READHOLDINGREGISTER=3;
-    public static final int FUNCTIONCODE_WRITESINGLEREGISTER=6;
-    public static final int FUNCTIONCODE_REPORTSLAVEID=17;
-    public static final int FUNCTIONCODE_READDEVICEID=43;
-    public static final int FUNCTIONCODE_WRITEMULTIPLEREGISTER=16;
     
     /** Creates a new instance of FunctionCodeFactory */
     public FunctionCodeFactory(Modbus modbus) {
@@ -40,17 +32,17 @@ public class FunctionCodeFactory {
     }
 
     public AbstractRequest getRequest(int functionCode, int[] vals) throws IOException {
-        if (functionCode == FUNCTIONCODE_READINPUTREGISTER)
+        if (functionCode == FunctionCode.READ_INPUT_REGISTER.getFunctionCode())
             return getReadInputRegistersRequest(vals[0], vals[1]);
-        else if (functionCode == FUNCTIONCODE_READHOLDINGREGISTER)
+        else if (functionCode == FunctionCode.READ_HOLDING_REGISTER.getFunctionCode())
             return getReadHoldingRegistersRequest(vals[0], vals[1]);
-        else if (functionCode == FUNCTIONCODE_WRITESINGLEREGISTER)
+        else if (functionCode == FunctionCode.WRITE_SINGLE_REGISTER.getFunctionCode())
             return getWriteSingleRegister(vals[0], vals[1]);
-        else if (functionCode == FUNCTIONCODE_REPORTSLAVEID)
+        else if (functionCode == FunctionCode.REPORT_SLAVE_ID.getFunctionCode())
             return getReportSlaveId();
-        else if (functionCode == FUNCTIONCODE_READDEVICEID)
+        else if (functionCode == FunctionCode.READ_DEVICE_ID.getFunctionCode())
             return getReadDeviceIdentification(vals[0], vals[1]);
-        else if (functionCode == FUNCTIONCODE_WRITEMULTIPLEREGISTER) {
+        else if (functionCode == FunctionCode.WRITE_MULTIPLE_REGISTER.getFunctionCode()) {
             byte[] data = ParseUtils.convert2ByteArray(vals,2);
             return getWriteMultipleRegisters(vals[0], vals[1], data);
         }
@@ -70,27 +62,41 @@ public class FunctionCodeFactory {
         readInputRegistersRequest.build();
         return readInputRegistersRequest;
     }
-    
+
+    public ReadStatuses getReadCoilStatuses(int startingAddress, int quantityOfCoils) throws IOException {
+        ReadStatuses readStatuses = new ReadStatuses(this, FunctionCode.READ_COIL_STATUS);
+        readStatuses.setRequestSpecifications(startingAddress, quantityOfCoils);
+        readStatuses.build();
+        return readStatuses;
+    }
+
+    public ReadStatuses getReadInputStatuses(int startingAddress, int quantityOfInputs) throws IOException {
+        ReadStatuses readStatuses = new ReadStatuses(this, FunctionCode.READ_INPUT_STATUS);
+        readStatuses.setRequestSpecifications(startingAddress, quantityOfInputs);
+        readStatuses.build();
+        return readStatuses;
+    }
+
     public WriteSingleRegister getWriteSingleRegister(int writeRegisterAddress, int writeRegisterValue) throws IOException {
         WriteSingleRegister writeSingleRegister = new WriteSingleRegister(this);
         writeSingleRegister.writeRegister(writeRegisterAddress, writeRegisterValue);
         writeSingleRegister.build();
         return writeSingleRegister;
     }
-    
+
     public WriteMultipleRegisters getWriteMultipleRegisters(int writeStartingAddress, int writeQuantityOfRegisters, byte[] registerValues) throws IOException {
         WriteMultipleRegisters writeMultipleRegisters = new WriteMultipleRegisters(this);
         writeMultipleRegisters.writeRegister(writeStartingAddress, writeQuantityOfRegisters, registerValues);
         writeMultipleRegisters.build();
         return writeMultipleRegisters;
     }
-    
+
     public ReportSlaveId getReportSlaveId() throws IOException {
         ReportSlaveId rsi = new ReportSlaveId(this);
         rsi.build();
         return rsi;
     }
-    
+
     public MandatoryDeviceIdentification getMandatoryReadDeviceIdentification() throws IOException {
         return new MandatoryDeviceIdentification(getReadDeviceIdentification(1,0).getDeviceObjects());
     }

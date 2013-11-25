@@ -12,16 +12,42 @@ package com.energyict.protocolimpl.modbus.core;
 
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.InvalidPropertyException;
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MissingPropertyException;
+import com.energyict.protocol.NoSuchRegisterException;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.UnsupportedException;
 import com.energyict.protocol.discover.Discover;
-import com.energyict.protocol.messaging.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.messaging.Message;
+import com.energyict.protocol.messaging.MessageAttribute;
+import com.energyict.protocol.messaging.MessageCategorySpec;
+import com.energyict.protocol.messaging.MessageElement;
+import com.energyict.protocol.messaging.MessageSpec;
+import com.energyict.protocol.messaging.MessageTag;
+import com.energyict.protocol.messaging.MessageTagSpec;
+import com.energyict.protocol.messaging.MessageValue;
+import com.energyict.protocol.messaging.MessageValueSpec;
+import com.energyict.protocolimpl.base.AbstractProtocol;
+import com.energyict.protocolimpl.base.Encryptor;
+import com.energyict.protocolimpl.base.ProtocolConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusTCPConnection;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 /**
  *
@@ -106,7 +132,7 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
         setRegisterOrderFloatingPoint(Integer.parseInt(properties.getProperty("RegisterOrderFloatingPoint","1").trim()));
         firstTimeDelay = Integer.parseInt(properties.getProperty("FirstTimeDelay", "0").trim());
         meterFirmwareVersion = properties.getProperty("MeterFirmwareVersion", "");
-        this.connection = Integer.parseInt(properties.getProperty("Connection", "0").trim());
+        connection = Integer.parseInt(properties.getProperty("Connection", "0").trim());
         nodeAddress = Integer.parseInt(properties.getProperty("NodeAddress", "255").trim());    // Only used in Modbus TCP/IP mode
         doTheValidateProperties(properties);
     }
@@ -181,14 +207,11 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
     public RegisterValue readRegister(ObisCode obisCode) throws IOException {
         try {
             return new RegisterValue(obisCode,getRegisterFactory().findRegister(obisCode).quantityValue());
+        } catch (ModbusException e) {
+            getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
+            throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
         }
-        catch(ModbusException e) {
-            if ((e.getExceptionCode()==0x02) && (e.getFunctionErrorCode()==0x83)) {
-				throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-			} else {
-				throw e;
-			}
-        }
+        // Note: ConnectionExceptions (due to timeout) are not catched, but will be thrown, so the session fails & retries
     }
     
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
@@ -414,11 +437,12 @@ abstract public class Modbus extends AbstractProtocol implements Discover,Messag
 			} else {
 				return doQueryMessage(messageEntry);
 			}
-		}
-		catch(IOException e) {
-			getLogger().severe("Error parsing message, "+e.getMessage());
-			return MessageResult.createFailed(messageEntry);
-		}
+
+        } catch (ModbusException e) {
+            getLogger().severe("Message will fail, "+e.getMessage());
+            return MessageResult.createFailed(messageEntry);
+        }
+       // Note: ConnectionExceptions (due to timeout) will be thrown, so the session fails & retries the message
    }
    
    public List getMessageCategories() {

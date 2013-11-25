@@ -607,6 +607,49 @@ public final class ProtocolTools {
         return array;
     }
 
+    /**
+     * Creates an unsigned BigInteger value that represents a given byte array
+     *
+     * @param value: the given byte array
+     * @return the resulting BigInteger
+     */
+    public static BigInteger getUnsignedBigIntegerFromBytes(byte[] value) {
+        return new BigInteger(1, value);    // Forcing the signum to positive gives you the unsigned equivalent
+    }
+
+    /**
+     * Creates an unsigned BigInteger value that represents a given byte array, taking into account Little Endian byte order
+     *
+     * @param value: the given byte array
+     * @return the resulting BigInteger
+     */
+    public static BigInteger getUnsignedBigIntegerFromBytesLE(byte[] value, int offset, int length) {
+        value = ProtocolTools.getSubArray(value, offset, offset + length);
+        value = ProtocolTools.getReverseByteArray(value);
+        return getUnsignedBigIntegerFromBytes(value);
+    }
+
+    /**
+     * Creates an signed BigInteger value that represents a given byte array
+     *
+     * @param value: the given byte array
+     * @return the resulting BigInteger
+     */
+    public static BigInteger getSignedBigIntegerFromBytes(byte[] value) {
+        return new BigInteger(value);
+    }
+
+    /**
+     * Creates an signed BigInteger value that represents a given byte array, taking into account Little Endian byte order
+     *
+     * @param value: the given byte array
+     * @return the resulting BigInteger
+     */
+    public static BigInteger getSignedBigIntegerFromBytesLE(byte[] value, int offset, int length) {
+        value = ProtocolTools.getSubArray(value, offset, offset + length);
+        value = ProtocolTools.getReverseByteArray(value);
+        return getSignedBigIntegerFromBytes(value);
+    }
 
     /**
      * @param profileData

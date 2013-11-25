@@ -1,76 +1,70 @@
-/*
- * ModbusException.java
- *
- * Created on 20 september 2005, 10:01
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
- */
-
 package com.energyict.protocolimpl.modbus.core;
 
-import java.io.*;
+import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCode;
+
+import java.io.IOException;
 
 /**
- *
  * @author Koen
  */
-
-
 public class ModbusException extends IOException {
 
-  static public final short GENERAL_ERROR=0;  
-  static public final short PARSE_ERROR=1;  
-  static public final short PARSE_LENGTH_ERROR=2;  
-  static public final short WRITE_ERROR=3;  
-    
-  private short sReason;
-  private int functionErrorCode;
-  private int exceptionCode;
-  
-  public short getReason() {
-     return sReason;
-  }
-   
-  public ModbusException(String str)
-  {
-      super(str);
-      this.sReason = -1;
-  } // public ConnectionException(String str)
+    private int functionErrorCode;
+    private ModbusExceptionCode exceptionCode;
 
-  public ModbusException()
-  {
-      super();
-      this.sReason = -1;
-      
-  } // public ConnectionException()
+    public ModbusException(String str) {
+        super(str);
+    }
 
-  public ModbusException(String str, short sReason) {
-      this(str,sReason,-1,-1);
-  }
-  
-  public ModbusException(String str, short sReason, int functionErrorCode, int exceptionCode) {
-      super(str);
-      this.sReason = sReason;
-      this.functionErrorCode=functionErrorCode;
-      this.exceptionCode=exceptionCode;
-
-  } // public ConnectionException(String str)    
+    public ModbusException(int functionErrorCode, int exceptionCode) {
+        super(constructErrorMessage(functionErrorCode, exceptionCode));
+        this.functionErrorCode = functionErrorCode;
+        this.exceptionCode = ModbusExceptionCode.byResultCode(exceptionCode);
+    }
 
     public int getFunctionErrorCode() {
         return functionErrorCode;
     }
 
-    public void setFunctionErrorCode(int functionErrorCode) {
-        this.functionErrorCode = functionErrorCode;
-    }
-
-    public int getExceptionCode() {
+    public ModbusExceptionCode getExceptionCode() {
         return exceptionCode;
     }
 
-    public void setExceptionCode(int exceptionCode) {
-        this.exceptionCode = exceptionCode;
+    public boolean isRetryAllowed() {
+        return getExceptionCode() == null
+                ? true
+                : getExceptionCode().isRetryAllowed();
+    }
+
+    private static String constructErrorMessage(int functionErrorCode, int exceptionCode) {
+        int functionCode = functionErrorCode % 0x80;
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("Received exception response ");
+        builder.append(String.format("0x%02X", exceptionCode));
+        builder.append(" (");
+        builder.append(getModbusExceptionCodeDescription(exceptionCode));
+        builder.append(") in response to request ");
+        builder.append(String.format("0x%02X", functionCode));
+        builder.append(" (");
+        builder.append(getFunctionCodeDescription(functionCode));
+        builder.append(")");
+        return builder.toString();
+    }
+
+    private static String getModbusExceptionCodeDescription(int val) {
+        if (ModbusExceptionCode.byResultCode(val) != null) {
+            return ModbusExceptionCode.byResultCode(val).getDescription();
+        } else {
+            return "Unknown Modbus exception code";
+        }
+    }
+
+    private static String getFunctionCodeDescription(int val) {
+        if (FunctionCode.byFunctionCode(val) != null) {
+            return FunctionCode.byFunctionCode(val).getDescription();
+        } else {
+            return "Unknown function code";
+        }
     }
 }

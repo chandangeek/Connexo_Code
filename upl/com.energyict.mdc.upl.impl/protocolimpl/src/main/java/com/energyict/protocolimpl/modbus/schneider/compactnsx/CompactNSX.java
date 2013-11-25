@@ -102,10 +102,8 @@ public class CompactNSX extends Modbus {
            return new RegisterValue(obisCode,getRegisterFactory().findRegister(obisCode).quantityValue());
        }
        catch(ModbusException e) {
-           if ((e.getExceptionCode()==0x02) && (e.getFunctionErrorCode()==0x83))
-               throw new NoSuchRegisterException("ObisCode "+obisCode.toString()+" is not supported!");
-           else
-               throw e;
+           getLogger().warning("Failed to read register " + obisCode.toString() + " - " + e.getMessage());
+           throw new NoSuchRegisterException("ObisCode " + obisCode.toString() + " is not supported!");
        }
    }
     

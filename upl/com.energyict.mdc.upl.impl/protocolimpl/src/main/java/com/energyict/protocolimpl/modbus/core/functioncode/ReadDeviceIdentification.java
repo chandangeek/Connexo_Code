@@ -9,18 +9,21 @@
  */
 
 package com.energyict.protocolimpl.modbus.core.functioncode;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.ModbusException;
+
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 /**
  *
  * @author Koen
  */
 public class ReadDeviceIdentification extends AbstractRequest {
 
-    private RequestData requestData = new RequestData(FunctionCodeFactory.FUNCTIONCODE_READDEVICEID);
+    private RequestData requestData = new RequestData(FunctionCode.READ_DEVICE_ID.getFunctionCode());
     
     private static final int MEI_CODE_MODUS=14;
     

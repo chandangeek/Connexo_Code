@@ -7,11 +7,15 @@ import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
-import com.energyict.protocolimpl.modbus.core.connection.*;
-import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
+import com.energyict.protocolimpl.modbus.core.connection.RequestData;
+import com.energyict.protocolimpl.modbus.core.connection.ResponseData;
+import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -201,7 +205,7 @@ public class UNIFLO1200Connection extends ModbusConnection {
      * @throws ModbusException
      */
     private ResponseData waitForExceptionCode(ConnectionState cs) throws ModbusException {
-        throw new ModbusException("receiveDataLength() functionErrorCode 0x" + Integer.toHexString(cs.getFunctionErrorCode()) + ", exception code 0x" + Integer.toHexString(cs.getKar()) + ", received!", PROTOCOL_ERROR, cs.getFunctionErrorCode(), cs.getKar());
+        throw new ModbusException(cs.getFunctionErrorCode(), cs.getKar());
     }
 
     /**
@@ -211,8 +215,8 @@ public class UNIFLO1200Connection extends ModbusConnection {
     private void waitForFunctionCode(ConnectionState cs) throws ProtocolConnectionException {
         if (cs.getKar() == cs.getRequestData().getFunctionCode()) {
             cs.getResponseData().setFunctionCode(cs.getKar());
-            if ((cs.getResponseData().getFunctionCode() == FunctionCodeFactory.FUNCTIONCODE_WRITEMULTIPLEREGISTER) ||
-                    (cs.getResponseData().getFunctionCode() == FunctionCodeFactory.FUNCTIONCODE_WRITESINGLEREGISTER)) {
+            if ((cs.getResponseData().getFunctionCode() == FunctionCode.WRITE_MULTIPLE_REGISTER.getFunctionCode()) ||
+                    (cs.getResponseData().getFunctionCode() == FunctionCode.WRITE_SINGLE_REGISTER.getFunctionCode())) {
                 cs.setLen(4 + 2);  // 4 bytes data + 2 bytes crc
                 cs.setState(ConnectionState.WAIT_FOR_DATA);
             } else {

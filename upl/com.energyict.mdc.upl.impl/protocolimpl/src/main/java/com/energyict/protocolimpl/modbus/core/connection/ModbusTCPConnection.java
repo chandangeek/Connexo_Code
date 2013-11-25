@@ -8,7 +8,9 @@ import com.energyict.protocolimpl.base.ProtocolConnectionException;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Copyrights EnergyICT
@@ -119,7 +121,7 @@ public class ModbusTCPConnection extends ModbusConnection {
         } else if (responseFunctionCode != requestData.getFunctionCode()) {
             if (responseFunctionCode == (requestData.getFunctionCode() + 0x80)) {
                 int errorCode = ProtocolTools.getIntFromBytes(responseDataFrame, 8, 1);
-                throw new ModbusException("receiveDataModbus(): functionErrorCode 0x" + Integer.toHexString(responseFunctionCode) + ", exception code 0x" + Integer.toHexString(errorCode) + ", received!", PROTOCOL_ERROR, responseFunctionCode, errorCode);
+                throw new ModbusException(responseFunctionCode, errorCode);
             } else {
                 throw new ModbusException("receiveDataModbus(): Function code from the response (" + responseFunctionCode +
                         ") is different from the function code of the request (" + requestData.getFunctionCode() + ").");
@@ -142,10 +144,14 @@ public class ModbusTCPConnection extends ModbusConnection {
      *
      */
     @Override
-    protected void assembleAndSend(RequestData requestData) throws NestedIOException, ConnectionException {
-        ModbusTCPHeader header = new ModbusTCPHeader(requestData, getNewTransactionIdentifier(), unitIdentifier);
-        byte[] data = ProtocolUtils.concatByteArrays(header.getHeaderBytes(), requestData.getFrameData());
-        sendRawData(data);
+    protected void assembleAndSend(RequestData requestData) throws ConnectionException {
+        try {
+            ModbusTCPHeader header = new ModbusTCPHeader(requestData, getNewTransactionIdentifier(), unitIdentifier);
+            byte[] data = ProtocolUtils.concatByteArrays(header.getHeaderBytes(), requestData.getFrameData());
+            sendRawData(data);
+        } catch (NestedIOException e) {
+            throw new ProtocolConnectionException(e.getCause().getMessage());
+        }
     }
 
     public int getNewTransactionIdentifier() {
