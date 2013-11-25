@@ -9,9 +9,6 @@ Ext.define('Uni.Loader', {
     requires: [
         'Ext.tip.QuickTipManager',
         'Ext.state.CookieProvider',
-        'Uni.controller.Breadcrumb',
-        'Uni.controller.Error',
-        'Uni.controller.Navigation',
         'Uni.util.I18n'
     ],
 
