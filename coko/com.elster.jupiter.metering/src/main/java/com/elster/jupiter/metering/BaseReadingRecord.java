@@ -1,11 +1,9 @@
 package com.elster.jupiter.metering;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.util.time.Interval;
 
 public interface BaseReadingRecord extends BaseReading {
     List<BigDecimal> getValues();

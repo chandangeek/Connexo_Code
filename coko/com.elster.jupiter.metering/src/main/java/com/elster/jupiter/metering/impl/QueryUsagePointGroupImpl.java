@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.util.Date;
@@ -16,8 +15,7 @@ public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements
 
     @Override
     public List<UsagePoint> getMembers(Date date) {
-        QueryExecutor<UsagePoint> queryExecutor = Bus.getOrmClient().getUsagePointFactory().with();
-        return Bus.getQueryService().wrap(queryExecutor).select(getCondition());
+        return Bus.getMeteringService().getUsagePointQuery().select(getCondition());
     }
 
     @Override

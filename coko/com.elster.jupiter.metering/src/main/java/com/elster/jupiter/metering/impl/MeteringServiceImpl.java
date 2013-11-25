@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.MeterActivation;
@@ -23,8 +24,10 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Expression;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+
 import org.osgi.service.component.annotations.*;
 
 import java.util.Date;
@@ -96,8 +99,20 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
                 getOrmClient().getUsagePointFactory().with(
                         getOrmClient().getServiceLocationFactory(),
                         getOrmClient().getMeterActivationFactory(),
-                        //	getOrmClient().getChannelFactory(),
-                        getOrmClient().getMeterFactory()));
+                        //	getOrmClient().getChannelFactory(),?
+                        getOrmClient().getEndDeviceFactory()));
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Override
+    public Query<Meter> getMeterQuery() {
+    	QueryExecutor<?> executor = getOrmClient().getEndDeviceFactory().with(
+    			getOrmClient().getMeterActivationFactory(),
+    			getOrmClient().getUsagePointFactory(),
+    			getOrmClient().getServiceLocationFactory(),
+    			getOrmClient().getChannelFactory());
+    	executor.setRestriction(Operator.EQUAL.compare("class", Meter.TYPE_IDENTIFIER));
+    	return getQueryService().wrap((QueryExecutor<Meter>) executor);
     }
 
     @Override
@@ -105,7 +120,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         return getQueryService().wrap(
                 getOrmClient().getMeterActivationFactory().with(
                         getOrmClient().getUsagePointFactory(),
-                        getOrmClient().getMeterFactory(),
+                        getOrmClient().getEndDeviceFactory(),
                         getOrmClient().getServiceLocationFactory()));
     }
 
@@ -116,7 +131,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
                         getOrmClient().getUsagePointFactory(),
                         getOrmClient().getMeterActivationFactory(),
                         //getOrmClient().getChannelFactory(),
-                        getOrmClient().getMeterFactory()));
+                        getOrmClient().getEndDeviceFactory()));
     }
 
     @Override

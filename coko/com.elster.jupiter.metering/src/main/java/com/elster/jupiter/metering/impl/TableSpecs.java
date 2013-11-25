@@ -153,11 +153,13 @@ public enum TableSpecs {
 			table.addPrimaryKeyConstraint("MTR_PK_READINGTYPE", mRidColumn);
 		}
 	},
-	MTR_METER {
+	MTR_ENDDEVICE {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
+			table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
 			Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION , "mRID");
 			Column amrSystemIdColumn = table.addColumn("AMRSYSTEMID", "number", true, NUMBER2INT, "amrSystemId");
+			Column amrIdColumn = table.addColumn("AMRID", "varchar2(256)" , true , NOCONVERSION, "amrId");
 			table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
 			table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
 			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
@@ -174,6 +176,7 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METER", idColumn);
 			table.addUniqueConstraint("MTR_U_METER", mRIDColumn);
+			table.addUniqueConstraint("MTR_U_METERAMR",amrSystemIdColumn,amrIdColumn);
 			table.addForeignKeyConstraint("MTR_FK_METERAMRSYSTEM",MTR_AMRSYSTEM.name(),RESTRICT,new AssociationMapping("amrSystem"), amrSystemIdColumn);
 		}
 	},	
@@ -186,7 +189,7 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METERACTIVATION", idColumn);
 			table.addForeignKeyConstraint("MTR_FK_METERACTUSAGEPOINT",MTR_USAGEPOINT.name(),RESTRICT, new AssociationMapping("usagePoint", "meterActivations", "interval.start", "currentMeterActivation") , usagePointIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_METER.name(),RESTRICT, new AssociationMapping("meter" , "meterActivations", "interval.start", "currentMeterActivation") , meterIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_ENDDEVICE.name(),RESTRICT, new AssociationMapping("meter" , "meterActivations", "interval.start", "currentMeterActivation") , meterIdColumn);
 		}
 	},
 	MTR_CHANNEL {

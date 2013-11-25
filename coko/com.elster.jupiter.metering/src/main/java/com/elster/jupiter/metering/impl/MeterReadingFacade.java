@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.Date;
-
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;

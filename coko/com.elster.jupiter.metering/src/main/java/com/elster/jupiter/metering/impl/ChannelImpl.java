@@ -189,17 +189,31 @@ public final class ChannelImpl implements Channel {
 		return builder.build();
 	}
 	
+	private BaseReadingRecord createReading(boolean regular, TimeSeriesEntry entry) {
+		return regular ? new IntervalReadingRecordImpl(this, entry) : new ReadingRecordImpl(this,entry);
+	}
+	
 	@Override 
 	public List<BaseReadingRecord> getReadings(Date from, Date to) {
-		boolean isRegular = getIntervalLength() != null;
+		boolean regular = isRegular();
 		List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
 		ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
 		for (TimeSeriesEntry entry : entries) {
-			builder.add(isRegular ? new IntervalReadingRecordImpl(this, entry) : new ReadingRecordImpl(this, entry));
+			builder.add(createReading(regular,entry));
 		}
 		return builder.build();
 	}
 
+	
+	public Optional<BaseReadingRecord> getReading(Date when) {
+		Optional<TimeSeriesEntry> entryHolder = getTimeSeries().getEntry(when);
+		if (entryHolder.isPresent()) {
+			return Optional.of(createReading(isRegular(), entryHolder.get()));
+		} else {
+			return Optional.absent();
+		}
+	}
+	
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Date from, Date to) {
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
@@ -224,7 +238,7 @@ public final class ChannelImpl implements Channel {
 
     @Override
     public List<BaseReadingRecord> getReadings(ReadingType readingType, Date from, Date to) {
-    	boolean isRegular = getIntervalLength() != null;
+    	boolean isRegular = isRegular();
     	int index = getReadingTypes().indexOf(readingType);
         List<TimeSeriesEntry> entries = getTimeSeries().getEntries(from,to);
         ImmutableList.Builder<BaseReadingRecord> builder = ImmutableList.builder();
@@ -285,4 +299,10 @@ public final class ChannelImpl implements Channel {
     public int hashCode() {
         return Objects.hash(id);
     }
+    
+    private boolean isRegular() {
+    	return getIntervalLength() != null;
+    }
+   
+    
 }

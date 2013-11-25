@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.ids.TimeSeries;
+import com.google.common.base.Optional;
 
 import java.util.Date;
 import java.util.List;
@@ -19,4 +20,5 @@ public interface Channel {
     List<ReadingRecord> getRegisterReadings(ReadingType readingType, Date from, Date to);
     List<IntervalReadingRecord> getIntervalReadings(ReadingType readingType, Date from, Date to);
     List<BaseReadingRecord> getReadings(ReadingType readingType, Date from, Date to);
+    Optional<BaseReadingRecord> getReading(Date when);
 }

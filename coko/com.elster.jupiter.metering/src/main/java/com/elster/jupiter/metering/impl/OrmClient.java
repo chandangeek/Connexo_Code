@@ -2,8 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.ReadingType;
@@ -17,6 +17,16 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.cache.TypeCache;
 
 public interface OrmClient {
+	TypeCache<ServiceCategory> getServiceCategoryFactory();
+	DataMapper<ServiceLocation> getServiceLocationFactory();
+	TypeCache<AmrSystem> getAmrSystemFactory();
+	TypeCache<ReadingType> getReadingTypeFactory();
+	DataMapper<UsagePoint> getUsagePointFactory();
+	DataMapper<EndDevice> getEndDeviceFactory();
+	DataMapper<MeterActivation> getMeterActivationFactory();
+	DataMapper<Channel> getChannelFactory();
+	DataMapper<ReadingTypeInChannel> getReadingTypeInChannelFactory();
+	DataMapper<UsagePointAccountability> getUsagePointAccountabilityFactory();
 
     TypeCache<ServiceCategory> getServiceCategoryFactory();
 
