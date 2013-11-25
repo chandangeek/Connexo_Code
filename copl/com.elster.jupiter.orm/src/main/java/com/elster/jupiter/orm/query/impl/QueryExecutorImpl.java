@@ -15,6 +15,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
 	private final JoinTreeNode<T> root;
 	private final AliasFactory aliasFactory = new AliasFactory();
+	private Condition restriction = Condition.TRUE;
 	
 	public QueryExecutorImpl(DataMapperImpl<T> mapper) {
 		RootDataMapper<T> rootDataMapper = new RootDataMapper<>(mapper);
@@ -41,7 +42,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	@Override
 	public List<T> select(Condition condition, String[] orderBy , boolean eager , String[] exceptions , int from , int to) {
 		try {
-			return new JoinExecutor<>(root.copy(),from,to).select(condition,orderBy , eager, exceptions);
+			return new JoinExecutor<>(root.copy(),from,to).select(restriction.and(condition),orderBy , eager, exceptions);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
@@ -95,6 +96,11 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 	@Override
 	public List<String> getQueryFieldNames() {
 		return root.getQueryFields();	
+	}
+
+	@Override
+	public void setRestriction(Condition condition) {
+		restriction = condition;
 	}
 }
 
