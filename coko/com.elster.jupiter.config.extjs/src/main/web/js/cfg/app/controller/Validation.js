@@ -45,12 +45,16 @@ Ext.define('Cfg.controller.Validation', {
     editValidationRuleSet: function (grid, record) {
         var view = Ext.widget('validationrulesetEdit');
         view.down('form').loadRecord(record);
-        this.getRulesGrid().reconfigure(record.rules());
+        var me = this;
+        me.getValidationRulesStore().load({
+            params: {
+                id: record.data.id
+            }});
     },
 
     editValidationRuleProperties: function (grid, record) {
-        var view = Ext.widget('validationrulesetEdit');
-        view.down('form').loadRecord(record);
+        //var view = Ext.widget('validationrulesetEdit');
+        //view.down('form').loadRecord(record);
         this.getRulePropertiesGrid().reconfigure(record.properties());
     },
 

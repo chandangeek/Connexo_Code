@@ -127,7 +127,7 @@ Ext.define('Cfg.view.validation.Edit', {
                                 }
                             ]
                         }
-                    },
+                    }/*,
                     {
                         xtype: 'fieldset',
                         title: 'Properties',
@@ -157,7 +157,7 @@ Ext.define('Cfg.view.validation.Edit', {
                                 }
                             }
                         ]
-                    }
+                    } */
                 ]
             }
         ];
