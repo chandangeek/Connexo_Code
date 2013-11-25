@@ -52,8 +52,7 @@ public class Datastar extends SchlumbergerProtocol {
     
     private DatastarProfile datastarProfile=null;
     boolean allowClockSet;
-    
-    /** Creates a new instance of Datastar */
+
     public Datastar() {
     }
     

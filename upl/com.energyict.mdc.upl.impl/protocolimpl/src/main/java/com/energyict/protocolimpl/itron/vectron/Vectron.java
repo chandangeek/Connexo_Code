@@ -45,8 +45,7 @@ public class Vectron extends SchlumbergerProtocol {
     RegisterFactory registerFactory=null;
     private VectronProfile vectronProfile=null;
     boolean allowClockSet;
-    
-    /** Creates a new instance of Vectron */
+
     public Vectron() {
     }
     

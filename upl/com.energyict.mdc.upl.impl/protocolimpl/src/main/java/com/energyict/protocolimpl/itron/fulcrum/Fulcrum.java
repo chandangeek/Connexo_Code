@@ -45,9 +45,7 @@ public class Fulcrum extends SchlumbergerProtocol {
     private BasePagesFactory basePagesFactory=null;
     RegisterFactory registerFactory=null;
     private FulcrumProfile fulcrumProfile=null;
-   
-    
-    /** Creates a new instance of Fulcrum */
+
     public Fulcrum() {
     }
     

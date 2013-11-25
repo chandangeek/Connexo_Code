@@ -43,8 +43,7 @@ public class Quantum extends SchlumbergerProtocol {
     private QuantumProfile quantumProfile=null;
     boolean allowClockSet;
     private int loadProfileUnitScale;
-    
-    /** Creates a new instance of Quantum */
+
     public Quantum() {
     }
     

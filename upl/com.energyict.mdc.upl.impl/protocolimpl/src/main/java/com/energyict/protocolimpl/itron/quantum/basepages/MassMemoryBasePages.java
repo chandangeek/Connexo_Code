@@ -10,20 +10,23 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.fulcrum.*;
-import java.io.*;
-import java.util.*;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.itron.protocol.AbstractBasePage;
 import com.energyict.protocolimpl.itron.protocol.BasePageDescriptor;
+
+import java.io.IOException;
 
 /**
  *
  * @author Koen
  */
 public class MassMemoryBasePages extends AbstractBasePage {
-    
-    private final int[] RECORDLENGTHFORCHANNELS=new int[]{107,203,299,395,491,587,779,875,971,1067,1163,1259,1355,1451,1547};
+
+    /**
+     * Array containing the Mass memory record length for all possible channel selections
+     *  Note: 7 channels is not supported, so dummy length -1 is set
+     */
+    private final int[] RECORDLENGTHFORCHANNELS=new int[]{107,203,299,395,491,587, -1,779,875,971,1067,1163,1259,1355,1451,1547};
     
     private int currentMassMemoryRecordOffset; // 3 bytes
     private int currentMassMemoryIntervalNumber; // 1 bytes
