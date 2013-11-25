@@ -139,6 +139,11 @@ public class Generic extends Modbus {
     }
 
     @Override
+    public String getProtocolDescription() {
+        return "EnergyICT Generic Modbus";
+    }
+
+    @Override
     public String getProtocolVersion() {
         return "$Date: 2009-03-26 09:30:20 +0100 (do, 26 mrt 2009) $";
     }
