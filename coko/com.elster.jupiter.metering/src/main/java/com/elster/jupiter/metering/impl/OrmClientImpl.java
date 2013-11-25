@@ -2,8 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.ReadingType;

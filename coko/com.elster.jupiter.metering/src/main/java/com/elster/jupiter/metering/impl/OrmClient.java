@@ -17,16 +17,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.cache.TypeCache;
 
 public interface OrmClient {
-	TypeCache<ServiceCategory> getServiceCategoryFactory();
-	DataMapper<ServiceLocation> getServiceLocationFactory();
-	TypeCache<AmrSystem> getAmrSystemFactory();
-	TypeCache<ReadingType> getReadingTypeFactory();
-	DataMapper<UsagePoint> getUsagePointFactory();
-	DataMapper<EndDevice> getEndDeviceFactory();
-	DataMapper<MeterActivation> getMeterActivationFactory();
-	DataMapper<Channel> getChannelFactory();
-	DataMapper<ReadingTypeInChannel> getReadingTypeInChannelFactory();
-	DataMapper<UsagePointAccountability> getUsagePointAccountabilityFactory();
 
     TypeCache<ServiceCategory> getServiceCategoryFactory();
 
@@ -38,7 +28,7 @@ public interface OrmClient {
 
     DataMapper<UsagePoint> getUsagePointFactory();
 
-    DataMapper<Meter> getMeterFactory();
+    DataMapper<EndDevice> getEndDeviceFactory();
 
     DataMapper<MeterActivation> getMeterActivationFactory();
 
