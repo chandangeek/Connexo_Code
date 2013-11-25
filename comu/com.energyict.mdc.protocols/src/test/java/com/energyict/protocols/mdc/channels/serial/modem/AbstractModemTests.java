@@ -9,16 +9,24 @@ import com.energyict.comserver.scheduling.RunningComServer;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.channels.serial.SerialComChannel;
 import com.energyict.mdc.channels.serial.ServerSerialPort;
+import com.energyict.mdc.common.Environment;
+import com.energyict.mdc.common.Translator;
+import com.energyict.mdc.common.TranslatorProvider;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -42,6 +50,24 @@ public class AbstractModemTests {
     protected final List<String> OK_LIST = Arrays.asList(RUBBISH_FOR_FLUSH, "OK", "OK", "OK", "CONNECT 9600", "OK", "OK");
 
     protected final String comPortName = "blabla";
+
+    @BeforeClass
+    public static void  setupEnvironment(){
+        Environment environment = mock(Environment.class);
+        Environment.DEFAULT.set(environment);
+        when(environment.getTranslation(anyString())).thenAnswer(getTestTranslationAnswer());
+        when(environment.getErrorMsg(anyString())).thenAnswer(getTestTranslationAnswer());
+    }
+
+    private static Answer<String> getTestTranslationAnswer() {
+        return new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                return (String) args[0];
+            }
+        };
+    }
 
     @Before
     public void initializeMocks () {

@@ -61,7 +61,7 @@ import static org.mockito.Mockito.when;
  * Author: khe
  */
 @RunWith(MockitoJUnitRunner.class)
-public class EIWebMessageConverterTest {
+public class EIWebMessageConverterTest extends AbstractEIWebTests{
 
     @Mock
     private OfflineDeviceMessage setDescriptionMessage;

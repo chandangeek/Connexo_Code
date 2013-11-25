@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-07-02 (11:55)
  */
-public class FirstLoadProfileOnDeviceTest {
+public class FirstLoadProfileOnDeviceTest extends AbstractEIWebTests{
 
     @Test(expected = NotFoundException.class)
     public void testDeviceDoesNotExist () {

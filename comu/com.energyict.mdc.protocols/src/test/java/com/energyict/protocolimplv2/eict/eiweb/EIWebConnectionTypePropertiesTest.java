@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-03-22 (08:43)
  */
-public class EIWebConnectionTypePropertiesTest {
+public class EIWebConnectionTypePropertiesTest  extends AbstractEIWebTests{
 
     @Before
     public void initializeDataVaultProvider () {

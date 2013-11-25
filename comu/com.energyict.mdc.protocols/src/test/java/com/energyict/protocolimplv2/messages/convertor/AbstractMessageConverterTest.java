@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.messages.convertor;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerImpl;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.interfaces.mdw.Mdw2MdcInterfaceImpl;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageAttribute;
@@ -20,8 +21,11 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.messaging.Messaging;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,6 +50,24 @@ public abstract class AbstractMessageConverterTest {
 
     private DeviceMessageSpecFactoryImpl deviceMessageSpecFactory;
     private LegacyMessageConverter legacyMessageConverter;
+
+    @BeforeClass
+    public static void  setupEnvironment(){
+        Environment environment = mock(Environment.class);
+        Environment.DEFAULT.set(environment);
+        when(environment.getTranslation(anyString())).thenAnswer(getTestTranslationAnswer());
+        when(environment.getErrorMsg(anyString())).thenAnswer(getTestTranslationAnswer());
+    }
+
+    private static Answer<String> getTestTranslationAnswer() {
+        return new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                return (String) args[0];
+            }
+        };
+    }
 
     @Before
     public void mockMessages() {

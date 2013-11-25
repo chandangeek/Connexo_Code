@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-19 (14:37)
  */
-public class EIWebCryptographerTest {
+public class EIWebCryptographerTest extends AbstractEIWebTests {
 
     private static final String MAC_ADDRESS_VALUE = "0090C2D49541";
 
@@ -36,7 +36,7 @@ public class EIWebCryptographerTest {
      * does not break the EIWebCryptographer component.
      */
     @Test(expected = NotFoundException.class)
-    public void testBuildMD5SeedForNonExistingDevice () {
+    public void testBuildMD5SeedForNonExistingDevice() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);
@@ -56,7 +56,7 @@ public class EIWebCryptographerTest {
      * because not {@link InboundConnectionTask}s are defined against it.
      */
     @Test(expected = CommunicationException.class)
-    public void testBuildMD5SeedWithoutConnectionTypeProperties () {
+    public void testBuildMD5SeedWithoutConnectionTypeProperties() {
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         InboundDAO inboundDAO = mock(InboundDAO.class);
         InboundComPort comPort = mock(InboundComPort.class);
@@ -71,7 +71,7 @@ public class EIWebCryptographerTest {
     }
 
     @Test
-    public void testBuildMD5SeedExistingDevice () {
+    public void testBuildMD5SeedExistingDevice() {
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
@@ -94,7 +94,7 @@ public class EIWebCryptographerTest {
     }
 
     @Test
-    public void testWasUsed () {
+    public void testWasUsed() {
         Device device = mock(Device.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
         when(deviceIdentifier.findDevice()).thenReturn(device);
@@ -117,7 +117,7 @@ public class EIWebCryptographerTest {
     }
 
     @Test
-    public void testWasNotUsed () {
+    public void testWasNotUsed() {
         EIWebCryptographer cryptographer = new EIWebCryptographer(mock(InboundDAO.class), mock(InboundComPort.class));
 
         // Business method

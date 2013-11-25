@@ -5,6 +5,7 @@ import com.energyict.cbo.TimeConstants;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.MdwInterface;
 import com.energyict.mdc.ServerManager;
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -18,7 +19,9 @@ import com.energyict.protocol.ProfileData;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,6 +34,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +45,7 @@ import static org.mockito.Mockito.when;
  * @since 2012-10-23 (14:52)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ProfileBuilderTest {
+public class ProfileBuilderTest extends AbstractEIWebTests{
 
     private static final int DEVICE_ID = 122;
 
