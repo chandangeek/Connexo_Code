@@ -10,11 +10,11 @@
 
 package com.energyict.protocolimpl.itron.quantum.basepages;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.itron.quantum.*;
-import java.io.*;
-import java.util.*;
-import com.energyict.protocolimpl.itron.protocol.*;
+import com.energyict.protocolimpl.itron.protocol.AbstractBasePageFactory;
+import com.energyict.protocolimpl.itron.protocol.ProtocolLink;
+import com.energyict.protocolimpl.itron.quantum.Quantum;
+
+import java.io.IOException;
 /**
  *
  * @author Koen
@@ -57,7 +57,13 @@ public class BasePagesFactory extends AbstractBasePageFactory {
         }
         return voltageAndCurrentBasePage;
     }
-    
+
+    public OfflineBasePage downloadOfflineFlag() throws IOException {
+        OfflineBasePage offlineBasePage = new OfflineBasePage(this);
+        offlineBasePage.invoke();
+        return offlineBasePage;
+    }
+
     public InstantaneousRegMultipliers getInstantaneousRegMultipliers() throws IOException {
         if (instantaneousRegMultipliers==null) {
             instantaneousRegMultipliers = new InstantaneousRegMultipliers(this);

@@ -10,10 +10,10 @@
 
 package com.energyict.protocolimpl.itron.protocol.schlumberger;
 
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
-import com.energyict.protocolimpl.itron.protocol.*;
-import java.io.*;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.itron.protocol.SchlumbergerProtocol;
+
+import java.io.IOException;
 
 /**
  *
@@ -60,7 +60,7 @@ public class IdentifyCommand extends AbstractCommand{
     
     protected void parse(byte[] data) throws IOException {
         int offset = 0;
-        unitType = new String(ProtocolUtils.getSubArray2(data, offset, 3));
+        setUnitType(new String(ProtocolUtils.getSubArray2(data, offset, 3)));
         offset+=3;
         setUnitId(new String(ProtocolUtils.getSubArray2(data, offset, 8)));
         offset+=8;

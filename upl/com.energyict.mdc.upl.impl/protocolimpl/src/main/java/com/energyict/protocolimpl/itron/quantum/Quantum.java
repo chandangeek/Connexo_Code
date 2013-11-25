@@ -58,7 +58,8 @@ public class Quantum extends SchlumbergerProtocol {
     }
     
     protected void offLine() throws IOException {
-        //getBasePagesFactory().writeBasePage(0x2112, new byte[]{(byte)0xFF});
+        getBasePagesFactory().downloadOfflineFlag();
+//        getBasePagesFactory().getVoltageAndCurrentBasePage(). writeBasePage(0x2112, new byte[]{(byte)0xFF});
     }
     
     protected void doTheDisConnect() throws IOException {

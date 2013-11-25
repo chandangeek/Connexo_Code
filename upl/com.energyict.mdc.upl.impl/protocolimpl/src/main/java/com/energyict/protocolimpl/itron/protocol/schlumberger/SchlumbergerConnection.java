@@ -105,6 +105,10 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
             sendOut(new byte[]{(byte)0x58,(byte)slave,(byte)0x59,(byte)(slave^0xFF)});
             receiveUntilTimeout();
         }
+        sendMultipleEnqs(nrOfEnqs, retry);
+    }
+
+    public void sendMultipleEnqs(int nrOfEnqs, int retry) throws IOException {
         while(true) {
             try {
                 delayAndFlush(1000);
@@ -118,19 +122,19 @@ public class SchlumbergerConnection extends Connection  implements ProtocolConne
                 if (e.getReason() == PROTOCOL_ERROR)
                     throw new ProtocolConnectionException("sendCommand() error, "+e.getMessage());
                 else {
-                    
+
                     //System.out.println("KV_DEBUG> timeout "+retry);
-                    
+
                     if (retry++>=5) {
                         //return;
-                        
+
                         throw new ProtocolConnectionException("sendCommand() error maxRetries ("+maxRetries+"), "+e.getMessage());
                     }
                 }
             }
         } // while(true)
     }
-    
+
     // continue receiving until 1500 ms timeout receiving garbage
     public void receiveUntilTimeout() throws IOException {
         long receiveTimeout;
