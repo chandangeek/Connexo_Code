@@ -1,6 +1,5 @@
 package com.energyict.mdc.rest.impl.properties;
 
-import com.energyict.cbo.HexString;
 import com.energyict.cpo.BoundedBigDecimalPropertySpec;
 import com.energyict.cpo.FixedLengthHexStringPropertySpec;
 import com.energyict.cpo.FixedLengthStringPropertySpec;
@@ -16,10 +15,14 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Serves as a utility class to create proper PropertyInfo objects for a set of Properties
+ * and their corresponding PropertySpecs
+ */
 public class MdcPropertyUtils {
 
-    public static void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, List<PropertySpec> optionalProperties, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
-        for (PropertySpec propertySpec : optionalProperties) {
+    public static void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, List<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
+        for (PropertySpec propertySpec : propertySpecs) {
             PropertyInfo propertyInfo = createPropertyInfo(uriInfo, properties, propertySpec);
             propertyInfoList.add(propertyInfo);
         }
@@ -43,10 +46,11 @@ public class MdcPropertyUtils {
     }
 
     private static SimplePropertyType getSimplePropertyType(PropertySpec propertySpec) {
-        if(HexString.class.isAssignableFrom(propertySpec.getDomain().getValueType())){
-            return SimplePropertyType.TEXT;
+        SimplePropertyType simplePropertyType = SimplePropertyType.getTypeFrom(propertySpec.getDomain().getValueType());
+        if(simplePropertyType.equals(SimplePropertyType.UNKNOWN)){
+            return MdcPropertyReferenceInfoFactory.getReferencedSimplePropertyType(propertySpec, simplePropertyType);
         } else {
-            return SimplePropertyType.getTypeFrom(propertySpec.getDomain().getValueType());
+            return simplePropertyType;
         }
     }
 
@@ -55,8 +59,8 @@ public class MdcPropertyUtils {
     }
 
     private static URI getReferenceUri(final UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
-        if(simplePropertyType == SimplePropertyType.REFERENCE){
-            return MdcPropertyValueInfoFactory.getReferenceUriFor(uriInfo, propertySpec.getDomain().getValueType());
+        if(simplePropertyType.isReference()){
+            return MdcPropertyReferenceInfoFactory.getReferenceUriFor(uriInfo, propertySpec.getDomain().getValueType());
         } else {
             return null;
         }
@@ -100,7 +104,7 @@ public class MdcPropertyUtils {
     }
 
     private static Object getPropertyValue(TypedProperties properties, PropertySpec propertySpec) {
-        return MdcPropertyValueInfoFactory.asInfo(properties.getProperty(propertySpec.getName()));
+        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getProperty(propertySpec.getName()));
     }
 
     private static PredefinedPropertyValuesInfo getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
@@ -110,7 +114,7 @@ public class MdcPropertyUtils {
         } else {
             Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
-                possibleObjects[i] = MdcPropertyValueInfoFactory.asInfo(possibleValues.getAllValues().get(i));
+                possibleObjects[i] = MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getAllValues().get(i));
             }
             PropertySelectionMode selectionMode = mapPropertySelectionMode(propertySpec.getSelectionMode());
             if(selectionMode.equals(PropertySelectionMode.UNSPECIFIED) && possibleObjects.length > 1){
@@ -132,7 +136,7 @@ public class MdcPropertyUtils {
         if (possibleValues == null) {
             return null;
         }
-        return MdcPropertyValueInfoFactory.asInfo(possibleValues.getDefault());
+        return MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getDefault());
     }
 
     private static  Object getInheritedProperty(TypedProperties properties, PropertySpec propertySpec) {

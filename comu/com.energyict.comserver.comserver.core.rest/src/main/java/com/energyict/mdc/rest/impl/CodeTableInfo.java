@@ -5,8 +5,11 @@ import com.energyict.mdw.core.Code;
 import com.energyict.mdw.coreimpl.CodeFactoryImpl;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Map;
 
 /**
+ * Represents the Info object for a {@link Code}
+ *
  * Copyrights EnergyICT
  * Date: 21/11/13
  * Time: 15:08
@@ -17,13 +20,21 @@ public class CodeTableInfo implements MdcResourceProperty {
     public int codeTableId;
     public String name;
 
+    public CodeTableInfo() {
+    }
+
+    public CodeTableInfo(Map<String, Object> map) {
+        this.codeTableId = (int) map.get("codeTableId");
+        this.name = (String) map.get("name");
+    }
+
     public CodeTableInfo(Code codeTable) {
         codeTableId = codeTable.getId();
         name = codeTable.getName();
     }
 
     @Override
-    public Object fromResourceObject() {
+    public Object fromInfoObject() {
         return new CodeFactoryImpl().find(codeTableId);
     }
 }

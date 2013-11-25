@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
+import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdc.rest.impl.properties.PropertyInfo;
 import com.energyict.mdc.rest.impl.properties.PropertyValueInfo;
 import com.energyict.mdw.core.LicensedProtocol;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -76,13 +78,15 @@ public class DeviceCommunicationProtocolInfo {
             for (PropertyInfo propertyInfo : this.propertyInfos) {
                 PropertyValueInfo propertyValueInfo = propertyInfo.getPropertyValueInfo();
                 if (propertyValueInfo != null && propertyValueInfo.getValue() != null) {
-                    typedProperties.setProperty(propertyInfo.getKey(), propertyValueInfo.getValue());
-//                    Object value = propertyValueInfo.getValue();
-//                    if (MdcResourceProperty.class.isAssignableFrom(value.getClass())) {
-//                        typedProperties.setProperty(propertyInfo.getKey(), ((MdcResourceProperty) value).fromResourceObject());
-//                    } else {
-//                        typedProperties.setProperty(propertyInfo.getKey(), value);
-//                    }
+                    Object value = propertyValueInfo.getValue();
+                    if (Map.class.isAssignableFrom(value.getClass())) {
+                        Object infoObject = propertyInfo.getPropertyTypeInfo().getSimplePropertyType().getInfoObject((Map<String, Object>) value);
+                        if (MdcResourceProperty.class.isAssignableFrom(infoObject.getClass())) {
+                            typedProperties.setProperty(propertyInfo.getKey(), ((MdcResourceProperty) infoObject).fromInfoObject());
+                        }
+                    } else {
+                        typedProperties.setProperty(propertyInfo.getKey(), value);
+                    }
                 }
             }
         }

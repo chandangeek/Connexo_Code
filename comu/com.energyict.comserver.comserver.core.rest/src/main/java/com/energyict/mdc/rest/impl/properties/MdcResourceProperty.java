@@ -7,6 +7,10 @@ package com.energyict.mdc.rest.impl.properties;
  */
 public interface MdcResourceProperty {
 
-    public Object fromResourceObject();
+    /**
+     * Creates a known BusinessObject from this Info object
+     * @return the known BusinessObject
+     */
+    public Object fromInfoObject();
 
 }

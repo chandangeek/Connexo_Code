@@ -21,7 +21,7 @@ public class NumberValidationRules<T> implements PropertyValidationRule {
     public Integer maximumDigits;
     public Boolean even;
 
-    public Boolean getAllowDecimals() {
+     public Boolean getAllowDecimals() {
         return allowDecimals;
     }
 
