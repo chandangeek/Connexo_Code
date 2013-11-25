@@ -25,6 +25,7 @@ import java.util.NoSuchElementException;
  * None of the methods accept null for any of its parameters, and none return null, except for toSpanningPeriod(), which returns
  * null for an empty {@link Interval}. This has to do with the fact that there is no straightforward representation of an empty
  * {@link Interval}.
+ * IntermittentInterval will always interpret intervals as CLOSED_OPEN.
  *
  * @author Tom De Greyt
  */
@@ -334,7 +335,7 @@ public final class IntermittentInterval implements Iterable<Interval> {
      * @return a {@link Interval} spanning from the earliest from to the latest to in this instance, or null if this is an empty
      *         {@link IntermittentInterval}.
      */
-    public Interval toSpanningPeriod() {
+    public Interval toSpanningInterval() {
         if (isEmpty()) {
             return null;
         }
