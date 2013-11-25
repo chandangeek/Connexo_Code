@@ -53,10 +53,10 @@ public class AmrSystemImplTest {
 
     @Test
     public void testNewMeter() {
-        String mrID = "mrID";
-        Meter meter = amrSystem.newMeter(mrID);
+        String amrId = "amrId";
+        Meter meter = amrSystem.newMeter(amrId);
 
-        assertThat(meter.getMRID()).isEqualTo(mrID);
+        assertThat(meter.getAmrId()).isEqualTo(amrId);
         assertThat(meter.getAmrSystem()).isEqualTo(amrSystem);
         assertThat(meter).isInstanceOf(MeterImpl.class);
     }
