@@ -1,7 +1,9 @@
 package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.google.common.base.Optional;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -21,6 +23,24 @@ public class ValidationResource {
         ValidationRuleSetInfos infos = new ValidationRuleSetInfos(list);
         infos.total = list.size();
         return infos;
+    }
+
+    @GET
+    @Path("/rules/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ValidationRuleInfos getValidationRules(@PathParam("id") String id) {
+        Optional<ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(Long.parseLong(id));
+        if (optional.isPresent()) {
+            ValidationRuleInfos infos = new ValidationRuleInfos();
+            ValidationRuleSet set = optional.get();
+            for (ValidationRule rule : set.getRules()) {
+                infos.add(rule);
+            }
+            infos.total = set.getRules().size();
+            return infos;
+        } else {
+            return new ValidationRuleInfos();
+        }
     }
 
     @GET

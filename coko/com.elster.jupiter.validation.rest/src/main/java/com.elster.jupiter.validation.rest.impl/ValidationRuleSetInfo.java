@@ -19,9 +19,9 @@ public class ValidationRuleSetInfo {
         id = validationRuleSet.getId();
         name = validationRuleSet.getName();
         description = validationRuleSet.getDescription();
-        for (ValidationRule rule : validationRuleSet.getRules()) {
+        /*for (ValidationRule rule : validationRuleSet.getRules()) {
             rules.add(new ValidationRuleInfo(rule));
-        }
+        }     */
     }
 
     public ValidationRuleSetInfo() {
