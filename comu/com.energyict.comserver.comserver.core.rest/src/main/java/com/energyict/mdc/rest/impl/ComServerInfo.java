@@ -53,6 +53,19 @@ public class ComServerInfo {
         }
     }
 
+    public ComServerInfo(ComServer comServer, List<ComPort> comPorts) {
+        this(comServer);
+        inboundComPorts = new ArrayList<>();
+        outboundComPorts = new ArrayList<>();
+        for (final ComPort comPort : comPorts) {
+            if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
+                inboundComPorts.add(ComPortInfoFactory.asInboundInfo(comPort));
+            } else {
+                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(comPort));
+            }
+        }
+    }
+
     public OnlineComServerShadow writeToShadow(OnlineComServerShadow shadow) {
         shadow.setName(name);
         shadow.setActive(active);

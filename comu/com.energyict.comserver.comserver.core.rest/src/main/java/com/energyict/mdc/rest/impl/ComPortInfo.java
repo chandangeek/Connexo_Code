@@ -22,7 +22,7 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     public boolean active;
     public boolean bound;
     public ComPortType comPortType;
-    public int comserver_id;
+    public int comServer_id;
     public int numberOfSimultaneousConnections;
     public Date modificationDate;
     public Integer ringCount;
@@ -54,7 +54,7 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
         this.description = comPort.getDescription();
         this.active = comPort.isActive();
         this.bound = comPort.isInbound();
-        this.comserver_id = comPort.getComServer().getId();
+        this.comServer_id = comPort.getComServer().getId();
         this.comPortType = comPort.getComPortType();
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
         this.modificationDate = comPort.getModificationDate();
@@ -63,7 +63,7 @@ public abstract class ComPortInfo<T extends ComPortShadow> {
     protected void writeToShadow(T shadow) {
         shadow.setName(name);
         shadow.setDescription(description);
-        shadow.setComServerId(comserver_id);
+        shadow.setComServerId(comServer_id);
         shadow.setActive(active);
         shadow.setType(this.comPortType);
     }

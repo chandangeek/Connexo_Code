@@ -47,7 +47,8 @@ public class ComServerResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public OnlineComServerInfo getComServer(@PathParam("id") int id) {
-        return new OnlineComServerInfo((OnlineComServer) comServerService.find(id));
+        ComServer comServer = comServerService.find(id);
+        return new OnlineComServerInfo((OnlineComServer) comServer, comServer.getComPorts());
     }
 
     @GET
