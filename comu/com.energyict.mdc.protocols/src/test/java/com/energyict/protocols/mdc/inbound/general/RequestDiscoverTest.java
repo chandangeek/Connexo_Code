@@ -4,7 +4,6 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.meterdata.CollectedDataFactory;
@@ -34,7 +33,9 @@ import org.junit.runner.*;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -44,6 +45,7 @@ import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -89,20 +91,25 @@ public class RequestDiscoverTest {
     protected byte[] inboundFrame;
 
     private static final int LOGBOOK_ID = 10;
-    private static final String TIMEOUT_KEY = Environment.DEFAULT.get().getTranslation("protocol.timeout");
-    private static final String RETRIES_KEY = Environment.DEFAULT.get().getTranslation("protocol.retries");
 
-    private static class NoPropertiesEnvironment extends EnvironmentImpl {
-
-        @Override
-        public void closeConnection() {
-            // do nothing
-        }
+    @BeforeClass
+    public static void  setupEnvironment(){
+        Environment environment = mock(Environment.class);
+        Environment.DEFAULT.set(environment);
+        when(environment.getTranslation(anyString())).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                return (String) args[0];
+            }
+        });
     }
+
+    private final String TIMEOUT_KEY = Environment.DEFAULT.get().getTranslation("protocol.timeout");
+    private final String RETRIES_KEY = Environment.DEFAULT.get().getTranslation("protocol.retries");
 
     @Before
     public void initialize() {
-        Environment.DEFAULT.set(new NoPropertiesEnvironment());
         ArrayList<LogBook> logBooks = new ArrayList<>();
         logBooks.add(logBook);
         when(logBook.getId()).thenReturn(LOGBOOK_ID);

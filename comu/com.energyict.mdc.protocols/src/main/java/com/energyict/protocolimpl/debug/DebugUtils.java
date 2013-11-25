@@ -1,18 +1,12 @@
 package com.energyict.protocolimpl.debug;
 
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.Environment;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
-import com.energyict.dialer.core.*;
+import com.energyict.dialer.core.Dialer;
+import com.energyict.dialer.core.DialerFactory;
+import com.energyict.dialer.core.LinkException;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.protocolimpl.base.DebuggingObserver;
-import oracle.jdbc.OracleDriver;
 
-import java.io.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Properties;
+import java.io.IOException;
 
 /**
  * Copyrights EnergyICT
@@ -119,55 +113,55 @@ public class DebugUtils {
     public static Dialer getConnectedDirectDialer(String commPort, int baudRate, int dataBits, int parity, int stopBits) throws IOException, LinkException {
         return getConnectedDirectDialer(commPort, baudRate, dataBits, parity, stopBits, null);
     }
+//
+//    /**
+//	 * Create a new default {@link Environment}
+//	 */
+//	public static void createEnvironment() {
+//		try {
+//            File propertiesFile = new File(System.getProperty("user.dir") + "\\eiserver.properties");
+//            FileInputStream fis = new FileInputStream(propertiesFile);
+//			Properties properties = new Properties();
+//			properties.load(fis);
+//            fis.close();
+//			Environment.DEFAULT.set(
+//                    new DebugEnvironment(
+//                            properties.getProperty("jdbcUrl"),
+//                            properties.getProperty("dbUser"),
+//                            properties.getProperty("dbPassword")));
+//		} catch (IOException e) {
+//			throw new ApplicationException(e);
+//		}
+//	}
 
-    /**
-	 * Create a new default {@link Environment}
-	 */
-	public static void createEnvironment() {
-		try {
-            File propertiesFile = new File(System.getProperty("user.dir") + "\\eiserver.properties");
-            FileInputStream fis = new FileInputStream(propertiesFile);
-			Properties properties = new Properties();
-			properties.load(fis);
-            fis.close();
-			Environment.DEFAULT.set(
-                    new DebugEnvironment(
-                            properties.getProperty("jdbcUrl"),
-                            properties.getProperty("dbUser"),
-                            properties.getProperty("dbPassword")));
-		} catch (IOException e) {
-			throw new ApplicationException(e);
-		}
-	}
-
-    private static class DebugEnvironment extends EnvironmentImpl {
-        private Connection connection;
-
-        private DebugEnvironment (String jdbcUrl, String dbUser, String dbPassword) {
-            super();
-            this.establishConnection(jdbcUrl, dbUser, dbPassword);
-        }
-
-        private void establishConnection (String jdbcUrl, String dbUser, String dbPassword) {
-            try {
-                DriverManager.registerDriver(new OracleDriver());
-                this.connection = DriverManager.getConnection(jdbcUrl, dbUser, dbPassword);
-            }
-            catch (SQLException e) {
-                throw new DatabaseException(e);
-            }
-        }
-
-        @Override
-        public Connection getConnection () {
-            return this.connection;
-        }
-
-        @Override
-        public boolean useOraLobs () {
-            return false;   // function empty_blob() not available
-        }
-
-    }
+//    private static class DebugEnvironment extends EnvironmentImpl {
+//        private Connection connection;
+//
+//        private DebugEnvironment (String jdbcUrl, String dbUser, String dbPassword) {
+//            super();
+//            this.establishConnection(jdbcUrl, dbUser, dbPassword);
+//        }
+//
+//        private void establishConnection (String jdbcUrl, String dbUser, String dbPassword) {
+//            try {
+//                DriverManager.registerDriver(new OracleDriver());
+//                this.connection = DriverManager.getConnection(jdbcUrl, dbUser, dbPassword);
+//            }
+//            catch (SQLException e) {
+//                throw new DatabaseException(e);
+//            }
+//        }
+//
+//        @Override
+//        public Connection getConnection () {
+//            return this.connection;
+//        }
+//
+//        @Override
+//        public boolean useOraLobs () {
+//            return false;   // function empty_blob() not available
+//        }
+//
+//    }
 
 }

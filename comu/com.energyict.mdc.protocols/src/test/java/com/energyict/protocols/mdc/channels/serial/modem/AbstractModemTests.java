@@ -44,7 +44,7 @@ public class AbstractModemTests {
     protected final String comPortName = "blabla";
 
     @Before
-    public void initializeMocksAndFactories () {
+    public void initializeMocks () {
         ManagementBeanFactoryImpl.setInstance(managementBeanFactory);
         when(managementBeanFactory.findOrCreateFor(any(RunningComServer.class))).thenReturn(comServerMonitor);
         when(((ComServerMonitor)comServerMonitor).getEventApiStatistics()).thenReturn(eventAPIStatistics);

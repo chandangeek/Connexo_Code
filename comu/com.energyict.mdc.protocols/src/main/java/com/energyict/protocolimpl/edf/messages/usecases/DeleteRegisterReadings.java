@@ -1,7 +1,6 @@
 package com.energyict.protocolimpl.edf.messages.usecases;
 
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.impl.EnvironmentImpl;
 import com.energyict.mdc.common.Transaction;
 import com.energyict.mdw.amr.*;
 import com.energyict.mdw.core.*;
