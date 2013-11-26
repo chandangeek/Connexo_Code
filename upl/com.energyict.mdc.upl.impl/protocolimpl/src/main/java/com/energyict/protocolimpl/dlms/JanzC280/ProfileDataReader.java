@@ -5,12 +5,22 @@ import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.dlms.JanzC280.events.GeneralEventLog;
 import com.energyict.protocolimpl.dlms.JanzC280.events.QualityEventLog;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 
 /**
@@ -20,11 +30,12 @@ import java.util.logging.Level;
  */
 public class ProfileDataReader {
 
-    protected JanzC280 janzC280;
-
     private static ObisCode STANDARD_EVENT_LOG = ObisCode.fromString("1.0.99.98.0.255");
     private static ObisCode QUALITY_LOG = ObisCode.fromString("1.0.99.98.1.255");
+    private static final int MILLIS_IN_SECOND = 1000;
     private static long BASE_NUMBER_OF_SECONDS = (long) 946684800; // = number of seconds 1 Jan 1970 UTC - 1 Jan 2000 UTC
+
+    protected JanzC280 janzC280;
 
     public ProfileDataReader(JanzC280 janzC280) {
         this.janzC280 = janzC280;
@@ -118,7 +129,7 @@ public class ProfileDataReader {
      */
     private Calendar getCalendarFromHoraLegal(long horaLegal) {
         Calendar gmtCal = ProtocolUtils.getCleanGMTCalendar();
-        gmtCal.setTimeInMillis((BASE_NUMBER_OF_SECONDS + horaLegal) * 1000);
+        gmtCal.setTimeInMillis((BASE_NUMBER_OF_SECONDS + horaLegal) * MILLIS_IN_SECOND);
 
         Calendar localCal = Calendar.getInstance(janzC280.getTimeZone());
         localCal.set(Calendar.YEAR, gmtCal.get(Calendar.YEAR));
@@ -138,9 +149,9 @@ public class ProfileDataReader {
      * @return hora legal timestamp
      */
     private long getHoraLegalFromCalendar(Calendar cal) {
-        long timestamp = cal.getTimeInMillis() / 1000;
+        long timestamp = cal.getTimeInMillis() / MILLIS_IN_SECOND;
         timestamp -= BASE_NUMBER_OF_SECONDS;
-        timestamp += (janzC280.getTimeZone().getRawOffset() * 36000);
+        timestamp += (janzC280.getTimeZone().getRawOffset() / MILLIS_IN_SECOND);
         timestamp += (janzC280.getTimeZone().inDaylightTime(cal.getTime()) ? 3600 : 0);
         return timestamp;
     }
