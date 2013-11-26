@@ -3,7 +3,7 @@ Ext.define('Uni.view.navigation.Header', {
     alias: 'widget.navigationHeader',
 
     requires: [
-        'Uni.view.navigation.Switcher',
+        'Uni.view.navigation.AppSwitcher',
         'Uni.view.navigation.Toggler',
         'Uni.view.navigation.Logo',
         'Uni.view.search.Quick',
@@ -21,7 +21,7 @@ Ext.define('Uni.view.navigation.Header', {
 
     items: [
         {
-//            xtype: 'navigationSwitcher'
+//            xtype: 'navigationAppSwitcher'
             xtype: 'navigationToggler' // Temporary until the navigation toggler isn't necessary anymore.
         },
         {

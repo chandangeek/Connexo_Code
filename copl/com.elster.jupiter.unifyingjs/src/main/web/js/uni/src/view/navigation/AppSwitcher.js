@@ -1,6 +1,6 @@
-Ext.define('Uni.view.navigation.Switcher', {
+Ext.define('Uni.view.navigation.AppSwitcher', {
     extend: 'Ext.button.Button',
-    alias: 'widget.navigationSwitcher',
+    alias: 'widget.navigationAppSwitcher',
     action: 'switch',
     glyph: 'xf0c9@icomoon',
     scale: 'medium',

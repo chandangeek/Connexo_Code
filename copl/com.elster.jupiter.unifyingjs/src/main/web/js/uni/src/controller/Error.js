@@ -21,7 +21,8 @@ Ext.define('Uni.controller.Error', {
     },
 
     handleRequestError: function (conn, response, options) {
-        this.showError(response.responseText);
+        var message = response.responseText || response.statusText;
+        this.showError(message);
     },
 
     showError: function (error) {

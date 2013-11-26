@@ -2,8 +2,11 @@ Ext.define('Uni.override.ApplicationOverride', {
     override: 'Ext.app.Application',
 
     unifyingControllers: [
+        'Uni.controller.Configuration',
         'Uni.controller.Error',
-        'Uni.controller.Navigation'
+        'Uni.controller.Navigation',
+        'Uni.controller.Notifications',
+        'Uni.controller.Search'
     ],
 
     /**

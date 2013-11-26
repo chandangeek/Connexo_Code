@@ -8,8 +8,14 @@ Ext.define('Uni.Loader', {
 
     requires: [
         'Ext.tip.QuickTipManager',
+        'Uni.util.I18n',
         'Ext.state.CookieProvider',
-        'Uni.util.I18n'
+
+        'Uni.controller.Configuration',
+        'Uni.controller.Error',
+        'Uni.controller.Navigation',
+        'Uni.controller.Notifications',
+        'Uni.controller.Search'
     ],
 
     onReady: function (callback) {

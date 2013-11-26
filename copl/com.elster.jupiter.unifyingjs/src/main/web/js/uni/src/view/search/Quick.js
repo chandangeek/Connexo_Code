@@ -17,6 +17,7 @@ Ext.define('Uni.view.search.Quick', {
             items: [
                 {
                     xtype: 'textfield',
+                    itemId: 'searchField',
                     cls: 'search-field',
                     emptyText: 'Search'
                 }
@@ -24,6 +25,7 @@ Ext.define('Uni.view.search.Quick', {
         },
         {
             xtype: 'button',
+            itemId: 'searchButton',
             cls: 'search-button',
             glyph: 'xe021@icomoon',
             scale: 'small'
