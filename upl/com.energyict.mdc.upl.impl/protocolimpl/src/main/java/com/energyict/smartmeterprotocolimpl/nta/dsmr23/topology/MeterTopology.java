@@ -3,12 +3,8 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.Utils;
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.*;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdw.core.Device;
@@ -23,8 +19,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedM
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -273,7 +268,7 @@ public class MeterTopology implements MasterMeter {
     }
 
     /**
-     * Create a new Device based on the given DeviceType and SerialNumber
+     * Create a new Rtu based on the given RtuType and SerialNumber
      *
      * @param rtuType      the DeviceType to create a new mete from
      * @param serialNumber the name/serialnumber to give to the new Device

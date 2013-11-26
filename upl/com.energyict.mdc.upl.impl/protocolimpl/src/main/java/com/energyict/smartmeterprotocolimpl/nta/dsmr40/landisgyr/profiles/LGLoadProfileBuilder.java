@@ -63,6 +63,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
             if (getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
                 getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
                 profile = getMeterProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
+                profile.setDsmr4SelectiveAccessFormat(true);
                 profileData = new ProfileData(lpr.getLoadProfileId());
                 profileData.setChannelInfos(getChannelInfoMap().get(lpr));
                 Calendar fromCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
@@ -70,9 +71,8 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                 Calendar toCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
                 toCalendar.setTime(lpr.getEndReadingTime());
 
-                //TODO it is possible that we need to check for the masks ...
                 LGDLMSProfileIntervals intervals = new LGDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), LGDLMSProfileIntervals.DefaultClockMask,
-                        getStatusMasksMap().get(lpr), -1, getProfileIntervalStatusBits());
+                        getStatusMasksMap().get(lpr), this.channelMaskMap.get(lpr), getProfileIntervalStatusBits());
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval(), getMeterProtocol().getTimeZone()));
 
                 profileDataList.add(profileData);

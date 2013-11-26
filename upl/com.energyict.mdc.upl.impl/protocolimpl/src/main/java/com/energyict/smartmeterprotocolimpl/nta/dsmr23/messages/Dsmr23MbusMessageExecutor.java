@@ -312,8 +312,12 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
                 return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
             }
 
+            com.energyict.protocol.Register previousRegister = null;
             MeterReadingData mrd = new MeterReadingData();
             for (com.energyict.protocol.Register register : builder.getRegisters()) {
+                if (register.equals(previousRegister)) {
+                    continue;    //Don't add the same intervals twice if there's 2 channels with the same obiscode
+                }
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
@@ -321,6 +325,7 @@ public class Dsmr23MbusMessageExecutor extends GenericMessageExecutor {
                         mrd.add(registerValue);
                     }
                 }
+                previousRegister = register;
             }
 
             MeterData md = new MeterData();

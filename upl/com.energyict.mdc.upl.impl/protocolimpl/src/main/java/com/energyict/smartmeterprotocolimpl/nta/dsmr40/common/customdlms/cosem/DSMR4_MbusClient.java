@@ -1,8 +1,7 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.customdlms.cosem;
 
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.MBusClient;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
@@ -18,9 +17,8 @@ import java.io.IOException;
  */
 public class DSMR4_MbusClient extends MBusClient {
 
-    private Integer8 encryptionStatus;
-    private OctetString dsmrCompliancyLevel;
-    private Integer8 keyStatus;
+    private Unsigned16 encryptionStatus;
+    private TypeEnum keyStatus;
 
     /**
      * Constructor allowing you to set a BlueBook version
@@ -49,8 +47,8 @@ public class DSMR4_MbusClient extends MBusClient {
      * @return the up-to-date encryptionStatus
      * @throws IOException if for some reason you could not read the attribute
      */
-    public Integer8 readEncryptionStatus() throws IOException {
-        this.encryptionStatus = new Integer8(getResponseData(DSMR4_MbusClientAttributes.ENCRYPTION_STATUS), 0);
+    public Unsigned16 readEncryptionStatus() throws IOException {
+        this.encryptionStatus = new Unsigned16(getResponseData(DSMR4_MbusClientAttributes.ENCRYPTION_STATUS), 0);
         return this.encryptionStatus;
     }
 
@@ -60,7 +58,7 @@ public class DSMR4_MbusClient extends MBusClient {
      * @return the 'cached' EncryptionStatus attribute
      * @throws IOException if for some reason the attribute could not be read from the device
      */
-    public Integer8 getEncryptionStatus() throws IOException {
+    public Unsigned16 getEncryptionStatus() throws IOException {
         if (this.encryptionStatus == null) {
             readEncryptionStatus();
         }
@@ -73,44 +71,9 @@ public class DSMR4_MbusClient extends MBusClient {
      * @param encryptionStatus the EncryptionStatus to write
      * @throws IOException if for some reason you could not write the attribute
      */
-    public void writeEncryptionStatus(Integer8 encryptionStatus) throws IOException {
+    public void writeEncryptionStatus(Unsigned16 encryptionStatus) throws IOException {
         write(DSMR4_MbusClientAttributes.ENCRYPTION_STATUS, encryptionStatus.getBEREncodedByteArray());
         this.encryptionStatus = encryptionStatus;
-    }
-
-    /**
-     * Read the dsmrCompliancyLevel attribute from the Device
-     *
-     * @return the up-to-date dsmrCompliancyLevel
-     * @throws IOException if for some reason you could not read the attribute
-     */
-    public OctetString readDsmrCompliancyLevel() throws IOException {
-        this.dsmrCompliancyLevel = new OctetString(getResponseData(DSMR4_MbusClientAttributes.DSMR_COMPLIANCY_LEVEL), 0);
-        return this.dsmrCompliancyLevel;
-    }
-
-    /**
-     * Get the dsmrCompliancyLevel attribute. If the attribute is cached, then this is returned, otherwise it is fetched from the device using the {@link #readDsmrCompliancyLevel()} method
-     *
-     * @return the 'cached' dsmrCompliancyLevel attribute
-     * @throws IOException if for some reason the attribute could not be read from the device
-     */
-    public OctetString getDsmrCompliancyLevel() throws IOException {
-        if (this.dsmrCompliancyLevel == null) {
-            readDsmrCompliancyLevel();
-        }
-        return this.dsmrCompliancyLevel;
-    }
-
-    /**
-     * Write the dsmrCompliancyLevel to the device
-     *
-     * @param dsmrCompliancyLevel the dsmrCompliancyLevel to write
-     * @throws IOException if for some reason you could not write the attribute
-     */
-    public void writeDsmrCompliancyLevel(OctetString dsmrCompliancyLevel) throws IOException {
-        write(DSMR4_MbusClientAttributes.DSMR_COMPLIANCY_LEVEL, dsmrCompliancyLevel.getBEREncodedByteArray());
-        this.dsmrCompliancyLevel = dsmrCompliancyLevel;
     }
 
     /**
@@ -119,8 +82,8 @@ public class DSMR4_MbusClient extends MBusClient {
      * @return the up-to-date KeyStatus
      * @throws IOException if for some reason you could not read the attribute
      */
-    public Integer8 readKeyStatus() throws IOException {
-        this.keyStatus = new Integer8(getResponseData(DSMR4_MbusClientAttributes.KEY_STATUS), 0);
+    public TypeEnum readKeyStatus() throws IOException {
+        this.keyStatus = new TypeEnum(getResponseData(DSMR4_MbusClientAttributes.KEY_STATUS), 0);
         return this.keyStatus;
     }
 
@@ -130,7 +93,7 @@ public class DSMR4_MbusClient extends MBusClient {
      * @return the 'cached' keyStatus attribute
      * @throws IOException if for some reason the attribute could not be read from the device
      */
-    public Integer8 getKeyStatus() throws IOException {
+    public TypeEnum getKeyStatus() throws IOException {
         if (this.keyStatus == null) {
             readKeyStatus();
         }
@@ -143,7 +106,7 @@ public class DSMR4_MbusClient extends MBusClient {
      * @param keyStatus the keyStatus to write
      * @throws IOException if for some reason you could not write the attribute
      */
-    public void writeKeyStatus(Integer8 keyStatus) throws IOException {
+    public void writeKeyStatus(TypeEnum keyStatus) throws IOException {
         write(DSMR4_MbusClientAttributes.KEY_STATUS, keyStatus.getBEREncodedByteArray());
         this.keyStatus = keyStatus;
     }

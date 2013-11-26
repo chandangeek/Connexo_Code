@@ -39,6 +39,7 @@ public abstract class AbstractCosemObject {
 	private ObjectReference objectReference						= null;
     private int                     nrOfInvalidResponseFrames           = 0;
     private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
+    protected boolean dsmr4SelectiveAccessFormat = false;
 
 
     /**
@@ -555,6 +556,11 @@ public abstract class AbstractCosemObject {
         responseData = checkCosemPDUResponseHeader(responseData);
 
         int ptr = 0;
+        if ((responseData[ptr] & 0xFF) != attributes.length) {
+            throw new IOException("Requested " + attributes.length + " attributes with a bulk request, but received " + (responseData[ptr] & 0xFF) + " attributes!");
+        }
+        ptr++;
+
         for (int i = 0; i < attributes.length; i++) {
             switch (responseData[ptr]) {
                 case 0x00: // Data
@@ -568,7 +574,7 @@ public abstract class AbstractCosemObject {
                     ptr += 2;
                     break;
                 default:
-                    throw new IOException("Invalid state while parsing GetResponseWithList: expected '0' or '1' but was " + responseData[i]);
+                    throw new IOException("Invalid state while parsing GetResponseWithList: expected '0' or '1' but was " + responseData[ptr]);
             }
         }
 
@@ -1114,7 +1120,9 @@ public abstract class AbstractCosemObject {
     protected byte[] sendAndReceiveValidResponse(byte[] request, boolean isAlreadyEncrypted) throws IOException {
         this.nrOfInvalidResponseFrames = 0;
         byte[] responseData = getDLMSConnection().sendRequest(request);
-        if (responseData == null) return responseData;
+        if (responseData == null) {
+            return responseData;
+        }
         Byte invokeIdAndPriorityOfResponse = extractInvokeIdFromResponse(responseData);
 
         while (invokeIdAndPriorityOfResponse != null && !this.invokeIdAndPriorityHandler.validateInvokeId(invokeIdAndPriorityOfResponse)) {
@@ -1382,7 +1390,6 @@ public abstract class AbstractCosemObject {
                         case DLMSCOSEMGlobals.COSEM_GETRESPONSE_WITH_LIST: {
                             i++; // skip tag
                             i++; // skip invoke id & priority
-                            i++; // nr of items
                             receiveBuffer.addArray(responseData, i);
                             return receiveBuffer.getArray();
                         }
@@ -1552,7 +1559,9 @@ public abstract class AbstractCosemObject {
      * @return the invoke id and priority byte
      */
     protected Byte extractInvokeIdFromResponse(byte[] responseData)  {
-        if (responseData == null) return null;
+        if (responseData == null) {
+            return null;
+        }
         int i = DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET;
 
         switch (responseData[i]) {
@@ -1599,6 +1608,7 @@ public abstract class AbstractCosemObject {
 	private byte[] getBufferRangeDescriptor(long fromCalendar, long toCalendar) {
         return getBufferRangeDescriptorDefault(fromCalendar, toCalendar);
 	}
+
 	private byte[] getBufferRangeDescriptor(Calendar fromCalendar, Calendar toCalendar, List<CapturedObject> channels) {
 		if ((toCalendar == null) && this.protocolLink.getMeterConfig().isSLB()) {
 			return getBufferRangeDescriptorSL7000(fromCalendar);
@@ -1763,9 +1773,7 @@ public abstract class AbstractCosemObject {
 		intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
 		intreq[CAPTURE_FROM_OFFSET + 4] = (byte) (fromCalendar.get(Calendar.MONTH) + 1);
 		intreq[CAPTURE_FROM_OFFSET + 5] = (byte) fromCalendar.get(Calendar.DAY_OF_MONTH);
-		//             bDOW = (byte)fromCalendar.get(Calendar.DAY_OF_WEEK);
-		//             intreq[CAPTURE_FROM_OFFSET+6]=bDOW--==1?(byte)7:bDOW;
-		intreq[CAPTURE_FROM_OFFSET + 6] = (byte) 0xff;
+        intreq[CAPTURE_FROM_OFFSET + 6] = (byte) getDayOfWeek(fromCalendar);
 		intreq[CAPTURE_FROM_OFFSET + 7] = (byte) fromCalendar.get(Calendar.HOUR_OF_DAY);
 		intreq[CAPTURE_FROM_OFFSET + 8] = (byte) fromCalendar.get(Calendar.MINUTE);
 		//             intreq[CAPTURE_FROM_OFFSET+9]=(byte)fromCalendar.get(Calendar.SECOND);
@@ -1776,9 +1784,12 @@ public abstract class AbstractCosemObject {
 			intreq[CAPTURE_FROM_OFFSET + 9] = 0x01;
 		}
 
-		intreq[CAPTURE_FROM_OFFSET + 10] = (byte) 0xFF;
-		intreq[CAPTURE_FROM_OFFSET + 11] = (byte) 0x80;
-		intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
+        int minutesOffset = (protocolLink.getTimeZone().getRawOffset() + protocolLink.getTimeZone().getDSTSavings()) / (-1 * 1000 * 60);
+        byte[] offset = getBytesFromInt(minutesOffset, 2);
+
+        intreq[CAPTURE_FROM_OFFSET + 10] = dsmr4SelectiveAccessFormat ? 0 : (byte) 0xFF;
+        intreq[CAPTURE_FROM_OFFSET + 11] = dsmr4SelectiveAccessFormat ? offset[0] : (byte) 0x80;
+        intreq[CAPTURE_FROM_OFFSET + 12] = dsmr4SelectiveAccessFormat ? offset[1] : 0x00;
 
 		if (this.protocolLink.getTimeZone().inDaylightTime(fromCalendar.getTime())) {
 			intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0x80;
@@ -1792,13 +1803,13 @@ public abstract class AbstractCosemObject {
 		intreq[CAPTURE_TO_OFFSET + 3] = toCalendar != null ? (byte) toCalendar.get(Calendar.YEAR) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 4] = toCalendar != null ? (byte) (toCalendar.get(Calendar.MONTH) + 1) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 5] = toCalendar != null ? (byte) toCalendar.get(Calendar.DAY_OF_MONTH) : (byte) 0xFF;
-		intreq[CAPTURE_TO_OFFSET + 6] = (byte) 0xFF;
+        intreq[CAPTURE_TO_OFFSET + 6] = (byte) getDayOfWeek(toCalendar);
 		intreq[CAPTURE_TO_OFFSET + 7] = toCalendar != null ? (byte) toCalendar.get(Calendar.HOUR_OF_DAY) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 8] = toCalendar != null ? (byte) toCalendar.get(Calendar.MINUTE) : (byte) 0xFF;
 		intreq[CAPTURE_TO_OFFSET + 9] = 0x00;
-		intreq[CAPTURE_TO_OFFSET + 10] = (byte) 0xFF;
-		intreq[CAPTURE_TO_OFFSET + 11] = (byte) 0x80;
-		intreq[CAPTURE_TO_OFFSET + 12] = 0x00;
+        intreq[CAPTURE_TO_OFFSET + 10] = dsmr4SelectiveAccessFormat ? 0 : (byte) 0xFF;
+        intreq[CAPTURE_TO_OFFSET + 11] = dsmr4SelectiveAccessFormat ? offset[0] : (byte) 0x80;
+        intreq[CAPTURE_TO_OFFSET + 12] = dsmr4SelectiveAccessFormat ? offset[1] : 0x00;
 
         if ((toCalendar != null) && this.protocolLink.getTimeZone().inDaylightTime(toCalendar.getTime())) {
             intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
@@ -1808,6 +1819,15 @@ public abstract class AbstractCosemObject {
 
         return intreq;
 	}
+
+    private int getDayOfWeek(Calendar fromCalendar) {
+        int dlmsDayOfWeek = 0xFF;
+        if (dsmr4SelectiveAccessFormat) {
+            dlmsDayOfWeek = fromCalendar.get(Calendar.DAY_OF_WEEK) - 1;
+            dlmsDayOfWeek = dlmsDayOfWeek == 0 ? 7 : dlmsDayOfWeek;
+        }
+        return dlmsDayOfWeek;
+    }
 
 	private byte[] getBufferRangeDescriptorDefault(long fromCalendar, long toCalendar) {
 
@@ -1984,6 +2004,15 @@ public abstract class AbstractCosemObject {
 
         return intreq;
 	}
+
+    public static byte[] getBytesFromInt(int value, int length) {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < bytes.length; i++) {
+            int ptr = (bytes.length - (i + 1));
+            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
+        }
+        return bytes;
+    }
 
 	/**
 	 * @param responseData

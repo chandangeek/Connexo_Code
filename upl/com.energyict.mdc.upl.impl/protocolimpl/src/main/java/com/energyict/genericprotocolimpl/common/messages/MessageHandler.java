@@ -1,4 +1,3 @@
-
 package com.energyict.genericprotocolimpl.common.messages;
 
 import com.energyict.protocol.messaging.LegacyLoadProfileRegisterMessageBuilder;
@@ -10,6 +9,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -37,6 +38,9 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.FIRMWARE_UPGRADE.equals(qName)){
 			setType(RtuMessageConstant.FIRMWARE_UPGRADE);
 			handleFirmWareUpgrade(attrbs);
+		} else if(RtuMessageConstant.CHANGE_ADMINISTRATIVE_STATUS.equals(qName)){
+			setType(RtuMessageConstant.CHANGE_ADMINISTRATIVE_STATUS);
+			handleAdministrativeStatus(attrbs);
 		} else if(RtuMessageConstant.FIRMWARE_UPDATE.equals(qName)){
 			setType(RtuMessageConstant.FIRMWARE_UPDATE);
             isXmlInContent = true;
@@ -163,6 +167,9 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.JOIN_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.JOIN_ZIGBEE_SLAVE);
             handleJoinZigBeeSlave(attrbs);
+        } else if(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_FROM_DEVICE_TYPE.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_FROM_DEVICE_TYPE);
+            handleJoinZigBeeSlaveFromDeviceType(attrbs);
         } else if(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.REMOVE_ZIGBEE_SLAVE);
             handleRemoveZigBeeSlave(attrbs);
@@ -176,6 +183,9 @@ public class MessageHandler extends DefaultHandler{
         } else if(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS.equalsIgnoreCase(qName)){
             setType(RtuMessageConstant.RESTORE_ZIGBEE_HAN_PARAMETERS);
             handleRestoreHANParameters(attrbs);
+        } else if(RtuMessageConstant.UPDATE_HAN_LINK_KEY.equalsIgnoreCase(qName)){
+            setType(RtuMessageConstant.UPDATE_HAN_LINK_KEY);
+            handleUpdateHANLinkKeyParameters(attrbs);
         } else if (RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE.equals(qName)) {
             setType(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_UPGRADE);
             handleZigbeeNCPFirmwareUpgradeParameters(attrbs);
@@ -199,6 +209,15 @@ public class MessageHandler extends DefaultHandler{
         } else if (RtuMessageConstant.GPRS_MODEM_PING_SETUP.equalsIgnoreCase(qName)) {
              setType(RtuMessageConstant.GPRS_MODEM_PING_SETUP);
             handleGPRSModemPingSetup(attrbs);
+        } else if (RtuMessageConstant.CONNECTION_MODE.equalsIgnoreCase(qName)) {
+            setType(RtuMessageConstant.CONNECTION_MODE);
+            handleGPRSConnectionModeParameters(attrbs);
+        } else if (RtuMessageConstant.WAKEUP_PARAMETERS.equalsIgnoreCase(qName)) {
+            setType(RtuMessageConstant.WAKEUP_PARAMETERS);
+            handeGPRSWakeupParameters(attrbs);
+        } else if (RtuMessageConstant.PREFERRED_NETWORK_OPERATORS_LIST.equalsIgnoreCase(qName)) {
+            setType(RtuMessageConstant.PREFERRED_NETWORK_OPERATORS_LIST);
+            handePreferredNetworkOperatorsListParameters(attrbs);
 		} else {
 			if(!isXmlInContent){ // If there is XML in the content, then the protocol will parse it himself ...
 				throw new SAXException("Unknown messageContent : " + qName);
@@ -221,6 +240,16 @@ public class MessageHandler extends DefaultHandler{
 	public String getType(){
 		return this.type;
 	}
+
+    private int administrativeStatus;
+
+    private void handleAdministrativeStatus(Attributes attrbs) {
+        this.administrativeStatus = Integer.parseInt(attrbs.getValue(RtuMessageConstant.ADMINISTRATIVE_STATUS).trim());
+    }
+
+    public int getAdministrativeStatus() {
+        return administrativeStatus;
+    }
 
 	/* FirmwareUpgrade Related messages
 	/**********************************************/
@@ -668,10 +697,17 @@ public class MessageHandler extends DefaultHandler{
 
     private String joinZigBeeIEEEAddress = "";
     private String joinZigBeeLinkKey = "";
+    private String joinZigBeeDeviceType = "";
 
     private void handleJoinZigBeeSlave(Attributes attrbs) {
         this.joinZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS);
         this.joinZigBeeLinkKey = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY);
+    }
+
+    private void handleJoinZigBeeSlaveFromDeviceType(Attributes attrbs) {
+        this.joinZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS);
+        this.joinZigBeeLinkKey = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_LINK_KEY);
+        this.joinZigBeeDeviceType = attrbs.getValue(RtuMessageConstant.JOIN_ZIGBEE_SLAVE_DEVICE_TYPE);
     }
 
     public String getJoinZigBeeIEEEAddress() {
@@ -680,6 +716,10 @@ public class MessageHandler extends DefaultHandler{
 
     public String getJoinZigBeeLinkKey() {
         return joinZigBeeLinkKey;
+    }
+
+    public String getJoinZigBeeDeviceType() {
+        return joinZigBeeDeviceType;
     }
 
     private String removeZigBeeIEEEAddress = "";
@@ -715,9 +755,22 @@ public class MessageHandler extends DefaultHandler{
         }
     }
 
+    private String updateHanLinkKeyZigBeeIEEEAddress = "";
+
+    private void handleUpdateHANLinkKeyParameters(Attributes attrbs) {
+        this.updateHanLinkKeyZigBeeIEEEAddress = attrbs.getValue(RtuMessageConstant.UPDATE_HAN_LINK_KEY_SLAVE_IEEE_ADDRESS);
+    }
+
+    public String getUpdateHanLinkKeyZigBeeIEEEAddress() {
+        return updateHanLinkKeyZigBeeIEEEAddress;
+    }
+
     private String zigbeeNCPFirmwareUpgradeUserFileID = "";
     private void handleZigbeeNCPFirmwareUpgradeParameters(final Attributes attrbs) {
         this.zigbeeNCPFirmwareUpgradeUserFileID = attrbs.getValue(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_USERFILE_ID);
+        if (this.zigbeeNCPFirmwareUpgradeUserFileID == null) {
+            this.zigbeeNCPFirmwareUpgradeUserFileID = attrbs.getValue(RtuMessageConstant.ZIGBEE_NCP_FIRMWARE_FILE_ID);
+        }
     }
 
     public int getZigbeeNCPFirmwareUpgradeUserFileId() {
@@ -831,6 +884,62 @@ public class MessageHandler extends DefaultHandler{
 
     public int getPingInterval() {
         return pingInterval;
+    }
+
+    private int connectionMode = 0;
+
+    private void handleGPRSConnectionModeParameters(final Attributes attrbs) {
+        try {
+            String modeStr = attrbs.getValue(RtuMessageConstant.CONNECT_MODE);
+            this.connectionMode = Integer.parseInt(modeStr);
+        } catch (NumberFormatException e) {
+            this.connectionMode = -1;
+        }
+    }
+
+    public int getGPRSConnectionMode() {
+        return connectionMode;
+    }
+
+    private int wakeupCallingWindowLength = 0;
+    private int wakeupIdleTimeout = 0;
+
+    private void handeGPRSWakeupParameters(final Attributes attrbs) {
+        try {
+            String callingWindowLengthStr = attrbs.getValue(RtuMessageConstant.WAKEUP_CALLING_WINDOW_LENGTH);
+            this.wakeupCallingWindowLength = Integer.parseInt(callingWindowLengthStr);
+        } catch (NumberFormatException e) {
+            this.wakeupCallingWindowLength = -1;
+        }
+        try {
+            String idleTimeoutStr = attrbs.getValue(RtuMessageConstant.WAKEUP_IDLE_TIMEOUT);
+            this.wakeupIdleTimeout = Integer.parseInt(idleTimeoutStr);
+        } catch (NumberFormatException e) {
+            this.wakeupIdleTimeout = -1;
+        }
+    }
+
+    public int getWakeupCallingWindowLength() {
+        return wakeupCallingWindowLength;
+    }
+
+    public int getWakeupIdleTimeout() {
+        return wakeupIdleTimeout;
+    }
+
+    List<String> preferredNetworkOperators = new ArrayList<String>();
+
+    private void handePreferredNetworkOperatorsListParameters(final Attributes attrbs) {
+        for (int i = 1; i < 11; i++) {
+            String networkOperatorStr = attrbs.getValue(RtuMessageConstant.NETWORK_OPERATOR + "_" + i);
+            if (networkOperatorStr != null) {
+                preferredNetworkOperators.add(networkOperatorStr);
+            }
+        }
+    }
+
+    public List<String> getPreferredNetworkOperators() {
+        return preferredNetworkOperators;
     }
 
     private int defaultResetWindow = 0;

@@ -85,6 +85,7 @@ import com.energyict.protocol.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.DSMR40RegisterFactory;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
@@ -130,7 +131,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
 
             MessageResult msgResult = null;
             String content = msgEntry.getContent();
-            MessageHandler messageHandler = new NTAMessageHandler();
+            MessageHandler messageHandler = getMessageHandler();
             try {
                 importMessage(content, messageHandler);
 
@@ -164,6 +165,9 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 boolean activateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_ACTIVATE);
                 boolean deActivateSMS = messageHandler.getType().equals(RtuMessageConstant.WAKEUP_DEACTIVATE);
                 boolean actSecuritLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_ACTIVATE_SECURITY);
+                boolean serviceKeyHlsSecret = messageHandler.getType().equals(RtuMessageConstant.SERVICEKEY_HLSSECRET);
+                boolean serviceKeyAK = messageHandler.getType().equals(RtuMessageConstant.SERVICEKEY_AK);
+                boolean serviceKeyEK = messageHandler.getType().equals(RtuMessageConstant.SERVICEKEY_EK);
                 boolean changeAuthLevel = messageHandler.getType().equals(RtuMessageConstant.AEE_CHANGE_AUTHENTICATION_LEVEL);
                 boolean enableAuthLevelP0 = messageHandler.getType().equals(RtuMessageConstant.AEE_ENABLE_AUTHENTICATION_LEVEL_P0);
                 boolean disableAuthLevelP0 = messageHandler.getType().equals(RtuMessageConstant.AEE_DISABLE_AUTHENTICATION_LEVEL_P0);
@@ -173,6 +177,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 boolean loadProfileRegisterRequest = messageHandler.getType().equals(LegacyLoadProfileRegisterMessageBuilder.getMessageNodeTag());
                 boolean resetAlarmRegisterRequest = messageHandler.getType().equals(RtuMessageConstant.RESET_ALARM_REGISTER);
                 boolean isChangeDefaultResetWindow = messageHandler.getType().equals(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
+                boolean isChangeAdministrativeStatus = messageHandler.getType().equals(RtuMessageConstant.CHANGE_ADMINISTRATIVE_STATUS);
 
                 /* All MbusMeter related messages */
                 if (xmlConfig) {
@@ -231,6 +236,12 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     activateSms();
                 } else if (deActivateSMS) {
                     deactivateSms();
+                } else if (serviceKeyHlsSecret) {
+                    serviceKeyHlsSecret(messageHandler);
+                } else if (serviceKeyAK) {
+                    serviceKeyAK(messageHandler);
+                } else if (serviceKeyEK) {
+                    serviceKeyEK(messageHandler);
                 } else if (actSecuritLevel) {
                     getCosemObjectFactory().getSecuritySetup().activateSecurity(new TypeEnum(messageHandler.getSecurityLevel()));
                 } else if (changeAuthLevel) {
@@ -251,6 +262,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     resetAlarmRegister();
                 } else if (isChangeDefaultResetWindow) {
                     changeDefaultResetWindow(messageHandler);
+                } else if (isChangeAdministrativeStatus) {
+                    changeAdministrativeStatus(messageHandler);
                 } else {
                     msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
                     log(Level.INFO, "Message not supported : " + content);
@@ -290,6 +303,23 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         }
     }
 
+    //Cryptoserver protocol overrides this implemenation
+    protected void serviceKeyHlsSecret(MessageHandler messageHandler) throws IOException {
+        throw new IOException("Received message to write the service HLS secret, but Cryptoserver usage is not supported in this protocol");
+    }
+
+    protected void serviceKeyAK(MessageHandler messageHandler) throws IOException {
+        throw new IOException("Received message to write the service authentication key, but Cryptoserver usage is not supported in this protocol");
+    }
+
+    protected void serviceKeyEK(MessageHandler messageHandler) throws IOException {
+        throw new IOException("Received message to write the service encryption key, but Cryptoserver usage is not supported in this protocol");
+    }
+
+    protected NTAMessageHandler getMessageHandler() {
+        return new NTAMessageHandler();
+    }
+
     protected void deactivateSms() throws IOException {
         getCosemObjectFactory().getAutoConnect().writeMode(1);
     }
@@ -298,7 +328,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         getCosemObjectFactory().getAutoConnect().writeMode(4);
     }
 
-    private MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
+    protected MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
         try {
             log(Level.INFO, "Handling message Read LoadProfile Registers.");
             LegacyLoadProfileRegisterMessageBuilder builder = this.protocol.getLoadProfileRegisterMessageBuilder();
@@ -324,8 +354,12 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 return MessageResult.createFailed(msgEntry, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")");
             }
 
+            com.energyict.protocol.Register previousRegister = null;
             MeterReadingData mrd = new MeterReadingData();
             for (com.energyict.protocol.Register register : builder.getRegisters()) {
+                if (register.equals(previousRegister)) {
+                    continue;    //Don't add the same intervals twice if there's 2 channels with the same obiscode
+                }
                 for (int i = 0; i < pd.getChannelInfos().size(); i++) {
                     final ChannelInfo channel = pd.getChannel(i);
                     if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
@@ -333,6 +367,7 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                         mrd.add(registerValue);
                     }
                 }
+                previousRegister = register;
             }
 
             MeterData md = new MeterData();
@@ -1165,6 +1200,12 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
     private void changeDefaultResetWindow(MessageHandler messageHandler) throws IOException {
         log(Level.INFO, "Handling message Change default reset window.");
         getCosemObjectFactory().getData(ObisCode.fromString("0.0.96.50.5.255")).setValueAttr(new Unsigned32(messageHandler.getDefaultResetWindow()));
+    }
+
+    private void changeAdministrativeStatus(MessageHandler messageHandler) throws IOException {
+        int status = messageHandler.getAdministrativeStatus();
+        log(Level.INFO, "Changing administrative status to " + status);
+        getCosemObjectFactory().getData(DSMR40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
     }
 
     protected void log(final Level level, final String msg) {

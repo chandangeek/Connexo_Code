@@ -6,7 +6,6 @@ import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.EventProfile;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology.MeterTopology;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.eventhandling.XemexEventProfile;
@@ -23,7 +22,7 @@ import java.io.IOException;
  */
 public class REMIDatalogger extends E350 {
 
-    private LoadProfileBuilder loadProfileBuilder;
+    private XemexLoadProfileBuilder loadProfileBuilder;
 
     @Override
     public DlmsProtocolProperties getProperties() {
@@ -34,7 +33,7 @@ public class REMIDatalogger extends E350 {
     }
 
     @Override
-    public LoadProfileBuilder getLoadProfileBuilder() {
+    public XemexLoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
             this.loadProfileBuilder = new XemexLoadProfileBuilder(this);
         }

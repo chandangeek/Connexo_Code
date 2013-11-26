@@ -20,6 +20,8 @@ import java.io.IOException;
  */
 public class Kaifa extends E350 {
 
+    private Dsmr40Messaging messageProtocol = null;
+
     @Override
     public String getProtocolDescription() {
         return "IBM Kaifa NTA DSMR 4.0";
@@ -45,7 +47,10 @@ public class Kaifa extends E350 {
 
     @Override
     public MessageProtocol getMessageProtocol() {
-        return new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this));
+        if (messageProtocol == null) {
+            messageProtocol = new Dsmr40Messaging(new KaifaDsmr40MessageExecutor(this));
+        }
+        return messageProtocol;
     }
 
     @Override

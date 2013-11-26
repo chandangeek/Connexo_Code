@@ -64,6 +64,14 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
         return dataContainer;
     }
 
+    /**
+     * Enable this to use the DSMR4.0 selective access range descriptor.
+     * The from/to date will contain a specified DOW, specific hundredths of seconds, a specified timezone deviation.
+     */
+    public void setDsmr4SelectiveAccessFormat(boolean dsmr4SelectiveAccessFormat) {
+        this.dsmr4SelectiveAccessFormat = dsmr4SelectiveAccessFormat;
+    }
+
     public DataContainer getBuffer(long fromCalendar, long toCalendar) throws IOException {
         byte[] responseData = getBufferResponseData(fromCalendar, toCalendar);
         DataContainer dataContainer = new DataContainer();

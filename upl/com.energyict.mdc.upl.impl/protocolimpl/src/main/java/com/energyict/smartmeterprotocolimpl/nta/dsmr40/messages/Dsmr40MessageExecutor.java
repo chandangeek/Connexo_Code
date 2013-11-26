@@ -53,6 +53,11 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
         getCosemObjectFactory().getSMSWakeupConfiguration().writeListeningWindow(new Array());
     }
 
+    protected MessageResult doReadLoadProfileRegisters(final MessageEntry msgEntry) {
+        MessageResult messageResult = super.doReadLoadProfileRegisters(msgEntry);
+        return new LoadProfileToRegisterParser().parse(messageResult);
+    }
+
     protected void doFirmwareUpgrade(MessageHandler messageHandler) throws IOException, InterruptedException {
         log(Level.INFO, "Handling message Firmware upgrade");
 

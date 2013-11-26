@@ -25,6 +25,8 @@ import java.util.List;
  */
 public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
 
+    private boolean cumulativeCaptureTimeChannel = false;
+
     /**
      * Default constructor
      *
@@ -32,6 +34,10 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
      */
     public Dsmr40LoadProfileBuilder(AbstractSmartNtaProtocol meterProtocol) {
         super(meterProtocol);
+    }
+
+    public void setCumulativeCaptureTimeChannel(boolean cumulativeCaptureTimeChannel) {
+        this.cumulativeCaptureTimeChannel = cumulativeCaptureTimeChannel;
     }
 
     @Override
@@ -60,14 +66,14 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
     }
 
     /**
-     * Retrieve the appropriate ScalerUnit for the channel, based on the {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject}.<br></br>
+     * Retrieve the appropriate ScalerUnit for the channel, based on the {@link CapturedRegisterObject}.<br></br>
      * Channels who store the capture timestamp will be fixed assigned ScalerUnit seconds.<br></br>
      * For all other channels, the ScalerUnit will be requested from the device.
      *
      * @param registerObject   the CapturedRegisterObject
      * @param ccoRegisterUnits the ComposedCosemObject
      * @return the ScalerUnit for the channel
-     * @throws java.io.IOException
+     * @throws IOException
      */
     protected ScalerUnit getScalerUnitForCapturedRegisterObject(CapturedRegisterObject registerObject, ComposedCosemObject ccoRegisterUnits) throws IOException {
         ScalerUnit su = null;
@@ -88,7 +94,7 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
     }
 
     /**
-     * Method to check if the channel is cumulative, based on the {@link com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.CapturedRegisterObject}.<br></br>
+     * Method to check if the channel is cumulative, based on the {@link CapturedRegisterObject}.<br></br>
      * Channels who store the capture timestamp are not cumulative.
      *
      * @param registerObject the CapturedRegisterObject
@@ -98,10 +104,10 @@ public class Dsmr40LoadProfileBuilder extends LoadProfileBuilder {
     protected boolean isCumulativeChannel(CapturedRegisterObject registerObject) {
         if ((registerObject.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId()) &&
                 (registerObject.getAttribute() == ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber())) {
-            return false;
+            return cumulativeCaptureTimeChannel;
         } else if ((registerObject.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId()) &&
                 (registerObject.getAttribute() == DemandRegisterAttributes.CAPTURE_TIME.getAttributeNumber())) {
-            return false;
+            return cumulativeCaptureTimeChannel;
         }
         return true;
     }

@@ -1,17 +1,17 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr;
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
+import com.energyict.dialer.connection.*;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuilder;
+import com.energyict.protocol.MessageProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.Dsmr40Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.AbstractSmartDSMR40NtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles.LGLoadProfileBuilder;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40MessageExecutor;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr40.messages.Dsmr40Messaging;
 
 import java.io.IOException;
 
@@ -22,11 +22,20 @@ import java.io.IOException;
  */
 public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
 
-    private LoadProfileBuilder loadProfileBuilder;
+    private LGLoadProfileBuilder loadProfileBuilder;
+    private Dsmr40Messaging messageProtocol;
 
     @Override
     public String getProtocolDescription() {
         return "Landis+Gyr E350 XEMEX NTA DSMR 4.0";
+    }
+
+    @Override
+    public MessageProtocol getMessageProtocol() {
+        if (messageProtocol == null) {
+            messageProtocol = new Dsmr40Messaging(new Dsmr40MessageExecutor(this));
+        }
+        return messageProtocol;
     }
 
     @Override
@@ -92,9 +101,10 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements HHUEnabler {
     }
 
     @Override
-    public LoadProfileBuilder getLoadProfileBuilder() {
+    public LGLoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
             this.loadProfileBuilder = new LGLoadProfileBuilder(this);
+            loadProfileBuilder.setCumulativeCaptureTimeChannel(((Dsmr40Properties) getProperties()).getCumulativeCaptureTimeChannel());
         }
         return loadProfileBuilder;
     }

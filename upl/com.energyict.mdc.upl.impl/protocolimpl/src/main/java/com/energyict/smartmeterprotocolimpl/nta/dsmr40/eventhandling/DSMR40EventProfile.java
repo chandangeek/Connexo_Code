@@ -32,11 +32,11 @@ public class DSMR40EventProfile extends EventProfile {
         }
         fromCal.setTime(fromDate);
         protocol.getLogger().log(Level.INFO, "Reading EVENTS from meter with serialnumber " + protocol.getSerialNumber() + ".");
-        DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
-        DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
-        DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
-        DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
-        DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode()).getBuffer(fromCal, getToCalendar());
+        DataContainer dcEvent = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getEventLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
+        DataContainer dcControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getControlLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
+        DataContainer dcPowerFailure = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getPowerFailureLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
+        DataContainer dcFraudDetection = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getFraudDetectionLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
+        DataContainer dcMbusEventLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusEventLogObject().getObisCode(), true).getBuffer(fromCal, getToCalendar());
 
         StandardEventLog standardEvents = new StandardEventLog(dcEvent, this.protocol.getDateTimeDeviationType());
         FraudDetectionLog fraudDetectionEvents = new FraudDetectionLog(dcFraudDetection, this.protocol.getDateTimeDeviationType());
@@ -54,7 +54,7 @@ public class DSMR40EventProfile extends EventProfile {
         MbusControlLog mbusControlLog;
         try {
             for (DeviceMapping mbusDevices : this.protocol.getMeterTopology().getMbusMeterMap()) {
-                dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress() -1).getObisCode()).getBuffer(fromCal, getToCalendar());
+                dcMbusControlLog = getCosemObjectFactory().getProfileGeneric(getMeterConfig().getMbusControlLog(mbusDevices.getPhysicalAddress() -1).getObisCode(), true).getBuffer(fromCal, getToCalendar());
                 mbusControlLog = new MbusControlLog(dcMbusControlLog, this.protocol.getDateTimeDeviationType());
                 eventList.addAll(mbusControlLog.getMeterEvents());
 

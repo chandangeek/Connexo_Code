@@ -153,6 +153,12 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new ProfileGeneric(protocolLink,getObjectReference(obisCode));
     }
 
+    public ProfileGeneric getProfileGeneric(ObisCode obisCode, boolean dsmr4SelectiveAccessFormat) throws IOException {
+        ProfileGeneric profileGeneric = new ProfileGeneric(protocolLink, getObjectReference(obisCode));
+        profileGeneric.setDsmr4SelectiveAccessFormat(dsmr4SelectiveAccessFormat);
+        return profileGeneric;
+    }
+
     public ProfileGeneric getProfileGeneric(int shortNameReference) throws IOException {
         return new ProfileGeneric(protocolLink,new ObjectReference(shortNameReference));
     }
@@ -517,6 +523,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return useGetWithList;
     }
 
+    public ChangeOfTenancyOrSupplierManagement getChangeOfTenancyOrSupplierManagement() throws IOException {
+        return new ChangeOfTenancyOrSupplierManagement(protocolLink);
+    }
+
+    public ChangeOfTenancyOrSupplierManagement getChangeOfTenancyOrSupplierManagement(ObisCode obisCode) throws IOException {
+        return new ChangeOfTenancyOrSupplierManagement(protocolLink, getObjectReference(obisCode));
+    }
+
     public ChangeOfTenantManagement getChangeOfTenantManagement() {
         return new ChangeOfTenantManagement(protocolLink);
     }
@@ -604,4 +618,19 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new G3PlcSetPSK(this.protocolLink, this.getObjectReference(obisCode));
     }
 
+    public final NetworkManagement getNetworkManagement() throws IOException {
+        return new NetworkManagement(this.protocolLink, this.getObjectReference(NetworkManagement.getDefaultObisCode()));
+    }
+
+    public final GatewaySetup getGatewaySetup() throws IOException {
+        return new GatewaySetup(this.protocolLink, this.getObjectReference(GatewaySetup.getDefaultObisCode()));
+    }
+
+    public final LoggerSettings getLoggerSettings() throws IOException {
+        return new LoggerSettings(this.protocolLink, this.getObjectReference(LoggerSettings.getDefaultObisCode()));
+    }
+
+    public final MasterboardSetup getMasterboardSetup() throws IOException {
+        return new MasterboardSetup(this.protocolLink, this.getObjectReference(MasterboardSetup.getDefaultObisCode()));
+    }
 }

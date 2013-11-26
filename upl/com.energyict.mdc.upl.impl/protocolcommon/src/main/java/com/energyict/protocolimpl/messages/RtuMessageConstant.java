@@ -104,9 +104,11 @@ public class RtuMessageConstant {
     public static final String FIRMWARE_UPGRADE = "FirmwareUpgrade";
     public static final String RF_FIRMWARE_UPGRADE = "RFFirmwareUpgrade";
     public static final String FIRMWARE = "UserFileID";
+    public static final String FIRMWARE_USER_FILE = "FirmwareUserFile";
     public static final String FIRMWARE_METERS = "GroupID of meters to receive new firmware";
     public static final String FIRMWARE_ACTIVATE_NOW = "Activate_now";
     public static final String FIRMWARE_ACTIVATE_DATE = "Activation_date";
+    public static final String ACTIVATE_DATE = "ActivationDate";
     public static final String FIRMWARE_IMAGE_IDENTIFIER = "Image_identifier";
 
     public static final String FIRMWARE_UPDATE = "FirmwareUpdate";
@@ -312,12 +314,18 @@ public class RtuMessageConstant {
 
     // Join ZigBee slave device related message constants
     public static final String JOIN_ZIGBEE_SLAVE = "Join_ZigBee_Slave";
+    public static final String JOIN_ZIGBEE_SLAVE_FROM_DEVICE_TYPE = "Join_ZigBee_Slave_Device";
     public static final String JOIN_ZIGBEE_SLAVE_IEEE_ADDRESS = "ZigBee_IEEE_Address";
     public static final String JOIN_ZIGBEE_SLAVE_LINK_KEY = "ZigBee_Link_Key";
+    public static final String JOIN_ZIGBEE_SLAVE_DEVICE_TYPE = "ZigBee_Device_Type";
 
     // Remove ZigBee slave device related message constants
     public static final String REMOVE_ZIGBEE_SLAVE = "Remove_ZigBee_Slave";
     public static final String REMOVE_ZIGBEE_SLAVE_IEEE_ADDRESS = "ZigBee_IEEE_Address";
+
+     // Update ZigBee HAN link key related message constants
+    public static final String UPDATE_HAN_LINK_KEY = "Update_HAN_Link_Key";
+    public static final String UPDATE_HAN_LINK_KEY_SLAVE_IEEE_ADDRESS = "ZigBee_IEEE_Address";
 
     // Remove all ZigBee slave devices related message constants
     public static final String REMOVE_ALL_ZIGBEE_SLAVES = "Remove_All_ZigBee_Slaves";
@@ -330,8 +338,10 @@ public class RtuMessageConstant {
 
     public static final String READ_ZIGBEE_STATUS = "Read_ZigBee_Status";
 
-    public static final String ZIGBEE_NCP_FIRMWARE_UPGRADE = "ZIGBEE_NCP_FIRMWARE_UPDATE";
+    public static final String ZIGBEE_NCP_FIRMWARE_UPDATE = "ZIGBEE_NCP_FIRMWARE_UPDATE";
+    public static final String ZIGBEE_NCP_FIRMWARE_UPGRADE = "ZigBeeNCPFirmwareUpgrade";
     public static final String ZIGBEE_NCP_FIRMWARE_USERFILE_ID = "UserFile_ID";
+    public static final String ZIGBEE_NCP_FIRMWARE_FILE_ID = "UserFileID";
 
     // GPRS Modem Ping Setup
     public static final String GPRS_MODEM_PING_SETUP = "GPRS_Modem_Ping_Setup";
@@ -350,6 +360,7 @@ public class RtuMessageConstant {
     public static final String CHANGE_OF_SUPPLIER_ID = "Change_Of_Supplier_ID";
     public static final String CHANGE_OF_SUPPLIER_ACTIATION_DATE = "Change_Of_Supplier_ActivationDate";
     public static final String CHANGE_ADMINISTRATIVE_STATUS = "Change_Administrative_Status";
+    public static final String ADMINISTRATIVE_STATUS = "Status";
 
     public static final String ALARM_FILTER = "Alarm_Filter";
     public static final String RESET_ALARM_REGISTER = "Reset_Alarm_Register";
@@ -363,4 +374,11 @@ public class RtuMessageConstant {
 
     public static String BILLINGRESET = "BillingReset";
 
+    public static final String CONNECTION_MODE = "Connection_Mode";
+    public static final String WAKEUP_PARAMETERS = "Wakeup_Parameters";
+    public static final String WAKEUP_CALLING_WINDOW_LENGTH = "Calling_Window_Length";
+    public static final String WAKEUP_IDLE_TIMEOUT = "Idle_Timeout";
+
+    public static final String PREFERRED_NETWORK_OPERATORS_LIST = "PreferredNetworkOperatorsList";
+    public static final String NETWORK_OPERATOR = "Operator";
 }
