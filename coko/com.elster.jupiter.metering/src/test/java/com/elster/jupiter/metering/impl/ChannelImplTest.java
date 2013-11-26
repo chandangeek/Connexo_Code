@@ -40,9 +40,9 @@ public class ChannelImplTest {
     private static final String MRID2 = "11.2.2.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID3 = "13.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID4 = "11.2.3.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
-    private static final String MRID1_IRR = "0.2.2.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
-    private static final String MRID2_IRR = "0.2.2.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
-    private static final String MRID4_IRR = "0.2.2.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID1_IRR = "0.2.0.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID2_IRR = "0.2.0.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
+    private static final String MRID4_IRR = "0.2.0.4.0.8.12.10.16.9.11.12.13.14.128.3.72.124";
     private static final long METER_ACTIVATION_ID = 164;
     private static final long ID = 15L;
     private static final TimeZone TIME_ZONE = TimeZone.getTimeZone("Asia/Calcutta");
@@ -124,7 +124,7 @@ public class ChannelImplTest {
         assertThat(channel.getReadingTypes()).hasSize(2)
                 .contains(readingType1)
                 .contains(readingType2);
-        assertThat(channel.getIntervalLength()).isNull();
+        assertThat(channel.getIntervalLength().isPresent()).isFalse();
         assertThat(channel.getTimeSeries()).isEqualTo(timeSeries);
     }
 
@@ -138,7 +138,7 @@ public class ChannelImplTest {
         assertThat(channel.getReadingTypes()).hasSize(2)
                 .contains(readingType1)
                 .contains(readingType2);
-        assertThat(channel.getIntervalLength()).isEqualTo(IntervalLength.ofDay());
+        assertThat(channel.getIntervalLength()).isEqualTo(Optional.of(IntervalLength.ofDay()));
         assertThat(channel.getTimeSeries()).isEqualTo(regularTimeSeries);
     }
 
@@ -162,7 +162,7 @@ public class ChannelImplTest {
                 .contains(readingType1)
                 .contains(readingType2)
                 .contains(readingType4);
-        assertThat(channel.getIntervalLength()).isNull();
+        assertThat(channel.getIntervalLength().isPresent()).isFalse();
         assertThat(channel.getTimeSeries()).isEqualTo(timeSeries);
     }
 

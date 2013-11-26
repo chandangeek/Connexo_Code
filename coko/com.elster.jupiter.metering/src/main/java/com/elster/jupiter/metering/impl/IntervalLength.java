@@ -1,6 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.ids.IntervalLengthUnit;
+import com.elster.jupiter.metering.ReadingType;
+import com.google.common.base.Optional;
+
 import org.joda.time.DateTimeConstants;
 
 import java.util.Arrays;
@@ -38,19 +43,19 @@ final class IntervalLength {
 		return new IntervalLength(minutes, MINUTE);
 	}
 	
-	static IntervalLength forCimCode(int cimCode) {
-		if (cimCode == MONTHCIMCODE) {
-            return ofMonth();
-        }
-		if (cimCode == DAYCIMCODE) {
-            return ofDay();
-        }
-		for (int i = 0 ; i < MINUTEVALUESCIMCODES.length ; i++) {
-			if (MINUTEVALUESCIMCODES[i] == cimCode) {
-                return ofMinutes(VALIDMINUTEVALUES[i]);
-            }
+	static Optional<IntervalLength> from(ReadingType readingType) {
+		switch (readingType.getMacroPeriod()) {
+			case MONTHLY:
+				return Optional.of(ofMonth());
+			case DAILY:
+				return Optional.of(ofDay());
+			default:       
 		}
-		return null;
+		if (readingType.getMeasuringPeriod() == TimeAttribute.HOUR24) {
+			return Optional.of(ofDay());
+		}
+		int minutes = readingType.getMeasuringPeriod().getMinutes();
+		return minutes == 0 ? Optional.<IntervalLength>absent() : Optional.of(ofMinutes(minutes));	
 	}
 
 	int getLength() {
