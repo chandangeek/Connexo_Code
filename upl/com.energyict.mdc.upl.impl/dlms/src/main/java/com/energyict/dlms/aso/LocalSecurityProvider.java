@@ -5,6 +5,7 @@ import com.energyict.dlms.DlmsSessionProperties;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -101,14 +102,14 @@ public class LocalSecurityProvider implements SecurityProvider {
 		return this.authenticationPassword;
 	}
 
-	public byte[] getCallingAuthenticationValue() throws IOException {
+	public byte[] getCallingAuthenticationValue() throws UnsupportedException {
 
 		switch(this.securityLevel){
 		case 0: return new byte[0];
 		case 1: {
 			return getHLSSecret();
 		}
-		case 2: throw new IOException("SecurityLevel 2 is not implemented.");
+		case 2: throw new UnsupportedException("SecurityLevel 2 is not implemented.");
 		case 3: {	// this is a ClientToServer challenge for MD5
 			generateClientToServerChallenge();
 			return this.cTOs;
@@ -166,7 +167,7 @@ public class LocalSecurityProvider implements SecurityProvider {
      * @return the encrypted Value to send back to the meter
      */
     public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws IOException {
-        throw new IOException("High level security 2 is not supported.");
+        throw new UnsupportedException("High level security 2 is not supported.");
     }
 
     /**
@@ -174,6 +175,11 @@ public class LocalSecurityProvider implements SecurityProvider {
      */
     public long getInitialFrameCounter() {
         return initialFrameCounter != null ? initialFrameCounter : RANDOM.nextLong();
+    }
+
+    @Override
+    public void setInitialFrameCounter(long initialFrameCounter) {
+        this.initialFrameCounter = initialFrameCounter;
     }
 
     /**
@@ -190,6 +196,16 @@ public class LocalSecurityProvider implements SecurityProvider {
      */
     public RespondingFrameCounterHandler getRespondingFrameCounterHandler() {
         return this.respondingFrameCounterHandler;
+    }
+
+    @Override
+    public void changeEncryptionKey(byte[] newEncryptionKey) throws IOException {
+        changeEncryptionKey();
+    }
+
+    @Override
+    public void changeAuthenticationKey(byte[] newAuthenticationKey) throws IOException {
+        changeAuthenticationKey();
     }
 
     public void changeEncryptionKey() throws IOException {

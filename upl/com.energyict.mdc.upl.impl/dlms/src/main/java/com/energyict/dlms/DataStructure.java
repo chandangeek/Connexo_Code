@@ -10,6 +10,7 @@
 
 package com.energyict.dlms;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -157,7 +158,7 @@ public class DataStructure implements Serializable {
 			return (Long.decode(getOctetString(index).toString()));
 		}
 
-		throw new IOException("DataStructure, Error converting element of type "+this.element[index].getClass().getName()+" to Long object");
+		throw new ProtocolException("DataStructure, Error converting element of type "+this.element[index].getClass().getName()+" to Long object");
 	}
 
 	public String convert2String(int index) throws IOException {
@@ -169,7 +170,7 @@ public class DataStructure implements Serializable {
 			return getString(index);
 		}
 
-		throw new IOException("DataStructure, Error converting element of type "+this.element[index].getClass().getName()+" to String object");
+		throw new ProtocolException("DataStructure, Error converting element of type "+this.element[index].getClass().getName()+" to String object");
 	}
 
 	public void addString(int index,String str) {

@@ -11,8 +11,7 @@ package com.energyict.dlms;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NoSuchRegisterException;
-
-import java.io.IOException;
+import com.energyict.protocol.ProtocolException;
 /**
  *
  * @author  Koen
@@ -131,9 +130,9 @@ public class DLMSMeterConfig {
     	}
     }
 
-    public UniversalObject findObject(ObisCode obisCode) throws IOException {
+    public UniversalObject findObject(ObisCode obisCode) throws ProtocolException {
         if (IOL == null) {
-			throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+			throw new ProtocolException("DLMSMeterConfig, getSN, IOL empty!");
 		}
         for (int i=0;i<IOL.length;i++) {
             if (IOL[i].equals(obisCode)) {
@@ -149,11 +148,11 @@ public class DLMSMeterConfig {
 	 *
 	 * @param obisCode
 	 * @return
-	 * @throws IOException
+	 * @throws ProtocolException
 	 */
-	public int getSN(ObisCode obisCode) throws IOException {
+	public int getSN(ObisCode obisCode) throws ProtocolException {
 		if (IOL == null) {
-			throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+			throw new ProtocolException("DLMSMeterConfig, getSN, IOL empty!");
 		}
 		for (int i = 0; i < IOL.length; i++) {
 			if (IOL[i].equals(obisCode)) {
@@ -163,9 +162,9 @@ public class DLMSMeterConfig {
 		throw new NoSuchRegisterException("DLMSMeterConfig, getSN, " + obisCode.toString() + " not found in meter's instantiated object list!");
 	}
 
-    public int getClassId(ObisCode obisCode) throws IOException {
+    public int getClassId(ObisCode obisCode) throws ProtocolException {
        if (IOL == null) {
-		throw new IOException("DLMSMeterConfig, getSN, IOL empty!");
+		throw new ProtocolException("DLMSMeterConfig, getSN, IOL empty!");
 	}
        for (int i=0;i<IOL.length;i++) {
            if (IOL[i].equals(obisCode)) {
@@ -176,141 +175,141 @@ public class DLMSMeterConfig {
        throw new NoSuchRegisterException("DLMSMeterConfig, getClassId, "+obisCode.toString()+" not found in meter's instantiated object list!");
     }
 
-    public int getProfileSN() throws IOException {
+    public int getProfileSN() throws ProtocolException {
        return config.getProfileSN(IOL);
     }
 
-    public int getEventLogSN() throws IOException {
+    public int getEventLogSN() throws ProtocolException {
        return config.getEventLogSN(IOL);
     }
 
-    public int getHistoricValuesSN() throws IOException {
+    public int getHistoricValuesSN() throws ProtocolException {
        return config.getHistoricValuesSN(IOL);
     }
 
-    public int getResetCounterSN() throws IOException {
+    public int getResetCounterSN() throws ProtocolException {
        return config.getResetCounterSN(IOL);
     }
 
-    public int getClockSN() throws IOException {
+    public int getClockSN() throws ProtocolException {
        return config.getClockSN(IOL);
     }
 
-    public int getConfigSN() throws IOException {
+    public int getConfigSN() throws ProtocolException {
        return config.getConfigSN(IOL,manuf);
     }
 
-    public int getVersionSN() throws IOException {
+    public int getVersionSN() throws ProtocolException {
        return config.getVersionSN(IOL,manuf);
     }
-    public int getSerialNumberSN() throws IOException {
+    public int getSerialNumberSN() throws ProtocolException {
        return config.getSerialNumberSN(IOL,manuf);
     }
 
-	public int getIPv4SetupSN() throws IOException {
+	public int getIPv4SetupSN() throws ProtocolException {
 		return config.getIPv4SetupSN(IOL);
 	}
 
-	public int getP3ImageTransferSN() throws IOException {
+	public int getP3ImageTransferSN() throws ProtocolException {
 		return config.getP3ImageTransferSN(IOL);
 	}
 
-	public int getDisconnectorSN() throws IOException{
+	public int getDisconnectorSN() throws ProtocolException{
 		return config.getDisconnectorSN(IOL);
 	}
 
-	public int getDisconnectorScriptTableSN() throws IOException{
+	public int getDisconnectorScriptTableSN() throws ProtocolException{
 		return config.getDisconnectorScriptTableSN(IOL);
 	}
 
-	public int getLimiterSN() throws IOException{
+	public int getLimiterSN() throws ProtocolException{
 		return config.getLimiterSN(IOL);
 	}
 
-	public int getPPPSetupSN() throws IOException{
+	public int getPPPSetupSN() throws ProtocolException{
 		return config.getPPPSetupSN(IOL);
 	}
 
-	public int getGPRSModemSetupSN() throws IOException{
+	public int getGPRSModemSetupSN() throws ProtocolException{
 		return config.getGPRSModemSetupSN(IOL);
 	}
 
-    public UniversalObject getEventLogObject() throws IOException {
+    public UniversalObject getEventLogObject() throws ProtocolException {
        return config.getEventLogObject(IOL, manuf);
     }
 
-    public UniversalObject getControlLogObject() throws IOException {
+    public UniversalObject getControlLogObject() throws ProtocolException {
         return config.getControlLog(IOL, manuf);
     }
 
-    public UniversalObject getPowerFailureLogObject() throws IOException {
+    public UniversalObject getPowerFailureLogObject() throws ProtocolException {
         return config.getPowerFailureLog(IOL, manuf);
     }
 
-    public UniversalObject getFraudDetectionLogObject() throws IOException {
+    public UniversalObject getFraudDetectionLogObject() throws ProtocolException {
         return config.getFraudDetectionLog(IOL, manuf);
     }
 
-    public UniversalObject getMbusEventLogObject() throws IOException {
+    public UniversalObject getMbusEventLogObject() throws ProtocolException {
         return config.getMbusEventLog(IOL, manuf);
     }
 
-    public UniversalObject getProfileObject() throws IOException {
+    public UniversalObject getProfileObject() throws ProtocolException {
        return config.getProfileObject(IOL);
     }
 
-    public UniversalObject getDailyProfileObject() throws IOException {
+    public UniversalObject getDailyProfileObject() throws ProtocolException {
     	return config.getDailyProfileObject(IOL,manuf);
     }
 
-    public UniversalObject getMonthlyProfileObject() throws IOException {
+    public UniversalObject getMonthlyProfileObject() throws ProtocolException {
     	return config.getMonthlyProfileObject(IOL,manuf);
     }
 
-    public UniversalObject getClockObject() throws IOException {
+    public UniversalObject getClockObject() throws ProtocolException {
        return config.getClockObject(IOL);
     }
 
-    public UniversalObject getStatusObject() throws IOException {
+    public UniversalObject getStatusObject() throws ProtocolException {
     	return config.getStatusObject(IOL,manuf);
     }
 
-    public UniversalObject getConfigObject() throws IOException {
+    public UniversalObject getConfigObject() throws ProtocolException {
        return config.getConfigObject(IOL,manuf);
     }
 
-    public UniversalObject getVersionObject() throws IOException {
+    public UniversalObject getVersionObject() throws ProtocolException {
        return config.getVersionObject(IOL,manuf);
     }
 
-    public UniversalObject getSerialNumberObject() throws IOException {
+    public UniversalObject getSerialNumberObject() throws ProtocolException {
        return config.getSerialNumberObject(IOL,manuf);
     }
 
-    public UniversalObject getIPv4SetupObject() throws IOException {
+    public UniversalObject getIPv4SetupObject() throws ProtocolException {
     	return config.getIPv4SetupObject(IOL);
     }
 
-    public UniversalObject getObject(DLMSObis dlmsObis) throws IOException {
+    public UniversalObject getObject(DLMSObis dlmsObis) throws ProtocolException {
        if (IOL == null) {
-		throw new IOException("DLMSMeterConfig, objectlist (IOL) empty!");
+		throw new ProtocolException("DLMSMeterConfig, objectlist (IOL) empty!");
 	}
        for (int i=0;i<IOL.length;i++) {
            if (IOL[i].equals(dlmsObis)) {
 			return IOL[i];
 		}
        }
-       throw new IOException("DLMSMeterConfig, dlmsObis "+dlmsObis+" not found in objectlist (IOL)!");
+       throw new ProtocolException("DLMSMeterConfig, dlmsObis "+dlmsObis+" not found in objectlist (IOL)!");
     }
 
-    public UniversalObject getMeterReadingObject(int id,String deviceId) throws IOException {
+    public UniversalObject getMeterReadingObject(int id,String deviceId) throws ProtocolException {
        return config.getMeterReadingObject(IOL,id,deviceId);
     }
 
     /**
      * @deprecated  As of 12022009
      */
-    public UniversalObject getChannelObject(int id) throws IOException {
+    public UniversalObject getChannelObject(int id) throws ProtocolException {
        int count=0;
        for (int i=0;i<COL.length;i++) {
            if (COL[i].isCapturedObjectNotAbstract()) {
@@ -320,14 +319,14 @@ public class DLMSMeterConfig {
                count++;
            }
        }
-       throw new IOException("DLMSMeterConfig, getMeterDemandObject("+id+"), not found in objectlist (IOL)!");
+       throw new ProtocolException("DLMSMeterConfig, getMeterDemandObject("+id+"), not found in objectlist (IOL)!");
     }
 
 
     /**
      * @deprecated  As of 12022009
      */
-    public UniversalObject getMeterDemandObject(int id) throws IOException {
+    public UniversalObject getMeterDemandObject(int id) throws ProtocolException {
        int count=0;
        for (int i=0;i<COL.length;i++) {
            // Changed KV 23022007 to allow also gas and water captured objects
@@ -343,13 +342,13 @@ public class DLMSMeterConfig {
                count++;
            }
        }
-       throw new IOException("DLMSMeterConfig, getMeterDemandObject("+id+"), not found in objectlist (IOL)!");
+       throw new ProtocolException("DLMSMeterConfig, getMeterDemandObject("+id+"), not found in objectlist (IOL)!");
     }
 
     /**
      * @deprecated  As of 12022009
      */
-    public int getNumberOfChannels() throws IOException {
+    public int getNumberOfChannels() throws ProtocolException {
        int count=0;
        for (int i=0;i<COL.length;i++) {
            if (COL[i].isCapturedObjectNotAbstract()) {
@@ -387,87 +386,87 @@ public class DLMSMeterConfig {
         this.COL=COL;
     }
 
-	public UniversalObject getMbusDisconnectControl(int physicalAddress) throws IOException {
+	public UniversalObject getMbusDisconnectControl(int physicalAddress) throws ProtocolException {
 		return config.getMbusDisconnector(IOL, manuf, physicalAddress);
 	}
 
-	public UniversalObject getMbusControlLog(int physicalAddress) throws IOException {
+	public UniversalObject getMbusControlLog(int physicalAddress) throws ProtocolException {
 		return config.getMbusControlLog(IOL, manuf, physicalAddress);
 	}
 
-	public UniversalObject getMbusDisconnectControlState(int physicalAddress) throws IOException {
+	public UniversalObject getMbusDisconnectControlState(int physicalAddress) throws ProtocolException {
 		return config.getMbusDisconnectControlState(IOL, manuf, physicalAddress);
 	}
 
-	public UniversalObject getMbusSerialNumber(int physicalAddress) throws IOException {
+	public UniversalObject getMbusSerialNumber(int physicalAddress) throws ProtocolException {
 		return config.getMbusSerialNumber(IOL, manuf, physicalAddress);
 	}
 
-	public UniversalObject getMbusProfile(int physicalAddress) throws IOException {
+	public UniversalObject getMbusProfile(int physicalAddress) throws ProtocolException {
 		return config.getMbusProfile(IOL, manuf, physicalAddress);
 	}
 
-	public UniversalObject getXMLConfig() throws IOException {
+	public UniversalObject getXMLConfig() throws ProtocolException {
 		return config.getXMLConfig(IOL,manuf);
 	}
 
-	public UniversalObject getImageActivationSchedule() throws IOException{
+	public UniversalObject getImageActivationSchedule() throws ProtocolException{
 		return config.getImageActivationSchedule(IOL);
 	}
 
-	public UniversalObject getDisconnectControlSchedule() throws IOException{
+	public UniversalObject getDisconnectControlSchedule() throws ProtocolException{
 		return config.getDisconnectControlSchedule(IOL);
 	}
 
-	public UniversalObject getMbusStatusObject(int physicalAddress) throws IOException{
+	public UniversalObject getMbusStatusObject(int physicalAddress) throws ProtocolException{
 		return config.getMbusStatusObject(IOL, manuf, physicalAddress);
 	}
 
-	public UniversalObject getP3ImageTransfer() throws IOException{
+	public UniversalObject getP3ImageTransfer() throws ProtocolException{
 		return config.getP3ImageTransfer(IOL);
 	}
 
-	public UniversalObject getConsumerMessageText() throws IOException {
+	public UniversalObject getConsumerMessageText() throws ProtocolException {
 		return config.getConsumerMessageText(IOL);
 	}
 
-	public UniversalObject getConsumerMessageCode() throws IOException {
+	public UniversalObject getConsumerMessageCode() throws ProtocolException {
 		return config.getConsumerMessageCode(IOL);
 	}
 
-	public UniversalObject getDisconnector() throws IOException{
+	public UniversalObject getDisconnector() throws ProtocolException{
 		return config.getDisconnector(IOL);
 	}
 
-	public UniversalObject getDisconnectorScriptTable() throws IOException{
+	public UniversalObject getDisconnectorScriptTable() throws ProtocolException{
 		return config.getDisconnectorScriptTable(IOL);
 	}
 
-	public UniversalObject getTariffScriptTable() throws IOException{
+	public UniversalObject getTariffScriptTable() throws ProtocolException{
 		return config.getTariffScriptTable(IOL);
 	}
 
-	public UniversalObject getActivityCalendar() throws IOException{
+	public UniversalObject getActivityCalendar() throws ProtocolException{
 		return config.getActivityCalendar(IOL);
 	}
 
-	public UniversalObject getMbusDisconnectorScriptTable(int physicalAddress) throws IOException {
+	public UniversalObject getMbusDisconnectorScriptTable(int physicalAddress) throws ProtocolException {
 		return config.getMbusDisconnectorScriptTable(IOL, manuf, physicalAddress);
 	}
 
-	public UniversalObject getMbusDisconnectControlSchedule(int physicalAddress) throws IOException {
+	public UniversalObject getMbusDisconnectControlSchedule(int physicalAddress) throws ProtocolException {
 		return config.getMbusDisconnectControlSchedule(IOL, manuf, physicalAddress);
 	}
 
-	public UniversalObject getLimiter() throws IOException{
+	public UniversalObject getLimiter() throws ProtocolException{
 		return config.getLimiter(IOL);
 	}
 
-	public UniversalObject getSpecialDaysTable() throws IOException{
+	public UniversalObject getSpecialDaysTable() throws ProtocolException{
 		return config.getSpecialDaysTable(IOL);
 	}
 
-	public UniversalObject getMbusClient(int physicalAddress) throws IOException{
+	public UniversalObject getMbusClient(int physicalAddress) throws ProtocolException{
 		return config.getMbusClient(IOL, manuf, physicalAddress);
 	}
 
@@ -526,11 +525,11 @@ public class DLMSMeterConfig {
 		this.extra = extra;
 	}
 
-    public int getImageTransferSN() throws IOException {
+    public int getImageTransferSN() throws ProtocolException {
        return config.getImageTransferSN(IOL);
     }
 
-    public int getSFSKPhyMacSetupSN() throws IOException {
+    public int getSFSKPhyMacSetupSN() throws ProtocolException {
         return config.getSFSKPhyMacSetupSN(IOL);
 }
 }

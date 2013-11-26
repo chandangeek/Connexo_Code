@@ -6,13 +6,14 @@
 
 package com.energyict.dlms.cosem;
 
-import com.energyict.dlms.*;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 
-import java.io.*;
+import java.io.IOException;
 
 import static com.energyict.dlms.DLMSCOSEMGlobals.ASSOC_SN_ATTR_OBJ_LST;
 
@@ -24,7 +25,6 @@ import static com.energyict.dlms.DLMSCOSEMGlobals.ASSOC_SN_ATTR_OBJ_LST;
  * TODO Test all implemented methods
  */
 public class AssociationLN extends AbstractCosemObject {
-    public final int DEBUG=0;
 
     /** Attributes */
     private UniversalObject[] buffer;	// the objectList
@@ -92,46 +92,12 @@ public class AssociationLN extends AbstractCosemObject {
     public UniversalObject[] getBuffer() throws IOException {
         byte[] responseData = getResponseData(ASSOC_SN_ATTR_OBJ_LST);
 
-        // KV_DEBUG
-        if (DEBUG>=2) {
-            File file = new File("responseData.bin");
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(responseData);
-            fos.close();
-        }
-
         buffer = data2UOL(responseData);
         return buffer;
     }
 
     public Array readObjectList() throws IOException {
         return new Array(getResponseData(AssociationLNAttributes.OBJECT_LIST), 0, 0);
-    }
-
-    private UniversalObject[] parseResponseData() {
-        if (DEBUG>=1) {
-            byte[] data=null;
-            try {
-                File file = new File("responseData.bin");
-                FileInputStream fis = new FileInputStream(file);
-                data = new byte[(int)file.length()];
-                fis.read(data);
-                fis.close();
-
-                DataContainer dc = new DataContainer();
-                dc.parseObjectList(data,protocolLink.getLogger());
-                System.out.println(dc.getText(","));
-                //System.out.println(dc.print2strDataContainer());
-                //buffer = Data2UOL(data);
-            }
-            catch(FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return buffer;
     }
 
     /**
@@ -258,7 +224,7 @@ public class AssociationLN extends AbstractCosemObject {
     	} else if(response[0] == AxdrType.OCTET_STRING.getTag()){
     		this.authenticationMechanismName = OctetString.fromByteArray(response);
     	} else {
-    		throw new IOException("Response is doesn't contain a valid type");
+    		throw new ProtocolException("Response is doesn't contain a valid type");
     	}
     	return this.authenticationMechanismName;
     }
@@ -294,7 +260,7 @@ public class AssociationLN extends AbstractCosemObject {
     	} else if(response[0] == AxdrType.OCTET_STRING.getTag()){
     		this.applicationContextName = OctetString.fromByteArray(response);
     	} else {
-    		throw new IOException("Response is doesn't contain a valid type");
+    		throw new ProtocolException("Response is doesn't contain a valid type");
     	}
     	return this.applicationContextName;
     }

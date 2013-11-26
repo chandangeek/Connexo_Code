@@ -2,11 +2,11 @@ package com.energyict.mdc.channels.ip.datagrams;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
 import java.math.BigDecimal;
@@ -49,7 +49,9 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
                 this.setProperty(property.getName(), property.getValue());
             }
         }
-        return this.newUDPConnection(this.getBufferSizePropertyValue(), this.hostPropertyValue(), this.portNumberPropertyValue());
+        ComChannel comChannel = this.newUDPConnection(this.getBufferSizePropertyValue(), this.hostPropertyValue(), this.portNumberPropertyValue());
+        comChannel.addProperties(createTypeProperty(ComChannelType.DatagramComChannel));
+        return comChannel;
     }
 
     private int getBufferSizePropertyValue() {

@@ -276,8 +276,10 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
      * Write a given name to the Calendar
      */
     public void writeCalendarName(String name) throws IOException {
-        ActivityCalendar ac = getActivityCalendar();
-        ac.writeCalendarNamePassive(this.passiveCalendarName);
+        if (name != null && name.length() > 0) {
+            passiveCalendarName = OctetString.fromString(name);
+        }
+        getActivityCalendar().writeCalendarNamePassive(this.passiveCalendarName);
     }
 
     /**

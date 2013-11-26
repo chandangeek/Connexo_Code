@@ -6,19 +6,13 @@
 
 package com.energyict.genericprotocolimpl.iskragprs;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.*;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
@@ -244,8 +238,7 @@ public class Logbook {
 		// eventId)
 
 	public static void main(String[] args) {
-		try {
-			DataContainer dc = new DataContainer();
+        DataContainer dc = new DataContainer();
 
 //			byte b[] = new byte[] { (byte) 0x1, (byte) 0x4, (byte) 0x2,
 //					(byte) 0x2, (byte) 0x0, (byte) 0x12, (byte) 0x80,
@@ -267,18 +260,14 @@ public class Logbook {
 //
 //			dc.parseObjectList(b, null);
 //			dc.printDataContainer();
-			byte by[] = DLMSUtils.hexStringToByteArray("01660202090c07d9031a040f1a1800ffc4001280110202090c07d9031a040f1b1000ffc4001200100202090c07d9031a040f1c0800ffc4001280110202090c07d9031a040f231f00ffc4001280110202090c07d9031b0509160700ffc4001200100202090c07d9031b050a340100ffc4001280110202090c07d9031b050d261b00ffc4001280110202090c07d9031b050d283b00ffc4001280110202090c07d9031b050d2c1c00ffc4001280110202090c07d9031b050d350f00ffc4001200200202090c07d9031b050e030a00ffc4001280110202090c07d9031d070b022100ff88801280110202090c07d9031e01020f2800ff88801280110202090c07d9031e0110310a00ff88801280110202090c07d9031e01120c1100ff8880128011");
-			dc.parseObjectList(by, null);
-			dc.printDataContainer();
-			
-			Logbook lb = new Logbook(TimeZone.getDefault());
-			
-			ProfileData pd = new ProfileData();
-			pd.getMeterEvents().addAll(lb.getMeterEvents(dc));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+        byte by[] = DLMSUtils.hexStringToByteArray("01660202090c07d9031a040f1a1800ffc4001280110202090c07d9031a040f1b1000ffc4001200100202090c07d9031a040f1c0800ffc4001280110202090c07d9031a040f231f00ffc4001280110202090c07d9031b0509160700ffc4001200100202090c07d9031b050a340100ffc4001280110202090c07d9031b050d261b00ffc4001280110202090c07d9031b050d283b00ffc4001280110202090c07d9031b050d2c1c00ffc4001280110202090c07d9031b050d350f00ffc4001200200202090c07d9031b050e030a00ffc4001280110202090c07d9031d070b022100ff88801280110202090c07d9031e01020f2800ff88801280110202090c07d9031e0110310a00ff88801280110202090c07d9031e01120c1100ff8880128011");
+        dc.parseObjectList(by, null);
+        dc.printDataContainer();
+
+        Logbook lb = new Logbook(TimeZone.getDefault());
+
+        ProfileData pd = new ProfileData();
+        pd.getMeterEvents().addAll(lb.getMeterEvents(dc));
+    }
 
 } // public class Logbook

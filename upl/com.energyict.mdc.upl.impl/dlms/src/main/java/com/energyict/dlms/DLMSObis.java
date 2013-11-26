@@ -7,6 +7,7 @@
 package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
@@ -89,35 +90,35 @@ public class DLMSObis {
        return (tokens!=null );
     }
 
-    public int getVal(int index) throws IOException {
+    public int getVal(int index) throws ProtocolException {
         if (isLogicalName()) {
             return (int)tokens[index]&0xFF;
         } else {
-			throw new IOException("No valid logical name "+str);
+			throw new ProtocolException("No valid logical name "+str);
 		}
     }
 
-    public int getLNA() throws IOException {
+    public int getLNA() throws ProtocolException {
         return getVal(0);
     }
 
-    public int getLNB() throws IOException {
+    public int getLNB() throws ProtocolException {
         return getVal(1);
     }
 
-    public int getLNC() throws IOException {
+    public int getLNC() throws ProtocolException {
         return getVal(2);
     }
 
-    public int getLND() throws IOException {
+    public int getLND() throws ProtocolException {
         return getVal(3);
     }
 
-    public int getLNE() throws IOException {
+    public int getLNE() throws ProtocolException {
         return getVal(4);
     }
 
-    public int getLNF() throws IOException {
+    public int getLNF() throws ProtocolException {
         return getVal(5);
     }
 
@@ -131,7 +132,7 @@ public class DLMSObis {
 		} else if (getDLMSClass() == DLMSClassId.DATA.getClassId()) {
 			return 8;
 		} else {
-			throw new IOException("UniversalObject, wrong object for value attribute!");
+			throw new ProtocolException("UniversalObject, wrong object for value attribute!");
 		}
     }
     public int getScalerAttributeOffset() throws IOException {
@@ -144,7 +145,7 @@ public class DLMSObis {
 		} else if (getDLMSClass() == DLMSClassId.DATA.getClassId()) {
 			return 8;
 		} else {
-			throw new IOException("UniversalObject, wrong object for scaler attribute!");
+			throw new ProtocolException("UniversalObject, wrong object for scaler attribute!");
 		}
     }
 

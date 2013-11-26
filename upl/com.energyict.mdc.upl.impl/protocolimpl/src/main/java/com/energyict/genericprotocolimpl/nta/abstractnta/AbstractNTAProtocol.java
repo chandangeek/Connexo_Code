@@ -136,6 +136,10 @@ public abstract class AbstractNTAProtocol extends AbstractGenericPoolingProtocol
      */
     protected abstract List<String> doGetRequiredKeys();
 
+    public ApplicationServiceObject getAso() {
+        return aso;
+    }
+
     /**
      * Creates a new Instance of the the used MbusDevice type
      *

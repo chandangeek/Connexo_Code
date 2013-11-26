@@ -3,6 +3,7 @@ package com.energyict.dlms;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.protocolimplv2.connection.DlmsConnection;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -20,9 +21,9 @@ public class SecureConnection implements DLMSConnection {
     private static final int LOCATION_SECURED_XDLMS_APDU_TAG = 3;
 
     private final ApplicationServiceObject aso;
-    private final DLMSConnection transportConnection;
+    private final DlmsConnection transportConnection;
 
-    public SecureConnection(final ApplicationServiceObject aso, final DLMSConnection transportConnection) {
+    public SecureConnection(final ApplicationServiceObject aso, final DlmsConnection transportConnection) {
         this.aso = aso;
         this.transportConnection = transportConnection;
     }
@@ -30,7 +31,7 @@ public class SecureConnection implements DLMSConnection {
     /**
      * @return the actual DLMSConnection used for dataTransportation
      */
-    private DLMSConnection getTransportConnection() {
+    private DlmsConnection getTransportConnection() {
         return this.transportConnection;
     }
 
@@ -50,19 +51,15 @@ public class SecureConnection implements DLMSConnection {
         return getTransportConnection().getInvokeIdAndPriorityHandler();
     }
 
-    public int getType() {
-        return getTransportConnection().getType();
-    }
-
-    public byte[] sendRawBytes(byte[] data) throws IOException {
+    public byte[] sendRawBytes(byte[] data) throws IOException, DLMSConnectionException {
         return getTransportConnection().sendRawBytes(data);
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(long timeout) {
         getTransportConnection().setTimeout(timeout);
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return getTransportConnection().getTimeout();
     }
 
@@ -99,7 +96,7 @@ public class SecureConnection implements DLMSConnection {
                     securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
                 } else {
                     //No encryption, only increase the frame counter
-                    getApplicationServiceObject().getSecurityContext().incFrameCounter();
+                    aso.getSecurityContext().incFrameCounter();
                 }
 
                 // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
@@ -158,7 +155,7 @@ public class SecureConnection implements DLMSConnection {
                     securedRequest = ParseUtils.concatArray(new byte[]{tag}, securedRequest);
                 } else {
                     //No encryption, only increase the frame counter
-                    getApplicationServiceObject().getSecurityContext().incFrameCounter();
+                    aso.getSecurityContext().incFrameCounter();
                 }
 
                 // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
@@ -239,19 +236,18 @@ public class SecureConnection implements DLMSConnection {
     }
 
     public void setIskraWrapper(final int type) {
-        getTransportConnection().setIskraWrapper(type);
+        if (getTransportConnection() instanceof DLMSConnection) {
+            ((DLMSConnection) getTransportConnection()).setIskraWrapper(type);
+        }
     }
 
     public void setSNRMType(final int type) {
-        getTransportConnection().setSNRMType(type);
+        if (getTransportConnection() instanceof DLMSConnection) {
+            ((DLMSConnection) getTransportConnection()).setSNRMType(type);
+        }
     }
 
     public int getMaxRetries() {
         return getTransportConnection().getMaxRetries();
     }
-
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return aso;
-    }
-
 }

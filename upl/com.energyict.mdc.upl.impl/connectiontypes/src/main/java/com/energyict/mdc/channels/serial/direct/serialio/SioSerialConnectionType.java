@@ -3,6 +3,7 @@ package com.energyict.mdc.channels.serial.direct.serialio;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecBuilder;
 import com.energyict.dynamicattributes.BigDecimalFactory;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.AbstractSerialConnectionType;
 import com.energyict.mdc.channels.serial.BaudrateValue;
 import com.energyict.mdc.channels.serial.NrOfStopBits;
@@ -38,6 +39,7 @@ public class SioSerialConnectionType extends AbstractSerialConnectionType {
         SerialPortConfiguration serialPortConfiguration = createSerialConfiguration(comPort, properties);
         ServerComChannel comChannel = newSioSerialConnection(serialPortConfiguration);
         comChannel.setComPort(comPort);
+        comChannel.addProperties(createTypeProperty(ComChannelType.SerialComChannel));
         return comChannel;
     }
 

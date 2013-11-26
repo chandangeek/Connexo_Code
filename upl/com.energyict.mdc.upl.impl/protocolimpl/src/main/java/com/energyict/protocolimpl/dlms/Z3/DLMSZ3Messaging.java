@@ -23,6 +23,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.HDLCConnection;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.Integer16;
@@ -134,6 +135,11 @@ public class DLMSZ3Messaging extends PluggableMeterProtocol implements MessagePr
             throw new IOException(e.getMessage());
         }
 
+    }
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
     }
 
     public void log(Level level, String tekst) {

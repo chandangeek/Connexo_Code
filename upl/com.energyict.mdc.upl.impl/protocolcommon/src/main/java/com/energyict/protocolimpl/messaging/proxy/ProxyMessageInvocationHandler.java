@@ -1,6 +1,7 @@
 package com.energyict.protocolimpl.messaging.proxy;
 
 import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.messaging.*;
 
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class ProxyMessageInvocationHandler implements InvocationHandler {
             if (method.isAnnotationPresent(RtuMessageAttribute.class)) {
                 final RtuMessageAttribute messageAttribute = method.getAnnotation(RtuMessageAttribute.class);
                 if (messageAttribute.required() && !attributes.containsKey(messageAttribute.tag())) {
-                    throw new IOException("Attribute [" + messageAttribute.tag() + "] is required but seems to be missing!");
+                    throw new ProtocolException("Attribute [" + messageAttribute.tag() + "] is required but seems to be missing!");
                 }
             }
         }

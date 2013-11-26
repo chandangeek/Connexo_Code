@@ -3,30 +3,30 @@ package com.energyict.protocolimplv2.nta.abstractnta;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.tasks.support.*;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
+import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
+import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
 import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMeterInfo;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
  * @author: sva
  * @since: 31/10/12 (10:32)
  */
-public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implements MasterMeter, SimpleMeter {  //ToDo: implement the WakeUpProtocolSupport interface?
+public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implements MasterMeter, SimpleMeter, NtaProtocol {  //ToDo: implement the WakeUpProtocolSupport interface?
 
     private static final int ObisCodeBFieldIndex = 1;
 
@@ -46,7 +46,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
     /**
      * The <code>Properties</code> used for this protocol
      */
-    private Dsmr23Properties dsmr23Properties;
+    private DlmsProperties dlmsProperties;
 
     /**
      * Get the AXDRDateTimeDeviationType for this DeviceType
@@ -90,7 +90,7 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
         try {
             searchForSlaveDevices();
         } catch (ConnectionException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
         }
     }
 
@@ -100,11 +100,11 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
     }
 
     public MeterTopology getMeterTopology() {
-          if (this.meterTopology == null) {
-              this.meterTopology = new MeterTopology(this);
-          }
-          return meterTopology;
-      }
+        if (this.meterTopology == null) {
+            this.meterTopology = new MeterTopology(this);
+        }
+        return meterTopology;
+    }
 
     /**
      * 'Lazy' getter for the {@link #meterInfo}
@@ -120,28 +120,16 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
 
     @Override
     public String getSerialNumber() {
-        try {
-            return getMeterInfo().getSerialNr();
-        } catch (IOException e) {
-            String message = "Could not retrieve the serialnumber of the meter. " + e.getMessage();
-            getLogger().finest(message);
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
-        }
+        return getMeterInfo().getSerialNr();
     }
 
     @Override
     protected String getFirmwareVersion() {
-        try {
-            return getMeterInfo().getFirmwareVersion();
-        } catch (IOException e) {
-            String message = "Could not fetch the firmwareVersion. " + e.getMessage();
-            getLogger().finest(message);
-            return "Unknown version";
-        }
+        return getMeterInfo().getFirmwareVersion();
     }
 
     @Override
-    public int requestConfigurationChanges() throws IOException {
+    public int requestConfigurationChanges() {
         return getMeterInfo().getConfigurationChanges();
     }
 
@@ -229,19 +217,15 @@ public abstract class AbstractNtaProtocol extends AbstractDlmsProtocol implement
         return getMessageProtocol().updateSentMessages(sentMessages);
     }
 
-    public DlmsProtocolProperties getProtocolProperties() {
-        if (this.dsmr23Properties == null) {
-            this.dsmr23Properties = new Dsmr23Properties();
+    public DlmsSessionProperties getDlmsSessionProperties() {
+        if (this.dlmsProperties == null) {
+            this.dlmsProperties = new DlmsProperties();
         }
-        return this.dsmr23Properties;
+        return this.dlmsProperties;
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        try {
-            return getMeterTopology().getDeviceTopology();
-        } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
-        }
+        return getMeterTopology().getDeviceTopology();
     }
 }

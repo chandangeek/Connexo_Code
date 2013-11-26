@@ -1,5 +1,6 @@
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class Float32 extends AbstractDataType {
 
     public Float32(byte[] berEncodedData, int offset) throws IOException {
         if (berEncodedData[offset] != AxdrType.FLOAT32.getTag()) {
-			throw new IOException("Float32, invalid identifier "+berEncodedData[offset]);
+			throw new ProtocolException("Float32, invalid identifier "+berEncodedData[offset]);
 		}
         int intBits = ProtocolUtils.getInt(berEncodedData, offset + 1, 4);
         this.value = Float.intBitsToFloat(intBits);

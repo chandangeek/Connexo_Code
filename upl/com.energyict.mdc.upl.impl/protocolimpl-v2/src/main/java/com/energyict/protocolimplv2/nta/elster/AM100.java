@@ -5,24 +5,15 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.tasks.support.DeviceLoadProfileSupport;
-import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
-import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
-import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
-import com.energyict.mdc.tasks.ConnectionType;
-import com.energyict.mdc.tasks.DeviceProtocolDialect;
-import com.energyict.mdc.tasks.Dsmr23DeviceProtocolDialect;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.mdc.protocol.tasks.support.*;
+import com.energyict.mdc.tasks.*;
 import com.energyict.protocolimplv2.common.TempDeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
-import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23LogBookFactory;
-import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23RegisterFactory;
+import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
+import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -60,38 +51,34 @@ public class AM100 extends AbstractNtaProtocol {
      */
     @Override
     protected void checkCacheObjects() {
-        try {
-            if (getDlmsCache() != null) {
-                if ((getDlmsCache().getObjectList() == null) || isForcedToReadCache()) {
-                    getLogger().log(Level.INFO, isForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
-                    requestConfiguration();
-                    getDlmsCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
-                } else {
-                    getLogger().log(Level.INFO, "Cache exist, will not be read!");
-                }
-            } else { // cache does not exist
-                setDeviceCache(new DLMSCache());
-                getLogger().info("Cache does not exist, configuration is forced to be read.");
+        if (getDlmsCache() != null) {
+            if ((getDlmsCache().getObjectList() == null) || isForcedToReadCache()) {
+                getLogger().log(Level.INFO, isForcedToReadCache() ? "ForcedToReadCache property is true, reading cache!" : "Cache does not exist, configuration is forced to be read.");
                 requestConfiguration();
                 getDlmsCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+            } else {
+                getLogger().log(Level.INFO, "Cache exist, will not be read!");
             }
-        } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+        } else { // cache does not exist
+            setDeviceCache(new DLMSCache());
+            getLogger().info("Cache does not exist, configuration is forced to be read.");
+            requestConfiguration();
+            getDlmsCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
         }
     }
 
     @Override
     public DeviceRegisterSupport getRegisterFactory() {
         if (registerFactory == null) {
-            registerFactory = new Dsmr23RegisterFactory(this);
+            registerFactory = new Dsmr23RegisterFactory(this, supportsBulkRequests());
         }
         return registerFactory;
     }
 
     @Override
     public DeviceLoadProfileSupport getLoadProfileBuilder() {
-        if (loadProfileBuilder == null ){
-            loadProfileBuilder = new LoadProfileBuilder(this);
+        if (loadProfileBuilder == null) {
+            loadProfileBuilder = new LoadProfileBuilder(this, supportsBulkRequests());
         }
         return loadProfileBuilder;
     }
@@ -136,13 +123,14 @@ public class AM100 extends AbstractNtaProtocol {
     }
 
     private boolean isForcedToReadCache() {
-        return (Boolean) getProtocolProperties().getTypedProperties().getProperty(PROP_FORCEDTOREADCACHE, DEFAULT_FORCEDTOREADCACHE);
+        return (Boolean) getDlmsSessionProperties().getProperties().getProperty(PROP_FORCEDTOREADCACHE, DEFAULT_FORCEDTOREADCACHE);
     }
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         List<DeviceProtocolDialect> protocolDialects = new ArrayList<>();
-        protocolDialects.add(new Dsmr23DeviceProtocolDialect());
+        protocolDialects.add(new OpticalDeviceProtocolDialect());
+        protocolDialects.add(new TcpDeviceProtocolDialect());
         return protocolDialects;
     }
 

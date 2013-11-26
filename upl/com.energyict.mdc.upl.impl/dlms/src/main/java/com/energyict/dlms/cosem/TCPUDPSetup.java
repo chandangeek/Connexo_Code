@@ -1,5 +1,6 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.obis.ObisCode;
@@ -94,7 +95,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 					getLNResponseData(ATTRB_INACTIVITYTIMEOUT), 0);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the inactivityTimeout. "
+			throw new NestedIOException(e, "Could not retrieve the inactivityTimeout. "
 					+ e.getMessage());
 		}
 	}
@@ -138,7 +139,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 			this.inactivityTimeout = inactivityTimeout;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not write the inactivityTimeout. "
+			throw new NestedIOException(e, "Could not write the inactivityTimeout. "
 					+ e.getMessage());
 		}
 	}
@@ -155,7 +156,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 					getLNResponseData(ATTRB_IPREFERENCE), 0);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the ipReference. "
+			throw new NestedIOException(e, "Could not retrieve the ipReference. "
 					+ e.getMessage());
 		}
 	}
@@ -196,7 +197,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 			this.ipReference = ipReference;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not write the ipReference. "
+			throw new NestedIOException(e, "Could not write the ipReference. "
 					+ e.getMessage());
 		}
 	}
@@ -212,7 +213,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 			return this.mss = new Unsigned16(getLNResponseData(ATTRB_MSS), 0);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the mss. "
+			throw new NestedIOException(e, "Could not retrieve the mss. "
 					+ e.getMessage());
 		}
 	}
@@ -253,7 +254,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 			this.mss = mss;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not write the mss. " + e.getMessage());
+			throw new NestedIOException(e, "Could not write the mss. " + e.getMessage());
 		}
 	}
 
@@ -268,7 +269,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 			return this.port = new Unsigned16(getLNResponseData(ATTRB_PORT), 0);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the port. "
+			throw new NestedIOException(e, "Could not retrieve the port. "
 					+ e.getMessage());
 		}
 	}
@@ -309,7 +310,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 			this.port = port;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not write the port. " + e.getMessage());
+			throw new NestedIOException(e, "Could not write the port. " + e.getMessage());
 		}
 	}
 
@@ -325,7 +326,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 					getLNResponseData(ATTRB_NBOFSIMCONN), 0);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not retrieve the nbOfSimConn. "
+			throw new NestedIOException(e, "Could not retrieve the nbOfSimConn. "
 					+ e.getMessage());
 		}
 	}
@@ -366,7 +367,7 @@ public class TCPUDPSetup extends AbstractCosemObject {
 			this.nbOfSimConn = nbOfSimConn;
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new IOException("Could not write the nbOfSimConn. "
+			throw new NestedIOException(e, "Could not write the nbOfSimConn. "
 					+ e.getMessage());
 		}
 	}

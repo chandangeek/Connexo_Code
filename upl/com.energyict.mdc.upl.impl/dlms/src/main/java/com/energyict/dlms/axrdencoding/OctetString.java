@@ -11,6 +11,7 @@ package com.energyict.dlms.axrdencoding;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.util.DateTime;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class OctetString extends AbstractDataType {
         int workingOffset = offset;
         offsetBegin = workingOffset;
         if (berEncodedData[workingOffset] != AxdrType.OCTET_STRING.getTag()) {
-            throw new IOException("OctetString, invalid identifier " + berEncodedData[workingOffset]);
+            throw new ProtocolException("OctetString, invalid identifier " + berEncodedData[workingOffset]);
         }
         workingOffset++;
         size = (int) DLMSUtils.getAXDRLength(berEncodedData, workingOffset);
@@ -63,7 +64,7 @@ public class OctetString extends AbstractDataType {
     public OctetString(byte[] berEncodedData, int offset, boolean fixed) throws IOException {
         offsetBegin = offset;
         if (berEncodedData[offset] != AxdrType.OCTET_STRING.getTag()) {
-            throw new IOException("OctetString, invalid identifier " + berEncodedData[offset]);
+            throw new ProtocolException("OctetString, invalid identifier " + berEncodedData[offset]);
         }
         size = berEncodedData.length - 1;
         offset += DLMSUtils.getAXDRLengthOffset(berEncodedData, offset);
@@ -182,7 +183,7 @@ public class OctetString extends AbstractDataType {
 	public DateTime getDateTime(TimeZone tz) {
 		try {
 			if ((getBEREncodedByteArray() == null) || (getBEREncodedByteArray().length != 14)) {
-				throw new IOException("AXDRDateTime is expecting an OctetString with a data length of 12.");
+				throw new ProtocolException("AXDRDateTime is expecting an OctetString with a data length of 12.");
 			}
 			if (tz == null) {
 				return new DateTime(this);

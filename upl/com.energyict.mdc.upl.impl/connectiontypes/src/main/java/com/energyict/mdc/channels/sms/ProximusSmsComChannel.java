@@ -3,9 +3,7 @@ package com.energyict.mdc.channels.sms;
 import com.energyict.mdc.protocol.AbstractComChannel;
 import com.energyict.mdc.protocol.exceptions.CommunicationException;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @author sva

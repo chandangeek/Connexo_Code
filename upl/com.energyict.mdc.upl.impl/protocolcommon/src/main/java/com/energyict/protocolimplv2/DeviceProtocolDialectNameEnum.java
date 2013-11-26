@@ -14,7 +14,8 @@ package com.energyict.protocolimplv2;
 public enum DeviceProtocolDialectNameEnum {
 
     CTR_DEVICE_PROTOCOL_DIALECT_NAME("CtrDialect"),
-    DSMR23_DEVICE_PROTOCOL_DIALECT_NAME("Dsmr23Dialect"),
+    TCP_DLMS_PROTOCOL_DIALECT_NAME("TcpDlmsDialect"),
+    OPTICAL_DLMS_PROTOCOL_DIALECT_NAME("OpticalDlmsDialect"),
     SDK_SAMPLE_STANDARD_DEVICE_PROTOCOL_DIALECT_NAME("SDKStandardDialect"),
     SDK_SAMPLE_LOAD_PROFILE_DEVICE_PROTOCOL_DIALECT_NAME("SDKLoadProfileDialect"),
     SDK_SAMPLE_TIME_DEVICE_PROTOCOL_DIALECT_NAME("SDKTimeDialect"),

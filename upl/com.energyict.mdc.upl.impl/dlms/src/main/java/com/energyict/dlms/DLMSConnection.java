@@ -4,81 +4,34 @@ package com.energyict.dlms;
  * DLMSConnection.java
  *
  * Created on 11 oktober 2007, 10:18
- *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
  */
 
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-
-import java.io.IOException;
+import com.energyict.dlms.protocolimplv2.connection.DlmsConnection;
 
 /**
+ * This extends from the V2 DlmsConnection and adds some getters/setters that are used by the V1 protocols
+ * <p/>
+ * The interface provides all functionality to start, use and stop a communication session.
+ * It can be used by an application layer to handle communication with a device.
+ *
  * @author kvds
  */
-public interface DLMSConnection {
+public interface DLMSConnection extends DlmsConnection {
 
     /**
-     * Method to read out a response frame, taking into account timeout and retry mechanism. <br></br>
-     * No data is send to the device, instead the connection starts immediately reading. If a valid frame could be read before
-     * a timeout occurs, the frame is returned. If not the case, a retry request is sent out (according to regular retry mechanism).
+     * Set the type of SNRM frame for the HDLC connection.
+     * This changes the HDLC sign on frame.
+     * Otherwise, a default frame is used that works in most cases.
      *
-     * @param retryRequest The retry request to be sent after a timeout occurs
-     * @return the response bytes
-     * @throws IOException
+     * @param type: 1 = use specific parameter lengths, 0 = use defaults
      */
-    byte[] readResponseWithRetries(byte[] retryRequest) throws IOException;
-
-    /**
-     * Method to read out a response frame, taking into account timeout and retry mechanism. <br></br>
-     * No data is send to the device, instead the connection starts immediately reading. If a valid frame could be read before
-     * a timeout occurs, the frame is returned. If not the case, a retry request is sent out (according to regular retry mechanism).
-     *
-     * @param retryRequest       The retry request to be sent after a timeout occurs
-     * @param isAlreadyEncrypted Boolean indicating the request is already encrypted
-     * @return the response bytes
-     * @throws IOException
-     */
-    byte[] readResponseWithRetries(byte[] retryRequest, boolean isAlreadyEncrypted) throws IOException;
-
-    byte[] sendRequest(byte[] request) throws IOException;
-
-    byte[] sendRequest(byte[] request, boolean isAlreadyEncrypted) throws IOException;
-
-    void setTimeout(int timeout);
-
-    int getTimeout();
-
-    void setRetries(int retries);
-
-    void sendUnconfirmedRequest(final byte[] request) throws IOException;
-
-    void setHHUSignOn(HHUSignOn hhuSignOn, String meterId);
-
-    void setHHUSignOn(HHUSignOn hhuSignOn, String meterId, int hhuSignonBaudRateCode);
-
-    HHUSignOn getHhuSignOn();
-
-    void connectMAC() throws IOException, DLMSConnectionException;
-
-    void disconnectMAC() throws IOException, DLMSConnectionException;
-
-    int getType();
-
-    byte[] sendRawBytes(byte[] data) throws IOException;
-
     void setSNRMType(int type);
 
+    /**
+     * Switch the client an server addresses in the TCP IP connection
+     *
+     * @param type: 1 = switch, 0 = don't switch
+     */
     void setIskraWrapper(int type);
-
-    void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler);
-
-    InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler();
-
-    int getMaxRetries();
-
-    ApplicationServiceObject getApplicationServiceObject();
 
 }

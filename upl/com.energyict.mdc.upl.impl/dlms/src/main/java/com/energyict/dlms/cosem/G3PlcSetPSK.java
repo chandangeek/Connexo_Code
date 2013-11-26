@@ -5,6 +5,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.methods.G3PlcSetPSKMethods;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 
@@ -47,11 +48,11 @@ public class G3PlcSetPSK extends AbstractCosemObject {
      */
     public final void setKey(byte[] key) throws IOException {
         if (key == null) {
-            throw new IOException("Unable to write key [null] to meter!");
+            throw new ProtocolException("Unable to write key [null] to meter!");
         }
 
         if (key.length != 16) {
-            throw new IOException("Invalid key length for key [" + DLMSUtils.getHexStringFromBytes(key, "") + "]. Expected [16] but received [" + key.length + "]");
+            throw new ProtocolException("Invalid key length for key [" + DLMSUtils.getHexStringFromBytes(key, "") + "]. Expected [16] but received [" + key.length + "]");
         }
 
         final OctetString keyValue = new OctetString(key);

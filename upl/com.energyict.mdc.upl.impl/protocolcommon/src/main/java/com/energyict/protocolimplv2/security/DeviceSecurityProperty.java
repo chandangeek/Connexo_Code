@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
+import com.energyict.cpo.*;
 import com.energyict.dynamicattributes.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 /**
  * Summarizes all used DeviceSecurityProperty
@@ -28,43 +28,45 @@ public enum DeviceSecurityProperty {
     ENCRYPTION_KEY(PropertySpecBuilder
             .forClass(String.class, new EncryptedStringFactory())
             .name(SecurityPropertySpecName.ENCRYPTION_KEY.toString())
-        .finish()),
+            .finish()),
     /**
      * A key used for authentication to a device
      */
     AUTHENTICATION_KEY(PropertySpecBuilder
             .forClass(String.class, new EncryptedStringFactory())
             .name(SecurityPropertySpecName.AUTHENTICATION_KEY.toString())
-        .finish()),
+            .finish()),
     /**
      * A DLMS clientMacAddress
      */
-    CLIENT_MAC_ADDRESS(PropertySpecBuilder.
-            forClass(BigDecimal.class, new BigDecimalFactory()).
-            name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()).
-            setDefaultValue(new BigDecimal(1)).
-            finish()),
+    CLIENT_MAC_ADDRESS(PropertySpecFactory.boundedDecimalPropertySpecWithDefaultValue(
+            SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(),
+            BigDecimal.valueOf(1),
+            BigDecimal.valueOf(0x7F),
+            BigDecimal.valueOf(1),
+            getPossibleClientMacAddressValues(1, 0x7F))),
+
     /**
      * A character identification of the accessing client
      */
     DEVICE_ACCESS_IDENTIFIER(PropertySpecBuilder
             .forClass(String.class, new StringFactory())
             .name(SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString())
-        .finish()),
+            .finish()),
     /**
      * A username for ANSI C12 protocols
      */
     ANSI_C12_USER(PropertySpecBuilder
-                .forClass(String.class, new StringFactory())
-                .name(SecurityPropertySpecName.ANSI_C12_USER.toString())
-        .finish()),
+            .forClass(String.class, new StringFactory())
+            .name(SecurityPropertySpecName.ANSI_C12_USER.toString())
+            .finish()),
     /**
      * A UserId for ANSI C12 protocols
      */
     ANSI_C12_USER_ID(PropertySpecBuilder
-                    .forClass(BigDecimal.class, new BigDecimalFactory())
-                    .name(SecurityPropertySpecName.ANSI_C12_USER_ID.toString())
-                    .setDefaultValue(new BigDecimal(1))
+            .forClass(BigDecimal.class, new BigDecimalFactory())
+            .name(SecurityPropertySpecName.ANSI_C12_USER_ID.toString())
+            .setDefaultValue(new BigDecimal(1))
             .finish()),
     /**
      * Indication for ansi protocols to use a binary password
@@ -73,14 +75,25 @@ public enum DeviceSecurityProperty {
             .forClass(Boolean.class, new BooleanFactory())
             .name(SecurityPropertySpecName.BINARY_PASSWORD.toString())
             .setDefaultValue(Boolean.FALSE)
-        .finish()),
+            .finish()),
     /**
      * ANSI ap title
      */
     ANSI_CALLED_AP_TITLE(PropertySpecBuilder
             .forClass(String.class, new StringFactory())
             .name(SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString())
-        .finish());
+            .finish());
+
+    /**
+     * Generates a list of possible values for the client mac address property spec
+     */
+    private static ArrayList<BigDecimal> getPossibleClientMacAddressValues(int lowerLimit, int upperLimit) {
+        ArrayList<BigDecimal> result = new ArrayList<>();
+        for (int index = lowerLimit; index <= upperLimit; index++) {
+            result.add(BigDecimal.valueOf(index));
+        }
+        return result;
+    }
 
     private final PropertySpec propertySpec;
 

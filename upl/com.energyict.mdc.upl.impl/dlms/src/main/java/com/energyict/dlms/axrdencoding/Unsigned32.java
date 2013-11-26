@@ -1,5 +1,6 @@
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ public class Unsigned32 extends AbstractDataType {
     /** Creates a new instance of Enum */
     public Unsigned32(byte[] berEncodedData, int offset) throws IOException {
         if (berEncodedData[offset] != AxdrType.DOUBLE_LONG_UNSIGNED.getTag()) {
-			throw new IOException("Unsigned32, invalid identifier "+berEncodedData[offset]);
+			throw new ProtocolException("Unsigned32, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
         setValue(ProtocolUtils.getLong(berEncodedData,offset,4));

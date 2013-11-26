@@ -10,6 +10,7 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class Integer16 extends AbstractDataType {
 	/** Creates a new instance of Enum */
 	public Integer16(byte[] berEncodedData, int offset) throws IOException {
 		if (berEncodedData[offset] != AxdrType.LONG.getTag()) {
-			throw new IOException("Integer16, invalid identifier " + berEncodedData[offset]);
+			throw new ProtocolException("Integer16, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
 		value = (short) ProtocolUtils.getInt(berEncodedData, offset, 2);

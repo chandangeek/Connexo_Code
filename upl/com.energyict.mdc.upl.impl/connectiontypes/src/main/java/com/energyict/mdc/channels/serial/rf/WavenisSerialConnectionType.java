@@ -8,6 +8,7 @@ import com.energyict.dynamicattributes.BigDecimalFactory;
 import com.energyict.dynamicattributes.StringFactory;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.*;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
@@ -47,7 +48,9 @@ public class WavenisSerialConnectionType extends SioSerialConnectionType {
         try {
             wavenisStack = WavenisStackUtils.start(serialPort.getInputStream(), serialPort.getOutputStream());
             WaveModuleLinkAdaptor waveModuleLinkAdaptor = WavenisStackUtils.createLink(getRFAddress(), wavenisStack);
-            return new WavenisSerialComChannel(waveModuleLinkAdaptor.getInputStream(), waveModuleLinkAdaptor.getOutputStream(), serialPort);
+            ComChannel comChannel = new WavenisSerialComChannel(waveModuleLinkAdaptor.getInputStream(), waveModuleLinkAdaptor.getOutputStream(), serialPort);
+            comChannel.addProperties(createTypeProperty(ComChannelType.WavenisSerialComChannel));
+            return comChannel;
         } catch (IOException e) {
             wavenisStack.stop();
             throw new ConnectionException("Error while starting the Wavenis stack", e);

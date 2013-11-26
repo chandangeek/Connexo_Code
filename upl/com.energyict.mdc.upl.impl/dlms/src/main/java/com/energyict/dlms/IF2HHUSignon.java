@@ -95,7 +95,7 @@ public class IF2HHUSignon implements HHUSignOn {
         try {
             Thread.sleep(DELAY_AFTER_SWITCH);
         } catch (InterruptedException e) {
-            throw new NestedIOException(e, "Got interrupted just after switching the baudrate to [" + baudrate + "] baud.");
+            Thread.currentThread().interrupt();
         }
         return new MeterType(getReceivedIdent());
     }

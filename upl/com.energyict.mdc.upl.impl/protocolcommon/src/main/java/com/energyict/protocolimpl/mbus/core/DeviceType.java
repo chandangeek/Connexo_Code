@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
+import com.energyict.protocol.ProtocolException;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -85,7 +87,7 @@ public class DeviceType {
             if (d.getId()==id)
                 return d;
         }
-        throw new IOException("DeviceType, findDeviceType, error invalid id "+id);
+        throw new ProtocolException("DeviceType, findDeviceType, error invalid id "+id);
     }
 
     public String getDescription() {

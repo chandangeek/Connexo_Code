@@ -77,10 +77,6 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
         } catch (SAXException e) {
             getLogger().severe("Unable to get firmware image contents from xml: " + e.getMessage());
             return MessageResult.createFailed(messageEntry);
-        } catch (InterruptedException e) {
-            getLogger().severe("Firmware upgrade was interrupted: " + e.getMessage());
-            Thread.currentThread().interrupt();
-            return MessageResult.createFailed(messageEntry);
         }
 
     }

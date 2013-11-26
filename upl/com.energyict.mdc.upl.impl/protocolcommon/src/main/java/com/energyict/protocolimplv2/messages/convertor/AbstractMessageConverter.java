@@ -76,6 +76,7 @@ public abstract class AbstractMessageConverter implements LegacyMessageConverter
             throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
         }
     }
+
     protected String convertSpecialDaysCodeTableToXML(Code messageAttribute) {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 1, "");

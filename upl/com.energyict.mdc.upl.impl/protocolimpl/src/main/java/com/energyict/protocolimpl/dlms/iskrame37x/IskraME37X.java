@@ -35,6 +35,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -1038,6 +1039,10 @@ public class IskraME37X extends PluggableMeterProtocol implements HHUEnabler, Pr
             }
         }
     } // public void requestSAP() throws IOException
+
+    public ApplicationServiceObject getAso() {
+        return null;
+    }
 
     public void connect() throws IOException {
         try {

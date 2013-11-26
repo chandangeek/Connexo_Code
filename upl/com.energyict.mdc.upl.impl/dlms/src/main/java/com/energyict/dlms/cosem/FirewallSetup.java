@@ -5,6 +5,7 @@ import com.energyict.dlms.axrdencoding.BooleanObject;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.cosem.attributes.FirewallSetupAttributes;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 
@@ -66,7 +67,7 @@ public final class FirewallSetup extends AbstractCosemObject {
 
 				return new InterfaceFirewallConfiguration(allowDLMS, allowHTTP, allowSSH);
 			} else {
-				throw new IOException("Port setup structure has wrong number of elements : expected [3] elements, but got [" + structure.nrOfDataTypes() + "]");
+				throw new ProtocolException("Port setup structure has wrong number of elements : expected [3] elements, but got [" + structure.nrOfDataTypes() + "]");
 			}
 		}
 

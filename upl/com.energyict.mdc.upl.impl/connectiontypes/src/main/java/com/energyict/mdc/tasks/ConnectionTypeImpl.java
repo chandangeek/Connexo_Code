@@ -3,6 +3,7 @@ package com.energyict.mdc.tasks;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.SerialComponentFactory;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpSession;
 import com.energyict.mdc.channels.ip.socket.SocketComChannel;
@@ -132,4 +133,13 @@ public abstract class ConnectionTypeImpl implements ConnectionType {
         }
     }
 
+    /**
+     * Create a property that indicates the type of the ComChannel.
+     * This is used by the protocols to determine the transport layer.
+     */
+    protected TypedProperties createTypeProperty(ComChannelType comChannelType) {
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty(ComChannelType.TYPE, comChannelType.getType());
+        return typedProperties;
+    }
 }

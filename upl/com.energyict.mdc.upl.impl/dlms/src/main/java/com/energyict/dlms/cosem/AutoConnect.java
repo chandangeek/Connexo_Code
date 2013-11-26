@@ -1,5 +1,6 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 
@@ -62,7 +63,7 @@ public class AutoConnect extends AbstractCosemObject {
 		try{
 			return this.mode = new TypeEnum(getLNResponseData(ATTRB_MODE), 0);
 		} catch (IOException e){
-			throw new IOException("Could not read the mode. " + e.getMessage());
+			throw new NestedIOException(e, "Could not read the mode. " + e.getMessage());
 		}
 	}
 
@@ -88,7 +89,7 @@ public class AutoConnect extends AbstractCosemObject {
 			write(ATTRB_MODE, mode.getBEREncodedByteArray());
 			this.mode = mode;
 		} catch (IOException e){
-			throw new IOException("Could not write the mode. " + e.getMessage());
+			throw new NestedIOException(e, "Could not write the mode. " + e.getMessage());
 		}
 	}
 
@@ -120,7 +121,7 @@ public class AutoConnect extends AbstractCosemObject {
 		try{
 			return this.repetitions = new Unsigned8(getLNResponseData(ATTRB_REPETITIONS), 0);
 		} catch (IOException e){
-			throw new IOException("Could not read the repetitions value. " + e.getMessage());
+			throw new NestedIOException(e, "Could not read the repetitions value. " + e.getMessage());
 		}
 	}
 
@@ -145,7 +146,7 @@ public class AutoConnect extends AbstractCosemObject {
 		try{
 			write(ATTRB_REPETITIONS, repetitions.getBEREncodedByteArray());
 		} catch (IOException e){
-			throw new IOException("Could not write the repetions value. " + e.getMessage());
+			throw new NestedIOException(e, "Could not write the repetions value. " + e.getMessage());
 		}
 	}
 
@@ -167,7 +168,7 @@ public class AutoConnect extends AbstractCosemObject {
 		try{
 			return this.repetitionDelay = new Unsigned16(getLNResponseData(ATTRB_REPETITION_DELAY), 0);
 		} catch (IOException e){
-			throw new IOException("Could not read the repetitiondelay. " + e.getMessage());
+			throw new NestedIOException(e, "Could not read the repetitiondelay. " + e.getMessage());
 		}
 	}
 
@@ -192,7 +193,7 @@ public class AutoConnect extends AbstractCosemObject {
 		try{
 			write(ATTRB_REPETITION_DELAY, repetitionDelay.getBEREncodedByteArray());
 		} catch(IOException e){
-			throw new IOException("Could not write the repetitiondelay. " + e.getMessage());
+			throw new NestedIOException(e, "Could not write the repetitiondelay. " + e.getMessage());
 		}
 	}
 
@@ -214,7 +215,7 @@ public class AutoConnect extends AbstractCosemObject {
 		try{
 			return this.callingWindow = new Array(getLNResponseData(ATTRB_CALLING_WINDOW), 0, 0);
 		} catch (IOException e){
-			throw new IOException("Could not read the calling window array. " + e.getMessage());
+			throw new NestedIOException(e, "Could not read the calling window array. " + e.getMessage());
 		}
 	}
 
@@ -239,7 +240,7 @@ public class AutoConnect extends AbstractCosemObject {
 		try{
 			write(ATTRB_CALLING_WINDOW, callingWindow.getBEREncodedByteArray());
 		}catch (IOException e){
-			throw new IOException("Could not write the calling window. " + e.getMessage());
+			throw new NestedIOException(e, "Could not write the calling window. " + e.getMessage());
 		}
 	}
 
@@ -252,7 +253,7 @@ public class AutoConnect extends AbstractCosemObject {
 		try{
 			return this.destinationList = new Array(getLNResponseData(ATTRB_DESTINATION_LIST), 0, 0);
 		}catch (IOException e){
-			throw new IOException("Could not read the destinationList. " + e.getMessage());
+			throw new NestedIOException(e, "Could not read the destinationList. " + e.getMessage());
 		}
 	}
 
@@ -277,7 +278,7 @@ public class AutoConnect extends AbstractCosemObject {
 		try{
 			write(ATTRB_DESTINATION_LIST, destinationList.getBEREncodedByteArray());
 		} catch (IOException e){
-			throw new IOException("Could not write the given destinationList. " + e.getMessage());
+			throw new NestedIOException(e, "Could not write the given destinationList. " + e.getMessage());
 		}
 	}
 
@@ -291,7 +292,7 @@ public class AutoConnect extends AbstractCosemObject {
 //			writeDestinationList(getDestinationList().addDataType(number));
 			getDestinationList().addDataType(number);
 		} catch (IOException e){
-			throw new IOException("Could not add " + number.toString() + " to the destinationList." + e.getMessage());
+			throw new NestedIOException(e, "Could not add " + number.toString() + " to the destinationList." + e.getMessage());
 		}
 	}
 
@@ -319,7 +320,7 @@ public class AutoConnect extends AbstractCosemObject {
 			}
 //			writeDestinationList(temp);
 		} catch (IOException e){
-			throw new IOException("Could not delete " + number.toString() + " from the destinationList." + e.getMessage());
+			throw new NestedIOException(e, "Could not delete " + number.toString() + " from the destinationList." + e.getMessage());
 		}
 	}
 

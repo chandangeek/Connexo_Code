@@ -184,7 +184,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
     }
 
-     private void reboot() throws IOException {
+    private void reboot() throws IOException {
         getLogger().info("Executing Reboot message.");
         getLogger().info("Warning: Device will reboot at the end of the communication session.");
         ((UkHub) protocol).setReboot(true);
@@ -196,7 +196,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
         BooleanObject bool = new BooleanObject(false);
         genericWrite.write(bool.getBEREncodedByteArray());
-        ((UkHub)protocol).setReboot(true);
+        ((UkHub) protocol).setReboot(true);
     }
 
     private void disableWebserver() throws IOException {
@@ -205,7 +205,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
 
         BooleanObject bool = new BooleanObject(true);
         genericWrite.write(bool.getBEREncodedByteArray());
-        ((UkHub)protocol).setReboot(true);
+        ((UkHub) protocol).setReboot(true);
     }
 
     private void modemPingSetup(MessageHandler messageHandler, String content) throws IOException {
@@ -280,54 +280,48 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
             sas.writeExecutionTime(dateArray);
         } else {
-             it.imageActivation();
+            it.imageActivation();
         }
     }
 
     private void zigbeeNCPFirmwareUpdate(MessageHandler messageHandler, String content) throws IOException {
         getLogger().info("Executing Zigbee NCP firmware update message");
+        int userFileId = messageHandler.getZigbeeNCPFirmwareUpgradeUserFileId();
+        if (userFileId == -1) {
+            throw new IOException("Invalid UserFileId value : " + userFileId);
+        }
+
+        UserFile uf = mw().getUserFileFactory().find(userFileId);
+        if (uf == null) {
+            throw new IOException("No UserFile found with ID : " + userFileId);
+        }
+
+        String[] parts = content.split("=");
+        Date date = null;
         try {
-            int userFileId = messageHandler.getZigbeeNCPFirmwareUpgradeUserFileId();
-            if (userFileId == -1) {
-                throw new IOException("Invalid UserFileId value : " + userFileId);
-            }
+            if (parts.length > 2) {
+                String dateString = parts[2].substring(1).split("\"")[0];
 
-            UserFile uf = mw().getUserFileFactory().find(userFileId);
-            if (uf == null) {
-                throw new IOException("No UserFile found with ID : " + userFileId);
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                date = formatter.parse(dateString);
             }
+        } catch (ParseException e) {
+            log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
+            throw new NestedIOException(e);
+        } catch (NumberFormatException e) {
+            log(Level.SEVERE, "Error while parsing the time duration: " + e.getMessage());
+            throw new NestedIOException(e);
+        }
 
-            String[] parts = content.split("=");
-            Date date = null;
-            try {
-                if (parts.length > 2) {
-                    String dateString = parts[2].substring(1).split("\"")[0];
-
-                    SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                    date = formatter.parse(dateString);
-                }
-            } catch (ParseException e) {
-                log(Level.SEVERE, "Error while parsing the activation date: " + e.getMessage());
-                throw new NestedIOException(e);
-            } catch (NumberFormatException e) {
-                log(Level.SEVERE, "Error while parsing the time duration: " + e.getMessage());
-                throw new NestedIOException(e);
-            }
-
-            byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
-            ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.ZIGBEE_NCP_FIRMWARE_UPDATE);
-            it.upgrade(imageData);
-            if (date != null) {
-                SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(ObisCodeProvider.IMAGE_ACTIVATION_SCHEDULER);
-                Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
-                sas.writeExecutionTime(dateArray);
-            } else {
-                it.imageActivation();
-            }
-        } catch (InterruptedException e) {
-            String msg = "Zigbee NCP firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
-            getLogger().severe(msg);
-            throw new IOException(msg);
+        byte[] imageData = new Base64EncoderDecoder().decode(uf.loadFileInByteArray());
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer(ObisCodeProvider.ZIGBEE_NCP_FIRMWARE_UPDATE);
+        it.upgrade(imageData);
+        if (date != null) {
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(ObisCodeProvider.IMAGE_ACTIVATION_SCHEDULER);
+            Array dateArray = convertUnixToDateTimeArray(String.valueOf(date.getTime() / 1000));
+            sas.writeExecutionTime(dateArray);
+        } else {
+            it.imageActivation();
         }
     }
 
@@ -705,7 +699,7 @@ public class UkHubMessageExecutor extends GenericMessageExecutor {
             mac.append("-");
         }
 
-        return mac.substring(0, mac.length() -1);
+        return mac.substring(0, mac.length() - 1);
     }
 
 

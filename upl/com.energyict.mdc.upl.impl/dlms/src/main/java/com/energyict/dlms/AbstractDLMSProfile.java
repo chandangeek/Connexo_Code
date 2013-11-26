@@ -5,6 +5,7 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 
@@ -32,12 +33,12 @@ public abstract class AbstractDLMSProfile {
             ScalerUnit scalerUnit = capturedObject != null ? capturedObject.getScalerUnit() : null;
             unit = scalerUnit != null ? scalerUnit.getEisUnit() : null;
         } catch (IOException e) {
-            throw new IOException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. " + e.getMessage());
+            throw new ProtocolException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. " + e.getMessage());
         } catch (ApplicationException e) {
-            throw new IOException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. " + e.getMessage());
+            throw new ProtocolException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. " + e.getMessage());
         }
         if (unit == null) {
-            throw new IOException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. Unit was 'null'.");
+            throw new ProtocolException("Unable to read the scaler and/or unit for channel with obiscode [" + oc + "]. Unit was 'null'.");
         }
         return unit;
     }

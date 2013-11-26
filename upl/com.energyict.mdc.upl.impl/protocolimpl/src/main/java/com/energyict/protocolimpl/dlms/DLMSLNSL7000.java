@@ -48,6 +48,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -276,6 +277,11 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
         aarq[4] = (byte) (((int) aarq.length & 0xFF) - 5); // Total length of frame - headerlength
 
         return aarq;
+    }
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
     }
 
     /**

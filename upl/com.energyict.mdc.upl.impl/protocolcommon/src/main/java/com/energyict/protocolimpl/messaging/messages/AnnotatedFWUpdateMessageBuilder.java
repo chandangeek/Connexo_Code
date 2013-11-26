@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.messaging.messages;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.NestedIOException;
 import com.energyict.mdw.shadow.OldDeviceMessageShadow;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocol.messaging.MessageBuilder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -124,7 +125,7 @@ public class AnnotatedFWUpdateMessageBuilder extends FirmwareUpdateMessageBuilde
             final Element element = document.getDocumentElement();
             final String tagName = element.getTagName();
             if (!tagName.equals(TAG_FIRMWARE_UPGRADE)) {
-                throw new IOException("Expected tag [" + TAG_FIRMWARE_UPGRADE + "] but received [" + tagName + "]. Could not init from xml!");
+                throw new ProtocolException("Expected tag [" + TAG_FIRMWARE_UPGRADE + "] but received [" + tagName + "]. Could not init from xml!");
             }
 
         } catch (ParserConfigurationException e) {

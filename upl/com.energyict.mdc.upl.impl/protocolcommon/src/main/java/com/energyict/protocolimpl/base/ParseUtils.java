@@ -6,8 +6,7 @@
 
 package com.energyict.protocolimpl.base;
 
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -113,7 +112,7 @@ public class ParseUtils {
         long decimal=0x1;
         
         if (length > 8) {
-			throw new IOException("ParseUtils, convertNormSignedFP2Number, invalid length "+length);
+			throw new ProtocolException("ParseUtils, convertNormSignedFP2Number, invalid length "+length);
 		}
         
         if (order == LITTLE_ENDIAN) {
@@ -194,7 +193,7 @@ public class ParseUtils {
         BigInteger bi = BigInteger.ZERO;
         try {
             if (length > 64) {
-				throw new IOException("ProtocolUtils, getBigIntegerLE, invalid length");
+				throw new ProtocolException("ProtocolUtils, getBigIntegerLE, invalid length");
 			}
             for (int i=0;i<length;i++) {
                 bi = bi.multiply(BigInteger.valueOf(256));
@@ -202,7 +201,7 @@ public class ParseUtils {
             }
         }
         catch(ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getBigIntegerLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getBigIntegerLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
         }
         return bi;
     }    
@@ -212,7 +211,7 @@ public class ParseUtils {
         BigInteger bi = BigInteger.ZERO;
         try {
             if (length > 64) {
-				throw new IOException("ProtocolUtils, getBigIntegerLE, invalid length");
+				throw new ProtocolException("ProtocolUtils, getBigIntegerLE, invalid length");
 			}
             for (int i=0;i<length;i++) {
                 bi = bi.multiply(BigInteger.valueOf(256));
@@ -220,7 +219,7 @@ public class ParseUtils {
             }
         }
         catch(ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getBigIntegerLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getBigIntegerLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
         }
         return bi;
     }    
@@ -286,7 +285,7 @@ public class ParseUtils {
             }
         }
         catch(ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getBCD2IntLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getBCD2IntLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
         }
         return val;
     }
@@ -310,7 +309,7 @@ public class ParseUtils {
             }
         }
         catch(ArrayIndexOutOfBoundsException e) {
-            throw new IOException("ProtocolUtils, getBCD2IntLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
+            throw new ProtocolException("ProtocolUtils, getBCD2IntLE, ArrayIndexOutOfBoundsException, "+e.getMessage());
         }
         return val;
     }
@@ -349,7 +348,7 @@ public class ParseUtils {
     
     public static int getNrOfDays(Date from, Date to, TimeZone timeZone) throws IOException {
         if (to.getTime() < from.getTime()) {
-			throw new IOException("ParseUtils, getNrOfDays, error ("+from+") > ("+to+")");
+			throw new ProtocolException("ParseUtils, getNrOfDays, error ("+from+") > ("+to+")");
 		}
         long offset = to.getTime() - from.getTime();
         final long ONEDAY=24*60*60*1000;    

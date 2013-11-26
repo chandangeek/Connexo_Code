@@ -1,18 +1,17 @@
 package com.energyict.protocolimplv2.nta.dsmr23.topology;
 
-import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
-import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
-import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
+import com.energyict.protocolimplv2.nta.abstractnta.NtaProtocol;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
@@ -26,14 +25,14 @@ import java.util.logging.Level;
  * Date: 14-jul-2011
  * Time: 16:56:32
  */
-public class MeterTopology implements MasterMeter {
+public class MeterTopology {
 
     private static final ObisCode MbusClientObisCode = ObisCode.fromString("0.0.24.1.0.255");
     private static final int ObisCodeBFieldIndex = 1;
     public static final int MaxMbusDevices = 4;
     private static String ignoreZombieMbusDevice = "@@@0000000000000";
 
-    private final AbstractNtaProtocol protocol;
+    private final NtaProtocol protocol;
 
     /**
      * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
@@ -55,14 +54,14 @@ public class MeterTopology implements MasterMeter {
      */
     private CollectedTopology deviceTopology;
 
-    public MeterTopology(final AbstractNtaProtocol protocol) {
+    public MeterTopology(final NtaProtocol protocol) {
         this.protocol = protocol;
     }
 
     /**
      * Search for local slave devices so a general topology can be build up
      */
-    public void searchForSlaveDevices() throws ConnectionException {
+    public void searchForSlaveDevices() {
         this.discoveryComposedCosemObject = constructDiscoveryComposedCosemObject();
         discoverMbusDevices();
     }
@@ -91,12 +90,12 @@ public class MeterTopology implements MasterMeter {
                 cMbusSerialNumbers.add(cMbusSerial);
             }
         }
-        return new ComposedCosemObject(this.protocol.getDlmsSession(), this.protocol.supportsBulkRequests(), dlmsAttributes);
+        return new ComposedCosemObject(this.protocol.getDlmsSession(), this.protocol.getDlmsSession().getProperties().isBulkRequest(), dlmsAttributes);
     }
 
-    private void discoverMbusDevices() throws ConnectionException {
+    private void discoverMbusDevices() {
         log(Level.FINE, "Starting discovery of MBusDevices");
-       constructMbusMap();
+        constructMbusMap();
 
         StringBuilder sb = new StringBuilder();
         sb.append("Found ").append(this.mbusMap.size()).append(" MBus devices: ").append("\r\n");
@@ -111,13 +110,11 @@ public class MeterTopology implements MasterMeter {
      * If the serialNumber can't be retrieved from the device then we just log and try the next one.
      *
      * @return a List of <CODE>DeviceMappings</CODE>
-     * @throws com.energyict.dialer.connection.ConnectionException
-     *          if interframeTimeout has passed and maximum retries have been reached
      */
-    protected List<DeviceMapping> constructMbusMap() throws ConnectionException {
+    protected List<DeviceMapping> constructMbusMap() {
         String mbusSerial;
         mbusMap = new ArrayList<>();
-        deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getOfflineDevice().getSerialNumber()));
+        deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getDlmsSession().getProperties().getSerialNumber()));
         for (int i = 1; i <= MaxMbusDevices; i++) {
             ObisCode serialObisCode = ProtocolTools.setObisCodeField(MbusClientObisCode, ObisCodeBFieldIndex, (byte) i);
             if (this.protocol.getDlmsSession().getMeterConfig().isObisCodeInObjectList(serialObisCode)) {
@@ -132,9 +129,9 @@ public class MeterTopology implements MasterMeter {
                         deviceTopology.addSlaveDevice(new DeviceIdentifierBySerialNumber(mbusSerial));
                     }
                 } catch (IOException e) {
-                    if (e.getMessage().contains("com.energyict.dialer.connection.ConnectionException: receiveResponse() interframe timeout error")) {
-                        throw new ConnectionException("InterframeTimeout occurred. Meter probably not accessible anymore." + e);
-                    } // else, then the attributes are not available
+                    if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
+                        //Move on to next
+                    }
                 }
             }
         }
@@ -157,7 +154,7 @@ public class MeterTopology implements MasterMeter {
         strBuilder.append((char) (((manufacturer.getValue() & 0x03E0) / 32) + 64));
         strBuilder.append((char) ((manufacturer.getValue() & 0x001F) + 64));
 
-        strBuilder.append(String.format((((Dsmr23Properties)this.protocol.getProtocolProperties()).getFixMbusHexShortId()) ? "%08d" : "%08x", identification.getValue()));    // 8 Hex digits with leading zeros
+        strBuilder.append(String.format(((this.protocol.getDlmsSession().getProperties()).getFixMbusHexShortId()) ? "%08d" : "%08x", identification.getValue()));    // 8 Hex digits with leading zeros
         strBuilder.append(String.format("%03d", version.getValue()));            // 3 Dec digits with leading zeros
         strBuilder.append(String.format("%02d", deviceType.getValue()));        // 2 Dec digits with leading zeros
 
@@ -176,8 +173,8 @@ public class MeterTopology implements MasterMeter {
      */
     public int getPhysicalAddress(final String serialNumber) {
 
-        if (serialNumber.equals(protocol.getSerialNumber())) {
-            return this.protocol.getPhysicalAddress();
+        if (serialNumber.equals(protocol.getDlmsSession().getProperties().getSerialNumber())) {
+            return 0;   // the 'Master' has physicalAddress 0
         }
 
         for (DeviceMapping dm : this.mbusMap) {
@@ -196,8 +193,8 @@ public class MeterTopology implements MasterMeter {
      */
     public String getSerialNumber(final ObisCode obisCode) {
         int bField = obisCode.getB();
-        if (bField == this.protocol.getPhysicalAddress() || bField == 128) {    // 128 is the notation of the CapturedObjects in mW for Electricity ...
-            return this.protocol.getSerialNumber();
+        if (bField == 0 || bField == 128) {    // 128 is the notation of the CapturedObjects in mW for Electricity ...
+            return this.protocol.getDlmsSession().getProperties().getSerialNumber();
         }
 
         for (DeviceMapping dm : this.mbusMap) {
@@ -208,14 +205,15 @@ public class MeterTopology implements MasterMeter {
         return "";
     }
 
-    public CollectedTopology getDeviceTopology() throws IOException {
+    public CollectedTopology getDeviceTopology() {
         if (deviceTopology == null) {
-            throw new IOException("getDeviceTopology() - The device topology is not yet build up!");
+            deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getDlmsSession().getProperties().getSerialNumber()));
+            deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem("devicetopologynotsupported"));
         }
         return deviceTopology;
     }
 
-    private final void log(Level level, String message) {
+    private void log(Level level, String message) {
         this.protocol.getLogger().log(level, message);
     }
 }

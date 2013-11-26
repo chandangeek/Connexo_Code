@@ -2,14 +2,9 @@ package com.energyict.protocolimplv2.eict.rtuplusserver.g3;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.meterdata.CollectedLogBook;
-import com.energyict.mdc.meterdata.CollectedMessageList;
-import com.energyict.mdc.meterdata.CollectedRegister;
-import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
@@ -19,9 +14,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -36,13 +29,18 @@ public class RtuPlusServer extends AbstractDlmsProtocol {
     }
 
     @Override
-    protected DlmsProtocolProperties getProtocolProperties() {
+    protected DlmsSessionProperties getDlmsSessionProperties() {
         return null;  // nothing to do yet
     }
 
     @Override
     protected void initAfterConnect() {
         // nothing to do yet
+    }
+
+    @Override
+    public int requestConfigurationChanges() {
+        return -1;        // nothing to do yet
     }
 
     @Override

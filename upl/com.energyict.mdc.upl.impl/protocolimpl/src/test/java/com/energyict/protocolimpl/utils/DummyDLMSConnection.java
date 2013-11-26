@@ -57,13 +57,6 @@ public class DummyDLMSConnection implements DLMSConnection {
         return new NonIncrementalInvokeIdAndPriorityHandler();
     }
 
-    /* (non-Javadoc)
-      * @see com.energyict.dlms.DLMSConnection#getType()
-      */
-    public int getType() {
-        return 0;
-    }
-
     public byte[] sendRawBytes(byte[] data) throws IOException {
         return new byte[0];
     }
@@ -87,10 +80,10 @@ public class DummyDLMSConnection implements DLMSConnection {
         return sendRequest(encryptedRequest);
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(long timeout) {
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return 0;
     }
 
@@ -158,13 +151,4 @@ public class DummyDLMSConnection implements DLMSConnection {
     public int getMaxRetries() {
         return 0;
     }
-
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return aso;
-    }
-
-    public void setApplicationServiceObject(ApplicationServiceObject aso) {
-        this.aso = aso;
-    }
-
 }

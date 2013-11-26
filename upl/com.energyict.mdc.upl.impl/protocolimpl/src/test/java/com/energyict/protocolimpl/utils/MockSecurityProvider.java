@@ -5,6 +5,7 @@ import com.energyict.dlms.aso.SecurityProvider;
 import com.energyict.dlms.aso.framecounter.DefaultRespondingFrameCounterHandler;
 import com.energyict.dlms.aso.framecounter.RespondingFrameCounterHandler;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -27,7 +28,7 @@ public class MockSecurityProvider implements SecurityProvider{
 		
 	}
 
-	public byte[] getAuthenticationKey() throws IOException {
+	public byte[] getAuthenticationKey() {
 		return this.authenticationKey;
 	}
 	public void setAuthenticationKey(byte[] ak){
@@ -38,7 +39,7 @@ public class MockSecurityProvider implements SecurityProvider{
 	 * Getter for the CallingAuthenticationValue (the challenge from the server/meter)
 	 * @return the CallingAuthenticationValue
 	 */
-	public byte[] getCallingAuthenticationValue() throws IOException {
+	public byte[] getCallingAuthenticationValue() throws UnsupportedException {
 		return this.callingAuthenticationValue;
 	}
 
@@ -57,7 +58,7 @@ public class MockSecurityProvider implements SecurityProvider{
 		this.dedicatedKey = dk;
 	}
 
-	public byte[] getGlobalKey() throws IOException {
+	public byte[] getGlobalKey() {
 		return this.globalKey;
 	}
 	public void setGlobalkey(byte[] gk){
@@ -68,7 +69,7 @@ public class MockSecurityProvider implements SecurityProvider{
 	 * Getter for the HLSSecret
 	 * @return the HLSSecret
 	 */
-	public byte[] getHLSSecret() throws IOException {
+	public byte[] getHLSSecret() {
 		if(hlsSecret == null){
 			return new byte[]{(byte)0xFF,(byte)0x00,(byte)0xEE,(byte)0x11,(byte)0xDD,(byte)0x22,(byte)0xCC,(byte)0x33};
 		} else{
@@ -183,7 +184,7 @@ public class MockSecurityProvider implements SecurityProvider{
      * @return the encrypted Value to send back to the meter
      */
     public byte[] associationEncryptionByManufacturer(final byte[] respondingAuthenticationValue) throws IOException {
-        throw new IOException("High level security 2 is not supported.");
+        throw new UnsupportedException("High level security 2 is not supported.");
     }
 
     /**
@@ -192,6 +193,10 @@ public class MockSecurityProvider implements SecurityProvider{
     public long getInitialFrameCounter() {
         Random generator = new Random();
         return generator.nextLong();
+    }
+
+    @Override
+    public void setInitialFrameCounter(long initialFrameCounter) {
     }
 
     /**
@@ -208,6 +213,14 @@ public class MockSecurityProvider implements SecurityProvider{
      */
     public RespondingFrameCounterHandler getRespondingFrameCounterHandler() {
         return this.respondingFrameCounterHandler;
+    }
+
+    @Override
+    public void changeEncryptionKey(byte[] newEncryptionKey) throws IOException {
+    }
+
+    @Override
+    public void changeAuthenticationKey(byte[] newAuthenticationKey) throws IOException {
     }
 
     public void changeEncryptionKey() throws IOException {

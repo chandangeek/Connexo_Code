@@ -9,6 +9,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.List;
@@ -54,7 +55,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return storedValues;
     }
 
-    public LoadProfile getLoadProfile() throws IOException {
+    public LoadProfile getLoadProfile() throws ProtocolException {
         if (loadProfile==null) {
             loadProfile = new LoadProfile(this);
             loadProfile.retrieve();
@@ -62,11 +63,11 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return loadProfile;
     }
 
-    public Clock getClock() throws IOException {
+    public Clock getClock() throws ProtocolException {
         return new Clock(protocolLink,getObjectReference(CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
     }
 
-    public Clock getClock(ObisCode obisCode) throws IOException {
+    public Clock getClock(ObisCode obisCode) throws ProtocolException {
         return new Clock(protocolLink,getObjectReference(obisCode));
     }
 
@@ -74,53 +75,53 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new GenericRead(protocolLink,new ObjectReference(baseObject),snAttr);
     }
 
-    public GenericRead getGenericRead(UniversalObject uo) throws IOException {
+    public GenericRead getGenericRead(UniversalObject uo) throws ProtocolException {
         return getGenericRead(uo.getObisCode(),uo.getValueAttributeOffset(),uo.getClassID());
     }
 
-    public GenericRead getGenericRead(DLMSAttribute attribute) throws IOException {
+    public GenericRead getGenericRead(DLMSAttribute attribute) throws ProtocolException {
         return getGenericRead(attribute.getObisCode(), attribute.getSnAttribute(), attribute.getClassId());
     }
 
-    public GenericRead getGenericRead(ObisCode obisCode, int snAttr) throws IOException {
+    public GenericRead getGenericRead(ObisCode obisCode, int snAttr) throws ProtocolException {
         return getGenericRead(obisCode,snAttr,-1);
     }
 
-    public GenericRead getGenericRead(ObisCode obisCode, int snAttr, int classId) throws IOException {
+    public GenericRead getGenericRead(ObisCode obisCode, int snAttr, int classId) throws ProtocolException {
         return new GenericRead(protocolLink,getObjectReference(obisCode,classId),snAttr);
     }
 
-    public SMTPSetup getSMTPSetup(ObisCode obisCode) throws IOException {
+    public SMTPSetup getSMTPSetup(ObisCode obisCode) throws ProtocolException {
         return new SMTPSetup(protocolLink, getObjectReference(obisCode));
     }
-    public ActivityCalendar getActivityCalendar(ObisCode obisCode) throws IOException {
+    public ActivityCalendar getActivityCalendar(ObisCode obisCode) throws ProtocolException {
         return new ActivityCalendar(protocolLink, getObjectReference(obisCode));
     }
-    public SpecialDaysTable getSpecialDaysTable(ObisCode obisCode) throws IOException {
+    public SpecialDaysTable getSpecialDaysTable(ObisCode obisCode) throws ProtocolException {
         return new SpecialDaysTable(protocolLink, getObjectReference(obisCode));
     }
-    public ScriptTable getScriptTable(ObisCode obisCode) throws IOException {
+    public ScriptTable getScriptTable(ObisCode obisCode) throws ProtocolException {
         return new ScriptTable(protocolLink, getObjectReference(obisCode));
     }
 
-    public ScriptTable getGlobalMeterResetScriptTable() throws IOException {
+    public ScriptTable getGlobalMeterResetScriptTable() throws ProtocolException {
     	return new ScriptTable(protocolLink, ScriptTable.LN_GLOBAL_METER_RESET);
     }
-    public ScriptTable getTarifficationScriptTable() throws IOException {
+    public ScriptTable getTarifficationScriptTable() throws ProtocolException {
     	return new ScriptTable(protocolLink, ScriptTable.LN_TARIFFICATION_SCRIPT_TABLE);
     }
-    public ScriptTable getDisconnectControlScriptTable() throws IOException {
+    public ScriptTable getDisconnectControlScriptTable() throws ProtocolException {
     	return new ScriptTable(protocolLink, ScriptTable.LN_DISCONNECT_CONTROL);
     }
-    public ScriptTable getImageActivationScriptTable() throws IOException {
+    public ScriptTable getImageActivationScriptTable() throws ProtocolException {
     	return new ScriptTable(protocolLink, ScriptTable.LN_IMAGE_ACTIVATION);
     }
 
-    public RegisterMonitor getRegisterMonitor(ObisCode obisCode) throws IOException {
+    public RegisterMonitor getRegisterMonitor(ObisCode obisCode) throws ProtocolException {
         return new RegisterMonitor(protocolLink, getObjectReference(obisCode));
     }
 
-    public SingleActionSchedule getSingleActionSchedule(ObisCode obisCode) throws IOException {
+    public SingleActionSchedule getSingleActionSchedule(ObisCode obisCode) throws ProtocolException {
     	return new SingleActionSchedule(protocolLink, getObjectReference(obisCode));
     }
 
@@ -132,24 +133,24 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public GenericWrite getGenericWrite(int baseObject,int attr) {
         return new GenericWrite(protocolLink,new ObjectReference(baseObject),attr);
     }
-    public GenericWrite getGenericWrite(UniversalObject uo) throws IOException {
+    public GenericWrite getGenericWrite(UniversalObject uo) throws ProtocolException {
         return getGenericWrite(uo.getObisCode(),uo.getValueAttributeOffset(),uo.getClassID());
     }
-    public GenericWrite getGenericWrite(ObisCode obisCode,int attr) throws IOException {
+    public GenericWrite getGenericWrite(ObisCode obisCode,int attr) throws ProtocolException {
         return getGenericWrite(obisCode,attr,-1);
     }
-    public GenericWrite getGenericWrite(ObisCode obisCode,int attr, int classId) throws IOException {
+    public GenericWrite getGenericWrite(ObisCode obisCode,int attr, int classId) throws ProtocolException {
         return new GenericWrite(protocolLink,getObjectReference(obisCode,classId),attr);
     }
 
     public GenericInvoke getGenericInvoke(int baseObject, int method){
     	return new GenericInvoke(protocolLink, new ObjectReference(baseObject), method);
     }
-    public GenericInvoke getGenericInvoke(ObisCode obisCode, int classId, int method) throws IOException {
+    public GenericInvoke getGenericInvoke(ObisCode obisCode, int classId, int method) throws ProtocolException {
     	return new GenericInvoke(protocolLink, getObjectReference(obisCode, classId), method);
     }
 
-    public ProfileGeneric getProfileGeneric(ObisCode obisCode) throws IOException {
+    public ProfileGeneric getProfileGeneric(ObisCode obisCode) throws ProtocolException {
         return new ProfileGeneric(protocolLink,getObjectReference(obisCode));
     }
 
@@ -159,14 +160,14 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return profileGeneric;
     }
 
-    public ProfileGeneric getProfileGeneric(int shortNameReference) throws IOException {
+    public ProfileGeneric getProfileGeneric(int shortNameReference) throws ProtocolException {
         return new ProfileGeneric(protocolLink,new ObjectReference(shortNameReference));
     }
 
     public Register getRegister(int baseObject) {
         return new Register(protocolLink,new ObjectReference(baseObject));
     }
-    public Register getRegister(ObisCode obisCode) throws IOException {
+    public Register getRegister(ObisCode obisCode) throws ProtocolException {
         return new Register(protocolLink,getObjectReference(obisCode));
     }
 
@@ -174,23 +175,23 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new ExtendedRegister(protocolLink,new ObjectReference(baseObject));
     }
 
-    public ExtendedRegister getExtendedRegister(ObisCode obisCode) throws IOException {
+    public ExtendedRegister getExtendedRegister(ObisCode obisCode) throws ProtocolException {
         return new ExtendedRegister(protocolLink,getObjectReference(obisCode));
     }
 
-    public Data getData(ObisCode obisCode) throws IOException {
+    public Data getData(ObisCode obisCode) throws ProtocolException {
         return new Data(protocolLink,getObjectReference(obisCode));
     }
 
-    public PrivacyEnhancingDataAggregation getPrivacyEnhancingDataAggregation(ObisCode obisCode) throws IOException {
+    public PrivacyEnhancingDataAggregation getPrivacyEnhancingDataAggregation(ObisCode obisCode) throws ProtocolException {
         return new PrivacyEnhancingDataAggregation(protocolLink,getObjectReference(obisCode));
     }
 
-    public Data getData(int baseObject) throws IOException {
+    public Data getData(int baseObject) throws ProtocolException {
         return new Data(protocolLink,new ObjectReference(baseObject));
     }
 
-    public DemandRegister getDemandRegister(ObisCode obisCode) throws IOException {
+    public DemandRegister getDemandRegister(ObisCode obisCode) throws ProtocolException {
         return new DemandRegister(protocolLink,getObjectReference(obisCode));
     }
 
@@ -206,31 +207,31 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new AssociationSN(protocolLink,new ObjectReference(ASSOC_SN_OBJECT));
     }
 
-    public IPv4Setup getIPv4Setup() throws IOException {
+    public IPv4Setup getIPv4Setup() throws ProtocolException {
     	return new IPv4Setup(protocolLink, getObjectReference(IPV4_SETUP, protocolLink.getMeterConfig().getIPv4SetupSN()));
     }
 
-    public MacAddressSetup getMacAddressSetup(ObisCode obisCode) throws IOException {
+    public MacAddressSetup getMacAddressSetup(ObisCode obisCode) throws ProtocolException {
         return new MacAddressSetup(protocolLink, getObjectReference(obisCode, DLMSClassId.MAC_ADDRESS_SETUP.getClassId()));
     }
 
-    public IPv4Setup getIPv4Setup(ObisCode obisCode) throws IOException {
+    public IPv4Setup getIPv4Setup(ObisCode obisCode) throws ProtocolException {
     	return new IPv4Setup(protocolLink, getObjectReference(obisCode));
     }
 
-    public P3ImageTransfer getP3ImageTransfer() throws IOException {
+    public P3ImageTransfer getP3ImageTransfer() throws ProtocolException {
     	return new P3ImageTransfer(protocolLink, getObjectReference(P3IMAGE_TRANSFER, protocolLink.getMeterConfig().getP3ImageTransferSN()));
     }
 
-    public P3ImageTransfer getP3ImageTransfer(ObisCode obisCode) throws IOException {
+    public P3ImageTransfer getP3ImageTransfer(ObisCode obisCode) throws ProtocolException {
     	return new P3ImageTransfer(protocolLink, getObjectReference(obisCode));
     }
 
-    public Disconnector getDisconnector() throws IOException {
+    public Disconnector getDisconnector() throws ProtocolException {
     	return new Disconnector(protocolLink, getObjectReference(DISCONNECTOR, protocolLink.getMeterConfig().getDisconnectorSN()));
     }
 
-    public Disconnector getDisconnector(ObisCode obisCode) throws IOException {
+    public Disconnector getDisconnector(ObisCode obisCode) throws ProtocolException {
     	return new Disconnector(protocolLink, getObjectReference(obisCode));
     }
 
@@ -242,7 +243,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      * @throws java.io.IOException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
      * @deprecated use {@link #getMbusClient(com.energyict.obis.ObisCode, int)} instead
      */
-	public MBusClient getMbusClient(ObisCode obisCode) throws IOException {
+	public MBusClient getMbusClient(ObisCode obisCode) throws ProtocolException {
         return getMbusClient(obisCode, MbusClientAttributes.VERSION9);
 	}
 
@@ -254,118 +255,118 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      * @return a newly created MbusClient object
      * @throws java.io.IOException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
      */
-    public MBusClient getMbusClient(ObisCode obisCode, int version) throws IOException {
+    public MBusClient getMbusClient(ObisCode obisCode, int version) throws ProtocolException {
         return new MBusClient(protocolLink, getObjectReference(obisCode), version);
     }
 
-	public Limiter getLimiter() throws IOException {
+	public Limiter getLimiter() throws ProtocolException {
 		return new Limiter(protocolLink, getObjectReference(LIMITER, protocolLink.getMeterConfig().getLimiterSN()));
 	}
 
-	public PPPSetup getPPPSetup() throws IOException {
+	public PPPSetup getPPPSetup() throws ProtocolException {
 		return new PPPSetup(protocolLink, getObjectReference(PPPSETUP, protocolLink.getMeterConfig().getPPPSetupSN()));
 	}
 
-	public GPRSModemSetup getGPRSModemSetup() throws IOException {
+	public GPRSModemSetup getGPRSModemSetup() throws ProtocolException {
 		return new GPRSModemSetup(protocolLink, getObjectReference(GPRSMODEMSETUP, protocolLink.getMeterConfig().getGPRSModemSetupSN()));
 	}
 
-	public GPRSModemSetup getGPRSModemSetup(final ObisCode obisCode) throws IOException {
+	public GPRSModemSetup getGPRSModemSetup(final ObisCode obisCode) throws ProtocolException {
 		return new GPRSModemSetup(protocolLink, getObjectReference(obisCode));
 	}
 
-	public SFSKPhyMacSetup getSFSKPhyMacSetup() throws IOException {
+	public SFSKPhyMacSetup getSFSKPhyMacSetup() throws ProtocolException {
 		return getSFSKPhyMacSetup(SFSKPhyMacSetup.getDefaultObisCode());
 	}
 
-	public SFSKPhyMacSetup getSFSKPhyMacSetup(ObisCode obisCode) throws IOException {
+	public SFSKPhyMacSetup getSFSKPhyMacSetup(ObisCode obisCode) throws ProtocolException {
 		return new SFSKPhyMacSetup(protocolLink, getObjectReference(obisCode));
 	}
 
 	/**
 	 * Getter for the ShortName ImageTransfer Object
 	 */
-	public SFSKPhyMacSetup getSFSKPhyMacSetupSN() throws IOException {
+	public SFSKPhyMacSetup getSFSKPhyMacSetupSN() throws ProtocolException {
 	    return new SFSKPhyMacSetup(protocolLink, new ObjectReference(protocolLink.getMeterConfig().getSFSKPhyMacSetupSN()));
 	}
 
-	public SFSKMacCounters getSFSKMacCounters() throws IOException {
+	public SFSKMacCounters getSFSKMacCounters() throws ProtocolException {
 		return getSFSKMacCounters(SFSKMacCounters.getDefaultObisCode());
 	}
 
-	public SFSKMacCounters getSFSKMacCounters(ObisCode obisCode) throws IOException {
+	public SFSKMacCounters getSFSKMacCounters(ObisCode obisCode) throws ProtocolException {
 		return new SFSKMacCounters(protocolLink, getObjectReference(obisCode));
 	}
 
-	public SFSKIec61334LLCSetup getSFSKIec61334LLCSetup() throws IOException {
+	public SFSKIec61334LLCSetup getSFSKIec61334LLCSetup() throws ProtocolException {
 		return getSFSKIec61334LLCSetup(SFSKIec61334LLCSetup.getDefaultObisCode());
 	}
 
-	public SFSKIec61334LLCSetup getSFSKIec61334LLCSetup(ObisCode obisCode) throws IOException {
+	public SFSKIec61334LLCSetup getSFSKIec61334LLCSetup(ObisCode obisCode) throws ProtocolException {
 		return new SFSKIec61334LLCSetup(protocolLink, getObjectReference(obisCode));
 	}
 
-    public SFSKReportingSystemList getSFSKReportingSystemList() throws IOException {
+    public SFSKReportingSystemList getSFSKReportingSystemList() throws ProtocolException {
         return getSFSKReportingSystemList(SFSKReportingSystemList.getDefaultObisCode());
     }
 
-    public SFSKReportingSystemList getSFSKReportingSystemList(ObisCode obisCode) throws IOException {
+    public SFSKReportingSystemList getSFSKReportingSystemList(ObisCode obisCode) throws ProtocolException {
         return new SFSKReportingSystemList(protocolLink, getObjectReference(obisCode));
     }
 
-	public SFSKActiveInitiator getSFSKActiveInitiator() throws IOException {
+	public SFSKActiveInitiator getSFSKActiveInitiator() throws ProtocolException {
 		return getSFSKActiveInitiator(SFSKActiveInitiator.getDefaultObisCode());
 	}
 
-	public SFSKActiveInitiator getSFSKActiveInitiator(ObisCode obisCode) throws IOException {
+	public SFSKActiveInitiator getSFSKActiveInitiator(ObisCode obisCode) throws ProtocolException {
 		return new SFSKActiveInitiator(protocolLink, getObjectReference(obisCode));
 	}
 
-	public SFSKSyncTimeouts getSFSKSyncTimeouts() throws IOException {
+	public SFSKSyncTimeouts getSFSKSyncTimeouts() throws ProtocolException {
 		return getSFSKSyncTimeouts(SFSKSyncTimeouts.getDefaultObisCode());
 	}
 
-	public SFSKSyncTimeouts getSFSKSyncTimeouts(ObisCode obisCode) throws IOException {
+	public SFSKSyncTimeouts getSFSKSyncTimeouts(ObisCode obisCode) throws ProtocolException {
 		return new SFSKSyncTimeouts(protocolLink, getObjectReference(obisCode));
 	}
 
-	public PLCOFDMType2PHYAndMACCounters getPLCOFDMType2PHYAndMACCounters(ObisCode obisCode) throws IOException {
+	public PLCOFDMType2PHYAndMACCounters getPLCOFDMType2PHYAndMACCounters(ObisCode obisCode) throws ProtocolException {
 		return new PLCOFDMType2PHYAndMACCounters(protocolLink, getObjectReference(obisCode));
 	}
 
-	public PLCOFDMType2PHYAndMACCounters getPLCOFDMType2PHYAndMACCounters() throws IOException {
+	public PLCOFDMType2PHYAndMACCounters getPLCOFDMType2PHYAndMACCounters() throws ProtocolException {
 		return new PLCOFDMType2PHYAndMACCounters(protocolLink, getObjectReference(PLCOFDMType2PHYAndMACCounters.getDefaultObisCode()));
 	}
 
-	public PLCOFDMType2MACSetup getPLCOFDMType2MACSetup(ObisCode obisCode) throws IOException {
+	public PLCOFDMType2MACSetup getPLCOFDMType2MACSetup(ObisCode obisCode) throws ProtocolException {
 		return new PLCOFDMType2MACSetup(protocolLink, getObjectReference(obisCode));
 	}
 
-	public PLCOFDMType2MACSetup getPLCOFDMType2MACSetup() throws IOException {
+	public PLCOFDMType2MACSetup getPLCOFDMType2MACSetup() throws ProtocolException {
 		return new PLCOFDMType2MACSetup(protocolLink, getObjectReference(PLCOFDMType2MACSetup.getDefaultObisCode()));
 	}
 
-	public SixLowPanAdaptationLayerSetup getSixLowPanAdaptationLayerSetup(ObisCode obisCode) throws IOException {
+	public SixLowPanAdaptationLayerSetup getSixLowPanAdaptationLayerSetup(ObisCode obisCode) throws ProtocolException {
 		return new SixLowPanAdaptationLayerSetup(protocolLink, getObjectReference(obisCode));
 	}
 
-	public SixLowPanAdaptationLayerSetup getSixLowPanAdaptationLayerSetup() throws IOException {
+	public SixLowPanAdaptationLayerSetup getSixLowPanAdaptationLayerSetup() throws ProtocolException {
 		return new SixLowPanAdaptationLayerSetup(protocolLink, getObjectReference(SixLowPanAdaptationLayerSetup.getDefaultObisCode()));
 	}
 
-	public MBusSlavePortSetup getMBusSlavePortSetup() throws IOException {
+	public MBusSlavePortSetup getMBusSlavePortSetup() throws ProtocolException {
 		return getMBusSlavePortSetup(MBusSlavePortSetup.getDefaultObisCode());
 	}
 
-	public MBusSlavePortSetup getMBusSlavePortSetup(ObisCode obisCode) throws IOException {
+	public MBusSlavePortSetup getMBusSlavePortSetup(ObisCode obisCode) throws ProtocolException {
 		return new MBusSlavePortSetup(protocolLink, getObjectReference(obisCode));
 	}
 
-	public TCPUDPSetup getTCPUDPSetup() throws IOException {
+	public TCPUDPSetup getTCPUDPSetup() throws ProtocolException {
 		return  new TCPUDPSetup(protocolLink);
 	}
 
-	public AutoConnect getAutoConnect() throws IOException {
+	public AutoConnect getAutoConnect() throws ProtocolException {
 		return new AutoConnect(protocolLink);
 	}
 
@@ -376,28 +377,28 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	/**
 	 * Getter for the LongName ImageTransfer Object
 	 */
-	public ImageTransfer getImageTransfer() throws IOException {
+	public ImageTransfer getImageTransfer() throws ProtocolException {
 		return new ImageTransfer(protocolLink);
 	}
 
 	/**
      * Getter for the file transfer object
      */
-	public FileTransfer getFileTransfer() throws IOException {
+	public FileTransfer getFileTransfer() throws ProtocolException {
 		return getFileTransfer(FileTransfer.getDefaultObisCode());
 	}
 
 	/**
      * Getter for the file transfer object
      */
-	public FileTransfer getFileTransfer(ObisCode obisCode) throws IOException {
+	public FileTransfer getFileTransfer(ObisCode obisCode) throws ProtocolException {
 		return new FileTransfer(protocolLink, getObjectReference(obisCode));
 	}
 
 	/**
 	 * Getter for the ShortName ImageTransfer Object
 	 */
-	public ImageTransfer getImageTransferSN() throws IOException {
+	public ImageTransfer getImageTransferSN() throws ProtocolException {
 	    return new ImageTransfer(protocolLink, new ObjectReference(protocolLink.getMeterConfig().getImageTransferSN()));
 	}
 
@@ -406,39 +407,39 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 	 * If it is the default you need, then it is advised to use {@link #getImageTransfer()}
 	 * or {@link #getImageTransferSN()}
 	 */
-	public ImageTransfer getImageTransfer(ObisCode obisCode) throws IOException {
+	public ImageTransfer getImageTransfer(ObisCode obisCode) throws ProtocolException {
 		return new ImageTransfer(protocolLink, getObjectReference(obisCode));
 	}
 
-	public SecuritySetup getSecuritySetup() throws IOException {
+	public SecuritySetup getSecuritySetup() throws ProtocolException {
 		return new SecuritySetup(protocolLink);
 	}
 
-	public SecuritySetup getSecuritySetup(ObisCode obisCode) throws IOException {
+	public SecuritySetup getSecuritySetup(ObisCode obisCode) throws ProtocolException {
 		return new SecuritySetup(protocolLink, getObjectReference(obisCode));
 	}
 
-    public ZigbeeHanManagement getZigbeeHanManagement() throws IOException {
+    public ZigbeeHanManagement getZigbeeHanManagement() throws ProtocolException {
         return new ZigbeeHanManagement(protocolLink);
     }
 
-    public ZigBeeSETCControl getZigBeeSETCControl() throws IOException {
+    public ZigBeeSETCControl getZigBeeSETCControl() throws ProtocolException {
         return new ZigBeeSETCControl(protocolLink);
     }
 
-    public ZigBeeSASStartup getZigBeeSASStartup() throws IOException {
+    public ZigBeeSASStartup getZigBeeSASStartup() throws ProtocolException {
         return new ZigBeeSASStartup(protocolLink);
     }
 
-    public ZigBeeSASStartup getZigBeeSASStartup(ObisCode obisCode) throws IOException {
+    public ZigBeeSASStartup getZigBeeSASStartup(ObisCode obisCode) throws ProtocolException {
         return new ZigBeeSASStartup(protocolLink, getObjectReference(obisCode));
     }
 
-    public ZigBeeSASJoin getZigBeeSASJoin() throws IOException {
+    public ZigBeeSASJoin getZigBeeSASJoin() throws ProtocolException {
         return new ZigBeeSASJoin(protocolLink);
     }
 
-    public ZigBeeSASJoin getZigBeeSASJoin(ObisCode obisCode) throws IOException {
+    public ZigBeeSASJoin getZigBeeSASJoin(ObisCode obisCode) throws ProtocolException {
         return new ZigBeeSASJoin(protocolLink, getObjectReference(obisCode));
     }
 
@@ -458,7 +459,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 			} else if (protocolLink.getMeterConfig().getClassId(obisCode) == DLMSClassId.PROFILE_GENERIC.getClassId()) {
 				return new ProfileGeneric(protocolLink,getObjectReference(obisCode));
 			} else {
-				throw new IOException("CosemObjectFactory, getCosemObject, invalid classId "+protocolLink.getMeterConfig().getClassId(obisCode)+" for obisCode "+obisCode.toString()) ;
+				throw new ProtocolException("CosemObjectFactory, getCosemObject, invalid classId "+protocolLink.getMeterConfig().getClassId(obisCode)+" for obisCode "+obisCode.toString()) ;
 			}
         }
     }
@@ -471,7 +472,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      * @return the newly constructed object
      * @throws java.io.IOException if the classId is not supported for this method
      */
-    public CosemObject getCosemObjectFromObisAndClassId(ObisCode oc, int classId) throws IOException {
+    public CosemObject getCosemObjectFromObisAndClassId(ObisCode oc, int classId) throws ProtocolException {
         switch (classId) {
             case 1:
                 return new Data(protocolLink, getObjectReference(oc));
@@ -482,7 +483,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
             case 5:
                 return new DemandRegister(protocolLink, getObjectReference(oc));
             default:
-                throw new IOException("CosemObjectFactory, getCosemObject, invalid classId " + classId + " for obisCode " + oc);
+                throw new ProtocolException("CosemObjectFactory, getCosemObject, invalid classId " + classId + " for obisCode " + oc);
         }
     }
 
@@ -495,28 +496,28 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     }
 
     //*****************************************************************************************
-    public ObjectReference getObjectReference(ObisCode obisCode) throws IOException {
+    public ObjectReference getObjectReference(ObisCode obisCode) throws ProtocolException {
         return getObjectReference(obisCode,-1);
     }
-    public ObjectReference getObjectReference(ObisCode obisCode, int classId) throws IOException {
+    public ObjectReference getObjectReference(ObisCode obisCode, int classId) throws ProtocolException {
         if (protocolLink.getReference() == ProtocolLink.LN_REFERENCE) {
 			return new ObjectReference(obisCode.getLN(),classId);
 		} else if (protocolLink.getReference() == ProtocolLink.SN_REFERENCE) {
 			return new ObjectReference(protocolLink.getMeterConfig().getSN(obisCode));
 		}
-        throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type "+protocolLink.getReference());
+        throw new ProtocolException("CosemObjectFactory, getObjectReference, invalid reference type "+protocolLink.getReference());
     }
-    public ObjectReference getObjectReference(byte[] ln,int sn) throws IOException {
+    public ObjectReference getObjectReference(byte[] ln,int sn) throws ProtocolException {
         return getObjectReference(ln,-1,sn);
     }
 
-	public ObjectReference getObjectReference(byte[] ln, int classId, int sn) throws IOException {
+	public ObjectReference getObjectReference(byte[] ln, int classId, int sn) throws ProtocolException {
 		if (protocolLink.getReference() == ProtocolLink.LN_REFERENCE) {
 			return new ObjectReference(ln, classId);
 		} else if (protocolLink.getReference() == ProtocolLink.SN_REFERENCE) {
 			return new ObjectReference(sn);
 		}
-		throw new IOException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
+		throw new ProtocolException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
 	}
 
     public boolean isUseGetWithList() {
@@ -535,51 +536,51 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new ChangeOfTenantManagement(protocolLink);
     }
 
-    public ChangeOfTenantManagement getChangeOfTenantManagement(ObisCode obisCode) throws IOException {
+    public ChangeOfTenantManagement getChangeOfTenantManagement(ObisCode obisCode) throws ProtocolException {
         return new ChangeOfTenantManagement(protocolLink, getObjectReference(obisCode));
     }
 
-    public ChangeOfSupplierManagement getChangeOfSupplierManagement() throws IOException {
+    public ChangeOfSupplierManagement getChangeOfSupplierManagement() throws ProtocolException {
         return new ChangeOfSupplierManagement(protocolLink);
     }
 
-    public ChangeOfSupplierManagement getChangeOfSupplierManagement(ObisCode obisCode) throws IOException {
+    public ChangeOfSupplierManagement getChangeOfSupplierManagement(ObisCode obisCode) throws ProtocolException {
         return new ChangeOfSupplierManagement(protocolLink, getObjectReference(obisCode));
     }
 
-    public SupplierName getSupplierName(ObisCode obisCode) throws IOException {
+    public SupplierName getSupplierName(ObisCode obisCode) throws ProtocolException {
         return new SupplierName(protocolLink, getObjectReference(obisCode));
     }
 
-    public SupplierId getSupplierId(ObisCode obisCode) throws IOException {
+    public SupplierId getSupplierId(ObisCode obisCode) throws ProtocolException {
         return new SupplierId(protocolLink, getObjectReference(obisCode));
     }
 
-    public ActivePassive getActivePassive(ObisCode obisCode) throws IOException {
+    public ActivePassive getActivePassive(ObisCode obisCode) throws ProtocolException {
         return new ActivePassive(protocolLink, getObjectReference(obisCode));
     }
 
-    public CL432Setup getCL432Setup() throws IOException {
+    public CL432Setup getCL432Setup() throws ProtocolException {
         return new CL432Setup(protocolLink, getObjectReference(CL432Setup.getDefaultObis()));
     }
 
-    public PrimePlcPhyLayerCounters getPrimePlcPhyLayerCounters() throws IOException {
+    public PrimePlcPhyLayerCounters getPrimePlcPhyLayerCounters() throws ProtocolException {
         return new PrimePlcPhyLayerCounters(protocolLink, getObjectReference(PrimePlcPhyLayerCounters.getDefaultObisCode()));
     }
 
-    public PrimePlcMacSetup getPrimePlcMacSetup() throws IOException {
+    public PrimePlcMacSetup getPrimePlcMacSetup() throws ProtocolException {
         return new PrimePlcMacSetup(protocolLink, getObjectReference(PrimePlcMacSetup.getDefaultObisCode()));
     }
 
-    public PrimePlcMacFunctionalParameters getPrimePlcMacFunctionalParameters() throws IOException {
+    public PrimePlcMacFunctionalParameters getPrimePlcMacFunctionalParameters() throws ProtocolException {
         return new PrimePlcMacFunctionalParameters(protocolLink, getObjectReference(PrimePlcMacFunctionalParameters.getDefaultObisCode()));
     }
 
-    public LifeCycleManagement getLifeCycleManagement(final ObisCode obisCode) throws IOException {
+    public LifeCycleManagement getLifeCycleManagement(final ObisCode obisCode) throws ProtocolException {
         return new LifeCycleManagement(protocolLink, getObjectReference(obisCode));
     }
 
-    public LifeCycleManagement getLifeCycleManagement() throws IOException {
+    public LifeCycleManagement getLifeCycleManagement() throws ProtocolException {
         return new LifeCycleManagement(protocolLink, getObjectReference(LifeCycleManagement.getDefaultObisCode()));
     }
 
@@ -590,31 +591,31 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      *
      * @throws java.io.IOException        If an IO error occurs while returning a reference;
      */
-    public final FirewallSetup getFirewallSetup() throws IOException {
+    public final FirewallSetup getFirewallSetup() throws ProtocolException {
     	return new FirewallSetup(this.protocolLink, this.getObjectReference(FirewallSetup.getDefaultObisCode()));
     }
 
-    public final G3NetworkManagement getG3NetworkManagement() throws IOException {
+    public final G3NetworkManagement getG3NetworkManagement() throws ProtocolException {
         return new G3NetworkManagement(this.protocolLink, this.getObjectReference(G3NetworkManagement.getDefaultObisCode()));
     }
 
-    public final G3NetworkManagement getG3NetworkManagement(final ObisCode obisCode) throws IOException {
+    public final G3NetworkManagement getG3NetworkManagement(final ObisCode obisCode) throws ProtocolException {
         return new G3NetworkManagement(this.protocolLink, this.getObjectReference(obisCode));
     }
 
-    public final GenericPlcIBSetup getGenericPlcIBSetup() throws IOException {
+    public final GenericPlcIBSetup getGenericPlcIBSetup() throws ProtocolException {
         return new GenericPlcIBSetup(this.protocolLink, this.getObjectReference(GenericPlcIBSetup.getDefaultObisCode()));
     }
 
-    public final GenericPlcIBSetup getGenericPlcIBSetup(final ObisCode obisCode) throws IOException {
+    public final GenericPlcIBSetup getGenericPlcIBSetup(final ObisCode obisCode) throws ProtocolException {
         return new GenericPlcIBSetup(this.protocolLink, this.getObjectReference(obisCode));
     }
 
-    public final G3PlcSetPSK getG3PlcSetPSK() throws IOException {
+    public final G3PlcSetPSK getG3PlcSetPSK() throws ProtocolException {
         return new G3PlcSetPSK(this.protocolLink, this.getObjectReference(G3PlcSetPSK.getDefaultObisCode()));
     }
 
-    public final G3PlcSetPSK getG3PlcSetPSK(final ObisCode obisCode) throws IOException {
+    public final G3PlcSetPSK getG3PlcSetPSK(final ObisCode obisCode) throws ProtocolException {
         return new G3PlcSetPSK(this.protocolLink, this.getObjectReference(obisCode));
     }
 

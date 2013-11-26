@@ -403,6 +403,12 @@ public class SimpleDLMSProtocol extends PluggableMeterProtocol implements Protoc
         }
     }
 
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return aso;
+    }
+
     /**
      * Check the objectList. If it doesn't exist, then read it from the device
      *

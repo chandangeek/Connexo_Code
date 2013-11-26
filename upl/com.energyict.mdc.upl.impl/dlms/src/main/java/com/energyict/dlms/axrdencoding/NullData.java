@@ -10,6 +10,8 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -22,7 +24,7 @@ public class NullData extends AbstractDataType {
     /** Creates a new instance of Enum */
     public NullData(byte[] berEncodedData, int offset) throws IOException {
         if (berEncodedData[offset] != 0) {
-			throw new IOException("Nulldata, invalid identifier "+berEncodedData[offset]);
+			throw new ProtocolException("Nulldata, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
     }

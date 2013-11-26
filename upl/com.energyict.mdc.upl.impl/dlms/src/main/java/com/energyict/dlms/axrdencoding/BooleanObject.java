@@ -1,5 +1,7 @@
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -27,7 +29,7 @@ public class BooleanObject extends AbstractDataType {
      */
 	public BooleanObject(byte[] berEncodedData, int offset) throws IOException {
 		if (berEncodedData[offset] != AxdrType.BOOLEAN.getTag()) {
-			throw new IOException("BooleanObject, invalid identifier " + berEncodedData[offset]);
+			throw new ProtocolException("BooleanObject, invalid identifier " + berEncodedData[offset]);
 		}
 		offset++;
         setState(berEncodedData[offset] != FALSE);

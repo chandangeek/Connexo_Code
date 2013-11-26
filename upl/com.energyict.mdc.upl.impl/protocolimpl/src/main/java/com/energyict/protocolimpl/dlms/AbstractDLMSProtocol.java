@@ -132,6 +132,10 @@ public abstract class AbstractDLMSProtocol extends AbstractProtocol implements P
         connect();
     }
 
+    public ApplicationServiceObject getAso() {
+        return aso;
+    }
+
     @Override
     protected ProtocolConnection doInit(InputStream inputStream, OutputStream outputStream, int timeoutProperty, int protocolRetriesProperty, int forcedDelay, int echoCancelling, int protocolCompatible, Encryptor encryptor, HalfDuplexController halfDuplexController) throws IOException {
         return null;

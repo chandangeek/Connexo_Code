@@ -310,7 +310,7 @@ public class FirmwareUpgradeMessage extends AbstractMTU155Message {
                         " - The firmware upgrade process will continue next communication session.";
                 super.getLogger().log(Level.WARNING, message);
                 CTRFirmwareUpgradeTimeOutException exception = new CTRFirmwareUpgradeTimeOutException(message);
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, nrOfRetries());
+                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(exception, nrOfRetries() + 1);
             }
         }
     }

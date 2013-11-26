@@ -10,6 +10,8 @@
 
 package com.energyict.protocolimpl.mbus.core;
 
+import com.energyict.protocol.ProtocolException;
+
 import java.io.IOException;
 import java.util.*;
 /**
@@ -87,7 +89,7 @@ public class DataFieldCoding {
             if (dfc.getId() == id)
                 return dfc;
         }
-        throw new IOException("DataFieldCoding, invalid id "+id);
+        throw new ProtocolException("DataFieldCoding, invalid id "+id);
     }
     
     public int getLengthInBytes() {

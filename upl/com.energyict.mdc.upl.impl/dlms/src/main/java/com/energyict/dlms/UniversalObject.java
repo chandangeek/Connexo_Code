@@ -3,6 +3,7 @@ package com.energyict.dlms;
 
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -218,7 +219,7 @@ public class UniversalObject implements Serializable {
 		this.fields[IOL_LN_F]=iVal;
 	}
 
-	public boolean equals(UniversalObject uo) throws IOException {
+	public boolean equals(UniversalObject uo) throws ProtocolException {
 
 		if ((getLNA() == uo.fields[COL_LN_A])  &&
 				(getLNB() == uo.fields[COL_LN_B]) &&
@@ -234,7 +235,7 @@ public class UniversalObject implements Serializable {
 	}
 
 
-	public boolean equals(DLMSConfig config) throws IOException {
+	public boolean equals(DLMSConfig config) {
 
 		if (((getLNA() == config.getLNA()) || (config.getLNA()==-1)) &&
 				((getLNB() == config.getLNB()) || (config.getLNB()==-1)) &&
@@ -249,7 +250,7 @@ public class UniversalObject implements Serializable {
 		}
 	}
 
-	public boolean equals(DLMSObis dlmsObis) throws IOException {
+	public boolean equals(DLMSObis dlmsObis) throws ProtocolException {
 		if ((getLNA() == dlmsObis.getLNA()) &&
 				(getLNB() == dlmsObis.getLNB()) &&
 				(getLNC() == dlmsObis.getLNC()) &&
@@ -288,7 +289,7 @@ public class UniversalObject implements Serializable {
 	}
 
 
-	public int getValueAttributeOffset() throws IOException {
+	public int getValueAttributeOffset() throws ProtocolException {
 		if (getClassID() == DLMSClassId.REGISTER.getClassId()) {
 			return 8;
 		} else if (getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
@@ -302,7 +303,7 @@ public class UniversalObject implements Serializable {
 		} else if (getClassID() == DLMSClassId.CLOCK.getClassId()) {
 			return 8;
 		} else {
-			throw new IOException("UniversalObject, wrong object for value attribute!");
+			throw new ProtocolException("UniversalObject, wrong object for value attribute!");
 		}
 	}
 	public int getScalerAttributeOffset() throws IOException {
@@ -315,7 +316,7 @@ public class UniversalObject implements Serializable {
 		} else if (getClassID() == DLMSClassId.DATA.getClassId()) {
 			return 8;
 		} else {
-			throw new IOException("UniversalObject, wrong object for scaler attribute!");
+			throw new ProtocolException("UniversalObject, wrong object for scaler attribute!");
 		}
 	}
 

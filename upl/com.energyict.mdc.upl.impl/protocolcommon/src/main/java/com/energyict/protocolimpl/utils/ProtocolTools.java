@@ -8,13 +8,7 @@ import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.ProtocolUtils;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 
 import java.io.ByteArrayInputStream;
@@ -1209,10 +1203,10 @@ public final class ProtocolTools {
             if (object instanceof String) {
                 return (String) object;
             } else {
-                throw new IOException("Compressed object should be a java.lang.String but was [" + object.getClass().getName() + "]");
+                throw new ProtocolException("Compressed object should be a java.lang.String but was [" + object.getClass().getName() + "]");
             }
         } catch (ClassNotFoundException e) {
-            throw new IOException(e.getMessage());
+            throw new ProtocolException(e.getMessage());
         }
     }
 
@@ -1233,10 +1227,10 @@ public final class ProtocolTools {
             if (object instanceof byte[]) {
                 return (byte[]) object;
             } else {
-                throw new IOException("Compressed object should be a byte[] but was [" + object.getClass().getName() + "]");
+                throw new ProtocolException("Compressed object should be a byte[] but was [" + object.getClass().getName() + "]");
             }
         } catch (ClassNotFoundException e) {
-            throw new IOException(e.getMessage());
+            throw new ProtocolException(e.getMessage());
         }
     }
 

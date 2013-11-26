@@ -9,6 +9,7 @@ import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.GenericDlmsClassAttribute;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.*;
@@ -36,7 +37,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     public ComposedCosemObject(ProtocolLink protocolLink, boolean useGetWithList, DLMSAttribute... dlmsAttributes) {
         super(protocolLink, new ObjectReference(ObisCode.fromString("0.0.0.0.0.0").getLN()));
-        if(protocolLink.getReference() == ProtocolLink.SN_REFERENCE){
+        if (protocolLink.getReference() == ProtocolLink.SN_REFERENCE) {
             setObjectReference(new ObjectReference(0));
         }
         for (int i = 0; i < dlmsAttributes.length; i++) {
@@ -71,13 +72,13 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
                 return dataResult[index];
             }
         } else {
-            throw new IOException("Unable to read attribute [" + attribute + "]. Expected DataAccessResult or DataType but Value is still null.");
+            throw new ProtocolException("Unable to read attribute [" + attribute + "]. Expected DataAccessResult or DataType but Value is still null.");
         }
     }
 
     private boolean isGetWithListSupported() {
         if (isUseGetWithList()) {
-            ApplicationServiceObject serviceObject = getProtocolLink().getDLMSConnection().getApplicationServiceObject();
+            ApplicationServiceObject serviceObject = getProtocolLink().getAso();
             if (serviceObject != null) {
                 ConformanceBlock block = serviceObject.getAssociationControlServiceElement().getXdlmsAse().getNegotiatedConformanceBlock();
                 if (block != null) {
@@ -88,14 +89,14 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         return false;
     }
 
-    private int getAttributeIndex(DLMSAttribute attribute) throws IOException {
+    private int getAttributeIndex(DLMSAttribute attribute) throws ProtocolException {
         for (int i = 0; i < attributes.length; i++) {
             DLMSAttribute dlmsAttribute = attributes[i];
             if (dlmsAttribute.equals(attribute)) {
                 return i;
             }
         }
-        throw new IOException("ComposedCosemObject does not contain attribute [" + attribute + "].");
+        throw new ProtocolException("ComposedCosemObject does not contain attribute [" + attribute + "].");
     }
 
     private void readAttribute(DLMSAttribute attribute) throws IOException {
@@ -113,13 +114,13 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
                             dataResult[i] = new DataAccessResultType(DataAccessResultCode.byResultCode(dataWithList[i][1] & 0x0FF));
                             break;
                         default:
-                            throw new IOException("Invalid response while reading GetResponseWithList: expected '0' or '1' but was " + dataWithList[i][0]);
+                            throw new ProtocolException("Invalid response while reading GetResponseWithList: expected '0' or '1' but was " + dataWithList[i][0]);
                     }
                 }
             } else {
                 try {
                     byte[] responseData;
-                    if(getObjectReference().isLNReference()){
+                    if (getObjectReference().isLNReference()) {
                         setObjectReference(new ObjectReference(attribute.getObisCode().getLN(), attribute.getClassId()));
                     } else {
                         setObjectReference(new ObjectReference(getShortNameFromObjectList(attribute.getObisCode())));
@@ -209,9 +210,10 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     /**
      * Getter for the List of defined DLMSAttributes
+     *
      * @return {@link #attributes}
      */
-    public final DLMSAttribute[] getDlmsAttributesList(){
+    public final DLMSAttribute[] getDlmsAttributesList() {
         return this.attributes;
     }
 

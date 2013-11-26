@@ -1,6 +1,7 @@
 package com.energyict.dlms.cosem;
 
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -32,7 +33,7 @@ public class CapturedObjectsHelper {
 				id++;
 			}
 		}
-		throw new IOException("CapturedObjectsHelper, invalid channelId "
+		throw new ProtocolException("CapturedObjectsHelper, invalid channelId "
 				+ channelId);
 	}
 
@@ -48,7 +49,7 @@ public class CapturedObjectsHelper {
 				id++;
 			}
 		}
-		throw new IOException("CapturedObjectsHelper, invalid channelId "
+		throw new ProtocolException("CapturedObjectsHelper, invalid channelId "
 				+ channelId);
 
 	} // public ObisCode getProfileDataChannel(int channelId) throws
@@ -56,7 +57,7 @@ public class CapturedObjectsHelper {
 
 	public boolean isClassIdData(int index) throws IOException {
 		if (index >= capturedObjects.size()) {
-			throw new IOException("CapturedObjectsHelper, invalid index "+ index);
+			throw new ProtocolException("CapturedObjectsHelper, invalid index "+ index);
 		}
 		CapturedObject co = capturedObjects.get(index);
 		return co.getClassId() == DLMSClassId.DATA.getClassId();
@@ -64,7 +65,7 @@ public class CapturedObjectsHelper {
 
 	public boolean isChannelData(int index) throws IOException {
 		if (index >= capturedObjects.size()) {
-			throw new IOException("CapturedObjectsHelper, invalid index "
+			throw new ProtocolException("CapturedObjectsHelper, invalid index "
 					+ index);
 		}
 		CapturedObject co = capturedObjects.get(index);

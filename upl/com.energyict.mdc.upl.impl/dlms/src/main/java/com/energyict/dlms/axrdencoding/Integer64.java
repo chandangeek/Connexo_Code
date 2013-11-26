@@ -1,5 +1,6 @@
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ public class Integer64 extends AbstractDataType {
     /** Creates a new instance of Enum */
     public Integer64(byte[] berEncodedData, int offset) throws IOException {
         if ((berEncodedData[offset] != AxdrType.LONG64.getTag()) && ((berEncodedData[offset] != AxdrType.LONG64_UNSIGNED.getTag()))) {
-			throw new IOException("Integer64, invalid identifier "+berEncodedData[offset]);
+			throw new ProtocolException("Integer64, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
         value = ProtocolUtils.getLong(berEncodedData,offset);

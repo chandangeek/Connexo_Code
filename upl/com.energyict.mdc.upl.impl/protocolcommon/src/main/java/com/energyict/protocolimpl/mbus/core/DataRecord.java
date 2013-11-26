@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.cbo.Quantity;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimpl.base.ParseUtils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -67,7 +68,7 @@ public class DataRecord {
                     } break; // TYPE_B
 
                     case ValueInformationfieldCoding.TYPE_E: {
-                        throw new IOException("DataRecord, invalid data coding TYPE_E is obsolete");
+                        throw new ProtocolException("DataRecord, invalid data coding TYPE_E is obsolete");
                     } // TYPE_E
 
                     case ValueInformationfieldCoding.TYPE_F: {
@@ -219,7 +220,7 @@ public class DataRecord {
             bd = bd.multiply(dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier());
             quantity = new Quantity(bd,dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit());
         }
-        else throw new IOException("DataRecord, invalid LVAR value ("+length+") (length byte of variable length data type)");
+        else throw new ProtocolException("DataRecord, invalid LVAR value ("+length+") (length byte of variable length data type)");
         
         return offset;
     }

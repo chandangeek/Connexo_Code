@@ -1,13 +1,11 @@
 package com.energyict.dlms.aso;
 
 import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.encryption.XDlmsDecryption;
 import com.energyict.encryption.XDlmsEncryption;
-import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -65,12 +63,8 @@ public class AssociationControlServiceElement {
     /**
      * @return the CallingAuthenticationValue from the {@link com.energyict.dlms.aso.SecurityProvider}
      */
-    private byte[] getCallingAuthenticationValue() {
-        try {
-            return sc.getSecurityProvider().getCallingAuthenticationValue();
-        } catch (IOException e) {
-            return null;
-        }
+    private byte[] getCallingAuthenticationValue() throws UnsupportedException {
+        return sc.getSecurityProvider().getCallingAuthenticationValue();
     }
 
     /**
@@ -90,7 +84,13 @@ public class AssociationControlServiceElement {
         sb.append(" > xdlmsAse = ").append(xdlmsAse != null ? xdlmsAse.toString().replace("\r\n", "") : "null").append(crlf);
         sb.append(" > contextId = ").append(contextId).append(crlf);
         sb.append(" > mechanismId = ").append(mechanismId).append(crlf);
-        sb.append(" > callingAuthenticationValue = ").append(getCallingAuthenticationValue() != null ? ProtocolUtils.getResponseData(getCallingAuthenticationValue()) : "null").append(crlf);
+        byte[] callingAuthenticationValue = new byte[0];
+        try {
+            callingAuthenticationValue = getCallingAuthenticationValue();
+        } catch (UnsupportedException e) {
+            //Absorb
+        }
+        sb.append(" > callingAuthenticationValue = ").append(callingAuthenticationValue != null ? ProtocolUtils.getResponseData(callingAuthenticationValue) : "null").append(crlf);
         sb.append(crlf);
         return sb.toString();
     }
@@ -98,14 +98,15 @@ public class AssociationControlServiceElement {
     /**
      * Create an Association, based on the available variables
      *
-     * @throws IOException
+     * @throws UnsupportedException in case of unsupported security level
+     *                              e.g. the manufacturer specific authentication level is usually not supported.
      */
-    public byte[] createAssociationRequest() throws IOException {
+    public byte[] createAssociationRequest() throws UnsupportedException {
         updateUserInformation();
         return addUnusedPrefixBytesForCompliancyWithOldCode(buildAARQApdu());
     }
 
-    private void updateUserInformation() throws IOException {
+    private void updateUserInformation() {
         byte[] userInformation = this.xdlmsAse.getInitiatRequestByteArray();
 
         switch (getSecurityContext().getSecurityPolicy()) {
@@ -187,12 +188,11 @@ public class AssociationControlServiceElement {
     }
 
     /**
-     * Release the current association
+     * Create a request to release the current association
      *
      * @return a byteArray containing an ApplicationAssociationReleaseRequest
-     * @throws IOException
      */
-    public byte[] releaseAssociationRequest() throws IOException {
+    public byte[] releaseAssociationRequest() {
         updateUserInformation();
         return addUnusedPrefixBytesForCompliancyWithOldCode(buildRLRQApdu());
     }
@@ -214,7 +214,7 @@ public class AssociationControlServiceElement {
      * @return the generated AARQ to establish an ApplicationAssociation
      * @throws IOException
      */
-    protected byte[] buildAARQApdu() throws IOException {
+    protected byte[] buildAARQApdu() throws UnsupportedException {
         int t = 0;
         byte[] aarq = new byte[1024];
 
@@ -295,7 +295,7 @@ public class AssociationControlServiceElement {
      * @throws IOException
      */
 
-    protected void analyzeAARE(byte[] responseData) throws IOException {
+    public void analyzeAARE(byte[] responseData) throws IOException, DLMSConnectionException {
         int i = 0;
         String strResultSourceDiagnostics = "";
         try {
@@ -346,32 +346,32 @@ public class AssociationControlServiceElement {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER";
                                         } else if (responseData[i + 5] == 0x01) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, no reason given";
-                                            throw new IOException("Application Association Establishment Failed"
+                                            throw new ProtocolException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x02) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Application Context Name Not Supported";
-                                            throw new IOException("Application Association Establishment Failed"
+                                            throw new ProtocolException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x0B) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Not Recognised";
-                                            throw new IOException("Application Association Establishment Failed"
+                                            throw new ProtocolException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x0C) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Mechanism Name Required";
-                                            throw new IOException("Application Association Establishment Failed"
+                                            throw new ProtocolException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x0D) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Failure";
-                                            throw new IOException("Application Association Establishment Failed"
+                                            throw new ProtocolException("Application Association Establishment Failed"
                                                     + strResultSourceDiagnostics);
                                         } else if (responseData[i + 5] == 0x0E) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_USER, Authentication Required";
                                         } else {
-                                            throw new IOException(
+                                            throw new ProtocolException(
                                                     "Application Association Establishment failed, ACSE_SERVICE_USER, unknown result!");
                                         }
                                     } else {
-                                        throw new IOException(
+                                        throw new ProtocolException(
                                                 "Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_USER,  wrong tag");
                                     }
                                 } // if (responseData[i+1] == ACSE_SERVICE_USER)
@@ -386,21 +386,21 @@ public class AssociationControlServiceElement {
                                         } else if (responseData[i + 5] == 0x02) {
                                             strResultSourceDiagnostics += ", ACSE_SERVICE_PROVIDER, No Common ACSE Version!";
                                         } else {
-                                            throw new IOException(
+                                            throw new ProtocolException(
                                                     "Application Association Establishment Failed, ACSE_SERVICE_PROVIDER, unknown result");
                                         }
                                     } else {
-                                        throw new IOException(
+                                        throw new ProtocolException(
                                                 "Application Association Establishment Failed, result_source_diagnostic, ACSE_SERVICE_PROVIDER,  wrong tag");
                                     }
                                 } // else if (responseData[i+1] ==
                                 // ACSE_SERVICE_PROVIDER)
                                 else {
-                                    throw new IOException(
+                                    throw new ProtocolException(
                                             "Application Association Establishment Failed, result_source_diagnostic,  wrong tag");
                                 }
                             } else {
-                                throw new IOException(
+                                throw new ProtocolException(
                                         "Application Association Establishment Failed, result_source_diagnostic, wrong length");
                             }
 
@@ -410,7 +410,7 @@ public class AssociationControlServiceElement {
                         else if (responseData[i] == DLMSCOSEMGlobals.AARE_MECHANISM_NAME) {
                             i++; //skip tag
                             if (responseData[i + 7] != this.mechanismId) {
-                                throw new IOException("Application Association Establishment Failed, mechanim_id(" + responseData[i + 7] + "),  different then proposed(" + this.mechanismId + ")");
+                                throw new ProtocolException("Application Association Establishment Failed, mechanim_id(" + responseData[i + 7] + "),  different then proposed(" + this.mechanismId + ")");
                             }
                             i += responseData[i]; // skip length + data
                         } else if (responseData[i] == DLMSCOSEMGlobals.AARE_RESPONDING_AUTHENTICATION_VALUE) {
@@ -472,7 +472,7 @@ public class AssociationControlServiceElement {
                                     } else if (0x13 == responseData[i + 4]) {
                                         strResultSourceDiagnostics += ", terminateUpload";
                                     } else {
-                                        throw new IOException(
+                                        throw new ProtocolException(
                                                 "Application Association Establishment Failed, AARE_USER_INFORMATION, unknown ConfirmedServiceError choice");
                                     }
 
@@ -491,10 +491,10 @@ public class AssociationControlServiceElement {
                                     } else if (0x04 == responseData[i + 6]) {
                                         strResultSourceDiagnostics += ", refused by the VDE handler";
                                     } else {
-                                        throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
+                                        throw new ProtocolException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons ");
                                     }
                                 } else {
-                                    throw new IOException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons!");
+                                    throw new ProtocolException("Application Association Establishment Failed, AARE_USER_INFORMATION, unknown respons!");
                                 }
 
                             } // if (responseData[i+2] > 0) --> length of the octet
@@ -530,10 +530,8 @@ public class AssociationControlServiceElement {
             } // while(true)
         } catch (ArrayIndexOutOfBoundsException e) {
             throw new ACSEParsingException("Unexpected end of AARE response", e, responseData);
-        } catch (DLMSConnectionException e) {
-            throw new IOException(e.getMessage());
         }
-        throw new IOException("Application Association Establishment Failed" + strResultSourceDiagnostics);
+        throw new ProtocolException("Application Association Establishment Failed" + strResultSourceDiagnostics);
     }
 
     /**
@@ -618,9 +616,10 @@ public class AssociationControlServiceElement {
      * Analyze the ReleaseResponse
      *
      * @param responseData the response from the device
-     * @throws IOException
+     * @throws DLMSConnectionException the disconnect failed
+     * @throws ACSEParsingException    unexpected end of the AARE
      */
-    protected void analyzeRLRE(byte[] responseData) throws IOException {
+    public void analyzeRLRE(byte[] responseData) throws DLMSConnectionException, ACSEParsingException {
         int i = 0;
         try {
             while (true) {
@@ -642,11 +641,11 @@ public class AssociationControlServiceElement {
                                         case 0x00:
                                             return; // normal release
                                         case 0x01:
-                                            throw new IOException("Release was not finished.");
+                                            throw new DLMSConnectionException("Release was not finished.");
                                         case 0x30:
-                                            throw new IOException("Response from the release is userDefined: " + 30);
+                                            throw new DLMSConnectionException("Response from the release is userDefined: " + 30);
                                         default:
-                                            throw new IOException("Unknown release response");
+                                            throw new DLMSConnectionException("Unknown release response");
                                     }
                                 } else {
                                     break;
@@ -802,10 +801,7 @@ public class AssociationControlServiceElement {
      *         words, the password) coded as a graphical string...
      * @throws ConnectionException when the callingauthenticationvalue is not filled in
      */
-    protected byte[] assembleCallingAuthenticationValue() throws ConnectionException {
-        if (getCallingAuthenticationValue() == null) {
-            throw new ConnectionException("CallingAuthenticationValue is not filled in.");
-        }
+    protected byte[] assembleCallingAuthenticationValue() throws UnsupportedException {
         byte[] authValue = new byte[getCallingAuthenticationValue().length + 4];
         authValue[0] = DLMSCOSEMGlobals.AARQ_CALLING_AUTHENTICATION_VALUE;
         authValue[1] = (byte) (getCallingAuthenticationValue().length + 2);
@@ -822,9 +818,8 @@ public class AssociationControlServiceElement {
      * </pre>
      *
      * @return the BER encoded BitString protocolVersion
-     * @throws IOException is never throw, but it's defined on the interface
      */
-    private byte[] getACSEProtocolVersion() throws IOException {
+    private byte[] getACSEProtocolVersion() {
         if (this.ACSE_protocolVersion != 0) {
             return new BitString(this.ACSE_protocolVersion).getBEREncodedByteArray();
         }
@@ -876,7 +871,7 @@ public class AssociationControlServiceElement {
     /**
      * @return the authenticaionValue(challenge) from the server
      */
-    protected byte[] getRespondingAuthenticationValue() {
+    public byte[] getRespondingAuthenticationValue() {
         return this.respondingAuthenticationValue;
     }
 
@@ -918,7 +913,7 @@ public class AssociationControlServiceElement {
      *
      * @return true if both challenges are the same, false otherwise.
      */
-    public boolean hlsChallengeMatch() {
+    public boolean hlsChallengeMatch() throws UnsupportedException {
         if (sc.getAuthenticationLevel() > 1) {          // SVA|17042012|For Authentication level 1, this check is not valid - ActarisSL7000 failed on this.
             return Arrays.equals(getCallingAuthenticationValue(), getRespondingAuthenticationValue());
         } else {
@@ -926,7 +921,7 @@ public class AssociationControlServiceElement {
         }
     }
 
-    private class ACSEParsingException extends IOException {
+    public class ACSEParsingException extends IOException {
 
         public ACSEParsingException(String s, Exception e) {
             super(s);

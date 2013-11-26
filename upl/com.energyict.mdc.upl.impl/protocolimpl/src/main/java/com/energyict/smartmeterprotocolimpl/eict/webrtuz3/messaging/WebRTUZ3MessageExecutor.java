@@ -855,8 +855,6 @@ public class WebRTUZ3MessageExecutor extends GenericMessageExecutor {
                 log(Level.INFO, "Message has failed. " + e.getMessage());
             } catch (IOException e) {
                 log(Level.INFO, "Message has failed. " + e.getMessage());
-            } catch (InterruptedException e) {
-                log(Level.INFO, "Message has failed. " + e.getMessage());
             } catch (SQLException e) {
                 log(Level.INFO, "Message has failed. " + e.getMessage());
             }

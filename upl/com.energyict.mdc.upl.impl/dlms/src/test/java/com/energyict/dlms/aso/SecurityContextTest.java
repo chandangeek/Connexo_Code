@@ -1,15 +1,14 @@
 package com.energyict.dlms.aso;
 
-import java.io.IOException;
-
 import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.mocks.MockRespondingFrameCounterHandler;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.mocks.MockRespondingFrameCounterHandler;
 import com.energyict.dlms.mocks.MockSecurityProvider;
 import com.energyict.protocol.ProtocolUtils;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import static org.junit.Assert.*;
 
@@ -203,7 +202,7 @@ public class SecurityContextTest {
     }
 
     @Test
-    public void iskraHLSTest() throws IOException {
+    public void iskraHLSTest() throws IOException, DLMSConnectionException, NoSuchAlgorithmException {
         String digest = "3F2E2FA23A4CFCD40B0CD7091300673D";
 
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, new SecurityContext(3, 3, 3, new MockSecurityProvider(), SecurityContext.CIPHERING_TYPE_GLOBAL));

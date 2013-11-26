@@ -326,17 +326,11 @@ public class PrimeRegisters {
         if (ObisCode.fromString("1.1.1.1.2.255").equalsIgnoreBChannel(obisCode)) {
             try {
                 session.getLogger().info("Executing firmware update message");
-                try {
-                    byte[] imageData = ProtocolTools.readBytesFromFile("/home/jme/Desktop/FW/AS330D/ASP06.01.11-08451.bin");
-                    final ImageTransfer it = cof.getImageTransfer();
-                    it.setUsePollingVerifyAndActivate(true);
-                    it.upgrade(imageData, true);
-                    it.imageActivation();
-                } catch (InterruptedException e) {
-                    String msg = "Firmware upgrade failed! " + e.getClass().getName() + " : " + e.getMessage();
-                    session.getLogger().severe(msg);
-                    throw new IOException(msg);
-                }
+                byte[] imageData = ProtocolTools.readBytesFromFile("/home/jme/Desktop/FW/AS330D/ASP06.01.11-08451.bin");
+                final ImageTransfer it = cof.getImageTransfer();
+                it.setUsePollingVerifyAndActivate(true);
+                it.upgrade(imageData, true);
+                it.imageActivation();
             } catch (IOException e) {
                 return new RegisterValue(obisCode, "Failed: " + e.getMessage());
             }
@@ -712,11 +706,12 @@ public class PrimeRegisters {
     /**
      * Gets the specified multicast identifier.
      *
-     * @param index 0, 1 or 2.
-     * @param        objectFactory        The COSEM object factory used to fetch the object.
+     * @param index         0, 1 or 2.
+     * @param objectFactory The COSEM object factory used to fetch the object.
      * @return The register value.
-     * @throws com.energyict.protocol.NoSuchRegisterException        If the object could not be obtained or is of the wrong type.
-     * @throws java.io.IOException                    If an IO error occurs while fetching the object.
+     * @throws com.energyict.protocol.NoSuchRegisterException
+     *                             If the object could not be obtained or is of the wrong type.
+     * @throws java.io.IOException If an IO error occurs while fetching the object.
      */
     private final RegisterValue getMulticastIdentifier(final CosemObjectFactory objectFactory, final int index) throws NoSuchRegisterException, IOException {
         final AbstractDataType value = objectFactory.getData(MULTICAST_IDENTIFIER).getValueAttr();

@@ -5,27 +5,20 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.DeviceProtocol;
-import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.comchannels.ComChannelInputStreamAdapter;
-import com.energyict.protocolimplv2.comchannels.ComChannelOutputStreamAdapter;
+import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,7 +62,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
      */
     protected abstract String getFirmwareVersion();
 
-    protected abstract DlmsProtocolProperties getProtocolProperties();
+    protected abstract DlmsSessionProperties getDlmsSessionProperties();
 
     /**
      * Initialization method right after we are connected to the physical device.
@@ -79,18 +72,15 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
+        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         this.comChannel = comChannel;
     }
 
     @Override
     public void logOn() {
-        try {
-            getDlmsSession().connect();
-            checkCacheObjects();
-            initAfterConnect();
-        } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
-        }
+        getDlmsSession().connect();
+        checkCacheObjects();
+        initAfterConnect();
     }
 
     @Override
@@ -138,8 +128,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
                 configNumber = requestConfigurationChanges();
                 changed = true;
             }
-        } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
         } finally {
             if (changed) {
                 this.dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
@@ -155,24 +143,13 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
      * <i>This method may be overridden to fetch the version in a getWithListRequest</i>
      *
      * @return the number of configuration changes.
-     * @throws IOException
      */
-    public int requestConfigurationChanges() throws IOException {
-        try {
-            return (int) getDlmsSession().getCosemObjectFactory().getCosemObject(getDlmsSession().getMeterConfig().getConfigObject().getObisCode()).getValue();
-        } catch (IOException e) {
-            getLogger().log(Level.FINEST, e.getMessage());
-            throw new IOException("Could not retrieve the configuration change parameter" + e);
-        }
-    }
+    public abstract int requestConfigurationChanges();
 
     /**
      * Request Association buffer list out of the meter.
-     *
-     * @throws IOException if something fails during the request or the parsing of the buffer
      */
-    protected void requestConfiguration() throws IOException {
-
+    protected void requestConfiguration() {
         try {
             if (getDlmsSession().getReference() == ProtocolLink.LN_REFERENCE) {
                 getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDlmsSession().getCosemObjectFactory().getAssociationLN().getBuffer());
@@ -182,8 +159,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
                 throw new IllegalArgumentException("Invalid reference method, only 0 and 1 are allowed.");
             }
         } catch (IOException e) {
-            getLogger().log(Level.FINEST, e.getMessage());
-            throw new IOException("Requesting configuration failed." + e);
+            throw IOExceptionHandler.handle(e, getDlmsSession());
         }
     }
 
@@ -193,7 +169,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(timeToSet));
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
         }
     }
 
@@ -203,7 +179,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
             return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
         }
     }
 
@@ -223,7 +199,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
      * @return true if the Device wants to use BulkRequests, false otherwise
      */
     public boolean supportsBulkRequests() {
-        return getProtocolProperties().isBulkRequest();
+        return getDlmsSessionProperties().isBulkRequest();
     }
 
     @Override
@@ -250,12 +226,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-        getProtocolProperties().addProperties(dialectProperties); // this will add the properties to the existing properties
+        getDlmsSessionProperties().addProperties(dialectProperties); // this will add the properties to the existing properties
     }
 
     @Override
     public void addProperties(TypedProperties properties) {
-        getProtocolProperties().addProperties(properties); // this will add the properties to the existing properties
+        getDlmsSessionProperties().addProperties(properties); // this will add the properties to the existing properties
     }
 
     /**
@@ -272,11 +248,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
 
     public DlmsSession getDlmsSession() {
         if (dlmsSession == null) {
-            dlmsSession = new DlmsSession(new ComChannelInputStreamAdapter(comChannel),
-                    new ComChannelOutputStreamAdapter(comChannel),
-                    getLogger(),
-                    getProtocolProperties(),
-                    getTimeZone());
+            dlmsSession = new DlmsSession(comChannel, getDlmsSessionProperties());
         }
         return dlmsSession;
     }
@@ -294,7 +266,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
     }
 
     public TimeZone getTimeZone() {
-        return TimeZone.getTimeZone(getProtocolProperties().getTimeZone());
+        return getDlmsSessionProperties().getTimeZone();
     }
 
     @Override

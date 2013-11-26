@@ -12,6 +12,7 @@ package com.energyict.protocolimpl.mbus.core;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -457,7 +458,7 @@ public class ValueInformationfieldCoding {
                 return v;
             }
         }
-        throw new IOException("ValueInformationfieldCoding, findPrimaryValueInformationfieldCoding, invalid coding + "+coding);
+        throw new ProtocolException("ValueInformationfieldCoding, findPrimaryValueInformationfieldCoding, invalid coding + "+coding);
     }
     
     static public ValueInformationfieldCoding findFDExtensionValueInformationfieldCoding(int coding, int dataField) throws IOException {
@@ -473,7 +474,7 @@ public class ValueInformationfieldCoding {
                 return v;
             }
         }
-        throw new IOException("ValueInformationfieldCoding, findFDExtensionValueInformationfieldCoding, invalid coding + "+coding);
+        throw new ProtocolException("ValueInformationfieldCoding, findFDExtensionValueInformationfieldCoding, invalid coding + "+coding);
     }
     
     static public ValueInformationfieldCoding findFBExtensionValueInformationfieldCoding(int coding, int dataField) throws IOException {
@@ -489,7 +490,7 @@ public class ValueInformationfieldCoding {
                 return v;
             }
         }
-        throw new IOException("ValueInformationfieldCoding, findFBExtensionValueInformationfieldCoding, invalid coding + "+coding);
+        throw new ProtocolException("ValueInformationfieldCoding, findFBExtensionValueInformationfieldCoding, invalid coding + "+coding);
     }
 
     static public ValueInformationfieldCoding findCombinableExtensionValueInformationfieldCoding(int coding, int dataField) throws IOException {
@@ -505,7 +506,7 @@ public class ValueInformationfieldCoding {
                 return v;
             }
         }
-        throw new IOException("ValueInformationfieldCoding, findCombinableExtensionValueInformationfieldCoding, invalid coding + "+coding);
+        throw new ProtocolException("ValueInformationfieldCoding, findCombinableExtensionValueInformationfieldCoding, invalid coding + "+coding);
     }
     
     

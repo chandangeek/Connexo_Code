@@ -1,5 +1,6 @@
 package com.energyict.mdc.channels.ip.socket;
 
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.OutboundIpConnectionType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.ComPortType;
@@ -49,6 +50,7 @@ public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
         }
         ServerComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
         comChannel.setComPort(comPort);
+        comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
         return comChannel;
     }
 

@@ -19,6 +19,7 @@ import com.energyict.dlms.HDLCConnection;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.Clock;
@@ -211,6 +212,11 @@ public class EK2xx extends PluggableMeterProtocol implements HHUEnabler, Protoco
         } catch (DLMSConnectionException e) {
             this.logger.severe("DLMSLN: disconnect(), " + e.getMessage());
         }
+    }
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
     }
 
     public void connect() throws IOException {

@@ -2,7 +2,7 @@ package com.energyict.protocolimpl.dlms.siemenszmd;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimpl.base.SecurityLevelException;
+import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -43,7 +43,7 @@ public class ZMDSecurityProvider extends NTASecurityProvider {
     }
 
     @Override
-    public byte[] getCallingAuthenticationValue() throws SecurityLevelException {
+    public byte[] getCallingAuthenticationValue() throws UnsupportedException {
 
         switch (this.securityLevel) {
             case 0:

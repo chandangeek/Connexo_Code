@@ -10,6 +10,8 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -25,7 +27,7 @@ public class Unsigned8 extends AbstractDataType {
     /** Creates a new instance of Enum */
     public Unsigned8(byte[] berEncodedData, int offset) throws IOException {
         if (berEncodedData[offset] != AxdrType.UNSIGNED.getTag()) {
-			throw new IOException("Unsigned8, invalid identifier "+berEncodedData[offset]);
+			throw new ProtocolException("Unsigned8, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
         setValue(berEncodedData[offset++]&0xff);

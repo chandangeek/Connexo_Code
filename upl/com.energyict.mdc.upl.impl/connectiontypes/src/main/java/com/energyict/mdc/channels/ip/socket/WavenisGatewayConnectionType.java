@@ -1,6 +1,7 @@
 package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
@@ -29,6 +30,7 @@ public class WavenisGatewayConnectionType extends OutboundTcpIpConnectionType {
             }
         }
         ServerComChannel comChannel = this.newWavenisConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+        comChannel.addProperties(createTypeProperty(ComChannelType.WavenisGatewayComChannel));
         comChannel.setComPort(comPort);
         return comChannel;
     }

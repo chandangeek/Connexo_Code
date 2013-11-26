@@ -1,14 +1,13 @@
 package com.energyict.mdc.channels.serial.direct.rxtx;
 
-import com.energyict.cpo.PropertySpec;
-import com.energyict.cpo.PropertySpecBuilder;
+import com.energyict.cpo.*;
 import com.energyict.dynamicattributes.StringFactory;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.AbstractSerialConnectionType;
 import com.energyict.mdc.channels.serial.FlowControl;
 import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.ports.ComPort;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 
 import java.util.ArrayList;
@@ -44,7 +43,9 @@ public class RxTxSerialConnectionType extends AbstractSerialConnectionType {
             serialPortConfiguration.setSerialPortReadTimeOut(getPortReadTimeOutValue());
         }
 
-        return newRxTxSerialConnection(serialPortConfiguration);
+        ComChannel comChannel = newRxTxSerialConnection(serialPortConfiguration);
+        comChannel.addProperties(createTypeProperty(ComChannelType.SerialComChannel));
+        return comChannel;
     }
 
     @Override

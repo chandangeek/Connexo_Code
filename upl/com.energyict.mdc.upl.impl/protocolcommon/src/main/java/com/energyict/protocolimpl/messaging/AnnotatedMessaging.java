@@ -414,7 +414,7 @@ public abstract class AnnotatedMessaging implements MessageProtocol {
                 sb.append(" [").append(taggedMethod.getName()).append(']');
             }
             sb.append("Handler method should be defined unambiguous!");
-            throw new IOException(sb.toString());
+            throw new ProtocolException(sb.toString());
         }
 
         return null;

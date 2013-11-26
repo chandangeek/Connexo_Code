@@ -10,6 +10,7 @@
 
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class Unsigned16 extends AbstractDataType {
     /** Creates a new instance of Enum */
     public Unsigned16(byte[] berEncodedData, int offset) throws IOException {
         if (berEncodedData[offset] != AxdrType.LONG_UNSIGNED.getTag()) {
-			throw new IOException("Unsigned16, invalid identifier "+berEncodedData[offset]);
+			throw new ProtocolException("Unsigned16, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
         setValue(ProtocolUtils.getInt(berEncodedData,offset,2));

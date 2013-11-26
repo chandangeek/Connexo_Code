@@ -55,7 +55,7 @@ public class MBusConnection extends IEC870Connection implements ProtocolConnecti
     public int getReasonTIMEOUT_ERROR() {
     	return TIMEOUT_ERROR;
     }
-    
+
     /*******************************************************************************************
      * Implementation of the abstract Connection class
      ******************************************************************************************/

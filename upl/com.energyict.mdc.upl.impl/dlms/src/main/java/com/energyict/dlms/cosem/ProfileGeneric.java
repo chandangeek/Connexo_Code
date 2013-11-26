@@ -6,8 +6,10 @@
 
 package com.energyict.dlms.cosem;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.*;
 import com.energyict.dlms.axrdencoding.*;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.*;
@@ -217,7 +219,7 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            throw new IOException("Could not calculate the number of channels");
+            throw new NestedIOException(e, "Could not calculate the number of channels");
         }
         return count;
     }
@@ -297,7 +299,7 @@ public class ProfileGeneric extends AbstractCosemObject implements CosemObject {
     }
 
     public long getValue() throws IOException {
-        throw new IOException("Data, getValue(), invalid data value type...");
+        throw new ProtocolException("Data, getValue(), invalid data value type...");
     }
 
     public byte[] getData(int attr, Calendar from, Calendar to) throws IOException {

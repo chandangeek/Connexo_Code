@@ -45,6 +45,10 @@ public class MbusLog extends AbstractEvent {
         super(dc, deviationType);
     }
 
+    public MbusLog(DataContainer dc) {
+        super(dc);
+    }
+
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
 
         if (!ExtraEvents.extraEvents.containsKey(new Integer(eventId))) {

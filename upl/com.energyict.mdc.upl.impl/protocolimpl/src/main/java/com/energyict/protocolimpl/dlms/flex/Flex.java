@@ -36,6 +36,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.AxdrType;
@@ -971,6 +972,11 @@ public class Flex extends PluggableMeterProtocol implements HHUEnabler, Protocol
             }
         }
     } // public void requestSAP() throws IOException
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
+    }
 
     public void connect() throws IOException {
         try {

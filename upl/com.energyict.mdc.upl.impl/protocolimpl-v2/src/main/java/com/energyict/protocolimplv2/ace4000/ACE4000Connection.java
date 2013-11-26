@@ -69,7 +69,7 @@ public class ACE4000Connection {
                         throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException(String.format("Timeout: didn't receive an inbound frame after %d ms.",timeout));
                     } else {
                         IOException cause = new IOException(String.format("Timeout: didn't receive an outbound frame after %d ms.",timeout));
-                        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(cause, ace4000.getProperties().getRetries());
+                        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(cause, ace4000.getProperties().getRetries() + 1);
                     }
                 } else {
                     return splitConcatenatedFrames(msg.toString());    //Return the received frames after waiting for a timeout

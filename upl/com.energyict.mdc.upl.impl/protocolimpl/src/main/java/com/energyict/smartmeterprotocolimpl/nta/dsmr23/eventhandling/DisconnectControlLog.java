@@ -6,11 +6,9 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.genericprotocolimpl.nta.eventhandling.ExtraEvents;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProtocolException;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class DisconnectControlLog extends AbstractEvent {
 
@@ -29,6 +27,10 @@ public class DisconnectControlLog extends AbstractEvent {
         super(dc, deviationType);
     }
 
+    public DisconnectControlLog(DataContainer dc) {
+        super(dc);
+    }
+
     /**
      * <b><u>Note:</u></b> This will do nothing
      * Build a list of MeterEvents
@@ -39,7 +41,7 @@ public class DisconnectControlLog extends AbstractEvent {
     }
 
     @Override
-    public List<MeterEvent> getMeterEvents() throws IOException {
+    public List<MeterEvent> getMeterEvents() throws ProtocolException {
         List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
         int size = this.dcEvents.getRoot().getNrOfElements();
         Date eventTimeStamp = null;

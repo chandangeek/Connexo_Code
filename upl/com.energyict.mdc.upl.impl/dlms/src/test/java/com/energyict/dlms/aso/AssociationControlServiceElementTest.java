@@ -1,7 +1,6 @@
 package com.energyict.dlms.aso;
 
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.*;
 import com.energyict.dlms.mocks.MockSecurityProvider;
 import org.junit.Test;
 
@@ -181,7 +180,7 @@ public class AssociationControlServiceElementTest {
             assertEquals(0x01F4, acse.getXdlmsAse().getMaxRecPDUServerSize());
             assertEquals(0x0000501F, acse.getXdlmsAse().getNegotiatedConformanceBlock().getValue());
 
-        } catch (IOException e) {
+        } catch (IOException | DLMSConnectionException e) {
             e.printStackTrace();
             fail();
         }
@@ -244,7 +243,7 @@ public class AssociationControlServiceElementTest {
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);
-        } catch (IOException e) {
+        } catch (DLMSConnectionException| AssociationControlServiceElement.ACSEParsingException  e) {
             System.out.println(e.getMessage());
             fail("Unexpexted Exception: " + e.getMessage());
         }
@@ -260,7 +259,7 @@ public class AssociationControlServiceElementTest {
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);
-        } catch (IOException e) {
+        } catch (DLMSConnectionException | AssociationControlServiceElement.ACSEParsingException e) {
             assertTrue(e.getMessage().contains("userDefined"));
         }
     }
@@ -275,7 +274,7 @@ public class AssociationControlServiceElementTest {
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);
-        } catch (IOException e) {
+        } catch (DLMSConnectionException | AssociationControlServiceElement.ACSEParsingException  e) {
             assertTrue(e.getMessage().contains("finished"));
         }
     }
@@ -290,7 +289,7 @@ public class AssociationControlServiceElementTest {
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);
-        } catch (IOException e) {
+        } catch (DLMSConnectionException | AssociationControlServiceElement.ACSEParsingException e) {
             assertTrue(e.getMessage().contains("Unknown"));
         }
     }
@@ -302,7 +301,7 @@ public class AssociationControlServiceElementTest {
         AssociationControlServiceElement acse = new AssociationControlServiceElement(null, 1, sc);
         try {
             acse.analyzeRLRE(rlre);
-        } catch (IOException e) {
+        } catch (DLMSConnectionException | AssociationControlServiceElement.ACSEParsingException e) {
             assertTrue(e.getMessage().contains("Unknown"));
         }
     }

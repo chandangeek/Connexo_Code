@@ -14,19 +14,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.InvalidPropertyException;
-import com.energyict.protocol.MessageEntry;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.MissingPropertyException;
-import com.energyict.protocol.NoSuchRegisterException;
-import com.energyict.protocol.ProfileData;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.Message;
 import com.energyict.protocol.messaging.MessageAttribute;
 import com.energyict.protocol.messaging.MessageCategorySpec;
@@ -221,7 +209,7 @@ public class SDKSampleProtocol extends AbstractProtocol implements MessageProtoc
         Calendar cal = Calendar.getInstance(getTimeZone());
         cal.setTime(lastReading);
         if (getProfileInterval() <= 0) {
-            throw new IOException("load profile interval must be > 0 sec. (is " + getProfileInterval() + ")");
+            throw new ProtocolException("load profile interval must be > 0 sec. (is " + getProfileInterval() + ")");
         }
         ParseUtils.roundDown2nearestInterval(cal, getProfileInterval());
 

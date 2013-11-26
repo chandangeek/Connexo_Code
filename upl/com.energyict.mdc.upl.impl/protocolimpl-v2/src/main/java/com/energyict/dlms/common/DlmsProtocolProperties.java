@@ -25,6 +25,8 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String SECURITY_LEVEL = "SecurityLevel";
     public static final String CLIENT_MAC_ADDRESS = "ClientMacAddress";
     public static final String SERVER_MAC_ADDRESS = "ServerMacAddress";
+    public static final String SERVER_UPPER_MAC_ADDRESS = "ServerUpperMacAddress";
+    public static final String SERVER_LOWER_MAC_ADDRESS = "ServerLowerMacAddress";
     public static final String ADDRESSING_MODE = "AddressingMode";
     public static final String MANUFACTURER = "Manufacturer";
     public static final String INFORMATION_FIELD_SIZE = "InformationFieldSize";
@@ -44,6 +46,8 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String ROUND_TRIP_CORRECTION = "RoundTripCorrection";
     public static final String ISKRA_WRAPPER = "IskraWrapper";
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
+    public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
+    public static final String DEVICE_ID = "DevideId";
 
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final String DEFAULT_TIMEZONE = "GMT";
@@ -60,6 +64,8 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final String DEFAULT_SECURITY_LEVEL = DEFAULT_AUTHENTICATION_SECURITY_LEVEL + ":" + DEFAULT_DATA_TRANSPORT_SECURITY_LEVEL;
     public static final BigDecimal DEFAULT_CLIENT_MAC_ADDRESS = new BigDecimal(16);
     public static final String DEFAULT_SERVER_MAC_ADDRESS = "1";
+    public static final BigDecimal DEFAULT_UPPER_SERVER_MAC_ADDRESS = BigDecimal.ONE;
+    public static final BigDecimal DEFAULT_LOWER_SERVER_MAC_ADDRESS = BigDecimal.ZERO;
     public static final BigDecimal DEFAULT_ADDRESSING_MODE = new BigDecimal(2);
     public static final String DEFAULT_MANUFACTURER = "WKP";
     public static final BigDecimal DEFAULT_INFORMATION_FIELD_SIZE = new BigDecimal(-1);
@@ -80,6 +86,8 @@ public abstract class DlmsProtocolProperties implements DlmsSessionProperties {
     public static final BigDecimal DEFAULT_ROUND_TRIP_CORRECTION = new BigDecimal(0);
     public static final BigDecimal DEFAULT_ISKRA_WRAPPER = new BigDecimal(1);
     public static final BigDecimal DEFAULT_DEVICE_BUFFER_SIZE = new BigDecimal(-1);
+    public static final boolean DEFAULT_FIX_MBUS_HEX_SHORT_ID = false;
+    public static final String DEFAULT_DEVICE_ID = "";
 
     private TypedProperties typedProperties;
 

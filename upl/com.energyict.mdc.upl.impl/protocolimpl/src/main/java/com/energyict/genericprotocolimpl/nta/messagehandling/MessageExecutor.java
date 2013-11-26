@@ -894,9 +894,6 @@ public class MessageExecutor extends GenericMessageExecutor{
 		} catch (IOException e) {
 			e.printStackTrace();
 			log(Level.INFO, "Message " + rtuMessage.displayString() + " has failed. " + e.getMessage());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			log(Level.INFO, "Message " + rtuMessage.displayString() + " has failed. " + e.getMessage());
 		} finally {
 			if(success){
 				rtuMessage.confirm();

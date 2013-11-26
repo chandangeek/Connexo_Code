@@ -2,24 +2,17 @@ package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.aso.AssociationControlServiceElement;
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.XdlmsAse;
+import com.energyict.dlms.aso.*;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.protocol.ProtocolException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * //TODO needs refactoring to use a ComChannel instead of the Input- and OutputStream
- *
  * Copyrights EnergyICT
  * Date: 11/02/11
  * Time: 18:18
@@ -100,7 +93,7 @@ public class DlmsSession implements ProtocolLink {
         try {
             Thread.sleep(5);
         } catch (InterruptedException e) {
-            throw new NestedIOException(e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -114,9 +107,7 @@ public class DlmsSession implements ProtocolLink {
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            getLogger().log(Level.FINEST, "Disconnect failed, " + e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             getLogger().log(Level.FINEST, "Disconnect failed, " + e.getMessage());
         }
     }
@@ -174,6 +165,11 @@ public class DlmsSession implements ProtocolLink {
             } catch (IOException e) {
                 logger.fine("Application association failed, " + e.getMessage());
                 throw e;
+            } catch (DLMSConnectionException e) {
+                logger.fine("Application association failed, " + e.getMessage());
+                IOException exception = new IOException(e.getMessage());
+                exception.initCause(e);
+                throw exception;
             }
         } else {
             logger.fine("Application association was already open, continuing...");
@@ -271,7 +267,7 @@ public class DlmsSession implements ProtocolLink {
                 }
                 break;
             default:
-                throw new IOException("Unknown connectionMode: " + getProperties().getConnectionMode() + " - Only 0(HDLC), 1(TCP), 2(COSEM_APDU) and 3(LLC) are allowed");
+                throw new ProtocolException("Unknown connectionMode: " + getProperties().getConnectionMode() + " - Only 0(HDLC), 1(TCP), 2(COSEM_APDU) and 3(LLC) are allowed");
         }
 
         return transportConnection;

@@ -125,6 +125,9 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
                 return;
             } catch (IOException e) {
                 exception = e;
+            } catch (DLMSConnectionException e) {
+                exception = new IOException(e.getMessage());
+                exception.initCause(e);
             }
 
             if ((exception.getMessage() != null) && exception.getMessage().toLowerCase().contains(TIMEOUT)) {
@@ -140,7 +143,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Firmw
                     }
                     try {
                         this.aso.releaseAssociation();
-                    } catch (IOException e) {
+                    } catch (IOException | DLMSConnectionException e) {
                         this.aso.setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
                         // Absorb exception: in 99% of the cases we expect an exception here ...
                     }

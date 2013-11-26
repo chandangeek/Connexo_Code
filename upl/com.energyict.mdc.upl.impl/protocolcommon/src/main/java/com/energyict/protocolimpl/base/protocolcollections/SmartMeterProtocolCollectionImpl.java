@@ -90,16 +90,16 @@ public class SmartMeterProtocolCollectionImpl implements ProtocolCollection {
             return (SmartMeterProtocol) Class.forName(className).newInstance();
         }
         catch(ClassNotFoundException e) {
-            throw new IOException("instantiateProtocol(), ClassNotFoundException, "+e.getMessage());
+            throw new ProtocolException("instantiateProtocol(), ClassNotFoundException, "+e.getMessage());
         }
         catch(InstantiationException e) {
-            throw new IOException("instantiateProtocol(), InstantiationException, "+e.getMessage());
+            throw new ProtocolException("instantiateProtocol(), InstantiationException, "+e.getMessage());
         }
         catch(IllegalAccessException e) {
-            throw new IOException("instantiateProtocol(), IllegalAccessException, "+e.getMessage());
+            throw new ProtocolException("instantiateProtocol(), IllegalAccessException, "+e.getMessage());
         }
         catch(Exception e) {
-            throw new IOException("instantiateProtocol(), Exception, "+e.getMessage());
+            throw new ProtocolException("instantiateProtocol(), Exception, "+e.getMessage());
         }
     }
 }

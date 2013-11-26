@@ -1,7 +1,6 @@
 package com.energyict.dlms;
 
 import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.aso.ApplicationServiceObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,10 +34,10 @@ public class AdaptorConnection implements DLMSConnection {
         return sendRequest(encryptedRequest);
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(long timeout) {
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return 0;
     }
 
@@ -72,10 +71,6 @@ public class AdaptorConnection implements DLMSConnection {
         return null;
     }
 
-    public int getType() {
-        return 0;
-    }
-
     public byte[] sendRawBytes(byte[] data) throws IOException {
         return new byte[0];
     }
@@ -107,9 +102,4 @@ public class AdaptorConnection implements DLMSConnection {
     public int getMaxRetries() {
         return 0;
     }
-
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return null;
-    }
-
 }

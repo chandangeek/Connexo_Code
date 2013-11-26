@@ -128,7 +128,7 @@ public class AS330D extends AbstractDlmsSessionProtocol implements FirmwareUpdat
                 }
                 try {
                     getSession().getAso().releaseAssociation();
-                } catch (IOException e) {
+                } catch (IOException | DLMSConnectionException e) {
                     getSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }

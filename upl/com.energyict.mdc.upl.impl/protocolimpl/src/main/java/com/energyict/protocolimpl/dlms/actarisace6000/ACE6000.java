@@ -33,6 +33,7 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.TCPIPConnection;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
@@ -594,6 +595,11 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
         return doGetDemandValues(fromCalendar,
                 bNROfChannels,
                 includeEvents);
+    }
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used, AARQ is manually built here
     }
 
     private ProfileData doGetDemandValues(Calendar fromCalendar, byte bNROfChannels, boolean includeEvents) throws IOException {

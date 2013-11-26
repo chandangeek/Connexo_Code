@@ -351,6 +351,11 @@ abstract public class DLMSSN extends PluggableMeterProtocol implements HHUEnable
         //return doGetMeterReadingScalerUnit(uo.getBaseName(), uo.getScalerAttributeOffset());
     }
 
+    @Override
+    public ApplicationServiceObject getAso() {
+        return aso;
+    }
+
     /**
      * Creates an association session
      *

@@ -5,9 +5,8 @@ import com.energyict.cbo.NotFoundException;
 import com.energyict.cpo.Transaction;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocol.CacheMechanism;
@@ -47,6 +46,13 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
             getLogger().log(Level.FINEST, e.getMessage());
             throw new IOException("Could not retrieve the Clock object." + e);
         }
+    }
+
+    /**
+     * Used by sub protocols that implement ProtocolLink
+     */
+    public ApplicationServiceObject getAso() {
+        return getDlmsSession().getAso();
     }
 
     /**
@@ -146,6 +152,7 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      * The number should increase if something in the configuration or firmware changed. This can cause the objectlist to change.
      * <br>
      * <i>This method may be overridden to fetch the version in a getWithListRequest</i>
+     *
      * @return the number of configuration changes.
      * @throws IOException
      */

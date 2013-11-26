@@ -1,16 +1,12 @@
 package com.energyict.dlms.axrdencoding.util;
 
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author gna
@@ -107,22 +103,22 @@ public class AXDRDateTime extends AbstractDataType {
     /**
      * @deprecated use {@link #AXDRDateTime(OctetString, AXDRDateTimeDeviationType)} instead for correct deviation interpretation
      */
-    public AXDRDateTime(OctetString octetString) throws IOException {
+    public AXDRDateTime(OctetString octetString) throws ProtocolException {
         this(octetString.getBEREncodedByteArray(), AXDRDateTimeDeviationType.Negative);
     }
 
-    public AXDRDateTime(OctetString octetString, AXDRDateTimeDeviationType deviationType) throws IOException {
+    public AXDRDateTime(OctetString octetString, AXDRDateTimeDeviationType deviationType) throws ProtocolException {
         this(octetString.getBEREncodedByteArray(), deviationType);
     }
 
     /**
      * @deprecated use {@link #AXDRDateTime(byte[], AXDRDateTimeDeviationType)} instead for correct deviation interpretation
      */
-    public AXDRDateTime(byte[] berEncodedData) throws IOException {
+    public AXDRDateTime(byte[] berEncodedData) throws ProtocolException {
         this(berEncodedData, 0, AXDRDateTimeDeviationType.Negative);
     }
 
-    public AXDRDateTime(byte[] berEncodedData, AXDRDateTimeDeviationType deviationType) throws IOException {
+    public AXDRDateTime(byte[] berEncodedData, AXDRDateTimeDeviationType deviationType) throws ProtocolException {
         this(berEncodedData, 0, deviationType);
     }
 
@@ -133,11 +129,11 @@ public class AXDRDateTime extends AbstractDataType {
         this(berEncodedData, offset, AXDRDateTimeDeviationType.Negative);    // default we have a negative deviationType
     }
 
-    public AXDRDateTime(byte[] berEncodedData, int offset, AXDRDateTimeDeviationType deviationType) throws IOException {
+    public AXDRDateTime(byte[] berEncodedData, int offset, AXDRDateTimeDeviationType deviationType) throws ProtocolException {
         int ptr = offset;
 
         if (berEncodedData[ptr] != AxdrType.OCTET_STRING.getTag()) {
-            throw new IOException("AXDRDateTime, invalid identifier " + berEncodedData[ptr]);
+            throw new ProtocolException("AXDRDateTime, invalid identifier " + berEncodedData[ptr]);
         }
         ptr = ptr + 2;
 
@@ -188,7 +184,7 @@ public class AXDRDateTime extends AbstractDataType {
 
     }
 
-    public AXDRDateTime(OctetString date, OctetString time, TimeZone timeZone) throws IOException {
+    public AXDRDateTime(OctetString date, OctetString time, TimeZone timeZone) throws ProtocolException {
         byte[] dateBytes = date.getOctetStr();
         byte[] timeBytes = time.getOctetStr();
         dateTime = Calendar.getInstance(timeZone);
@@ -222,11 +218,11 @@ public class AXDRDateTime extends AbstractDataType {
      * @param tz the device timezone
      * @throws IOException
      */
-    public AXDRDateTime(byte[] berEncodedData, int offset, TimeZone tz) throws IOException {
+    public AXDRDateTime(byte[] berEncodedData, int offset, TimeZone tz) throws ProtocolException {
         int ptr = offset;
 
     	if (berEncodedData[ptr] != AxdrType.OCTET_STRING.getTag()){
-            throw new IOException("AXDRDateTime, invalid identifier "+berEncodedData[ptr]);
+            throw new ProtocolException("AXDRDateTime, invalid identifier "+berEncodedData[ptr]);
     	}
     	ptr = ptr + 2;
 

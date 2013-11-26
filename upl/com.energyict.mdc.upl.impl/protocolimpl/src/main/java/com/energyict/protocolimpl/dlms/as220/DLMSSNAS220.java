@@ -273,6 +273,10 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
         dlmsConnection = new SecureConnection(aso, connection);
     }
 
+    public ApplicationServiceObject getAso() {
+        return aso;
+    }
+
     /**
      * Return the SystemTitle to be used in the DLMS association request.
      * For the AM500 modules, this is the serialNumber of the E-METER
@@ -736,10 +740,6 @@ public abstract class DLMSSNAS220 extends PluggableMeterProtocol implements HHUE
 
     public Logger getLogger() {
         return logger;
-    }
-
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return aso;
     }
 
     /**

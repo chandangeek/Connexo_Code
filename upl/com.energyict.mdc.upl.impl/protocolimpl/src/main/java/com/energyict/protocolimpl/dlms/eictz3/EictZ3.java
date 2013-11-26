@@ -1069,6 +1069,11 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
         return this.numberOfConfigurationChanges;
     }
 
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;      //Not used
+    }
+
     public final void connect() throws IOException {
         logger.info("Connecting to EpIO / Z3, connecting MAC...");
 
@@ -1949,26 +1954,17 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
 
         final ImageTransfer imageTransfer = this.getCosemObjectFactory().getImageTransfer();
 
-        try {
-            logger.info("Converting received image to binary using a Base64 decoder...");
+        logger.info("Converting received image to binary using a Base64 decoder...");
 
-            final Base64EncoderDecoder decoder = new Base64EncoderDecoder();
-            final byte[] binaryImage = decoder.decode(new String(image));
+        final Base64EncoderDecoder decoder = new Base64EncoderDecoder();
+        final byte[] binaryImage = decoder.decode(new String(image));
 
-            logger.info("Commencing upgrade...");
+        logger.info("Commencing upgrade...");
 
-            imageTransfer.upgrade(binaryImage);
-            imageTransfer.imageActivation();
+        imageTransfer.upgrade(binaryImage);
+        imageTransfer.imageActivation();
 
-            logger.info("Upgrade has finished successfully...");
-        } catch (final InterruptedException e) {
-            logger.log(Level.SEVERE, "Interrupted while uploading firmware image [" + e.getMessage() + "]", e);
-
-            final IOException ioException = new IOException(e.getMessage());
-            ioException.initCause(e);
-
-            throw ioException;
-        }
+        logger.info("Upgrade has finished successfully...");
     }
 
     public final MessageResult queryMessage(final MessageEntry messageEntry) {

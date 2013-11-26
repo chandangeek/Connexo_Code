@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.comchannels;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,11 +75,11 @@ public class ComChannelInputStreamAdapter extends InputStream {
 
     @Override
     public void reset () throws IOException {
-        throw new IOException("Mark is not supported.");
+        throw new ProtocolException("Mark is not supported.");
     }
 
     @Override
     public long skip (long n) throws IOException {
-        throw new IOException("Skip is currently not supported.");
+        throw new ProtocolException("Skip is currently not supported.");
     }
 }

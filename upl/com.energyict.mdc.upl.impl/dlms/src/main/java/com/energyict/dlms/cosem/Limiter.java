@@ -3,6 +3,7 @@
  */
 package com.energyict.dlms.cosem;
 
+import com.energyict.cbo.NestedIOException;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.RegisterReadable;
 import com.energyict.dlms.axrdencoding.*;
@@ -103,7 +104,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.monitoredValue = new ValueDefinitionType(getLNResponseData(ATTRB_MONITORED_VALUE), 0, 0);
 			return this.monitoredValue;
 		} catch (IOException e) {
-			throw new IOException("Could not read the monitoredValue" + e.getMessage());
+			throw new NestedIOException(e, "Could not read the monitoredValue" + e.getMessage());
 		}
 	}
 
@@ -139,7 +140,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.thresholdActive = AXDRDecoder.decode(getLNResponseData(ATTRB_THRESHOLD_ACTIVE));
 			return this.thresholdActive;
 		} catch (IOException e){
-			throw new IOException("Could not retrieve the thresholdActive value." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the thresholdActive value." + e.getMessage());
 		}
 	}
 
@@ -154,7 +155,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			write(ATTRB_THRESHOLD_ACTIVE, thresholdActive.getBEREncodedByteArray());
 			this.thresholdActive = thresholdActive;
 		} catch (IOException e){
-			throw new IOException("Could not write the thresholdActive value." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the thresholdActive value." + e.getMessage());
 		}
 	}
 
@@ -168,7 +169,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.thresholdNormal = AXDRDecoder.decode(getLNResponseData(ATTRB_THRESHOLD_NORMAL));
 			return this.thresholdNormal;
 		} catch (IOException e){
-			throw new IOException("Could not retrieve the thresholdNormal value." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the thresholdNormal value." + e.getMessage());
 		}
 	}
 
@@ -182,7 +183,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			write(ATTRB_THRESHOLD_NORMAL, thresholdNormal.getBEREncodedByteArray());
 			this.thresholdNormal = thresholdNormal;
 		} catch (IOException e){
-			throw new IOException("Could not write the thresholdNormal value." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the thresholdNormal value." + e.getMessage());
 		}
 	}
 
@@ -196,7 +197,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.thresholdEmergency = AXDRDecoder.decode(getLNResponseData(ATTRB_THRESHOLD_EMERGENCY));
 			return this.thresholdEmergency;
 		} catch (IOException e){
-			throw new IOException("Could not retrieve the thresholdEmergency value." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the thresholdEmergency value." + e.getMessage());
 		}
 	}
 
@@ -210,7 +211,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			write(ATTRB_THRESHOLD_EMERGENCY, thresholdEmergency.getBEREncodedByteArray());
 			this.thresholdEmergency = thresholdEmergency;
 		} catch (IOException e){
-			throw new IOException("Could not write the thresholdEmergency value." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the thresholdEmergency value." + e.getMessage());
 		}
 	}
 
@@ -224,7 +225,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.minOverThresholdDuration = new Unsigned32(getLNResponseData(ATTRB_MIN_OVER_THRESHOLD_DURATION), 0);
 			return this.minOverThresholdDuration;
 		} catch (IOException e){
-			throw new IOException("Could not retrieve the minOverThresholdDuration value." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the minOverThresholdDuration value." + e.getMessage());
 		}
 	}
 
@@ -238,7 +239,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			write(ATTRB_MIN_OVER_THRESHOLD_DURATION, minOverThresholdDuration.getBEREncodedByteArray());
 			this.minOverThresholdDuration = minOverThresholdDuration;
 		} catch (IOException e){
-			throw new IOException("Could not write the minOverThresholdDuration value." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the minOverThresholdDuration value." + e.getMessage());
 		}
 	}
 
@@ -252,7 +253,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.minUnderThresholdDuration = new Unsigned32(getLNResponseData(ATTRB_MIN_UNDER_THRESHOLD_DURATION), 0);
 			return this.minUnderThresholdDuration;
 		} catch (IOException e){
-			throw new IOException("Could not retrieve the minUnderThresholdDuration value." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the minUnderThresholdDuration value." + e.getMessage());
 		}
 	}
 
@@ -266,7 +267,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			write(ATTRB_MIN_UNDER_THRESHOLD_DURATION, minUnderThresholdDuration.getBEREncodedByteArray());
 			this.minUnderThresholdDuration = minUnderThresholdDuration;
 		} catch (IOException e){
-			throw new IOException("Could not write the minUnderThresholdDuration value." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the minUnderThresholdDuration value." + e.getMessage());
 		}
 	}
 
@@ -280,7 +281,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.emergencyProfile = new EmergencyProfile(getLNResponseData(ATTRB_EMERGENCY_PROFILE), 0, 0);
 			return this.emergencyProfile;
 		} catch (IOException e){
-			throw new IOException("Could not retrieve the emergencyProfile." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the emergencyProfile." + e.getMessage());
 		}
 	}
 
@@ -294,7 +295,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			write(ATTRB_EMERGENCY_PROFILE, emergencyProfile.getBEREncodedByteArray());
 			this.emergencyProfile = emergencyProfile;
 		} catch (IOException e){
-			throw new IOException("Could not write the emergencyProfile structure." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the emergencyProfile structure." + e.getMessage());
 		}
 	}
 
@@ -307,7 +308,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 //			this.emergencyProfile.addDataType(new OctetString(berEncodedByteArray, 5, true));
 //			this.emergencyProfile.addDataType(new Unsigned32(berEncodedByteArray, 17));
 		} catch(IOException e){
-			throw new IOException("Could not write the emergencyProfile structure." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the emergencyProfile structure." + e.getMessage());
 		}
 	}
 
@@ -321,7 +322,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.emergencyProfileGroupIdList = new Array(getLNResponseData(ATTRB_EMERGENCY_PROFILE_GROUP_ID_LIST), 0, 0);
 			return this.emergencyProfileGroupIdList;
 		} catch (IOException e){
-			throw new IOException("Could not retrieve the emergencyProfileGroupIdList array." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the emergencyProfileGroupIdList array." + e.getMessage());
 		}
 	}
 
@@ -335,7 +336,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			write(ATTRB_EMERGENCY_PROFILE_GROUP_ID_LIST, emergencyProfileGroupIdList.getBEREncodedByteArray());
 			this.emergencyProfileGroupIdList = emergencyProfileGroupIdList;
 		} catch (IOException e){
-			throw new IOException("Could not write the emergencyProfileGroupIdList array." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the emergencyProfileGroupIdList array." + e.getMessage());
 		}
 	}
 
@@ -349,7 +350,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.emergencyProfileActive = new BooleanObject(getLNResponseData(ATTRB_EMERGENCY_PROFILE_ACTIVE), 0);
 			return this.emergencyProfileActive;
 		} catch (IOException e){
-			throw new IOException("Could not retrieve the emergencyProfileActive boolean." + e.getMessage());
+			throw new NestedIOException(e, "Could not retrieve the emergencyProfileActive boolean." + e.getMessage());
 		}
 	}
 
@@ -371,7 +372,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			write(ATTRB_EMERGENCY_PROFILE_ACTIVE, emergencyProfileActive.getBEREncodedByteArray());
 			this.emergencyProfileActive = emergencyProfileActive;
 		} catch (IOException e){
-			throw new IOException("Could not write the current emergencyProfileActive booleanObject." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the current emergencyProfileActive booleanObject." + e.getMessage());
 		}
 	}
 
@@ -385,7 +386,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			this.actions = new ActionType(getLNResponseData(ATTRB_ACTIONS), 0, 0);
 			return this.actions;
 		} catch (IOException e){
-			throw new IOException("Could not read the actions." + e.getMessage());
+			throw new NestedIOException(e, "Could not read the actions." + e.getMessage());
 		}
 	}
 
@@ -410,7 +411,7 @@ public class Limiter extends AbstractCosemObject implements RegisterReadable {
 			write(ATTRB_ACTIONS, actions.getBEREncodedByteArray());
 			this.actions = actions;
 		} catch(IOException e){
-			throw new IOException("Could not write the actions to the device." + e.getMessage());
+			throw new NestedIOException(e, "Could not write the actions to the device." + e.getMessage());
 		}
 	}
 

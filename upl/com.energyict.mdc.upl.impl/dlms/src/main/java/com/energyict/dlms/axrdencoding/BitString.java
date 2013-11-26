@@ -11,6 +11,7 @@
 package com.energyict.dlms.axrdencoding;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -31,7 +32,7 @@ public class BitString extends AbstractDataType implements Iterable<Boolean> {
     public BitString(byte[] berEncodedData, int offset) throws IOException {
 
         if (berEncodedData[offset] != AxdrType.BIT_STRING.getTag()) {
-            throw new IOException("BitString, invalid identifier " + berEncodedData[offset]);
+            throw new ProtocolException("BitString, invalid identifier " + berEncodedData[offset]);
         }
 
         offset++;

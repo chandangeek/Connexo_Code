@@ -9,6 +9,7 @@ package com.energyict.dlms;
 import com.energyict.cbo.Utils;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -361,13 +362,12 @@ public class DataContainer implements Serializable {
 	}
 
 
-	public void parseObjectList(byte[] responseData, Logger logger) throws IOException {
-		//DataContainer dataContainer= new DataContainer();
+	public void parseObjectList(byte[] responseData, Logger logger) {
 		doParseObjectList(responseData,logger);
 	}
 
 	private static final int MAX_LEVELS=20;
-	protected void doParseObjectList(byte[] responseData, Logger logger) throws IOException {
+	protected void doParseObjectList(byte[] responseData, Logger logger) {
 		int i=0,temp;
 		int iLevel=0;
 		int[] LevelNROfElements = new int[MAX_LEVELS];
@@ -387,7 +387,8 @@ public class DataContainer implements Serializable {
 					{
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
-							throw new IOException("Max printlevel exceeds!");
+                            IOException ioException = new IOException("Max printlevel exceeds!");
+                            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(ioException);
 						}
 						
 						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
@@ -401,8 +402,9 @@ public class DataContainer implements Serializable {
 					{
 						i++;
 						if (iLevel++ >= (MAX_LEVELS-1)) {
-							throw new IOException("Max printlevel exceeds!");
-						}
+                            IOException ioException = new IOException("Max printlevel exceeds!");
+                            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(ioException);
+                        }
 						LevelNROfElements[iLevel] = (int)DLMSUtils.getAXDRLength(responseData,i);
 						addStructure(LevelNROfElements[iLevel]);
 						i += DLMSUtils.getAXDRLengthOffset(responseData,i);
@@ -567,31 +569,6 @@ public class DataContainer implements Serializable {
 
 	} //  void parseObjectList(byte[] responseData)
 
-
-	public static void main(String[] args) {
-		try {
-			DataContainer dc = new DataContainer();
-
-			//		   byte b[] = new byte[]{(byte)0x1, (byte)0x4, (byte)0x2, (byte)0x2, (byte)0x0, (byte)0x12, (byte)0x80, (byte)0x11, (byte)0x2, (byte)0x2,
-			//				   (byte)0x9, (byte)0x0C, (byte)0x7, (byte)0xD9, (byte)0x2, (byte)0x12, (byte)0x3, (byte)0x0F, (byte)0x2B, (byte)0x2D, (byte)0x0,
-			//				   (byte)0xFF, (byte)0xC4, (byte)0x0, (byte)0x12, (byte)0x80, (byte)0x11, (byte)0x2, (byte)0x2, (byte)0x9, (byte)0x0C, (byte)0x7,
-			//				   (byte)0xD9, (byte)0x2, (byte)0x12, (byte)0x3, (byte)0x0F, (byte)0x30, (byte)0x23, (byte)0x0, (byte)0xFF, (byte)0xC4, (byte)0x0,
-			//				   (byte)0x12, (byte)0x0, (byte)0x80, (byte)0x2, (byte)0x2, (byte)0x9, (byte)0x0C, (byte)0x7, (byte)0xD9, (byte)0x2, (byte)0x12,
-			//				   (byte)0x3, (byte)0x0F, (byte)0x30, (byte)0x26, (byte)0x0, (byte)0xFF, (byte)0xC4, (byte)0x0, (byte)0x12, (byte)0x0, (byte)0x40};
-			//
-			//		   dc.parseObjectList(b, null);
-			//
-			//		   dc.printDataContainer();
-
-			byte by[] = DLMSUtils.hexStringToByteArray("010d0204090c07d80915070c0f0000ff88801120060000000006000000000204090c07d8091507152d0000ff88801120060000000006000000000204090c07d9020403152d0000ffc4001180060000000006000000000204090c07d902050408000000ffc4001180060000000006000000000204090c07d9020a0207000000ffc40011c00600000000060000000002040011e006000001d40600000000020400110006000001de06000000000204001100060000062a060000000002040011000600000770060000000202040011000600000770060000000a0204001100060000077006000003c9020400110006000007700600000565020400118006000007700600000565");
-			dc = new DataContainer();
-			dc.parseObjectList(by, null);
-			dc.printDataContainer();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 } // class DataContainer
 

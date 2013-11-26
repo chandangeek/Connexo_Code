@@ -2,7 +2,7 @@ package com.energyict.protocolimplv2.eict.gatewayz3;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.common.AbstractDlmsProtocol;
-import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
@@ -34,13 +34,18 @@ public class GateWayZ3 extends AbstractDlmsProtocol {
     }
 
     @Override
-    protected DlmsProtocolProperties getProtocolProperties() {
+    protected DlmsSessionProperties getDlmsSessionProperties() {
         return null;  // nothing to do
     }
 
     @Override
     protected void initAfterConnect() {
         // nothing to do
+    }
+
+    @Override
+    public int requestConfigurationChanges() {
+        return -1;        // nothing to do yet
     }
 
     @Override

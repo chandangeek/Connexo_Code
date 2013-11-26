@@ -1,5 +1,6 @@
 package com.energyict.protocolimpl.mbus.core.discover;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocolimpl.mbus.core.*;
 import com.energyict.protocolimpl.mbus.core.connection.MBusException;
 import com.energyict.protocolimpl.mbus.core.connection.iec870.IEC870ConnectionException;
@@ -87,7 +88,7 @@ public class SecondaryAddressDiscover {
 			else if (medium == 0xFE)
 				return null;
 			else
-				throw new IOException("Fatal error! medium = " + medium
+				throw new ProtocolException("Fatal error! medium = " + medium
 						+ " is impossible...");
 
 			if (DEBUG>= 2) System.out.println(Long.toHexString(medium));
@@ -117,7 +118,7 @@ public class SecondaryAddressDiscover {
 			else if (version == 0xFE)
 				return null;
 			else
-				throw new IOException("Fatal error! version = " + version
+				throw new ProtocolException("Fatal error! version = " + version
 						+ " is impossible...");
 
 			if (DEBUG>= 2) System.out.println(Long.toHexString(version));
@@ -156,7 +157,7 @@ public class SecondaryAddressDiscover {
 				} else
 					return null;
 			} else
-				throw new IOException("Fatal error! Value of manuf["
+				throw new ProtocolException("Fatal error! Value of manuf["
 						+ manufIndex + "] = " + manuf[manufIndex]
 						+ " is impossible...");
 
@@ -203,7 +204,7 @@ public class SecondaryAddressDiscover {
 			} else if (id[idIndex] == 0xF) {
 				id[idIndex] = 0;
 			} else
-				throw new IOException("Fatal error! Value of id[" + idIndex
+				throw new ProtocolException("Fatal error! Value of id[" + idIndex
 						+ "] = " + id[idIndex] + " is impossible...");
 
 			idValue = buildValue(id);

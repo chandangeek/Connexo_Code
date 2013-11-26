@@ -113,13 +113,9 @@ public class MeterTopologyTest {
         try {
             meterProtocol.getDlmsSession().init();
 
-            MockSecurityProvider dsp = new MockSecurityProvider();
-            SecurityContext sc = new SecurityContext(0, 3, 0, null, dsp, SecurityContext.CIPHERING_TYPE_GLOBAL);
-            ApplicationServiceObject aso = new ApplicationServiceObject(null, meterProtocol.getDlmsSession(), sc, 1);
             ConformanceBlock cb = new ConformanceBlock();
             cb.setBit(ConformanceBlock.BIT_MULTIPLE_REFS);
-            aso.getAssociationControlServiceElement().getXdlmsAse().setNegotiatedConformance((int) cb.getValue());
-            connection.setApplicationServiceObject(aso);
+            meterProtocol.getDlmsSession().getAso().getAssociationControlServiceElement().getXdlmsAse().setNegotiatedConformance((int) cb.getValue());
 
             meterProtocol.getDlmsSession().setDlmsConnection(connection);
             MeterTopology mt = new MeterTopology(meterProtocol);
@@ -150,12 +146,9 @@ public class MeterTopologyTest {
             meterProtocol.getDlmsSession().init();
 
             MockSecurityProvider dsp = new MockSecurityProvider();
-            SecurityContext sc = new SecurityContext(0, 3, 0, null, dsp, SecurityContext.CIPHERING_TYPE_GLOBAL);
-            ApplicationServiceObject aso = new ApplicationServiceObject(null, meterProtocol.getDlmsSession(), sc, 1);
             ConformanceBlock cb = new ConformanceBlock();
             cb.setBit(ConformanceBlock.BIT_MULTIPLE_REFS);
-            aso.getAssociationControlServiceElement().getXdlmsAse().setNegotiatedConformance((int) cb.getValue());
-            connection.setApplicationServiceObject(aso);
+            meterProtocol.getDlmsSession().getAso().getAssociationControlServiceElement().getXdlmsAse().setNegotiatedConformance((int) cb.getValue());
 
             meterProtocol.getDlmsSession().setDlmsConnection(connection);
             MeterTopology mt = new MeterTopology(meterProtocol);

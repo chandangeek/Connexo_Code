@@ -2,7 +2,6 @@ package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.*;
-import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.*;
@@ -78,16 +77,12 @@ public class HDLCConnection extends Connection implements DLMSConnection {
             0x7bc7, 0x6a4e, 0x58d5, 0x495c, 0x3de3, 0x2c6a, 0x1ef1, 0x0f78
     };
 
-    public int getType() {
-        return ConnectionMode.HDLC.getMode();
-    }
-
     public byte[] sendRawBytes(byte[] data) throws IOException {
         return new byte[0];
     }
 
     private boolean boolAbort = false;
-    private int iProtocolTimeout;
+    private long iProtocolTimeout;
     private int SNRMType = 0;
 
     // HDLC parameters
@@ -568,7 +563,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
     } // private decodeFrame(byte[] byteReceiveBuffer)
 
 
-    private byte waitForHDLCFrameStateMachine(int iTimeout, byte[] byteReceiveBuffer) throws DLMSConnectionException {
+    private byte waitForHDLCFrameStateMachine(long iTimeout, byte[] byteReceiveBuffer) throws DLMSConnectionException {
         long lMSTimeout;
         int inewKar;
         int[] CRC; //=new int[2];
@@ -833,11 +828,11 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         return sendRequest(encryptedRequest);
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(long timeout) {
         this.iProtocolTimeout = timeout;
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return iProtocolTimeout;
     }
 
@@ -1377,8 +1372,4 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         return iMaxRetries;
     }
 
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return null;
-    }
-
-} // public class HDLCConnection
+}

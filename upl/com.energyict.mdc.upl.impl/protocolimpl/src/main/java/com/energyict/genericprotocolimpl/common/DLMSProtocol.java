@@ -659,6 +659,11 @@ public abstract class DLMSProtocol extends GenericMessaging implements ProtocolL
         }
     }
 
+    @Override
+    public ApplicationServiceObject getAso() {
+        return aso;
+    }
+
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      *
@@ -738,10 +743,7 @@ public abstract class DLMSProtocol extends GenericMessaging implements ProtocolL
             if (getDLMSConnection() != null) {
                 getDLMSConnection().disconnectMAC();
             }
-        } catch (IOException e) {
-            //absorb -> trying to close communication
-            log(Level.FINEST, e.getMessage());
-        } catch (DLMSConnectionException e) {
+        } catch (IOException | DLMSConnectionException e) {
             //absorb -> trying to close communication
             log(Level.FINEST, e.getMessage());
         }

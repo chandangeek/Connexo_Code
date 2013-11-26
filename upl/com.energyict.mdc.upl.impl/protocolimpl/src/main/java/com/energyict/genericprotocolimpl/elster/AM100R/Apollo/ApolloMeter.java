@@ -1,7 +1,6 @@
 package com.energyict.genericprotocolimpl.elster.AM100R.Apollo;
 
 import com.energyict.cbo.BusinessException;
-import com.energyict.cpo.Environment;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.*;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
@@ -10,11 +9,11 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.genericprotocolimpl.common.DLMSProtocol;
 import com.energyict.genericprotocolimpl.common.StoreObject;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.eventhandling.EventLogs;
-import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages.*;
+import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages.ApolloActivityCalendarController;
+import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.messages.ApolloMessaging;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ApolloProfileBuilder;
 import com.energyict.genericprotocolimpl.elster.AM100R.Apollo.profile.ProfileConfiguration;
 import com.energyict.genericprotocolimpl.nta.abstractnta.NTASecurityProvider;
-import com.energyict.mdw.core.OldDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocol.messaging.MessageTag;

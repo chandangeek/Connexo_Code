@@ -1,12 +1,11 @@
 package com.energyict.dlms.mocks;
 
+import com.energyict.dlms.*;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.cosem.StoredValues;
+
 import java.util.TimeZone;
 import java.util.logging.Logger;
-
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.cosem.StoredValues;
 
 public class MockProtocolLink implements ProtocolLink{
 	
@@ -23,6 +22,11 @@ public class MockProtocolLink implements ProtocolLink{
 		this.meterConfig = meterConfig;
         this.reference = ProtocolLink.LN_REFERENCE;
 	}
+
+    @Override
+    public ApplicationServiceObject getAso() {
+        return null;
+    }
 
 	public DLMSConnection getDLMSConnection() {
 		return this.connection;

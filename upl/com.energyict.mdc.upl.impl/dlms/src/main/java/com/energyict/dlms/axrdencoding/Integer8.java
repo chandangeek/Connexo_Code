@@ -1,5 +1,7 @@
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -18,7 +20,7 @@ public class Integer8 extends AbstractDataType {
      */
     public Integer8(byte[] berEncodedData, int offset) throws IOException {
         if (berEncodedData[offset] != AxdrType.INTEGER.getTag()) {
-			throw new IOException("Integer8, invalid identifier "+berEncodedData[offset]);
+			throw new ProtocolException("Integer8, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
         value = berEncodedData[offset];

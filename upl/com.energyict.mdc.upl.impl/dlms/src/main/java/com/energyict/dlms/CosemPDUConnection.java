@@ -1,14 +1,9 @@
 package com.energyict.dlms;
 
-import com.energyict.dialer.connection.Connection;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dialer.connection.*;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +30,7 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
     private int maxRetries;
     private int clientAddress;
     private int serverAddress;
-    int timeout;
+    long timeout;
     private long forceDelay;
 
     private int iskraWrapper = 0;
@@ -63,10 +58,6 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
 
     } // public TCPIPConnection(...)
-
-    public int getType() {
-        return ConnectionMode.COSEM_APDU.getMode();
-    }
 
     public byte[] sendRawBytes(byte[] data) throws IOException {
         return new byte[0];
@@ -171,7 +162,7 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         return sendRequest(encryptedRequest);
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(long timeout) {
         this.timeout = timeout;
     }
 
@@ -294,7 +285,7 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         this.invokeIdAndPriorityHandler = iiapHandler;
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return timeout;
     }
 
@@ -306,12 +297,8 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         this.maxRetries = retries;
     }
 
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return null;
-    }
-
     public long getForceDelay() {
         return forceDelay;
     }
 
-} // public class TCPIPConnection
+}

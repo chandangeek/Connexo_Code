@@ -3,6 +3,7 @@ package com.energyict.mdc.channels.ip.socket;
 import com.energyict.cbo.InvalidValueException;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
+import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
@@ -51,6 +52,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
         }
         try {
             ServerComChannel comChannel = this.newTcpIpConnection(this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+            comChannel.addProperties(createTypeProperty(ComChannelType.SocketComChannel));
             comChannel.setComPort(comPort);
             sendPostDialCommand(comChannel);
             return comChannel;

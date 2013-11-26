@@ -6,6 +6,7 @@ import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.G3NetworkManagementAttributes;
 import com.energyict.dlms.cosem.methods.G3NetworkManagementMethods;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -198,13 +199,13 @@ public class G3NetworkManagement extends AbstractCosemObject {
      */
     private static final OctetString extractEUI64(final String macAddress) throws IOException {
         if (macAddress == null) {
-            throw new IOException("MAC address string should not be null !");
+            throw new ProtocolException("MAC address string should not be null !");
         }
 
         final byte[] eui64 = DLMSUtils.getBytesFromHexString(macAddress, null);
 
         if (eui64 == null || eui64.length != 8) {
-            throw new IOException("MAC address passed to this method [" + macAddress + "] is invalid : expected hex string containing exactly 8 bytes, this one contains [" + (eui64 != null ? eui64.length : "UNKNOWN") + "] bytes");
+            throw new ProtocolException("MAC address passed to this method [" + macAddress + "] is invalid : expected hex string containing exactly 8 bytes, this one contains [" + (eui64 != null ? eui64.length : "UNKNOWN") + "] bytes");
         }
 
         return OctetString.fromByteArray(eui64);

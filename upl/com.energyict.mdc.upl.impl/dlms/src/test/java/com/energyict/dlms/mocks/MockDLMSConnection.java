@@ -5,7 +5,6 @@ package com.energyict.dlms.mocks;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.*;
-import com.energyict.dlms.aso.ApplicationServiceObject;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,7 +12,6 @@ import java.util.Map;
 
 /**
  * @author gna
- *
  */
 public class MockDLMSConnection implements DLMSConnection {
 
@@ -26,6 +24,7 @@ public class MockDLMSConnection implements DLMSConnection {
      */
     public MockDLMSConnection() {
     }
+
     public void connectMAC() throws IOException, DLMSConnectionException {
 
     }
@@ -34,10 +33,10 @@ public class MockDLMSConnection implements DLMSConnection {
         return sendRequest(encryptedRequest);
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(long timeout) {
     }
 
-    public int getTimeout() {
+    public long getTimeout() {
         return 0;
     }
 
@@ -53,10 +52,6 @@ public class MockDLMSConnection implements DLMSConnection {
 
     public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
         return new NonIncrementalInvokeIdAndPriorityHandler();
-    }
-
-    public int getType() {
-        return 0;
     }
 
     public byte[] sendRawBytes(byte[] data) throws IOException {
@@ -111,7 +106,7 @@ public class MockDLMSConnection implements DLMSConnection {
     }
 
     public void setHHUSignOn(HHUSignOn hhuSignOn, String meterId, int hhuSignonBaudRateCode) {
-	}
+    }
 
     public void setInvokeIdAndPriorityHandler(InvokeIdAndPriorityHandler iiapHandler) {
     }
@@ -132,6 +127,7 @@ public class MockDLMSConnection implements DLMSConnection {
 
     /**
      * Set the responseBytes you want to get back from the sendRequest
+     *
      * @param response
      */
     public void setResponseByte(byte[] response) {
@@ -141,9 +137,4 @@ public class MockDLMSConnection implements DLMSConnection {
     public int getMaxRetries() {
         return 0;
     }
-
-    public ApplicationServiceObject getApplicationServiceObject() {
-        return null;
-    }
-
 }

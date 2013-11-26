@@ -35,6 +35,10 @@ public class EventsLog extends AbstractEvent {
         super(dc, deviationType);
     }
 
+    public EventsLog(DataContainer dc) {
+        super(dc);
+    }
+
     /**
      * {@inheritDoc}
      */

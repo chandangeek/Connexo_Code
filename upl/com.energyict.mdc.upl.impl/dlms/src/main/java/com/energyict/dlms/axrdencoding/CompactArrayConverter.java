@@ -1,6 +1,7 @@
 package com.energyict.dlms.axrdencoding;
 
 import com.energyict.dlms.DLMSUtils;
+import com.energyict.protocol.ProtocolException;
 
 import java.io.IOException;
 
@@ -33,7 +34,7 @@ public class CompactArrayConverter {
         int ptr = offset;
         byte typeTag = axdrBytes[ptr++];
         if (AxdrType.fromTag(typeTag) != AxdrType.COMPACT_ARRAY) {
-            throw new IOException("Expected CompactArray identifier [" + AxdrType.COMPACT_ARRAY.getTag() + "] but found [" + typeTag + "].");
+            throw new ProtocolException("Expected CompactArray identifier [" + AxdrType.COMPACT_ARRAY.getTag() + "] but found [" + typeTag + "].");
         }
         final TypeDescription typeDescription = new TypeDescription(axdrBytes, ptr);
         ptr += typeDescription.getLength();

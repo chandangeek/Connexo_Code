@@ -1,5 +1,6 @@
 package com.energyict.dlms.axrdencoding;
 
+import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
 import java.io.IOException;
@@ -12,7 +13,7 @@ public class Integer32 extends AbstractDataType {
     /** Creates a new instance of Enum */
     public Integer32(byte[] berEncodedData, int offset) throws IOException {
         if (berEncodedData[offset] != AxdrType.DOUBLE_LONG.getTag()) {
-			throw new IOException("Integer32, invalid identifier "+berEncodedData[offset]);
+			throw new ProtocolException("Integer32, invalid identifier "+berEncodedData[offset]);
 		}
         offset++;
         value = ProtocolUtils.getInt(berEncodedData,offset);
