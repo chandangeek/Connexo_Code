@@ -48,22 +48,23 @@ public enum SecurityMessage implements DeviceMessageSpec {
     CHANGE_HLS_SECRET,
     CHANGE_HLS_SECRET_HEX(PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.newHexPasswordAttributeName)),               //Hex string
     ACTIVATE_DEACTIVATE_TEMPORARY_ENCRYPTION_KEY(
-            PropertySpecFactory.stringPropertySpecWithValues(
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(
                     DeviceMessageConstants.keyTActivationStatusAttributeName,
-                    DeviceMessageConstants.enableKeyTEncryptionAttributeName,
-                    DeviceMessageConstants.disableKeyTEncryptionAttributeName),
+                    KeyTUsage.ENABLE.getDescription(),
+                    KeyTUsage.getAllDescriptions()
+            ),
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.SecurityTimeDurationAttributeName, new BigDecimal(0), new BigDecimal(255))),
     CHANGE_EXECUTION_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.executionKeyAttributeName)),
     CHANGE_TEMPORARY_KEY(PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.temporaryKeyAttributeName)),
     BREAK_OR_RESTORE_SEALS(
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.eventLogResetSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreFactorySettingsSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.statusChangeSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.downloadProgramSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName, Constants.UNCHANGED, Constants.ENABLE_SEAL, Constants.DISABLE_SEAL)),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.eventLogResetSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreFactorySettingsSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultSettingsSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.statusChangeSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.downloadProgramSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions()),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.restoreDefaultPasswordSealAttributeName, SealActions.UNCHANGED.getDescription(), SealActions.getAllDescriptions())),
     TEMPORARY_BREAK_SEALS(
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName, new BigDecimal(0)),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName, new BigDecimal(0)),
@@ -160,9 +161,82 @@ public enum SecurityMessage implements DeviceMessageSpec {
         return new DeviceMessageSpecPrimaryKey(this, name());
     }
 
-    private static class Constants {
-        public static final String UNCHANGED = "Unchanged";
-        public static final String ENABLE_SEAL = "Enable seal";
-        public static final String DISABLE_SEAL = "Disable seal";
+    public enum SealActions {
+
+        UNCHANGED(null, "Unchanged"),
+        ENABLE_SEAL(true, "Enable seal"),
+        DISABLE_SEAL(false, "Disable seal");
+
+        private final Boolean action;
+        private final String description;
+
+        SealActions(Boolean action, String description) {
+            this.action = action;
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static Boolean fromDescription(String description) {
+            for (SealActions actions : values()) {
+                if (actions.getDescription().equals(description)) {
+                    return actions.getAction();
+                }
+            }
+            return null;
+        }
+
+        public Boolean getAction() {
+            return action;
+        }
+
+        public static String[] getAllDescriptions() {
+            String[] result = new String[values().length];
+            for (int index = 0; index < values().length; index++) {
+                result[index] = values()[index].getDescription();
+            }
+            return result;
+        }
+    }
+
+    public enum KeyTUsage {
+
+        DISABLE(false, "Disabled"),
+        ENABLE(true, "Enabled");
+
+        private final boolean status;
+        private final String description;
+
+        KeyTUsage(boolean status, String description) {
+            this.status = status;
+            this.description = description;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public static Boolean fromDescription(String description) {
+            for (KeyTUsage usage : values()) {
+                if (usage.getDescription().equals(description)) {
+                    return usage.getStatus();
+                }
+            }
+            return null;
+        }
+
+        public boolean getStatus() {
+            return status;
+        }
+
+        public static String[] getAllDescriptions() {
+            String[] result = new String[values().length];
+            for (int index = 0; index < values().length; index++) {
+                result[index] = values()[index].getDescription();
+            }
+            return result;
+        }
     }
 }

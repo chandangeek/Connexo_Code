@@ -33,14 +33,14 @@ public class ChangeSealStatusMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        Boolean eventLogReset = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.eventLogResetSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean restoreFactorySettings = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreFactorySettingsSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean restoreDefaultSettings = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultSettingsSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean statusChange = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.statusChangeSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean remoteConversionParamConfig = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean remoteAnalysisParamConfig =ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean downloadProgram = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.downloadProgramSealAttributeName).getDeviceMessageAttributeValue());
-        Boolean restoreDefaultPasswords = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultPasswordSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean eventLogReset = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.eventLogResetSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean restoreFactorySettings = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreFactorySettingsSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean restoreDefaultSettings = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultSettingsSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean statusChange = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.statusChangeSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean remoteConversionParamConfig = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean remoteAnalysisParamConfig = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean downloadProgram = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.downloadProgramSealAttributeName).getDeviceMessageAttributeValue());
+        Boolean restoreDefaultPasswords = SecurityMessage.SealActions.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.restoreDefaultPasswordSealAttributeName).getDeviceMessageAttributeValue());
 
         changeAllSealStatuses(eventLogReset, restoreFactorySettings, restoreDefaultSettings, statusChange, remoteConversionParamConfig, remoteAnalysisParamConfig, downloadProgram, restoreDefaultPasswords);
         return null;
@@ -59,12 +59,14 @@ public class ChangeSealStatusMessage extends AbstractMTU155Message {
 
     private void changeSealStatus(Boolean activate, SealStatusBit statusBit) throws CTRException {
         try {
-            if (activate) {
-                getLogger().severe("Restoring seal " + statusBit);
-                getSealConfig().restoreSeal(statusBit);
-            } else {
-                getLogger().severe("Breaking seal " + statusBit);
-                getSealConfig().breakSealPermanent(statusBit);
+            if (activate != null) {
+                if (activate) {
+                    getLogger().severe("Restoring seal " + statusBit);
+                    getSealConfig().restoreSeal(statusBit);
+                } else {
+                    getLogger().severe("Breaking seal " + statusBit);
+                    getSealConfig().breakSealPermanent(statusBit);
+                }
             }
         } catch (CTRException e) {
             String msg = "Error changing seal [" + statusBit + "] to [" + activate + "]: " + e.getMessage();

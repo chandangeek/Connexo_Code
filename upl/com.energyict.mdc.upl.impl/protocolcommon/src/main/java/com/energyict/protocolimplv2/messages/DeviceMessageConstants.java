@@ -37,8 +37,6 @@ public class DeviceMessageConstants {
     public static final String signatureAttributeName = "SecurityMessage.signature";
     public static final String verificationKeyAttributeName = "SecurityMessage.verificationKey";
     public static final String keyTActivationStatusAttributeName = "SecurityMessage.keyT.usage";
-    public static final String enableKeyTEncryptionAttributeName = "SecurityMessage.keyT.enable";
-    public static final String disableKeyTEncryptionAttributeName = "SecurityMessage.keyT.disable";
     public static final String SecurityTimeDurationAttributeName = "SecurityMessage.TimeDuration";
     public static final String executionKeyAttributeName = "SecurityMessage.executionkey";
     public static final String temporaryKeyAttributeName = "SecurityMessage.temporarykey";

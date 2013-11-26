@@ -35,11 +35,13 @@ public class ActivateTemporaryKeyMessage extends AbstractMTU155Message {
 
     @Override
     protected CollectedMessage doExecuteMessage(OfflineDeviceMessage message) throws CTRException {
-        boolean keyTActivationStatus = ProtocolTools.getBooleanFromString(getDeviceMessageAttribute(message, DeviceMessageConstants.keyTActivationStatusAttributeName).getDeviceMessageAttributeValue());
+        Boolean keyTActivationStatus = SecurityMessage.KeyTUsage.fromDescription(getDeviceMessageAttribute(message, DeviceMessageConstants.keyTActivationStatusAttributeName).getDeviceMessageAttributeValue());
         String activationTimeDurationString = getDeviceMessageAttribute(message, DeviceMessageConstants.SecurityTimeDurationAttributeName).getDeviceMessageAttributeValue();
         int activationTimeDuration = validateActivationTimeDuration(activationTimeDurationString);
 
-        activatingOrDeactivatingKeyT(keyTActivationStatus, activationTimeDuration);
+        if (keyTActivationStatus != null) {
+            activatingOrDeactivatingKeyT(keyTActivationStatus, activationTimeDuration);
+        }
         return null;
     }
 
