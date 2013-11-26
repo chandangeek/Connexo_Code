@@ -1,13 +1,10 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.cpo.ShadowList;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.shadow.ports.ComPortShadow;
-import com.energyict.mdc.shadow.ports.InboundComPortShadow;
-import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
-import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
+import com.energyict.mdc.shadow.servers.ComServerShadow;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -16,10 +13,11 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 
 @XmlRootElement
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comServerType")
-@JsonSubTypes({ @JsonSubTypes.Type(value = OnlineComServerInfo.class, name = "OnlineComServer")
-     /*, @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "RemoteComServer")*/
-     /*, @JsonSubTypes.Type(value = OfflineComServerInfo.class, name = "OfflineComServer")*/ })
-public class ComServerInfo {
+@JsonSubTypes({
+     @JsonSubTypes.Type(value = OnlineComServerInfo.class, name = "Online"),
+     @JsonSubTypes.Type(value = OfflineComServerInfo.class, name = "Offline")
+     /*, @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "Remote")*/ })
+public abstract class ComServerInfo<S extends ComServerShadow> {
 
     public int id;
     public String name;
@@ -30,6 +28,16 @@ public class ComServerInfo {
     public TimeDurationInfo schedulingInterPollDelay;
     public List<InboundComPortInfo<? extends ComPortShadow>> inboundComPorts;
     public List<OutboundComPortInfo> outboundComPorts;
+    public Integer onlineComServerId;
+    public String queryAPIUsername;
+    public String queryAPIPassword;
+    public String queryAPIPostUri;
+    public Boolean usesDefaultQueryAPIPostUri;
+    public String eventRegistrationUri;
+    public Boolean usesDefaultEventRegistrationUri;
+    public Integer storeTaskQueueSize;
+    public Integer numberOfStoreTaskThreads;
+    public Integer storeTaskThreadPriority;
 
     public ComServerInfo() {
     }
@@ -63,7 +71,7 @@ public class ComServerInfo {
         }
     }
 
-    public OnlineComServerShadow writeToShadow(OnlineComServerShadow shadow) {
+    public S writeToShadow(S shadow) {
         shadow.setName(name);
         shadow.setActive(active);
         shadow.setServerLogLevel(serverLogLevel);
@@ -71,53 +79,9 @@ public class ComServerInfo {
         shadow.setChangesInterPollDelay(changesInterPollDelay.asTimeDuration());
         shadow.setSchedulingInterPollDelay(schedulingInterPollDelay.asTimeDuration());
 
-        updateInboundComPorts(shadow);
-        updateOutboundComPorts(shadow);
-
         return shadow;
     }
 
-    private void updateInboundComPorts(OnlineComServerShadow shadow) {
-        ShadowList<InboundComPortShadow> inboundComPortShadows = shadow.getInboundComPortShadows();
-        List<InboundComPortShadow> toBeDeletedInbound = new ArrayList<>(inboundComPortShadows);
-        for (InboundComPortInfo comPort : inboundComPorts) {
-            boolean configuredComPortFound = false;
-            for (InboundComPortShadow comPortShadow : inboundComPortShadows) {
-                if (comPort.id==comPortShadow.getId()) {
-                    configuredComPortFound=true;
-                    comPort.writeToShadow(comPortShadow);
-                    toBeDeletedInbound.remove(comPortShadow);
-                }
-            }
-            if (!configuredComPortFound) {
-                ComPortShadow comPortShadow = comPort.asShadow();
-                inboundComPortShadows.add((InboundComPortShadow) comPortShadow);
-            }
-        }
-        for (InboundComPortShadow inboundComPortShadow : toBeDeletedInbound) {
-            inboundComPortShadows.remove(inboundComPortShadow);
-        }
-    }
+    abstract public S asShadow();
 
-    private void updateOutboundComPorts(OnlineComServerShadow shadow) {
-        ShadowList<OutboundComPortShadow> outboundComPortShadows = shadow.getOutboundComPortShadows();
-        List<OutboundComPortShadow> toBeDeletedOutbound = new ArrayList<>(outboundComPortShadows);
-        for (OutboundComPortInfo comPort : outboundComPorts) {
-            boolean configuredComPortFound = false;
-            for (OutboundComPortShadow comPortShadow : outboundComPortShadows) {
-                if (comPort.id==comPortShadow.getId()) {
-                    configuredComPortFound=true;
-                    comPort.writeToShadow(comPortShadow);
-                    toBeDeletedOutbound.remove(comPortShadow);
-                }
-            }
-            if (!configuredComPortFound) {
-                ComPortShadow comPortShadow = comPort.asShadow();
-                outboundComPortShadows.add((OutboundComPortShadow) comPortShadow);
-            }
-        }
-        for (OutboundComPortShadow outboundComPortShadow : toBeDeletedOutbound) {
-            outboundComPortShadows.remove(outboundComPortShadow);
-        }
-    }
 }
