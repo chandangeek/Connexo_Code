@@ -4,7 +4,6 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
-import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -51,7 +50,7 @@ public class ComServerResource {
     @Path("/{id}/comports")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortsInfo getComPortsForComServerServer(@PathParam("id") int id) {
-        ComServer<ComServerShadow> comServer = comServerService.find(id);
+        ComServer<ComServerShadow> comServer = (ComServer<ComServerShadow>) comServerService.find(id);
         ComPortsInfo wrapper = new ComPortsInfo();
         for (ComPort comPort : comServer.getComPorts()) {
             wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
@@ -77,7 +76,7 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo createComServer(OnlineComServerInfo comServerInfo) {
             try {
-                return ComServerInfoFactory.asInfo(comServerService.createOnline(comServerInfo.writeToShadow(new OnlineComServerShadow())));
+                return ComServerInfoFactory.asInfo(comServerService.create(comServerInfo.asShadow()));
             } catch (Exception e) {
                 throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
             }
@@ -87,11 +86,11 @@ public class ComServerResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo comServerInfo) {
+    public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServerShadow> comServerInfo) {
             try {
-                ComServer<ComServerShadow> comServer = comServerService.find(id);
+                ComServer<ComServerShadow> comServer = (ComServer<ComServerShadow>) comServerService.find(id);
 
-                ComServerShadow comServerShadow = comServerInfo.asShadow();
+                ComServerShadow comServerShadow = comServerInfo.writeToShadow(comServer.getShadow());
                 comServer.update(comServerShadow);
                 return ComServerInfoFactory.asInfo(comServer);
             } catch (Exception e) {
