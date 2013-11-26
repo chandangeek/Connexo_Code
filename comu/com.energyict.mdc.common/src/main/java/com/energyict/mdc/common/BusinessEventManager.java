@@ -15,23 +15,27 @@ public class BusinessEventManager implements TransactionResource {
     }
 
     public void signalEvent (BusinessEvent event) throws BusinessException, SQLException {
-        doInitialization();
+        this.doInitialization();
         this.listener.handleEvent(event);
     }
 
     public void addListener (final BusinessEventListener listener) {
-        if (this.activators != null) {
-            this.doInitialization();
-        }
+        this.doInitialization();
         this.listener = new CompositeBusinessEventListener(this.listener, listener);
     }
 
     private void doInitialization () {
-        List<BusinessEventListenerActivator> activators1 = this.activators;
-        this.activators = null;
-        for (BusinessEventListenerActivator activator : activators1) {
-            activator.activateAt(this);
+        if (this.needsInitialization()) {
+            List<BusinessEventListenerActivator> activators1 = this.activators;
+            this.activators = null;
+            for (BusinessEventListenerActivator activator : activators1) {
+                activator.activateAt(this);
+            }
         }
+    }
+
+    private boolean needsInitialization () {
+        return this.activators != null;
     }
 
     public void begin () throws SQLException {
