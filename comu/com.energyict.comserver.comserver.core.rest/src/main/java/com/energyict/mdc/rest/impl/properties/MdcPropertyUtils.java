@@ -1,23 +1,38 @@
 package com.energyict.mdc.rest.impl.properties;
 
+import com.energyict.cpo.BoundedBigDecimalPropertySpec;
+import com.energyict.cpo.FixedLengthHexStringPropertySpec;
+import com.energyict.cpo.FixedLengthStringPropertySpec;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecPossibleValues;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dynamicattributes.AttributeValueSelectionMode;
+import com.energyict.mdc.rest.impl.properties.validators.NumberValidationRules;
+import com.energyict.mdc.rest.impl.properties.validators.StringValidationRules;
 
 import javax.ws.rs.core.UriInfo;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Serves as a utility class to create proper PropertyInfo objects for a set of Properties
+ * and their corresponding PropertySpecs
+ */
 public class MdcPropertyUtils {
 
-    public static void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, List<PropertySpec> optionalProperties, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
-        for (PropertySpec propertySpec : optionalProperties) {
-            PropertyValueInfo propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
-            SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
-            PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo(simplePropertyType, getPropertyValidationRule(), getPredefinedPropertyValueInfo(propertySpec), getReferenceUri(uriInfo, propertySpec, simplePropertyType));
-            propertyInfoList.add(new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, false));
+    public static void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, List<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList) {
+        for (PropertySpec propertySpec : propertySpecs) {
+            PropertyInfo propertyInfo = createPropertyInfo(uriInfo, properties, propertySpec);
+            propertyInfoList.add(propertyInfo);
         }
+    }
+
+    private static PropertyInfo createPropertyInfo(UriInfo uriInfo, TypedProperties properties, PropertySpec propertySpec) {
+        PropertyValueInfo propertyValueInfo = getThePropertyValueInfo(properties, propertySpec);
+        SimplePropertyType simplePropertyType = getSimplePropertyType(propertySpec);
+        PropertyTypeInfo propertyTypeInfo = getPropertyTypeInfo(uriInfo, propertySpec, simplePropertyType);
+        return new PropertyInfo(propertySpec.getName(), propertyValueInfo, propertyTypeInfo, false);
     }
 
     private static PropertyValueInfo<Object> getThePropertyValueInfo(TypedProperties properties, PropertySpec propertySpec) {
@@ -30,24 +45,66 @@ public class MdcPropertyUtils {
         return new PropertyValueInfo<>(propertyValue, inheritedProperty, defaultValue);
     }
 
+    private static SimplePropertyType getSimplePropertyType(PropertySpec propertySpec) {
+        SimplePropertyType simplePropertyType = SimplePropertyType.getTypeFrom(propertySpec.getDomain().getValueType());
+        if(simplePropertyType.equals(SimplePropertyType.UNKNOWN)){
+            return MdcPropertyReferenceInfoFactory.getReferencedSimplePropertyType(propertySpec, simplePropertyType);
+        } else {
+            return simplePropertyType;
+        }
+    }
+
+    private static PropertyTypeInfo getPropertyTypeInfo(UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
+        return new PropertyTypeInfo(simplePropertyType, getPropertyValidationRule(propertySpec), getPredefinedPropertyValueInfo(propertySpec), getReferenceUri(uriInfo, propertySpec, simplePropertyType));
+    }
+
     private static URI getReferenceUri(final UriInfo uriInfo, PropertySpec propertySpec, SimplePropertyType simplePropertyType) {
-        if(simplePropertyType == SimplePropertyType.REFERENCE){
-            return MdcPropertyValueInfoFactory.getReferenceUriFor(uriInfo, propertySpec.getDomain().getValueType());
+        if(simplePropertyType.isReference()){
+            return MdcPropertyReferenceInfoFactory.getReferenceUriFor(uriInfo, propertySpec.getDomain().getValueType());
         } else {
             return null;
         }
     }
 
-    private static PropertyValidationRule getPropertyValidationRule() {
+    private static PropertyValidationRule getPropertyValidationRule(PropertySpec propertySpec) {
+        if(BoundedBigDecimalPropertySpec.class.isAssignableFrom(propertySpec.getClass())){
+            BoundedBigDecimalPropertySpec boundedBigDecimalPropertySpec = (BoundedBigDecimalPropertySpec) propertySpec;
+            return createBoundedBigDecimalValidationRules(boundedBigDecimalPropertySpec);
+        } else if (FixedLengthStringPropertySpec.class.isAssignableFrom(propertySpec.getClass())){
+            FixedLengthStringPropertySpec fixedLengthStringPropertySpec = (FixedLengthStringPropertySpec) propertySpec;
+            return createFixedLengthStringValidationRules(fixedLengthStringPropertySpec);
+        } else if(FixedLengthHexStringPropertySpec.class.isAssignableFrom(propertySpec.getClass())){
+            FixedLengthHexStringPropertySpec fixedLengthHexStringPropertySpec = (FixedLengthHexStringPropertySpec) propertySpec;
+            return createFixedLengthHexStringValidationRules(fixedLengthHexStringPropertySpec);
+        }
         return null;
     }
 
-    private static SimplePropertyType getSimplePropertyType(PropertySpec propertySpec) {
-        return SimplePropertyType.getTypeFrom(propertySpec.getDomain().getValueType());
+    private static PropertyValidationRule createFixedLengthHexStringValidationRules(FixedLengthHexStringPropertySpec fixedLengthHexStringPropertySpec) {
+        StringValidationRules stringValidationRules = new StringValidationRules();
+        stringValidationRules.setEnforceMaxLength(Boolean.TRUE);
+        stringValidationRules.setMaxLength(fixedLengthHexStringPropertySpec.getLength() * 2); // the given length is the number of bytes
+        stringValidationRules.setRegex(StringValidationRules.HEX_CHARACTERS_REGEX);
+        return stringValidationRules;
+    }
+
+    private static PropertyValidationRule createFixedLengthStringValidationRules(FixedLengthStringPropertySpec fixedLengthStringPropertySpec) {
+        StringValidationRules stringValidationRules = new StringValidationRules();
+        stringValidationRules.setEnforceMaxLength(Boolean.TRUE);
+        stringValidationRules.setMaxLength(fixedLengthStringPropertySpec.getLength());
+        return stringValidationRules;
+    }
+
+    private static PropertyValidationRule createBoundedBigDecimalValidationRules(BoundedBigDecimalPropertySpec boundedBigDecimalPropertySpec) {
+        NumberValidationRules<BigDecimal> bigDecimalNumberValidationRules = new NumberValidationRules<>();
+        bigDecimalNumberValidationRules.setAllowDecimals(true);
+        bigDecimalNumberValidationRules.setMaximumValue(boundedBigDecimalPropertySpec.getUpperLimit());
+        bigDecimalNumberValidationRules.setMinimumValue(boundedBigDecimalPropertySpec.getLowerLimit());
+        return bigDecimalNumberValidationRules;
     }
 
     private static Object getPropertyValue(TypedProperties properties, PropertySpec propertySpec) {
-        return MdcPropertyValueInfoFactory.asInfo(properties.getProperty(propertySpec.getName()));
+        return MdcPropertyReferenceInfoFactory.asInfoObject(properties.getProperty(propertySpec.getName()));
     }
 
     private static PredefinedPropertyValuesInfo getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
@@ -57,12 +114,12 @@ public class MdcPropertyUtils {
         } else {
             Object[] possibleObjects = new Object[possibleValues.getAllValues().size()];
             for (int i = 0; i < possibleValues.getAllValues().size(); i++) {
-                possibleObjects[i] = MdcPropertyValueInfoFactory.asInfo(possibleValues.getAllValues().get(i));
+                possibleObjects[i] = MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getAllValues().get(i));
             }
             PropertySelectionMode selectionMode = mapPropertySelectionMode(propertySpec.getSelectionMode());
             if(selectionMode.equals(PropertySelectionMode.UNSPECIFIED) && possibleObjects.length > 1){
                 /*
-                We set the selectionMode to ComboBox if we more than 1 possible value (otherwise it can be it is the default value)
+                We set the selectionMode to ComboBox if we have more than 1 possible value (otherwise it can be it is the default value)
                 and the current selectionMode is not specified (otherwise the frontEnd will not be able to show them)
                  */
                 selectionMode = PropertySelectionMode.COMBOBOX;
@@ -79,7 +136,7 @@ public class MdcPropertyUtils {
         if (possibleValues == null) {
             return null;
         }
-        return MdcPropertyValueInfoFactory.asInfo(possibleValues.getDefault());
+        return MdcPropertyReferenceInfoFactory.asInfoObject(possibleValues.getDefault());
     }
 
     private static  Object getInheritedProperty(TypedProperties properties, PropertySpec propertySpec) {

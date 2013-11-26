@@ -34,6 +34,9 @@ public class ComServerInfo {
     public ComServerInfo() {
     }
 
+    /**
+     * Creates info object containing only ComServer properties, not comports
+     */
     public ComServerInfo(ComServer comServer) {
         this.id=comServer.getId();
         this.name = comServer.getName();
@@ -42,9 +45,16 @@ public class ComServerInfo {
         this.communicationLogLevel = comServer.getCommunicationLogLevel();
         this.changesInterPollDelay = new TimeDurationInfo(comServer.getChangesInterPollDelay());
         this.schedulingInterPollDelay = new TimeDurationInfo(comServer.getSchedulingInterPollDelay());
+    }
+
+    /**
+     * Creates info object containing both ComServer properties and comports
+     */
+    public ComServerInfo(ComServer comServer, List<ComPort> comPorts) {
+        this(comServer);
         inboundComPorts = new ArrayList<>();
         outboundComPorts = new ArrayList<>();
-        for (final ComPort comPort : comServer.getComPorts()) {
+        for (final ComPort comPort : comPorts) {
             if (InboundComPort.class.isAssignableFrom(comPort.getClass())) {
                 inboundComPorts.add(ComPortInfoFactory.asInboundInfo(comPort));
             } else {

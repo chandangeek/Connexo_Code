@@ -1,7 +1,9 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
+import java.util.List;
 
 public class OnlineComServerInfo extends ComServerInfo {
     public String queryAPIPostUri;
@@ -15,6 +17,23 @@ public class OnlineComServerInfo extends ComServerInfo {
     public OnlineComServerInfo() {
     }
 
+    /**
+     * Create Info based on comserver properties and comports
+     */
+    public OnlineComServerInfo(final OnlineComServer onlineComServer, List<ComPort> comPorts) {
+        super(onlineComServer, comPorts);
+        this.queryAPIPostUri = onlineComServer.getQueryApiPostUri();
+        this.usesDefaultQueryAPIPostUri = onlineComServer.usesDefaultQueryApiPostUri();
+        this.eventRegistrationUri = onlineComServer.getEventRegistrationUri();
+        this.usesDefaultEventRegistrationUri = onlineComServer.usesDefaultEventRegistrationUri();
+        this.storeTaskQueueSize = onlineComServer.getStoreTaskQueueSize();
+        this.numberOfStoreTaskThreads = onlineComServer.getNumberOfStoreTaskThreads();
+        this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
+    }
+
+    /**
+     * Create Info based solely on comserver properties without comports
+     */
     public OnlineComServerInfo(final OnlineComServer onlineComServer) {
         super(onlineComServer);
         this.queryAPIPostUri = onlineComServer.getQueryApiPostUri();

@@ -1,54 +1,65 @@
 package com.energyict.mdc.rest.impl.properties.validators;
 
 import com.energyict.mdc.rest.impl.properties.PropertyValidationRule;
-import com.google.common.base.Optional;
 
 /**
  * Defines rules/options to validate a String
- *
+ * <p/>
  * Copyrights EnergyICT
  * Date: 19/11/13
  * Time: 13:35
  */
 public class StringValidationRules implements PropertyValidationRule {
 
-    public static final String HEX_CHARACTERS = "[A-Fa-f0-9]";
-    public static final String LOWER_ALPHABET = "[a-z]";
-    public static final String UPPER_ALPHABET = "[A-Z]";
-    public static final String ALPHABET = "[A-Za-z]";
-    public static final String ALPHANUMERIC = "[A-Za-z0-9]";
+    public static final String HEX_CHARACTERS_REGEX = "[A-Fa-f0-9]";
+    public static final String LOWER_ALPHABET_REGEX = "[a-z]";
+    public static final String UPPER_ALPHABET_REGEX = "[A-Z]";
+    public static final String ALPHABET_REGEX = "[A-Za-z]";
+    public static final String ALPHANUMERIC_REGEX = "[A-Za-z0-9]";
 
-    final Optional<Integer> minLength;
-    final Optional<Integer> maxLength;
-    final Optional<Integer> enforceMaxLength;
-    final Optional<Boolean> evenLength;
-    final Optional<String> regex;
+    public Integer minLength;
+    public Integer maxLength;
+    public Boolean enforceMaxLength;
+    public Boolean evenLength;
+    public String regex;
 
-    public StringValidationRules(Optional<Integer> minLength, Optional<Integer> maxLength, Optional<Integer> enforceMaxLength, Optional<Boolean> evenLength, Optional<String> regex) {
-        this.minLength = minLength;
-        this.maxLength = maxLength;
-        this.enforceMaxLength = enforceMaxLength;
-        this.evenLength = evenLength;
-        this.regex = regex;
-    }
-
-    public Optional<Integer> getMinLength() {
+    public Integer getMinLength() {
         return minLength;
     }
 
-    public Optional<Integer> getMaxLength() {
+    public void setMinLength(Integer minLength) {
+        this.minLength = minLength;
+    }
+
+    public Integer getMaxLength() {
         return maxLength;
     }
 
-    public Optional<Integer> getEnforceMaxLength() {
+    public void setMaxLength(Integer maxLength) {
+        this.maxLength = maxLength;
+    }
+
+    public Boolean getEnforceMaxLength() {
         return enforceMaxLength;
     }
 
-    public Optional<Boolean> getEvenLength() {
+    public void setEnforceMaxLength(Boolean enforceMaxLength) {
+        this.enforceMaxLength = enforceMaxLength;
+    }
+
+    public Boolean getEvenLength() {
         return evenLength;
     }
 
-    public Optional<String> getRegex() {
+    public void setEvenLength(Boolean evenLength) {
+        this.evenLength = evenLength;
+    }
+
+    public String getRegex() {
         return regex;
+    }
+
+    public void setRegex(String regex) {
+        this.regex = regex;
     }
 }

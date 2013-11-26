@@ -30,6 +30,11 @@ public class PredefinedPropertyValuesInfo<T> {
         return possibleValues;
     }
 
+    /**
+     * The selectionMode should help the FrontEnd to determine how to display these provided values
+     *
+     * @return the Mode in which the provided values should be displayed
+     */
     public PropertySelectionMode getSelectionMode() {
         return selectionMode;
     }

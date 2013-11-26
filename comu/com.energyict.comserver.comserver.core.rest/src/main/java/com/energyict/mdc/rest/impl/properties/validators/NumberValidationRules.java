@@ -1,54 +1,71 @@
 package com.energyict.mdc.rest.impl.properties.validators;
 
 import com.energyict.mdc.rest.impl.properties.PropertyValidationRule;
-import com.google.common.base.Optional;
+
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Defines rules/options to validate a Number
- *
+ * Defines rules/options to validate a <i>Number</i>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 19/11/13
  * Time: 13:28
  */
+@XmlRootElement
 public class NumberValidationRules<T> implements PropertyValidationRule {
 
-    final Optional<Boolean> allowDecimals;
-    final Optional<T> minimumValue;
-    final Optional<T> maximumValue;
-    final Optional<Integer> minimumDigits;
-    final Optional<Integer> maximumDigits;
-    final Optional<Boolean> even;
+    public Boolean allowDecimals;
+    public T minimumValue;
+    public T maximumValue;
+    public Integer minimumDigits;
+    public Integer maximumDigits;
+    public Boolean even;
 
-    public NumberValidationRules(Optional<Boolean> allowDecimals, Optional<T> minimumValue, Optional<T> maximumValue, Optional<Integer> minimumDigits, Optional<Integer> maximumDigits, Optional<Boolean> even) {
-        this.allowDecimals = allowDecimals;
-        this.minimumValue = minimumValue;
-        this.maximumValue = maximumValue;
-        this.minimumDigits = minimumDigits;
-        this.maximumDigits = maximumDigits;
-        this.even = even;
-    }
-
-    public Optional<Boolean> getAllowDecimals() {
+     public Boolean getAllowDecimals() {
         return allowDecimals;
     }
 
-    public Optional<T> getMinimumValue() {
+    public void setAllowDecimals(Boolean allowDecimals) {
+        this.allowDecimals = allowDecimals;
+    }
+
+    public T getMinimumValue() {
         return minimumValue;
     }
 
-    public Optional<T> getMaximumValue() {
+    public void setMinimumValue(T minimumValue) {
+        this.minimumValue = minimumValue;
+    }
+
+    public T getMaximumValue() {
         return maximumValue;
     }
 
-    public Optional<Integer> getMinimumDigits() {
+    public void setMaximumValue(T maximumValue) {
+        this.maximumValue = maximumValue;
+    }
+
+    public Integer getMinimumDigits() {
         return minimumDigits;
     }
 
-    public Optional<Integer> getMaximumDigits() {
+    public void setMinimumDigits(Integer minimumDigits) {
+        this.minimumDigits = minimumDigits;
+    }
+
+    public Integer getMaximumDigits() {
         return maximumDigits;
     }
 
-    public Optional<Boolean> getEven() {
+    public void setMaximumDigits(Integer maximumDigits) {
+        this.maximumDigits = maximumDigits;
+    }
+
+    public Boolean getEven() {
         return even;
+    }
+
+    public void setEven(Boolean even) {
+        this.even = even;
     }
 }

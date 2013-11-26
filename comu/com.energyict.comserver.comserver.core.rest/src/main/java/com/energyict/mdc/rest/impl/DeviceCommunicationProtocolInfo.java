@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.rest.impl.properties.MdcPropertyUtils;
+import com.energyict.mdc.rest.impl.properties.MdcResourceProperty;
 import com.energyict.mdc.rest.impl.properties.PropertyInfo;
 import com.energyict.mdc.rest.impl.properties.PropertyValueInfo;
 import com.energyict.mdw.core.LicensedProtocol;
@@ -14,6 +15,7 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Copyrights EnergyICT
@@ -42,10 +44,10 @@ public class DeviceCommunicationProtocolInfo {
             e.printStackTrace(System.err);
             this.deviceProtocolVersion = "*** PROTOCOL NOT SUPPORTED IN THE CURRENT OSGI BUNDLE YET ***";
         }
-        if(licensedProtocol != null){
+        if (licensedProtocol != null) {
             this.licensedProtocol = new LicensedProtocolInfo(licensedProtocol);
         }
-        if(embedProperties){
+        if (embedProperties) {
             List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass);
             this.propertyInfos = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
         }
@@ -72,11 +74,19 @@ public class DeviceCommunicationProtocolInfo {
 
     private TypedProperties getTypedProperties() {
         TypedProperties typedProperties = TypedProperties.empty();
-        if(this.propertyInfos != null){
+        if (this.propertyInfos != null) {
             for (PropertyInfo propertyInfo : this.propertyInfos) {
                 PropertyValueInfo propertyValueInfo = propertyInfo.getPropertyValueInfo();
-                if(propertyValueInfo != null && propertyValueInfo.getValue() != null){
-                    typedProperties.setProperty(propertyInfo.getKey(), propertyValueInfo.getValue());
+                if (propertyValueInfo != null && propertyValueInfo.getValue() != null) {
+                    Object value = propertyValueInfo.getValue();
+                    if (Map.class.isAssignableFrom(value.getClass())) {
+                        Object infoObject = propertyInfo.getPropertyTypeInfo().getSimplePropertyType().getInfoObject((Map<String, Object>) value);
+                        if (MdcResourceProperty.class.isAssignableFrom(infoObject.getClass())) {
+                            typedProperties.setProperty(propertyInfo.getKey(), ((MdcResourceProperty) infoObject).fromInfoObject());
+                        }
+                    } else {
+                        typedProperties.setProperty(propertyInfo.getKey(), value);
+                    }
                 }
             }
         }
