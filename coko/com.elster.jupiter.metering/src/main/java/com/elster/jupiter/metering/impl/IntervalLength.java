@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.ids.IntervalLengthUnit;
 import com.elster.jupiter.metering.ReadingType;
@@ -14,10 +13,7 @@ import static com.elster.jupiter.ids.IntervalLengthUnit.*;
 
 final class IntervalLength {
 	private static final int[] VALIDMINUTEVALUES = { 1 , 2 , 3, 5 , 10 , 15 , 20, 30 , 60 };
-	private static final int[] MINUTEVALUESCIMCODES = { 3 , 10 , 14 , 6 , 1, 2 , 31, 5 , 7 };
-	private static final int DAYCIMCODE = 11;
-	private static final int MONTHCIMCODE = 13;
-    private static final long NOMINAL_DAYS_PER_MONTH = 30L;
+	private static final long NOMINAL_DAYS_PER_MONTH = 30L;
 
     private final int length;
 	private final IntervalLengthUnit unit;
@@ -66,19 +62,7 @@ final class IntervalLength {
 		return unit;
 	}
 	
-	int getCimCode() {
-		switch(unit) {
-			case MONTH:
-				return MONTHCIMCODE;
-			case DAY:
-				return DAYCIMCODE;
-			case MINUTE:
-				return MINUTEVALUESCIMCODES[Arrays.binarySearch(VALIDMINUTEVALUES, length)];
-		}
-		throw new IllegalStateException();
-	}
-	
-	long getLengthInSeconds() {
+	private long getLengthInSeconds() {
 		switch(unit) {
 			case MONTH:
 				return NOMINAL_DAYS_PER_MONTH * DateTimeConstants.SECONDS_PER_DAY * length;
