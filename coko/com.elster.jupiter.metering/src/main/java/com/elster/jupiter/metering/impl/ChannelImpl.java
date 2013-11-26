@@ -105,16 +105,13 @@ public final class ChannelImpl implements Channel {
 		persistReadingTypes();
 	}
 	
-	IntervalLength getIntervalLength() {		
+	Optional<IntervalLength> getIntervalLength() {		
 		Iterator<ReadingType> it = getReadingTypes().iterator();
-		IntervalLength result = ((ReadingTypeImpl) it.next()).getIntervalLength();
+		Optional<IntervalLength> result = ((ReadingTypeImpl) it.next()).getIntervalLength();
 		while (it.hasNext()) {
 			ReadingTypeImpl readingType = (ReadingTypeImpl) it.next();
-			IntervalLength intervalLength = readingType.getIntervalLength();
-			boolean failed = 
-					(result == null && intervalLength != null) ||
-					(result != null && !result.equals(intervalLength));
-			if (failed) {
+			Optional<IntervalLength> intervalLength = readingType.getIntervalLength();
+			if (!intervalLength.equals(result)) {
 				throw new IllegalArgumentException();
 			}
 		}
@@ -122,17 +119,19 @@ public final class ChannelImpl implements Channel {
 	}
 	
 	TimeSeries createTimeSeries() {
-		IntervalLength intervalLength = getIntervalLength();
-        Vault vault = getVault(intervalLength);
-        RecordSpec recordSpec = getRecordSpec(intervalLength);
+		Optional<IntervalLength> intervalLength = getIntervalLength();
+		boolean regular = intervalLength.isPresent();
+        Vault vault = getVault(regular);
+        RecordSpec recordSpec = getRecordSpec(regular);
         TimeZone timeZone = Bus.getClock().getTimeZone();
-		return intervalLength == null ? 
-				vault.createIrregularTimeSeries(recordSpec, timeZone) :
-				vault.createRegularTimeSeries(recordSpec, Bus.getClock().getTimeZone(), intervalLength.getLength() , intervalLength.getUnitCode(),0);
+		return regular ? 
+			vault.createRegularTimeSeries(recordSpec, Bus.getClock().getTimeZone(), intervalLength.get().getLength() , intervalLength.get().getUnitCode(),0) :
+			vault.createIrregularTimeSeries(recordSpec, timeZone);
+	
 	}
 
-    private RecordSpec getRecordSpec(IntervalLength intervalLength) {
-        int id = intervalLength == null ? IRREGULARRECORDSPECID : REGULARRECORDSPECID;
+    private RecordSpec getRecordSpec(boolean regular) {
+        int id = regular ? IRREGULARRECORDSPECID : REGULARRECORDSPECID;
         Optional<RecordSpec> result = Bus.getIdsService().getRecordSpec(COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
@@ -140,8 +139,8 @@ public final class ChannelImpl implements Channel {
         throw new DoesNotExistException(String.valueOf(id));
     }
 
-    private Vault getVault(IntervalLength intervalLength) {
-        int id = intervalLength == null ? IRREGULARVAULTID : REGULARVAULTID;
+    private Vault getVault(boolean regular) {
+        int id = regular ? REGULARVAULTID : IRREGULARVAULTID;
         Optional<Vault> result = Bus.getIdsService().getVault(COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
