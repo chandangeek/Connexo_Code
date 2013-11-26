@@ -226,7 +226,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	}
 
 	IntervalLength getIntervalLength() {
-		return IntervalLength.forCimCode(macroPeriod.getId());
+		return IntervalLength.forCimCode(measuringPeriod.getId());
 	}
 
     @Override
