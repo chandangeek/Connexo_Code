@@ -15,6 +15,7 @@ public class OutboundComPortInfo extends ComPortInfo<OutboundComPortShadow> {
     @Override
     protected void writeToShadow(OutboundComPortShadow shadow) {
         super.writeToShadow(shadow);
+        shadow.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
     }
 
     @Override
