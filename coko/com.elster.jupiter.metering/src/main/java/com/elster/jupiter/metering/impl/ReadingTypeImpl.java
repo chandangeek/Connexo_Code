@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.util.time.UtcInstant;
 import com.elster.jupiter.cbo.*;
+import com.google.common.base.Optional;
 
 public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
@@ -225,8 +226,8 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		Bus.getOrmClient().getReadingTypeFactory().persist(this);
 	}
 
-	IntervalLength getIntervalLength() {
-		return IntervalLength.forCimCode(macroPeriod.getId());
+	Optional<IntervalLength> getIntervalLength() {
+		return IntervalLength.from(this);
 	}
 
     @Override
@@ -247,6 +248,11 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         return mRID.hashCode();
     }
 
+    @Override 
+    public boolean isRegular() {
+    	return getIntervalLength() != null;
+    }
+    
     @Override
 	public boolean isCumulativeReadingType(ReadingType readingType) {
 		ReadingTypeImpl other = (ReadingTypeImpl) readingType;
@@ -260,4 +266,85 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     public long getVersion() {
         return version;
     }
+
+    @Override 
+	public MacroPeriod getMacroPeriod() {
+		return macroPeriod;
+	}
+    
+    @Override
+	public Aggregate getAggregate() {
+		return aggregate;
+	}
+    
+    @Override
+	public TimeAttribute getMeasuringPeriod() {
+		return measuringPeriod;
+	}
+    
+    @Override
+	public Accumulation getAccumulation() {
+		return accumulation;
+	}
+
+    @Override
+	public FlowDirection getFlowDirection() {
+		return flowDirection;
+	}
+
+    @Override
+    public Commodity getCommodity() {
+		return commodity;
+	}
+    
+    @Override
+	public MeasurementKind getMeasurementKind() {
+		return measurementKind;
+	}
+
+    @Override
+    public RationalNumber getInterharmonic() {
+		return interharmonic;
+	}
+    
+    @Override	
+    public RationalNumber getArgument() {
+		return argument;
+	}
+
+    @Override
+	public int getTou() {
+		return tou;
+	}
+
+    @Override
+    public int getCpp() {
+		return cpp;
+	}
+    
+    @Override
+	public int getConsumptionTier() {
+		return consumptionTier;
+	}
+
+    @Override
+    public Phase getPhases() {
+		return phases;
+	}
+
+    @Override
+	public MetricMultiplier getMultiplier() {
+		return multiplier;
+	}
+
+    @Override
+    public ReadingTypeUnit getUnit() {
+		return unit;
+	}
+
+    @Override
+    public Currency getCurrency() {
+		return currency;
+	}
+
 }
