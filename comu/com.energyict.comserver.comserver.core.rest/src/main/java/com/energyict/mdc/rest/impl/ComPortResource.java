@@ -5,9 +5,7 @@ import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
 import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -53,15 +51,6 @@ public class ComPortResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortInfo getComPort(@PathParam("id") int id) {
         return ComPortInfoFactory.asInfo(comPortService.find(id));
-    }
-
-    @PUT
-    @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public ComPortInfo updateComPort(@PathParam("id") int id, ComPortInfo comPortInfo) {
-        System.err.println("ComPort class=" + comPortInfo.asShadow().getClass().getSimpleName());
-        return comPortInfo;
     }
 
 }

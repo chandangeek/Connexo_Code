@@ -5,7 +5,7 @@ import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import java.util.List;
 
-public class OnlineComServerInfo extends ComServerInfo {
+public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComServerShadow> {
     public String queryAPIPostUri;
     public boolean usesDefaultQueryAPIPostUri;
     public String eventRegistrationUri;
@@ -22,13 +22,7 @@ public class OnlineComServerInfo extends ComServerInfo {
      */
     public OnlineComServerInfo(final OnlineComServer onlineComServer, List<ComPort> comPorts) {
         super(onlineComServer, comPorts);
-        this.queryAPIPostUri = onlineComServer.getQueryApiPostUri();
-        this.usesDefaultQueryAPIPostUri = onlineComServer.usesDefaultQueryApiPostUri();
-        this.eventRegistrationUri = onlineComServer.getEventRegistrationUri();
-        this.usesDefaultEventRegistrationUri = onlineComServer.usesDefaultEventRegistrationUri();
-        this.storeTaskQueueSize = onlineComServer.getStoreTaskQueueSize();
-        this.numberOfStoreTaskThreads = onlineComServer.getNumberOfStoreTaskThreads();
-        this.storeTaskThreadPriority = onlineComServer.getStoreTaskThreadPriority();
+        readFrom(onlineComServer);
     }
 
     /**
@@ -36,6 +30,10 @@ public class OnlineComServerInfo extends ComServerInfo {
      */
     public OnlineComServerInfo(final OnlineComServer onlineComServer) {
         super(onlineComServer);
+        readFrom(onlineComServer);
+    }
+
+    private void readFrom(OnlineComServer onlineComServer) {
         this.queryAPIPostUri = onlineComServer.getQueryApiPostUri();
         this.usesDefaultQueryAPIPostUri = onlineComServer.usesDefaultQueryApiPostUri();
         this.eventRegistrationUri = onlineComServer.getEventRegistrationUri();
@@ -53,7 +51,17 @@ public class OnlineComServerInfo extends ComServerInfo {
         comServerShadow.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
         comServerShadow.setStoreTaskQueueSize(storeTaskQueueSize);
         comServerShadow.setStoreTaskThreadPriority(storeTaskThreadPriority);
+
+        updateInboundComPorts(comServerShadow);
+        updateOutboundComPorts(comServerShadow);
+
         return comServerShadow;
+    }
+
+    public OnlineComServerShadow asShadow() {
+        OnlineComServerShadow shadow = new OnlineComServerShadow();
+        this.writeToShadow(shadow);
+        return shadow;
     }
 
 }
