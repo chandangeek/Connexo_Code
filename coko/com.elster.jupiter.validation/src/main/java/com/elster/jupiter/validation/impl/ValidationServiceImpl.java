@@ -26,6 +26,7 @@ import java.util.Map;
 public class ValidationServiceImpl implements ValidationService, InstallService, ServiceLocator{
 
     private static final Upcast<IValidationRuleSet,ValidationRuleSet> UPCAST = new Upcast<>();
+    private static final Upcast<IValidationRule,ValidationRule> RULE_UPCAST = new Upcast<>();
     private volatile OrmClient ormClient;
     private volatile ComponentCache componentCache;
     private volatile EventService eventService;
@@ -110,6 +111,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(long id) {
         return getOrmClient().getValidationRuleSetFactory().get(id).transform(UPCAST);
+    }
+
+    @Override
+    public Optional<ValidationRule> getValidationRule(long id) {
+        return getOrmClient().getValidationRuleFactory().get(id).transform(RULE_UPCAST);
     }
 
     @Override
