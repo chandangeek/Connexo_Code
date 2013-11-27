@@ -116,7 +116,7 @@ public abstract class GenericMessageExecutor {
             AXDRDateTime dateTime = null;
             Calendar cal = Calendar.getInstance(timeZone);
             cal.setTimeInMillis(Long.parseLong(time) * 1000);
-            dateTime = new AXDRDateTime(cal);
+            dateTime = new AXDRDateTime(cal.getTime(), timeZone);
             return dateTime;
         } catch (NumberFormatException e) {
             e.printStackTrace();
