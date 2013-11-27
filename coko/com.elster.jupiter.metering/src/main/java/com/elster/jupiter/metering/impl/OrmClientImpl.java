@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.QueryUsagePointGroup;
+import com.elster.jupiter.metering.ReadingQuality;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
@@ -110,4 +111,8 @@ public class OrmClientImpl implements OrmClient {
         return dataModel.getDataMapper(QueryBuilderOperation.class, AbstractQueryBuilderOperation.IMPLEMENTERS, TableSpecs.MTR_QUERY_UP_GROUP_OP.name());
     }
 
+    @Override
+    public DataMapper<ReadingQuality> getReadingQualityFactory() {
+        return dataModel.getDataMapper(ReadingQuality.class, ReadingQualityImpl.class, TableSpecs.MTR_READINGQUALITY.name());
+    }
 }

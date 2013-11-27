@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
@@ -270,6 +271,20 @@ public enum TableSpecs {
             table.addPrimaryKeyConstraint("MTR_PK_QUPGOP", groupColumn, positionColumn);
             table.addForeignKeyConstraint("MTR_FK_QUPG_QUPGOP", MTR_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup", "operations", "position"), groupColumn);
 
+        }
+    },
+    MTR_READINGQUALITY {
+        @Override
+        void describeTable(Table table) {
+            Column idColumn = table.addAutoIdColumn();
+            Column channelColumn = table.addColumn("CHANNELID", "number", true, NUMBER2LONG, "channelId");
+            Column timestampColumn = table.addColumn("READINGTIMESTAMP", "number", true, NUMBER2UTCINSTANT, "readingTimestamp");
+            Column typeColumn = table.addColumn("TYPE", "varchar(64)", true, NOCONVERSION, "typeCode");
+            table.addAuditColumns();
+            table.addColumn("COMMENTS", "varchar(4000)", false, ColumnConversion.NOCONVERSION, "comment");
+            table.addPrimaryKeyConstraint("MTR_PK_READINGQUALITY", idColumn);
+            table.addForeignKeyConstraint("MTR_FK_RQ_CHANNEL", MTR_CHANNEL.name(), DeleteRule.CASCADE, new AssociationMapping("channel"), channelColumn);
+            table.addUniqueConstraint("MTR_U_READINGQUALITY", channelColumn, timestampColumn, typeColumn);
         }
     };
 	

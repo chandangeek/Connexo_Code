@@ -89,7 +89,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Override
-    public ReadingStorer createRegularStorer() {
+    public ReadingStorer createNonOverrulingStorer() {
         return new ReadingStorerImpl(false);
     }
 
@@ -248,7 +248,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Override
-    public QueryUsagePointGroup createQueryUqagePointGroup(Condition condition) {
+    public QueryUsagePointGroup createQueryUsagePointGroup(Condition condition) {
         QueryUsagePointGroupImpl queryUsagePointGroup = new QueryUsagePointGroupImpl();
         queryUsagePointGroup.setCondition(condition);
         return queryUsagePointGroup;

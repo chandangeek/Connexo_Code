@@ -140,7 +140,7 @@ public class MeteringServiceImplTest {
 
     @Test
     public void testCreateRegularStorer() {
-        ReadingStorer storer = meteringService.createRegularStorer();
+        ReadingStorer storer = meteringService.createNonOverrulingStorer();
 
         assertThat(storer).isInstanceOf(ReadingStorerImpl.class); // implementation specific, but saves us verifying the contract of the returned instance
         verify(idsService).createStorer(false);

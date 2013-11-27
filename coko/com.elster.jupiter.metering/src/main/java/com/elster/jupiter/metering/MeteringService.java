@@ -24,7 +24,7 @@ public interface MeteringService {
 
     ReadingStorer createOverrulingStorer();
 
-    ReadingStorer createRegularStorer();
+    ReadingStorer createNonOverrulingStorer();
 
     Query<UsagePoint> getUsagePointQuery();
 
@@ -40,7 +40,7 @@ public interface MeteringService {
 
 	Query<Meter> getMeterQuery();
 
-    QueryUsagePointGroup createQueryUqagePointGroup(Condition condition);
+    QueryUsagePointGroup createQueryUsagePointGroup(Condition condition);
 
     Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id);
 

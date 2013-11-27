@@ -131,7 +131,7 @@ public final class ChannelImpl implements Channel {
 	}
 
     private RecordSpec getRecordSpec(boolean regular) {
-        int id = regular ? IRREGULARRECORDSPECID : REGULARRECORDSPECID;
+        int id = regular ? REGULARRECORDSPECID : IRREGULARRECORDSPECID;
         Optional<RecordSpec> result = Bus.getIdsService().getRecordSpec(COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
@@ -277,6 +277,11 @@ public final class ChannelImpl implements Channel {
 		}
 		return cumulativeReadingType;
 	}
+
+    @Override
+    public ReadingQuality createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord) {
+        return new ReadingQualityImpl(type, this, baseReadingRecord);
+    }
 
     @Override
     public long getVersion() {
