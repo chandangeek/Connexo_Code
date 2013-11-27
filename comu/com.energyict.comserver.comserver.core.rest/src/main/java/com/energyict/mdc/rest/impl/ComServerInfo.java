@@ -51,8 +51,8 @@ public abstract class ComServerInfo<S extends ComServerShadow> {
         this.active = comServer.isActive();
         this.serverLogLevel = comServer.getServerLogLevel();
         this.communicationLogLevel = comServer.getCommunicationLogLevel();
-        this.changesInterPollDelay = new TimeDurationInfo(comServer.getChangesInterPollDelay());
-        this.schedulingInterPollDelay = new TimeDurationInfo(comServer.getSchedulingInterPollDelay());
+        this.changesInterPollDelay = comServer.getChangesInterPollDelay()!=null?new TimeDurationInfo(comServer.getChangesInterPollDelay()):null;
+        this.schedulingInterPollDelay = comServer.getSchedulingInterPollDelay()!=null?new TimeDurationInfo(comServer.getSchedulingInterPollDelay()):null;
     }
 
     /**
