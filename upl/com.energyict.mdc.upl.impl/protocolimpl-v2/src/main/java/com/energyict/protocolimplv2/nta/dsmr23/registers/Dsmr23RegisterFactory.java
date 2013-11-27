@@ -70,14 +70,18 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      * If for some reason the <code>Register</code> is not supported, a proper {@link com.energyict.mdc.meterdata.ResultType resultType}
      * <b>and</b> {@link com.energyict.mdc.issues.Issue issue} should be returned so proper logging of this action can be performed.
      *
-     * @param registers The OfflineRtuRegisters for which to request a value
+     * @param allRegisters The OfflineRtuRegisters for which to request a value
      * @return a <code>List</code> of collected register values
      */
-    public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        registers = filterOutAllInvalidRegisters(registers);
+    public List<CollectedRegister> readRegisters(List<OfflineRegister> allRegisters) {
+        List<OfflineRegister> validRegisters = filterOutAllInvalidRegisters(allRegisters);
         List<CollectedRegister> collectedRegisters = new ArrayList<CollectedRegister>();
-        ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(registers, supportsBulkRequests);
-        for (OfflineRegister register : registers) {
+        ComposedCosemObject registerComposedCosemObject = constructComposedObjectFromRegisterList(validRegisters, supportsBulkRequests);
+        for (OfflineRegister register : allRegisters) {
+            if (!validRegisters.contains(register)) {
+                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
+                continue;
+            }
             RegisterValue rv = null;
             try {
                 if (this.composedRegisterMap.containsKey(register)) {
