@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -248,5 +249,10 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 	public MeteringService getMeteringService() {
 		return this;
 	}
+
+    @Override
+    public Optional<AmrSystem> findAmrSystem(long id) {
+        return getOrmClient().getAmrSystemFactory().get(id);
+    }
 
 }

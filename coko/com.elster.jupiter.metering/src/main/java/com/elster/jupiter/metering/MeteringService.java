@@ -39,4 +39,6 @@ public interface MeteringService {
     List<JournalEntry<ServiceLocation>> findServiceLocationJournal(long id);
 
 	Query<Meter> getMeterQuery();
+
+    Optional<AmrSystem> findAmrSystem(long id);
 }
