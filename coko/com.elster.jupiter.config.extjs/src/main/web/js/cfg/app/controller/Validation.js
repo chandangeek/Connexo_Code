@@ -6,7 +6,9 @@ Ext.define('Cfg.controller.Validation', {
         'ValidationRules',
         'ValidationActions',
         'Validators',
-        'ValidationRuleProperties'
+        'ValidationRuleProperties',
+        'ReadingTypesForRule',
+        'AvailableReadingTypes'
     ],
 
     views: [
@@ -37,7 +39,7 @@ Ext.define('Cfg.controller.Validation', {
                 itemdblclick: this.editValidationRuleSet
             } ,
             '#validationruleList' : {
-                itemdblclick: this.editValidationRuleProperties
+                select: this.editValidationRuleProperties
             }
         });
     },
@@ -49,13 +51,22 @@ Ext.define('Cfg.controller.Validation', {
         me.getValidationRulesStore().load({
             params: {
                 id: record.data.id
+            },
+            callback: function () {
+                if (me.getValidationRulesStore().getTotalCount() > 0) {
+                    me.getRulesGrid().getSelectionModel().select(0);
+                }
             }});
     },
 
     editValidationRuleProperties: function (grid, record) {
-        //var view = Ext.widget('validationrulesetEdit');
-        //view.down('form').loadRecord(record);
         this.getRulePropertiesGrid().reconfigure(record.properties());
+        var me = this;
+        me.getReadingTypesForRuleStore().load({
+            params: {
+                id: record.data.id
+            }});
+
     },
 
     saveRuleSets: function (button) {

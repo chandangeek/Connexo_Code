@@ -6,8 +6,8 @@ Ext.define('Cfg.view.validation.Edit', {
         type: 'vbox',
         align: 'stretch'
     },
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     modal: true,
     constrain: true,
     autoShow: true,
@@ -15,11 +15,16 @@ Ext.define('Cfg.view.validation.Edit', {
         'Ext.grid.*'    ,
         'Cfg.store.ValidationActions',
         'Cfg.store.Validators',
-        'Cfg.store.ValidationRuleProperties'
+        'Cfg.store.ValidationRuleProperties',
+        'Cfg.store.ReadingTypesForRule',
+        'Cfg.store.AvailableReadingTypes'
     ],
 
     initComponent: function () {
-        this.cellEditing = new Ext.grid.plugin.CellEditing({
+        var cellEditing = new Ext.grid.plugin.CellEditing({
+            clicksToEdit: 1
+        });
+        var cellEditing2 = new Ext.grid.plugin.CellEditing({
             clicksToEdit: 1
         });
 
@@ -37,6 +42,10 @@ Ext.define('Cfg.view.validation.Edit', {
                 scope: this,
                 handler: this.close
             }
+        ];
+
+        var columns = [
+            { header: 'Name', dataIndex: 'name'}
         ];
 
 
@@ -91,13 +100,17 @@ Ext.define('Cfg.view.validation.Edit', {
                         itemId: 'validationruleList',
                         flex: 1,
                         store: 'ValidationRules',
-                        plugins: [this.cellEditing],
+                        selType: 'rowmodel',
+                        selModel: {
+                            mode: 'SINGLE'
+                        },
+                        plugins: [cellEditing],
                         columns: {
                             defaults: {
                                 flex: 1
                             },
                             items: [
-                                { header: 'Id', dataIndex: 'id', flex: 0.1 },
+                                { header: 'Id', dataIndex: 'id', flex: 0.20 },
                                 { header: 'Active', dataIndex: 'active', flex: 0.20, xtype: 'checkcolumn',
                                     editor: {
                                         xtype: 'checkbox',
@@ -127,7 +140,7 @@ Ext.define('Cfg.view.validation.Edit', {
                                 }
                             ]
                         }
-                    }/*,
+                    },
                     {
                         xtype: 'fieldset',
                         title: 'Properties',
@@ -145,7 +158,7 @@ Ext.define('Cfg.view.validation.Edit', {
                                 itemId: 'validationrulepropertiesList',
                                 flex: 1,
                                 store: 'ValidationRuleProperties',
-                                plugins: [this.cellEditing],
+                                plugins: [cellEditing2],
                                 columns: {
                                     defaults: {
                                         flex: 1
@@ -157,11 +170,90 @@ Ext.define('Cfg.view.validation.Edit', {
                                 }
                             }
                         ]
-                    } */
+                    },
+                    {
+                        xtype: 'fieldset',
+                        title: 'Reading Types',
+                        margin: '0 10 10 10',
+                        padding: '0 5 5 5',
+                        layout: {
+                            type: 'hbox',
+                            align: 'stretch'
+                        },
+                        flex: 1,
+                        items: [
+                            {
+                                xtype: 'gridpanel',
+                                title: 'Available',
+                                itemId: 'availableReadingTypes',
+                                flex: 1,
+                                multiSelect: true,
+                                /*viewConfig: {
+                                    plugins: {
+                                        ptype: 'gridviewdragdrop',
+                                        dragGroup: availableGroup,
+                                        dropGroup: activeGroup
+                                    }
+                                },  */
+                                store: new Ext.data.Store({
+                                    model: 'Cfg.model.ReadingType'
+                                }),
+                                data: [],
+                                columns: columns
+                            },
+                            {
+                                xtype: 'container',
+                                itemId: 'readingTypesActions',
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'center',
+                                    pack: 'center'
+                                },
+                                defaults: {
+                                    margin: '5'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'button',
+                                        action: 'activate',
+                                        glyph: 'xe015@icomoon'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        action: 'deactivate',
+                                        glyph: 'xe016@icomoon'
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        action: 'reset',
+                                        glyph: 'xe01b@icomoon'
+                                    }
+                                ]
+                            },
+                            {
+                                xtype: 'gridpanel',
+                                title: 'Active',
+                                itemId: 'activeReadingTypes',
+                                flex: 1,
+                                multiSelect: true,
+                                /*viewConfig: {
+                                    plugins: {
+                                        ptype: 'gridviewdragdrop',
+                                        dragGroup: activeGroup,
+                                        dropGroup: availableGroup
+                                    }
+                                },   */
+                                store: new Ext.data.Store({
+                                    model: 'Cfg.model.ReadingType'
+                                }),
+                                data: [],
+                                columns:columns
+                            }
+                        ]
+                    }
                 ]
             }
         ];
-
         this.callParent(arguments);
     }
 });
