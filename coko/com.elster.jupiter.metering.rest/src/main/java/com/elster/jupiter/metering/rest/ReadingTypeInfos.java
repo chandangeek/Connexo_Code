@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.rest.impl;
+package com.elster.jupiter.metering.rest;
 
 import com.elster.jupiter.metering.ReadingType;
 
@@ -11,18 +11,18 @@ public class ReadingTypeInfos {
     public int total;
     public List<ReadingTypeInfo> readingTypes = new ArrayList<>();
 
-    ReadingTypeInfos() {
+    public ReadingTypeInfos() {
     }
 
-    ReadingTypeInfos(ReadingType usagePoint) {
+    public ReadingTypeInfos(ReadingType usagePoint) {
         add(usagePoint);
     }
 
-    ReadingTypeInfos(Iterable<? extends ReadingType> readingTypes) {
+    public ReadingTypeInfos(Iterable<? extends ReadingType> readingTypes) {
         addAll(readingTypes);
     }
 
-    ReadingTypeInfo add(ReadingType readingType) {
+    public ReadingTypeInfo add(ReadingType readingType) {
         ReadingTypeInfo result = new ReadingTypeInfo(readingType);
         readingTypes.add(result);
         total++;

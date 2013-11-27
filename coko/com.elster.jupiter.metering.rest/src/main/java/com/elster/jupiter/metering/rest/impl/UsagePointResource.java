@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -166,6 +167,13 @@ public class UsagePointResource {
     public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
         return new ReadingTypeInfos(collectReadingTypes(usagePoint));
+    }
+
+    @GET
+    @Path("/readingtypes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ReadingTypeInfos getReadingTypes(@Context UriInfo uriInfo) {
+        return new ReadingTypeInfos(Bus.getMeteringService().getAvailableReadingTypes());
     }
 
     @GET
