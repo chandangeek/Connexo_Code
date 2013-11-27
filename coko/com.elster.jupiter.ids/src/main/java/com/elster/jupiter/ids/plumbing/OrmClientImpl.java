@@ -1,13 +1,19 @@
 package com.elster.jupiter.ids.plumbing;
 
-import java.sql.*;
-
-import com.elster.jupiter.ids.*;
+import com.elster.jupiter.ids.FieldSpec;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.ids.impl.FieldSpecImpl;
 import com.elster.jupiter.ids.impl.RecordSpecImpl;
 import com.elster.jupiter.ids.impl.TimeSeriesImpl;
 import com.elster.jupiter.ids.impl.VaultImpl;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.SqlDialect;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import static com.elster.jupiter.ids.plumbing.TableSpecs.*;
 
@@ -48,5 +54,9 @@ public class OrmClientImpl implements OrmClient {
 	public void install(boolean executeDdl,boolean saveMappings) {
 		dataModel.install(executeDdl,saveMappings);		
 	}
-	
+
+    @Override
+    public boolean isOracle() {
+        return dataModel.getSqlDialect().equals(SqlDialect.ORACLE);
+    }
 }
