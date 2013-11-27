@@ -2,11 +2,13 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.internal.*;
 import com.google.common.collect.ImmutableList;
+import oracle.jdbc.OracleConnection;
 
 import java.security.Principal;
 import java.sql.Connection;
@@ -169,4 +171,15 @@ public class DataModelImpl implements DataModel, PersistenceAware {
         return Bus.getPrincipal();
     }
 
+    @Override
+    public SqlDialect getSqlDialect() {
+        try (Connection connection = getConnection(false)) {
+            if (connection.isWrapperFor(OracleConnection.class)) {
+                return SqlDialect.ORACLE;
+            }
+            return SqlDialect.ANSI;
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
 }

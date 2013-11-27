@@ -47,5 +47,7 @@ public interface DataModel {
 	 * @param executeDdl: if true, execute the DDL to create the tables in the database
 	 * @param store: if true, store the mappings in the ORM tables
 	 */
-	void install(boolean executeDdl, boolean store);	
+	void install(boolean executeDdl, boolean store);
+
+    SqlDialect getSqlDialect();
 }
