@@ -35,7 +35,7 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
     }
 	
 	@Reference
-	public void setBootstrapService(BootstrapService bootStrapService) throws SQLException {
+	public void setBootstrapService(BootstrapService bootStrapService) {
 		this.dataSource = bootStrapService.createDataSource();
 	}
 	
