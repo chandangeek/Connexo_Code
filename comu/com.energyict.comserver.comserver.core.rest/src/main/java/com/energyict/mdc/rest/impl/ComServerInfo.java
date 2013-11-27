@@ -15,8 +15,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "comServerType")
 @JsonSubTypes({
      @JsonSubTypes.Type(value = OnlineComServerInfo.class, name = "Online"),
-     @JsonSubTypes.Type(value = OfflineComServerInfo.class, name = "Offline")
-     /*, @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "Remote")*/ })
+     @JsonSubTypes.Type(value = OfflineComServerInfo.class, name = "Offline"),
+     @JsonSubTypes.Type(value = RemoteComServerInfo.class, name = "Remote") })
 public abstract class ComServerInfo<S extends ComServerShadow> {
 
     public int id;
