@@ -25,8 +25,7 @@ public enum DSMR4_MbusClientAttributes implements DLMSClassAttributes {
     STATUS(11, 0x50),
     ALARM(12, 0x58),
     ENCRYPTION_STATUS(13, 0x60),
-    DSMR_COMPLIANCY_LEVEL(14, 0x68),
-    KEY_STATUS(15, 0x70);
+    KEY_STATUS(14, 0x70);
 
     /**
      * The number of this attribute
