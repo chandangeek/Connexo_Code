@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -9,8 +11,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 @Path("/validation")
@@ -54,6 +56,26 @@ public class ValidationResource {
         }
         infos.total = actions.length;
         return infos;
+    }
+
+    @GET
+    @Path("/readingtypes/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ReadingTypeInfos getReadingTypesForRule(@PathParam("id") String id) {
+        ReadingTypeInfos infos = new ReadingTypeInfos();
+        Optional<ValidationRule> optional =
+                Bus.getValidationService().getValidationRule(Long.parseLong(id));
+        if (optional.isPresent()) {
+            ValidationRule rule = optional.get();
+            Set<ReadingType> readingTypes = rule.getReadingTypes();
+            for (ReadingType readingType : readingTypes) {
+                infos.add(readingType);
+            }
+            infos.total = readingTypes.size();
+            return infos;
+        } else {
+            return infos;
+        }
     }
 
     @GET
