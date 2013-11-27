@@ -9,17 +9,22 @@ import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
-import com.energyict.mdc.protocol.*;
-import com.energyict.mdc.protocol.security.*;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.DeviceProtocol;
+import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.HHUEnabler;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.logging.Level;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
@@ -168,8 +173,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
         try {
             getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(new AXDRDateTime(timeToSet));
         } catch (IOException e) {
-            getLogger().log(Level.FINEST, e.getMessage());
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw IOExceptionHandler.handle(e, this.getDlmsSession());
         }
     }
 
@@ -178,8 +182,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, HHUEnabler
         try {
             return getDlmsSession().getCosemObjectFactory().getClock().getDateTime();
         } catch (IOException e) {
-            getLogger().log(Level.FINEST, e.getMessage());
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw IOExceptionHandler.handle(e, this.getDlmsSession());
         }
     }
 
