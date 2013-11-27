@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
+import static com.elster.jupiter.metering.impl.Bus.getOrmClient;
 
 @Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME)
 public class MeteringServiceImpl implements MeteringService, InstallService, ServiceLocator {
@@ -265,7 +266,13 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     public Optional<Channel> findChannel(long id) {
         return getOrmClient().getChannelFactory().get(id);
     }
-	@Override
+
+    @Override
+    public List<ReadingType> getAvailableReadingTypes() {
+        return getOrmClient().getReadingTypeFactory().find();
+    }
+
+    @Override
 	public MeteringService getMeteringService() {
 		return this;
 	}

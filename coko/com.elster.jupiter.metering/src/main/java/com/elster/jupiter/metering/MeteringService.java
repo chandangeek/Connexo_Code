@@ -49,4 +49,6 @@ public interface MeteringService {
     Optional<MeterActivation> findMeterActivation(long meterActivationId);
 
     Optional<Channel> findChannel(long id);
+
+    List<ReadingType> getAvailableReadingTypes();
 }
