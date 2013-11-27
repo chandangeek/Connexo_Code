@@ -191,8 +191,10 @@ public final class VaultImpl implements Vault {
 			builder.append(",VERSIONCOUNT");
 		}
 		builder.append("))");
-		builder.append(" ORGANIZATION INDEX COMPRESS 1 ");
-		if (isPartitioned()) {
+        if (Bus.getOrmClient().isOracle()) {
+            builder.append(" ORGANIZATION INDEX COMPRESS 1 ");
+        }
+        if (isPartitioned()) {
 			builder.append("PARTITION BY RANGE(utcstamp) (PARTITION ");
 			builder.append(getPartitionName(to));
 			builder.append(" VALUES LESS THAN (");
