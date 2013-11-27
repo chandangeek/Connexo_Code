@@ -71,11 +71,13 @@ public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
 	
 	@Override
 	public void setEndToEndMetrics(Connection connection) throws SQLException {
-		OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
-		if (oraConnection == null) {
-			return;
-		}
-		ThreadContext context = threadContexts.get();
+        OracleConnection oraConnection = null;
+        try {
+            oraConnection = connection.unwrap(OracleConnection.class);
+        } catch (SQLException e) {
+            return;
+        }
+        ThreadContext context = threadContexts.get();
 		String[] metrics = new String[END_TO_END_STATE_INDEX_MAX];
 		short ecid = Short.MIN_VALUE;
 		if (context != null) {			
