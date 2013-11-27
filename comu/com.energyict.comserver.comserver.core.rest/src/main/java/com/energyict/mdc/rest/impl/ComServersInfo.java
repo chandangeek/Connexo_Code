@@ -10,5 +10,5 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ComServersInfo {
     @XmlElement
     @XmlElementWrapper(name = "ComServers")
-    public Collection<? super ComServerInfo> comServers = new ArrayList<>();
+    public Collection<ComServerInfo> comServers = new ArrayList<>();
 }
