@@ -1,32 +1,96 @@
 package com.energyict.mdc.rest.impl;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import com.energyict.cbo.TimeDuration;
+import com.energyict.mdc.servers.ComServer;
+import com.energyict.mdc.servers.OnlineComServer;
+import com.energyict.mdc.services.ComServerService;
+import com.energyict.mdc.shadow.servers.ComServerShadow;
+import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import javax.ws.rs.core.Application;
+import org.fest.assertions.data.MapEntry;
+import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComServerResourceTest extends JerseyTest {
 
-    @Path("hello")
-       public static class HelloResource {
-           @GET
-           public String getHello() {
-               return "Hello World!";
-           }
-       }
+    ComServerService comServerService;
 
-       @Override
-       protected Application configure() {
-           return new ResourceConfig(HelloResource.class);
-       }
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        comServerService = mock(ComServerService.class);
+        ComServerServiceHolder.setComServerService(comServerService);
+    }
 
-       @Test
-       public void test() {
-           final String hello = target("hello").request().get(String.class);
-           assertEquals("Hello World!", hello);
-       }
-   }
+    @Override
+    protected Application configure() {
+        return new ResourceConfig(ComServerResource.class);
+    }
+
+    @Override
+    protected void configureClient(ClientConfig config) {
+        config.register(JacksonJaxbJsonProvider.class);
+        config.register(ComServerInfo.class);
+        config.register(ComServersInfo.class);
+        config.register(OnlineComServerInfo.class);
+        super.configureClient(config);
+    }
+
+    @Test
+    public void guardComServerJavaScriptMappings() {
+        OnlineComServer mock = mock(OnlineComServer.class);
+        List<ComServer<? extends ComServerShadow>> comServers = new ArrayList<>();
+        comServers.add(mock);
+        when(comServerService.findAll()).thenReturn(comServers);
+        when(mock.getName()).thenReturn("Test");
+        when(mock.getQueryApiPostUri()).thenReturn("/test");
+        when(mock.getId()).thenReturn(1);
+        when(mock.getEventRegistrationUri()).thenReturn("/event/registration/uri");
+        when(mock.getNumberOfStoreTaskThreads()).thenReturn(2);
+        when(mock.getStoreTaskQueueSize()).thenReturn(3);
+        when(mock.getStoreTaskThreadPriority()).thenReturn(4);
+        when(mock.getChangesInterPollDelay()).thenReturn(new TimeDuration("6 seconds"));
+        when(mock.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.ERROR);
+        when(mock.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
+        when(mock.getSchedulingInterPollDelay()).thenReturn(new TimeDuration("7 minutes"));
+
+        final Map<String, Object> response = target("/comservers").request().get(Map.class);
+        assertThat(response).describedAs("Should contain field 'comServers'").containsKey("comServers").hasSize(1);
+        List<Map<String, Object>> comServers1 = (List<Map<String, Object>>) response.get("comServers");
+        assertThat(comServers1).describedAs("Expected only 1 comServer").hasSize(1);
+        Map<String, Object> comServer1 = comServers1.get(0);
+        assertThat(comServer1)
+                .contains(MapEntry.entry("id", 1))
+                .contains(MapEntry.entry("name", "Test"))
+                .contains(MapEntry.entry("queryAPIPostUri", "/test"))
+                .contains(MapEntry.entry("eventRegistrationUri", "/event/registration/uri"))
+                .contains(MapEntry.entry("numberOfStoreTaskThreads", 2))
+                .contains(MapEntry.entry("storeTaskQueueSize", 3))
+                .contains(MapEntry.entry("storeTaskThreadPriority", 4))
+                .containsKey("changesInterPollDelay")
+                .containsKey("schedulingInterPollDelay")
+                .contains(MapEntry.entry("communicationLogLevel", "ERROR"))
+                .contains(MapEntry.entry("serverLogLevel", "INFO"))
+                ;
+
+        Map<String, Object> changesInterPollDelay = (Map<String, Object>) comServer1.get("changesInterPollDelay");
+        assertThat(changesInterPollDelay).hasSize(2)
+                .contains(MapEntry.entry("count", 6))
+                .contains(MapEntry.entry("timeUnit", "seconds"));
+        Map<String, Object> schedulingInterPollDelay = (Map<String, Object>) comServer1.get("schedulingInterPollDelay");
+        assertThat(schedulingInterPollDelay).hasSize(2)
+                .contains(MapEntry.entry("count", 7))
+                .contains(MapEntry.entry("timeUnit", "minutes"));
+    }
+}

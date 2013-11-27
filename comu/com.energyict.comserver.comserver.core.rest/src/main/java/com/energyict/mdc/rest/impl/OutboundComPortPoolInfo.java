@@ -7,16 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OutboundComPortPoolInfo extends ComPortPoolInfo<OutboundComPortPoolShadow> {
-    public List<OutboundComPortInfo> outboundComPorts;
-    public TimeDurationInfo taskExecutionTimeout;
 
     public OutboundComPortPoolInfo() {
     }
 
     public OutboundComPortPoolInfo(OutboundComPortPool comPortPool) {
         super(comPortPool);
-        for (OutboundComPort outboundComPort : comPortPool.getComPorts()) {
-            outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(outboundComPort));
+        if (comPortPool.getComPorts()!=null) {
+            outboundComPorts = new ArrayList<>(comPortPool.getComPorts().size());
+            for (OutboundComPort outboundComPort : comPortPool.getComPorts()) {
+                outboundComPorts.add(ComPortInfoFactory.asOutboundInfo(outboundComPort));
+            }
         }
         taskExecutionTimeout = new TimeDurationInfo(comPortPool.getTaskExecutionTimeout());
     }
