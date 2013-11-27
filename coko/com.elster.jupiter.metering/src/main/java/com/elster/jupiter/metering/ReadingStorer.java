@@ -2,8 +2,10 @@ package com.elster.jupiter.metering;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Map;
 
 import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.util.time.Interval;
 
 public interface ReadingStorer {
 
@@ -20,4 +22,6 @@ public interface ReadingStorer {
     void execute();
 
 	void addReading(Channel channel, Reading reading);
+
+    Map<Channel, Interval> getScope();
 }

@@ -153,11 +153,13 @@ public enum TableSpecs {
 			table.addPrimaryKeyConstraint("MTR_PK_READINGTYPE", mRidColumn);
 		}
 	},
-	MTR_METER {
+	MTR_ENDDEVICE {
 		void describeTable(Table table) {
 			Column idColumn = table.addAutoIdColumn();
+			table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
 			Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION , "mRID");
 			Column amrSystemIdColumn = table.addColumn("AMRSYSTEMID", "number", true, NUMBER2INT, "amrSystemId");
+			Column amrIdColumn = table.addColumn("AMRID", "varchar2(256)" , true , NOCONVERSION, "amrId");
 			table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
 			table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
 			table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
@@ -174,6 +176,7 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METER", idColumn);
 			table.addUniqueConstraint("MTR_U_METER", mRIDColumn);
+			table.addUniqueConstraint("MTR_U_METERAMR",amrSystemIdColumn,amrIdColumn);
 			table.addForeignKeyConstraint("MTR_FK_METERAMRSYSTEM",MTR_AMRSYSTEM.name(),RESTRICT,new AssociationMapping("amrSystem"), amrSystemIdColumn);
 		}
 	},	
@@ -186,7 +189,7 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_METERACTIVATION", idColumn);
 			table.addForeignKeyConstraint("MTR_FK_METERACTUSAGEPOINT",MTR_USAGEPOINT.name(),RESTRICT, new AssociationMapping("usagePoint", "meterActivations", "interval.start", "currentMeterActivation") , usagePointIdColumn);
-			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_METER.name(),RESTRICT, new AssociationMapping("meter" , "meterActivations", "interval.start", "currentMeterActivation") , meterIdColumn);
+			table.addForeignKeyConstraint("MTR_FK_METERACTMETER",MTR_ENDDEVICE.name(),RESTRICT, new AssociationMapping("meter" , "meterActivations", "interval.start", "currentMeterActivation") , meterIdColumn);
 		}
 	},
 	MTR_CHANNEL {
@@ -229,7 +232,7 @@ public enum TableSpecs {
 			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTPARTYROLE", "PRT" , "PRT_PARTYROLE", RESTRICT , "role" , roleMRIDColumn);
  		}
 	},
-    MTR_ENUM_UP_GROUP {
+    MTR_UP_GROUP {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
@@ -237,7 +240,7 @@ public enum TableSpecs {
             Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION, "mRID");
             table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
             table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
-            table.addColumn("TYPE", "varchar2(80)", false, NOCONVERSION , "type");
+            table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
             table.addAuditColumns();
             table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP", idColumn);
             table.addUniqueConstraint("MTR_U_ENUM_UP_GROUP", mRIDColumn);
@@ -250,22 +253,8 @@ public enum TableSpecs {
             Column usagePointColumn = table.addColumn("USAGEPOINT_ID", "number", true, NUMBER2LONG, "usagePointId");
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP_ENTRY", groupColumn, usagePointColumn, intervalColumns.get(0));
-            table.addForeignKeyConstraint("MTR_FK_UPGE_UPG", MTR_ENUM_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup"), groupColumn);
+            table.addForeignKeyConstraint("MTR_FK_UPGE_UPG", MTR_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup"), groupColumn);
             table.addForeignKeyConstraint("MTR_FK_UPGE_UP", MTR_USAGEPOINT.name(), DeleteRule.RESTRICT, new AssociationMapping("usagePoint"), usagePointColumn);
-        }
-    },
-    MTR_QUERY_UP_GROUP {
-        @Override
-        void describeTable(Table table) {
-            Column idColumn = table.addAutoIdColumn();
-            table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
-            Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION, "mRID");
-            table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
-            table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
-            table.addColumn("TYPE", "varchar2(80)", false, NOCONVERSION , "type");
-            table.addAuditColumns();
-            table.addPrimaryKeyConstraint("MTR_PK_QUERY_UP_GROUP", idColumn);
-            table.addUniqueConstraint("MTR_U_QUERY_UP_GROUP", mRIDColumn);
         }
     },
     MTR_QUERY_UP_GROUP_OP {
@@ -279,7 +268,7 @@ public enum TableSpecs {
             table.addColumn("BINDVALUES", "VARCHAR2(256)", false, CHAR2JSON, "values");
 
             table.addPrimaryKeyConstraint("MTR_PK_QUPGOP", groupColumn, positionColumn);
-            table.addForeignKeyConstraint("MTR_FK_QUPG_QUPGOP", MTR_QUERY_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup", "operations", "position"), groupColumn);
+            table.addForeignKeyConstraint("MTR_FK_QUPG_QUPGOP", MTR_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup", "operations", "position"), groupColumn);
 
         }
     };

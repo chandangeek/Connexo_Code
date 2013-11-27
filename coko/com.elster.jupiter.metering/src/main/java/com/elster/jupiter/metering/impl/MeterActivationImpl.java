@@ -81,7 +81,7 @@ public class MeterActivationImpl implements MeterActivation {
 			return Optional.absent();
         }
 		if (meter == null) {
-			meter = Bus.getOrmClient().getMeterFactory().getExisting(meterId);
+			meter = (Meter) Bus.getOrmClient().getEndDeviceFactory().getExisting(meterId);
 		}
 		return Optional.of(meter);
 	}

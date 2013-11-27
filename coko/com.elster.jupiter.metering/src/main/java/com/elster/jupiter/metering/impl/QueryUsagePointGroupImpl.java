@@ -3,70 +3,24 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.time.UtcInstant;
 
 import java.util.Date;
 import java.util.List;
 
-public class QueryUsagePointGroupImpl implements QueryUsagePointGroup {
-
-    private long id;
-
-    private String name;
-    private String mRID;
-    private String description;
-    private String aliasName;
-    private String type;
-
-    private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
-    private String userName;
+public class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements QueryUsagePointGroup {
 
     private List<QueryBuilderOperation> operations;
     private transient QueryBuilder queryBuilder;
 
     @Override
-    public String getAliasName() {
-        return aliasName;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String getMRID() {
-        return mRID;
-    }
-
-    @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    @Override
     public List<UsagePoint> getMembers(Date date) {
-        QueryExecutor<UsagePoint> queryExecutor = Bus.getOrmClient().getUsagePointFactory().with();
-        return Bus.getQueryService().wrap(queryExecutor).select(getCondition());
+        return Bus.getMeteringService().getUsagePointQuery().select(getCondition());
     }
 
     @Override
     public boolean isMember(UsagePoint usagePoint, Date date) {
         return getMembers(date).contains(usagePoint);
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     public void setCondition(Condition condition) {
