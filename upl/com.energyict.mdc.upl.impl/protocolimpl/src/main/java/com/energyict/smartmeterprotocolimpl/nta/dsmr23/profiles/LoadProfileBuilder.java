@@ -4,11 +4,6 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.attributes.*;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
 import com.energyict.protocolimpl.dlms.DLMSProfileIntervals;
@@ -114,10 +109,14 @@ public class LoadProfileBuilder {
         List<CapturedRegisterObject> capturedObjectRegisterList = createCapturedObjectRegisterList(ccoLpConfigs);
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, this.meterProtocol.supportsBulkRequests());
 
-        for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
-            this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
+        for (LoadProfileReader lpr : loadProfileReaders) {
             LoadProfileConfiguration lpc = new LoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            if (!expectedLoadProfileReaders.contains(lpr)) {      //Invalid LP, mark as not supported and move on to the next LP
+                lpc.setSupportedByMeter(false);
+                continue;
+            }
 
+            this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
                 try {

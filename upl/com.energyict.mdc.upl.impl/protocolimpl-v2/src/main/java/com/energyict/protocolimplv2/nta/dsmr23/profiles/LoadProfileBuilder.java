@@ -113,7 +113,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
      * @return the list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are in the device
      */
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfileReaders) {
-        this.expectedLoadProfileReaders = loadProfileReaders;
+        this.expectedLoadProfileReaders = filterOutAllInvalidLoadProfiles(loadProfileReaders);
         this.loadProfileConfigurationList = new ArrayList<>();
 
         ComposedCosemObject ccoLpConfigs = constructLoadProfileConfigComposedCosemObject(loadProfileReaders, supportsBulkRequests);
@@ -127,9 +127,13 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
         ComposedCosemObject ccoCapturedObjectRegisterUnits = constructCapturedObjectRegisterUnitComposedCosemObject(capturedObjectRegisterList, supportsBulkRequests);
 
         for (LoadProfileReader lpr : this.expectedLoadProfileReaders) {
-            this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
             DeviceLoadProfileConfiguration lpc = new DeviceLoadProfileConfiguration(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
+            if (!expectedLoadProfileReaders.contains(lpr)) {      //Invalid LP, mark as not supported and move on to the next LP
+                lpc.setSupportedByMeter(false);
+                continue;
+            }
 
+            this.meterProtocol.getLogger().log(Level.INFO, "Reading configuration from LoadProfile " + lpr);
             ComposedProfileConfig cpc = lpConfigMap.get(lpr);
             if (cpc != null) {
                 try {
@@ -152,6 +156,28 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
             this.loadProfileConfigurationList.add(lpc);
         }
         return this.loadProfileConfigurationList;
+    }
+
+    /**
+     * From the given list of LoadProfileReaders, filter out all invalid ones. <br></br>
+     * A LoadProfileReader is invalid if the physical address of the device, owning the loadProfileReader, could not be fetched.
+     * This is the case, when an Mbus device is linked to a master in EIMaster, but in reality not physically connected. <br></br>
+     * E.g.: This is the case when the Mbus device in the field has been swapped for a new one, but without changing/correcting the EIMaster configuration.
+     *
+     * @param loadProfileReaders the complete list of loadProfileReaders
+     * @return the validated list containing all valid loadProfileReaders
+     */
+    private List<LoadProfileReader> filterOutAllInvalidLoadProfiles(List<LoadProfileReader> loadProfileReaders) {
+        List<LoadProfileReader> validLoadProfileReaders = new ArrayList<LoadProfileReader>();
+
+        for (LoadProfileReader loadProfileReader : loadProfileReaders) {
+            if (this.meterProtocol.getPhysicalAddressFromSerialNumber(loadProfileReader.getMeterSerialNumber()) != -1) {
+                validLoadProfileReaders.add(loadProfileReader);
+            } else {
+                this.meterProtocol.getLogger().severe("LoadProfile " + loadProfileReader.getProfileObisCode() + " is not supported because MbusDevice " + loadProfileReader.getMeterSerialNumber() + " is not installed on the physical device.");
+            }
+        }
+        return validLoadProfileReaders;
     }
 
     /**
