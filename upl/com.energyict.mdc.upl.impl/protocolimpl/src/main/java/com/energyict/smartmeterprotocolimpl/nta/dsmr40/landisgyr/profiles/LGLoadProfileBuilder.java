@@ -2,9 +2,7 @@ package com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.profiles;
 
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.AbstractSmartNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.nta.abstractsmartnta.DSMRProfileIntervalStatusBits;
@@ -12,9 +10,7 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.profiles.LoadProfileBuild
 import com.energyict.smartmeterprotocolimpl.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -61,7 +57,11 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
             ObisCode lpObisCode = getMeterProtocol().getPhysicalAddressCorrectedObisCode(lpr.getProfileObisCode(), lpr.getMeterSerialNumber());
             LoadProfileConfiguration lpc = getLoadProfileConfiguration(lpr);
             if (getChannelInfoMap().containsKey(lpr) && lpc != null) { // otherwise it is not supported by the meter
-                getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + lpr.getEndReadingTime());
+                Date toDate = lpr.getEndReadingTime();
+                if (!lpr.getMeterSerialNumber().equals(getMeterProtocol().getSerialNumber())) {     //MBus load profile
+                    toDate.setTime(toDate.getTime() - 900000);                                      //Read to current time - 15 minutes, see RFC 168
+                }
+                getMeterProtocol().getLogger().log(Level.INFO, "Getting LoadProfile data for " + lpr + " from " + lpr.getStartReadingTime() + " to " + toDate);
                 profile = getMeterProtocol().getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
                 profile.setDsmr4SelectiveAccessFormat(true);
                 profileData = new ProfileData(lpr.getLoadProfileId());
@@ -69,7 +69,7 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
                 Calendar fromCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
                 fromCalendar.setTime(lpr.getStartReadingTime());
                 Calendar toCalendar = Calendar.getInstance(getMeterProtocol().getTimeZone());
-                toCalendar.setTime(lpr.getEndReadingTime());
+                toCalendar.setTime(toDate);
 
                 LGDLMSProfileIntervals intervals = new LGDLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), LGDLMSProfileIntervals.DefaultClockMask,
                         getStatusMasksMap().get(lpr), this.channelMaskMap.get(lpr), getProfileIntervalStatusBits());
