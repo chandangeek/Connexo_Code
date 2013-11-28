@@ -4,11 +4,17 @@ public final class HttpResource {
 	private final String alias;
 	private final String localName;
 	private final Resolver resolver;
+	private final StartPage startPage;
 	
 	public HttpResource(String alias, String localName, Resolver resolver) {
+		this(alias,localName,resolver,null);
+	}
+
+	public HttpResource(String alias, String localName, Resolver resolver,StartPage startPage) {
 		this.alias = alias;
 		this.localName = localName;
 		this.resolver = resolver;	
+		this.startPage = startPage;
 	}
 
 	public String getAlias() {
@@ -22,5 +28,10 @@ public final class HttpResource {
 	public Resolver getResolver() {
 		return resolver;
 	}
+	
+	public StartPage getStartPage() {
+		return startPage;
+	}
+	
 	
 }
