@@ -10,12 +10,23 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
+
 @Component(name = "com.elster.jupiter.domain")
 public class QueryServiceImpl implements QueryService {
 
     private volatile Clock clock;
 
-	@Override
+    public QueryServiceImpl() {
+
+    }
+
+    @Inject
+    public QueryServiceImpl(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Override
 	public <T> Query<T> wrap(QueryExecutor<T> queryExecutor) {
 		return new QueryImpl<>(queryExecutor);
 	}
