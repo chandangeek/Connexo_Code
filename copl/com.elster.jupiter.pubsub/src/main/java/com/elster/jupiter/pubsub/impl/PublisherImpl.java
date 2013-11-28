@@ -8,7 +8,10 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.log.LogService;
 
-import java.util.*;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
@@ -18,7 +21,16 @@ public class PublisherImpl implements Publisher {
 	private final List<Subscription> subscriptions = new CopyOnWriteArrayList<>();
 	private final ThreadLocal<List<Subscription>> threadSubscriptionsHolder = new ThreadLocal<>();
 
-	@Override
+    public PublisherImpl() {
+    }
+
+    @Inject
+    public PublisherImpl(LogService logService) {
+        setLogService(logService);
+    }
+
+
+    @Override
 	public void publish(Object event, Object... eventDetails) {
         for (Subscription each : subscriptions) {
 			each.handle(event, eventDetails);
