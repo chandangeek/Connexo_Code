@@ -1,12 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.bootstrap.BootstrapService;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.domain.util.impl.QueryServiceImpl;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventServiceImpl;
-import com.elster.jupiter.ids.IdsService;
-import com.elster.jupiter.ids.impl.IdsServiceImpl;
+import com.elster.jupiter.bootstrap.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -21,27 +18,20 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.cache.CacheService;
-import com.elster.jupiter.orm.cache.impl.CacheServiceImpl;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.orm.impl.OrmServiceImpl;
-import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.parties.impl.PartyServiceImpl;
-import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.pubsub.impl.PublisherImpl;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.security.thread.impl.ThreadPrincipalServiceImpl;
+import com.elster.jupiter.orm.cache.impl.OrmCacheModule;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.transaction.impl.TransactionServiceImpl;
-import com.elster.jupiter.transaction.impl.TransactionalDataSource;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import com.elster.jupiter.util.time.Clock;
-import com.elster.jupiter.util.time.impl.DefaultClock;
+import com.elster.jupiter.util.UtilModule;
 import com.google.common.base.Optional;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.joda.time.DateMidnight;
 import org.junit.After;
 import org.junit.Before;
@@ -51,14 +41,11 @@ import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
-import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 
@@ -68,31 +55,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingQualityImplTest {
 
-    private final BeanServiceImpl beanService = new BeanServiceImpl();
-    private BootstrapService bootstrapService;
-    private Publisher publisher;
-    private ThreadPrincipalService threadPrincipalService;
-    private DataSource dataSource;
-    private OrmService ormService;
-    private JsonService jsonService;
-    private TransactionServiceImpl transactionService;
-    private CacheService cacheService;
-    private QueryService queryService;
-    private IdsService idsService;
-    private Connection lifeLineConnection;
-    private PartyService partyService;
-    private EventService eventService;
-    private MeteringService meteringService;
-    private Clock clock = new DefaultClock();
-
+    private Injector injector;
 
     @Mock
     private LogService logService;
-    @Mock
-    private ComponentContext componentContext;
+
     @Mock
     private BundleContext bundleContext;
-
     @Mock
     private UserService userService;
     @Mock
@@ -105,101 +74,67 @@ public class ReadingQualityImplTest {
     private QueueTableSpec queueTableSpec;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DestinationSpec destinationSpec;
+    private TransactionModule transactionModule;
 
+
+    private class MockModule extends AbstractModule {
+
+        @Override
+        protected void configure() {
+            bind(LogService.class).toInstance(logService);
+            bind(MessageService.class).toInstance(messageService);
+            bind(UserService.class).toInstance(userService);
+            bind(BundleContext.class).toInstance(bundleContext);
+            bind(EventAdmin.class).toInstance(eventAdmin);
+        }
+    }
 
     @Before
     public void setUp() throws SQLException {
+        transactionModule = new TransactionModule();
+        injector = Guice.createInjector(new MockModule(), new InMemoryBootstrapModule(), new IdsModule(), new MeteringModule(), new PartyModule(), new EventsModule(), new DomainUtilModule(), new OrmModule(new OrmModule.TransactionInjection() {
+            @Override
+            public void execute(final Runnable runnable) {
+                injector.getInstance(TransactionService.class).execute(new VoidTransaction() {
+                    @Override
+                    protected void doPerform() {
+                        runnable.run();
+                    }
+                });
+            }
+        }), new UtilModule(), new ThreadSecurityModule(principal), new PubSubModule(), transactionModule, new OrmCacheModule());
         when(messageService.getQueueTableSpec(anyString())).thenReturn(Optional.of(queueTableSpec));
         when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.of(destinationSpec));
         when(principal.getName()).thenReturn("Test");
-        bootstrapService = new H2BootStrapService();
-        publisher = initPublisher();
-        threadPrincipalService = new ThreadPrincipalServiceImpl();
-        threadPrincipalService.set(principal);
-        jsonService = new JsonServiceImpl();
-
-        transactionService = initTransactionService();
-        dataSource = initDataSource();
-        ormService = initOrmService();
-        cacheService = initCacheService();
-        queryService = initQueryService();
-    }
-
-    private QueryService initQueryService() {
-        return new QueryServiceImpl();
-    }
-
-    private CacheService initCacheService() {
-        CacheServiceImpl cacheService = new CacheServiceImpl();
-        cacheService.setPublisher(publisher);
-        return cacheService;
-    }
-
-    private void install(final InstallService installService) {
-        transactionService.execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-                installService.install();
-            }
-        });
-    }
-
-    private OrmServiceImpl initOrmService() {
-        OrmServiceImpl ormService = new OrmServiceImpl();
-        ormService.setClock(clock);
-        ormService.setThreadPrincipalService(threadPrincipalService);
-        ormService.setDataSource(dataSource);
-        ormService.setJsonService(jsonService);
-        ormService.activate();
-        install(ormService);
-        return ormService;
-    }
-
-    private PublisherImpl initPublisher() {
-        PublisherImpl publisher = new PublisherImpl();
-        publisher.setLogService(logService);
-        return publisher;
-    }
-
-    private TransactionalDataSource initDataSource() throws SQLException {
-        TransactionalDataSource dataSource = new TransactionalDataSource();
-        dataSource.setTransactionService(transactionService);
-        lifeLineConnection = dataSource.getConnection();
-        return dataSource;
-    }
-
-    private TransactionServiceImpl initTransactionService() {
-        TransactionServiceImpl transactionService = new TransactionServiceImpl();
-        transactionService.setPublisher(publisher);
-        transactionService.setThreadPrincipalService(threadPrincipalService);
-        transactionService.setBootstrapService(bootstrapService);
-        transactionService.activate();
-        return transactionService;
+        injector.getInstance(MeteringService.class);
+        injector.getInstance(MeteringService.class);
     }
 
     @After
     public void tearDown() throws SQLException {
-        lifeLineConnection.close();
+        transactionModule.closeLifeLineConnection();
     }
 
     @Test
     public void test() throws SQLException {
 
-        eventService = initEventService();
-        idsService = initIdsService();
-        partyService = initPartyService();
-        meteringService = initMeteringService();
-
-
-        transactionService.execute(new VoidTransaction() {
+        getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
                 Date date = new DateMidnight(2001, 1, 1).toDate();
-                doTest(meteringService, date);
+                doTest(getMeteringService(), date);
 
             }
         });
 
+    }
+
+    private MeteringService getMeteringService() {
+        return injector.getInstance(MeteringService.class);
+    }
+
+    private TransactionService getTransactionService() {
+        return injector.getInstance(TransactionService.class);
     }
 
     private void doTest(MeteringService meteringService, Date date) {
@@ -219,59 +154,6 @@ public class ReadingQualityImplTest {
         BaseReadingRecord reading = channel.getReading(date).get();
         ReadingQuality readingQuality = channel.createReadingQuality(new ReadingQualityType("6.1"), reading);
         readingQuality.save();
-    }
-
-    private EventService initEventService() {
-        EventServiceImpl eventService = new EventServiceImpl();
-        eventService.setOrmService(ormService);
-        eventService.setCacheService(cacheService);
-        eventService.setEventAdmin(eventAdmin);
-        eventService.setClock(clock);
-        eventService.setPublisher(publisher);
-        eventService.setBeanService(beanService);
-        eventService.setJsonService(jsonService);
-        eventService.setMessageService(messageService);
-        eventService.activate(bundleContext);
-        install(eventService);
-        return eventService;
-    }
-
-    private PartyServiceImpl initPartyService() {
-        PartyServiceImpl partyService = new PartyServiceImpl();
-        partyService.setOrmService(ormService);
-        partyService.setClock(clock);
-        partyService.setQueryService(queryService);
-        partyService.setUserService(userService);
-        partyService.setCacheService(cacheService);
-        partyService.setEventService(eventService);
-        partyService.setThreadPrincipalService(threadPrincipalService);
-        partyService.activate(componentContext);
-        install(partyService);
-        return partyService;
-    }
-
-    private IdsServiceImpl initIdsService() {
-        IdsServiceImpl idsService = new IdsServiceImpl();
-        idsService.setClock(clock);
-        idsService.setOrmService(ormService);
-        idsService.activate(componentContext);
-        install(idsService);
-        return idsService;
-    }
-
-    private MeteringService initMeteringService() {
-        MeteringServiceImpl meteringService = new MeteringServiceImpl();
-        meteringService.setClock(clock);
-        meteringService.setOrmService(ormService);
-        meteringService.setIdsService(idsService);
-        meteringService.setCacheService(cacheService);
-        meteringService.setEventService(eventService);
-        meteringService.setPartyService(partyService);
-        meteringService.setQueryService(queryService);
-        meteringService.setUserService(userService);
-        meteringService.activate();
-        install(meteringService);
-        return meteringService;
     }
 
 }
