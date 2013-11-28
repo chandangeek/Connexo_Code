@@ -119,8 +119,18 @@
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
             <version>3.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>aopalliance</artifactId>
+                    <groupId>aopalliance</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
+            <version>1.0_6</version>
+        </dependency>    </dependencies>
     <!-- Repositories specification. -->
     <repositories>
         <repository>
