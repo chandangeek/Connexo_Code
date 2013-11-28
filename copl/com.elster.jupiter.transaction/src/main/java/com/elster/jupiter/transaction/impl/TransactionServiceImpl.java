@@ -7,6 +7,7 @@ import com.elster.jupiter.transaction.*;
 
 import org.osgi.service.component.annotations.*;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -21,8 +22,16 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 	
 	public TransactionServiceImpl() {		
 	}
-	
-	@Override
+
+    @Inject
+    public TransactionServiceImpl(BootstrapService bootstrapService, ThreadPrincipalService threadPrincipalService, Publisher publisher) {
+        this.threadPrincipalService = threadPrincipalService;
+        this.publisher = publisher;
+        doSetBootstrapService(bootstrapService);
+        doActivate();
+    }
+
+    @Override
 	public <T> T execute(Transaction<T> transaction) {
         if (isInTransaction()) {
             throw new NestedTransactionException();
@@ -35,11 +44,15 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
     }
 	
 	@Reference
-	public void setBootstrapService(BootstrapService bootStrapService) throws SQLException {
-		this.dataSource = bootStrapService.createDataSource();
-	}
-	
-	@Reference
+	public void setBootstrapService(BootstrapService bootStrapService) {
+        doSetBootstrapService(bootStrapService);
+    }
+
+    private void doSetBootstrapService(BootstrapService bootStrapService) {
+        this.dataSource = bootStrapService.createDataSource();
+    }
+
+    @Reference
 	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
 		this.threadPrincipalService = threadPrincipalService;		
 	}
@@ -51,10 +64,14 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 	
 	@Activate
     public void activate() {
-    	Bus.setServiceLocator(this);	 
+        doActivate();
     }
-	
-	public void setRollbackOnly() {
+
+    private void doActivate() {
+        Bus.setServiceLocator(this);
+    }
+
+    public void setRollbackOnly() {
         if (isInTransaction()) {
             transactionContextHolder.get().setRollbackOnly();
         } else {
