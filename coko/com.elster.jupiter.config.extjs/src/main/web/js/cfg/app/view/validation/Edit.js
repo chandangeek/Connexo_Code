@@ -16,7 +16,9 @@ Ext.define('Cfg.view.validation.Edit', {
         'Cfg.store.ValidationActions',
         'Cfg.store.Validators',
         'Cfg.store.ValidationRuleProperties',
-        'Cfg.store.ReadingTypes'
+        'Ext.util.Point', // Required for the drag and drop.
+        'Cfg.store.ReadingTypes',
+        'Cfg.model.ReadingType'
     ],
 
     initComponent: function () {
