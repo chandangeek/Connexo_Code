@@ -6,12 +6,17 @@ import com.elster.jupiter.util.json.JsonService;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.osgi.service.component.annotations.Component;
 
+import javax.inject.Inject;
 import java.io.IOException;
 
 @Component(name = "com.elster.jupiter.util.json", service = {JsonService.class})
 public class JsonServiceImpl implements JsonService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Inject
+    public JsonServiceImpl() {
+    }
 
     @Override
     public <T> T deserialize(String json, Class<T> clazz) {
