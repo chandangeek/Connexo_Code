@@ -216,7 +216,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     // DeviceProtocols
     ELSTER_MBUS(185, "com.energyict.protocolimplv2.nta.elster.MbusDevice", FamilyRule.ELSTER_AM100),
     RTU_PLUS(186, "com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer", FamilyRule.G3_LINKY_DLMS),
-    GATE_WAY_Z3(187, "com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3", FamilyRule.EICT_Z3),
     AM100(188, "com.energyict.protocolimplv2.nta.elster.AM100", FamilyRule.ELSTER_AM100),
     MTU155(189, "com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155"),
     WEB_RTU_WAVENIS_GATEWAY(190, "com.energyict.protocolimplv2.coronis.muc.WebRTUWavenisGateway", FamilyRule.CORONIS),
@@ -241,7 +240,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ECHELON(10008, "com.energyict.rtuprotocol.Echelon"),
     EICT_Z3(10009, "com.energyict.protocolimpl.dlms.eictz3.EictZ3"),
     DLMSZMD(10010, "com.energyict.protocolimpl.dlms.DLMSZMD"),
-    DLMSZMD_EXT(10011, "com.energyict.protocolimpl.dlms.DLMSZMD_EXT");
+    DLMSZMD_EXT(10011, "com.energyict.protocolimpl.dlms.DLMSZMD_EXT"),
+    GATE_WAY_Z3(10012, "com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3", FamilyRule.EICT_Z3);
 
     private int code;
     private String className;
