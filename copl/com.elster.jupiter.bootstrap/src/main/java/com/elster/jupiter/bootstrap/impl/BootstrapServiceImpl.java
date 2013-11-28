@@ -8,6 +8,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -43,6 +44,14 @@ public class BootstrapServiceImpl implements BootstrapService {
     private String jdbcPassword;
     private String maxLimit;
     private String maxStatementsLimit;
+
+    public BootstrapServiceImpl() {
+    }
+
+    @Inject
+    public BootstrapServiceImpl(BundleContext bundleContext) {
+        activate(bundleContext);
+    }
 
     @Activate
     public void activate(BundleContext context) {
