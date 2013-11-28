@@ -1,7 +1,5 @@
 package com.elster.jupiter.bootstrap.impl;
 
-import org.h2.jdbc.JdbcConnection;
-
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -208,7 +206,12 @@ public class DecoratedConnection implements Connection {
         if (iface.isInstance(decorated)) {
             return true;
         }
-        if (decorated instanceof JdbcConnection) {
+        try {
+            Class<?> clazz = Class.forName("org.h2.jdbcx.JdbcDataSource");
+            if (clazz.isInstance(decorated)) {
+                return false;
+            }
+        } catch (ClassNotFoundException e) {
             return false;
         }
         return decorated.isWrapperFor(iface);
@@ -249,7 +252,12 @@ public class DecoratedConnection implements Connection {
         if (iface.isInstance(decorated)) {
             return (T) decorated;
         }
-        if (decorated instanceof JdbcConnection) {
+        try {
+            Class<?> clazz = Class.forName("org.h2.jdbcx.JdbcDataSource");
+            if (clazz.isInstance(decorated)) {
+                throw new SQLException();
+            }
+        } catch (ClassNotFoundException e) {
             throw new SQLException();
         }
         return decorated.unwrap(iface);

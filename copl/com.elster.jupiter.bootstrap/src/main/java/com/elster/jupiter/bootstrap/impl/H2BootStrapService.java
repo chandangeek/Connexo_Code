@@ -1,10 +1,11 @@
 package com.elster.jupiter.bootstrap.impl;
 
 import com.elster.jupiter.bootstrap.BootstrapService;
-import org.h2.jdbcx.JdbcDataSource;
 
 import javax.inject.Inject;
 import javax.sql.DataSource;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
 
 public class H2BootStrapService implements BootstrapService {
@@ -21,11 +22,22 @@ public class H2BootStrapService implements BootstrapService {
     @Override
     public DataSource createDataSource() {
         String jdbcUrl = MessageFormat.format(JDBC_URL_PATTERN, DATABASE_NAME_BASE, 5000L);
-        JdbcDataSource source = new JdbcDataSource();
-        source.setURL(jdbcUrl);
-        source.setUser(USER);
-        source.setPassword(PASSWORD);
-        return new DecoratedDataSource(source);
+        try {
+            Class<?> clazz = Class.forName("org.h2.jdbcx.JdbcDataSource");
+            DataSource source = (DataSource) clazz.newInstance();
+            invokeSetter("setUrl", source, jdbcUrl);
+            invokeSetter("setUser", source, USER);
+            invokeSetter("setPassword", source, PASSWORD);
+            return new DecoratedDataSource(source);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void invokeSetter(String setterName, DataSource source, String jdbcUrl) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Class<?> clazz = Class.forName("org.h2.jdbcx.JdbcDataSource");
+        Method setUrl = clazz.getMethod(setterName, String.class);
+        setUrl.invoke(source, jdbcUrl);
     }
 
 
