@@ -1,20 +1,41 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.util.time.Clock;
-import com.google.common.base.Optional;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
-import com.elster.jupiter.ids.*;
-import com.elster.jupiter.ids.plumbing.*;
+import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.ids.RecordSpec;
+import com.elster.jupiter.ids.TimeSeries;
+import com.elster.jupiter.ids.TimeSeriesDataStorer;
+import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.ids.plumbing.Bus;
+import com.elster.jupiter.ids.plumbing.InstallerImpl;
+import com.elster.jupiter.ids.plumbing.OrmClient;
+import com.elster.jupiter.ids.plumbing.OrmClientImpl;
+import com.elster.jupiter.ids.plumbing.ServiceLocator;
+import com.elster.jupiter.ids.plumbing.TableSpecs;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.time.Clock;
+import com.google.common.base.Optional;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
 
 @Component(name = "com.elster.jupiter.ids", service = {IdsService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME)
 public class IdsServiceImpl implements IdsService, InstallService, ServiceLocator {
 
     private volatile OrmClient ormClient;
     private volatile Clock clock;
+
+    public IdsServiceImpl() {
+    }
+
+    @Inject
+    public IdsServiceImpl(Clock clock, OrmService ormService) {
+        setClock(clock);
+        setOrmService(ormService);
+        activate();
+    }
 
     @Override
     public Optional<Vault> getVault(String component, long id) {
@@ -65,11 +86,11 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
         ormClient = new OrmClientImpl(dataModel);
     }
 
-    public void activate(ComponentContext context) {
+    public void activate() {
         Bus.setServiceLocator(this);
     }
 
-    public void deactivate(ComponentContext context) {
+    public void deactivate() {
         Bus.clearServiceLocator(this);
     }
 
