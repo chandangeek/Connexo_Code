@@ -101,7 +101,7 @@ public class TransactionContext {
         boolean success = false;
         try {
             this.nestCount++;
-            this.doExecute(transaction, transactionService);
+            result = this.doExecute(transaction, transactionService);
             success = true;
         }
         finally {
