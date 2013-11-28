@@ -1,8 +1,8 @@
 Ext.define('Uni.controller.Error', {
     extend: 'Ext.app.Controller',
 
-    views: [
-        'error.Window'
+    requires: [
+        'Uni.view.error.Window'
     ],
 
     config: {
@@ -17,6 +17,7 @@ Ext.define('Uni.controller.Error', {
     },
 
     handleGenericError: function (error) {
+        console.log(error);
         this.showError(error);
     },
 

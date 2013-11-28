@@ -7,7 +7,7 @@ Ext.define('Uni.view.navigation.Header', {
         'Uni.view.navigation.Toggler',
         'Uni.view.navigation.Logo',
         'Uni.view.search.Quick',
-        'Uni.view.notifications.Counter',
+        'Uni.view.notifications.Anchor',
         'Uni.view.navigation.Help',
         'Uni.view.user.Menu'
     ],
@@ -32,7 +32,7 @@ Ext.define('Uni.view.navigation.Header', {
             flex: 1
         },
         {
-            xtype: 'notificationsCounter'
+            xtype: 'notificationsAnchor'
         },
         {
             xtype: 'navigationHelp'

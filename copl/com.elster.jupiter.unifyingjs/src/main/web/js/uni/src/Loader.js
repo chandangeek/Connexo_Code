@@ -23,6 +23,7 @@ Ext.define('Uni.Loader', {
         this.loadTooltips();
         this.loadStateManager();
         this.loadOverrides();
+        this.loadStores();
 
         callback.call();
     },
@@ -46,6 +47,11 @@ Ext.define('Uni.Loader', {
         Ext.require('Uni.override.JsonWriterOverride');
         Ext.require('Uni.override.RestOverride');
         Ext.require('Uni.override.StoreOverride');
+    },
+
+    loadStores: function () {
+        Ext.require('Uni.store.Notifications');
+        Ext.require('Uni.store.Translations');
     }
 
 });

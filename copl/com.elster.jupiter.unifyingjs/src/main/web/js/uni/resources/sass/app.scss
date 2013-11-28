@@ -37,6 +37,20 @@
     }
 }
 
+@mixin hidden-arrow-button {
+    .x-btn-arrow {
+        background-image: none;
+    }
+
+    .x-btn-arrow-right {
+        padding-right: inherit;
+    }
+
+    .x-btn-arrow-bottom {
+        padding-bottom: inherit;
+    }
+}
+
 // Tool icons
 
 .x-tool-edit,
@@ -107,7 +121,7 @@ $navigation-color: $elster-blue-75;
     .nav-switcher,
     .nav-toggler,
     .nav-logo,
-    .notifications-counter,
+    .notifications-anchor,
     .nav-help,
     .user-menu {
         @include transparent-button;
@@ -122,6 +136,8 @@ $navigation-color: $elster-blue-75;
     }
 
     .nav-toggler {
+        @include hidden-arrow-button;
+
         .x-btn-button .x-btn-glyph {
             opacity: 0.5;
         }
@@ -141,6 +157,10 @@ $navigation-color: $elster-blue-75;
                 opacity: 1.0;
             }
         }
+    }
+
+    .notifications-anchor {
+        @include hidden-arrow-button;
     }
 
     .search-field {
