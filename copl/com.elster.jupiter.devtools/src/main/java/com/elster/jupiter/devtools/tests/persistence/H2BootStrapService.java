@@ -15,13 +15,12 @@ public class H2BootStrapService /*implements BootstrapService */{
 
     //@Override
     public DataSource createDataSource() {
-        String jdbcUrl = MessageFormat.format(JDBC_URL_PATTERN, DATABASE_NAME_BASE, 5000L);
+        String jdbcUrl = MessageFormat.format(JDBC_URL_PATTERN, DATABASE_NAME_BASE, String.valueOf(5000L));
         JdbcDataSource source = new JdbcDataSource();
         source.setURL(jdbcUrl);
         source.setUser(USER);
         source.setPassword(PASSWORD);
         return source;
     }
-
 
 }
