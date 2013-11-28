@@ -3,7 +3,6 @@ package com.elster.jupiter.transaction.impl;
 import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.security.thread.impl.ServiceMatcher;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
