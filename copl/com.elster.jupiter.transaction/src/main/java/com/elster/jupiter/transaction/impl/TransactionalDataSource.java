@@ -4,6 +4,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -18,7 +19,12 @@ public class TransactionalDataSource implements DataSource {
 	public TransactionalDataSource() {
 	}
 
-	@Override
+    @Inject
+    public TransactionalDataSource(TransactionService transactionService) {
+        this.transactionService = (TransactionServiceImpl) transactionService;
+    }
+
+    @Override
 	public Connection getConnection() throws SQLException {		
 		return new MonitoredConnection(transactionService.getConnection());
 	}
