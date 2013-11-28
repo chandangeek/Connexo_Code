@@ -21,7 +21,7 @@ public class H2BootStrapService implements BootstrapService {
 
     @Override
     public DataSource createDataSource() {
-        String jdbcUrl = MessageFormat.format(JDBC_URL_PATTERN, DATABASE_NAME_BASE, 5000L);
+        String jdbcUrl = MessageFormat.format(JDBC_URL_PATTERN, DATABASE_NAME_BASE, String.valueOf(5000L));
         try {
             Class<?> clazz = Class.forName("org.h2.jdbcx.JdbcDataSource");
             DataSource source = (DataSource) clazz.newInstance();
