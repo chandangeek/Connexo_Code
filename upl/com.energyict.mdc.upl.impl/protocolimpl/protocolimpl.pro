@@ -227,6 +227,10 @@
 
 -keepnames class com.energyict.protocolimpl.itron.fulcrum.Fulcrum
 
+-keep public class com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.AbstractEvent {
+    public *;
+}
+
 -keepnames class com.energyict.protocolimpl.itron.quantum.Quantum
 
 -keepnames class com.energyict.protocolimpl.itron.vectron.Vectron
