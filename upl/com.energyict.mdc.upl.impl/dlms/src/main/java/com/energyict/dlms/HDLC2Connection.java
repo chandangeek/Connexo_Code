@@ -1,11 +1,15 @@
 package com.energyict.dlms;
 
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * General error handling:
@@ -694,9 +698,9 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
             if (sendOutFrame) {
                 startWriting();
                 sendFrame(txFrame);
-            }
-            if (lLength > 0) {
-                waitForReceiveReady();           //TODO SVA make invokeId compatible with segmented request
+                if (lLength > 0) {
+                    waitForReceiveReady();
+                }
             }
         }
     }

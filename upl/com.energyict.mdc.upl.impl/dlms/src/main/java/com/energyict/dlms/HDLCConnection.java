@@ -1,10 +1,14 @@
 package com.energyict.dlms;
 
 import com.energyict.cbo.NestedIOException;
-import com.energyict.dialer.connection.*;
+import com.energyict.dialer.connection.Connection;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.protocol.ProtocolUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -684,7 +688,7 @@ public class HDLCConnection extends Connection implements DLMSConnection {
             try {
                 if (firstRead) {
                     firstRead = false;
-                    dummySendInformationField(retryRequest);
+                    sendInformationField(retryRequest, false);
                 } else {
                     sendInformationField(retryRequest);
                 }
@@ -881,9 +885,22 @@ public class HDLCConnection extends Connection implements DLMSConnection {
         }
     }
 
-    // Send information field segmented if size > sMaxTXIFSize.
-    // Wait for RR frame each I frame send (windowsize=1, hardcoded).
     private void sendInformationField(byte[] byteBuffer) throws NestedIOException, DLMSConnectionException {
+        sendInformationField(byteBuffer, true);
+
+    }
+
+    /**
+     * Build a proper information frame and optionally send it out to the device.
+     * Send information field segmented if size > sMaxTXIFSize.
+     * Wait for RR frame each I frame send (windowsize=1, hardcoded).
+     *
+     * @param byteBuffer   the request
+     * @param sendOutFrame indicates if we should send the frame
+     * @throws IOException
+     * @throws DLMSConnectionException
+     */
+    private void sendInformationField(byte[] byteBuffer,boolean sendOutFrame) throws NestedIOException, DLMSConnectionException {
         long lLength;
         short sFrameFormat;
         int i;
@@ -929,6 +946,8 @@ public class HDLCConnection extends Connection implements DLMSConnection {
 */
             txFrame = buildAddressingScheme(txFrame);
 
+
+            if (sendOutFrame) { // Do not modify the NR field when just building up the txFrame (and do not send it out)
             // If we received already an I / RR / RNR frame, use the
             // last receive N(S) field to construct N(R).
             if (lastHDLCFrame != null) {
@@ -937,9 +956,11 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                     NR = 0;
                 }
             }
+            }
 
             txFrame[FRAME_CONTROL] = (byte) (I | (NR << 5) | (NS << 1) | HDLC_FRAME_CONTROL_PF_BIT);
             calcCRC(txFrame);
+            if (sendOutFrame) {
             sendFrame(txFrame);
 
             if ((sFrameFormat & HDLC_FRAME_S_BIT) != 0) {
@@ -964,97 +985,9 @@ public class HDLCConnection extends Connection implements DLMSConnection {
                 } while (!hdlcFrame.boolControlPFBit);
 
             } // if (sFrameFormat & HDLC_FRAME_S_BIT)
-
+            }
         } // while(lLength>0)
-
     }
-
-    // Do all initialization - similar to #sendInformationField(byte[]) method - except this method <b>does not</b> send out the actual frame.
-    private void dummySendInformationField(byte[] byteBuffer) throws NestedIOException, DLMSConnectionException {
-        long lLength;
-        short sFrameFormat;
-        int i;
-        int iIndex;
-        byte bResult;
-        HDLCFrame hdlcFrame;
-
-        if (!boolHDLCConnected) {
-            throw new DLMSConnectionException("HDLC connection not established!");
-        }
-
-        lLength = byteBuffer.length; // length of information byteBuffer
-        iIndex = 0; // index in information byteBuffer
-
-        while (lLength > 0) {
-            if (lLength > sMaxTXIFSize) {
-                sFrameFormat = (short) ((sMaxTXIFSize + HEADER_SIZE + CRC_SIZE) | HDLC_FRAME_TYPE3 | HDLC_FRAME_S_BIT);
-                for (i = 0; i < sMaxTXIFSize; i++) {
-                    txFrame[FRAME_INFORMATION_FIELD + i] = byteBuffer[iIndex++];
-                }
-                lLength -= sMaxTXIFSize;
-            } else {
-                sFrameFormat = (short) ((lLength + HEADER_SIZE + CRC_SIZE) | HDLC_FRAME_TYPE3);
-                for (i = 0; i < lLength; i++) {
-                    txFrame[FRAME_INFORMATION_FIELD + i] = byteBuffer[iIndex++];
-                }
-                lLength = 0;
-            }
-
-            txFrame[FRAME_FORMAT_MSB] = (byte) ((sFrameFormat >> 8) & 0x00FF);
-            txFrame[FRAME_FORMAT_LSB] = (byte) (sFrameFormat & 0x00FF);
-            /*
-            if (bAddressingMode == CLIENT_ADDRESSING_4BYTE) {
-                txFrame[FRAME_DESTINATION+3] = (byte)HDLC_DESTINATION;
-                txFrame[FRAME_DESTINATION+2] = (byte)(HDLC_DESTINATION>>8);
-                txFrame[FRAME_DESTINATION+1] = (byte)(HDLC_DESTINATION>>16);
-                txFrame[FRAME_DESTINATION] = (byte)(HDLC_DESTINATION>>24);
-            }
-            else if (bAddressingMode == CLIENT_ADDRESSING_1BYTE) {
-                txFrame[FRAME_DESTINATION] = (byte)HDLC_DESTINATION;
-            }
-            txFrame[FRAME_SOURCE] = bClientMACAddress;
-*/
-            txFrame = buildAddressingScheme(txFrame);
-
-            // If we received already an I / RR / RNR frame, use the
-            // last receive N(S) field to construct N(R).
-            if (lastHDLCFrame != null) {
-                NR = (byte) (lastHDLCFrame.NS + 1);
-                if (NR > 7) {
-                    NR = 0;
-                }
-            }
-
-            txFrame[FRAME_CONTROL] = (byte) (I | (NR << 5) | (NS << 1) | HDLC_FRAME_CONTROL_PF_BIT);
-            calcCRC(txFrame);
-//            sendFrame(txFrame);
-
-            if ((sFrameFormat & HDLC_FRAME_S_BIT) != 0) {
-                do {
-                    bResult = waitForHDLCFrameStateMachine(iProtocolTimeout, rxFrame);
-                    if (bResult == HDLC_RX_OK) {
-                        hdlcFrame = decodeFrame(rxFrame);
-                        if (hdlcFrame.bControl != RR) {
-                            throw new DLMSConnectionException("ERROR sending data, should receive an RR frame.");
-                        }
-
-
-                        // Should not be done here KV 05062002
-                        //getHDLCParameters(hdlcFrame.InformationBuffer);
-
-                    } // if (waitForHDLCFrameStateMachine(iProtocolTimeout,rxFrame) == HDLC_RX_OK)
-                    else {
-
-                        throw new DLMSConnectionException("ERROR sending data, reason " + getReason(bResult), (short) ((short) bResult & 0x00FF));
-                    }
-
-                } while (!hdlcFrame.boolControlPFBit);
-
-            } // if (sFrameFormat & HDLC_FRAME_S_BIT)
-
-        } // while(lLength>0)
-
-    } // public void sendInformationField(byte[] byteBuffer) throws DLMSConnectionException
 
     private byte[] buildAddressingScheme(byte[] buffer) {
 
