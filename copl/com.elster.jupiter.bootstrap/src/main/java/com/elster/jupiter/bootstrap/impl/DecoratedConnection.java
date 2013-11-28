@@ -207,7 +207,7 @@ public class DecoratedConnection implements Connection {
             return true;
         }
         try {
-            Class<?> clazz = Class.forName("org.h2.jdbcx.JdbcDataSource");
+            Class<?> clazz = Class.forName("org.h2.jdbc.JdbcConnection");
             if (clazz.isInstance(decorated)) {
                 return false;
             }
@@ -253,7 +253,7 @@ public class DecoratedConnection implements Connection {
             return (T) decorated;
         }
         try {
-            Class<?> clazz = Class.forName("org.h2.jdbcx.JdbcDataSource");
+            Class<?> clazz = Class.forName("org.h2.jdbc.JdbcConnection");
             if (clazz.isInstance(decorated)) {
                 throw new SQLException();
             }

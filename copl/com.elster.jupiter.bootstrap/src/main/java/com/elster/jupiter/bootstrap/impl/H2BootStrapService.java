@@ -25,7 +25,7 @@ public class H2BootStrapService implements BootstrapService {
         try {
             Class<?> clazz = Class.forName("org.h2.jdbcx.JdbcDataSource");
             DataSource source = (DataSource) clazz.newInstance();
-            invokeSetter("setUrl", source, jdbcUrl);
+            invokeSetter("setURL", source, jdbcUrl);
             invokeSetter("setUser", source, USER);
             invokeSetter("setPassword", source, PASSWORD);
             return new DecoratedDataSource(source);
