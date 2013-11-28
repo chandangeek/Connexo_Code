@@ -74,6 +74,9 @@ public class TransactionServiceImpl implements TransactionService, ServiceLocato
 
 	Connection newConnection(boolean autoCommit) throws SQLException {
 		Connection result = dataSource.getConnection();
+		if (result == null) {
+			throw new SQLException("DataSource getConnection returned null");
+		}
 		threadPrincipalService.setEndToEndMetrics(result);
         result.setAutoCommit(autoCommit);
         return result;
