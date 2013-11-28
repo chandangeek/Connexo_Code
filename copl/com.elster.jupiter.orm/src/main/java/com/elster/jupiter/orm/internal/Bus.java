@@ -1,6 +1,6 @@
 package com.elster.jupiter.orm.internal;
 
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 
@@ -11,8 +11,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Bus {
-	public final static String COMPONENTNAME = "ORM";
-	public final static int CATALOGNAMELIMIT = 30;
+	public static final String COMPONENTNAME = "ORM";
+	public static final int CATALOGNAMELIMIT = 30;
 
     private static AtomicReference<ServiceLocator> locatorHolder = new AtomicReference<>();
 

@@ -9,6 +9,7 @@ import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import org.osgi.service.component.annotations.*;
 
+import javax.inject.Inject;
 import javax.sql.DataSource;
 import java.security.Principal;
 import java.sql.Connection;
@@ -27,9 +28,17 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 
     public OrmServiceImpl() {
 	}
-	
-	
-	@SuppressWarnings("resource")
+
+    @Inject
+    public OrmServiceImpl(Clock clock, DataSource dataSource, JsonService jsonService, ThreadPrincipalService threadPrincipalService) {
+        this.clock = clock;
+        this.threadPrincipalService = threadPrincipalService;
+        this.dataSource = dataSource;
+        this.jsonService = jsonService;
+        activate();
+    }
+
+    @SuppressWarnings("resource")
 	@Override
 	public Connection getConnection(boolean transactionRequired) throws SQLException {
 		Connection result = dataSource.getConnection();
@@ -83,7 +92,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
 		return threadPrincipalService.getPrincipal();
 	}
 
-	@Reference
+    @Reference
 	public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
 		this.threadPrincipalService = threadPrincipalService;
 	}
