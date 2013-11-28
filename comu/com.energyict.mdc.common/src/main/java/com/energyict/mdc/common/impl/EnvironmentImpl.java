@@ -17,7 +17,6 @@ import com.energyict.mdc.common.FormatPreferences;
 import com.energyict.mdc.common.JmsSessionContext;
 import com.energyict.mdc.common.MultiBundleTranslator;
 import com.energyict.mdc.common.Transaction;
-import com.energyict.mdc.common.TransactionContext;
 import com.energyict.mdc.common.Translator;
 import oracle.jdbc.OracleConnection;
 import org.osgi.framework.BundleContext;
@@ -187,12 +186,14 @@ public class EnvironmentImpl implements Environment {
 
     @Override
     public void closeConnection () {
-        close();
+        if (!this.isInTransaction()) {
+            this.getTransactionContext().closeConnection();
+        }
     }
 
     @Override
     public void close () {
-        this.transactionContextHolder.get().close(this.getEventManager());
+        this.getTransactionContext().close(this.getEventManager());
         this.transactionContextHolder.remove();
         if (this.eventManagerHolder != null) {
             this.eventManagerHolder.remove();
@@ -207,13 +208,8 @@ public class EnvironmentImpl implements Environment {
 
     @Override
     public Connection getConnection () {
-        try {
-            return this.getDataSource().getConnection();
+        return this.getTransactionContext().getConnection();
         }
-        catch (SQLException e) {
-            throw new DatabaseException(e);
-        }
-    }
 
     @Override
     public Connection getUnwrappedConnection () {
@@ -387,7 +383,7 @@ public class EnvironmentImpl implements Environment {
     }
 
     private TransactionContext newTransactionContext () {
-        return new TransactionContext();
+        return new TransactionContext(this.dataSource);
     }
 
     @Override
