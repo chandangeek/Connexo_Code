@@ -7,8 +7,12 @@ Ext.define('Cfg.controller.Validation', {
         'ValidationActions',
         'Validators',
         'ValidationRuleProperties',
-        'ReadingTypesForRule',
-        'AvailableReadingTypes'
+        'ReadingTypes'
+    ],
+
+    models: [
+        'ReadingType',
+        'ValidationRule'
     ],
 
     views: [
@@ -24,6 +28,14 @@ Ext.define('Cfg.controller.Validation', {
         {
             ref: 'rulePropertiesGrid',
             selector: 'validationrulesetEdit #validationrulepropertiesList'
+        },
+        {
+            ref: 'availableReadingTypesGrid',
+            selector: 'validationrulesetEdit #availableReadingTypes'
+        },
+        {
+            ref: 'activeReadingTypesGrid',
+            selector: 'validationrulesetEdit #activeReadingTypes'
         }
     ],
 
@@ -40,6 +52,15 @@ Ext.define('Cfg.controller.Validation', {
             } ,
             '#validationruleList' : {
                 select: this.editValidationRuleProperties
+            },
+            '#readingTypesActions button[action=activate]': {
+                click: this.activateReadingType
+            },
+            '#readingTypesActions button[action=deactivate]': {
+                click: this.deactivateReadingType
+            },
+            '#readingTypesActions button[action=reset]': {
+                click: this.resetReadingTypes
             }
         });
     },
@@ -61,11 +82,12 @@ Ext.define('Cfg.controller.Validation', {
 
     editValidationRuleProperties: function (grid, record) {
         this.getRulePropertiesGrid().reconfigure(record.properties());
-        var me = this;
+        this.resetReadingTypesForRecord(record);
+        /*var me = this;
         me.getReadingTypesForRuleStore().load({
             params: {
                 id: record.data.id
-            }});
+            }});   */
 
     },
 
@@ -92,6 +114,50 @@ Ext.define('Cfg.controller.Validation', {
     showOverview: function () {
         var widget = Ext.widget('validationrulesetBrowse');
         Cfg.getApplication().getMainController().showContent(widget);
+    },
+    activateReadingType: function (button) {
+        var selection = this.getAvailableReadingTypesGrid().getSelectionModel().getSelection();
+
+        this.getAvailableReadingTypesGrid().store.remove(selection);
+        this.getActiveReadingTypesGrid().store.add(selection);
+    },
+    deactivateReadingType: function (button) {
+        var selection = this.getActiveReadingTypesGrid().getSelectionModel().getSelection();
+
+        this.getActiveReadingTypesGrid().store.remove(selection);
+        this.getAvailableReadingTypesGrid().store.add(selection);
+    },
+    resetReadingTypes: function (button) {
+        if (this.getRulesGrid().getSelectionModel().hasSelection()) {
+            var record = this.getRulesGrid().getSelectionModel().getSelection()[0];
+            this.resetReadingTypesForRecord(record);
+        }
+    },
+    resetReadingTypesForRecord: function (record) {
+        var readingTypes = this.getReadingTypesStore(),
+        currentReadingTypes = record.readingTypes().data.items;
+
+        var availableReadingTypes = readingTypes.data.items,
+            availableStore = this.getAvailableReadingTypesGrid().store;
+
+        availableStore.removeAll();
+        availableStore.add(availableReadingTypes);
+        // Removes all active reading types for that rule.
+        availableStore.remove(currentReadingTypes);
+
+        var activeReadingTypes = [],
+            activeStore = this.getActiveReadingTypesGrid().store;
+
+        activeStore.removeAll();
+        if (currentReadingTypes.length > 0) {
+            // Find and add records that are currently active.
+            for (var i = 0; i < currentReadingTypes.length; i++) {
+                var readingTypeMRID = currentReadingTypes[i].data.mRID;
+                var result = readingTypes.getById(readingTypeMRID);
+                activeReadingTypes.push(result);
+            }
+            activeStore.add(activeReadingTypes);
+        }
     }
 
 });

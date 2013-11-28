@@ -16,8 +16,7 @@ Ext.define('Cfg.view.validation.Edit', {
         'Cfg.store.ValidationActions',
         'Cfg.store.Validators',
         'Cfg.store.ValidationRuleProperties',
-        'Cfg.store.ReadingTypesForRule',
-        'Cfg.store.AvailableReadingTypes'
+        'Cfg.store.ReadingTypes'
     ],
 
     initComponent: function () {
@@ -45,8 +44,11 @@ Ext.define('Cfg.view.validation.Edit', {
         ];
 
         var columns = [
-            { header: 'Name', dataIndex: 'name'}
+            { header: 'Name', dataIndex: 'name', flex: 1}
         ];
+
+        var availableGroup = this.id + 'availableGroup',
+            activeGroup = this.id + 'activeGroup';
 
 
         this.items = [
@@ -188,13 +190,13 @@ Ext.define('Cfg.view.validation.Edit', {
                                 itemId: 'availableReadingTypes',
                                 flex: 1,
                                 multiSelect: true,
-                                /*viewConfig: {
+                                viewConfig: {
                                     plugins: {
                                         ptype: 'gridviewdragdrop',
                                         dragGroup: availableGroup,
                                         dropGroup: activeGroup
                                     }
-                                },  */
+                                },
                                 store: new Ext.data.Store({
                                     model: 'Cfg.model.ReadingType'
                                 }),
@@ -236,13 +238,13 @@ Ext.define('Cfg.view.validation.Edit', {
                                 itemId: 'activeReadingTypes',
                                 flex: 1,
                                 multiSelect: true,
-                                /*viewConfig: {
+                                viewConfig: {
                                     plugins: {
                                         ptype: 'gridviewdragdrop',
                                         dragGroup: activeGroup,
                                         dropGroup: availableGroup
                                     }
-                                },   */
+                                },
                                 store: new Ext.data.Store({
                                     model: 'Cfg.model.ReadingType'
                                 }),

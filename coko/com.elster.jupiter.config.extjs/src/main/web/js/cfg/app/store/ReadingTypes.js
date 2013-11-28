@@ -1,15 +1,15 @@
-Ext.define('Cfg.store.AvailableReadingTypes', {
+Ext.define('Cfg.store.ReadingTypes', {
     extend: 'Ext.data.Store',
     autoLoad: true,
     model: 'Cfg.model.ReadingType',
-    storeId: 'availableReadingTypes',
+    storeId: 'readingTypes'
 
-    proxy: {
+    /*proxy: {
         type: 'rest',
         url: '/api/mtr/usagepoints/readingtypes',
         reader: {
             type: 'json',
             root: 'readingTypes'
         }
-    }
+    }   */
 })
