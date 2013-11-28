@@ -1,4 +1,5 @@
 Ext.define('Mdc.store.DeviceCommunicationProtocols', {
+    extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.DeviceCommunicationProtocol'
     ],
@@ -11,7 +12,7 @@ Ext.define('Mdc.store.DeviceCommunicationProtocols', {
         url: '../../api/mdc/devicecommunicationprotocols',
         reader: {
             type: 'json',
-            root: 'deviceCommunicationProtocols'
+            root: 'DeviceProtocolPluggableClass'
         }
     }
 

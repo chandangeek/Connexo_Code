@@ -4,7 +4,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     views: [
         'setup.Browse',
         'setup.comserver.ComServers',
-        'setup.devicecommunicationprotocol.List'
+        'setup.devicecommunicationprotocol.List',
+        'setup.licensedprotocol.List'
     ],
 
     init: function () {
@@ -32,6 +33,10 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     },
     showDeviceCommunicationProtocols: function () {
         var widget = Ext.widget('setupDeviceCommunicationProtocols');
+        Mdc.getApplication().getMainController().showContent(widget);
+    },
+    showLicensedProtocols: function () {
+        var widget = Ext.widget('setupLicensedProtocols');
         Mdc.getApplication().getMainController().showContent(widget);
     }
 });

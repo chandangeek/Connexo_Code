@@ -13,12 +13,14 @@ Ext.define('Mdc.Application', {
         'setup.ComServers',
         'setup.ComPorts',
         'history.Setup',
-        'setup.DeviceCommunicationProtocol'
+        'setup.DeviceCommunicationProtocol',
+        'setup.LicensedProtocol'
     ],
 
     stores: [
         'ComServers',
         'LogLevels',
-        'DeviceCommunicationProtocols'
+        'DeviceCommunicationProtocols',
+        'LicensedProtocols'
     ]
 });

@@ -6,15 +6,20 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
         type: 'vbox',
         align: 'stretch'
     },
-
+    itemId: 'deviceCommunicationProtocolEdit',
     autoShow: true,
     border: 0,
     autoWidth: true,
-
+    requires: [
+        'Mdc.store.LicensedProtocols',
+        'Mdc.view.setup.protocolfamily.List'
+    ],
     initComponent: function () {
+        var licensedProtocols = Ext.create('Mdc.store.LicensedProtocols');
         this.items = [
             {
                 xtype: 'form',
+                id: 'devicecommunicationprotocolform',
                 shrinkWrap: 1,
                 padding: 10,
                 border: 0,
@@ -38,7 +43,7 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
                                 id: 'deviceCommunicationProtocolId',
                                 readOnly: true,
                                 autoWidth: true,
-                                size:10,
+                                size: 10,
                                 hidden: true
 
                             },
@@ -47,22 +52,67 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.Edit', {
                                 name: 'name',
                                 fieldLabel: 'Name',
                                 autoWidth: true,
-                                size:50
+                                size: 50
                             },
                             {
                                 xtype: 'textfield',
-                                name: 'javaClassName',
-                                fieldLabel: 'Java class name',
+                                name: 'deviceProtocolVersion',
+                                fieldLabel: 'Version',
                                 autoWidth: true,
-                                size:75
+                                readOnly: true,
+                                size: 50
+                            },
+                            {
+                                xtype: 'combobox',
+                                name: 'licensedProtocol',
+                                id: 'licensedProtocol',
+                                fieldLabel: 'Licensed protocol',
+                                store: licensedProtocols,
+                                queryMode: 'local',
+                                displayField: 'protocolName',
+                                valueField: 'licensedProtocolRuleCode',
+                                size: 50
                             }
                         ]
                     }
                 ]
+            },
+            {
+                xtype: 'form',
+                id: 'licensedprotocolform',
+                shrinkWrap: 1,
+                padding: 10,
+                border: 0,
+                defaults: {
+                    labelWidth: 200
+                },
+                items: [
 
+                    {
+                        xtype: 'fieldset',
+                        title: 'Licensed Protocol Info',
+                        defaults: {
+                            labelWidth: 200
+                        },
+                        collapsible: true,
+                        layout: 'anchor',
+                        items: [
+                            {
+                                xtype: 'textfield',
+                                name: 'protocolJavaClassName',
+                                fieldLabel: 'Java Class Name',
+                                id: 'protocolJavaClassName',
+                                readOnly: true,
+                                autoWidth: true,
+                                size: 75
+                            },
+
+                            {"xtype": 'setupProtocolFamilies'}
+                        ]
+                    }
+                ]
             }
-        ]
-        ;
+        ];
 
         this.buttons = [
             {

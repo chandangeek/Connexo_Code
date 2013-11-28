@@ -3,7 +3,11 @@ Ext.define('Mdc.model.DeviceCommunicationProtocol', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         'name',
-        'javaClassName'
+        'deviceProtocolVersion'
+    ],
+    associations: [
+        {name: 'licensedProtocol', type: 'hasOne', model: 'Mdc.model.LicensedProtocol', associationKey: 'licensedProtocol',
+            getterName: 'getLicensedProtocol', setterName: 'setLicensedProtocol', foreignKey: 'licensedProtocol'}
     ],
     proxy: {
         type: 'rest',
@@ -12,4 +16,5 @@ Ext.define('Mdc.model.DeviceCommunicationProtocol', {
             type: 'json'
         }
     }
-});
+})
+;
