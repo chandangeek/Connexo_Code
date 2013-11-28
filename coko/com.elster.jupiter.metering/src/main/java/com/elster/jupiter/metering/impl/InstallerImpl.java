@@ -48,6 +48,14 @@ public class InstallerImpl {
         createReadingTypes();
         createPartyRoles(Bus.getPartyService());
         createPrivileges(Bus.getUserService());
+        createAmrSystems();
+    }
+
+    private void createAmrSystems() {
+        AmrSystemImpl mdc = new AmrSystemImpl(1, "MDC");
+        mdc.save();
+        AmrSystemImpl energyAxis = new AmrSystemImpl(2, "EnergyAxis");
+        energyAxis.save();
     }
 
     private void createVaults(IdsService idsService) {

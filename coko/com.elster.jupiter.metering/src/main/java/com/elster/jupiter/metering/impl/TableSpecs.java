@@ -105,7 +105,7 @@ public enum TableSpecs {
 	},
 	MTR_AMRSYSTEM {
 		void describeTable(Table table) {
-			Column idColumn = table.addAutoIdColumn();
+			Column idColumn = table.addColumn("ID", "number", true, NUMBER2INT, "id");
 			Column nameColumn = table.addColumn("NAME", "varchar2(80)", true, NOCONVERSION , "name");
 			table.addAuditColumns();
 			table.addPrimaryKeyConstraint("MTR_PK_AMRSYSTEM", idColumn);

@@ -10,9 +10,17 @@ import java.util.List;
 
 public interface MeteringService {
 
-    Optional<ReadingType> getReadingType(String mRid);
-
     ServiceLocation newServiceLocation();
+
+    QueryUsagePointGroup createQueryUsagePointGroup(Condition condition);
+
+    EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name);
+
+    ReadingStorer createOverrulingStorer();
+
+    ReadingStorer createNonOverrulingStorer();
+
+    Optional<ReadingType> getReadingType(String mRid);
 
     Optional<ServiceLocation> findServiceLocation(String mRid);
 
@@ -22,9 +30,19 @@ public interface MeteringService {
 
     Optional<UsagePoint> findUsagePoint(long id);
 
-    ReadingStorer createOverrulingStorer();
+    Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id);
 
-    ReadingStorer createNonOverrulingStorer();
+    Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id);
+
+    Optional<MeterActivation> findMeterActivation(long meterActivationId);
+
+    Optional<Channel> findChannel(long id);
+
+    Optional<AmrSystem> findAmrSystem(long id);
+
+    List<ReadingType> getAvailableReadingTypes();
+
+    List<JournalEntry<ServiceLocation>> findServiceLocationJournal(long id);
 
     Query<UsagePoint> getUsagePointQuery();
 
@@ -36,23 +54,5 @@ public interface MeteringService {
 
     Condition hasAccountability(Date when);
 
-    List<JournalEntry<ServiceLocation>> findServiceLocationJournal(long id);
-
 	Query<Meter> getMeterQuery();
-
-    QueryUsagePointGroup createQueryUsagePointGroup(Condition condition);
-
-    Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id);
-
-    EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name);
-
-    Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id);
-
-    Optional<MeterActivation> findMeterActivation(long meterActivationId);
-
-    Optional<Channel> findChannel(long id);
-
-    List<ReadingType> getAvailableReadingTypes();
-
-    Optional<AmrSystem> findAmrSystem(long id);
 }
