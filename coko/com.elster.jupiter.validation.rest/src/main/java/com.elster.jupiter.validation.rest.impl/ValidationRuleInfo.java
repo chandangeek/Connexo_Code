@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -15,6 +17,7 @@ public class ValidationRuleInfo {
     public String implementation; //validator name
     public int position;
     public List<ValidationRulePropertyInfo> properties = new ArrayList<ValidationRulePropertyInfo>();
+    public List<ReadingTypeInfo> readingTypes = new ArrayList<ReadingTypeInfo>();
 
     public ValidationRuleInfo(ValidationRule validationRule) {
         id = validationRule.getId();
@@ -23,6 +26,9 @@ public class ValidationRuleInfo {
         implementation = validationRule.getImplementation();
         for (ValidationRuleProperties property : validationRule.getProperties()) {
             properties.add(new ValidationRulePropertyInfo(property));
+        }
+        for (ReadingType readingType : validationRule.getReadingTypes()) {
+            readingTypes.add(new ReadingTypeInfo(readingType));
         }
     }
 
