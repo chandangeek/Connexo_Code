@@ -53,6 +53,7 @@
 -keepnames class com.energyict.protocolimplv2.ace4000.ACE4000Outbound
 -keepnames class com.energyict.protocolimplv2.eict.gatewayz3.GateWayZ3
 -keepnames class com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer
+-keepnames class com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP
 
 -keepnames class com.energyict.mdc.protocol.inbound.DlmsSerialNumberDiscover
 -keepnames class com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol
