@@ -44,8 +44,8 @@ Ext.define('Cfg.controller.Validation', {
         this.initMenu();
 
         this.control({
-            'valiationrulesetList button[action=save]': {
-                click: this.saveRuleSets
+            'validationrulesetEdit button[action=save]': {
+                click: this.saveRuleSet
             },
             '#validationrulesetList': {
                 itemdblclick: this.editValidationRuleSet
@@ -83,17 +83,35 @@ Ext.define('Cfg.controller.Validation', {
     editValidationRuleProperties: function (grid, record) {
         this.getRulePropertiesGrid().reconfigure(record.properties());
         this.resetReadingTypesForRecord(record);
-        /*var me = this;
-        me.getReadingTypesForRuleStore().load({
-            params: {
-                id: record.data.id
-            }});   */
-
     },
 
-    saveRuleSets: function (button) {
+    saveRuleSet: function (button) {
+       var win = button.up('window'),
+            form = win.down('form'),
+           ruleSetRecord = form.getRecord();
+            values = form.getValues(),
+            myRules = this.getRulesGrid.store.data.items;
+        ruleSetRecord.set(values);
+        ruleSetRecord.rules().removeAll();
+        ruleSetRecord.rules().add(myRules);
 
+        if (this.getRulesGrid().getSelectionModel().hasSelection()) {
+            var ruleRecord = this.getRulesGrid().getSelectionModel().getSelection()[0];
+            activeReadingTypes = this.getActiveReadingTypesGrid().store.data.items;
+            ruleProperties = this.getRulePropertiesGrid.store.data.items;
+            ruleRecord.properties().removeAll();
+            ruleRecord.properties().add(ruleProperties);
+            ruleRecord.readingTypes.removeAll();
+            ruleRecord.readingTypes().add(activeReadingTypes);
+            ruleRecord.save();
+            ruleRecord.commit();
+        }
+
+        win.close();
+        ruleSetRecord.save();
+        ruleSetRecord.commit();
     },
+
     saveSuccess: function () {
         alert('Saved');
     },

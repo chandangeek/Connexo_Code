@@ -31,10 +31,6 @@ Ext.define('Cfg.view.validation.Edit', {
 
         this.buttons = [
             {
-                text: 'Clone',
-                action: 'clone'
-            },
-            {
                 text: 'Save',
                 action: 'save'
             },
@@ -190,6 +186,7 @@ Ext.define('Cfg.view.validation.Edit', {
                                 xtype: 'gridpanel',
                                 title: 'Available',
                                 itemId: 'availableReadingTypes',
+                                hideHeaders: true,
                                 flex: 1,
                                 multiSelect: true,
                                 viewConfig: {
@@ -238,6 +235,7 @@ Ext.define('Cfg.view.validation.Edit', {
                                 xtype: 'gridpanel',
                                 title: 'Active',
                                 itemId: 'activeReadingTypes',
+                                hideHeaders: true,
                                 flex: 1,
                                 multiSelect: true,
                                 viewConfig: {

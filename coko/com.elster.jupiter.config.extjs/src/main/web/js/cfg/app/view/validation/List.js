@@ -15,12 +15,12 @@ Ext.define('Cfg.view.validation.List', {
         ]
     },
     initComponent: function () {
-        this.buttons = [
+        /*this.buttons = [
             {
                 text: 'Save',
                 action: 'save'
             }
-        ];
+        ];     */
         this.dockedItems = [
             {
                 xtype: 'pagingtoolbar',
