@@ -30,6 +30,6 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     public Channel build() {
         ChannelImpl channel = new ChannelImpl(meterActivation);
         channel.init(readingTypes);
-        return null;
+        return channel;
     }
 }

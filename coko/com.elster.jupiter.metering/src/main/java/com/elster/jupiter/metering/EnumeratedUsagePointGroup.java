@@ -6,15 +6,7 @@ import java.util.Date;
 
 public interface EnumeratedUsagePointGroup extends UsagePointGroup {
 
-    void setName(String name);
-
-    void setMRID(String mrid);
-
-    void setDescription(String description);
-
-    void setAliasName(String aliasName);
-
-    void setType(String type);
+    String TYPE_IDENTIFIER = "EUG";
 
     void endMembership(UsagePoint usagePoint, Date now);
 
@@ -28,5 +20,4 @@ public interface EnumeratedUsagePointGroup extends UsagePointGroup {
 
     void remove(Entry entry);
 
-    void save();
 }

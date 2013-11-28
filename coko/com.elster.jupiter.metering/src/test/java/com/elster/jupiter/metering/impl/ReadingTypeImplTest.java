@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.google.common.collect.ImmutableList;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,8 +32,8 @@ public class ReadingTypeImplTest extends EqualsContractTest {
     }
 
     @Override
-    protected Object getInstanceNotEqualToA() {
-        return new ReadingTypeImpl(MRID2, ALIAS);
+    protected Iterable<?> getInstancesNotEqualToA() {
+        return ImmutableList.of(new ReadingTypeImpl(MRID2, ALIAS));
     }
 
     @Override

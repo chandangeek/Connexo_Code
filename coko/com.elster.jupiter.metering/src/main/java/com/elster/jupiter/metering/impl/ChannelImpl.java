@@ -20,7 +20,7 @@ import java.util.TimeZone;
 
 import static com.elster.jupiter.metering.impl.Bus.COMPONENTNAME;
 
-public class ChannelImpl implements Channel {
+public final class ChannelImpl implements Channel {
 	
 	private static final int REGULARVAULTID = 1;
 	private static final int IRREGULARVAULTID = 2;
@@ -131,7 +131,7 @@ public class ChannelImpl implements Channel {
 	}
 
     private RecordSpec getRecordSpec(boolean regular) {
-        int id = regular ? IRREGULARRECORDSPECID : REGULARRECORDSPECID;
+        int id = regular ? REGULARRECORDSPECID : IRREGULARRECORDSPECID;
         Optional<RecordSpec> result = Bus.getIdsService().getRecordSpec(COMPONENTNAME, id);
         if (result.isPresent()) {
             return result.get();
@@ -279,8 +279,29 @@ public class ChannelImpl implements Channel {
 	}
 
     @Override
+    public ReadingQuality createReadingQuality(ReadingQualityType type, BaseReadingRecord baseReadingRecord) {
+        return new ReadingQualityImpl(type, this, baseReadingRecord);
+    }
+
+    @Override
     public long getVersion() {
         return version;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return id == ((ChannelImpl) o).id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
     
     private boolean isRegular() {

@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.orm.AssociationMapping;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
@@ -232,7 +233,7 @@ public enum TableSpecs {
 			table.addForeignKeyConstraint("MTR_FK_UPACCOUNTPARTYROLE", "PRT" , "PRT_PARTYROLE", RESTRICT , "role" , roleMRIDColumn);
  		}
 	},
-    MTR_ENUM_UP_GROUP {
+    MTR_UP_GROUP {
         @Override
         void describeTable(Table table) {
             Column idColumn = table.addAutoIdColumn();
@@ -240,7 +241,7 @@ public enum TableSpecs {
             Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION, "mRID");
             table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
             table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
-            table.addColumn("TYPE", "varchar2(80)", false, NOCONVERSION , "type");
+            table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
             table.addAuditColumns();
             table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP", idColumn);
             table.addUniqueConstraint("MTR_U_ENUM_UP_GROUP", mRIDColumn);
@@ -253,22 +254,8 @@ public enum TableSpecs {
             Column usagePointColumn = table.addColumn("USAGEPOINT_ID", "number", true, NUMBER2LONG, "usagePointId");
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addPrimaryKeyConstraint("MTR_PK_ENUM_UP_GROUP_ENTRY", groupColumn, usagePointColumn, intervalColumns.get(0));
-            table.addForeignKeyConstraint("MTR_FK_UPGE_UPG", MTR_ENUM_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup"), groupColumn);
+            table.addForeignKeyConstraint("MTR_FK_UPGE_UPG", MTR_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup"), groupColumn);
             table.addForeignKeyConstraint("MTR_FK_UPGE_UP", MTR_USAGEPOINT.name(), DeleteRule.RESTRICT, new AssociationMapping("usagePoint"), usagePointColumn);
-        }
-    },
-    MTR_QUERY_UP_GROUP {
-        @Override
-        void describeTable(Table table) {
-            Column idColumn = table.addAutoIdColumn();
-            table.addColumn("NAME", "varchar2(80)", false, NOCONVERSION , "name");
-            Column mRIDColumn = table.addColumn("MRID", "varchar2(80)", false, NOCONVERSION, "mRID");
-            table.addColumn("DESCRIPTION", "varchar2(256)", false, NOCONVERSION , "description");
-            table.addColumn("ALIASNAME", "varchar2(80)", false, NOCONVERSION , "aliasName");
-            table.addColumn("TYPE", "varchar2(80)", false, NOCONVERSION , "type");
-            table.addAuditColumns();
-            table.addPrimaryKeyConstraint("MTR_PK_QUERY_UP_GROUP", idColumn);
-            table.addUniqueConstraint("MTR_U_QUERY_UP_GROUP", mRIDColumn);
         }
     },
     MTR_QUERY_UP_GROUP_OP {
@@ -282,8 +269,22 @@ public enum TableSpecs {
             table.addColumn("BINDVALUES", "VARCHAR2(256)", false, CHAR2JSON, "values");
 
             table.addPrimaryKeyConstraint("MTR_PK_QUPGOP", groupColumn, positionColumn);
-            table.addForeignKeyConstraint("MTR_FK_QUPG_QUPGOP", MTR_QUERY_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup", "operations", "position"), groupColumn);
+            table.addForeignKeyConstraint("MTR_FK_QUPG_QUPGOP", MTR_UP_GROUP.name(), DeleteRule.CASCADE, new AssociationMapping("usagePointGroup", "operations", "position"), groupColumn);
 
+        }
+    },
+    MTR_READINGQUALITY {
+        @Override
+        void describeTable(Table table) {
+            Column idColumn = table.addAutoIdColumn();
+            Column channelColumn = table.addColumn("CHANNELID", "number", true, NUMBER2LONG, "channelId");
+            Column timestampColumn = table.addColumn("READINGTIMESTAMP", "number", true, NUMBER2UTCINSTANT, "readingTimestamp");
+            Column typeColumn = table.addColumn("TYPE", "varchar(64)", true, NOCONVERSION, "typeCode");
+            table.addAuditColumns();
+            table.addColumn("COMMENTS", "varchar(4000)", false, ColumnConversion.NOCONVERSION, "comment");
+            table.addPrimaryKeyConstraint("MTR_PK_READINGQUALITY", idColumn);
+            table.addForeignKeyConstraint("MTR_FK_RQ_CHANNEL", MTR_CHANNEL.name(), DeleteRule.CASCADE, new AssociationMapping("channel"), channelColumn);
+            table.addUniqueConstraint("MTR_U_READINGQUALITY", channelColumn, timestampColumn, typeColumn);
         }
     };
 	

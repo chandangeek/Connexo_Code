@@ -91,35 +91,39 @@ public class QueryBuilder {
 
         @Override
         public void visitOr(Or or) {
-            add(OpenBracketOperation.atPosition(operations.size()));
+            add(OpenBracketOperation.atPosition(nextPosition()));
             or.getConditions().get(0).visit(this);
-            add(OrOperation.atPosition(operations.size()));
+            add(OrOperation.atPosition(nextPosition()));
             or.getConditions().get(1).visit(this);
-            add(CloseBracketOperation.atPosition(operations.size()));
+            add(CloseBracketOperation.atPosition(nextPosition()));
+        }
+
+        private int nextPosition() {
+            return operations.size() + 1;
         }
 
         @Override
         public void visitAnd(And and) {
-            add(OpenBracketOperation.atPosition(operations.size()));
+            add(OpenBracketOperation.atPosition(nextPosition()));
             and.getConditions().get(0).visit(this);
-            add(AndOperation.atPosition(operations.size()));
+            add(AndOperation.atPosition(nextPosition()));
             and.getConditions().get(1).visit(this);
-            add(CloseBracketOperation.atPosition(operations.size()));
+            add(CloseBracketOperation.atPosition(nextPosition()));
         }
 
         @Override
         public void visitComparison(Comparison comparison) {
             SimpleConditionOperation operation = new SimpleConditionOperation(comparison);
-            operation.setPosition(operations.size());
+            operation.setPosition(nextPosition());
             add(operation);
         }
 
         @Override
         public void visitNot(Not not) {
-            add(NotOperation.atPosition(operations.size()));
-            add(OpenBracketOperation.atPosition(operations.size()));
+            add(NotOperation.atPosition(nextPosition()));
+            add(OpenBracketOperation.atPosition(nextPosition()));
             not.getNegated().visit(this);
-            add(CloseBracketOperation.atPosition(operations.size()));
+            add(CloseBracketOperation.atPosition(nextPosition()));
         }
 
         @Override

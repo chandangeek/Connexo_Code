@@ -7,7 +7,6 @@ import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.time.IntermittentInterval;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -20,20 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class EnumeratedUsagePointGroupImpl implements EnumeratedUsagePointGroup {
-
-    private long id;
-
-    private String name;
-    private String mRID;
-    private String description;
-    private String aliasName;
-    private String type;
-
-    private long version;
-    private UtcInstant createTime;
-    private UtcInstant modTime;
-    private String userName;
+public class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements EnumeratedUsagePointGroup {
 
     private List<EntryImpl> entries;
 
@@ -226,16 +212,6 @@ public class EnumeratedUsagePointGroupImpl implements EnumeratedUsagePointGroup 
     }
 
     @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public String getType() {
-        return type;
-    }
-
-    @Override
     public List<UsagePoint> getMembers(final Date date) {
         return FluentIterable.from(getMemberships())
                 .filter(Active.at(date))
@@ -265,51 +241,6 @@ public class EnumeratedUsagePointGroupImpl implements EnumeratedUsagePointGroup 
         return FluentIterable.from(getMemberships())
                 .filter(With.usagePoint(usagePoint))
                 .first().orNull();
-    }
-
-    @Override
-    public String getAliasName() {
-        return aliasName;
-    }
-
-    @Override
-    public String getDescription() {
-        return description;
-    }
-
-    @Override
-    public String getMRID() {
-        return mRID;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public void setMRID(String mrid) {
-        this.mRID = mrid;
-    }
-
-    @Override
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    @Override
-    public void setAliasName(String aliasName) {
-        this.aliasName = aliasName;
-    }
-
-    @Override
-    public void setType(String type) {
-        this.type = type;
     }
 
     private static class Active implements Predicate<UsagePointMembership> {

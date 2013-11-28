@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.IntervalLengthUnit;
 import com.elster.jupiter.ids.RecordSpec;
@@ -11,6 +12,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTimeZone;
 import org.junit.After;
@@ -34,7 +36,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ChannelImplTest {
+public class ChannelImplTest extends EqualsContractTest {
 
     private static final String MRID1 = "11.2.2.4.0.8.12.8.16.9.11.12.13.14.128.3.72.124";
     private static final String MRID2 = "11.2.2.1.0.8.12.9.16.9.11.12.13.14.128.3.72.124";
@@ -52,6 +54,7 @@ public class ChannelImplTest {
     private static final BigDecimal VALUE = BigDecimal.valueOf(3156516, 2);
 
     private ChannelImpl channel;
+    private ChannelImpl channelInstanceA;
 
     private ReadingTypeImpl readingType1, readingType2, readingType3, readingType4;
 
@@ -96,6 +99,40 @@ public class ChannelImplTest {
     @After
     public void tearDown() {
         Bus.clearServiceLocator(serviceLocator);
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        if (channelInstanceA == null) {
+            channelInstanceA = new ChannelImpl(meterActivation);
+            field("id").ofType(Long.TYPE).in(channelInstanceA).set(ID);
+        }
+        return channelInstanceA;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        ChannelImpl channel1 = new ChannelImpl(meterActivation);
+        field("id").ofType(Long.TYPE).in(channel1).set(ID);
+
+        return channel1;
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        ChannelImpl channel1 = new ChannelImpl(meterActivation);
+        field("id").ofType(Long.TYPE).in(channel1).set(ID + 1);
+        return ImmutableList.of(channel1, new ChannelImpl(meterActivation));
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
     }
 
     @Test

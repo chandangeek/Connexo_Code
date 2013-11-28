@@ -4,17 +4,23 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EnumeratedUsagePointGroup;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.QueryUsagePointGroup;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.cache.CacheService;
 import com.elster.jupiter.orm.cache.ComponentCache;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -25,9 +31,12 @@ import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
-import org.osgi.service.component.annotations.*;
-
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +54,21 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     private volatile UserService userService;
     private volatile EventService eventService;
 
+    public MeteringServiceImpl() {
+    }
+
+    @Inject
+    public MeteringServiceImpl(Clock clock, OrmService ormService, IdsService idsService, CacheService cacheService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService) {
+        this.clock = clock;
+        initOrmClient(ormService);
+        this.idsService = idsService;
+        initComponentCache(cacheService);
+        this.eventService = eventService;
+        this.partyService = partyService;
+        this.queryService = queryService;
+        this.userService = userService;
+        activate();
+    }
 
     @Override
     public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
@@ -87,7 +111,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
     }
 
     @Override
-    public ReadingStorer createRegularStorer() {
+    public ReadingStorer createNonOverrulingStorer() {
         return new ReadingStorerImpl(false);
     }
 
@@ -170,6 +194,10 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Reference
     public void setOrmService(OrmService ormService) {
+        initOrmClient(ormService);
+    }
+
+    private void initOrmClient(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "CIM Metering");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -179,6 +207,10 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
 
     @Reference(name = "ZCacheService")
     public void setCacheService(CacheService cacheService) {
+        initComponentCache(cacheService);
+    }
+
+    private void initComponentCache(CacheService cacheService) {
         this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
     }
 
@@ -245,7 +277,46 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         return new ChannelBuilderImpl();
     }
 
-	@Override
+    @Override
+    public QueryUsagePointGroup createQueryUsagePointGroup(Condition condition) {
+        QueryUsagePointGroupImpl queryUsagePointGroup = new QueryUsagePointGroupImpl();
+        queryUsagePointGroup.setCondition(condition);
+        return queryUsagePointGroup;
+    }
+
+    @Override
+    public Optional<QueryUsagePointGroup> findQueryUsagePointGroup(long id) {
+        return getOrmClient().getQueryUsagePointGroupFactory().get(id);
+    }
+
+    @Override
+    public EnumeratedUsagePointGroup createEnumeratedUsagePointGroup(String name) {
+        EnumeratedUsagePointGroup group = new EnumeratedUsagePointGroupImpl();
+        group.setName(name);
+        return group;
+    }
+
+    @Override
+    public Optional<EnumeratedUsagePointGroup> findEnumeratedUsagePointGroup(long id) {
+        return getOrmClient().getEnumeratedUsagePointGroupFactory().get(id);
+    }
+
+    @Override
+    public Optional<MeterActivation> findMeterActivation(long id) {
+        return getOrmClient().getMeterActivationFactory().get(id);
+    }
+
+    @Override
+    public Optional<Channel> findChannel(long id) {
+        return getOrmClient().getChannelFactory().get(id);
+    }
+
+    @Override
+    public List<ReadingType> getAvailableReadingTypes() {
+        return getOrmClient().getReadingTypeFactory().find();
+    }
+
+    @Override
 	public MeteringService getMeteringService() {
 		return this;
 	}
