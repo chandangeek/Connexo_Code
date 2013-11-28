@@ -130,6 +130,7 @@ public class Dsmr40Messaging extends Dsmr23Messaging {
     public List getMessageCategories() {
         List<MessageCategorySpec> messages = super.getMessageCategories();
         messages.add(getRestoreFactorySettings());
+        messages.add(getDiscoverySettingsCategory());
         messages.add(ProtocolMessageCategories.getChangeAdministrativeStatusCategory());
         return messages;
     }

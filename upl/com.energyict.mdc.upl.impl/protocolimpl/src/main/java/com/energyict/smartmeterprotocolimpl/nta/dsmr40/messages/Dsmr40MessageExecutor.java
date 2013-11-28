@@ -224,6 +224,32 @@ public class Dsmr40MessageExecutor extends Dsmr23MessageExecutor {
     }
 
     @Override
+    protected MessageResult changeDiscoveryOnPowerUp(MessageEntry msgEntry, int enable) throws IOException {
+        log(Level.INFO, "Changing discover_on_power_on bit to " + enable);
+
+        Data config = getCosemObjectFactory().getData(OBISCODE_CONFIGURATION_OBJECT);
+        Structure value;
+        BitString flags;
+        try {
+            value = (Structure) config.getValueAttr();
+            try {
+                AbstractDataType dataType = value.getDataType(1);
+                flags = (BitString) dataType;
+            } catch (IndexOutOfBoundsException e) {
+                return MessageResult.createFailed(msgEntry, "Couldn't write configuration. Expected structure value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to have 2 elements.");
+            } catch (ClassCastException e) {
+                return MessageResult.createFailed(msgEntry, "Couldn't write configuration. Expected second element of structure to be of type 'Bitstring', but was of type '" + value.getDataType(1).getClass().getSimpleName() + "'.");
+            }
+
+            flags.set(1, enable == 1);    //Set bit1 to true or false in order to enable/disable the discovery on power up.
+            config.setValueAttr(value);
+            return MessageResult.createSuccess(msgEntry);
+        } catch (ClassCastException e) {
+            return MessageResult.createFailed(msgEntry, "Couldn't write configuration. Expected value of [" + OBISCODE_CONFIGURATION_OBJECT.toString() + "] to be of type 'Structure', but was of type '" + config.getValueAttr().getClass().getSimpleName() + "'.");
+        }
+    }
+
+    @Override
     protected MessageResult changeAuthenticationLevel(MessageEntry msgEntry, MessageHandler messageHandler, int type, boolean enable) throws IOException {
         int newAuthLevel = messageHandler.getAuthenticationLevel();
         if (newAuthLevel != -1) {

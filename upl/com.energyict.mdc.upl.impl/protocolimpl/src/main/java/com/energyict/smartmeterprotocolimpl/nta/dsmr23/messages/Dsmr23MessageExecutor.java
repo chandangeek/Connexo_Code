@@ -109,6 +109,8 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                 boolean resetAlarmRegisterRequest = messageHandler.getType().equals(RtuMessageConstant.RESET_ALARM_REGISTER);
                 boolean isChangeDefaultResetWindow = messageHandler.getType().equals(RtuMessageConstant.CHANGE_DEFAULT_RESET_WINDOW);
                 boolean isChangeAdministrativeStatus = messageHandler.getType().equals(RtuMessageConstant.CHANGE_ADMINISTRATIVE_STATUS);
+                boolean enableDiscoveryOnPowerUp = messageHandler.getType().equals(RtuMessageConstant.ENABLE_DISCOVERY_ON_POWER_UP);
+                boolean disableDiscoveryOnPowerUp = messageHandler.getType().equals(RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP);
 
                 /* All MbusMeter related messages */
                 if (xmlConfig) {
@@ -195,6 +197,10 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
                     changeDefaultResetWindow(messageHandler);
                 } else if (isChangeAdministrativeStatus) {
                     changeAdministrativeStatus(messageHandler);
+                } else if (enableDiscoveryOnPowerUp) {
+                    msgResult = changeDiscoveryOnPowerUp(msgEntry, 1);
+                } else if (disableDiscoveryOnPowerUp) {
+                    msgResult = changeDiscoveryOnPowerUp(msgEntry, 0);
                 } else {
                     msgResult = MessageResult.createFailed(msgEntry, "Message not supported by the protocol.");
                     log(Level.INFO, "Message not supported : " + content);
@@ -1137,6 +1143,10 @@ public class Dsmr23MessageExecutor extends GenericMessageExecutor {
         int status = messageHandler.getAdministrativeStatus();
         log(Level.INFO, "Changing administrative status to " + status);
         getCosemObjectFactory().getData(DSMR40RegisterFactory.AdministrativeStatusObisCode).setValueAttr(new TypeEnum(status));
+    }
+
+    protected MessageResult changeDiscoveryOnPowerUp(MessageEntry msgEntry, int enable) throws IOException {
+        return MessageResult.createFailed(msgEntry, "Changing the discovery on power up is not supported in DSMR2.3");
     }
 
     protected void log(final Level level, final String msg) {

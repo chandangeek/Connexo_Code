@@ -302,6 +302,19 @@ public abstract class GenericMessaging implements Messaging {
         return catGlobalDisc;
     }
 
+    public MessageCategorySpec getDiscoverySettingsCategory() {
+        MessageCategorySpec cat = new MessageCategorySpec(RtuMessageCategoryConstants.DISCOVERY_SETTINGS);
+        MessageSpec msgSpec = addNoValueMsg(
+                RtuMessageKeyIdConstants.ENABLE_DISCOVERY_ON_POWER_UP,
+                RtuMessageConstant.ENABLE_DISCOVERY_ON_POWER_UP, false);
+        cat.addMessageSpec(msgSpec);
+        MessageSpec msgSpec2 = addNoValueMsg(
+                RtuMessageKeyIdConstants.DISABLE_DISCOVERY_ON_POWER_UP,
+                RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP, false);
+        cat.addMessageSpec(msgSpec2);
+        return cat;
+    }
+
     /**
      * Creates a message without a value,
      *

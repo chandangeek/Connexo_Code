@@ -41,6 +41,10 @@ public class MessageHandler extends DefaultHandler{
 		} else if(RtuMessageConstant.CHANGE_ADMINISTRATIVE_STATUS.equals(qName)){
 			setType(RtuMessageConstant.CHANGE_ADMINISTRATIVE_STATUS);
 			handleAdministrativeStatus(attrbs);
+        } else if (RtuMessageConstant.ENABLE_DISCOVERY_ON_POWER_UP.equals(qName)) {
+            setType(RtuMessageConstant.ENABLE_DISCOVERY_ON_POWER_UP);
+        } else if (RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP.equals(qName)) {
+            setType(RtuMessageConstant.DISABLE_DISCOVERY_ON_POWER_UP);
 		} else if(RtuMessageConstant.FIRMWARE_UPDATE.equals(qName)){
 			setType(RtuMessageConstant.FIRMWARE_UPDATE);
             isXmlInContent = true;

@@ -234,6 +234,8 @@ public class RtuMessageConstant {
      */
     public static final String GLOBAL_METER_RESET = "Global_Meter_Reset";
     public static final String RESTORE_FACTORY_SETTINGS = "Restore_Factory_Settings";
+    public static final String ENABLE_DISCOVERY_ON_POWER_UP = "Enable_Discover_On_Power_Up";
+    public static final String DISABLE_DISCOVERY_ON_POWER_UP = "Disable_Discover_On_Power_Up";
 
     /**
      * DeviceMessage tags for Webserver activate/deactivate

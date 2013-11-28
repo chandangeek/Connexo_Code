@@ -20,6 +20,7 @@ public class RtuMessageCategoryConstants {
     public static final String TESTSECURITYMESSAGE = "TestSecurityMessage";
     public static final String GLOBALRESET = "Global Reset";
     public static final String FACTORYSETTINGS = "Restore factory settings";
+	public static final String DISCOVERY_SETTINGS = "Configure discovery settings";
     public static final String GPRSMODEMSETUP = "Change GPRS Modem Setup";
     public static final String GPRS_MODEM_PING_SETUP = "GPRS Modem Ping Setup";
     public static final String WAKEUPFUNCTIONALITY = "Wake up functionality";
