@@ -1,7 +1,5 @@
 package com.elster.jupiter.events.impl;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.EventTypeBuilder;
@@ -20,7 +18,6 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +26,10 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.event.EventAdmin;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component(name = "com.elster.jupiter.events", service = {InstallService.class, EventService.class}, property = "name=" + Bus.COMPONENTNAME, immediate=true)
 public class EventServiceImpl implements EventService, InstallService, ServiceLocator {
@@ -43,6 +44,22 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
     private volatile JsonService jsonService;
 
     private LocalEventDispatcher localEventDispatcher = new LocalEventDispatcher();
+
+    public EventServiceImpl() {
+    }
+
+    @Inject
+    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, CacheService cacheService, EventAdmin eventAdmin, MessageService messageService, BundleContext bundleContext) {
+        initOrmClient(ormService);
+        this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
+        this.eventAdmin.set(eventAdmin);
+        this.clock = clock;
+        this.publisher = publisher;
+        this.beanService = beanService;
+        this.jsonService = jsonService;
+        this.messageService = messageService;
+        activate(bundleContext);
+    }
 
     @Override
     public void install() {
@@ -70,6 +87,10 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
 
     @Reference
     public void setOrmService(OrmService ormService) {
+        initOrmClient(ormService);
+    }
+
+    private void initOrmClient(OrmService ormService) {
         DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Events");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
