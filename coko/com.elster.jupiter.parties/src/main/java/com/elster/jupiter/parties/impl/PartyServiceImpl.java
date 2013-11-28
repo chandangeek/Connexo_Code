@@ -19,16 +19,15 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.security.Principal;
 import java.util.List;
 
 @Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + Bus.COMPONENTNAME)
 public class PartyServiceImpl implements PartyService, InstallService, ServiceLocator {
-
     private volatile OrmClient ormClient;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile ComponentCache cache;
@@ -37,7 +36,22 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     private volatile QueryService queryService;
     private volatile EventService eventService;
 
-    public void activate(ComponentContext context) {
+    public PartyServiceImpl() {
+    }
+
+    @Inject
+    public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, CacheService cacheService, EventService eventService, ThreadPrincipalService threadPrincipalService) {
+        this.clock = clock;
+        initOrmClient(ormService);
+        this.queryService = queryService;
+        this.userService = userService;
+        initComponentCache(cacheService);
+        this.eventService = eventService;
+        this.threadPrincipalService = threadPrincipalService;
+        activate();
+    }
+
+    public void activate() {
         Bus.setServiceLocator(this);
     }
 
@@ -48,9 +62,28 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 		return result;
 	}
 	
-	public void deactivate(ComponentContext context) {
+	public void deactivate() {
 		Bus.clearServiceLocator(this);
 	}
+
+    @Override
+    public void deletePartyRole(PartyRole partyRole) {
+        getOrmClient().getPartyRoleFactory().remove(partyRole);
+    }
+
+    @Override
+    public Optional<Party> findParty(long id) {
+        return getOrmClient().getPartyFactory().get(id);
+    }
+
+    public Optional<PartyRole> findPartyRoleByMRID(String mRID) {
+        for (PartyRole partyRole : getPartyRoles()) {
+            if (partyRole.getMRID().equals(mRID)) {
+                return Optional.of(partyRole);
+            }
+        }
+        return Optional.absent();
+    }
 
     @Override
     public ComponentCache getCache() {
@@ -59,6 +92,10 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     public Clock getClock() {
         return clock;
+    }
+
+    public EventService getEventService() {
+        return eventService;
     }
 
     @Override
@@ -94,30 +131,6 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     }
 
     @Override
-    public void deletePartyRole(PartyRole partyRole) {
-        getOrmClient().getPartyRoleFactory().remove(partyRole);
-    }
-
-    @Override
-    public void updateRole(PartyRole partyRole) {
-        getOrmClient().getPartyRoleFactory().update(partyRole);
-    }
-
-    @Override
-    public void updateRepresentation(PartyRepresentation representation) {
-        getOrmClient().getPartyRepresentationFactory().update(representation);
-    }
-
-    public Optional<PartyRole> findPartyRoleByMRID(String mRID) {
-        for (PartyRole partyRole : getPartyRoles()) {
-            if (partyRole.getMRID().equals(mRID)) {
-                return Optional.of(partyRole);
-            }
-        }
-        return Optional.absent();
-    }
-
-    @Override
     public Principal getPrincipal() {
         return threadPrincipalService.getPrincipal();
     }
@@ -127,8 +140,18 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     }
 
     @Override
+    public UserService getUserService() {
+        return userService;
+    }
+
+    @Override
     public void install() {
         new InstallerImpl().install(true, true, true);
+    }
+
+    @Override
+    public Organization newOrganization(String mRID) {
+        return new OrganizationImpl(mRID);
     }
 
     @Override
@@ -138,7 +161,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 
     @Reference(name = "ZCacheService")
     public void setCacheService(CacheService cacheService) {
-        this.cache = cacheService.createComponentCache(ormClient.getDataModel());
+        initComponentCache(cacheService);
     }
 
     @Reference
@@ -147,12 +170,13 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
     }
 
     @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+    @Reference
     public void setOrmService(OrmService ormService) {
-        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Party Management");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
-        ormClient = new OrmClientImpl(dataModel);
+        initOrmClient(ormService);
     }
 
     @Reference
@@ -165,32 +189,30 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
         this.threadPrincipalService = threadPrincipalService;
     }
 
-    @Override
-    public UserService getUserService() {
-        return userService;
-    }
-
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
-    public EventService getEventService() {
-        return eventService;
-    }
-
-    @Reference
-    public void setEventService(EventService eventService) {
-        this.eventService = eventService;
+    @Override
+    public void updateRepresentation(PartyRepresentation representation) {
+        getOrmClient().getPartyRepresentationFactory().update(representation);
     }
 
     @Override
-    public Optional<Party> findParty(long id) {
-        return getOrmClient().getPartyFactory().get(id);
+    public void updateRole(PartyRole partyRole) {
+        getOrmClient().getPartyRoleFactory().update(partyRole);
     }
 
-    @Override
-    public Organization newOrganization(String mRID) {
-        return new OrganizationImpl(mRID);
+    private void initComponentCache(CacheService cacheService) {
+        this.cache = cacheService.createComponentCache(ormClient.getDataModel());
+    }
+
+    private void initOrmClient(OrmService ormService) {
+        DataModel dataModel = ormService.newDataModel(Bus.COMPONENTNAME, "Party Management");
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
+        ormClient = new OrmClientImpl(dataModel);
     }
 }
