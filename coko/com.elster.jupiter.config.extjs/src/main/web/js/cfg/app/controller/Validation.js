@@ -7,7 +7,8 @@ Ext.define('Cfg.controller.Validation', {
         'ValidationActions',
         'Validators',
         'ValidationRuleProperties',
-        'ReadingTypes'
+        'ReadingTypes',
+        'ValidationPropertySpecsForRule'
     ],
 
     models: [
@@ -21,6 +22,10 @@ Ext.define('Cfg.controller.Validation', {
     ],
 
     refs: [
+        {
+            ref: 'availablePropertySpecsCombo',
+            selector: 'validationrulesetEdit #availablepropertyspecscombo'
+        },
         {
             ref: 'rulesGrid',
             selector: 'validationrulesetEdit #validationruleList'
@@ -49,7 +54,7 @@ Ext.define('Cfg.controller.Validation', {
             },
             '#validationrulesetList': {
                 itemdblclick: this.editValidationRuleSet
-            } ,
+            },
             '#validationruleList' : {
                 select: this.editValidationRuleProperties
             },
@@ -81,8 +86,20 @@ Ext.define('Cfg.controller.Validation', {
     },
 
     editValidationRuleProperties: function (grid, record) {
-        this.getRulePropertiesGrid().reconfigure(record.properties());
+        this.getValidationPropertySpecsForRuleStore().clearFilter();
+        this.getValidationPropertySpecsForRuleStore().filter('validator', record.data.implementation);
         this.resetReadingTypesForRecord(record);
+        this.getRulePropertiesGrid().reconfigure(record.properties());
+
+        /*var me = this;
+        me.getValidationPropertySpecsForRuleStore().load({
+            params: {
+                id: record.data.id
+            },
+            callback: function () {
+                alert('available properties loaded for selectd rule');
+                me.getAvailablePropertySpecsCombo().bindStore(me.getValidationPropertySpecsForRuleStore());
+        }});  */
     },
 
     saveRuleSet: function (button) {

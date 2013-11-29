@@ -18,7 +18,8 @@ Ext.define('Cfg.view.validation.Edit', {
         'Cfg.store.ValidationRuleProperties',
         'Ext.util.Point', // Required for the drag and drop.
         'Cfg.store.ReadingTypes',
-        'Cfg.model.ReadingType'
+        'Cfg.model.ReadingType',
+        'Cfg.store.ValidationPropertySpecsForRule'
     ],
 
     initComponent: function () {
@@ -164,7 +165,18 @@ Ext.define('Cfg.view.validation.Edit', {
                                         flex: 1
                                     },
                                     items: [
-                                        { header: 'Name', dataIndex: 'name'},
+                                        { header: 'Name', dataIndex: 'name',
+                                            editor: new Ext.form.field.ComboBox({
+                                                typeAhead: true,
+                                                mode: 'local',
+                                                itemId : 'availablepropertyspecscombo',
+                                                queryMode: 'local',
+                                                displayField: 'name',
+                                                valueField: 'name',
+                                                triggerAction: 'all',
+                                                //store: Ext.create('Cfg.store.ValidationPropertySpecsForRule')
+                                                store: 'ValidationPropertySpecsForRule'
+                                            })},
                                         { header: 'Value', dataIndex: 'value'}
                                     ]
                                 }
