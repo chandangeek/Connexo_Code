@@ -109,7 +109,7 @@ public class TransactionContext {
     }
 
     public Connection getConnection () {
-        if (!this.isFinished()) {
+        if (!this.isFinished() || connection!=null) {
             return this.connection;
         }
         else {
