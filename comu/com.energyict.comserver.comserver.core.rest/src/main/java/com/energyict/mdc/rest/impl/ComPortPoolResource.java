@@ -1,6 +1,5 @@
 package com.energyict.mdc.rest.impl;
 
-import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.ports.ComPortPool;
 import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
@@ -22,22 +21,14 @@ public class ComPortPoolResource {
     private final ComPortPoolService comPortPoolService;
 
     public ComPortPoolResource(@BeanParam ComPortPoolServiceHolder comPortPoolServiceHolder) {
-        try {
-            this.comPortPoolService = comPortPoolServiceHolder.getComPortPoolService();
-        } finally {
-            Environment.DEFAULT.get().closeConnection();
-        }
+        this.comPortPoolService = comPortPoolServiceHolder.getComPortPoolService();
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortPoolInfo getComPortPool(@PathParam("id") int id) {
-        try {
-            return ComPortPoolInfoFactory.asInfo(comPortPoolService.find(id));
-        } finally {
-            Environment.DEFAULT.get().closeConnection();
-        }
+        return ComPortPoolInfoFactory.asInfo(comPortPoolService.find(id));
     }
 
     @GET

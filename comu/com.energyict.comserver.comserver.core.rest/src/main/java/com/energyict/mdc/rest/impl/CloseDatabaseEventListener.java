@@ -19,12 +19,16 @@ public class CloseDatabaseEventListener implements ApplicationEventListener {
 
             @Override
             public void onEvent(final RequestEvent event) {
-                if (event.getType().equals(RequestEvent.Type.RESOURCE_METHOD_FINISHED)) {
+                switch (event.getType()) {
+                case RESOURCE_METHOD_START:
+
+                    break;
+                case RESOURCE_METHOD_FINISHED:
                     System.out.println("Auto-Close DB connection");
                     Environment.DEFAULT.get().closeConnection();
+                    break;
                 }
             }
-
         };
     }
 }
