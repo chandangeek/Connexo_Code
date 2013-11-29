@@ -10,7 +10,6 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.*;
@@ -21,7 +20,6 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
@@ -79,7 +77,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.values());     //All capabilities
+        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
     @Override
@@ -157,10 +155,6 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         } catch (IOException e) {
             throw IOExceptionHandler.handle(e, getDlmsSession());
         }
-    }
-
-    private ComServerExecutionException timeoutException(IOException e) {
-        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsSessionProperties().getRetries() + 1);
     }
 
     @Override
