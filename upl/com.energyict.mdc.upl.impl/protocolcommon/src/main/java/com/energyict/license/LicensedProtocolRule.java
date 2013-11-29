@@ -231,6 +231,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     EIWEB_DEVICE_PROTOCOL(197, "com.energyict.protocolimplv2.eict.eiweb.EIWeb", FamilyRule.EICT_RTU_EMS),
     EIMETER_FLEX_SLAVE_MODULE(198, "com.energyict.protocolimpl.modbus.energyict.EIMeterFlexSlaveModule"),
 
+    WEB_RTU_KP_V2(199, "com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP", FamilyRule.EICT_NTA),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),
