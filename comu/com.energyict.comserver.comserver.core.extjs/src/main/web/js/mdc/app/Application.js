@@ -1,10 +1,6 @@
 Ext.define('Mdc.Application', {
     name: 'Mdc',
-    requires: [
-        'Mdc.PolyReader',
-        'Mdc.PolyAssociation',
-        'Mdc.Association'
-    ],
+
     extend: 'Ext.app.Application',
 
     views: [
@@ -17,13 +13,14 @@ Ext.define('Mdc.Application', {
         'setup.ComServers',
         'setup.ComPortPools',
         'history.Setup',
-        'setup.DeviceCommunicationProtocol'
+        'setup.DeviceCommunicationProtocol',
+        'setup.LicensedProtocol'
     ],
 
     stores: [
         'ComServers',
         'LogLevels',
-        'ComPortPools',
-        'DeviceCommunicationProtocols'
+        'DeviceCommunicationProtocols',
+        'LicensedProtocols',
     ]
 });

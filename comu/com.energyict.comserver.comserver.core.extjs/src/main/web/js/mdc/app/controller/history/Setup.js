@@ -8,12 +8,15 @@ Ext.define('Mdc.controller.history.Setup', {
             this.handleComServerTokens(tokens);
         } else if (tokens.length > 1 && tokens[1] === 'devicecommunicationprotocols') {
             this.handleCommunicationProtocolTokens(tokens);
-        } else if (tokens.length > 1 && tokens[1] === 'comportpools'){
+        }  else if (tokens.length > 1 && tokens[1] === 'comportpools'){
             this.handleComPortPoolTokens(tokens);
+        } else if (tokens.length > 1 && tokens[1] === 'licensedprotocols') {
+            this.handleLicensedProtocolTokens(tokens);
         } else {
             this.unknownTokensReturnToOverview();
         }
     },
+
 
     handleComServerTokens: function (tokens) {
         if (tokens.length == 2) {
@@ -38,6 +41,14 @@ Ext.define('Mdc.controller.history.Setup', {
             } else {
                 Mdc.getApplication().getSetupDeviceCommunicationProtocolController().showEditView(tokens[2]);
             }
+        } else {
+            this.unknownTokensReturnToOverview();
+        }
+    },
+
+    handleLicensedProtocolTokens: function (tokens) {
+        if (tokens.length === 2) {
+            Mdc.getApplication().getSetupSetupOverviewController().showLicensedProtocols();
         } else {
             this.unknownTokensReturnToOverview();
         }

@@ -5,7 +5,8 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         'setup.Browse',
         'setup.comserver.ComServers',
         'setup.comportpool.ComPortPools',
-        'setup.devicecommunicationprotocol.List'
+        'setup.devicecommunicationprotocol.List',
+        'setup.licensedprotocol.List'
     ],
 
     init: function () {
@@ -26,12 +27,17 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
         var widget = Ext.widget('setupBrowse');
         Mdc.getApplication().getMainController().showContent(widget);
     },
+
     showComServers: function () {
         var widget = Ext.widget('setupComServers');
         Mdc.getApplication().getMainController().showContent(widget);
     },
     showDeviceCommunicationProtocols: function () {
         var widget = Ext.widget('setupDeviceCommunicationProtocols');
+        Mdc.getApplication().getMainController().showContent(widget);
+    },
+    showLicensedProtocols: function () {
+        var widget = Ext.widget('setupLicensedProtocols');
         Mdc.getApplication().getMainController().showContent(widget);
     },
     showComPortPools: function () {
