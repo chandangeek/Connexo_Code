@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.common.Environment;
 import com.energyict.mdc.ports.ComPortPool;
 import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
@@ -21,24 +22,36 @@ public class ComPortPoolResource {
     private final ComPortPoolService comPortPoolService;
 
     public ComPortPoolResource(@BeanParam ComPortPoolServiceHolder comPortPoolServiceHolder) {
-        this.comPortPoolService = comPortPoolServiceHolder.getComPortPoolService();
+        try {
+            this.comPortPoolService = comPortPoolServiceHolder.getComPortPoolService();
+        } finally {
+            Environment.DEFAULT.get().closeConnection();
+        }
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public ComPortPoolInfo getComPortPool(@PathParam("id") int id) {
-        return ComPortPoolInfoFactory.asInfo(comPortPoolService.find(id));
+        try {
+            return ComPortPoolInfoFactory.asInfo(comPortPoolService.find(id));
+        } finally {
+            Environment.DEFAULT.get().closeConnection();
+        }
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Object getAllComPortPools() {
-        final ComPortPoolsInfo infos = new ComPortPoolsInfo();
-        for (ComPortPool comPortPool : comPortPoolService.findAll()) {
-            infos.comPortPools.add(ComPortPoolInfoFactory.asInfo(comPortPool));
+        try {
+            final ComPortPoolsInfo infos = new ComPortPoolsInfo();
+            for (ComPortPool comPortPool : comPortPoolService.findAll()) {
+                infos.comPortPools.add(ComPortPoolInfoFactory.asInfo(comPortPool));
+            }
+            return infos;
+        } finally {
+            Environment.DEFAULT.get().closeConnection();
         }
-        return infos;
     }
 
     @PUT
@@ -55,6 +68,8 @@ public class ComPortPoolResource {
             return ComPortPoolInfoFactory.asInfo(comPortPool);
         } catch (Exception e) {
             throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            Environment.DEFAULT.get().closeConnection();
         }
     }
 
@@ -66,6 +81,8 @@ public class ComPortPoolResource {
             return ComPortPoolInfoFactory.asInfo(comPortPoolService.createComPortPool(comPortPoolInfo.asShadow()));
         } catch (Exception e) {
             throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
+        } finally {
+            Environment.DEFAULT.get().closeConnection();
         }
     }
 
