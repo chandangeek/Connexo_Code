@@ -27,7 +27,6 @@ public class CloseDatabaseEventListener implements ApplicationEventListener {
 
                     break;
                 case RESOURCE_METHOD_FINISHED:
-                    System.out.println("Auto-Close DB connection");
                     Environment.DEFAULT.get().closeConnection();
                     break;
                 }
