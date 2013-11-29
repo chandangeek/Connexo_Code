@@ -28,9 +28,9 @@ public class ValidationResource {
     }
 
     @GET
-    @Path("/rules/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ValidationRuleInfos getValidationRules(@PathParam("id") String id) {
+     @Path("/rules/{id}")
+     @Produces(MediaType.APPLICATION_JSON)
+     public ValidationRuleInfos getValidationRules(@PathParam("id") String id) {
         Optional<ValidationRuleSet> optional = Bus.getValidationService().getValidationRuleSet(Long.parseLong(id));
         if (optional.isPresent()) {
             ValidationRuleInfos infos = new ValidationRuleInfos();
@@ -43,6 +43,43 @@ public class ValidationResource {
         } else {
             return new ValidationRuleInfos();
         }
+    }
+
+    @GET
+     @Path("/propertyspecsforrule/{id}")
+     @Produces(MediaType.APPLICATION_JSON)
+     public ValidationRulePropertySpecInfos getAvailableProperties(@PathParam("id") String id) {
+        ValidationRulePropertySpecInfos infos = new ValidationRulePropertySpecInfos();
+        Optional<ValidationRule> optional =
+                Bus.getValidationService().getValidationRule(Long.parseLong(id));
+        if (optional.isPresent()) {
+            ValidationRule rule = optional.get();
+            List<String> requiredKeys = rule.getValidator().getRequiredKeys();
+            List<String> optionalKeys = rule.getValidator().getOptionalKeys();
+            for (String key : requiredKeys) {
+                infos.add(key, false, rule.getImplementation());
+            }
+            for (String key : optionalKeys) {
+                infos.add(key, true, rule.getImplementation());
+            }
+            return infos;
+        }
+        else {
+            return infos;
+        }
+    }
+
+    @GET
+    @Path("/propertyspecs")
+    @Produces(MediaType.APPLICATION_JSON)
+    //TODO return all available properties instead of this mock implementation
+    public ValidationRulePropertySpecInfos getAllAvailableProperties(@Context UriInfo uriInfo) {
+        ValidationRulePropertySpecInfos infos = new ValidationRulePropertySpecInfos();
+        infos.add("minimum", true, "com.elster.jupiter.validators.MinMaxValidator");
+        infos.add("maximum", true, "com.elster.jupiter.validators.MinMaxValidator");
+        infos.add("high", true, "com.elster.jupiter.validators.RatedPowerValidator");
+        infos.add("low", true, "com.elster.jupiter.validators.RatedPowerValidator");
+        return infos;
     }
 
     @GET
@@ -82,6 +119,19 @@ public class ValidationResource {
     @Path("/validators")
     @Produces(MediaType.APPLICATION_JSON)
     public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
+        ValidatorInfos infos = new ValidatorInfos();
+        List<String> toAdd = Bus.getValidationService().getAvailableValidators();
+        for (String implementation : toAdd) {
+            infos.add(implementation);
+        }
+        infos.total = toAdd.size();
+        return infos;
+    }
+
+    @GET
+    @Path("/properties")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ValidatorInfos getAvailableProperties(@Context UriInfo uriInfo) {
         ValidatorInfos infos = new ValidatorInfos();
         List<String> toAdd = Bus.getValidationService().getAvailableValidators();
         for (String implementation : toAdd) {
