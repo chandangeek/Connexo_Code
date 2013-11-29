@@ -243,7 +243,7 @@ public class EnvironmentImpl implements Environment {
              * to avoid Connection leakage.
              * In the Jupiter context, a new Connection is created
              * once a transaction context is setup. */
-            this.getConnection().close();
+            getTransactionContext().closeConnection();
         }
         return getTransactionContext().execute(transaction, this.getTransactionService(), this.getEventManager());
     }
