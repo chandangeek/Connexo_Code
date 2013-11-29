@@ -117,7 +117,7 @@ public class ComServerResourceTest extends JerseyTest {
     public void testPutComServer() throws Exception {
 //        {comServers=[{id=1, name=Test, active=false, serverLogLevel=INFO, communicationLogLevel=ERROR, changesInterPollDelay={count=6, timeUnit=seconds}, schedulingInterPollDelay={count=7, timeUnit=minutes}, inboundComPorts=null, outboundComPorts=null, onlineComServerId=null, queryAPIUsername=null, queryAPIPassword=null, queryAPIPostUri=/test, usesDefaultQueryAPIPostUri=false, eventRegistrationUri=/event/registration/uri, usesDefaultEventRegistrationUri=false, storeTaskQueueSize=3, numberOfStoreTaskThreads=2, storeTaskThreadPriority=4}]}
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
-        onlineComServerInfo.comServerType="Online";
+//        onlineComServerInfo.comServerType="Online";
         Entity<OnlineComServerInfo> objectEntity = Entity.json(onlineComServerInfo);
 
         final Response response = target("/comservers/3").request().put(objectEntity);
