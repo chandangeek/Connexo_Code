@@ -1,4 +1,5 @@
 Ext.define('Mdc.store.ComPortTypes',{
+    extend: 'Ext.data.Store',
     autoLoad: true,
     fields: ['comPortType'],
     storeId: 'comporttypes',

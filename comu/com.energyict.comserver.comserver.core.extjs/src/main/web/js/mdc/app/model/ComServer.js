@@ -2,7 +2,7 @@ Ext.define('Mdc.model.ComServer', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id', type: 'int', useNull: true},
-        'comServerDescriptor',
+        'comServerType',
         'name',
         'active',
         'serverLogLevel',
@@ -16,21 +16,25 @@ Ext.define('Mdc.model.ComServer', {
         'storeTaskThreadPriority',
         'changesInterPollDelay',
         'schedulingInterPollDelay',
-        'comPorts'
+        'outboundComPorts',
+        'inboundComPorts',
+        'queryAPIUsername',
+        'queryAPIPassword',
+        'onlineComServerId'
     ],
     associations: [
         {name: 'changesInterPollDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'changesInterPollDelay'},
         {name: 'schedulingInterPollDelay',type: 'hasOne',model:'Mdc.model.field.TimeInfo',associationKey: 'schedulingInterPollDelay'},
-        {name: 'comPorts',type: 'hasMany',model:'Mdc.model.ComPort',foreignKey: 'comserver_id',associationKey: 'comPorts', storeConfig: {
-            proxy: {
-                type: 'rest',
-                url: '../../api/mdc/comports',
-                reader: {
-                    type: 'json',
-                    root: 'ComPorts'
-                }
+        {name: 'outboundComPorts',type: 'hasMany',model: 'Mdc.model.ComPort',foreignKey: 'comserver_id',associationKey: 'outboundComPorts',
+            getTypeDiscriminator:function(node){
+                return 'Mdc.model.OutboundComPort';
             }
-        }}
+        },
+        {name: 'inboundComPorts',type: 'hasMany',model: 'Mdc.model.ComPort',foreignKey: 'comserver_id',associationKey: 'inboundComPorts',
+            getTypeDiscriminator:function(node){
+                return 'Mdc.model.InboundComPort';
+            }
+        }
     ],
     proxy: {
         type: 'rest',

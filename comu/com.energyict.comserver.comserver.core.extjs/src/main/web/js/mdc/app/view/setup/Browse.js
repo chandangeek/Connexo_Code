@@ -23,7 +23,11 @@ Ext.define('Mdc.view.setup.Browse', {
                             cls: 'content-container',
                             html: '<a href="#/setup/comservers">comservers</a>'
                         },
-
+                        {
+                            xtype: 'component',
+                            cls: 'content-container',
+                            html: '<a href="#/setup/comportpools">communication port pools</a>'
+                        },
                         {
                             xtype: 'component',
                             cls: 'content-container',

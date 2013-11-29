@@ -52,7 +52,14 @@ Ext.define('Mdc.view.setup.comserver.ComServers', {
         this.buttons = [
             {
                 text: 'Add',
-                action: 'add'
+                action: 'add',
+                menu: [{
+                    text: 'Online'
+                },{
+                    text: 'Remote'
+                },{
+                    text: 'Mobile'
+                }]
             },
             {
                 text: 'Delete',

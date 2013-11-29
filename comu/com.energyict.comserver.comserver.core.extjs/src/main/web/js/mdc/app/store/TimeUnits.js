@@ -1,4 +1,5 @@
 Ext.define('Mdc.store.TimeUnits',{
+    extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.field.TimeUnit'
     ],

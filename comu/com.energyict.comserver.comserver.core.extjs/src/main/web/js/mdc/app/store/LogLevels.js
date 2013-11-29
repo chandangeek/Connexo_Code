@@ -1,4 +1,5 @@
 Ext.define('Mdc.store.LogLevels',{
+    extend: 'Ext.data.Store',
     autoLoad: true,
     fields: ['logLevel'],
     storeId: 'loglevels',

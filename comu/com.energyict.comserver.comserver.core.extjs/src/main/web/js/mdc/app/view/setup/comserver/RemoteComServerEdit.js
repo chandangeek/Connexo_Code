@@ -1,6 +1,6 @@
-Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
+Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
     extend: 'Ext.panel.Panel',
-    alias: 'widget.comServerEdit',
+    alias: 'widget.remoteComServerEdit',
     autoScroll: true,
     layout: {
         type: 'vbox',
@@ -17,6 +17,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
 
     initComponent: function () {
         var loglevels = Ext.create('Mdc.store.LogLevels');
+        var comservers = Ext.create('Mdc.store.ComServers');
 
         this.items = [
             {
@@ -96,6 +97,26 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                 xtype: 'numberfield',
                                 name: 'storeTaskThreadPriority',
                                 fieldLabel: 'storeTaskThreadPriority'
+                            },
+                            {
+                                xtype: 'combobox',
+                                name: 'onlineComServerId',
+                                fieldLabel: 'onlineComServerId',
+                                store: comservers,
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'id'
+                            },
+                            {
+                                xtype: 'textfield',
+                                name: 'queryAPIUsername',
+                                fieldLabel: 'queryAPIUsername'
+                            },
+                            {
+                                xtype: 'textfield',
+                                inputType:'password',
+                                name: 'queryAPIPassword',
+                                fieldLabel: 'queryAPIPassword'
                             }
                         ]},
                     {

@@ -8,8 +8,8 @@ Ext.define('Mdc.controller.history.Setup', {
             this.handleComServerTokens(tokens);
         } else if (tokens.length > 1 && tokens[1] === 'devicecommunicationprotocols') {
             this.handleCommunicationProtocolTokens(tokens);
-        } else if (tokens.length > 1 && tokens[1] === 'comports'){
-            this.handleComPortTokens(tokens);
+        } else if (tokens.length > 1 && tokens[1] === 'comportpools'){
+            this.handleComPortPoolTokens(tokens);
         } else {
             this.unknownTokensReturnToOverview();
         }
@@ -29,14 +29,6 @@ Ext.define('Mdc.controller.history.Setup', {
         }
     },
 
-    handleComPortTokens: function (tokens) {
-        if (tokens.length === 3) {
-                Mdc.getApplication().getSetupComPortsController().showEditView(tokens[2]);
-        } else {
-            this.unknownTokensReturnToOverview();
-        }
-    },
-
     handleCommunicationProtocolTokens: function (tokens) {
         if (tokens.length === 2) {
             Mdc.getApplication().getSetupSetupOverviewController().showDeviceCommunicationProtocols();
@@ -48,6 +40,18 @@ Ext.define('Mdc.controller.history.Setup', {
             }
         } else {
             this.unknownTokensReturnToOverview();
+        }
+    },
+
+    handleComPortPoolTokens: function(tokens){
+        if (tokens.length === 2) {
+            Mdc.getApplication().getSetupSetupOverviewController().showComPortPools();
+        } else if (tokens.length === 3) {
+            if (tokens[2] === 'create') {
+                Mdc.getApplication().getSetupComPortPoolsController().showEditView();
+            } else {
+                Mdc.getApplication().getSetupComPortPoolsController().showEditView(tokens[2]);
+            }
         }
     },
 
@@ -69,5 +73,9 @@ Ext.define('Mdc.controller.history.Setup', {
 
     tokenizeAddDeviceCommunicationProtocol: function () {
         return this.tokenize([this.rootToken, 'devicecommunicationprotocols', 'create']);
+    },
+
+    tokenizeAddComPortPool: function(){
+        return this.tokenize([this.rootToken, 'comportpools', 'create']);
     }
 });

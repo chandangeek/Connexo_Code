@@ -1,4 +1,5 @@
 Ext.define('Mdc.store.ComServers',{
+    extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.ComServer'
     ],
@@ -11,7 +12,7 @@ Ext.define('Mdc.store.ComServers',{
         url: '../../api/mdc/comservers',
         reader: {
             type: 'json',
-            root: 'ComServers'
+            root: 'comServers'
         }
     }
 });
