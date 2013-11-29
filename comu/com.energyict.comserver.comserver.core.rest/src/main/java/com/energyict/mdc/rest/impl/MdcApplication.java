@@ -26,7 +26,8 @@ public class MdcApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(ComServerResource.class,
+        return ImmutableSet.of(CloseDatabaseEventListener.class,
+                ComServerResource.class,
                 ComPortResource.class,
                 ComPortPoolResource.class,
                 DeviceCommunicationProtocolsResource.class,

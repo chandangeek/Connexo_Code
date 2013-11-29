@@ -43,15 +43,11 @@ public class ComPortPoolResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Object getAllComPortPools() {
-        try {
-            final ComPortPoolsInfo infos = new ComPortPoolsInfo();
-            for (ComPortPool comPortPool : comPortPoolService.findAll()) {
-                infos.comPortPools.add(ComPortPoolInfoFactory.asInfo(comPortPool));
-            }
-            return infos;
-        } finally {
-            Environment.DEFAULT.get().closeConnection();
+        final ComPortPoolsInfo infos = new ComPortPoolsInfo();
+        for (ComPortPool comPortPool : comPortPoolService.findAll()) {
+            infos.comPortPools.add(ComPortPoolInfoFactory.asInfo(comPortPool));
         }
+        return infos;
     }
 
     @PUT
@@ -61,15 +57,13 @@ public class ComPortPoolResource {
     public ComPortPoolInfo updateComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPoolShadow> comPortPoolInfo) {
         try {
             ComPortPool<ComPortPoolShadow> comPortPool = comPortPoolService.find(id);
-            if (comPortPool==null) {
-                throw new WebApplicationException("No ComPortPool with id "+id, Response.Status.INTERNAL_SERVER_ERROR);
+            if (comPortPool == null) {
+                throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
             }
             comPortPool.update(comPortPoolInfo.asShadow());
             return ComPortPoolInfoFactory.asInfo(comPortPool);
         } catch (Exception e) {
             throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            Environment.DEFAULT.get().closeConnection();
         }
     }
 
@@ -81,8 +75,6 @@ public class ComPortPoolResource {
             return ComPortPoolInfoFactory.asInfo(comPortPoolService.createComPortPool(comPortPoolInfo.asShadow()));
         } catch (Exception e) {
             throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
-        } finally {
-            Environment.DEFAULT.get().closeConnection();
         }
     }
 
