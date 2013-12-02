@@ -2,13 +2,10 @@ package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.services.LicensedProtocolService;
 import com.energyict.mdw.core.LicensedProtocol;
-import org.glassfish.jersey.server.ResourceConfig;
-
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -19,10 +16,10 @@ import javax.ws.rs.core.MediaType;
 @Path("/licensedprotocols")
 public class LicensedProtocolResource {
 
-    private final LicensedProtocolService licensedProtocolService;
+    @Inject
+    private LicensedProtocolService licensedProtocolService;
 
-    public LicensedProtocolResource(@Context Application application) {
-        licensedProtocolService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getLicensedProtocolService();
+    public LicensedProtocolResource() {
     }
 
     @GET

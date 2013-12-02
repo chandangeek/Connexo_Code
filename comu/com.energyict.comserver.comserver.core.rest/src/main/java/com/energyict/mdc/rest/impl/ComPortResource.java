@@ -4,28 +4,24 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
-import javax.ws.rs.BeanParam;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.json.JSONArray;
 
 @Path("/comports")
 public class ComPortResource {
 
-    private final ComPortService comPortService;
-    private final ComServerService comServerService;
+    @Inject
+    private ComPortService comPortService;
+    @Inject
+    private ComServerService comServerService;
 
-    public ComPortResource(@BeanParam ComServerServiceHolder comServerServiceHolder, @Context Application application) {
-//        deviceProtocolFactoryService=((ServiceLocator)((ResourceConfig)application).getApplication()).getDeviceProtocolFactoryService();
-        comPortService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getComPortService();
-        comServerService = comServerServiceHolder.getComServerService();
+    public ComPortResource() {
     }
 
     @GET

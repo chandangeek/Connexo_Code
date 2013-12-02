@@ -6,8 +6,7 @@ import com.energyict.mdc.services.DeviceProtocolService;
 import com.energyict.mdc.services.LicensedProtocolService;
 import com.energyict.mdw.core.LicensedProtocol;
 import com.energyict.mdw.core.PluggableClass;
-import org.glassfish.jersey.server.ResourceConfig;
-
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -17,7 +16,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -31,14 +29,14 @@ import javax.ws.rs.core.UriInfo;
 @Path("/devicecommunicationprotocols")
 public class DeviceCommunicationProtocolsResource {
 
-    private final DeviceProtocolService deviceProtocolService;
-    private final DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
-    private final LicensedProtocolService licensedProtocolService;
+    @Inject
+    private DeviceProtocolService deviceProtocolService;
+    @Inject
+    private DeviceProtocolPluggableClassService deviceProtocolPluggableClassService;
+    @Inject
+    private LicensedProtocolService licensedProtocolService;
 
-    public DeviceCommunicationProtocolsResource(@Context Application application) {
-        this.deviceProtocolPluggableClassService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getDeviceProtocolPluggableClassService();
-        this.deviceProtocolService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getDeviceProtocolService();
-        this.licensedProtocolService = ((MdcApplication) ((ResourceConfig) application).getApplication()).getLicensedProtocolService();
+    public DeviceCommunicationProtocolsResource() {
     }
 
     @GET
