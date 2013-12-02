@@ -118,7 +118,7 @@ $navigation-color: $elster-blue-75;
         left: 10px;
     }
 
-    .nav-switcher,
+    .nav-appswitcher,
     .nav-toggler,
     .nav-logo,
     .notifications-anchor,
@@ -159,7 +159,7 @@ $navigation-color: $elster-blue-75;
         }
     }
 
-    .notifications-anchor {
+    .nav-appswitcher, .notifications-anchor {
         @include hidden-arrow-button;
     }
 
@@ -197,6 +197,36 @@ $navigation-color: $elster-blue-75;
 
         &:hover {
             @include highlight-header-background;
+        }
+    }
+}
+
+// App switcher
+
+.nav-appswitcher-menu {
+    width: 390px;
+    height: 265px;
+    overflow-y: auto;
+
+    .app-item {
+        float: left;
+        padding: 8px;
+        margin: 8px {
+            right: auto;
+            left: auto;
+        }
+
+        img {
+            width: 74px;
+            height: 74px;
+        }
+
+        h3 {
+            font-size: 12px;
+            font-weight: normal;
+            text-align: center;
+            padding-top: 5px;
+            margin: 0;
         }
     }
 }

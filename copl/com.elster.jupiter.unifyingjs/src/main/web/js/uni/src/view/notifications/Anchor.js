@@ -7,23 +7,20 @@ Ext.define('Uni.view.notifications.Anchor', {
     glyph: 'xe012@icomoon',
     scale: 'small',
     cls: 'notifications-anchor',
+    disabled: true,
 
-    initComponent: function () {
-        this.menu = [
-            {
-                xtype: 'dataview',
-                tpl: [
-                    '<tpl for=".">',
-                    '<div class="notification-item">',
-                    '<p>{message}</p>',
-                    '</div>',
-                    '</tpl>'
-                ],
-                itemSelector: 'div.notification-item',
-                store: Uni.store.Notifications
-            }
-        ];
-
-        this.callParent(arguments);
-    }
+    menu: [
+        {
+            xtype: 'dataview',
+            tpl: [
+                '<tpl for=".">',
+                '<div class="notification-item">',
+                '<p>{message}</p>',
+                '</div>',
+                '</tpl>'
+            ],
+            itemSelector: 'div.notification-item',
+            store: 'notifications'
+        }
+    ]
 });

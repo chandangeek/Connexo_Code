@@ -6,6 +6,7 @@ Ext.define('Uni.store.MenuItems', {
     autoLoad: false,
     clearOnPageLoad: false,
     clearRemovedOnLoad: false,
+
     proxy: {
         type: 'memory',
         reader: {

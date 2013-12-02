@@ -4,7 +4,6 @@ Ext.define('Uni.view.navigation.Header', {
 
     requires: [
         'Uni.view.navigation.AppSwitcher',
-        'Uni.view.navigation.Toggler',
         'Uni.view.navigation.Logo',
         'Uni.view.search.Quick',
         'Uni.view.notifications.Anchor',
@@ -21,8 +20,7 @@ Ext.define('Uni.view.navigation.Header', {
 
     items: [
         {
-//            xtype: 'navigationAppSwitcher'
-            xtype: 'navigationToggler' // Temporary until the navigation toggler isn't necessary anymore.
+            xtype: 'navigationAppSwitcher'
         },
         {
             xtype: 'navigationLogo'

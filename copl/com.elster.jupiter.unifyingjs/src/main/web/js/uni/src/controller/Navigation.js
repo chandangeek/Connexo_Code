@@ -3,7 +3,8 @@ Ext.define('Uni.controller.Navigation', {
 
     requires: [
         'Uni.controller.history.EventBus',
-        'Uni.store.MenuItems'
+        'Uni.store.MenuItems',
+        'Uni.store.AppItems'
     ],
 
     views: [
@@ -11,16 +12,16 @@ Ext.define('Uni.controller.Navigation', {
 
     refs: [
         {
+            ref: 'appSwitcher',
+            selector: 'navigationAppSwitcher'
+        },
+        {
             ref: 'navigationMenu',
             selector: 'viewport > navigationMenu'
         },
         {
             ref: 'mainMenu',
             selector: 'navigationMenu #menu-main'
-        },
-        {
-            ref: 'navigationToggler',
-            selector: 'navigationHeader > navigationToggler'
         },
         {
             ref: 'contentPanel',
@@ -43,21 +44,36 @@ Ext.define('Uni.controller.Navigation', {
             scope: this
         });
 
+        Uni.store.AppItems.on({
+            add: this.resetAppSwitcherState,
+            update: this.resetAppSwitcherState,
+            remove: this.resetAppSwitcherState,
+            bulkremove: this.resetAppSwitcherState,
+            scope: this
+        });
+
         this.control({
-            'navigationToggler': {
-                toggle: this.toggleNavigation
-            },
-            'navigationMenu': {
-                afterrender: this.checkNavigationVisibility
-            },
             'navigationMenu #menu-main': {
                 beforerender: this.refreshNavigationMenu
             },
             'navigationMenu #menu-main button': {
                 click: this.showSubMenu,
                 mouseover: this.peekSubMenu
+            },
+            'navigationAppSwitcher': {
+                afterrender: this.resetAppSwitcherState
             }
         });
+    },
+
+    resetAppSwitcherState: function () {
+        var count = Uni.store.AppItems.getCount();
+
+        if (count > 0) {
+            this.getAppSwitcher().enable();
+        } else {
+            this.getAppSwitcher().disable();
+        }
     },
 
     refreshNavigationMenu: function () {
@@ -97,20 +113,6 @@ Ext.define('Uni.controller.Navigation', {
                 me.getNavigationMenu().selectMenuItem(result);
             }
         }
-    },
-
-    toggleNavigation: function (button, pressed) {
-        // TODO Fix layout issue with collapsed menu items after refresh.
-        if (pressed) {
-            this.getNavigationMenu().expand();
-        } else {
-            this.getNavigationMenu().collapse();
-        }
-    },
-
-    checkNavigationVisibility: function () {
-        var button = this.getNavigationToggler();
-        this.toggleNavigation(button, button.pressed);
     },
 
     showSubMenu: function (button) {

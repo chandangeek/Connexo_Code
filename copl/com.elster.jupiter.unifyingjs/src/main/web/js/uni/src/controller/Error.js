@@ -17,7 +17,10 @@ Ext.define('Uni.controller.Error', {
     },
 
     handleGenericError: function (error) {
+        //<debug>
         console.log(error);
+        //</debug>
+
         this.showError(error);
     },
 
