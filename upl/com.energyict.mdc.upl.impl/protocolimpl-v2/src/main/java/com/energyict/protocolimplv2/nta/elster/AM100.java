@@ -4,7 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
-import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.tasks.support.*;
 import com.energyict.mdc.tasks.*;
 import com.energyict.protocolimplv2.common.TempDeviceMessageSupport;

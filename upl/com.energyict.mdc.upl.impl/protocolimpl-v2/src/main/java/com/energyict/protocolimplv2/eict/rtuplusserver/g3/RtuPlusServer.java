@@ -5,7 +5,7 @@ import com.energyict.dlms.common.AbstractDlmsProtocol;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDeviceMessage;

@@ -10,6 +10,7 @@ import com.energyict.mdc.channels.serial.rf.WavenisSerialConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdc.protocol.tasks.support.*;

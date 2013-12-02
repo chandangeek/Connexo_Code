@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 
 import java.util.ArrayList;
 import java.util.List;

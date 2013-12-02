@@ -19,7 +19,7 @@ import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
-import com.energyict.mdc.protocol.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifierById;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
