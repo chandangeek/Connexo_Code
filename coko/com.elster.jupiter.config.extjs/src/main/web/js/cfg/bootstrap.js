@@ -43,7 +43,6 @@ Ext.ClassManager.addNameAlternateMappings({
     "Ext.ux.form.MultiSelect": [
         "Ext.ux.Multiselect"
     ],
-    "Mtr.view.notifications.Counter": [],
     "Mtr.Application": [],
     "Mtr.controller.history.EventBus": [],
     "Mtr.store.mock.Countries": [],
@@ -278,9 +277,6 @@ Ext.ClassManager.addNameAliasMappings({
     "Ext.ux.form.MultiSelect": [
         "widget.multiselect",
         "widget.multiselectfield"
-    ],
-    "Mtr.view.notifications.Counter": [
-        "widget.notificationsCounter"
     ],
     "Mtr.Application": [],
     "Mtr.controller.history.EventBus": [],
