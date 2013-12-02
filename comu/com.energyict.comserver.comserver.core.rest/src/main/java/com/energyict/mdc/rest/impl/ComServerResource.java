@@ -4,7 +4,7 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
-import javax.ws.rs.BeanParam;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -22,10 +22,10 @@ import javax.ws.rs.core.UriInfo;
 @Path("/comservers")
 public class ComServerResource {
 
+    @Inject
     private ComServerService comServerService;
 
-    public ComServerResource(@BeanParam ComServerServiceHolder comServerServiceHolder) {
-        comServerService = comServerServiceHolder.getComServerService();
+    public ComServerResource() {
     }
 
     @GET

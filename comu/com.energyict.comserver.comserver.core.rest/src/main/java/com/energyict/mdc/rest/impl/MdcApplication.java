@@ -9,8 +9,11 @@ import com.energyict.mdc.services.InboundDeviceProtocolPluggableClassService;
 import com.energyict.mdc.services.InboundDeviceProtocolService;
 import com.energyict.mdc.services.LicensedProtocolService;
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -23,10 +26,11 @@ public class MdcApplication extends Application {
     private volatile InboundDeviceProtocolService inboundDeviceProtocolService;
     private volatile InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
     private volatile LicensedProtocolService licensedProtocolService;
+    private volatile ComServerService comServerService;
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(CloseDatabaseEventListener.class,
+        return ImmutableSet.of(AutoCloseDatabaseEventListener.class,
                 ComServerResource.class,
                 ComPortResource.class,
                 ComPortPoolResource.class,
@@ -36,6 +40,14 @@ public class MdcApplication extends Application {
                 LicensedProtocolResource.class,
                 TimeZoneInUseResource.class,
                 CodeTableResource.class);
+    }
+
+    @Override
+    public Set<Object> getSingletons() {
+        Set<Object> hashSet = new HashSet<>();
+        hashSet.addAll(super.getSingletons());
+        hashSet.add(new HK2Binder());
+        return Collections.unmodifiableSet(hashSet);
     }
 
     @Reference
@@ -59,7 +71,7 @@ public class MdcApplication extends Application {
 
     @Reference
     public void setComServerService(ComServerService comServerService) {
-        ComServerServiceHolder.setComServerService(comServerService);
+        this.comServerService = comServerService;
     }
     
     public ComPortService getComPortService() {
@@ -99,5 +111,15 @@ public class MdcApplication extends Application {
 
     public LicensedProtocolService getLicensedProtocolService() {
         return licensedProtocolService;
+    }
+
+    class HK2Binder extends AbstractBinder {
+
+        @Override
+        protected void configure() {
+            System.out.println("Binding services using HK2");
+            bind(comServerService).to(ComServerService.class);
+            bind(comPortService).to(ComPortService.class);
+        }
     }
 }
