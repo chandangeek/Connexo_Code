@@ -89,10 +89,6 @@ public class MdcApplication extends Application {
         this.licensedProtocolService = licensedProtocolService;
     }
 
-    public LicensedProtocolService getLicensedProtocolService() {
-        return licensedProtocolService;
-    }
-
     class HK2Binder extends AbstractBinder {
 
         @Override
