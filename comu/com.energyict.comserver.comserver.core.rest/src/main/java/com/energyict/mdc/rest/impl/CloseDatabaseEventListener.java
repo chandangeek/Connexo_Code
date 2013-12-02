@@ -6,6 +6,9 @@ import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
 import org.glassfish.jersey.server.monitoring.RequestEvent;
 import org.glassfish.jersey.server.monitoring.RequestEventListener;
 
+/**
+ * This listener automatically closes DB connection after EVERY REST call
+ */
 public class CloseDatabaseEventListener implements ApplicationEventListener {
 
     @Override
@@ -24,7 +27,6 @@ public class CloseDatabaseEventListener implements ApplicationEventListener {
 
                     break;
                 case RESOURCE_METHOD_FINISHED:
-                    System.out.println("Auto-Close DB connection");
                     Environment.DEFAULT.get().closeConnection();
                     break;
                 }
