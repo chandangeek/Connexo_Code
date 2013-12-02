@@ -3,7 +3,7 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.ports.ComPortPool;
 import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
-import javax.ws.rs.BeanParam;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -18,10 +18,10 @@ import javax.ws.rs.core.Response;
 @Path("/comportpools")
 public class ComPortPoolResource {
 
-    private final ComPortPoolService comPortPoolService;
+    @Inject
+    private ComPortPoolService comPortPoolService;
 
-    public ComPortPoolResource(@BeanParam ComPortPoolServiceHolder comPortPoolServiceHolder) {
-        this.comPortPoolService = comPortPoolServiceHolder.getComPortPoolService();
+    public ComPortPoolResource() {
     }
 
     @GET
