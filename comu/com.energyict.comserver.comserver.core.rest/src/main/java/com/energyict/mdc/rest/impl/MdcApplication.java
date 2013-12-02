@@ -55,10 +55,6 @@ public class MdcApplication extends Application {
         this.deviceProtocolPluggableClassService = deviceProtocolPluggableClassService;
     }
 
-    public DeviceProtocolPluggableClassService getDeviceProtocolPluggableClassService() {
-        return deviceProtocolPluggableClassService;
-    }
-
     @Reference
     public void setDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
         this.deviceProtocolService = deviceProtocolService;
@@ -74,34 +70,18 @@ public class MdcApplication extends Application {
         this.comServerService = comServerService;
     }
     
-    public ComPortService getComPortService() {
-        return comPortService;
-    }
-
     @Reference
     public void setComPortService(ComPortService comPortService) {
         this.comPortService = comPortService;
     }
-    public DeviceProtocolService getDeviceProtocolService() {
-        return deviceProtocolService;
-    }
-
     @Reference
     public void setInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolService = inboundDeviceProtocolService;
     }
 
-    public InboundDeviceProtocolService getInboundDeviceProtocolService() {
-        return inboundDeviceProtocolService;
-    }
-
     @Reference
     public void setInboundDeviceProtocolPluggableClassService(InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService) {
         this.inboundDeviceProtocolPluggableClassService = inboundDeviceProtocolPluggableClassService;
-    }
-
-    public InboundDeviceProtocolPluggableClassService getInboundDeviceProtocolPluggableClassService() {
-        return inboundDeviceProtocolPluggableClassService;
     }
 
     @Reference
@@ -120,6 +100,12 @@ public class MdcApplication extends Application {
             System.out.println("Binding services using HK2");
             bind(comServerService).to(ComServerService.class);
             bind(comPortService).to(ComPortService.class);
+            bind(deviceProtocolPluggableClassService).to(DeviceProtocolPluggableClassService.class);
+            bind(deviceProtocolService).to(DeviceProtocolService.class);
+            bind(inboundDeviceProtocolService).to(InboundDeviceProtocolService.class);
+            bind(inboundDeviceProtocolPluggableClassService).to(InboundDeviceProtocolPluggableClassService.class);
+            bind(licensedProtocolService).to(LicensedProtocolService.class);
+            
         }
     }
 }
