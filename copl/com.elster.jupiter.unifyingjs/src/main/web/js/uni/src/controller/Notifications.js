@@ -18,6 +18,7 @@ Ext.define('Uni.controller.Notifications', {
 
         Uni.store.Notifications.on({
             add: this.resetAnchorCount,
+            load: this.resetAnchorCount,
             update: this.resetAnchorCount,
             remove: this.resetAnchorCount,
             bulk: this.resetAnchorCount,

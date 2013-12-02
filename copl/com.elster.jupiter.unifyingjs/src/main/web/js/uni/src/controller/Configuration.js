@@ -13,21 +13,8 @@ Ext.define('Uni.controller.Configuration', {
     ],
 
     init: function () {
-        this.getApplication().on('addappitemevent', this.addAppItem, this);
-        this.getApplication().on('setappitemsevent', this.setAppItems, this);
-
         this.getApplication().on('changeapptitleevent', this.changeAppTitle, this);
         this.getApplication().on('changeappglyphevent', this.changeAppGlyph, this);
-    },
-
-    addAppItem: function (appItem) {
-        var switcher = this.getAppSwitcher();
-        // TODO Add the app item to the app switcher.
-    },
-
-    setAppItems: function (appItems) {
-        var switcher = this.getAppSwitcher();
-        // TODO Set the app items in the app switcher.
     },
 
     changeAppTitle: function (title) {

@@ -6,7 +6,7 @@ Ext.define('Uni.store.AppItems', {
     autoLoad: true,
 
     proxy: {
-        type: 'rest',
+        type: 'ajax',
         url: '/api/apps/pages',
         reader: {
             type: 'json',

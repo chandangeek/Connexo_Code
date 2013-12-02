@@ -37,20 +37,8 @@ Ext.define('Uni.controller.Navigation', {
             me.selectMenuItemByTokens(tokens, delimiter);
         }, undefined);
 
-        Uni.store.MenuItems.on({
-            add: this.refreshNavigationMenu,
-            update: this.refreshNavigationMenu,
-            remove: this.refreshNavigationMenu,
-            scope: this
-        });
-
-        Uni.store.AppItems.on({
-            add: this.resetAppSwitcherState,
-            update: this.resetAppSwitcherState,
-            remove: this.resetAppSwitcherState,
-            bulkremove: this.resetAppSwitcherState,
-            scope: this
-        });
+        this.initMenuItems();
+        this.initAppItems();
 
         this.control({
             'navigationMenu #menu-main': {
@@ -64,6 +52,29 @@ Ext.define('Uni.controller.Navigation', {
                 afterrender: this.resetAppSwitcherState
             }
         });
+    },
+
+    initMenuItems: function () {
+        Uni.store.MenuItems.on({
+            add: this.refreshNavigationMenu,
+            load: this.refreshNavigationMenu,
+            update: this.refreshNavigationMenu,
+            remove: this.refreshNavigationMenu,
+            bulkremove: this.refreshNavigationMenu,
+            scope: this
+        });
+    },
+
+    initAppItems: function () {
+        Uni.store.AppItems.on({
+            add: this.resetAppSwitcherState,
+            load: this.resetAppSwitcherState,
+            update: this.resetAppSwitcherState,
+            remove: this.resetAppSwitcherState,
+            bulkremove: this.resetAppSwitcherState,
+            scope: this
+        });
+        Uni.store.AppItems.load();
     },
 
     resetAppSwitcherState: function () {
