@@ -105,7 +105,7 @@ public class Messaging implements DeviceMessageSupport {
                         pendingMessage.getSpecification().getName()));
             }
 
-            result.addCollectedMessages(collectedMessage);
+            result.addCollectedMessage(collectedMessage);
         }
         return result;
     }

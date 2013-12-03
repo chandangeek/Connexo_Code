@@ -7,7 +7,9 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.aso.ConformanceBlock;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.*;
 
@@ -33,9 +35,6 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
         return Arrays.asList(
                 this.forcedDelayPropertySpec(),
                 this.maxRecPduSizePropertySpec(),
-                this.retriesPropertySpec(),
-                this.timeoutPropertySpec(),
-                this.roundTripCorrectionPropertySpec(),
                 this.bulkRequestPropertySpec(),
                 this.cipheringTypePropertySpec(),
                 this.ntaSimulationToolPropertySpec(),
@@ -80,18 +79,6 @@ public class DlmsConfigurationSupport implements ConfigurationSupport {
 
     private PropertySpec maxRecPduSizePropertySpec() {
         return PropertySpecFactory.bigDecimalPropertySpec(MAX_REC_PDU_SIZE, DEFAULT_MAX_REC_PDU_SIZE);
-    }
-
-    private PropertySpec retriesPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(RETRIES, DEFAULT_RETRIES);
-    }
-
-    private PropertySpec timeoutPropertySpec() {
-        return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(TIMEOUT, new TimeDuration(DEFAULT_TIMEOUT.intValue() / 1000));
-    }
-
-    private PropertySpec roundTripCorrectionPropertySpec() {
-        return PropertySpecFactory.bigDecimalPropertySpec(ROUND_TRIP_CORRECTION, DEFAULT_ROUND_TRIP_CORRECTION);
     }
 
     private PropertySpec bulkRequestPropertySpec() {

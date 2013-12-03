@@ -6,7 +6,9 @@ import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisPar
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedMessage;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
@@ -59,7 +61,7 @@ public class Messaging implements DeviceMessageSupport {
                     collectedMessage = createCollectedMessage(pendingMessage);
                     collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(pendingMessage, "DeviceMessage.notSupported"));
                 }
-                result.addCollectedMessages(collectedMessage);
+                result.addCollectedMessage(collectedMessage);
             }
         } catch (IOException e) {      //Timeout, abort session
             throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, 1);    //No retries on protocol level, TCP handles this

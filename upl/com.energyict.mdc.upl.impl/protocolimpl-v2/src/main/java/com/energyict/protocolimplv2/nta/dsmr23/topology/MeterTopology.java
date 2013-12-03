@@ -1,7 +1,11 @@
 package com.energyict.protocolimplv2.nta.dsmr23.topology;
 
-import com.energyict.dlms.*;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.meterdata.CollectedTopology;
@@ -11,7 +15,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.NtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
@@ -32,7 +36,7 @@ public class MeterTopology {
     public static final int MaxMbusDevices = 4;
     private static String ignoreZombieMbusDevice = "@@@0000000000000";
 
-    private final NtaProtocol protocol;
+    private final AbstractNtaProtocol protocol;
 
     /**
      * The <CODE>ComposedCosemObject</CODE> for requesting all serialNumbers in 1 request
@@ -54,7 +58,7 @@ public class MeterTopology {
      */
     private CollectedTopology deviceTopology;
 
-    public MeterTopology(final NtaProtocol protocol) {
+    public MeterTopology(final AbstractNtaProtocol protocol) {
         this.protocol = protocol;
     }
 

@@ -1,22 +1,29 @@
-package com.energyict.protocolimplv2.nta.elster;
+package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  The MBus device used for the AM100 implementation of the NTA spec
- *
- * @author: sva
- * @since: 2/11/12 (11:26)
+ * @author sva
+ * @since 29/11/13 - 9:59
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
     private Dsmr23MbusMessaging dsmr23MbusMessaging;
+
+    public MbusDevice() {
+        super();
+    }
+
+    public MbusDevice(AbstractNtaProtocol meterProtocol, String serialNumber, int physicalAddress) {
+        super(meterProtocol, serialNumber, physicalAddress);
+    }
 
     @Override
     public DeviceMessageSupport getDeviceMessageSupport() {
@@ -28,7 +35,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public String getProtocolDescription() {
-        return "Elster AS220/AS1440 AM100 NTA Mbus Slave (protocolimpl V2)";
+        return "EnergyICT Mbus Slave NTA DSMR 2.3";
     }
 
     @Override

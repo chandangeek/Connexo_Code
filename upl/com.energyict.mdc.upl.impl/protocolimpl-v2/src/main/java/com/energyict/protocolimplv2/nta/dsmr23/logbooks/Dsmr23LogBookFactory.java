@@ -7,27 +7,37 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.NtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
-import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.*;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.DisconnectControlLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.EventsLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.FraudDetectionLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.MbusControlLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.MbusLog;
+import com.energyict.smartmeterprotocolimpl.nta.dsmr23.eventhandling.PowerFailureLog;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
-//TODO sva, make this am100 compatible
 public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
-    private NtaProtocol protocol;
+    private AbstractNtaProtocol protocol;
 
     /**
      * List of obiscodes of the supported log books
      */
     private List<ObisCode> supportedLogBooks;
 
-    public Dsmr23LogBookFactory(NtaProtocol protocol) {
+    public Dsmr23LogBookFactory(AbstractNtaProtocol protocol) {
         this.protocol = protocol;
         supportedLogBooks = new ArrayList<>();
         try {

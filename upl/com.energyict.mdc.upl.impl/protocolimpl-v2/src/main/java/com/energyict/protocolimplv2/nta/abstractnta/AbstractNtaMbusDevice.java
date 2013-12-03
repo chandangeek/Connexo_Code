@@ -14,7 +14,6 @@ import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
@@ -25,225 +24,244 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimplv2.nta.elster.AM100;
-import com.energyict.protocolimplv2.security.NoSecuritySupport;
-import com.energyict.smartmeterprotocolimpl.common.SimpleMeter;
+import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
+import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
+
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
 /**
- * @author: sva
- * @since: 2/11/12 (9:11)
+ * The Abstract NTA Mbus device implements the {@link DeviceProtocol} interface so we can
+  * define this as a pluggable class in EIS 9.1.
+  * Most of the methods throw an unsupportedMethod CodingException, if your subclass wants
+  * to use one of these, then simple override them.
+ * <p/>
+ * @author sva
+ * @since 29/11/13 - 9:21
  */
-public abstract class AbstractNtaMbusDevice implements DeviceProtocol, SimpleMeter, DeviceMessageSupport {
+public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     private final AbstractNtaProtocol meterProtocol;
 
     private final String serialNumber;
     private final int physicalAddress;
-    private final DeviceProtocolSecurityCapabilities securityCapabilities = new NoSecuritySupport();
+
+    public abstract DeviceMessageSupport getDeviceMessageSupport();
 
     /**
-     * Get the used MessageProtocol
-     *
-     * @return the DeviceMessageSupport message protocol
+     * Only for dummy instantiations
      */
-
-    public abstract DeviceMessageSupport getMessageProtocol();
-
-
-    // TODO Implement me
-    @Override
-    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-    }
-
-    @Override
-    public void terminate() {
-    }
-
-    @Override
-    public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<ConnectionType> getSupportedConnectionTypes() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public void logOn() {
-    }
-
-    @Override
-    public void daisyChainedLogOn() {
-    }
-
-    @Override
-    public void logOff() {
-    }
-
-    @Override
-    public void daisyChainedLogOff() {
-    }
-
-    @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-    }
-
-    @Override
-    public DeviceProtocolCache getDeviceCache() {
-        return null;
-    }
-
-    @Override
-    public void setTime(Date timeToSet) {
-    }
-
-    @Override
-    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Date getTime() {
-        return null;
-    }
-
-    @Override
-    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        return null;
-    }
-
-    @Override
-    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-    }
-
-    @Override
-    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-    }
-
-    @Override
-    public final List<PropertySpec> getSecurityProperties() {
-        return securityCapabilities.getSecurityProperties();
-    }
-
-    @Override
-    public final String getSecurityRelationTypeName() {
-        return securityCapabilities.getSecurityRelationTypeName();
-    }
-
-    @Override
-    public final List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return securityCapabilities.getAuthenticationAccessLevels();
-    }
-
-    @Override
-    public final List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return securityCapabilities.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public final PropertySpec getSecurityPropertySpec(String name) {
-        return securityCapabilities.getSecurityPropertySpec(name);
-    }
-
-    @Override
-    public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public CollectedTopology getDeviceTopology() {
-        return null;
-    }
-
-    @Override
-    public String getVersion() {
-        return null;
-    }
-
-    public AbstractNtaMbusDevice() {
-        this.meterProtocol = new AM100();
+    protected AbstractNtaMbusDevice() {
+        this.meterProtocol = new WebRTUKP();
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }
 
-    public AbstractNtaMbusDevice(final AbstractNtaProtocol meterProtocol, final String serialNumber, final int physicalAddress) {
+    public AbstractNtaMbusDevice(AbstractNtaProtocol meterProtocol, String serialNumber, int physicalAddress) {
         this.meterProtocol = meterProtocol;
         this.serialNumber = serialNumber;
         this.physicalAddress = physicalAddress;
     }
 
     @Override
+    public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
+        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
+    }
+
+    @Override
+    public List<ConnectionType> getSupportedConnectionTypes() {
+        return new ArrayList<>(0);
+    }
+
+    @Override
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return getDeviceMessageSupport().getSupportedMessages();
+    }
+
+    @Override
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+        return getDeviceMessageSupport().executePendingMessages(pendingMessages);
+    }
+
+    @Override
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+        return getDeviceMessageSupport().updateSentMessages(sentMessages);
+    }
+
+    @Override
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
+        return getDeviceMessageSupport().format(propertySpec, messageAttribute);
+    }
+
+    @Override
+    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+        return Arrays.asList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect());
+    }
+
+    /**
+     * Return the DeviceTimeZone
+     *
+     * @return the DeviceTimeZone
+     */
     public TimeZone getTimeZone() {
         return this.meterProtocol.getTimeZone();
     }
 
-    @Override
+    /**
+     * Getter for the used Logger
+     *
+     * @return the Logger
+     */
     public Logger getLogger() {
         return this.meterProtocol.getLogger();
     }
 
-    @Override
+    /**
+     * The serialNumber of the meter
+     *
+     * @return the serialNumber of the meter
+     */
     public String getSerialNumber() {
         return this.serialNumber;
     }
 
-    @Override
+    /**
+     * Get the physical address of the Meter. Mostly this will be an index of the meterList
+     *
+     * @return the physical Address of the Meter.
+     */
     public int getPhysicalAddress() {
         return this.physicalAddress;
     }
 
+    /**
+     * Getter for the master {@link AbstractNtaProtocol}
+     *
+     * @return the protocol of the master
+     */
     public AbstractNtaProtocol getMeterProtocol() {
         return meterProtocol;
     }
 
     @Override
+    public List<PropertySpec> getSecurityProperties() {
+        return getMeterProtocol().getSecurityProperties();
+    }
+
+    @Override
+    public String getSecurityRelationTypeName() {
+        return getMeterProtocol().getSecurityRelationTypeName();
+    }
+
+    @Override
+    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
+        return getMeterProtocol().getAuthenticationAccessLevels();
+    }
+
+    @Override
+    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
+        return getMeterProtocol().getEncryptionAccessLevels();
+    }
+
+    @Override
+    public PropertySpec getSecurityPropertySpec(String name) {
+        return getMeterProtocol().getSecurityPropertySpec(name);
+    }
+
+    //############## Unsupported methods ##############//
+
+    @Override
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "init");
+    }
+
+    @Override
+    public void terminate() {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "terminate");
+    }
+
+    @Override
+    public void logOn() {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "logOn");
+    }
+
+    @Override
+    public void daisyChainedLogOn() {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "daisyChainedLogOn");
+    }
+
+    @Override
+    public void logOff() {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "logOff");
+    }
+
+    @Override
+    public void daisyChainedLogOff() {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "daisyChainedLogOff");
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setTime");
+    }
+
+    @Override
     public void addProperties(TypedProperties properties) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "addProperties");
     }
 
     @Override
-    public List<PropertySpec> getRequiredProperties() {
-        return new ArrayList<PropertySpec>();
+    public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "addDeviceProtocolDialectProperties");
     }
 
     @Override
-    public List<PropertySpec> getOptionalProperties() {
-        return new ArrayList<PropertySpec>();
+    public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setSecurityPropertySet");
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        return getMessageProtocol().getSupportedMessages();
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "fetchLoadProfileConfiguration");
     }
 
     @Override
-    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        return getMessageProtocol().executePendingMessages(pendingMessages);
+    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLoadProfileData");
     }
 
     @Override
-    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        return getMessageProtocol().updateSentMessages(sentMessages);
+    public Date getTime() {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "createUnsupportedMethodException");
+    }
+
+    @Override
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "setDeviceCache");
+    }
+
+    @Override
+    public DeviceProtocolCache getDeviceCache() {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceCache");
+    }
+
+    @Override
+    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLogBookData");
+    }
+
+    @Override
+    public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "readRegisters");
+    }
+
+    @Override
+    public CollectedTopology getDeviceTopology() {
+        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getDeviceTopology");
     }
 }

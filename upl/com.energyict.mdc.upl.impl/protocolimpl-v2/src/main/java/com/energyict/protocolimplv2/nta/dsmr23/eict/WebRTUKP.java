@@ -11,24 +11,39 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
-import com.energyict.mdc.protocol.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
+import com.energyict.mdc.meterdata.CollectedTopology;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.security.*;
-import com.energyict.mdc.tasks.*;
-import com.energyict.mdw.offline.*;
-import com.energyict.obis.ObisCode;
+import com.energyict.mdc.protocol.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.protocol.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.tasks.ConnectionType;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.OpticalDeviceProtocolDialect;
+import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdw.offline.OfflineDevice;
+import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
+import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaProtocol;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 /**
  * General error handling principle:
@@ -42,10 +57,8 @@ import java.util.*;
  * Time: 11:40
  * Author: khe
  */
-public class WebRTUKP extends AbstractSmartNtaProtocol {
+public class WebRTUKP extends AbstractNtaProtocol {
 
-    public static final ObisCode dailyObisCode = ObisCode.fromString("1.0.99.2.0.255");
-    public static final ObisCode monthlyObisCode = ObisCode.fromString("0.0.98.1.0.255");
     private DlmsSecuritySupport dlmsSecuritySupport;
 
     @Override
@@ -112,41 +125,6 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
-    }
-
-    @Override
-    public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
-        int address;
-
-        if (obisCode.equalsIgnoreBChannel(dailyObisCode) || obisCode.equalsIgnoreBChannel(monthlyObisCode)) {
-            address = 0;
-        } else {
-            address = getPhysicalAddressFromSerialNumber(serialNumber);
-        }
-
-        if ((address == 0 && obisCode.getB() != -1 && obisCode.getB() != 128)) { // then don't correct the obisCode
-            return obisCode;
-        }
-
-        if (address != -1) {
-            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) address);
-        }
-        return null;
-    }
-
-    @Override
-    public int getPhysicalAddressFromSerialNumber(String serialNumber) {
-        return getMeterTopology().getPhysicalAddress(serialNumber);
-    }
-
-    @Override
-    public String getSerialNumberFromCorrectObisCode(ObisCode obisCode) {
-        return getMeterTopology().getSerialNumber(obisCode);
-    }
-
-    @Override
-    public TimeZone getTimeZone() {
-        return getDlmsSessionProperties().getTimeZone();
     }
 
     @Override
