@@ -5,7 +5,6 @@ import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +12,13 @@ import java.util.Map;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.fest.assertions.data.MapEntry;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -28,22 +28,25 @@ import static org.mockito.Mockito.when;
 
 public class ComServerResourceTest extends JerseyTest {
 
-    ComServerService comServerService;
+    private static ComServerService comServerService;
 
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
+    @BeforeClass
+    static public void setUpClass() throws Exception {
         comServerService = mock(ComServerService.class);
-//        ComServerServiceHolder.setComServerService(comServerService);
     }
 
     @Override
     protected Application configure() {
-        enable(TestProperties.LOG_TRAFFIC);
-        enable(TestProperties.DUMP_ENTITY);
+//        enable(TestProperties.LOG_TRAFFIC);
+//        enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class);
-        resourceConfig.registerClasses(OfflineComServerInfo.class, OnlineComServerInfo.class, ComServersInfo.class);
+        resourceConfig.registerClasses(ComServersInfo.class);
+        resourceConfig.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(comServerService).to(ComServerService.class);
+            }
+        });
         return resourceConfig;
     }
 
@@ -51,12 +54,11 @@ public class ComServerResourceTest extends JerseyTest {
     protected void configureClient(ClientConfig config) {
 
         config.register(JacksonJsonProvider.class);
-        config.register(OnlineComServerInfo.class);
+        config.register(JsonPojoMapperProvider.class);
         super.configureClient(config);
     }
 
     @Test
-    @Ignore
     public void guardGetComServersJavaScriptMappings() {
         OnlineComServer mock = mock(OnlineComServer.class);
         List<ComServer<? extends ComServerShadow>> comServers = new ArrayList<>();
@@ -105,28 +107,24 @@ public class ComServerResourceTest extends JerseyTest {
     }
 
     @Test
-    @Ignore
     public void testObjectMapper() throws Exception {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new";
         ObjectMapper objectMapper = new ObjectMapper();
 //        objectMapper.registerSubtypes(OnlineComServerInfo.class);
 //        objectMapper.registerSubtypes(ComServerInfo.class);
-        objectMapper.getSubtypeResolver().registerSubtypes(OnlineComServerInfo.class, OfflineComServerInfo.class, RemoteComServerInfo.class, ComServerInfo.class);
         String response = objectMapper.writeValueAsString(onlineComServerInfo);
         System.out.println(response);
-        assertThat(response).contains("comServerType");
+        assertThat(response).contains("\"comServerType\":\"Online\"");
     }
 
     @Test
     @Ignore
     public void testPutComServer() throws Exception {
-//        {comServers=[{id=1, name=Test, active=false, serverLogLevel=INFO, communicationLogLevel=ERROR, changesInterPollDelay={count=6, timeUnit=seconds}, schedulingInterPollDelay={count=7, timeUnit=minutes}, inboundComPorts=null, outboundComPorts=null, onlineComServerId=null, queryAPIUsername=null, queryAPIPassword=null, queryAPIPostUri=/test, usesDefaultQueryAPIPostUri=false, eventRegistrationUri=/event/registration/uri, usesDefaultEventRegistrationUri=false, storeTaskQueueSize=3, numberOfStoreTaskThreads=2, storeTaskThreadPriority=4}]}
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
-        onlineComServerInfo.comServerType="Online";
-        Entity<OnlineComServerInfo> objectEntity = Entity.json(onlineComServerInfo);
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
 
-        final Response response = target("/comservers/3").request().put(objectEntity);
+        final Response response = target("/comservers/3").request().put(json);
         System.out.println(response);
 
     }
