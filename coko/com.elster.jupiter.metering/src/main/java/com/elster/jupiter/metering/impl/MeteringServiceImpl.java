@@ -68,6 +68,7 @@ public class MeteringServiceImpl implements MeteringService, InstallService, Ser
         this.queryService = queryService;
         this.userService = userService;
         activate();
+        install();
     }
 
     @Override

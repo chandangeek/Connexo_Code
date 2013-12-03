@@ -82,7 +82,7 @@ public class ChannelImplTest extends EqualsContractTest {
 
         when(meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);
         when(serviceLocator.getClock().getTimeZone()).thenReturn(TIME_ZONE);
-        when(serviceLocator.getIdsService().getRecordSpec(Bus.COMPONENTNAME, 2)).thenReturn(Optional.of(recordSpec));
+        when(serviceLocator.getIdsService().getRecordSpec(Bus.COMPONENTNAME, 4)).thenReturn(Optional.of(recordSpec));
         when(serviceLocator.getIdsService().getVault(Bus.COMPONENTNAME, 2)).thenReturn(Optional.of(vault));
         when(serviceLocator.getIdsService().getRecordSpec(Bus.COMPONENTNAME, 1)).thenReturn(Optional.of(recordSpec));
         when(serviceLocator.getIdsService().getVault(Bus.COMPONENTNAME, 1)).thenReturn(Optional.of(vault));
