@@ -67,7 +67,8 @@ public final class DLMSConfig {
 		new DLMSConfig("ISK",7,1,-1,99,98,-1,-1),
 		new DLMSConfig("EMO",7,1,-1,99,98,-1,-1),
 		new DLMSConfig("SLB",7,1,-1,99,98,-1,-1),
-		new DLMSConfig("WKP",7,-1,-1,99,98,-1,-1)
+		new DLMSConfig("WKP",7,-1,-1,99,98,0,-1),   // First we check for E-field 0
+		new DLMSConfig("WKP",7,-1,-1,99,98,-1,-1)   // If no match, try with wildcard for E-field
 	};
 
 	private static final DLMSConfig[] version = {
@@ -81,7 +82,6 @@ public final class DLMSConfig {
 
 	private static final DLMSConfig[] status = {
 		new DLMSConfig("WKP",1,0,0,96,10,1,255),
-		//    		new DLMSConfig("WKP",1,0,0,96,10,0,255),
 		new DLMSConfig("ISK",1,1,0,96,240,0,255)
 	};
 
@@ -94,7 +94,6 @@ public final class DLMSConfig {
 	 */
 	private static final DLMSConfig[] dailyProfile = {
 		new DLMSConfig("WKP",7,1,0,99,2,0,255)
-//		new DLMSConfig("WKP",7,0,0,99,2,0,255)
 	};
 
 	private static final DLMSConfig[] monthlyProfile = {
