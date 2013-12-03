@@ -4,23 +4,33 @@ Ext.define('Cfg.view.validation.List', {
     itemId: 'validationrulesetList',
     title: 'All Rule Sets',
     store: 'ValidationRuleSets',
+    tbar: [{
+        text: 'Add Rule Set',
+        itemId: 'addRuleSet',
+        action: 'addRuleSet'
+    },
+        {
+            itemId: 'removeRuleSet',
+            text: 'Remove Rule Set',
+            action: 'removeRuleSet',
+            disabled: true
+        }],
+    listeners: {
+        'selectionchange': function(view, records) {
+            rulesGrid.down('#removeRuleSet').setDisabled(!records.length);
+        }
+    },
     columns: {
         defaults: {
             flex: 1
         },
         items: [
-            { header: 'Id', dataIndex: 'id', flex: 0.1 },
+            //{ header: 'Id', dataIndex: 'id', flex: 0.1 },
             { header: 'Name', dataIndex: 'name' },
             { header: 'Description', dataIndex: 'description' }
         ]
     },
     initComponent: function () {
-        /*this.buttons = [
-            {
-                text: 'Save',
-                action: 'save'
-            }
-        ];     */
         this.dockedItems = [
             {
                 xtype: 'pagingtoolbar',

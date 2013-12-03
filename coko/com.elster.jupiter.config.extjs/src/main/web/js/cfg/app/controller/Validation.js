@@ -13,7 +13,8 @@ Ext.define('Cfg.controller.Validation', {
 
     models: [
         'ReadingType',
-        'ValidationRule'
+        'ValidationRule',
+        'ValidationRuleProperty'
     ],
 
     views: [
@@ -29,6 +30,10 @@ Ext.define('Cfg.controller.Validation', {
         {
             ref: 'rulesGrid',
             selector: 'validationrulesetEdit #validationruleList'
+        } ,
+        {
+            ref: 'ruleSetsGrid',
+            selector: 'validationrulesetList #validationrulesetList'
         } ,
         {
             ref: 'rulePropertiesGrid',
@@ -49,8 +54,26 @@ Ext.define('Cfg.controller.Validation', {
         this.initMenu();
 
         this.control({
+            'validationrulesetList button[action=removeRuleSet]': {
+                click: this.removeRuleSet
+            },
+            'validationrulesetList button[action=addRuleSet]': {
+                click: this.addRuleSet
+            },
             'validationrulesetEdit button[action=save]': {
                 click: this.saveRuleSet
+            },
+            'validationrulesetEdit button[action=removeRule]': {
+                click: this.removeRule
+            },
+            'validationrulesetEdit button[action=addRule]': {
+                click: this.addRule
+            },
+            'validationrulesetEdit button[action=removeRuleProperty]': {
+                click: this.removeRuleProperty
+            },
+            'validationrulesetEdit button[action=addRuleProperty]': {
+                click: this.addRuleProperty
             },
             '#validationrulesetList': {
                 itemdblclick: this.editValidationRuleSet
@@ -90,16 +113,70 @@ Ext.define('Cfg.controller.Validation', {
         this.getValidationPropertySpecsForRuleStore().filter('validator', record.data.implementation);
         this.resetReadingTypesForRecord(record);
         this.getRulePropertiesGrid().reconfigure(record.properties());
+    },
 
+    removeRuleSet:function (button) {
+        var sm = this.getRuleSetsGrid().getSelectionModel();
+        this.getValidationRuleSetsStore().remove(sm.getSelection());
+        sm.select(0);
+    },
+
+    addRuleSet:function (button) {
+        var record = Ext.ModelManager.create({
+            name: null,
+            description: null
+        }, 'Cfg.model.ValidationRuleSet');
+        /*var index =  this.getValidationRuleSetsStore().getTotalCount();
+        this.getValidationRuleSetsStore().insert(index, r);
+        this.getRuleSetsGrid().getView().focusRow(index);
+        this.getRuleSetsGrid().getSelectionModel().select(index);    */
+        var view = Ext.widget('validationrulesetEdit');
+        view.down('form').loadRecord(record);
         /*var me = this;
-        me.getValidationPropertySpecsForRuleStore().load({
+        me.getValidationRulesStore().load({
             params: {
                 id: record.data.id
             },
             callback: function () {
-                alert('available properties loaded for selectd rule');
-                me.getAvailablePropertySpecsCombo().bindStore(me.getValidationPropertySpecsForRuleStore());
-        }});  */
+                if (me.getValidationRulesStore().getTotalCount() > 0) {
+                    me.getRulesGrid().getSelectionModel().select(0);
+                }
+            }});      */
+    },
+
+    removeRule:function (button) {
+        var sm = this.getRulesGrid().getSelectionModel();
+        this.getValidationRulesStore().remove(sm.getSelection());
+        sm.select(0);
+    },
+
+    addRule:function (button) {
+        var r = Ext.ModelManager.create({
+            active: false,
+            action: null,
+            implementation: null
+        }, 'Cfg.model.ValidationRule');
+        var index =  this.getValidationRulesStore().getTotalCount();
+        this.getValidationRulesStore().insert(index, r);
+        this.getRulesGrid().getView().focusRow(index);
+        this.getRulesGrid().getSelectionModel().select(index);
+    },
+
+    removeRuleProperty:function (button) {
+        var sm = this.getRulePropertiesGrid().getSelectionModel();
+        this.getValidationRulePropertiesStore().remove(sm.getSelection());
+        sm.select(0);
+    },
+
+    addRuleProperty:function (button) {
+        var r = Ext.ModelManager.create({
+            name: null,
+            value: null
+        }, 'Cfg.model.ValidationRuleProperty');
+        var index =  this.getValidationRulePropertiesStore().getTotalCount();
+        this.getValidationRulePropertiesStore().insert(index, r);
+        this.getRulePropertiesGrid().getView().focusRow(index);
+        this.getRulePropertiesGrid().getSelectionModel().select(index);
     },
 
     saveRuleSet: function (button) {
