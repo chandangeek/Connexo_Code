@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.bootstrap.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.ids.impl.IdsModule;
