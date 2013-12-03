@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.Validator;
 import com.google.common.base.Optional;
 
 import javax.ws.rs.*;
@@ -72,13 +73,17 @@ public class ValidationResource {
     @GET
     @Path("/propertyspecs")
     @Produces(MediaType.APPLICATION_JSON)
-    //TODO return all available properties instead of this mock implementation
     public ValidationRulePropertySpecInfos getAllAvailableProperties(@Context UriInfo uriInfo) {
+        List<Validator> validators = Bus.getValidationService().getAvailableValidators();
         ValidationRulePropertySpecInfos infos = new ValidationRulePropertySpecInfos();
-        infos.add("minimum", true, "com.elster.jupiter.validators.MinMaxValidator");
-        infos.add("maximum", true, "com.elster.jupiter.validators.MinMaxValidator");
-        infos.add("high", true, "com.elster.jupiter.validators.RatedPowerValidator");
-        infos.add("low", true, "com.elster.jupiter.validators.RatedPowerValidator");
+        for (Validator validator : validators) {
+            for (String property : validator.getRequiredKeys()) {
+                infos.add(property, true, validator.getClass().getName());
+            }
+            for (String property : validator.getOptionalKeys()) {
+                infos.add(property, false, validator.getClass().toString());
+            }
+        }
         return infos;
     }
 
@@ -120,7 +125,7 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ValidatorInfos getAvailableValidators(@Context UriInfo uriInfo) {
         ValidatorInfos infos = new ValidatorInfos();
-        List<String> toAdd = Bus.getValidationService().getAvailableValidators();
+        List<String> toAdd = Bus.getValidationService().getAvailableValidatorNames();
         for (String implementation : toAdd) {
             infos.add(implementation);
         }
@@ -128,18 +133,6 @@ public class ValidationResource {
         return infos;
     }
 
-    @GET
-    @Path("/properties")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ValidatorInfos getAvailableProperties(@Context UriInfo uriInfo) {
-        ValidatorInfos infos = new ValidatorInfos();
-        List<String> toAdd = Bus.getValidationService().getAvailableValidators();
-        for (String implementation : toAdd) {
-            infos.add(implementation);
-        }
-        infos.total = toAdd.size();
-        return infos;
-    }
 	
 
 
