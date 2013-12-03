@@ -49,6 +49,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
         this.eventService = eventService;
         this.threadPrincipalService = threadPrincipalService;
         activate();
+        install();
     }
 
     public void activate() {
