@@ -111,8 +111,6 @@ public class ComServerResourceTest extends JerseyTest {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new";
         ObjectMapper objectMapper = new ObjectMapper();
-//        objectMapper.registerSubtypes(OnlineComServerInfo.class);
-//        objectMapper.registerSubtypes(ComServerInfo.class);
         String response = objectMapper.writeValueAsString(onlineComServerInfo);
         System.out.println(response);
         assertThat(response).contains("\"comServerType\":\"Online\"");
