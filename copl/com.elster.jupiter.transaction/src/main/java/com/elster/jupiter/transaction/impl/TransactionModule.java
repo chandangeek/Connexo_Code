@@ -34,10 +34,12 @@ public class TransactionModule extends AbstractModule {
                 encounter.register(new InjectionListener<I>() {
                     @Override
                     public void afterInjection(I injectee) {
-                        try {
-                            lifeLineConnection = ((DataSource) injectee).getConnection();
-                        } catch (SQLException e) {
-                            throw new RuntimeException(e);
+                    	if (lifeLineConnection == null) {
+                    		try {
+                    			lifeLineConnection = ((DataSource) injectee).getConnection();
+                    			} catch (SQLException e) {
+                    				throw new RuntimeException(e);
+                    			}
                         }
                     }
                 });
