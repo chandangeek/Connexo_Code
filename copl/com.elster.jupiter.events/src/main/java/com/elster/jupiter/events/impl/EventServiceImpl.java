@@ -49,16 +49,16 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
     }
 
     @Inject
-    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, CacheService cacheService, EventAdmin eventAdmin, MessageService messageService, BundleContext bundleContext) {
+    public EventServiceImpl(Clock clock, JsonService jsonService, Publisher publisher, BeanService beanService, OrmService ormService, CacheService cacheService, MessageService messageService, BundleContext bundleContext) {
         initOrmClient(ormService);
         this.componentCache = cacheService.createComponentCache(ormClient.getDataModel());
-        this.eventAdmin.set(eventAdmin);
         this.clock = clock;
         this.publisher = publisher;
         this.beanService = beanService;
         this.jsonService = jsonService;
         this.messageService = messageService;
         activate(bundleContext);
+        install();
     }
 
     @Override
@@ -190,7 +190,10 @@ public class EventServiceImpl implements EventService, InstallService, ServiceLo
         EventType eventType = found.get();
         LocalEvent localEvent = eventType.create(source);
         getPublisher().publish(localEvent); // synchronous call, may throw an exception to prevent transaction commit should be prior to further propagating the event.
-        getEventAdmin().postEvent(localEvent.toOsgiEvent());
+        EventAdmin eventAdmin = getEventAdmin();
+        if (eventAdmin != null) {
+        	eventAdmin.postEvent(localEvent.toOsgiEvent());
+        }
         if (eventType.shouldPublish()) {
             localEvent.publish();
         }

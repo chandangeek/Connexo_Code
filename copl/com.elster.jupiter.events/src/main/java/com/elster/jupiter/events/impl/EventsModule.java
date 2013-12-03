@@ -23,7 +23,6 @@ public class EventsModule extends AbstractModule {
         requireBinding(BeanService.class);
         requireBinding(OrmService.class);
         requireBinding(CacheService.class);
-        requireBinding(EventAdmin.class);
         requireBinding(MessageService.class);
         requireBinding(BundleContext.class);
 
