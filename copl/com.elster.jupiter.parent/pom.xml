@@ -130,7 +130,8 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.aopalliance</artifactId>
             <version>1.0_6</version>
-        </dependency>    </dependencies>
+        </dependency>
+    </dependencies>
     <!-- Repositories specification. -->
     <repositories>
         <repository>
@@ -283,6 +284,7 @@
     		<modules>
                 <module>../com.elster.jupiter.appserver</module>
                 <module>../com.elster.jupiter.bootstrap</module>
+                <module>../com.elster.jupiter.bootstrap.oracle</module>
         		<module>../com.elster.jupiter.cbo</module>
 		        <module>../com.elster.jupiter.domain.util</module>
 		        <module>../com.elster.jupiter.events</module>
@@ -313,6 +315,8 @@
 		        <module>../com.elster.jupiter.users</module>
 		        <module>../com.elster.jupiter.users.rest</module>
 		        <module>../com.elster.jupiter.util</module>
+                <module>../com.elster.jupiter.validation</module>
+                <module>../com.elster.jupiter.validators</module>
     		</modules>
     	</profile>
         <profile>
