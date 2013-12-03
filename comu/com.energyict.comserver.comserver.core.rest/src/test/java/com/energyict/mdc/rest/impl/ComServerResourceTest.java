@@ -5,7 +5,6 @@ import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +39,9 @@ public class ComServerResourceTest extends JerseyTest {
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
+        enable("com.sun.jersey.api.json.POJOMappingFeature");
+        enable("POJOMappingFeature");
         ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class);
-        resourceConfig.registerClasses(ComServersInfo.class);
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
@@ -54,8 +54,8 @@ public class ComServerResourceTest extends JerseyTest {
     @Override
     protected void configureClient(ClientConfig config) {
 
-        config.register(JacksonJsonProvider.class);
-        config.register(JsonPojoMapperProvider.class);
+//        config.register(JacksonJsonProvider.class);
+//        config.register(JsonPojoMapperProvider.class);
         super.configureClient(config);
     }
 
@@ -122,7 +122,6 @@ public class ComServerResourceTest extends JerseyTest {
     public void testPutComServer() throws Exception {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
-        System.out.println(Entity.text(onlineComServerInfo).toString());
         final Response response = target("/comservers/3").request().put(json);
         System.out.println(response);
 
