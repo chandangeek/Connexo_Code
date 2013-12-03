@@ -62,7 +62,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
             if (isSupported(logBookReader)) {
                 ProfileGeneric profileGeneric;
                 try {
-                    profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(logBookReader.getLogBookObisCode());
+                    profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()));
                 } catch (IOException e) {
                     throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
                 }
@@ -91,13 +91,13 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
             if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
                 meterEvents = new EventsLog(dataContainer).getMeterEvents();
             } else if (logBookObisCode.equals(getMeterConfig().getControlLogObject().getObisCode())) {
-                meterEvents = new FraudDetectionLog(dataContainer).getMeterEvents();
-            } else if (logBookObisCode.equals(getMeterConfig().getPowerFailureLogObject().getObisCode())) {
                 meterEvents = new DisconnectControlLog(dataContainer).getMeterEvents();
-            } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
-                meterEvents = new MbusLog(dataContainer).getMeterEvents();
-            } else if (logBookObisCode.equals(getMeterConfig().getMbusEventLogObject().getObisCode())) {
+            } else if (logBookObisCode.equals(getMeterConfig().getPowerFailureLogObject().getObisCode())) {
                 meterEvents = new PowerFailureLog(dataContainer).getMeterEvents();
+            } else if (logBookObisCode.equals(getMeterConfig().getFraudDetectionLogObject().getObisCode())) {
+                meterEvents = new FraudDetectionLog(dataContainer).getMeterEvents();
+            } else if (logBookObisCode.equals(getMeterConfig().getMbusEventLogObject().getObisCode())) {
+                meterEvents = new MbusLog(dataContainer).getMeterEvents();
             } else if (logBookObisCode.equalsIgnoreBChannel(getMeterConfig().getMbusControlLog(0).getObisCode())) {
                 meterEvents = new MbusControlLog(dataContainer).getMeterEvents();
             } else {
@@ -111,7 +111,7 @@ public class Dsmr23LogBookFactory implements DeviceLogBookSupport {
 
     private boolean isSupported(LogBookReader logBookReader) {
         for (ObisCode supportedLogBookObisCode : supportedLogBooks) {
-            if (supportedLogBookObisCode.equals(logBookReader.getLogBookObisCode())) {
+            if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()))) {
                 return true;
             }
         }

@@ -760,7 +760,7 @@ public class Dsmr23MessageExecutor extends AbstractNtaMessageExecutor {
         List<OfflineDeviceMessage> messages = new ArrayList<>();
 
         for (OfflineDeviceMessage pendingMessage : deviceMessages) {
-            if (getProtocol().getSerialNumber().equalsIgnoreCase(pendingMessage.getDeviceSerialNumber())) {
+            if (getProtocol().getSerialNumber().equals(pendingMessage.getDeviceSerialNumber())) {
                 messages.add(pendingMessage);
             }
         }
@@ -777,7 +777,7 @@ public class Dsmr23MessageExecutor extends AbstractNtaMessageExecutor {
         List<OfflineDeviceMessage> mbusMessages = new ArrayList<>();
 
         for (OfflineDeviceMessage pendingMessage : deviceMessages) {
-            if (!getProtocol().getSerialNumber().equalsIgnoreCase(pendingMessage.getDeviceSerialNumber())) {
+            if (!getProtocol().getSerialNumber().equals(pendingMessage.getDeviceSerialNumber())) {
                 mbusMessages.add(pendingMessage);
             }
         }
