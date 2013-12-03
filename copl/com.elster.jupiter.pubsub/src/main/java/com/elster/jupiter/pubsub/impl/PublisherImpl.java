@@ -24,7 +24,6 @@ public class PublisherImpl implements Publisher {
     public PublisherImpl() {
     }
 
-    @Inject
     public PublisherImpl(LogService logService) {
         setLogService(logService);
     }
