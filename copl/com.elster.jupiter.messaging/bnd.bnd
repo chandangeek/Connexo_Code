@@ -1,5 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.messaging.impl
+Private-Package:
 Export-Package: com.elster.jupiter.messaging,\
 	com.elster.jupiter.messaging.subscriber
