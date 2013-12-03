@@ -1,0 +1,5 @@
+-classpath: target/classes
+-dsannotations: * 
+Private-Package: com.elster.jupiter.bootstrap.oracle.impl
+Export-Package:
+
