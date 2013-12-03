@@ -16,7 +16,9 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -86,10 +88,12 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
         ormClient = new OrmClientImpl(dataModel);
     }
 
+    @Activate
     public void activate() {
         Bus.setServiceLocator(this);
     }
 
+    @Deactivate
     public void deactivate() {
         Bus.clearServiceLocator(this);
     }
