@@ -18,8 +18,8 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.glassfish.jersey.test.TestProperties;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -37,8 +37,8 @@ public class ComServerResourceTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-//        enable(TestProperties.LOG_TRAFFIC);
-//        enable(TestProperties.DUMP_ENTITY);
+        enable(TestProperties.LOG_TRAFFIC);
+        enable(TestProperties.DUMP_ENTITY);
         ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class);
         resourceConfig.registerClasses(ComServersInfo.class);
         resourceConfig.register(new AbstractBinder() {
@@ -117,11 +117,10 @@ public class ComServerResourceTest extends JerseyTest {
     }
 
     @Test
-    @Ignore
     public void testPutComServer() throws Exception {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
-
+        System.out.println(Entity.text(onlineComServerInfo).toString());
         final Response response = target("/comservers/3").request().put(json);
         System.out.println(response);
 
