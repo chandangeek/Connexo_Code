@@ -6,6 +6,7 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,18 @@ public class DefaultValidatorFactory implements ValidatorFactory {
         result.add(ConsecutiveZerosValidator);
         return result;
     }
+
+    @Override
+    public List<Validator> availableValidators() {
+        List<Validator> result = new ArrayList<Validator>();
+        result.add(create(RatedPowerValidator, new HashMap()));
+        result.add(create(MinimalUsageExpectedValidator, new HashMap()));
+        result.add(create(MinMaxValidator, new HashMap()));
+        result.add(create(ConsecutiveZerosValidator, new HashMap()));
+        return result;
+    }
+
+
 
     @Override
     public Validator create(String implementation, Map<String, Quantity> props) {
