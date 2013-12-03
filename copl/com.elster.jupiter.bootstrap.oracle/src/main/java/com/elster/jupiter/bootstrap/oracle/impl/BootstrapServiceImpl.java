@@ -28,7 +28,7 @@ import java.util.Properties;
  * <li><code>com.elster.jupiter.datasource.pool.maxstatements</code> : max statements, will default to 50.</li>
  * </ul>
  */
-@Component(name = "com.elster.jupiter.bootstrap")
+@Component(name = "com.elster.jupiter.bootstrap.oracle")
 public class BootstrapServiceImpl implements BootstrapService {
 
     private static final String JDBC_DRIVER_URL = "com.elster.jupiter.datasource.jdbcurl";
