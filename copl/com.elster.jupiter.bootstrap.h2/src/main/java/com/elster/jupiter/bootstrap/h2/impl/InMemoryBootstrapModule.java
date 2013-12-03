@@ -5,9 +5,15 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
 public class InMemoryBootstrapModule extends AbstractModule {
+	
+	H2BootstrapService bootstrapService = new H2BootstrapService();
 
     @Override
     protected void configure() {
-        bind(BootstrapService.class).to(H2BootStrapService.class).in(Scopes.SINGLETON);
+        bind(BootstrapService.class).toInstance(bootstrapService);
+    }
+    
+    public void deactivate() {
+    	bootstrapService.deactivate();
     }
 }
