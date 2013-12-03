@@ -3,6 +3,13 @@ Ext.define('Mdc.Application', {
 
     extend: 'Ext.app.Application',
 
+
+    requires: [
+        'Mdc.PolyReader',
+        'Mdc.PolyAssociation',
+        'Mdc.Association'
+    ],
+
     views: [
         // TODO: add views here
     ],

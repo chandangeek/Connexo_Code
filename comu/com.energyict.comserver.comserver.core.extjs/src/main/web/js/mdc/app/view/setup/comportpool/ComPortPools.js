@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPools', {
     layout: 'fit',
     itemId: 'comportpoolgrid',
 
-    store: Ext.create('Mdc.store.ComPortPools'),
+    store: 'ComPortPools',
     initComponent: function () {
         this.columns = [
             {
@@ -25,24 +25,6 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPools', {
                         '<td>type: </td>' +
                         '<td>{type}</td>' +
                     '</tr>'+
-//                    '<tr>' +
-//                        '<td>communicationLogLevel: </td>' +
-//                        '<td>{communicationLogLevel}</td>' +
-//                        '<td>schedulingInterPollDelay: </td>' +
-//                        '<td>{schedulingInterPollDelay.count} {schedulingInterPollDelay.timeUnit}</td>' +
-//                    '</tr>'+
-//                    '<tr>' +
-//                    '<td>storeTaskQueueSize: </td>' +
-//                    '<td>{storeTaskQueueSize}</td>' +
-//                    '</tr>'+
-//                    '<tr>' +
-//                    '<td>numberOfStoreTaskThreads: </td>' +
-//                    '<td>{numberOfStoreTaskThreads}</td>' +
-//                    '</tr>'+
-//                    '<tr>' +
-//                    '<td>storeTaskThreadPriority: </td>' +
-//                    '<td>{storeTaskThreadPriority}</td>' +
-//                    '</tr>'+
                     '</table>',
                 flex:1
             }

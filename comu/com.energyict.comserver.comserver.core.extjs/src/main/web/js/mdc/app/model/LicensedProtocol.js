@@ -7,7 +7,10 @@ Ext.define('Mdc.model.LicensedProtocol', {
         'protocolFamilies'
     ],
     associations: [
-        {name: 'protocolFamilies', type: 'hasMany', model: 'Mdc.model.ProtocolFamily', associationKey: 'protocolFamilies'
+        {name: 'protocolFamilies', type: 'hasMany', model: 'Mdc.model.ProtocolFamily', associationKey: 'protocolFamilies',
+            getTypeDiscriminator:function(node){
+                return 'Mdc.model.ProtocolFamily';
+            }
         }
     ],
     idProperty: 'licensedProtocolRuleCode',

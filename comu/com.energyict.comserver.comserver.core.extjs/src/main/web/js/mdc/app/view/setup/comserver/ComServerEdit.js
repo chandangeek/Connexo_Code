@@ -43,11 +43,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                 fieldLabel: 'Name'
                             },
                             {
-                                xtype: 'textfield',
-                                name: 'comServerType',
-                                fieldLabel: 'comServerType'
-                            },
-                            {
                                 xtype: 'checkbox',
                                 name: 'active',
                                 inputValue: true,

@@ -11,20 +11,27 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
     views: [
         'setup.comportpool.ComPortPools',
         'setup.comportpool.OutboundComPortPoolEdit',
-        'setup.comportpool.InboundComPortPoolEdit'
+        'setup.comportpool.InboundComPortPoolEdit',
+        'setup.comport.OutboundComPortSelectionWindow'
     ],
 
     stores: [
-        'ComPortPools'
+        'ComPortPools',
+        'ComPorts'
     ],
 
     refs: [
-        {ref: 'comPortPoolGrid',selector: 'viewport #comportpoolgrid'}
+        {ref: 'comPortPoolGrid',selector: 'viewport #comportpoolgrid'},
+        {ref: 'outboundComPortSelectionGrid',selector: '#outboundComPortSelectionGrid'},
+        {ref: 'outboundComPortGrid',selector: 'viewport #pooloutboundcomportgrid'}
     ],
 
-//    outboundComPortStore: null,
-//    inboundComPortStore: null,
+    outboundComPortStore: null,
+    inboundComPortStore: null,
     menuSelection: null,
+    comPortDirection: null,
+    comPortPool: null,
+    outboundComPortSelectionWindow: null,
 
     init: function () {
         var me = this;
@@ -32,61 +39,36 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
             'setupComPortPools': {
                 itemdblclick: this.editComPortPool
             },
-//            'InboundCompPortPoolEdit button[action=save]': {
-//                click: this.update
-//            },
-//            'InboundCompPortPoolEdit button[action=cancel]': {
-//                click: this.cancel
-//            },
-//            'OutboundCompPortPoolEdit button[action=save]': {
-//                click: this.update
-//            },
-//            'OutboundCompPortPoolEdit button[action=cancel]': {
-//                click: this.cancel
-//            },
-//            'remoteComServerEdit button[action=save]': {
-//                click: this.update
-//            },
-//            'remoteComServerEdit button[action=cancel]': {
-//                click: this.cancel
-//            },
+            'inboundComPortPoolEdit button[action=save]': {
+                click: this.update
+            },
+            'inboundComPortPoolEdit button[action=cancel]': {
+                click: this.cancel
+            },
+            'outboundComPortPoolEdit button[action=save]': {
+                click: this.update
+            },
+            'outboundComPortPoolEdit button[action=cancel]': {
+                click: this.cancel
+            },
+            'outboundComPortSelectionWindow button[action=select]': {
+                click: this.selectComPort
+            },
+            'outboundComPortSelectionWindow button[action=cancel]': {
+                click: this.closeOutboundComPortSelectionWindow
+            },
             'setupComPortPools button[action=add] menuitem': {
                 click: this.add
+            },
+            'setupComPortPools button[action=delete]': {
+                click: this.delete
+            },
+            'poolOutboundComPorts button[action=add]': {
+                click: this.addOutboundComPort
+            },
+            'poolOutboundComPorts button[action=delete]': {
+                click: this.removeOutboundComPort
             }
-//            'setupComServers button[action=delete]': {
-//                click: this.delete
-//            },
-//            'outboundComPorts': {
-//                itemdblclick: this.editComPort
-//            },
-//            'outboundComPorts button[action=add]': {
-//                click: this.addOutboundComPort
-//            },
-//            'outboundComPorts button[action=delete]': {
-//                click: this.deleteComPort
-//            },
-//            'inboundComPorts': {
-//                itemdblclick: this.editComPort
-//            },
-//            'inboundComPorts button[action=add]': {
-//                click: this.addInboundComPort
-//            },
-//            'inboundComPorts button[action=delete]': {
-//                click: this.deleteComPort
-//            },
-//            'outboundComPortEdit button[action=save]': {
-//                click: this.updateOutboundComPort
-//            },
-//            'outboundComPortEdit button[action=cancel]': {
-//                click: this.cancelComPort
-//            },
-//            'inboundComPortEdit button[action=save]': {
-//                click: this.updateInboundComPort
-//            },
-//            'inboundComPortEdit button[action=cancel]': {
-//                click: this.cancelComPort
-//            }
-
         });
     },
 
@@ -98,141 +80,105 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
     },
 
     showEditView: function (id) {
-        console.log('tweet');
         var me = this;
-
         if(id){
             Ext.ModelManager.getModel('Mdc.model.ComPortPool').load(id, {
                 success: function (comPortPool) {
-                    console.log(comPortPool.getData().id);
-                    if(comPortPool.getData().direction === 'inbound'){
+                    me.comPortPool = comPortPool
+                    if(me.comPortPool.getData().direction === 'inbound'){
                         var view = Ext.widget('inboundComPortPoolEdit');
+                        me.comPortDirection = 'inbound';
+                        me.inboundComPortStore = me.comPortPool.inboundComPorts();
+                        view.down('#poolinboundcomportgrid').reconfigure(me.inboundComPortStore);
                     } else {
                         var view = Ext.widget('outboundComPortPoolEdit');
+                        me.comPortDirection = 'outbound';
+                        me.outboundComPortStore = me.comPortPool.outboundComPorts();
+                        view.down('#pooloutboundcomportgrid').reconfigure(me.outboundComPortStore);
                     }
-//                    view.down('form').loadRecord(comserver);
-//                    me.outboundComPortStore = comserver.outboundComPorts();
-//                    me.inboundComPortStore = comserver.inboundComPorts();
-//                    view.down('#outboundcomportgrid').reconfigure(me.outboundComPortStore);
-//                    view.down('#inboundcomportgrid').reconfigure(me.inboundComPortStore);
-//                    me.comServerEditView = view;
-
-                    view.down('form').loadRecord(comPortPool);
+                    view.down('form').loadRecord(me.comPortPool);
                     Mdc.getApplication().getMainController().showContent(view);
                 }
             });
         }
         else {
-            if(menuSelection.text==='inbound'){
+            this.comPortPool = Ext.create(Mdc.model.ComPortPool);
+            if(this.menuSelection.text==='Inbound'){
                 var view = Ext.widget('inboundComPortPoolEdit');
+                this.comPortDirection = 'inbound';
+                this.inboundComPortStore = this.comPortPool.inboundComPorts();
+                view.down('#poolinboundcomportgrid').reconfigure(this.inboundComPortStore);
             } else {
                 var view = Ext.widget('outboundComPortPoolEdit');
+                this.comPortDirection = 'outbound';
+                this.outboundComPortStore = this.comPortPool.outboundComPorts();
+                view.down('#pooloutboundcomportgrid').reconfigure(this.outboundComPortStore);
             }
             Mdc.getApplication().getMainController().showContent(view);
         }
-//
     },
 
-//    update: function (button) {
-//        var me = this;
-//        var pnl = button.up('panel'),
-//            form = pnl.down('form'),
-//            record = form.getRecord(),
-//            values = form.getValues();
-//        record.set(values);
-//        record.save({
-//            success: function (record, operation) {
-//               // me.showComServerOverview();
-//            }
-//        });
-//    },
-//
-//    cancel: function () {
-//       // this.showComServerOverview();
-//    },
-//
-//    showComServerOverview: function () {
-//        var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('comservers');
-//        Ext.History.add(url);
-//    },
-//
+    update: function (button) {
+        var me = this;
+        var pnl = button.up('panel'),
+            form = pnl.down('form'),
+            values = form.getValues();
+        this.comPortPool.set(values);
+        this.comPortPool.set('direction',this.comPortDirection);
+        this.comPortPool.save({
+            success: function (record, operation) {
+               me.getComPortPoolsStore().reload({
+                   callback: function(){
+                       me.showComPortPoolOverview();
+                   }
+               })
+            }
+        });
+    },
+
+    cancel: function () {
+        this.showComPortPoolOverview();
+    },
+
+    showComPortPoolOverview: function () {
+        var url = Mdc.getApplication().getHistorySetupController().tokenizeBrowse('comportpools');
+        Ext.History.add(url);
+    },
+
     add: function (menuItem) {
-        menuSelection = menuItem;
+        this.menuSelection = menuItem;
         var url = Mdc.getApplication().getHistorySetupController().tokenizeAddComPortPool();
         Ext.History.add(url);
+    },
+
+    delete: function () {
+        var recordArray = this.getComPortPoolGrid().getSelectionModel().getSelection();
+        if (recordArray.length > 0) {
+            recordArray[0].destroy();
+        }
+    },
+
+    addOutboundComPort: function(){
+        this.outboundComPortSelectionWindow = Ext.widget('outboundComPortSelectionWindow');
+    },
+
+    removeOutboundComPort: function(){
+        var comport = this.getOutboundComPortGrid().getSelectionModel().getSelection()[0];
+        this.outboundComPortStore.removeAt(this.outboundComPortStore.indexOf(comport));
+        console.log(comport);
+    },
+
+    selectComPort: function(){
+        if(this.getOutboundComPortSelectionGrid().getSelectionModel().hasSelection()){
+            var comport = this.getOutboundComPortSelectionGrid().getSelectionModel().getSelection()[0];
+            this.outboundComPortStore.add(comport);
+        }
+        this.outboundComPortSelectionWindow.close();
+    },
+
+    closeOutboundComPortSelectionWindow: function(){
+        this.outboundComPortSelectionWindow.close();
     }
-//
-//    delete: function () {
-//        var recordArray = this.getComServerGrid().getSelectionModel().getSelection();
-//        if (recordArray.length > 0) {
-//            recordArray[0].destroy();
-//        }
-//    },
-//
-//    editComPort: function (grid, record) {
-//        if(record instanceof Mdc.model.InboundComPort){
-//            var view = Ext.widget('inboundComPortEdit');
-//        } else if (record instanceof Mdc.model.OutboundComPort){
-//            var view = Ext.widget('outboundComPortEdit');
-//        }
-//        view.down('form').loadRecord(record);
-//        Mdc.getApplication().getMainController().showContent(view);
-//    },
-//
-//    updateOutboundComPort: function(button){
-//        var pnl = button.up('panel'),
-//            form = pnl.down('form'),
-//            record = form.getRecord(),
-//            values = form.getValues();
-//        if(record){
-//            record.set(values);
-//        } else {
-//            record = Ext.create(Mdc.model.OutboundComPort);
-//            record.set(values);
-//            this.outboundComPortStore.add(record);
-//
-//        }
-//        this.getComServerEdit().down('#outboundcomportgrid').getView().refresh();
-//        Mdc.getApplication().getMainController().showContent(this.comServerEditView);
-//    },
-//
-//    updateInboundComPort: function(button){
-//        var pnl = button.up('panel'),
-//            form = pnl.down('form'),
-//            record = form.getRecord(),
-//            values = form.getValues();
-//        if(record){
-//            record.set(values);
-//        } else {
-//            record = Ext.create(Mdc.model.InboundComPort);
-//            record.set(values);
-//            this.inboundComPortStore.add(record);
-//
-//        }
-//        this.getComServerEdit().down('#inboundcomportgrid').getView().refresh();
-//        Mdc.getApplication().getMainController().showContent(this.comServerEditView);
-//    },
-//
-//    cancelComPort: function(){
-//        console.log('cancel');
-//        Ext.History.back();
-//    },
-//
-//    addOutboundComPort: function(){
-//        var view = Ext.widget('outboundComPortEdit');
-//        Mdc.getApplication().getMainController().showContent(view);
-//    },
-//
-//    addInboundComPort: function(){
-//        var view = Ext.widget('inboundComPortEdit');
-//        Mdc.getApplication().getMainController().showContent(view);
-//    },
-//
-//    deleteComPort: function(button){
-//        var grid = button.up('panel'),
-//            record = grid.getSelectionModel().getSelection()[0];
-//        grid.store.removeAt(grid.store.indexOf(record));
-//
-//    }
+
 });
 

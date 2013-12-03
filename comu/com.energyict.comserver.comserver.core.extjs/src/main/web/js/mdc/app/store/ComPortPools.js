@@ -3,11 +3,6 @@ Ext.define('Mdc.store.ComPortPools',{
     requires: [
         'Mdc.model.ComPortPool'
     ],
-
-    constructor: function(config){
-        console.log('constructor');
-        this.callParent([config]);
-    },
     autoLoad: true,
     model: 'Mdc.model.ComPortPool',
     storeId: 'comPortPools',

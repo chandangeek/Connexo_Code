@@ -31,6 +31,7 @@ Ext.define('Mdc.controller.setup.SetupOverview', {
     showComServers: function () {
         var widget = Ext.widget('setupComServers');
         Mdc.getApplication().getMainController().showContent(widget);
+        widget.getView().refresh();
     },
     showDeviceCommunicationProtocols: function () {
         var widget = Ext.widget('setupDeviceCommunicationProtocols');

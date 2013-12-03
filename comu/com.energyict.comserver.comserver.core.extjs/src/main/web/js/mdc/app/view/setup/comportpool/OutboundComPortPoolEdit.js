@@ -1,5 +1,10 @@
 Ext.define('Mdc.view.setup.comportpool.OutboundComPortPoolEdit', {
     extend: 'Ext.panel.Panel',
+
+    requires: [
+        'Mdc.view.setup.comport.PoolOutboundComPorts'
+    ],
+
     alias: 'widget.outboundComPortPoolEdit',
     autoScroll: true,
     layout: {
@@ -10,7 +15,7 @@ Ext.define('Mdc.view.setup.comportpool.OutboundComPortPoolEdit', {
 
 
     initComponent: function () {
-      //  var comporttypes = Ext.create('Mdc.store.ComPortTypes');
+        var comporttypes = Ext.create('Mdc.store.ComPortTypes');
         this.items = [
             {
                 xtype: 'form',
@@ -37,13 +42,17 @@ Ext.define('Mdc.view.setup.comportpool.OutboundComPortPoolEdit', {
                             },
                             {
                                 xtype: 'textfield',
-                                name: 'decription',
+                                name: 'description',
                                 fieldLabel: 'Description'
                             },
                             {
-                                xtype: 'textfield',
+                                xtype: 'combobox',
                                 name: 'type',
-                                fieldLabel: 'Type'
+                                fieldLabel: 'Communication port type',
+                                store: comporttypes,
+                                queryMode: 'local',
+                                displayField: 'comPortType',
+                                valueField: 'comPortType'
                             },
                             {
                                 xtype: 'checkbox',
@@ -52,7 +61,10 @@ Ext.define('Mdc.view.setup.comportpool.OutboundComPortPoolEdit', {
                                 uncheckedValue: 'false',
                                 fieldLabel: 'active'
                             }
-                        ]}
+                        ]},
+                    {
+                        "xtype": 'poolOutboundComPorts'
+                    }
                 ]
             }
         ];

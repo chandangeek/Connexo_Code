@@ -3,6 +3,7 @@ Ext.define('Mdc.model.ComPort', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         'name',
+        'direction',
         'comServer_id',
         'comPortType',
         'description',
@@ -11,15 +12,5 @@ Ext.define('Mdc.model.ComPort', {
         'comPortPool_id',
         {name:'numberOfSimultaneousConnections',type:'int'},
         {name:'modificationDate',type: 'date',dateFormat:'time'}
-//        'numberOfSimultaneousConnections',
-//        'bound',
-
     ]
-//    proxy: {
-//        type: 'rest',
-//        url: '../../api/mdc/comports',
-//        reader: {
-//            type: 'json'
-//        }
-//    }
 });

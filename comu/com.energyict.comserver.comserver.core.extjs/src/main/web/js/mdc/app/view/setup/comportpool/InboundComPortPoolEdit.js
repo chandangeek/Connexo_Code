@@ -2,6 +2,12 @@ Ext.define('Mdc.view.setup.comportpool.InboundComPortPoolEdit', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.inboundComPortPoolEdit',
     autoScroll: true,
+
+    requires: [
+        'Mdc.view.setup.comport.PoolInboundComPorts',
+        'Mdc.store.DeviceDiscoveryProtocols'
+    ],
+
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -10,7 +16,8 @@ Ext.define('Mdc.view.setup.comportpool.InboundComPortPoolEdit', {
 
 
     initComponent: function () {
-      //  var comporttypes = Ext.create('Mdc.store.ComPortTypes');
+        var comporttypes = Ext.create('Mdc.store.ComPortTypes');
+        var discoveryProtocols =  Ext.create('Mdc.store.DeviceDiscoveryProtocols');
         this.items = [
             {
                 xtype: 'form',
@@ -37,13 +44,17 @@ Ext.define('Mdc.view.setup.comportpool.InboundComPortPoolEdit', {
                             },
                             {
                                 xtype: 'textfield',
-                                name: 'decription',
+                                name: 'description',
                                 fieldLabel: 'Description'
                             },
                             {
-                                xtype: 'textfield',
+                                xtype: 'combobox',
                                 name: 'type',
-                                fieldLabel: 'Type'
+                                fieldLabel: 'Communication port type',
+                                store: comporttypes,
+                                queryMode: 'local',
+                                displayField: 'comPortType',
+                                valueField: 'comPortType'
                             },
                             {
                                 xtype: 'checkbox',
@@ -51,8 +62,20 @@ Ext.define('Mdc.view.setup.comportpool.InboundComPortPoolEdit', {
                                 inputValue: true,
                                 uncheckedValue: 'false',
                                 fieldLabel: 'active'
+                            },
+                            {
+                                xtype: 'combobox',
+                                name: 'discoveryProtocolPluggableClassId',
+                                fieldLabel: 'Discovery protocol',
+                                store: discoveryProtocols,
+                                queryMode: 'local',
+                                displayField: 'name',
+                                valueField: 'id'
                             }
-                        ]}
+                        ]},
+                    {
+                        "xtype": 'poolInboundComPorts'
+                    }
                 ]
             }
         ];

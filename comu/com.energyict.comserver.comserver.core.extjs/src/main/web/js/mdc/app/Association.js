@@ -1,5 +1,6 @@
 Ext.define('Mdc.Association',{
     override: 'Ext.data.association.Association',
+
     statics: {
         AUTO_ID: 1000,
 

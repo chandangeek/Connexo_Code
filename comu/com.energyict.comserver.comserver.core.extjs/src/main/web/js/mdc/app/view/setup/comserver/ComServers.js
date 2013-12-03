@@ -9,7 +9,7 @@ Ext.define('Mdc.view.setup.comserver.ComServers', {
     layout: 'fit',
     itemId: 'comservergrid',
 
-    store: Ext.create('Mdc.store.ComServers'),
+    store: 'ComServers',
     requires: ['Ext.ux.PreviewPlugin'],
     initComponent: function () {
         this.columns = [

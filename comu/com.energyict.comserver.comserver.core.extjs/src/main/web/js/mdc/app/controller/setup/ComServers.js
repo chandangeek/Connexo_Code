@@ -31,6 +31,7 @@ Ext.define('Mdc.controller.setup.ComServers', {
     outboundComPortStore: null,
     inboundComPortStore: null,
     menuSelection: null,
+    createComServerType: null,
 
     init: function () {
         var me = this;
@@ -119,8 +120,13 @@ Ext.define('Mdc.controller.setup.ComServers', {
             });
         } else {
             if(menuSelection.text==='Remote'){
+                this.createComServerType = 'Remote';
                 var view = Ext.widget('remoteComServerEdit');
+            } else if(menuSelection.text==='Online'){
+                this.createComServerType = 'Online';
+                var view = Ext.widget('comServerEdit');
             } else {
+                this.createComServerType = 'Mobile';
                 var view = Ext.widget('comServerEdit');
             }
             Mdc.getApplication().getMainController().showContent(view);
@@ -132,12 +138,25 @@ Ext.define('Mdc.controller.setup.ComServers', {
         var me = this;
         var pnl = button.up('panel'),
             form = pnl.down('form'),
-            record = form.getRecord() || Ext.create(Mdc.model.ComServer),
+            record = form.getRecord(),
             values = form.getValues();
-        record.set(values);
+        if(!record){
+            record = Ext.create(Mdc.model.ComServer);
+            record.set(values);
+            record.set('comServerType',this.createComServerType);
+        } else {
+            record.set(values);
+        }
+
         record.save({
             success: function (record, operation) {
-                me.showComServerOverview();
+                record.commit();
+                me.getComServersStore().reload(
+                    {
+                        callback: function(){
+                            me.showComServerOverview();
+                    }
+                });
             }
         });
     },
@@ -209,7 +228,6 @@ Ext.define('Mdc.controller.setup.ComServers', {
     },
 
     cancelComPort: function(){
-        console.log('cancel');
         Ext.History.back();
     },
 
