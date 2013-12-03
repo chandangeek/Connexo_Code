@@ -33,7 +33,7 @@ public class ReadingStorerImpl implements ReadingStorer {
 
 	@Override 
 	public void addReading(Channel channel , Reading reading) {
-        addReading(channel,reading.getTimeStamp(),reading.getValue());
+        this.storer.add(channel.getTimeSeries(),reading.getTimeStamp(),PROCESSING_FLAGS_DEFAULT,reading.getValue());
         addScope(channel, reading.getTimeStamp());
     }
 

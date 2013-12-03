@@ -25,7 +25,7 @@ public final class ChannelImpl implements Channel {
 	private static final int REGULARVAULTID = 1;
 	private static final int IRREGULARVAULTID = 2;
 	private static final int REGULARRECORDSPECID = 1;
-	private static final int IRREGULARRECORDSPECID = 2;
+	private static final int IRREGULARRECORDSPECID = 4;
 	
 	// persistent fields
 	private long id;
