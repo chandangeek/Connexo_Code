@@ -50,7 +50,7 @@ public enum Commodity {
 		return "Commodity " + id + " : " + description;
 	}
 	
-	int getId() {
+	public int getId() {
 		return id;
 	}
 	

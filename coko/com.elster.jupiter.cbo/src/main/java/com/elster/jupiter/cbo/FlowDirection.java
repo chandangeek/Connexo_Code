@@ -56,4 +56,7 @@ public enum FlowDirection {
 		return id != 0;
 	}
 
+    public int getId() {
+        return id;
+    }
 }
