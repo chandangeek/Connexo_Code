@@ -6,8 +6,6 @@ import static org.mockito.Mockito.when;
 import java.security.Principal;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +30,7 @@ import com.google.inject.Injector;
 public class OrmTest {
 
     private Injector injector;
-    private TransactionModule transactionModule;
+    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     @Mock
 	private Principal principal;
     @Mock
@@ -40,16 +38,14 @@ public class OrmTest {
 
     @Before
     public void setUp() {   
-    	transactionModule = new TransactionModule();
 		injector = Guice.createInjector(
+					inMemoryBootstrapModule,
         			new UtilModule(), 
         			new ThreadSecurityModule(principal), 
         			new PubSubModule(logService),
-        			new InMemoryBootstrapModule(), 
-        			transactionModule,        			        		
+        			new TransactionModule(),        			        		
         			new OrmModule());
-		when(principal.getName()).thenReturn("Test");
-		injector.getInstance(DataSource.class);
+		when(principal.getName()).thenReturn("Test");		
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {
@@ -61,7 +57,7 @@ public class OrmTest {
 
     @After
     public void tearDown() throws SQLException {
-        transactionModule.closeLifeLineConnection();
+        inMemoryBootstrapModule.deactivate();
     }
 
     @Test
