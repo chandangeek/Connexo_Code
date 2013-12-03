@@ -95,7 +95,7 @@ public interface Table {
 	Column addVersionCountColumn(String name , String dbType , String fieldName );
 	/**
 	 * Adds a discriminator column when using single table inheritance mapping.
-	 * Implementation note: The dummu fieldname of the column is set to the reserved word class 
+	 * Implementation note: The dummy fieldname of the column is set to the reserved word class 
 	 * @param name
 	 * @param dbType
 	 * @return
@@ -185,12 +185,12 @@ public interface Table {
      */
 	void setJournalTableName(String journalTableName);
 	String getJournalTableName();
+	boolean hasJournal();
 	/**
 	 * Make the table an index organized table
 	 */
 	void makeIndexOrganized();
 	boolean isIndexOrganized();
-	boolean hasJournal();
 	/**
 	 * Adds a quantity field to the table mapping. This creates three columns (name suffixed with VALUE , MULTIPLIER and UNIT 
 	 * @param name

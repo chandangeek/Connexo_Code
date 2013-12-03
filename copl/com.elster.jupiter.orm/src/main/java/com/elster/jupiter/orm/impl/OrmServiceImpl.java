@@ -36,6 +36,7 @@ public class OrmServiceImpl implements OrmService , InstallService , ServiceLoca
         this.dataSource = dataSource;
         this.jsonService = jsonService;
         activate();
+        install();
     }
 
     @SuppressWarnings("resource")
