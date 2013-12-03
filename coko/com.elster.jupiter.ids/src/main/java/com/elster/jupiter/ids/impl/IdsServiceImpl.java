@@ -37,6 +37,7 @@ public class IdsServiceImpl implements IdsService, InstallService, ServiceLocato
         setClock(clock);
         setOrmService(ormService);
         activate();
+        install();
     }
 
     @Override
