@@ -91,6 +91,13 @@
             <version>2.3.1</version>
         </dependency>
 
+        <!--TEST-->
+        <dependency>
+              <groupId>com.jayway.restassured</groupId>
+              <artifactId>rest-assured</artifactId>
+              <version>2.0.1</version>
+              <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
@@ -108,12 +115,12 @@
             <version>1.16</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.jaxrs</groupId>
-            <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <version>2.1.1</version>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.fasterxml.jackson.jaxrs</groupId>-->
+            <!--<artifactId>jackson-jaxrs-json-provider</artifactId>-->
+            <!--<version>2.1.1</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
 
     </dependencies>
 
