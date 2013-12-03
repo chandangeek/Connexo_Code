@@ -1,0 +1,23 @@
+package com.elster.jupiter.messaging.oracle.impl;
+
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+public interface ServiceLocator {
+
+    Connection getConnection() throws SQLException;
+
+    OrmClient getOrmClient();
+
+    TransactionService getTransactionService();
+
+    Publisher getPublisher();
+
+    AQFacade getAQFacade();
+
+    ThreadPrincipalService getThreadPrincipalService();
+}
