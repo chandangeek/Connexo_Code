@@ -5,6 +5,7 @@ import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -53,6 +54,22 @@ public class ComPortPoolResource {
             }
             comPortPool.update(comPortPoolInfo.asShadow());
             return ComPortPoolInfoFactory.asInfo(comPortPool);
+        } catch (Exception e) {
+            throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPoolShadow> comPortPoolInfo) {
+        try {
+            ComPortPool<ComPortPoolShadow> comPortPool = comPortPoolService.find(id);
+            if (comPortPool == null) {
+                throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
+            }
+            comPortPool.delete();
+            return Response.ok().build();
         } catch (Exception e) {
             throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
         }
