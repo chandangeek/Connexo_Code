@@ -32,6 +32,7 @@ public class MeterReadingStorer {
 		}
 		storeReadings(facade.getMeterReading().getReadings());
 		storeIntervalBlocks(facade.getMeterReading().getIntervalBlocks());
+        readingStorer.execute();
 	}
 	
 	void createDefaultMeterActivation() {

@@ -140,6 +140,7 @@ public class InstallerImpl {
         new ReadingTypeImpl("0.0.2.4.2.1.12.0.0.0.0.0.0.0.0.3.73.0", "15m Reactive+ kVArh").persist();
         new ReadingTypeImpl("0.0.2.4.3.1.12.0.0.0.0.0.0.0.0.3.73.0", "15m Reactive- kVArh").persist();
         new ReadingTypeImpl("0.0.2.4.20.1.12.0.0.0.0.0.0.0.0.3.73.0", "15m Reactive Total kVArh").persist();
+        new ReadingTypeImpl("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "Total Import kWh").persist();
     }
 
     private void createPartyRoles(PartyService partyService) {
