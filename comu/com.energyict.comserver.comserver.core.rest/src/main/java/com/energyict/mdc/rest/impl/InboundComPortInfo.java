@@ -15,9 +15,11 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 public abstract class InboundComPortInfo<T extends ComPortShadow> extends ComPortInfo<T> {
 
     protected InboundComPortInfo() {
+        this.direction = "inbound";
     }
 
     public InboundComPortInfo(InboundComPort comPort) {
         super(comPort);
+        this.direction = "inbound";
     }
 }
