@@ -76,7 +76,8 @@ public class ReadingQualityImplTest {
     private QueueTableSpec queueTableSpec;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private DestinationSpec destinationSpec;
-    private TransactionModule transactionModule;
+    
+    private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
 
     private class MockModule extends AbstractModule {
@@ -91,10 +92,9 @@ public class ReadingQualityImplTest {
 
     @Before
     public void setUp() throws SQLException {
-        transactionModule = new TransactionModule();
         injector = Guice.createInjector(
         			new MockModule(), 
-        			new InMemoryBootstrapModule(), 
+        			inMemoryBootstrapModule, 
         			new IdsModule(), 
         			new MeteringModule(), 
         			new PartyModule(), 
@@ -104,12 +104,11 @@ public class ReadingQualityImplTest {
         			new UtilModule(), 
         			new ThreadSecurityModule(principal), 
         			new PubSubModule(logService), 
-        			transactionModule, 
+        			new TransactionModule(),
         			new OrmCacheModule());
         when(messageService.getQueueTableSpec(anyString())).thenReturn(Optional.of(queueTableSpec));
         when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.of(destinationSpec));
         when(principal.getName()).thenReturn("Test");
-        injector.getInstance(DataSource.class);
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
 			public Void perform() {
@@ -121,7 +120,7 @@ public class ReadingQualityImplTest {
 
     @After
     public void tearDown() throws SQLException {
-        transactionModule.closeLifeLineConnection();
+       
     }
 
     @Test
