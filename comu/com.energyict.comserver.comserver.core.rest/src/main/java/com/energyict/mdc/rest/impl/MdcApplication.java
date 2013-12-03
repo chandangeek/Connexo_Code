@@ -27,6 +27,7 @@ public class MdcApplication extends Application {
     private volatile InboundDeviceProtocolPluggableClassService inboundDeviceProtocolPluggableClassService;
     private volatile LicensedProtocolService licensedProtocolService;
     private volatile ComServerService comServerService;
+    private volatile ComPortPoolService comPortPoolService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -62,7 +63,7 @@ public class MdcApplication extends Application {
 
     @Reference
     public void setComPortPoolService(ComPortPoolService comPortPoolService) {
-        ComPortPoolServiceHolder.setComPortPoolService(comPortPoolService);
+        this.comPortPoolService = comPortPoolService;
     }
 
     @Reference
@@ -74,6 +75,7 @@ public class MdcApplication extends Application {
     public void setComPortService(ComPortService comPortService) {
         this.comPortService = comPortService;
     }
+
     @Reference
     public void setInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService) {
         this.inboundDeviceProtocolService = inboundDeviceProtocolService;
@@ -101,7 +103,7 @@ public class MdcApplication extends Application {
             bind(inboundDeviceProtocolService).to(InboundDeviceProtocolService.class);
             bind(inboundDeviceProtocolPluggableClassService).to(InboundDeviceProtocolPluggableClassService.class);
             bind(licensedProtocolService).to(LicensedProtocolService.class);
-            
+            bind(comPortPoolService).to(ComPortPoolService.class);
         }
     }
 }

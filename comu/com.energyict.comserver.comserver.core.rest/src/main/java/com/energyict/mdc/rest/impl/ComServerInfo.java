@@ -20,7 +20,7 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 public abstract class ComServerInfo<S extends ComServerShadow> {
 
     public int id;
-    public String comServerType;
+//    public String comServerType;
     public String name;
     public boolean active;
     public ComServer.LogLevel serverLogLevel;

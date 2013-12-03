@@ -3,8 +3,9 @@ package com.energyict.mdc.rest.impl;
 import com.energyict.mdc.ports.ComPortPool;
 import com.energyict.mdc.services.ComPortPoolService;
 import com.energyict.mdc.shadow.ports.ComPortPoolShadow;
-import javax.ws.rs.BeanParam;
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -18,10 +19,10 @@ import javax.ws.rs.core.Response;
 @Path("/comportpools")
 public class ComPortPoolResource {
 
-    private final ComPortPoolService comPortPoolService;
+    @Inject
+    private ComPortPoolService comPortPoolService;
 
-    public ComPortPoolResource(@BeanParam ComPortPoolServiceHolder comPortPoolServiceHolder) {
-        this.comPortPoolService = comPortPoolServiceHolder.getComPortPoolService();
+    public ComPortPoolResource() {
     }
 
     @GET
@@ -53,6 +54,22 @@ public class ComPortPoolResource {
             }
             comPortPool.update(comPortPoolInfo.asShadow());
             return ComPortPoolInfoFactory.asInfo(comPortPool);
+        } catch (Exception e) {
+            throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteComPortPool(@PathParam("id") int id, ComPortPoolInfo<ComPortPoolShadow> comPortPoolInfo) {
+        try {
+            ComPortPool<ComPortPoolShadow> comPortPool = comPortPoolService.find(id);
+            if (comPortPool == null) {
+                throw new WebApplicationException("No ComPortPool with id " + id, Response.Status.INTERNAL_SERVER_ERROR);
+            }
+            comPortPool.delete();
+            return Response.ok().build();
         } catch (Exception e) {
             throw new WebApplicationException("Failed to update ComPortPool", e, Response.Status.INTERNAL_SERVER_ERROR);
         }
