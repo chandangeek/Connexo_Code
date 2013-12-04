@@ -22,7 +22,7 @@ import java.io.Writer;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
