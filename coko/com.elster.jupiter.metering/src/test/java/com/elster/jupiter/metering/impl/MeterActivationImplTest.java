@@ -83,11 +83,6 @@ public class MeterActivationImplTest {
     }
 
     @Test
-    public void testGetChannels() {
-        assertThat(meterActivation.getChannels()).isEqualTo(Arrays.asList(channel1, channel2));
-    }
-
-    @Test
     public void testGetEnd() {
         simulateSavedMeterActivation();
 
@@ -98,12 +93,6 @@ public class MeterActivationImplTest {
         assertThat(meterActivation.getEnd()).isEqualTo(END);
     }
 
-    @Test
-    public void testGetReadingTypes() {
-        assertThat(meterActivation.getReadingTypes())
-                .hasSize(3)
-                .contains(readingType1, readingType2, readingType3);
-    }
 
     @Test
     public void testCreateChannel() {
@@ -125,14 +114,5 @@ public class MeterActivationImplTest {
         field("id").ofType(Long.TYPE).in(meterActivation).set(ID);
     }
 
-    @Test
-    public void testGetReadings() {
-        Date to = new DateTime(2300, 2, 28, 14, 15, 9, 2).toDate();
-        when(channel1.getReadings(readingType1, ACTIVATION_TIME, END)).thenReturn(Arrays.<BaseReadingRecord>asList(reading1, reading2));
-
-        meterActivation.endAt(END);
-
-        assertThat(meterActivation.getReadings(ACTIVATION_TIME, to, readingType1)).hasSize(2).contains(reading1, reading2);
-    }
 
 }

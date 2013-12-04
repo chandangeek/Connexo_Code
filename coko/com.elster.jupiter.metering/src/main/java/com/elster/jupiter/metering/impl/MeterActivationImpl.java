@@ -11,6 +11,7 @@ import com.elster.jupiter.util.time.UtcInstant;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -44,6 +45,7 @@ public class MeterActivationImpl implements MeterActivation {
 		this.usagePointId = usagePoint == null ? 0 : usagePoint.getId();
 		this.usagePoint = usagePoint;
 		this.interval = Interval.startAt(start);
+		this.channels = new ArrayList<>();
 	}
 	
 	public MeterActivationImpl(UsagePoint usagePoint, Date at) {
@@ -88,14 +90,14 @@ public class MeterActivationImpl implements MeterActivation {
 	
 	@Override
 	public List<Channel> getChannels() {
-		return ImmutableList.copyOf(doGetChannels());
+		return getChannels(true);
 	}
 
-	private List<Channel> doGetChannels() {
+	private List<Channel> getChannels(boolean protect) {
 		if (channels == null) {
 			channels = Bus.getOrmClient().getChannelFactory().find("meterActivation",this);
 		}
-		return channels;
+		return protect ? Collections.unmodifiableList(channels) : channels;
 	}
 	
 	@Override
@@ -110,15 +112,16 @@ public class MeterActivationImpl implements MeterActivation {
 
 	@Override
 	public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
-        return Bus.getChannelBuilder().meterActivation(this)
-                .readingTypes(main, readingTypes)
-        .build();
+		//TODO: check for duplicate channel
+        Channel channel = Bus.getChannelBuilder().meterActivation(this).readingTypes(main, readingTypes).build();
+        getChannels(false).add(channel);
+        return channel;
 	}
 
 	@Override
 	public List<ReadingType> getReadingTypes() {
         ImmutableList.Builder<ReadingType> builder = ImmutableList.builder();
-		for (Channel channel : doGetChannels()) {
+		for (Channel channel : getChannels()) {
 			builder.addAll(channel.getReadingTypes());
 		}
 		return builder.build();
