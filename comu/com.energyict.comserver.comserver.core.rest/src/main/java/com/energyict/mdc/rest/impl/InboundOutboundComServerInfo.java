@@ -9,7 +9,9 @@ import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
 import com.energyict.mdc.shadow.servers.InboundOutboundComServerShadow;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
 public abstract class InboundOutboundComServerInfo<S extends InboundOutboundComServerShadow> extends ComServerInfo<S> {
 
     public InboundOutboundComServerInfo() {

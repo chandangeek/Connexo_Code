@@ -8,7 +8,9 @@ import com.energyict.mdc.shadow.ports.OutboundComPortShadow;
 import com.energyict.mdc.shadow.servers.OfflineComServerShadow;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
 public class OfflineComServerInfo extends ComServerInfo<OfflineComServerShadow> {
 
     public OfflineComServerInfo() {

@@ -1,5 +1,6 @@
-package com.energyict.mdc.rest.impl;
+package com.energyict.mdc.rest.impl.filter;
 
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +21,12 @@ public class Filter {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public Filter(List<FilteredField> filter) {
+        for (FilteredField filteredField : filter) {
+            filterProperties.put(filteredField.property, filteredField.value);
         }
     }
 

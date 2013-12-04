@@ -1,11 +1,11 @@
 package com.energyict.mdc.rest.impl;
 
 import com.energyict.mdc.ports.ComPort;
+import com.energyict.mdc.rest.impl.filter.Filter;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComPortService;
 import com.energyict.mdc.services.ComServerService;
-import org.json.JSONArray;
-
+import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,17 +13,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
+import org.json.JSONArray;
 
 @Path("/comports")
 public class ComPortResource {
 
-    @Inject
-    private ComPortService comPortService;
-    @Inject
-    private ComServerService comServerService;
+    private final ComPortService comPortService;
+    private final ComServerService comServerService;
 
-    public ComPortResource() {
+    @Inject
+    public ComPortResource(ComPortService comPortService, ComServerService comServerService) {
+        this.comPortService = comPortService;
+        this.comServerService = comServerService;
     }
 
     @GET
@@ -38,7 +39,9 @@ public class ComPortResource {
                     wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
                 }
             } else if (comPortFilter.getFilterProperties().get("direction")!=null){
-                List<? extends ComPort> comPorts = (comPortFilter.getFilterProperties().get("direction")=="inbound")?comPortService.findAllInboundComPorts():comPortService.findAllOutboundComPorts();
+                List<? extends ComPort> comPorts = ("inbound".equals(comPortFilter.getFilterProperties().get("direction")))?
+                        comPortService.findAllInboundComPorts():
+                        comPortService.findAllOutboundComPorts();
                 for (ComPort comPort :comPorts) {
                     wrapper.comPorts.add(ComPortInfoFactory.asInfo(comPort));
                 }

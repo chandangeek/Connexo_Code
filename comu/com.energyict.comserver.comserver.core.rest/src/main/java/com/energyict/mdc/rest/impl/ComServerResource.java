@@ -22,10 +22,11 @@ import javax.ws.rs.core.UriInfo;
 @Path("/comservers")
 public class ComServerResource {
 
-    @Inject
-    private ComServerService comServerService;
+    private final ComServerService comServerService;
 
-    public ComServerResource() {
+    @Inject
+    public ComServerResource(ComServerService comServerService) {
+        this.comServerService = comServerService;
     }
 
     @GET

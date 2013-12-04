@@ -4,8 +4,10 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonTypeInfo;
 
+@XmlRootElement
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="comServerType")
 public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComServerShadow> {
     public String queryAPIPostUri;

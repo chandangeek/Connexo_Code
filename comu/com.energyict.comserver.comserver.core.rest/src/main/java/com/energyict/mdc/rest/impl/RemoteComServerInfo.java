@@ -4,7 +4,9 @@ import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.RemoteComServer;
 import com.energyict.mdc.shadow.servers.RemoteComServerShadow;
 import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlRootElement
 public class RemoteComServerInfo extends InboundOutboundComServerInfo<RemoteComServerShadow> {
 
     public RemoteComServerInfo() {
