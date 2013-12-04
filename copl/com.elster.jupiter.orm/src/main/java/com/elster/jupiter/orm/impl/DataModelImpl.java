@@ -155,8 +155,7 @@ public class DataModelImpl implements DataModel, PersistenceAware {
     }
 
     private void executeTableDdl(Statement statement, TableImpl table) throws SQLException {
-        for (String each : table.getDdl()) {
-            System.out.println(each);
+        for (String each : table.getDdl()) {            
             statement.execute(each);
         }
     }

@@ -7,11 +7,14 @@ import com.google.common.base.Optional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T> {
+	
+	private final static String[] reservedWords = {"AS"};
 	
 	private final TableSqlGenerator sqlGenerator;
 	private final DomainMapper mapper;
@@ -50,9 +53,12 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         if (builder.length() == 0) {
             builder.append('a');
         }
-        builder.insert(0, '\"');
-        builder.append('\"');
-		return builder.toString().toLowerCase();
+        String result = builder.toString().toUpperCase();
+        if (Arrays.binarySearch(reservedWords,result) >= 0) {
+        	return result + "1";
+        } else {
+        	return result;      
+        }
 	}
 	
 	public String getAlias() {

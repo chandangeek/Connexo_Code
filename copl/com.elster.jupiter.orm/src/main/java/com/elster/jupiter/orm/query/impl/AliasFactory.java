@@ -16,7 +16,7 @@ public class AliasFactory {
 	}
 	
 	String getAlias(boolean current) {
-		return current ? getAlias("c" + base) : getAlias(base);
+		return current ? getAlias("C" + base) : getAlias(base);
 	}
 		
 	private String getAlias(String base) {
