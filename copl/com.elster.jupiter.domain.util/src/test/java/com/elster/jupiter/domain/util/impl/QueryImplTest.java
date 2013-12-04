@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,8 +36,7 @@ public class QueryImplTest {
 
         Optional<String> a = query.get("A");
 
-        assertThat(a.isPresent()).isTrue();
-        assertThat(a.get()).isEqualTo("Ok");
+        assertThat(a).contains("Ok");
     }
 
 }
