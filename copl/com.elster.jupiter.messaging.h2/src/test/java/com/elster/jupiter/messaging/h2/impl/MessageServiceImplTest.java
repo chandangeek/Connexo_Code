@@ -97,6 +97,7 @@ public class MessageServiceImplTest {
     public void testGetSubscriberSpec() {
         queueTableSpec = messageService.createQueueTableSpec(QTS, "raw", true);
         destination = queueTableSpec.createDestinationSpec(DESTINATION, 0);
+        destination.activate();
         subscriberSpec = destination.subscribe(SUBSCRIBER);
 
         assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).isPresent()).isTrue();

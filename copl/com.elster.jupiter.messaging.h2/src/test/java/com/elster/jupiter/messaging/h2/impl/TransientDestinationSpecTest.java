@@ -104,6 +104,7 @@ public class TransientDestinationSpecTest {
 
     @Test
     public void testGetConsumers() {
+        destinationSpec.activate();
 
         subscriber1 = (TransientSubscriberSpec) destinationSpec.subscribe("1");
         subscriber2 = (TransientSubscriberSpec) destinationSpec.subscribe("2");
@@ -116,6 +117,7 @@ public class TransientDestinationSpecTest {
     @Test(expected = DuplicateSubscriberNameException.class)
     public void testSubscribeDuplicate() throws SQLException {
         when(queueTableSpec.isJms()).thenReturn(false);
+        destinationSpec.activate();
         subscriber = (TransientSubscriberSpec) destinationSpec.subscribe(SUBSCRIBER);
 
         destinationSpec.activate();
@@ -129,6 +131,7 @@ public class TransientDestinationSpecTest {
     public void testSubscribeMultipleOnQueue() throws SQLException {
         when(queueTableSpec.isJms()).thenReturn(false);
         when(queueTableSpec.isMultiConsumer()).thenReturn(false);
+        destinationSpec.activate();
         subscriber = (TransientSubscriberSpec) destinationSpec.subscribe("A");
 
         destinationSpec.activate();
