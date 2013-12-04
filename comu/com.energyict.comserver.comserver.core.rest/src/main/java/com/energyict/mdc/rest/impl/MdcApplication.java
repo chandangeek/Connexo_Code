@@ -31,7 +31,7 @@ public class MdcApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.of(AutoCloseDatabaseEventListener.class,
+        return ImmutableSet.of(AutoCloseDatabaseConnection.class,
                 ComServerResource.class,
                 ComPortResource.class,
                 ComPortPoolResource.class,

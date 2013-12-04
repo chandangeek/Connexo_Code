@@ -5,6 +5,7 @@ import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
+import com.energyict.mdc.shadow.servers.OnlineComServerShadow;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +22,11 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ComServerResourceTest extends JerseyTest {
@@ -39,8 +42,6 @@ public class ComServerResourceTest extends JerseyTest {
     protected Application configure() {
         enable(TestProperties.LOG_TRAFFIC);
         enable(TestProperties.DUMP_ENTITY);
-        enable("com.sun.jersey.api.json.POJOMappingFeature");
-        enable("POJOMappingFeature");
         ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class);
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(new AbstractBinder() {
@@ -118,11 +119,24 @@ public class ComServerResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testPutComServer() throws Exception {
+    public void testUpdateExistingComServer() throws Exception {
+        int comServer_id = 3;
+
+        ComServer serverSideComServer = mock(OnlineComServer.class);
+        OnlineComServerShadow onlineComServerShadow = new OnlineComServerShadow();
+        onlineComServerShadow.setId(comServer_id);
+        when(serverSideComServer.getShadow()).thenReturn(onlineComServerShadow);
+        when(comServerService.find(comServer_id)).thenReturn(serverSideComServer);
+
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        onlineComServerInfo.inboundComPorts= new ArrayList<>();
+        onlineComServerInfo.outboundComPorts= new ArrayList<>();
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/3").request().put(json);
-        System.out.println(response);
 
+        ArgumentCaptor<OnlineComServerShadow> onlineComServerShadowArgumentCaptor = ArgumentCaptor.forClass(OnlineComServerShadow.class);
+        verify(serverSideComServer).update(onlineComServerShadowArgumentCaptor.capture());
+        assertThat(onlineComServerShadowArgumentCaptor.getValue().getName()).isEqualTo("new name");
     }
 }

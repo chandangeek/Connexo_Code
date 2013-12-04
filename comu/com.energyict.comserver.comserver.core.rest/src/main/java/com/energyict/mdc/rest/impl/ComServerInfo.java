@@ -77,8 +77,12 @@ public abstract class ComServerInfo<S extends ComServerShadow> {
         shadow.setActive(active);
         shadow.setServerLogLevel(serverLogLevel);
         shadow.setCommunicationLogLevel(communicationLogLevel);
-        shadow.setChangesInterPollDelay(changesInterPollDelay.asTimeDuration());
-        shadow.setSchedulingInterPollDelay(schedulingInterPollDelay.asTimeDuration());
+        if (changesInterPollDelay!=null) {
+            shadow.setChangesInterPollDelay(changesInterPollDelay.asTimeDuration());
+        }
+        if (schedulingInterPollDelay!=null) {
+            shadow.setSchedulingInterPollDelay(schedulingInterPollDelay.asTimeDuration());
+        }
 
         return shadow;
     }
