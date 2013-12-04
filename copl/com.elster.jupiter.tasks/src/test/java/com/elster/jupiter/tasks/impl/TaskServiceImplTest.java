@@ -32,7 +32,8 @@ import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -133,15 +134,14 @@ public class TaskServiceImplTest {
     public void testGetRecurrentTaskById() {
         when(recurrentTaskFactory.get(ID)).thenReturn(Optional.of(recurrentTask));
 
-        assertThat(taskService.getRecurrentTask(ID).isPresent()).isTrue();
-        assertThat(taskService.getRecurrentTask(ID).get()).isEqualTo(recurrentTask);
+        assertThat(taskService.getRecurrentTask(ID)).contains(recurrentTask);
     }
 
     @Test
     public void testGetRecurrentTaskByIdNotFound() {
         when(recurrentTaskFactory.get(ID)).thenReturn(Optional.<RecurrentTask>absent());
 
-        assertThat(taskService.getRecurrentTask(ID).isPresent()).isFalse();
+        assertThat(taskService.getRecurrentTask(ID)).isAbsent();
     }
 
     @Test
