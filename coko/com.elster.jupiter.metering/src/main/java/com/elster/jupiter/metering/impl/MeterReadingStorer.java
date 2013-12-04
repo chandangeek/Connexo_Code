@@ -35,17 +35,17 @@ public class MeterReadingStorer {
         readingStorer.execute();
 	}
 	
-	void createDefaultMeterActivation() {
+	private void createDefaultMeterActivation() {
 		meter.activate(facade.getInterval().getStart());
 	}
 	
-	void storeReadings(List<Reading> readings) {
+	private void storeReadings(List<Reading> readings) {
 		for (Reading reading : readings) {
 			store(reading);
 		}
 	}
 	
-	void store(Reading reading) {
+	private void store(Reading reading) {
 		for (MeterActivation meterActivation : meter.getMeterActivations()) {
 			if (meterActivation.getInterval().contains(reading.getTimeStamp(),Interval.EndpointBehavior.CLOSED_CLOSED)) {
 					store(reading , meterActivation);
@@ -53,38 +53,38 @@ public class MeterReadingStorer {
 		}
 	}
 	
-	void store(Reading reading, MeterActivation meterActivation) {
+	private void store(Reading reading, MeterActivation meterActivation) {
 		Channel channel = findOrCreateChannel(reading,meterActivation);
 		if (channel != null) {
 			readingStorer.addReading(channel,reading);
 		}					
 	}
 	
-	void storeIntervalBlocks(List<IntervalBlock> blocks) {
+	private void storeIntervalBlocks(List<IntervalBlock> blocks) {
 		for (IntervalBlock block : blocks) {
 			store(block);
 		}
 	}
 	
-	void store(IntervalBlock block) {
+	private void store(IntervalBlock block) {
 		String readingTypeCode = block.getReadingTypeCode();
 		for (IntervalReading each : block.getIntervals()) {
 			store(each,readingTypeCode);
 		}
 	}
 	
-	void store(IntervalReading reading , String readingTypeCode) {
-		Channel channel = getChannel(reading, readingTypeCode);
+	private void store(IntervalReading reading , String readingTypeCode) {
+		Channel channel = findOrCreateChannel(reading, readingTypeCode);
 		if (channel != null) {
 			readingStorer.addIntervalReading(channel, reading.getTimeStamp(), 0, reading.getValue());
 		}
 	}
 	
-	Optional<ReadingType> getReadingType(String code) {
+	private Optional<ReadingType> getReadingType(String code) {
 		return Bus.getOrmClient().getReadingTypeFactory().get(code);				
 	}
 	
-	Channel findOrCreateChannel(Reading reading , MeterActivation meterActivation) {
+	private Channel findOrCreateChannel(Reading reading , MeterActivation meterActivation) {
 		for (Channel each : meterActivation.getChannels()) {
 			if (each.getMainReadingType().getMRID().equals(reading.getReadingTypeCode())) {
 				return each;
@@ -98,7 +98,26 @@ public class MeterReadingStorer {
 		}
 	}
 	
-	Channel getChannel(IntervalReading reading, String readingTypeCode) {
+	private Channel findOrCreateChannel(IntervalReading reading , String readingTypeCode) {
+		Channel channel = getChannel(reading,readingTypeCode);
+		if (channel == null) {
+			for (MeterActivation meterActivation : meter.getMeterActivations()) {
+				if (meterActivation.getInterval().contains(reading.getTimeStamp(),Interval.EndpointBehavior.OPEN_CLOSED)) {
+					Optional<ReadingType> readingTypeHolder = getReadingType(readingTypeCode);
+					if (readingTypeHolder.isPresent()) {
+						return meterActivation.createChannel(readingTypeHolder.get());
+					} else {
+						return null;
+					}
+				}
+			}
+			return null;
+		} else {
+			return channel;
+		}
+	}
+	
+	private Channel getChannel(IntervalReading reading, String readingTypeCode) {
 		for (MeterActivation meterActivation : meter.getMeterActivations()) {
 			if (meterActivation.getInterval().contains(reading.getTimeStamp(),Interval.EndpointBehavior.OPEN_CLOSED)) {
 				for (Channel channel : meterActivation.getChannels()) {

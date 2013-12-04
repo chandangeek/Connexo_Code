@@ -7,6 +7,7 @@ import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
@@ -70,12 +71,6 @@ public class ReadingQualityImplTest {
     private UserService userService;
     @Mock
     private Principal principal;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private MessageService messageService;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private QueueTableSpec queueTableSpec;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private DestinationSpec destinationSpec;
     
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -84,7 +79,6 @@ public class ReadingQualityImplTest {
 
         @Override
         protected void configure() {
-            bind(MessageService.class).toInstance(messageService);
             bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);           
         }
@@ -95,6 +89,7 @@ public class ReadingQualityImplTest {
         injector = Guice.createInjector(
         			new MockModule(), 
         			inMemoryBootstrapModule, 
+        			new InMemoryMessagingModule(),
         			new IdsModule(), 
         			new MeteringModule(), 
         			new PartyModule(), 
@@ -106,8 +101,6 @@ public class ReadingQualityImplTest {
         			new PubSubModule(logService), 
         			new TransactionModule(),
         			new OrmCacheModule());
-        when(messageService.getQueueTableSpec(anyString())).thenReturn(Optional.of(queueTableSpec));
-        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.of(destinationSpec));
         when(principal.getName()).thenReturn("Test");
         injector.getInstance(TransactionService.class).execute(new Transaction<Void>() {
 			@Override
@@ -120,7 +113,7 @@ public class ReadingQualityImplTest {
 
     @After
     public void tearDown() throws SQLException {
-       
+       inMemoryBootstrapModule.deactivate();
     }
 
     @Test
