@@ -5,15 +5,23 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.google.common.base.Optional;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 @Component(name = "com.elster.jupiter.messaging.h2")
 public class TransientMessageService implements MessageService {
 
     private final Map<String, TransientQueueTableSpec> queueTableSpecs = new HashMap<>();
+    
+    @Inject
+    public TransientMessageService() {
+    	install();
+    }
 
     @Override
     public QueueTableSpec createQueueTableSpec(String name, String payloadType, boolean multiConsumer) {
@@ -60,5 +68,9 @@ public class TransientMessageService implements MessageService {
         return Optional.absent();
     }
 
+    private void install() {
+    	createQueueTableSpec("MSG_RAWQUEUETABLE", "RAW", false);
+		createQueueTableSpec("MSG_RAWTOPICTABLE" , "RAW", true);
+    }
 
 }
