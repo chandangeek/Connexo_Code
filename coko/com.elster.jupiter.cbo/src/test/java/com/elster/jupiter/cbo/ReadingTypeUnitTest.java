@@ -7,7 +7,7 @@ import com.elster.jupiter.util.units.Unit;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReadingTypeUnitTest {
 
