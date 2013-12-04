@@ -295,6 +295,7 @@
 		        <module>../com.elster.jupiter.ids</module>
 		        <module>../com.elster.jupiter.install</module>
 		        <module>../com.elster.jupiter.messaging</module>
+                <module>../com.elster.jupiter.messaging.oracle</module>
 		        <module>../com.elster.jupiter.metering</module>
 		        <module>../com.elster.jupiter.extjs</module>
 		        <module>../com.elster.jupiter.unifyingjs</module>
