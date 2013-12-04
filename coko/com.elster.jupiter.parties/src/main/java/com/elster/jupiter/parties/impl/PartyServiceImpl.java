@@ -19,7 +19,9 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Clock;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -52,6 +54,7 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
         install();
     }
 
+    @Activate
     public void activate() {
         Bus.setServiceLocator(this);
     }
@@ -62,7 +65,8 @@ public class PartyServiceImpl implements PartyService, InstallService, ServiceLo
 		ormClient.getPartyRoleFactory().persist(result);
 		return result;
 	}
-	
+
+    @Deactivate
 	public void deactivate() {
 		Bus.clearServiceLocator(this);
 	}
