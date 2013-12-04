@@ -25,7 +25,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.base.Optional;
-import org.fest.assertions.data.MapEntry;
+import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,8 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -302,7 +303,7 @@ public class AppServiceImplTest {
 
         appService.activate(context);
 
-        assertThat(Bus.getAppServer().isPresent()).isFalse();
+        assertThat(Bus.getAppServer()).isAbsent();
     }
 
     @Test
@@ -313,7 +314,7 @@ public class AppServiceImplTest {
 
         appService.activate(context);
 
-        assertThat(Bus.getAppServer().isPresent()).isFalse();
+        assertThat(Bus.getAppServer()).isAbsent();
     }
 
     @Test
