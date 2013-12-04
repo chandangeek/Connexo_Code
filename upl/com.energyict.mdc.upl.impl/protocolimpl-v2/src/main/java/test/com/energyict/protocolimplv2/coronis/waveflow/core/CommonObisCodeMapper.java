@@ -1,6 +1,8 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core;
 
-import com.energyict.cbo.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -8,7 +10,9 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
-import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.*;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.OperatingMode;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.ProfileType;
+import test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter.PulseWeight;
 
 import java.math.BigDecimal;
 
@@ -123,7 +127,7 @@ public class CommonObisCodeMapper {
             collectedRegister.setCollectedData(new Quantity(BigDecimal.valueOf(hour), Unit.get(BaseUnit.HOUR)));
         } else if (obisCode.equals(OBISCODE_DATALOGGING_STARTMINUTE)) {
             if (waveFlow.isV1()) {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(this, "The WaveFlow V1 module doesn't support the data logging start minute parameter"));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "The WaveFlow V1 module doesn't support the data logging start minute parameter"));
             } else {
                 int minute = waveFlow.getParameterFactory().readStartMinuteOfMeasurement();
                 collectedRegister.setCollectedData(new Quantity(BigDecimal.valueOf(minute), Unit.get(BaseUnit.MINUTE)));
@@ -293,7 +297,7 @@ public class CommonObisCodeMapper {
             PulseWeight pulseWeight = waveFlow.getPulseWeight(inputChannel - 1, true);
             collectedRegister.setCollectedData(new Quantity(new BigDecimal(pulseWeight.getWeight()), pulseWeight.getUnit()));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(this, "Register with obiscode {0} is not supported by the protocol", obisCode.toString()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "Register with obiscode {0} is not supported by the protocol", obisCode.toString()));
         }
         return collectedRegister;
     }

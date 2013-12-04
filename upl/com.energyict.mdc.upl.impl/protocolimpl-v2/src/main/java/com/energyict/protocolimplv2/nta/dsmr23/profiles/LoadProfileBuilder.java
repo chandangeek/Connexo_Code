@@ -476,7 +476,7 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
                     }
                 }
             } else {
-                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
+                Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addWarning(lpr, "loadProfileXnotsupported", lpr.getProfileObisCode());
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
             collectedLoadProfileList.add(collectedLoadProfile);

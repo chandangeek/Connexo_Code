@@ -1,7 +1,12 @@
 package test.com.energyict.protocolimplv2.coronis.muc;
 
-import com.energyict.cbo.*;
-import com.energyict.concentrator.communication.driver.rf.eictwavenis.*;
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WaveCard;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStack;
+import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisStackException;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -49,11 +54,11 @@ public class RegisterReader {
                 int exchangeStatus = getWaveCard().getExchangeStatus();
                 collectedRegister.setCollectedData(new Quantity(exchangeStatus, Unit.get(BaseUnit.UNITLESS)), "");
             } else {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(obisCode, "Obiscode not supported by protocol", obisCode));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(obisCode, "Obiscode not supported by protocol", obisCode));
                 return collectedRegister;
             }
         } catch (WavenisParameterException e) {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(obisCode, "Parameter not supported by Wavecard: " + e.getMessage(), obisCode));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(obisCode, "Parameter not supported by Wavecard: " + e.getMessage(), obisCode));
             return collectedRegister;
         }
         collectedRegister.setReadTime(new Date());

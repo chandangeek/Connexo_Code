@@ -194,8 +194,7 @@ public class LoadProfileBuilder {
                         channelIntervalData = profileChannel.getProfileData().getIntervalDatas();
                         collectedIntervalData = mergeChannelIntervalData(collectedIntervalData, channelIntervalData);
                     } catch (IOException e) {   // A non-blocking issue occurred during readout of this loadProfile, but it is still possible to read out the other loadProfiles.
-                        Issue<LoadProfileReader> problem = MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e);
-                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
+                        collectedLoadProfile.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(lpr, "loadProfileXChannelYIssue", lpr.getProfileObisCode(), e));
                         collectedIntervalData.clear();
                         break;
                     }

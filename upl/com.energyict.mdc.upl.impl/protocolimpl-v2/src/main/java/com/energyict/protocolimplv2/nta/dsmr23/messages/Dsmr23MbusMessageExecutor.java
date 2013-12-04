@@ -94,7 +94,7 @@ public class Dsmr23MbusMessageExecutor extends AbstractNtaMessageExecutor {
                     collectedMessage = loadProfileRegisterRequest(pendingMessage);    //This message returns a result
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedIssue(pendingMessage));
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
                 }
             } catch (IOException e) {
                 if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {

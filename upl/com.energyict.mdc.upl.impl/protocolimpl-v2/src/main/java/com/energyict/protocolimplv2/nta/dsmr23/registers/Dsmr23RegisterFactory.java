@@ -135,10 +135,14 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                 }
             } catch (IOException e) {
                 if (IOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession())) {
-                    collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
+                    if (IOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                        collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));
+                    } else {
+                        collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible));
+                    }
                 }
             } catch (IndexOutOfBoundsException e) {
-                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.Other, e));
+                collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e));
             }
         }
         return collectedRegisters;
@@ -364,9 +368,9 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... arguments) {
         CollectedRegister collectedRegister = MdcManager.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
-        } else if (resultType == ResultType.NotSupported) {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXissue", register.getObisCode(), arguments));
+        } else {
+            collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode(), arguments));
         }
         return collectedRegister;
     }

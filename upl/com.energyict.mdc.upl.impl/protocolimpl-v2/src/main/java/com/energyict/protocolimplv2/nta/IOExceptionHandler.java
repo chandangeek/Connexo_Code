@@ -55,6 +55,20 @@ public class IOExceptionHandler {
         }
     }
 
+    /**
+     * Indicates if the exception is a {@link DataAccessResultException} describing an object is not supported by the device
+     */
+    public static boolean isNotSupportedDataAccessResultException(IOException e) {
+        if (e instanceof DataAccessResultException) {
+            switch (((DataAccessResultException) e).getCode()) {
+                case OBJECT_UNDEFINED:
+                case OBJECT_UNAVAILABLE:
+                    return true;
+            }
+        }
+        return false;
+    }
+
     private static ComServerExecutionException communicationException(IOException e, DlmsSession dlmsSession) {
         return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, dlmsSession.getProperties().getRetries() + 1);
     }

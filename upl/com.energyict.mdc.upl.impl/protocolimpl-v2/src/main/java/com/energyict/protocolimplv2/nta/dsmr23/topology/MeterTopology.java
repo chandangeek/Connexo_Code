@@ -212,7 +212,7 @@ public class MeterTopology {
     public CollectedTopology getDeviceTopology() {
         if (deviceTopology == null) {
             deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(new DeviceIdentifierBySerialNumber(protocol.getDlmsSession().getProperties().getSerialNumber()));
-            deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem("devicetopologynotsupported"));
+            deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning("devicetopologynotsupported"));
         }
         return deviceTopology;
     }

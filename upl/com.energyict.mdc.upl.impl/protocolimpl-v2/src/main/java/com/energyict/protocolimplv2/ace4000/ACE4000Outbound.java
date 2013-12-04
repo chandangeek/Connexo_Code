@@ -112,7 +112,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
             } else {                                                                                       //Slave device
                 CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(loadProfileReader.getProfileObisCode(), new DeviceIdentifierBySerialNumber(loadProfileReader.getMeterSerialNumber())));
-                collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem("MBus slave device doesn't support load profiles"));
+                collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning("MBus slave device doesn't support load profiles"));
                 result.add(collectedLoadProfile);
             }
         }
@@ -276,7 +276,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         } else {
             List<CollectedLogBook> result = new ArrayList<>();
             CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem("MBus slave device doesn't support events"));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning("MBus slave device doesn't support events"));
             result.add(deviceLogBook);
             return result;
         }

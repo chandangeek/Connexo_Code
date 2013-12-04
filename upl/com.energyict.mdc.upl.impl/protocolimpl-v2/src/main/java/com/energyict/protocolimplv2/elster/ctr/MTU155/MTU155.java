@@ -261,7 +261,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public CollectedTopology getDeviceTopology() {
         final CollectedTopology deviceTopology = MdcManager.getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(getOfflineDevice(), "devicetopologynotsupported"));
+        deviceTopology.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(getOfflineDevice(), "devicetopologynotsupported"));
         return deviceTopology;
     }
 

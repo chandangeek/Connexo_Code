@@ -90,8 +90,8 @@ public abstract class AbstractNtaMessageExecutor {
         return getMeterConfig().getMbusClient(getMbusAddress(serialNumber)).getObisCode();
     }
 
-    protected Issue createUnsupportedIssue(OfflineDeviceMessage pendingMessage) {
-        return MdcManager.getIssueCollector().addProblem(pendingMessage, "DeviceMessage.notSupported",
+    protected Issue createUnsupportedWarning(OfflineDeviceMessage pendingMessage) {
+        return MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());

@@ -180,7 +180,7 @@ public class Dsmr23MessageExecutor extends AbstractNtaMessageExecutor {
                     resetAlarmRegister();
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                    collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedIssue(pendingMessage));
+                    collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
                 }
             } catch (IOException e) {
                 if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {

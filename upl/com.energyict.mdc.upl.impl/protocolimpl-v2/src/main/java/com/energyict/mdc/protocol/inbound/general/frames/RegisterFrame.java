@@ -83,9 +83,9 @@ public class RegisterFrame extends AbstractInboundFrame {
         }
 
         if (this.getDevice() == null) {
-            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(deviceRegister, "protocol.rtunotfound", getInboundParameters().getSerialNumber()));
+            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(deviceRegister, "protocol.rtunotfound", getInboundParameters().getSerialNumber()));
         } else if (this.getDevice().getRegister(register.getObisCode()) == null) {
-            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addProblem(deviceRegister, "protocol.registernotfound", register.getObisCode(), getInboundParameters().getSerialNumber()));
+            deviceRegister.setFailureInformation(ResultType.ConfigurationMisMatch, MdcManager.getIssueCollector().addWarning(deviceRegister, "protocol.registernotfound", register.getObisCode(), getInboundParameters().getSerialNumber()));
         }
         return deviceRegister;
     }

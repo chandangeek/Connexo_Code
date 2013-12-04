@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.comserver.issues.ProblemImpl;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.DefaultDeviceRegister;
 import com.energyict.mdc.meterdata.ResultType;
@@ -10,6 +9,7 @@ import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.DeviceStatus;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.Diagnostics;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.info.EquipmentClassInfo;
@@ -353,15 +353,13 @@ public abstract class ObisCodeMapper {
 
     protected CollectedRegister createNotSupportedCollectedRegister(ObisCode obisCode) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode);
-        ProblemImpl<ObisCode> problem = new ProblemImpl<>(obisCode, "registerXnotsupported", obisCode);
-        failedRegister.setFailureInformation(ResultType.NotSupported, problem);
+        failedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(obisCode, "registerXnotsupported", obisCode));
         return failedRegister;
     }
 
     protected CollectedRegister createIncompatibleCollectedRegister(ObisCode obisCode, String message) {
         CollectedRegister failedRegister = createDeviceRegister(obisCode);
-        ProblemImpl<ObisCode> problem = new ProblemImpl<>(obisCode, "registerXincompatible", obisCode, message);
-        failedRegister.setFailureInformation(ResultType.InCompatible, problem);
+        failedRegister.setFailureInformation(ResultType.InCompatible, MdcManager.getIssueCollector().addWarning(obisCode, "registerXincompatible", obisCode, message));
         return failedRegister;
     }
 

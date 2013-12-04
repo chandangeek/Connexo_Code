@@ -16,7 +16,10 @@ import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.Dail
 import test.com.energyict.protocolimplv2.coronis.waveflow.core.radiocommand.ExtendedIndexReading;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class ObisCodeMapper implements DeviceRegisterSupport {
 
@@ -46,7 +49,7 @@ public class ObisCodeMapper implements DeviceRegisterSupport {
         if (isCurrentIndexReading(obisCode)) {
             int channel = obisCode.getB() - 1;
             if (channel > (waveFlow.getNumberOfChannels() - 1)) {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(this, "Channel " + channel + " does not exist."));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "Channel " + channel + " does not exist."));
             } else {
                 PulseWeight pulseWeight = waveFlow.getPulseWeight(channel);
                 BigDecimal currentIndexValue = new BigDecimal(pulseWeight.getWeight() * waveFlow.getRadioCommandFactory().readCurrentReading().getReadings()[channel]);
@@ -57,11 +60,11 @@ public class ObisCodeMapper implements DeviceRegisterSupport {
             PulseWeight pulseWeight = waveFlow.getPulseWeight(channel);
             ExtendedIndexReading extendedIndexReadingConfiguration = waveFlow.getRadioCommandFactory().readExtendedIndexConfiguration();
             if (channel > (waveFlow.getNumberOfChannels() - 1)) {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(this, "No billing data available for this channel"));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "No billing data available for this channel"));
             } else {
                 int value = extendedIndexReadingConfiguration.getIndexOfLastMonth(channel);
                 if (value == -1) {
-                    collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(this, "No monthly billing data available yet"));
+                    collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "No monthly billing data available yet"));
                 } else {
                     BigDecimal lastMonthsIndexValue = new BigDecimal(pulseWeight.getWeight() * value);
                     Date toDate = extendedIndexReadingConfiguration.getDateOfLastMonthsEnd();
@@ -80,7 +83,7 @@ public class ObisCodeMapper implements DeviceRegisterSupport {
             DailyConsumption consumption = waveFlow.getRadioCommandFactory().readDailyConsumption();
             int value = consumption.getIndexZone().getDailyIndexOnPort(channel);
             if (value == -1) {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(this, "No daily billing data available yet"));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "No daily billing data available yet"));
             }
             BigDecimal lastMonthsIndexValue = new BigDecimal(pulseWeight.getWeight() * value);
             Date toDate = consumption.getIndexZone().getLastDailyLoggedIndex();
@@ -95,14 +98,14 @@ public class ObisCodeMapper implements DeviceRegisterSupport {
                 int status = waveFlow.getParameterFactory().readValveApplicationStatus();
                 collectedRegister.setCollectedData(new Quantity(status, Unit.get("")));
             } else {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(this, "Module doesn't have valve support"));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "Module doesn't have valve support"));
             }
         } else if (obisCode.equals(ObisCode.fromString("0.0.96.5.5.255"))) {
             if (waveFlow.getParameterFactory().readProfileType().supportsWaterValveControl()) {
                 int status = waveFlow.getRadioCommandFactory().readValveStatus();
                 collectedRegister.setCollectedData(new Quantity(status, Unit.get("")), ((status & 0x02) == 0x02) ? "Valve is closed" : "Valve is open");
             } else {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(this, "Module doesn't have valve support"));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(this, "Module doesn't have valve support"));
             }
         } else {
             collectedRegister = waveFlow.getCommonObisCodeMapper().getRegisterValue(obisCode);

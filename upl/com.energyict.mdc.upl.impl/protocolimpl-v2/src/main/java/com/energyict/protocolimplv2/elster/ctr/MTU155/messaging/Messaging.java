@@ -99,7 +99,7 @@ public class Messaging implements DeviceMessageSupport {
             }
             if (!messageFound) {
                 collectedMessage = createCollectedMessage(pendingMessage);
-                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addProblem(pendingMessage, "DeviceMessage.notSupported",
+                collectedMessage.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueCollector().addWarning(pendingMessage, "DeviceMessage.notSupported",
                         pendingMessage.getDeviceMessageId(),
                         pendingMessage.getSpecification().getCategory().getName(),
                         pendingMessage.getSpecification().getName()));
