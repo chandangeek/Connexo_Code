@@ -11,7 +11,7 @@ import org.osgi.framework.BundleContext;
 
 import java.util.Dictionary;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
