@@ -20,7 +20,6 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 public abstract class ComServerInfo<S extends ComServerShadow> {
 
     public int id;
-//    public String comServerType;
     public String name;
     public boolean active;
     public ComServer.LogLevel serverLogLevel;
@@ -33,12 +32,12 @@ public abstract class ComServerInfo<S extends ComServerShadow> {
     public String queryAPIUsername;
     public String queryAPIPassword;
     public String queryAPIPostUri;
-    public Boolean usesDefaultQueryAPIPostUri;
+    public boolean usesDefaultQueryAPIPostUri;
     public String eventRegistrationUri;
-    public Boolean usesDefaultEventRegistrationUri;
-    public Integer storeTaskQueueSize;
-    public Integer numberOfStoreTaskThreads;
-    public Integer storeTaskThreadPriority;
+    public boolean usesDefaultEventRegistrationUri;
+    public int storeTaskQueueSize;
+    public int numberOfStoreTaskThreads;
+    public int storeTaskThreadPriority;
 
     public ComServerInfo() {
     }

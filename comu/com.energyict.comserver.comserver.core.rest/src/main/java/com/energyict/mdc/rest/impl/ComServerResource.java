@@ -1,9 +1,11 @@
 package com.energyict.mdc.rest.impl;
 
+import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
+import java.sql.SQLException;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -89,12 +91,25 @@ public class ComServerResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ComServerInfo updateComServer(@PathParam("id") int id, ComServerInfo<ComServerShadow> comServerInfo) {
         try {
+            if (comServerInfo.inboundComPorts==null) {
+                throw new WebApplicationException("ComServer is missing list of inbound ComPorts",
+                        Response.status(Response.Status.BAD_REQUEST).build());
+            }
+            if (comServerInfo.outboundComPorts==null) {
+                throw new WebApplicationException("ComServer is missing list of outbound ComPorts",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+            }
+
             ComServer<ComServerShadow> comServer = (ComServer<ComServerShadow>) comServerService.find(id);
+            if (comServer == null) {
+                throw new WebApplicationException("No ComServer with id "+id,
+                    Response.status(Response.Status.NOT_FOUND).build());
+            }
 
             ComServerShadow comServerShadow = comServerInfo.writeToShadow(comServer.getShadow());
             comServer.update(comServerShadow);
             return ComServerInfoFactory.asInfo(comServer);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException | SQLException | BusinessException e) {
             throw new WebApplicationException(e, Response.serverError().build());
         }
     }

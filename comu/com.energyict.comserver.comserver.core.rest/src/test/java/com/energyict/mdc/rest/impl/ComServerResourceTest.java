@@ -105,16 +105,14 @@ public class ComServerResourceTest extends JerseyTest {
         assertThat(schedulingInterPollDelay).hasSize(2)
                 .contains(MapEntry.entry("count", 7))
                 .contains(MapEntry.entry("timeUnit", "minutes"));
-        System.out.println(response);
     }
 
     @Test
-    public void testObjectMapper() throws Exception {
+    public void testObjectMapperSerializesTypeInformation() throws Exception {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new";
         ObjectMapper objectMapper = new ObjectMapper();
         String response = objectMapper.writeValueAsString(onlineComServerInfo);
-        System.out.println(response);
         assertThat(response).contains("\"comServerType\":\"Online\"");
     }
 
@@ -130,13 +128,77 @@ public class ComServerResourceTest extends JerseyTest {
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
+        onlineComServerInfo.eventRegistrationUri="/new/uri";
+        onlineComServerInfo.schedulingInterPollDelay=new TimeDurationInfo();
+        onlineComServerInfo.schedulingInterPollDelay.timeUnit="seconds";
+        onlineComServerInfo.schedulingInterPollDelay.count=6;
+        onlineComServerInfo.communicationLogLevel= ComServer.LogLevel.ERROR;
+        onlineComServerInfo.serverLogLevel= ComServer.LogLevel.DEBUG;
         onlineComServerInfo.inboundComPorts= new ArrayList<>();
         onlineComServerInfo.outboundComPorts= new ArrayList<>();
+        onlineComServerInfo.storeTaskQueueSize= 7;
+        onlineComServerInfo.storeTaskThreadPriority= 8;
+        onlineComServerInfo.numberOfStoreTaskThreads= 9;
+        onlineComServerInfo.queryAPIUsername= "user name"; // UNUSED
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/3").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         ArgumentCaptor<OnlineComServerShadow> onlineComServerShadowArgumentCaptor = ArgumentCaptor.forClass(OnlineComServerShadow.class);
         verify(serverSideComServer).update(onlineComServerShadowArgumentCaptor.capture());
-        assertThat(onlineComServerShadowArgumentCaptor.getValue().getName()).isEqualTo("new name");
+        OnlineComServerShadow updatingValue = onlineComServerShadowArgumentCaptor.getValue();
+        assertThat(updatingValue.getName()).isEqualTo("new name");
+        assertThat(updatingValue.getEventRegistrationUri()).isEqualTo("/new/uri");
+        assertThat(updatingValue.isUsesDefaultEventRegistrationUri()).isEqualTo(false);
+        assertThat(updatingValue.getSchedulingInterPollDelay()).isEqualTo(new TimeDuration(6));
+        assertThat(updatingValue.getCommunicationLogLevel()).isEqualTo(ComServer.LogLevel.ERROR);
+        assertThat(updatingValue.getServerLogLevel()).isEqualTo(ComServer.LogLevel.DEBUG);
+        assertThat(updatingValue.getStoreTaskQueueSize()).isEqualTo(7);
+        assertThat(updatingValue.getStoreTaskThreadPriority()).isEqualTo(8);
+        assertThat(updatingValue.getNumberOfStoreTaskThreads()).isEqualTo(9);
+    }
+
+    @Test
+    public void testCanNotUpdateComServerWithoutInboundComPorts() throws Exception {
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        onlineComServerInfo.inboundComPorts= null;
+        onlineComServerInfo.outboundComPorts= new ArrayList<>();
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+        final Response response = target("/comservers/4").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testCanNotUpdateComServerWithoutOutboundComPorts() throws Exception {
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        onlineComServerInfo.inboundComPorts= new ArrayList<>();
+        onlineComServerInfo.outboundComPorts= null;
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+        final Response response = target("/comservers/5").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testCanNotUpdateNonExistingComServer() throws Exception {
+        int comServer_id = 5;
+
+        ComServer serverSideComServer = mock(OnlineComServer.class);
+        OnlineComServerShadow onlineComServerShadow = new OnlineComServerShadow();
+        onlineComServerShadow.setId(comServer_id);
+        when(serverSideComServer.getShadow()).thenReturn(onlineComServerShadow);
+        when(comServerService.find(comServer_id)).thenReturn(serverSideComServer);
+
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        onlineComServerInfo.inboundComPorts= new ArrayList<>();
+        onlineComServerInfo.outboundComPorts= new ArrayList<>();
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+        final Response response = target("/comservers/3").request().put(json); //5 was mocked, there is no ComServer 3
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 }

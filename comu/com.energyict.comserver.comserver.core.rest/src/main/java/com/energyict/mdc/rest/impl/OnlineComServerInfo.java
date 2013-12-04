@@ -10,13 +10,6 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
 @XmlRootElement
 @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property="comServerType")
 public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComServerShadow> {
-    public String queryAPIPostUri;
-    public boolean usesDefaultQueryAPIPostUri;
-    public String eventRegistrationUri;
-    public boolean usesDefaultEventRegistrationUri;
-    public int storeTaskQueueSize;
-    public int numberOfStoreTaskThreads;
-    public int storeTaskThreadPriority;
 
     public OnlineComServerInfo() {
     }
@@ -55,6 +48,7 @@ public class OnlineComServerInfo extends InboundOutboundComServerInfo<OnlineComS
         comServerShadow.setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
         comServerShadow.setStoreTaskQueueSize(storeTaskQueueSize);
         comServerShadow.setStoreTaskThreadPriority(storeTaskThreadPriority);
+        comServerShadow.setNumberOfStoreTaskThreads(numberOfStoreTaskThreads);
 
         updateInboundComPorts(comServerShadow);
         updateOutboundComPorts(comServerShadow);
