@@ -20,7 +20,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -100,45 +101,42 @@ public class MessageServiceImplTest {
     public void testGetQueueTableSpec() {
         when(queueTableSpecFactory.get(QTS)).thenReturn(Optional.of(queueTableSpec));
 
-        assertThat(messageService.getQueueTableSpec(QTS).isPresent()).isTrue();
-        assertThat(messageService.getQueueTableSpec(QTS).get()).isEqualTo(queueTableSpec);
+        assertThat(messageService.getQueueTableSpec(QTS)).contains(queueTableSpec);
     }
 
     @Test
     public void testGetQueueTableSpecNotExists() {
         when(queueTableSpecFactory.get(QTS)).thenReturn(Optional.<QueueTableSpec>absent());
 
-        assertThat(messageService.getQueueTableSpec(QTS).isPresent()).isFalse();
+        assertThat(messageService.getQueueTableSpec(QTS)).isAbsent();
     }
 
     @Test
     public void testGetDestinationSpec() {
         when(destinationSpecFactory.get(DESTINATION)).thenReturn(Optional.of(destination));
 
-        assertThat(messageService.getDestinationSpec(DESTINATION).isPresent()).isTrue();
-        assertThat(messageService.getDestinationSpec(DESTINATION).get()).isEqualTo(destination);
+        assertThat(messageService.getDestinationSpec(DESTINATION)).contains(destination);
     }
 
     @Test
     public void testGetDestinationSpecNotExists() {
         when(destinationSpecFactory.get(DESTINATION)).thenReturn(Optional.<DestinationSpec>absent());
 
-        assertThat(messageService.getDestinationSpec(DESTINATION).isPresent()).isFalse();
+        assertThat(messageService.getDestinationSpec(DESTINATION)).isAbsent();
     }
 
     @Test
     public void testGetSubscriberSpec() {
         when(subscriberSpecFactory.get(DESTINATION, SUBSCRIBER)).thenReturn(Optional.of(subscriberSpec));
 
-        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).isPresent()).isTrue();
-        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).get()).isEqualTo(subscriberSpec);
+        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER)).contains(subscriberSpec);
     }
 
     @Test
     public void testGetSubscriberSpecNotExists() {
         when(subscriberSpecFactory.get(DESTINATION, SUBSCRIBER)).thenReturn(Optional.<SubscriberSpec>absent());
 
-        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER).isPresent()).isFalse();
+        assertThat(messageService.getSubscriberSpec(DESTINATION, SUBSCRIBER)).isAbsent();
     }
 
 }
