@@ -1,12 +1,10 @@
 package com.energyict.mdc.rest.impl.filter;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class Filter {
     public static final String PROPERTY = "property";
@@ -19,14 +17,8 @@ public class Filter {
                 JSONObject object = filterArray.getJSONObject(i);
                 filterProperties.put(object.getString(PROPERTY), object.getString(VALUE));
             } catch (JSONException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
-        }
-    }
-
-    public Filter(List<FilteredField> filter) {
-        for (FilteredField filteredField : filter) {
-            filterProperties.put(filteredField.property, filteredField.value);
         }
     }
 

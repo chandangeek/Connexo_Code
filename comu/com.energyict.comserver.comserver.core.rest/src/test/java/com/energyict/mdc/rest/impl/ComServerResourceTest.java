@@ -5,6 +5,7 @@ import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +54,8 @@ public class ComServerResourceTest extends JerseyTest {
 
     @Override
     protected void configureClient(ClientConfig config) {
-
-//        config.register(JacksonJsonProvider.class);
-//        config.register(JsonPojoMapperProvider.class);
+        config.register(JacksonJsonProvider.class);
+        config.register(JsonPojoMapperProvider.class);
         super.configureClient(config);
     }
 
