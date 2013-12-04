@@ -61,7 +61,19 @@ public class ComServerResourceTest extends JerseyTest {
     }
 
     @Test
-    public void guardGetComServersJavaScriptMappings() {
+    public void testGetNonExistingComServer() throws Exception {
+        final Response response = target("/comservers/8").request().get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void testGetComPortsForNonExistingComServer() throws Exception {
+        final Response response = target("/comservers/8/comports").request().get(Response.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void testGetExistingComServerJSStyle() {
         OnlineComServer mock = mock(OnlineComServer.class);
         List<ComServer<? extends ComServerShadow>> comServers = new ArrayList<>();
         comServers.add(mock);
@@ -78,7 +90,7 @@ public class ComServerResourceTest extends JerseyTest {
         when(mock.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(mock.getSchedulingInterPollDelay()).thenReturn(new TimeDuration("7 minutes"));
 
-        final Map<String, Object> response = target("/comservers").request().get(Map.class);
+        final Map<String, Object> response = target("/comservers").request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).describedAs("Should contain field 'comServers'").containsKey("comServers").hasSize(1);
         List<Map<String, Object>> comServers1 = (List<Map<String, Object>>) response.get("comServers");
         assertThat(comServers1).describedAs("Expected only 1 comServer").hasSize(1);
@@ -94,8 +106,7 @@ public class ComServerResourceTest extends JerseyTest {
                 .containsKey("changesInterPollDelay")
                 .containsKey("schedulingInterPollDelay")
                 .contains(MapEntry.entry("communicationLogLevel", "ERROR"))
-                .contains(MapEntry.entry("serverLogLevel", "INFO"))
-                ;
+                .contains(MapEntry.entry("serverLogLevel", "INFO"));
 
         Map<String, Object> changesInterPollDelay = (Map<String, Object>) comServer1.get("changesInterPollDelay");
         assertThat(changesInterPollDelay).hasSize(2)
