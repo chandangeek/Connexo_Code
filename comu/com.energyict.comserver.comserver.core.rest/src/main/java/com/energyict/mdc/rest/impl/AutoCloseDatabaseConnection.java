@@ -9,7 +9,7 @@ import org.glassfish.jersey.server.monitoring.RequestEventListener;
 /**
  * This listener automatically closes DB connection after EVERY REST call
  */
-public class AutoCloseDatabaseEventListener implements ApplicationEventListener {
+public class AutoCloseDatabaseConnection implements ApplicationEventListener {
 
     @Override
     public void onEvent(ApplicationEvent event) {
