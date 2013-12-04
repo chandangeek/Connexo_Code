@@ -13,7 +13,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.jms.JMSException;
 import java.sql.SQLException;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueueTableSpecImplTest {
