@@ -27,7 +27,8 @@ import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -94,8 +95,7 @@ public class FileImportServiceImplTest {
 
     @Test
     public void testGetImportSchedule() {
-        assertThat(fileImportService.getImportSchedule(15L).isPresent()).isTrue();
-        assertThat(fileImportService.getImportSchedule(15L).get()).isEqualTo(importSchedule);
+        assertThat(fileImportService.getImportSchedule(15L)).contains(importSchedule);
     }
 
     @Test
