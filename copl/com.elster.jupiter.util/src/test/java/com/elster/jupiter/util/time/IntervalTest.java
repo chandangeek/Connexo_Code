@@ -3,7 +3,7 @@ package com.elster.jupiter.util.time;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 
 import com.google.common.collect.ImmutableList;
-import org.fest.assertions.api.BooleanAssert;
+import org.assertj.core.api.BooleanAssert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -13,7 +13,7 @@ import java.util.Date;
 
 import static com.elster.jupiter.util.time.Interval.EndpointBehavior.*;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)

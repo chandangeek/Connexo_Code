@@ -5,7 +5,7 @@ import org.osgi.service.log.LogService;
 
 import java.util.logging.Level;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OsgiLogLevelMapperTest {
 
