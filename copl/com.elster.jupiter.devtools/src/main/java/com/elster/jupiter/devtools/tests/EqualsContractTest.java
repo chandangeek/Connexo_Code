@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests the contract for equals() and hashCode() on classes that override them.

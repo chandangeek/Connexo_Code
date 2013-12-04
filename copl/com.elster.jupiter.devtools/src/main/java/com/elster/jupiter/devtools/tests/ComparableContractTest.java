@@ -8,7 +8,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class ComparableContractTest<T extends Comparable<? super T>> {
 
