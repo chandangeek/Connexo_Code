@@ -14,7 +14,7 @@ import org.junit.Test;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
