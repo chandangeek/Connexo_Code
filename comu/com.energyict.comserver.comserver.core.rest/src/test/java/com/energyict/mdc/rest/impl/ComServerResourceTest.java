@@ -5,7 +5,6 @@ import com.energyict.mdc.servers.ComServer;
 import com.energyict.mdc.servers.OnlineComServer;
 import com.energyict.mdc.services.ComServerService;
 import com.energyict.mdc.shadow.servers.ComServerShadow;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,11 +15,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.fest.assertions.data.MapEntry;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -43,6 +42,7 @@ public class ComServerResourceTest extends JerseyTest {
         enable("com.sun.jersey.api.json.POJOMappingFeature");
         enable("POJOMappingFeature");
         ResourceConfig resourceConfig = new ResourceConfig(ComServerResource.class);
+        resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
@@ -54,8 +54,8 @@ public class ComServerResourceTest extends JerseyTest {
 
     @Override
     protected void configureClient(ClientConfig config) {
-        config.register(JacksonJsonProvider.class);
-        config.register(JsonPojoMapperProvider.class);
+        config.register(JacksonFeature.class); // client side JSON processing
+
         super.configureClient(config);
     }
 
@@ -118,7 +118,6 @@ public class ComServerResourceTest extends JerseyTest {
     }
 
     @Test
-    @Ignore
     public void testPutComServer() throws Exception {
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);

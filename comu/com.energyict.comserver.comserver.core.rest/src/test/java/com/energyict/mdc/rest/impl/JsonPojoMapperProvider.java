@@ -1,11 +1,10 @@
 package com.energyict.mdc.rest.impl;
 
 import javax.ws.rs.ext.ContextResolver;
-import javax.ws.rs.ext.Provider;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 
-@Provider
+//@Provider
 public class JsonPojoMapperProvider implements ContextResolver<ObjectMapper>{
 
     final ObjectMapper pojoMapper;
