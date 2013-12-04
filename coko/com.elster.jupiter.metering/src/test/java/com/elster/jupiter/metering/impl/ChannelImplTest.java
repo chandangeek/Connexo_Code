@@ -29,7 +29,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.verify;
@@ -161,7 +162,7 @@ public class ChannelImplTest extends EqualsContractTest {
         assertThat(channel.getReadingTypes()).hasSize(2)
                 .contains(readingType1)
                 .contains(readingType2);
-        assertThat(channel.getIntervalLength().isPresent()).isFalse();
+        assertThat(channel.getIntervalLength()).isAbsent();
         assertThat(channel.getTimeSeries()).isEqualTo(timeSeries);
     }
 
@@ -199,7 +200,7 @@ public class ChannelImplTest extends EqualsContractTest {
                 .contains(readingType1)
                 .contains(readingType2)
                 .contains(readingType4);
-        assertThat(channel.getIntervalLength().isPresent()).isFalse();
+        assertThat(channel.getIntervalLength()).isAbsent();
         assertThat(channel.getTimeSeries()).isEqualTo(timeSeries);
     }
 

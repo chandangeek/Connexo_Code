@@ -17,7 +17,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.*;
 
@@ -67,14 +68,12 @@ public class MeterActivationImplTest {
 
     @Test
     public void testCreationRemembersUsagePoint() {
-        assertThat(meterActivation.getUsagePoint().isPresent()).isTrue();
-        assertThat(meterActivation.getUsagePoint().get()).isEqualTo(usagePoint);
+        assertThat(meterActivation.getUsagePoint()).contains(usagePoint);
     }
 
     @Test
     public void testCreationRemembersMeter() {
-        assertThat(meterActivation.getMeter().isPresent()).isTrue();
-        assertThat(meterActivation.getMeter().get()).isEqualTo(meter);
+        assertThat(meterActivation.getMeter()).contains(meter);
     }
 
     @Test

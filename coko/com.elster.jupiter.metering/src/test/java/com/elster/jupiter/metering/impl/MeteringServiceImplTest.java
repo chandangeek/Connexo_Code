@@ -26,7 +26,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -93,8 +94,7 @@ public class MeteringServiceImplTest {
         String mrID = "mrID";
         when(readingTypeCache.get(mrID)).thenReturn(Optional.of(readingType));
 
-        assertThat(meteringService.getReadingType(mrID).isPresent()).isTrue();
-        assertThat(meteringService.getReadingType(mrID).get()).isEqualTo(readingType);
+        assertThat(meteringService.getReadingType(mrID)).contains(readingType);
     }
 
     @Test
@@ -109,8 +109,7 @@ public class MeteringServiceImplTest {
         String mrID = "mrID";
         when(serviceLocationFactory.getUnique("mRID", mrID)).thenReturn(Optional.of(serviceLocation));
 
-        assertThat(meteringService.findServiceLocation(mrID).isPresent()).isTrue();
-        assertThat(meteringService.findServiceLocation(mrID).get()).isEqualTo(serviceLocation);
+        assertThat(meteringService.findServiceLocation(mrID)).contains(serviceLocation);
     }
 
     @Test
@@ -118,16 +117,14 @@ public class MeteringServiceImplTest {
         long id = 156L;
         when(serviceLocationFactory.get(id)).thenReturn(Optional.of(serviceLocation));
 
-        assertThat(meteringService.findServiceLocation(id).isPresent()).isTrue();
-        assertThat(meteringService.findServiceLocation(id).get()).isEqualTo(serviceLocation);
+        assertThat(meteringService.findServiceLocation(id)).contains(serviceLocation);
     }
 
     @Test
     public void testGetServiceCategory() {
         when(serviceCategoryTypeCache.get(ServiceKind.GAS)).thenReturn(Optional.of(serviceCategory));
 
-        assertThat(meteringService.getServiceCategory(ServiceKind.GAS).isPresent()).isTrue();
-        assertThat(meteringService.getServiceCategory(ServiceKind.GAS).get()).isEqualTo(serviceCategory);
+        assertThat(meteringService.getServiceCategory(ServiceKind.GAS)).contains(serviceCategory);
     }
 
     @Test

@@ -29,7 +29,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.*;
 
@@ -327,8 +328,8 @@ public class UsagePointImplTest {
 
         verify(meterActivationFactory).persist(meterActivation);
 
-        assertThat(meterActivation.getUsagePoint().isPresent()).isTrue();
-        assertThat(meterActivation.getUsagePoint().get()).isEqualTo(usagePoint);
+        assertThat(meterActivation.getUsagePoint()).isPresent();
+        assertThat(meterActivation.getUsagePoint()).contains(usagePoint);
     }
 
     @Test
@@ -348,8 +349,7 @@ public class UsagePointImplTest {
         when(acc2.isCurrent()).thenReturn(true);
         when(acc2.getParty()).thenReturn(party);
 
-        assertThat(usagePoint.getResponsibleParty(role).isPresent()).isTrue();
-        assertThat(usagePoint.getResponsibleParty(role).get()).isEqualTo(party);
+        assertThat(usagePoint.getResponsibleParty(role)).contains(party);
     }
 
     @Test
@@ -361,8 +361,7 @@ public class UsagePointImplTest {
         when(acc2.isCurrent()).thenReturn(true);
         when(acc2.getParty()).thenReturn(party);
 
-        assertThat(usagePoint.getResponsibleParty(role).isPresent()).isTrue();
-        assertThat(usagePoint.getResponsibleParty(role).get()).isEqualTo(party);
+        assertThat(usagePoint.getResponsibleParty(role)).contains(party);
     }
 
     @Test

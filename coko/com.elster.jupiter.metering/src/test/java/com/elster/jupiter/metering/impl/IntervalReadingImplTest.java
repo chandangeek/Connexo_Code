@@ -4,7 +4,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.Channel;
 import org.junit.Test;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
