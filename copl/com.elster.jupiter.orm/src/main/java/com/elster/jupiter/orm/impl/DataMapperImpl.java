@@ -148,7 +148,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
 			}
 		}
         if (builder.length() == 0) {
-            builder.append('a');
+            builder.append('X');
         }
         String result = builder.toString().toUpperCase();
         if (Arrays.binarySearch(RESERVED_WORDS,result) >= 0) {
