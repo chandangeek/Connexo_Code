@@ -4,6 +4,13 @@ public final class RationalNumber {
 	private final long numerator;
 	private final long denominator;
 	
+	public static final RationalNumber NOTAPPLICABLE = new RationalNumber(); 
+	
+	private RationalNumber() {
+		this.numerator = 0;
+		this.denominator = 0;
+	}
+	
 	public RationalNumber(long numerator,long denominator) {
 		if (denominator == 0) {
 			throw new IllegalArgumentException("Denominator cannot be 0");

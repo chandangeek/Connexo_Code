@@ -14,7 +14,7 @@ public class ReadingTypeUnitTest {
     @Test
     public void testCimCode() {
         for (ReadingTypeUnit each : ReadingTypeUnit.values()) {
-            assertThat(each == ReadingTypeUnit.get(each.getCimCode()));
+            assertThat(each == ReadingTypeUnit.get(each.getId()));
         }
     }
     

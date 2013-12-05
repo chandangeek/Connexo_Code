@@ -130,11 +130,11 @@ public enum ReadingTypeUnit {
 	CUBICMETERCOMPENSATED(166,Unit.CUBIC_METER_COMPENSATED),
 	THERM(169,Unit.THERM);
 	
-	private final int cimCode;
+	private final int id;
 	private final Unit unit;
 	
-	private ReadingTypeUnit(int cimCode , Unit unit) {
-		this.cimCode = cimCode;
+	private ReadingTypeUnit(int id , Unit unit) {
+		this.id = id;
 		this.unit = unit;
 	}
 	
@@ -146,8 +146,8 @@ public enum ReadingTypeUnit {
 		return unit.getSymbol();
 	}
 	
-	public int getCimCode() {
-		return cimCode;		
+	public int getId() {
+		return id;		
 	}
 	
 	@Override
@@ -156,12 +156,12 @@ public enum ReadingTypeUnit {
 	}
 	
 	public boolean isApplicable() {
-		return cimCode != 0;
+		return id != 0;
 	}
 	
 	public static ReadingTypeUnit get(int id) {
 		for (ReadingTypeUnit each : values()) {
-			if (each.cimCode == id) {
+			if (each.id == id) {
 				return each;
 			}
 		}
