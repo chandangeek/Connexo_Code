@@ -40,4 +40,15 @@ public class ClockServiceImpl implements ServiceLocator, Clock {
     public Date now() {
         return clock.now();
     }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addResource(Clock clock) {
+        if (!(clock instanceof ClockServiceImpl)) {
+            this.clock = clock;
+        }
+    }
+
+    public void removeResource(Clock clock) {
+        this.clock = new DefaultClock();
+    }
 }
