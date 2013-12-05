@@ -69,6 +69,23 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		setTransientFields();
 	}
 	
+	static Currency getCurrency(int isoCode) {
+		if (isoCode == 0) {
+			isoCode = 999;
+		} 
+		for (Currency each : Currency.getAvailableCurrencies()) {
+			if (each.getNumericCode() == isoCode) {
+				return each;
+			}
+		}
+		throw new IllegalArgumentException("Invalid currency code " + isoCode);		
+	}
+	
+	static int getCurrencyId(Currency currency) {
+		int result = currency.getNumericCode();
+		return result == 999 ? 0 : result;
+	}
+	
 	@Override 
 	public void postLoad() {
 		setTransientFields();
@@ -107,15 +124,6 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		currency = getCurrency(parse(parts[CURRENCY]));
 	}
 		
-	
-	private Currency getCurrency(int numericCode) {
-		for (Currency each : Currency.getAvailableCurrencies()) {
-			if (each.getNumericCode() == numericCode) {
-				return each;
-			}
-		}
-		throw new IllegalArgumentException("Invalid currency code " + numericCode);
-	}
 	private int parse(String intString) {
 		return Integer.parseInt(intString);
 	}
@@ -124,7 +132,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		int numerator = parse(parts[numeratorOffset]);
 		int denominator = parse(parts[denominatorOffset]);
 		if (numerator == 0 && denominator == 0) {
-			return null;
+			return RationalNumber.NOTAPPLICABLE;
 		} else {
 			return new RationalNumber(numerator, denominator);
 		}
@@ -168,13 +176,13 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 			builder.append(measurementKind.getDescription());
 			connector = " ";
 		}
-		if (interharmonic != null) {
+		if (interharmonic.getDenominator() != 0) {
 			builder.append(connector);
 			builder.append("Interharmonic: ");
 			builder.append(interharmonic);
 			connector = " ";
 		}
-		if (argument != null) {
+		if (argument.getDenominator() != 0) {
 			builder.append(connector);
 			builder.append("Argument: ");
 			builder.append(argument);
@@ -209,7 +217,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 			builder.append(unit.getSymbol());
 			builder.append(")");
 		}
-		if (currency != null) {
+		if (getCurrencyId(currency) != 0) {
 			builder.append(" (");
 			builder.append(currency.getCurrencyCode());
 			builder.append(")");	

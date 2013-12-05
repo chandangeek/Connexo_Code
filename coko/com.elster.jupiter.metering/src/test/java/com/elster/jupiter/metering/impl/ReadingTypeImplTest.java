@@ -1,7 +1,10 @@
 package com.elster.jupiter.metering.impl;
 
+import java.util.Currency;
+
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.google.common.collect.ImmutableList;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,4 +68,10 @@ public class ReadingTypeImplTest extends EqualsContractTest {
         assertThat(readingType.isCumulativeReadingType(new ReadingTypeImpl(MRID2, "2"))).isTrue();
     }
 
+    @Test
+    public void testCurrency() {
+    	assertThat(ReadingTypeImpl.getCurrency(0)).isEqualTo(Currency.getInstance("XXX"));
+    	assertThat(ReadingTypeImpl.getCurrency(999)).isEqualTo(Currency.getInstance("XXX"));
+    	assertThat(ReadingTypeImpl.getCurrency(978)).isEqualTo(Currency.getInstance("EUR"));
+    }
 }

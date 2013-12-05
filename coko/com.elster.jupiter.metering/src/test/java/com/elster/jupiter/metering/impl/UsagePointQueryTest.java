@@ -113,24 +113,19 @@ public class UsagePointQueryTest {
 
         getTransactionService().execute(new VoidTransaction() {
             @Override
-            protected void doPerform() {
-                Date date = new DateMidnight(2001, 1, 1).toDate();
-                doTest(getMeteringService(), date);
+            protected void doPerform() {                
+                doTest(injector.getInstance(MeteringService.class));
 
             }
         });
 
     }
 
-    private MeteringService getMeteringService() {
-        return injector.getInstance(MeteringService.class);
-    }
-
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
 
-    private void doTest(MeteringService meteringService, Date date) {
+    private void doTest(MeteringService meteringService) {
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
         ServiceLocation location = meteringService.newServiceLocation();
         StreetAddress address = new StreetAddress(new StreetDetail("Stasegemsesteenweg","112"), new TownDetail("8500",  "Kortrijk", "BE"));
@@ -147,6 +142,12 @@ public class UsagePointQueryTest {
         assertThat(query.select(condition)).hasSize(1);
         query.setEager();
         assertThat(query.select(condition)).hasSize(1);
+        for (int i = 0 ; i < 10 ; i++) {
+        	usagePoint = serviceCategory.newUsagePoint("mrID" + i);
+        	usagePoint.save();
+        }
+        assertThat(query.select(Condition.TRUE)).hasSize(11);
+        assertThat(query.select(Condition.TRUE,1,5)).hasSize(5);
      }
 
 }
